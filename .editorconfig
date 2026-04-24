@@ -1,0 +1,31 @@
+# EditorConfig — enforce consistent formatting across editors
+# https://editorconfig.org
+
+root = true
+
+[*]
+indent_style = tab
+indent_size = 4
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{h,hpp,cpp,c}]
+indent_style = space
+indent_size = 2
+
+[*.{cs}]
+indent_style = tab
+indent_size = 4
+
+[*.{md,json}]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+
+[*.sh]
+end_of_line = lf
+
+[Makefile]
+indent_style = tab

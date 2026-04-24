@@ -138,6 +138,8 @@ Blueprints.
 
 ```
 demo-ue-5.7/
+├── .editorconfig                      # Editor formatting rules
+├── .gitattributes                     # Line ending normalization
 ├── DemoProject.uproject
 ├── Source/
 │   ├── DemoProject.Target.cs          # Game target (V6, UE 5.7)
@@ -146,10 +148,13 @@ demo-ue-5.7/
 │       ├── DemoProject.Build.cs
 │       ├── DemoProject.h / .cpp       # Module boilerplate
 │       ├── SDKTestActor.h / .cpp      # SDK integration test actor
+│       ├── Blueprints/
+│       │   └── GenericStateBlueprintLibrary.h/.cpp  # JSON state BP helpers
 │       ├── Bot/
-│       │   ├── BotOrchestrator.h/.cpp # Multi-bot manager
+│       │   ├── BotOrchestrator.h/.cpp # Multi-bot manager (FOrchestratorStore)
 │       │   └── Factories/
-│       │       └── BotFactory.h       # Closure-based state store
+│       │       ├── BotFactory.h       # Closure-based bot state store
+│       │       └── OrchestratorStoreFactory.h  # Closure-based registry store
 │       ├── Core/
 │       │   └── functional_core.hpp    # Demo FP primitives
 │       ├── Dialogue/
@@ -162,14 +167,16 @@ demo-ue-5.7/
 │       │   ├── Actions.h              # Action variant (6 types)
 │       │   ├── BotState.h             # Bot state struct
 │       │   └── Reducers.h            # Pure reducer (visitor pattern)
-│       └── Tests/
-│           ├── BDD_Demo.spec.cpp             # Sanity check
-│           ├── BotFunctionalCore.spec.cpp    # 7 state/reducer tests
-│           ├── BotOrchestrator.spec.cpp      # Registration test
-│           ├── DecisionHandler.spec.cpp      # Decision protocol test
-│           ├── OrchestratorMultiBot.spec.cpp # Multi-bot concurrency test
-│           ├── ProtocolLoop.spec.cpp         # Full protocol loop test
-│           └── ReasoningHandler.spec.cpp     # Reasoning protocol test
+│       ├── Tests/
+│       │   ├── BDD_Demo.spec.cpp             # Sanity check
+│       │   ├── BotFunctionalCore.spec.cpp    # 7 state/reducer tests
+│       │   ├── BotOrchestrator.spec.cpp      # Registration test
+│       │   ├── DecisionHandler.spec.cpp      # Decision protocol test
+│       │   ├── OrchestratorMultiBot.spec.cpp # Multi-bot concurrency test
+│       │   ├── ProtocolLoop.spec.cpp         # Full protocol loop test
+│       │   └── ReasoningHandler.spec.cpp     # Reasoning protocol test
+│       └── UI/
+│           └── ChatWidget.h/.cpp      # UMG chat widget for dialogue
 ├── Plugins/
 │   └── ForbocAI_SDK/                  # SDK plugin (git submodule → sdk-ue-5.7)
 │       ├── ForbocAI_SDK.uplugin
