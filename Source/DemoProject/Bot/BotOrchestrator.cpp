@@ -58,19 +58,14 @@ void ABotOrchestrator::RegisterBot(AActor *Actor, FString Persona) {
     Config.Persona = Persona;
     Config.ApiUrl = ApiUrl;
 
-    auto AgentResult = AgentFactory::Create(Config);
-    AgentResult.isRight
-        ? (Instance.Agent =
-               MakeShared<const FAgent>(AgentResult.right),
-           ActiveBots.Add(Actor, Instance),
-           UE_LOG(LogTemp, Display,
-                  TEXT("BotOrchestrator: Registered Bot '%s'"),
-                  *Actor->GetName()),
-           void())
-        : (UE_LOG(LogTemp, Error,
-                  TEXT("BotOrchestrator: Failed to create agent: %s"),
-                  *AgentResult.left),
-           void());
+    // AgentFactory::Create returns FAgent directly (immutable value).
+    // Wrap in TSharedPtr<const FAgent> for rebindable immutable reference.
+    Instance.Agent =
+        MakeShared<const FAgent>(AgentFactory::Create(Config));
+    ActiveBots.Add(Actor, Instance);
+    UE_LOG(LogTemp, Display,
+           TEXT("BotOrchestrator: Registered Bot '%s'"),
+           *Actor->GetName());
   }();
 }
 
