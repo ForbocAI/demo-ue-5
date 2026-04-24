@@ -7,7 +7,7 @@ public class DemoProject : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ForbocAI_SDK" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Json", "JsonUtilities", "ForbocAI_SDK" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 	}

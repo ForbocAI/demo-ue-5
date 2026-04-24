@@ -44,10 +44,16 @@ void ASDKTestActor::InitializeAgent() {
          TEXT("ForbocAI: Registered %d validation rules via RPG Preset"),
          ActiveRules.Num());
 
-  // REGISTER RULES WITH API (New Feature)
-  for (const FValidationRule &Rule : ActiveRules) {
-    BridgeOps::RegisterRule(Rule, ApiUrl);
-  }
+  // REGISTER RULES WITH API (Recursive — FP-compliant)
+  const auto RegisterRulesRecursive =
+      [&ApiUrl = this->ApiUrl](const TArray<FValidationRule> &Rules, int32 Idx,
+                                const auto &Self) -> void {
+    return Idx >= Rules.Num()
+               ? void()
+               : (BridgeOps::RegisterRule(Rules[Idx], ApiUrl),
+                  Self(Rules, Idx + 1, Self));
+  };
+  RegisterRulesRecursive(ActiveRules, 0, RegisterRulesRecursive);
 
   // Trigger Blueprint event
   OnAgentInitialized(CurrentAgent->Id);
