@@ -137,7 +137,7 @@ Blueprints.
 ## Project Structure
 
 ```
-demo-ue-5.7.3/
+demo-ue-5.7/
 ├── DemoProject.uproject
 ├── Source/
 │   ├── DemoProject.Target.cs          # Game target (V6, UE 5.7)
@@ -145,18 +145,41 @@ demo-ue-5.7.3/
 │   └── DemoProject/
 │       ├── DemoProject.Build.cs
 │       ├── DemoProject.h / .cpp       # Module boilerplate
-│       └── SDKTestActor.h / .cpp      # Demo actor
+│       ├── SDKTestActor.h / .cpp      # SDK integration test actor
+│       ├── Bot/
+│       │   ├── BotOrchestrator.h/.cpp # Multi-bot manager
+│       │   └── Factories/
+│       │       └── BotFactory.h       # Closure-based state store
+│       ├── Core/
+│       │   └── functional_core.hpp    # Demo FP primitives
+│       ├── Dialogue/
+│       │   └── DialogueComponent.h/.cpp  # Reusable dialogue actor component
+│       ├── Scenes/
+│       │   ├── NPCDialogueDemo.h/.cpp    # NPC conversation demo
+│       │   ├── CombatEncounterDemo.h/.cpp # Bridge validation demo
+│       │   └── MemoryDemo.h/.cpp         # Memory store/recall demo
+│       ├── State/
+│       │   ├── Actions.h              # Action variant (6 types)
+│       │   ├── BotState.h             # Bot state struct
+│       │   └── Reducers.h            # Pure reducer (visitor pattern)
+│       └── Tests/
+│           ├── BDD_Demo.spec.cpp             # Sanity check
+│           ├── BotFunctionalCore.spec.cpp    # 7 state/reducer tests
+│           ├── BotOrchestrator.spec.cpp      # Registration test
+│           ├── DecisionHandler.spec.cpp      # Decision protocol test
+│           ├── OrchestratorMultiBot.spec.cpp # Multi-bot concurrency test
+│           ├── ProtocolLoop.spec.cpp         # Full protocol loop test
+│           └── ReasoningHandler.spec.cpp     # Reasoning protocol test
 ├── Plugins/
-│   └── ForbocAI_SDK/                  # SDK plugin (copied)
+│   └── ForbocAI_SDK/                  # SDK plugin (git submodule → sdk-ue-5.7)
 │       ├── ForbocAI_SDK.uplugin
 │       └── Source/ForbocAI_SDK/...
 └── README.md
 ```
 
 > **Note**: `Binaries/` and `Intermediate/` are build artifacts, excluded
-> by `.gitignore`. Consider replacing the copied plugin with a
-> **git submodule** pointing to `sdk-ue-5.7.3` to keep a single source
-> of truth.
+> by `.gitignore`. The plugin is a **git submodule** pointing to
+> `sdk-ue-5.7` `main` branch — a single source of truth.
 
 ---
 
