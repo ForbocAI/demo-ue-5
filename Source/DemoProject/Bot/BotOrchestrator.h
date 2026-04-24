@@ -2,28 +2,21 @@
 
 #include "AgentModule.h"
 #include "Bot/Factories/BotFactory.h"
+#include "Bot/Factories/OrchestratorStoreFactory.h"
 #include "BotOrchestrator.generated.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
 /**
- * FBotInstance - Managed data for a single AI Bot entity.
- * Bridges the physical Actor, the Functional State Store, and the SDK Agent.
- */
-struct FBotInstance {
-  AActor *BotActor;
-  TSharedPtr<const FAgent> Agent;
-  ForbocAI::Bot::FBotStore Store;
-  float LastObservationTime;
-
-  FBotInstance()
-      : BotActor(nullptr), Agent(nullptr), Store({}),
-        LastObservationTime(0.0f) {}
-};
-
-/**
  * ABotOrchestrator - The central brain for the Demo's AI entities.
- * Implements the Multi-Round Protocol loop asynchronously for all registered bots.
+ *
+ * Implements the Multi-Round Protocol loop asynchronously for all
+ * registered bots. Uses a closure-based FOrchestratorStore for the
+ * bot registry (FP-compliant — no mutable TMap member).
+ *
+ * User Story: As a game developer managing multiple AI NPCs, I need
+ * a centralized orchestrator so all bots receive periodic observation
+ * ticks and process through the SDK pipeline automatically.
  */
 UCLASS()
 class DEMOPROJECT_API ABotOrchestrator : public AActor {
@@ -50,11 +43,14 @@ public:
   void RegisterBot(AActor *Actor, FString Persona);
 
 private:
-  /** Internal registry of active bots. */
-  TMap<AActor *, FBotInstance> ActiveBots;
+  /**
+   * Functional registry store — closure-based, same pattern as FBotStore.
+   * Replaces the previous mutable TMap<AActor*, FBotInstance> member.
+   */
+  ForbocAI::Orchestrator::FOrchestratorStore RegistryStore;
 
   /** Multi-Round Protocol: Observe & Process */
-  void RequestNextAction(FBotInstance &Instance);
+  void RequestNextAction(ForbocAI::Orchestrator::FBotInstance &Instance);
 
   /** Multi-Round Protocol: Execute (Finalize) */
   void ExecuteAction(AActor *BotActor, const FAgentAction &Action);

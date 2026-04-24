@@ -1,7 +1,12 @@
 #include "BotOrchestrator.h"
 #include "State/Actions.h"
 
-ABotOrchestrator::ABotOrchestrator() { PrimaryActorTick.bCanEverTick = true; }
+using namespace ForbocAI::Orchestrator;
+
+ABotOrchestrator::ABotOrchestrator() {
+  PrimaryActorTick.bCanEverTick = true;
+  RegistryStore = Factory::CreateOrchestratorStore();
+}
 
 void ABotOrchestrator::BeginPlay() {
   Super::BeginPlay();
@@ -13,17 +18,20 @@ void ABotOrchestrator::Tick(float DeltaTime) {
 
   float CurrentTime = GetWorld()->GetTimeSeconds();
 
-  // Recursive tick dispatch — FP-compliant (no for-loops)
+  // Get immutable snapshot of the registry
+  FRegistryState Registry = RegistryStore.GetState();
   TArray<AActor *> Keys;
-  ActiveBots.GetKeys(Keys);
+  Registry.Bots.GetKeys(Keys);
 
+  // Recursive tick dispatch — FP-compliant (no for-loops)
   const auto TickBotsRecursive =
-      [this, DeltaTime, CurrentTime](const TArray<AActor *> &BotKeys, int32 Idx,
-                                     const auto &Self) -> void {
+      [this, DeltaTime, CurrentTime, &Registry](const TArray<AActor *> &BotKeys,
+                                                 int32 Idx,
+                                                 const auto &Self) -> void {
     return Idx >= BotKeys.Num()
                ? void()
                : ([&]() {
-                    FBotInstance &Instance = ActiveBots[BotKeys[Idx]];
+                    FBotInstance Instance = Registry.Bots[BotKeys[Idx]];
 
                     // Functional Store Tick (Heartbeat)
                     ForbocAI::State::FActionTick TickAction;
@@ -34,7 +42,13 @@ void ABotOrchestrator::Tick(float DeltaTime) {
                     (CurrentTime - Instance.LastObservationTime >=
                      ObservationInterval)
                         ? (Instance.LastObservationTime = CurrentTime,
-                           RequestNextAction(Instance), void())
+                           RequestNextAction(Instance),
+                           // Dispatch update back to store
+                           RegistryStore.Dispatch(
+                               FRegistryAction(TInPlaceType<FUpdateInstanceAction>(),
+                                               FUpdateInstanceAction{BotKeys[Idx],
+                                                                     Instance})),
+                           void())
                         : void();
                   }(),
                   Self(BotKeys, Idx + 1, Self));
@@ -59,10 +73,14 @@ void ABotOrchestrator::RegisterBot(AActor *Actor, FString Persona) {
     Config.ApiUrl = ApiUrl;
 
     // AgentFactory::Create returns FAgent directly (immutable value).
-    // Wrap in TSharedPtr<const FAgent> for rebindable immutable reference.
     Instance.Agent =
         MakeShared<const FAgent>(AgentFactory::Create(Config));
-    ActiveBots.Add(Actor, Instance);
+
+    // Dispatch registration action to the registry store
+    RegistryStore.Dispatch(
+        FRegistryAction(TInPlaceType<FRegisterBotAction>(),
+                        FRegisterBotAction{Actor, Instance}));
+
     UE_LOG(LogTemp, Display,
            TEXT("BotOrchestrator: Registered Bot '%s'"),
            *Actor->GetName());
@@ -74,12 +92,10 @@ void ABotOrchestrator::RequestNextAction(FBotInstance &Instance) {
              ? void()
              : [&]() {
     // Step 1: OBSERVE
-    // Combine internal functional state with physical world state
     ForbocAI::State::FBotState InternalState = Instance.Store.GetState();
     FString Observation = GetStateObservation(InternalState);
 
     // Step 2-6: Protocol Pipeline (Directive -> Generate -> Verdict)
-    // Re-captured for safety in the async lambda
     AActor *BotActor = Instance.BotActor;
 
     AgentOps::Process(*Instance.Agent, Observation, {},
@@ -92,10 +108,12 @@ void ABotOrchestrator::RequestNextAction(FBotInstance &Instance) {
 
 void ABotOrchestrator::ExecuteAction(AActor *BotActor,
                                      const FAgentAction &Action) {
-  return (!BotActor || !ActiveBots.Contains(BotActor))
+  FRegistryState Registry = RegistryStore.GetState();
+
+  return (!BotActor || !Registry.Bots.Contains(BotActor))
              ? void()
              : [&]() {
-    FBotInstance &Instance = ActiveBots[BotActor];
+    FBotInstance Instance = Registry.Bots[BotActor];
 
     UE_LOG(LogTemp, Display, TEXT("BotOrchestrator: Executing '%s' for %s"),
            *Action.Type, *BotActor->GetName());
@@ -117,6 +135,11 @@ void ABotOrchestrator::ExecuteAction(AActor *BotActor,
           }(),
           void())
         : void(); // Unhandled action type — no-op
+
+    // Dispatch updated instance back to registry
+    RegistryStore.Dispatch(
+        FRegistryAction(TInPlaceType<FUpdateInstanceAction>(),
+                        FUpdateInstanceAction{BotActor, Instance}));
   }();
 }
 
