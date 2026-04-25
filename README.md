@@ -167,12 +167,17 @@ demo-ue-5.7/
 │       │   ├── Actions.h              # Action variant (6 types)
 │       │   ├── BotState.h             # Bot state struct
 │       │   └── Reducers.h            # Pure reducer (visitor pattern)
+│       ├── Systems/
+│       │   ├── Systems.h              # 4 pure evaluation systems
+│       │   └── Pipeline.h            # 4-phase deterministic tick pipeline
 │       ├── Tests/
 │       │   ├── BDD_Demo.spec.cpp             # Sanity check
 │       │   ├── BotFunctionalCore.spec.cpp    # 7 state/reducer tests
 │       │   ├── BotOrchestrator.spec.cpp      # Registration test
+│       │   ├── ContractParity.spec.cpp       # 4 contract parity tests
 │       │   ├── DecisionHandler.spec.cpp      # Decision protocol test
 │       │   ├── OrchestratorMultiBot.spec.cpp # Multi-bot concurrency test
+│       │   ├── Pipeline.spec.cpp             # 6 pipeline tests
 │       │   ├── ProtocolLoop.spec.cpp         # Full protocol loop test
 │       │   └── ReasoningHandler.spec.cpp     # Reasoning protocol test
 │       └── UI/
