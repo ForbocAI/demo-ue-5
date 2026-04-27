@@ -167,6 +167,9 @@ demo-ue-5.7/
 │       │   ├── Actions.h              # Action variant (6 types)
 │       │   ├── BotState.h             # Bot state struct
 │       │   └── Reducers.h            # Pure reducer (visitor pattern)
+│       ├── Speech/
+│       │   ├── SpeechComponent.h      # TTS + lip sync component
+│       │   └── SpeechComponent.cpp    # Viseme blending, TTS HTTP
 │       ├── Systems/
 │       │   ├── Systems.h              # 4 pure evaluation systems
 │       │   └── Pipeline.h            # 4-phase deterministic tick pipeline
@@ -180,7 +183,8 @@ demo-ue-5.7/
 │       │   ├── OrchestratorMultiBot.spec.cpp # Multi-bot concurrency test
 │       │   ├── Pipeline.spec.cpp             # 6 pipeline tests
 │       │   ├── ProtocolLoop.spec.cpp         # Full protocol loop test
-│       │   └── ReasoningHandler.spec.cpp     # Reasoning protocol test
+│       │   ├── ReasoningHandler.spec.cpp     # Reasoning protocol test
+│       │   └── Speech.spec.cpp               # 5 speech/viseme tests
 │       └── UI/
 │           └── ChatWidget.h/.cpp      # UMG chat widget for dialogue
 ├── Plugins/
