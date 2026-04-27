@@ -176,6 +176,7 @@ demo-ue-5.7/
 │       │   ├── BotOrchestrator.spec.cpp      # Registration test
 │       │   ├── ContractParity.spec.cpp       # 4 contract parity tests
 │       │   ├── DecisionHandler.spec.cpp      # Decision protocol test
+│       │   ├── IntegrationVerification.spec.cpp # 3 live API verification tests
 │       │   ├── OrchestratorMultiBot.spec.cpp # Multi-bot concurrency test
 │       │   ├── Pipeline.spec.cpp             # 6 pipeline tests
 │       │   ├── ProtocolLoop.spec.cpp         # Full protocol loop test

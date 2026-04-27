@@ -152,7 +152,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FContractParityApiValidation::RunTest(const FString &Parameters) {
-  // This test exercises ValidateContractParity against a live or mock API.
+  // This test exercises ValidateContractParity against the live API.
   // If the API is unavailable, it reports a warning instead of failing.
   const TArray<FString> Violations =
       TestGame::Contract::ValidateContractParity();

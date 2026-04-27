@@ -90,11 +90,12 @@ void FDecisionHandlerSpec::Define() {
       // RunProtocolTurn. This test verifies the contract at the
       // integration boundary.
 
-      // In a full integration test with a mock API, we would:
+      // In a full integration test against a live API, we would:
       // 1. Send an NPC process request
-      // 2. Mock the API to return a DecisionInstruction
+      // 2. Verify the API returns a DecisionInstruction
       // 3. Verify HandleDecision is called and the loop advances
       // 4. Verify the next turn receives the DecisionResult
+      // Tests run against real services or skip gracefully — no fakes.
 
       // For now, verify the handler's output contract is stable.
       FString Goal = TEXT("respond");

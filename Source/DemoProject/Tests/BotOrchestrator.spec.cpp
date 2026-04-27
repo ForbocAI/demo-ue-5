@@ -10,8 +10,8 @@ DEFINE_SPEC(FBotOrchestratorSpec, "ForbocAI.Bot.Orchestrator",
 void FBotOrchestratorSpec::Define() {
   Describe("Bot Registration", [this]() {
     It("Should successfully register a bot and initialize its agent", [this]() {
-      // Note: In a real UE environment, we would spawn an actor here.
-      // For the spec, we mock the behavior or use a test world.
+      // Note: In a real UE environment, we spawn an actor in the test world.
+      // Uses a real UWorld from the engine context — no fakes.
       UWorld *World = GEngine->GetWorldContexts()[0].World();
       if (!World)
         return;
