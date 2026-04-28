@@ -27,7 +27,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FContractParityLocalCoverage::RunTest(const FString &Parameters) {
   // Verify local scenarios cover all 17 required command groups
   const TArray<TestGame::FScenarioStep> Steps =
-      TestGame::GetDefaultScenarioSteps();
+      TestGame::Contract::GetContractScenarioSteps();
 
   TSet<TestGame::ECommandGroup> CoveredGroups;
   const auto CollectGroupsRecursive =
@@ -82,7 +82,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FContractParityScenarioIds::RunTest(const FString &Parameters) {
   const TArray<TestGame::FScenarioStep> Steps =
-      TestGame::GetDefaultScenarioSteps();
+      TestGame::Contract::GetContractScenarioSteps();
 
   // Expected scenario ids (from the canonical contract)
   const TArray<FString> ExpectedIds = {
@@ -115,7 +115,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FContractParityCommandGroups::RunTest(const FString &Parameters) {
   const TArray<TestGame::FScenarioStep> Steps =
-      TestGame::GetDefaultScenarioSteps();
+      TestGame::Contract::GetContractScenarioSteps();
 
   // Scenario 1: Stealth — 8 commands
   TestTrue(TEXT("Scenario 1 exists"), Steps.Num() > 0);
