@@ -21,9 +21,20 @@
 #include "BridgeModule.h"
 #include "Misc/AutomationTest.h"
 
+#include <string>
+
 // ── Connectivity Gate ──
 
 namespace IntegrationDetail {
+
+struct FLiveProcessResult {
+  bool bCompleted = false;
+  bool bSucceeded = false;
+  FString Dialogue;
+  FString ActionType;
+  FString Thought;
+  FString Error;
+};
 
 /**
  * Probe the API endpoint for connectivity.
@@ -54,6 +65,63 @@ inline bool IsApiReachable(const FString &ApiUrl) {
 
   return Request->GetResponse().IsValid() &&
          Request->GetResponse()->GetResponseCode() == 200;
+}
+
+inline bool HasDialogueShape(const FLiveProcessResult &Result) {
+  return !Result.Dialogue.TrimStartAndEnd().IsEmpty();
+}
+
+inline FString DescribeInvalidProcessResult(
+    const FLiveProcessResult &Result) {
+  return Result.bCompleted
+             ? (Result.bSucceeded
+                    ? FString::Printf(
+                          TEXT("Live process response had invalid protocol "
+                               "shape: dialogue='%s', actionType='%s', "
+                               "thought='%s'"),
+                          *Result.Dialogue, *Result.ActionType,
+                          *Result.Thought)
+                    : FString::Printf(
+                          TEXT("Live process rejected: %s"), *Result.Error))
+             : FString::Printf(
+                   TEXT("Live process callback did not fire: %s"),
+                   *Result.Error);
+}
+
+inline FLiveProcessResult RunLiveProcessProbe(
+    const FAgent &Agent, const FString &Input, double TimeoutSec) {
+  const TSharedPtr<FLiveProcessResult> State =
+      MakeShared<FLiveProcessResult>();
+
+  AgentOps::Process(Agent, Input, {})
+      .then([State](FAgentResponse Response) {
+        State->bCompleted = true;
+        State->bSucceeded = true;
+        State->Dialogue = Response.Dialogue;
+        State->ActionType = Response.Action.Type;
+        State->Thought = Response.Thought;
+      })
+      .catch_([State](std::string Error) {
+        State->bCompleted = true;
+        State->bSucceeded = false;
+        State->Error = FString(UTF8_TO_TCHAR(Error.c_str()));
+      })
+      .execute();
+
+  const double StartTime = FPlatformTime::Seconds();
+  while (!State->bCompleted &&
+         FPlatformTime::Seconds() - StartTime < TimeoutSec) {
+    FPlatformProcess::Sleep(0.1f);
+  }
+
+  !State->bCompleted
+      ? (State->bSucceeded = false,
+         State->Error = FString::Printf(
+             TEXT("timeout after %.1f seconds"), TimeoutSec),
+         void())
+      : void();
+
+  return *State;
 }
 
 } // namespace IntegrationDetail
@@ -88,33 +156,29 @@ bool FIntegrationHttpLoop::RunTest(const FString &Parameters) {
   TestEqual(TEXT("Persona matches"), Agent.Persona,
             TEXT("IntegrationTestPersona"));
 
-  // Process a test input through the async pipeline
-  bool bCallbackFired = false;
-  FString ResponseDialogue;
-  FString ResponseAction;
+  const IntegrationDetail::FLiveProcessResult Result =
+      IntegrationDetail::RunLiveProcessProbe(
+          Agent, TEXT("Hello, this is an integration test."), 10.0);
 
-  AgentOps::Process(
-      Agent, TEXT("Hello, this is an integration test."), {},
-      [&bCallbackFired, &ResponseDialogue,
-       &ResponseAction](FAgentResponse Response) {
-        bCallbackFired = true;
-        ResponseDialogue = Response.Dialogue;
-        ResponseAction = Response.Action;
-      });
-
-  // Wait for async completion (up to 10s)
-  double StartTime = FPlatformTime::Seconds();
-  while (!bCallbackFired &&
-         FPlatformTime::Seconds() - StartTime < 10.0) {
-    FPlatformProcess::Sleep(0.1f);
+  TestTrue(TEXT("Process callback or rejection completed"),
+           Result.bCompleted);
+  if (!Result.bCompleted) {
+    AddError(IntegrationDetail::DescribeInvalidProcessResult(Result));
+    return true;
   }
 
-  TestTrue(TEXT("Process callback fired"), bCallbackFired);
-  bCallbackFired
-      ? (TestFalse(TEXT("Response dialogue is not empty"),
-                   ResponseDialogue.IsEmpty()),
-         void())
-      : AddWarning(TEXT("Callback did not fire within timeout"));
+  TestTrue(TEXT("Process completed successfully"), Result.bSucceeded);
+  if (!Result.bSucceeded) {
+    AddError(IntegrationDetail::DescribeInvalidProcessResult(Result));
+    return true;
+  }
+
+  const bool bValidShape = IntegrationDetail::HasDialogueShape(Result);
+  TestTrue(TEXT("Response has valid protocol dialogue shape"),
+           bValidShape);
+  if (!bValidShape) {
+    AddError(IntegrationDetail::DescribeInvalidProcessResult(Result));
+  }
 
   return true;
 }
@@ -205,35 +269,33 @@ bool FIntegrationProtocolFlow::RunTest(const FString &Parameters) {
       Agent, TypeFactory::AgentState(TEXT("{\"test\": true}")));
 
   TestEqual(TEXT("Original agent state unchanged"),
-            Agent.State.GenericState, TEXT(""));
+            Agent.State.JsonData, TEXT("{}"));
   TestTrue(TEXT("New agent has updated state"),
-           Agent2.State.GenericState.Contains(TEXT("test")));
+           Agent2.State.JsonData.Contains(TEXT("test")));
 
-  // Process through full pipeline
-  bool bProcessComplete = false;
-  FString FinalDialogue;
+  const IntegrationDetail::FLiveProcessResult Result =
+      IntegrationDetail::RunLiveProcessProbe(
+          Agent2, TEXT("What is your purpose?"), 15.0);
 
-  AgentOps::Process(
-      Agent2, TEXT("What is your purpose?"), {},
-      [&bProcessComplete, &FinalDialogue](FAgentResponse Response) {
-        bProcessComplete = true;
-        FinalDialogue = Response.Dialogue;
-      });
-
-  // Wait for async completion
-  double StartTime = FPlatformTime::Seconds();
-  while (!bProcessComplete &&
-         FPlatformTime::Seconds() - StartTime < 15.0) {
-    FPlatformProcess::Sleep(0.1f);
+  TestTrue(TEXT("Protocol callback or rejection completed"),
+           Result.bCompleted);
+  if (!Result.bCompleted) {
+    AddError(IntegrationDetail::DescribeInvalidProcessResult(Result));
+    return true;
   }
 
-  bProcessComplete
-      ? (TestFalse(TEXT("Protocol produced dialogue output"),
-                   FinalDialogue.IsEmpty()),
-         void())
-      : AddWarning(TEXT("Protocol flow did not complete within 15s timeout — "
-                        "API may be slow or the protocol loop may be stalled. "
-                        "Check Decision and Reasoning handlers."));
+  TestTrue(TEXT("Protocol flow completed successfully"),
+           Result.bSucceeded);
+  if (!Result.bSucceeded) {
+    AddError(IntegrationDetail::DescribeInvalidProcessResult(Result));
+    return true;
+  }
+
+  const bool bValidShape = IntegrationDetail::HasDialogueShape(Result);
+  TestTrue(TEXT("Protocol produced valid dialogue output"), bValidShape);
+  if (!bValidShape) {
+    AddError(IntegrationDetail::DescribeInvalidProcessResult(Result));
+  }
 
   return true;
 }
