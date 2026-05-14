@@ -67,7 +67,7 @@ void FProtocolLoopSpec::Define() {
   Describe("Async Process Pipeline", [this]() {
     It("Should invoke AgentOps::Process without crashing", [this]() {
       // This test verifies the pipeline can be invoked without a crash.
-      // In Simulated Mode (no live API), the callback may not fire,
+      // In disconnected mode (no live API), the callback may not fire,
       // but the call itself must not stall or segfault.
       FAgentConfig Config;
       Config.Persona = TEXT("AsyncTester");
