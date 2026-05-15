@@ -1,223 +1,147 @@
-
 # ForbocAI SDK Demo Project (UE 5.7)
 
-This project demonstrates the integration of the **ForbocAI SDK** with
-Unreal Engine 5.7, showcasing **Neuro-Symbolic Agent** creation and
-interaction via both C++ and Blueprints.
+A working Unreal Engine 5.7 project that shows how to integrate the
+[**ForbocAI SDK**](https://github.com/ForbocAI/sdk-ue-5.7) into a game:
+spawn agents, drive dialogue, route decisions through your game's
+ruleset, and manage multi-bot encounters from C++ or Blueprints.
 
-The SDK follows **strict Functional C++11** — pure data structs, factory
-functions, and free (pure) functions only. The demo's `ASDKTestActor` is
-a thin UE boundary layer that delegates all logic to SDK-side factories
-and operations.
+Use it as a reference, copy code into your own project, or open it
+in-editor to see each scene wired end-to-end.
 
 ---
 
 ## Prerequisites
 
 | Tool | Version |
-|------|---------|
+|---|---|
 | Unreal Engine | 5.7 |
-| Visual Studio | 2022+ (Windows) |
+| Visual Studio | 2022+ (Windows, with C++ Build Tools + Windows 11 SDK) |
 | Xcode | 15+ (macOS) |
+| Clang | 16+ (Linux) |
+
+The demo talks to the ForbocAI API over HTTP. By default it points at
+`https://api.forboc.ai`; override per-actor via the **Api Url** property.
+
+---
 
 ## Setup
 
-1. **Generate Project Files**
-   - Right-click `DemoProject.uproject`
-   - Select *Generate Visual Studio Project Files* (Windows) or
-     *Generate Xcode Project* (macOS)
+1. **Clone with submodules** — the SDK is a submodule pointing at
+   [`ForbocAI/sdk-ue-5.7`](https://github.com/ForbocAI/sdk-ue-5.7).
 
-2. **Open Solution**
-   - Open the generated `.sln` or `.xcworkspace`
+   ```bash
+   git clone --recurse-submodules https://github.com/ForbocAI/demo-ue-5.7.git
+   ```
 
-3. **Build**
-   - Build for **Development Editor** configuration
+   If you cloned without `--recurse-submodules`:
 
-4. **Launch**
-   - Launch from your IDE or double-click `DemoProject.uproject`
+   ```bash
+   git submodule update --init --recursive
+   ```
 
----
+2. **Generate project files**
+   - **Windows**: right-click `DemoProject.uproject` → *Generate Visual Studio Project Files*.
+   - **macOS**: right-click `DemoProject.uproject` → *Generate Xcode Project*.
+   - **Linux**: run `UnrealEditor.sh -projectfiles -project="$PWD/DemoProject.uproject"`.
 
-## Architecture
+3. **Build** the `Development Editor` configuration.
 
-The demo follows the SDK's strict Functional Programming rules:
-
-| Rule | How the Demo Applies It |
-|------|------------------------|
-| Data = structs only | `FAgent`, `FAgentState`, `FAgentResponse` are plain data |
-| Behaviour = free functions | `AgentFactory::Create`, `AgentOps::Process`, `AgentOps::WithState` |
-| No mutation | `FAgent` has `const` members; updates return new values |
-| Factory functions | `AgentFactory::Create(Config)` replaces constructors |
-| `TypeFactory` for USTRUCTs | `TypeFactory::AgentState(Mood)` creates UE-reflected data |
-| Immutable references | `TSharedPtr<const FAgent>` rebinds pointer, never mutates data |
-
-The `ASDKTestActor` class itself is a **UE framework obligation** (actors
-require `UCLASS`, a constructor, and virtual overrides). It does not
-represent an FP violation — it is the *boundary* between UE's OOP
-framework and the SDK's functional core.
+4. **Launch** the editor from your IDE or by double-clicking `DemoProject.uproject`.
 
 ---
 
-## C++ Integration
+## What's in the box
 
-`SDKTestActor.h` / `SDKTestActor.cpp` demonstrate the three core
-operations:
+| Scene / Component | What it shows |
+|---|---|
+| `NPCDialogueDemo` | A persona-driven NPC conversation with persistent memory recall |
+| `CombatEncounterDemo` | Bridge validation — agent proposes actions, your ruleset accepts or rejects |
+| `MemoryDemo` | Memory store/recall round-trip |
+| `BotOrchestrator` | Multi-bot manager backed by an immutable store; spawn, route, and tear down agents |
+| `DialogueComponent` | Reusable actor component for chat-driven NPCs |
+| `SpeechComponent` | TTS + viseme blending hooks |
+| `ChatWidget` (UMG) | Drop-in dialogue UI |
 
-### 1. Create Agent (Factory)
+`SDKTestActor` is the minimal "hello world" entry point — start there.
+
+---
+
+## C++ usage
+
+`SDKTestActor.h` / `SDKTestActor.cpp` walk through the three core operations:
+
+### 1. Create an agent
 
 ```cpp
 FAgentConfig Config;
 Config.Persona = TEXT("Cyber-Merchant");
 Config.ApiUrl  = TEXT("https://api.forboc.ai");
 
-// Factory function returns immutable FAgent
 CurrentAgent = MakeShared<const FAgent>(AgentFactory::Create(Config));
 ```
 
-### 2. Process Input (Free Function)
+### 2. Process player input
 
 ```cpp
 const FAgentResponse Response =
     AgentOps::Process(*CurrentAgent, InputText, {});
 
-// Response.Dialogue contains the agent's reply
 OnAgentResponse(Response.Dialogue);
 ```
 
-### 3. Update State (Immutable Transformation)
+### 3. Update agent state
 
 ```cpp
 const FAgentState NewState = TypeFactory::AgentState(TEXT("Alert"));
 
-// Returns a NEW agent — original stays untouched
+// AgentOps::WithState returns a NEW agent — original stays untouched.
 CurrentAgent =
     MakeShared<const FAgent>(AgentOps::WithState(*CurrentAgent, NewState));
 ```
 
+> `FAgent` and friends are immutable: assign the result of any `AgentOps::*`
+> call back to your `TSharedPtr<const FAgent>` to retain it.
+
 ---
 
-## Blueprint Usage
+## Blueprint usage
 
-The project includes `ASDKTestActor`, designed to be extended in
-Blueprints.
-
-1. **Create Blueprint**
-   - Content Browser → New Blueprint Class → parent: `SDKTestActor`
-   - Name it `BP_SDKTestAgent`
-
-2. **Configure**
-   - Open `BP_SDKTestAgent` → Details / Class Defaults
+1. **Create Blueprint**: Content Browser → New Blueprint Class →
+   parent `SDKTestActor` → name it `BP_SDKTestAgent`.
+2. **Configure**: open `BP_SDKTestAgent` → Class Defaults.
    - **Persona**: e.g. `"Cyber-Merchant"`
    - **Api Url**: `https://api.forboc.ai`
-
-3. **Implement Events**
-   - Event Graph → implement **Event On Agent Response**
-   - Wire to `Print String` to see the response
-
-4. **Test**
-   - `Initialize Agent` fires on `BeginPlay` automatically
-   - Call `Process Input` on a key press or UI event:
+3. **Implement events**: in the Event Graph, implement
+   **Event On Agent Response** and wire it to **Print String**
+   (or your dialogue widget).
+4. **Test**:
+   - `Initialize Agent` fires automatically on `BeginPlay`.
+   - Call **Process Input** on a key press or UI event:
      `"Hello, who are you?"`
-   - Call `Update Agent State` to change mood/context
-
----
-
-## Features Tested
-
-| Feature | How |
-|---------|-----|
-| Plugin Integration | `ForbocAI_SDK` plugin loads at runtime |
-| Agent Factory | `AgentFactory::Create` produces an immutable `FAgent` |
-| Functional Ops | `AgentOps::Process` handles input → response |
-| State Management | `AgentOps::WithState` returns new agent, never mutates |
-| Blueprint Interop | `BlueprintCallable` / `BlueprintImplementableEvent` |
-
----
-
-## Project Structure
-
-```
-demo-ue-5.7/
-├── .editorconfig                      # Editor formatting rules
-├── .gitattributes                     # Line ending normalization
-├── DemoProject.uproject
-├── Source/
-│   ├── DemoProject.Target.cs          # Game target (V6, UE 5.7)
-│   ├── DemoProjectEditor.Target.cs    # Editor target (V6, UE 5.7)
-│   └── DemoProject/
-│       ├── DemoProject.Build.cs
-│       ├── DemoProject.h / .cpp       # Module boilerplate
-│       ├── SDKTestActor.h / .cpp      # SDK integration test actor
-│       ├── Blueprints/
-│       │   └── GenericStateBlueprintLibrary.h/.cpp  # JSON state BP helpers
-│       ├── Bot/
-│       │   ├── BotOrchestrator.h/.cpp # Multi-bot manager (FOrchestratorStore)
-│       │   └── Factories/
-│       │       ├── BotFactory.h       # Closure-based bot state store
-│       │       └── OrchestratorStoreFactory.h  # Closure-based registry store
-│       ├── Core/
-│       │   └── functional_core.hpp    # Demo FP primitives
-│       ├── Dialogue/
-│       │   └── DialogueComponent.h/.cpp  # Reusable dialogue actor component
-│       ├── Scenes/
-│       │   ├── NPCDialogueDemo.h/.cpp    # NPC conversation demo
-│       │   ├── CombatEncounterDemo.h/.cpp # Bridge validation demo
-│       │   └── MemoryDemo.h/.cpp         # Memory store/recall demo
-│       ├── State/
-│       │   ├── Actions.h              # Action variant (6 types)
-│       │   ├── BotState.h             # Bot state struct
-│       │   └── Reducers.h            # Pure reducer (visitor pattern)
-│       ├── Speech/
-│       │   ├── SpeechComponent.h      # TTS + lip sync component
-│       │   └── SpeechComponent.cpp    # Viseme blending, TTS HTTP
-│       ├── Systems/
-│       │   ├── Systems.h              # 4 pure evaluation systems
-│       │   └── Pipeline.h            # 4-phase deterministic tick pipeline
-│       ├── Tests/
-│       │   ├── BDD_Demo.spec.cpp             # Sanity check
-│       │   ├── BotFunctionalCore.spec.cpp    # 7 state/reducer tests
-│       │   ├── BotOrchestrator.spec.cpp      # Registration test
-│       │   ├── ContractParity.spec.cpp       # 4 contract parity tests
-│       │   ├── DecisionHandler.spec.cpp      # Decision protocol test
-│       │   ├── IntegrationVerification.spec.cpp # 3 live API verification tests
-│       │   ├── OrchestratorMultiBot.spec.cpp # Multi-bot concurrency test
-│       │   ├── Pipeline.spec.cpp             # 6 pipeline tests
-│       │   ├── ProtocolLoop.spec.cpp         # Full protocol loop test
-│       │   ├── ReasoningHandler.spec.cpp     # Reasoning protocol test
-│       │   └── Speech.spec.cpp               # 5 speech/viseme tests
-│       └── UI/
-│           └── ChatWidget.h/.cpp      # UMG chat widget for dialogue
-├── Plugins/
-│   └── ForbocAI_SDK/                  # SDK plugin (git submodule → sdk-ue-5.7)
-│       ├── ForbocAI_SDK.uplugin
-│       └── Source/ForbocAI_SDK/...
-└── README.md
-```
-
-> **Note**: `Binaries/` and `Intermediate/` are build artifacts, excluded
-> by `.gitignore`. The plugin is a **git submodule** pointing to
-> `sdk-ue-5.7` `main` branch — a single source of truth.
+   - Call **Update Agent State** to change mood / context.
 
 ---
 
 ## Troubleshooting
 
 | Problem | Fix |
-|---------|-----|
-| "Plugin 'ForbocAI_SDK' failed to load" | Ensure `Plugins/ForbocAI_SDK/` has compiled binaries |
+|---|---|
+| `Plugin 'ForbocAI_SDK' failed to load` | Submodule missing or unbuilt — run `git submodule update --init --recursive`, then rebuild |
 | Linker errors after C++ changes | Regenerate project files from `.uproject` |
-| `FAgent` assignment errors | Must use `TSharedPtr<const FAgent>` — `FAgent` has `const` members |
-| Missing `Response.Content` | Field is `Response.Dialogue` (not `.Content`) |
-| Warnings about `BuildSettingsVersion` | Both Target.cs files should use `V6` + `Unreal5_7` |
+| `FAgent` assignment errors | Use `TSharedPtr<const FAgent>` — `FAgent` has `const` members |
+| No response from agent | Run the SDK CLI `doctor` command to check API connectivity |
+| Missing `Response.Content` field | The field is `Response.Dialogue` |
 
 ---
 
-## References
+## Going further
 
-- [`sdk-ue-5.7.3/README.md`](../sdk-ue-5.7.3/README.md) — Full SDK documentation
-- [`sdk-ue-5.7.3/C++11-FP-GUIDE.md`](../sdk-ue-5.7.3/C++11-FP-GUIDE.md) — Functional architecture guide
-- [`sdk-ue-5.7.3/style-guide.md`](../sdk-ue-5.7.3/style-guide.md) — Aesthetic protocol
+- SDK reference, tutorials, protocol docs: <https://docs.forboc.ai>
+- SDK source: <https://github.com/ForbocAI/sdk-ue-5.7>
+- Issues: <https://github.com/ForbocAI/demo-ue-5.7/issues>
 
 ---
+
 ## License
-All rights reserved. © 2026 ForbocAI. See [LICENSE](./LICENSE) for full details.
+
+© 2026 ForbocAI, Inc. All rights reserved. See [LICENSE](./LICENSE) for full terms.
