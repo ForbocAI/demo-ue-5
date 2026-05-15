@@ -1,13 +1,16 @@
 /**
  * Protocol Loop Integration Spec
  *
- * User Story: As a game developer using ForbocAI SDK, I need to verify that
- * the full protocol loop (AgentOps::Process → API → protocol handler chain →
- * response) completes without stalling, so that my NPC interactions are
- * reliable in production.
+ * User Story: As a game developer using ForbocAI SDK, I need to verify
+ * that the full tape loop (AgentOps::Process → repeated
+ * POST /npcs/{id}/process → finalize) completes without stalling, so
+ * that my NPC interactions are reliable in production.
  *
- * Covers: IdentifyActor → QueryVector → Decision → Reasoning →
- *         ExecuteInference → Finalize pipeline
+ * Covers the canonical handler chain emitted by the API:
+ * IdentifyActor → QueryVector → Decision → Reasoning → Finalize.
+ * The local SDK no longer carries an inference handler — reasoning
+ * runs server-side on the API-hosted SLM, then Finalize returns the
+ * verdict, memory store delta, and state delta in a single response.
  */
 
 #include "NPC/NPCModule.h"

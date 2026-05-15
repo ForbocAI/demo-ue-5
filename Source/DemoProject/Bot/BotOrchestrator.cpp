@@ -90,16 +90,19 @@ void ABotOrchestrator::RequestNextAction(FBotInstance &Instance) {
   return !Instance.Agent.IsValid()
              ? void()
              : [&]() {
-    // Step 1: OBSERVE
+    // Observe: snapshot the bot's local state into the observation the
+    // tape loop will carry.
     ForbocAI::State::FBotState InternalState = Instance.Store.GetState();
     FString Observation = GetStateObservation(InternalState);
 
-    // Step 2-6: Protocol Pipeline (Directive -> Generate -> Verdict)
+    // Drive the tape loop: AgentOps::Process drives the API
+    // POST /npcs/{id}/process loop until the API emits a finalize
+    // instruction, then resolves with the resulting FAgentResponse.
     AActor *BotActor = Instance.BotActor;
 
     AgentOps::Process(*Instance.Agent, Observation, {})
         .then([this, BotActor](FAgentResponse Response) {
-          // Step 7: EXECUTE
+          // Apply: route the finalized action back into the game world.
           ExecuteAction(BotActor, Response.Action);
         })
         .catch_([BotActor](std::string Error) {
