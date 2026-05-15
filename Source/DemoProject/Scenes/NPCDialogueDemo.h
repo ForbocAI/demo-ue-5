@@ -3,7 +3,7 @@
 
 #include "Bot/Factories/BotFactory.h"
 #include "CoreMinimal.h"
-#include "Dialogue/DialogueComponent.h"
+#include "DemoProject/Dialogue/DialogueComponent.h"
 #include "GameFramework/Actor.h"
 #include "NPCDialogueDemo.generated.h"
 

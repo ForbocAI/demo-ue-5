@@ -11,14 +11,16 @@ USpeechComponent::USpeechComponent() {
 }
 
 void USpeechComponent::EnsureVisemeMap() {
-  VisemeMap.Num() == 0
-      ? (void)(VisemeMap = SpeechOps::DefaultVisemeMap())
-      : void();
+  if (VisemeMap.Num() == 0) {
+    VisemeMap = SpeechOps::DefaultVisemeMap();
+  }
 }
 
 void USpeechComponent::SpeakText(const FString &Text) {
   // Stop any current speech
-  bSpeechActive ? StopSpeaking() : void();
+  if (bSpeechActive) {
+    StopSpeaking();
+  }
 
   EnsureVisemeMap();
 
@@ -36,49 +38,42 @@ void USpeechComponent::SpeakText(const FString &Text) {
          ActivePhonemes.Num(), *Text);
 
   // If TTS endpoint is configured, fire async TTS request
-  TTSEndpoint.IsEmpty()
-      ? UE_LOG(LogTemp, Display,
-               TEXT("Speech: No TTS endpoint — using estimated "
-                    "phonemes only (lip sync without audio)"))
-      : [this, Text]() {
-          FHttpModule &Http = FHttpModule::Get();
-          TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =
-              Http.CreateRequest();
-          Request->SetURL(TTSEndpoint);
-          Request->SetVerb(TEXT("POST"));
-          Request->SetHeader(TEXT("Content-Type"),
-                             TEXT("application/json"));
-          Request->SetContentAsString(FString::Printf(
-              TEXT("{\"text\":\"%s\",\"voice\":\"default\",\"speed\":%f}"),
-              *Text.ReplaceCharWithEscapedChar(), SpeechRate));
+  if (TTSEndpoint.IsEmpty()) {
+    UE_LOG(LogTemp, Display,
+           TEXT("Speech: No TTS endpoint - using estimated phonemes only (lip sync without audio)"));
+    return;
+  }
 
-          Request->OnProcessRequestComplete().BindLambda(
-              [this](FHttpRequestPtr Req, FHttpResponsePtr Resp,
-                     bool bSuccess) {
-                !bSuccess || !Resp.IsValid() ||
-                        Resp->GetResponseCode() != 200
-                    ? (OnSpeechError(
-                           TEXT("TTS request failed — continuing with "
-                                "lip sync only")),
-                       void())
-                    : [this, &Resp]() {
-                        // Parse audio response and create SoundWave
-                        const TArray<uint8> &AudioData =
-                            Resp->GetContent();
-                        AudioData.Num() > 0
-                            ? UE_LOG(
-                                  LogTemp, Display,
-                                  TEXT("Speech: Received %d bytes of "
-                                       "TTS audio"),
-                                  AudioData.Num())
-                            : UE_LOG(
-                                  LogTemp, Warning,
-                                  TEXT("Speech: TTS returned empty audio"));
-                      }();
-              });
+  FHttpModule &Http = FHttpModule::Get();
+  TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =
+      Http.CreateRequest();
+  Request->SetURL(TTSEndpoint);
+  Request->SetVerb(TEXT("POST"));
+  Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+  Request->SetContentAsString(FString::Printf(
+      TEXT("{\"text\":\"%s\",\"voice\":\"default\",\"speed\":%f}"),
+      *Text.ReplaceCharWithEscapedChar(), SpeechRate));
 
-          Request->ProcessRequest();
-        }();
+  Request->OnProcessRequestComplete().BindLambda(
+      [this](FHttpRequestPtr Req, FHttpResponsePtr Resp, bool bSuccess) {
+        if (!bSuccess || !Resp.IsValid() || Resp->GetResponseCode() != 200) {
+          OnSpeechError(
+              TEXT("TTS request failed - continuing with lip sync only"));
+          return;
+        }
+
+        const TArray<uint8> &AudioData = Resp->GetContent();
+        if (AudioData.Num() > 0) {
+          UE_LOG(LogTemp, Display,
+                 TEXT("Speech: Received %d bytes of TTS audio"),
+                 AudioData.Num());
+          return;
+        }
+
+        UE_LOG(LogTemp, Warning, TEXT("Speech: TTS returned empty audio"));
+      });
+
+  Request->ProcessRequest();
 }
 
 void USpeechComponent::StopSpeaking() {
@@ -93,9 +88,9 @@ void USpeechComponent::StopSpeaking() {
   // Reset all morph targets to silence
   ApplyVisemeToMesh(TEXT("viseme_sil"), 0.0f);
 
-  AudioComp && AudioComp->IsPlaying()
-      ? (AudioComp->Stop(), void())
-      : void();
+  if (AudioComp && AudioComp->IsPlaying()) {
+    AudioComp->Stop();
+  }
 
   OnSpeechFinished();
 }
@@ -115,83 +110,61 @@ void USpeechComponent::TickComponent(
     FActorComponentTickFunction *ThisTickFunction) {
   Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-  !bSpeechActive ? void()
-                 : [this, DeltaTime]() {
-                     PlaybackTime += DeltaTime;
+  if (!bSpeechActive) {
+    return;
+  }
 
-                     // Check if speech is complete
-                     const float TotalDuration =
-                         ActivePhonemes.Num() > 0
-                             ? ActivePhonemes.Last().StartTime +
-                                   ActivePhonemes.Last().Duration
-                             : 0.0f;
+  PlaybackTime += DeltaTime;
 
-                     PlaybackTime >= TotalDuration
-                         ? StopSpeaking()
-                         : [this]() {
-                             // Look up current viseme
-                             EnsureVisemeMap();
-                             const FVisemeMapping Viseme =
-                                 SpeechOps::ActiveVisemeAtTime(
-                                     ActivePhonemes, PlaybackTime,
-                                     VisemeMap);
+  const float TotalDuration =
+      ActivePhonemes.Num() > 0
+          ? ActivePhonemes.Last().StartTime + ActivePhonemes.Last().Duration
+          : 0.0f;
 
-                             // Only fire event if viseme changed
-                             (Viseme.MorphTargetName != CurrentVisemeName ||
-                              FMath::Abs(Viseme.BlendWeight -
-                                         CurrentVisemeWeight) > 0.01f)
-                                 ? (CurrentVisemeName =
-                                        Viseme.MorphTargetName,
-                                    CurrentVisemeWeight =
-                                        Viseme.BlendWeight,
-                                    bEnableLipSync
-                                        ? ApplyVisemeToMesh(
-                                              CurrentVisemeName,
-                                              CurrentVisemeWeight)
-                                        : void(),
-                                    OnVisemeChanged(CurrentVisemeName,
-                                                    CurrentVisemeWeight),
-                                    void())
-                                 : void();
-                           }();
-                   }();
+  if (PlaybackTime >= TotalDuration) {
+    StopSpeaking();
+    return;
+  }
+
+  EnsureVisemeMap();
+  const FVisemeMapping Viseme =
+      SpeechOps::ActiveVisemeAtTime(ActivePhonemes, PlaybackTime, VisemeMap);
+
+  if (Viseme.MorphTargetName != CurrentVisemeName ||
+      FMath::Abs(Viseme.BlendWeight - CurrentVisemeWeight) > 0.01f) {
+    CurrentVisemeName = Viseme.MorphTargetName;
+    CurrentVisemeWeight = Viseme.BlendWeight;
+    if (bEnableLipSync) {
+      ApplyVisemeToMesh(CurrentVisemeName, CurrentVisemeWeight);
+    }
+    OnVisemeChanged(CurrentVisemeName, CurrentVisemeWeight);
+  }
 }
 
 void USpeechComponent::ApplyVisemeToMesh(const FString &VisemeName,
                                           float Weight) {
   // Find the skeletal mesh on our owner
   AActor *Owner = GetOwner();
-  !Owner ? void()
-         : [Owner, &VisemeName, Weight]() {
-             USkeletalMeshComponent *Mesh =
-                 Owner->FindComponentByClass<USkeletalMeshComponent>();
+  if (!Owner) {
+    return;
+  }
 
-             !Mesh ? void()
-                   : [Mesh, &VisemeName, Weight]() {
-                       // Reset all viseme morphs to 0 first
-                       const TArray<FString> VisemeNames = {
-                           TEXT("viseme_sil"), TEXT("viseme_PP"),
-                           TEXT("viseme_FF"),  TEXT("viseme_TH"),
-                           TEXT("viseme_DD"),  TEXT("viseme_kk"),
-                           TEXT("viseme_CH"),  TEXT("viseme_SS"),
-                           TEXT("viseme_nn"),  TEXT("viseme_RR"),
-                           TEXT("viseme_aa"),  TEXT("viseme_E"),
-                           TEXT("viseme_I"),   TEXT("viseme_O"),
-                           TEXT("viseme_U")};
+  USkeletalMeshComponent *Mesh =
+      Owner->FindComponentByClass<USkeletalMeshComponent>();
+  if (!Mesh) {
+    return;
+  }
 
-                       const auto ResetRecursive =
-                           [Mesh, &VisemeNames](int32 Idx,
-                                               const auto &Self) -> void {
-                         return Idx >= VisemeNames.Num()
-                                    ? void()
-                                    : (Mesh->SetMorphTarget(
-                                           FName(*VisemeNames[Idx]), 0.0f),
-                                       Self(Idx + 1, Self));
-                       };
-                       ResetRecursive(0, ResetRecursive);
+  const TArray<FString> VisemeNames = {
+      TEXT("viseme_sil"), TEXT("viseme_PP"), TEXT("viseme_FF"),
+      TEXT("viseme_TH"),  TEXT("viseme_DD"), TEXT("viseme_kk"),
+      TEXT("viseme_CH"),  TEXT("viseme_SS"), TEXT("viseme_nn"),
+      TEXT("viseme_RR"),  TEXT("viseme_aa"), TEXT("viseme_E"),
+      TEXT("viseme_I"),   TEXT("viseme_O"),  TEXT("viseme_U")};
 
-                       // Set the active viseme
-                       Mesh->SetMorphTarget(FName(*VisemeName), Weight);
-                     }();
-           }();
+  for (const FString &Name : VisemeNames) {
+    Mesh->SetMorphTarget(FName(*Name), 0.0f);
+  }
+
+  Mesh->SetMorphTarget(FName(*VisemeName), Weight);
 }

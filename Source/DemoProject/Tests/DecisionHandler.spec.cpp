@@ -11,16 +11,14 @@
  * to ground its Reasoning.
  */
 
-#include "AgentModule.h"
+#include "NPC/NPCModule.h"
 #include "Misc/AutomationTest.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "Protocol/ProtocolThunks.h"
 #include "Core/ThunkDetail.h"
 
-DEFINE_SPEC(FDecisionHandlerSpec, "ForbocAI.SDK.DecisionHandler",
-            EAutomationTestFlags::ProductFilter |
-                EAutomationTestFlags::ApplicationContextMask)
+DEFINE_SPEC(FDecisionHandlerSpec, "ForbocAI.SDK.DecisionHandler", EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FDecisionHandlerSpec::Define() {
 

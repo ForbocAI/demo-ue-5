@@ -7,7 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "CoreMinimal.h"
-#include "Dialogue/DialogueComponent.h"
+#include "DemoProject/Dialogue/DialogueComponent.h"
 #include "ChatWidget.generated.h"
 
 /**

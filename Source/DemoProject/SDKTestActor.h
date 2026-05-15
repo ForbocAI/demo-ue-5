@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "AgentModule.h"  // ForbocAI SDK
-#include "BridgeModule.h" // Validation Rules
+#include "NPC/NPCModule.h" // ForbocAI SDK
+#include "Bridge/BridgeModule.h" // Validation Rules
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "SDKTestActor.generated.h"

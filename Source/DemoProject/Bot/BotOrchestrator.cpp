@@ -97,11 +97,18 @@ void ABotOrchestrator::RequestNextAction(FBotInstance &Instance) {
     // Step 2-6: Protocol Pipeline (Directive -> Generate -> Verdict)
     AActor *BotActor = Instance.BotActor;
 
-    AgentOps::Process(*Instance.Agent, Observation, {},
-                      [this, BotActor](FAgentResponse Response) {
-                        // Step 7: EXECUTE
-                        ExecuteAction(BotActor, Response.Action);
-                      });
+    AgentOps::Process(*Instance.Agent, Observation, {})
+        .then([this, BotActor](FAgentResponse Response) {
+          // Step 7: EXECUTE
+          ExecuteAction(BotActor, Response.Action);
+        })
+        .catch_([BotActor](std::string Error) {
+          UE_LOG(LogTemp, Warning,
+                 TEXT("BotOrchestrator: Process failed for %s: %s"),
+                 BotActor ? *BotActor->GetName() : TEXT("<null>"),
+                 *FString(UTF8_TO_TCHAR(Error.c_str())));
+        })
+        .execute();
   }();
 }
 

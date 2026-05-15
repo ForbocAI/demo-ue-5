@@ -10,13 +10,11 @@
  *         ExecuteInference → Finalize pipeline
  */
 
-#include "AgentModule.h"
-#include "BridgeModule.h"
+#include "NPC/NPCModule.h"
+#include "Bridge/BridgeModule.h"
 #include "Misc/AutomationTest.h"
 
-DEFINE_SPEC(FProtocolLoopSpec, "ForbocAI.SDK.ProtocolLoop",
-            EAutomationTestFlags::ProductFilter |
-                EAutomationTestFlags::ApplicationContextMask)
+DEFINE_SPEC(FProtocolLoopSpec, "ForbocAI.SDK.ProtocolLoop", EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FProtocolLoopSpec::Define() {
 
@@ -78,10 +76,12 @@ void FProtocolLoopSpec::Define() {
 
       bool bCallbackFired = false;
 
-      AgentOps::Process(*Agent, TEXT("Hello, who are you?"), {},
-                        [&bCallbackFired](FAgentResponse Response) {
-                          bCallbackFired = true;
-                        });
+      AgentOps::Process(*Agent, TEXT("Hello, who are you?"), {})
+          .then([&bCallbackFired](FAgentResponse Response) {
+            bCallbackFired = true;
+          })
+          .catch_([](std::string Error) {})
+          .execute();
 
       // Note: In a real async test, we would use LatentIt with a
       // timeout. For now, we verify the call does not crash.
@@ -107,7 +107,7 @@ void FProtocolLoopSpec::Define() {
       FAgentAction Action;
       Action.Type = TEXT("MOVE");
 
-      const FBridgeValidationContext Context =
+      const FBridgeRuleContext Context =
           BridgeFactory::CreateContext(&Agent.State, {});
 
       const FValidationResult Result =

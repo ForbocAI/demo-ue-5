@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AgentModule.h"
+#include "NPC/NPCModule.h"
 #include "Bot/Factories/BotFactory.h"
 #include "CoreMinimal.h"
 #include <functional>

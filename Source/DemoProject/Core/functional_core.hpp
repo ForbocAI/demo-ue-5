@@ -62,10 +62,10 @@ template <typename Function> auto curry(Function f) {
   return Curried<Function>{f};
 }
 
-// ── Pipe Operator (|>) ──
-// Allows x |> f |> g instead of g(f(x))
+// ── Pipe Helper ──
+// Allows Pipe(x, f) instead of f(x) when composing higher-order helpers.
 template <typename T, typename Func>
-    auto operator| > (T && val, Func &&f) -> decltype(f(std::forward<T>(val))) {
+auto Pipe(T &&val, Func &&f) -> decltype(f(std::forward<T>(val))) {
   return f(std::forward<T>(val));
 }
 

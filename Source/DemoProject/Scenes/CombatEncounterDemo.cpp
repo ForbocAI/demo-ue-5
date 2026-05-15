@@ -94,26 +94,24 @@ void ACombatEncounterDemo::RunCombatSequence() {
 }
 
 void ACombatEncounterDemo::ValidateAndLog(const FString &ActionType,
-                                           const FAgentAction &Action) {
-  return !DialogueComp->Agent.IsValid()
-             ? (UE_LOG(LogTemp, Warning,
-                       TEXT("CombatDemo: Cannot validate — no agent")),
-                void())
-             : [&]() {
-    const FBridgeValidationContext Context =
-        BridgeFactory::CreateContext(&DialogueComp->Agent->State, {});
+                                          const FAgentAction &Action) {
+  if (!DialogueComp->Agent.IsValid()) {
+    UE_LOG(LogTemp, Warning, TEXT("CombatDemo: Cannot validate - no agent"));
+    return;
+  }
 
-    const FValidationResult Result =
-        BridgeOps::Validate(Action, CombatRules, Context);
+  const FBridgeRuleContext Context =
+      BridgeFactory::CreateContext(&DialogueComp->Agent->State, {});
 
-    Result.bValid
-        ? (UE_LOG(LogTemp, Display,
-                  TEXT("CombatDemo: ✅ %s — VALID (%s)"), *ActionType,
-                  *Result.Reason),
-           void())
-        : (UE_LOG(LogTemp, Warning,
-                  TEXT("CombatDemo: ❌ %s — BLOCKED (%s)"), *ActionType,
-                  *Result.Reason),
-           void());
-  }();
+  const FValidationResult Result =
+      BridgeOps::Validate(Action, CombatRules, Context);
+
+  if (Result.bValid) {
+    UE_LOG(LogTemp, Display, TEXT("CombatDemo: %s VALID (%s)"), *ActionType,
+           *Result.Reason);
+    return;
+  }
+
+  UE_LOG(LogTemp, Warning, TEXT("CombatDemo: %s BLOCKED (%s)"), *ActionType,
+         *Result.Reason);
 }

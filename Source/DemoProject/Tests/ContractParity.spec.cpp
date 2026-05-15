@@ -2,7 +2,6 @@
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
 #include "TestGame/TestGameContract.h"
-#include "TestGame/TestGameScenarios.h"
 #include "TestGame/TestGameTypes.h"
 
 /**
@@ -119,28 +118,28 @@ bool FContractParityCommandGroups::RunTest(const FString &Parameters) {
 
   // Scenario 1: Stealth — 8 commands
   TestTrue(TEXT("Scenario 1 exists"), Steps.Num() > 0);
-  Steps.Num() > 0
-      ? TestEqual(TEXT("Stealth scenario commands"), Steps[0].Commands.Num(), 8)
-      : void();
+  if (Steps.Num() > 0) {
+    TestEqual(TEXT("Stealth scenario commands"), Steps[0].Commands.Num(), 8);
+  }
 
   // Scenario 2: Social — 6 commands
   TestTrue(TEXT("Scenario 2 exists"), Steps.Num() > 1);
-  Steps.Num() > 1
-      ? TestEqual(TEXT("Social scenario commands"), Steps[1].Commands.Num(), 6)
-      : void();
+  if (Steps.Num() > 1) {
+    TestEqual(TEXT("Social scenario commands"), Steps[1].Commands.Num(), 6);
+  }
 
   // Scenario 3: Escape — 9 commands
   TestTrue(TEXT("Scenario 3 exists"), Steps.Num() > 2);
-  Steps.Num() > 2
-      ? TestEqual(TEXT("Escape scenario commands"), Steps[2].Commands.Num(), 9)
-      : void();
+  if (Steps.Num() > 2) {
+    TestEqual(TEXT("Escape scenario commands"), Steps[2].Commands.Num(), 9);
+  }
 
   // Scenario 4: Persistence — 5 commands
   TestTrue(TEXT("Scenario 4 exists"), Steps.Num() > 3);
-  Steps.Num() > 3
-      ? TestEqual(TEXT("Persistence scenario commands"),
-                  Steps[3].Commands.Num(), 5)
-      : void();
+  if (Steps.Num() > 3) {
+    TestEqual(TEXT("Persistence scenario commands"), Steps[3].Commands.Num(),
+              5);
+  }
 
   return true;
 }

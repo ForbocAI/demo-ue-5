@@ -12,12 +12,13 @@ UGenericStateBlueprintLibrary::ParseJson(const FString &JsonData) {
 FString UGenericStateBlueprintLibrary::SerializeJson(
     const TSharedPtr<FJsonObject> &JsonObject) {
   FString Output;
-  return !JsonObject.IsValid()
-             ? FString(TEXT("{}"))
-             : (TSharedRef<TJsonWriter<>> Writer =
-                    TJsonWriterFactory<>::Create(&Output),
-                FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer),
-                Output);
+  if (!JsonObject.IsValid()) {
+    return FString(TEXT("{}"));
+  }
+
+  TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&Output);
+  FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
+  return Output;
 }
 
 // ── Read Operations ──

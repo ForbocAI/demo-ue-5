@@ -2,7 +2,7 @@
 
 DEFINE_SPEC(FNewBDDSpec, "ForbocAI.Demo.NewBDD",
             EAutomationTestFlags::ProductFilter |
-                EAutomationTestFlags::ApplicationContextMask)
+                EAutomationTestFlags_ApplicationContextMask)
 
 void FNewBDDSpec::Define() {
   Describe("New Feature BDD", [this]() {

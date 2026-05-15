@@ -1,10 +1,10 @@
 
 #include "SDKTestActor.h"
-#include "AgentModule.h"
+#include "NPC/NPCModule.h"
 #include "Bot/Factories/BotFactory.h" // Functional Core
-#include "BridgeModule.h"
-#include "MemoryModule.h"
-#include "SoulModule.h"
+#include "Bridge/BridgeModule.h"
+#include "Memory/MemoryModule.h"
+#include "Soul/SoulModule.h"
 
 ASDKTestActor::ASDKTestActor() {
   // No tick needed — this actor responds to events only.
@@ -102,14 +102,14 @@ void ASDKTestActor::ProcessInput(const FString &InputText) {
   }
 
   // Process input via async pipeline.
-  AgentOps::Process(
-      *CurrentAgent, InputText, {}, [this](FAgentResponse Response) {
+  AgentOps::Process(*CurrentAgent, InputText, {})
+      .then([this](FAgentResponse Response) {
         // ==========================================
         // BRIDGE: Validate the Agent's Action
         // ==========================================
         // We use the "ActiveRules" we manually registered.
         // Context would typically include World State.
-        const FBridgeValidationContext ValContext =
+        const FBridgeRuleContext ValContext =
             BridgeFactory::CreateContext(&CurrentAgent->State, {});
 
         const FValidationResult ValResult =
@@ -130,7 +130,12 @@ void ASDKTestActor::ProcessInput(const FString &InputText) {
 
         // Trigger Blueprint event
         OnAgentResponse(Response.Dialogue);
-      });
+      })
+      .catch_([](std::string Error) {
+        UE_LOG(LogTemp, Warning, TEXT("ForbocAI: ProcessInput failed: %s"),
+               *FString(UTF8_TO_TCHAR(Error.c_str())));
+      })
+      .execute();
 }
 
 void ASDKTestActor::UpdateAgentState(const FString &NewStateDescription) {
@@ -162,17 +167,35 @@ void ASDKTestActor::ExportSoul() {
   // Create Soul from current Agent State
   // Note: We pass empty memories for demo simplicity, or fetch from
   // MemoryModule if implemented.
-  FSoul Soul = SoulOps::FromAgent(CurrentAgent->State, {}, CurrentAgent->Id,
-                                  CurrentAgent->Persona);
+  const SoulTypes::SoulCreationResult SoulResult =
+      SoulOps::FromAgent(CurrentAgent->State, {}, CurrentAgent->Id,
+                         CurrentAgent->Persona);
+  if (SoulResult.isLeft) {
+    UE_LOG(LogTemp, Warning, TEXT("ForbocAI: Failed to create Soul: %s"),
+           *SoulResult.left);
+    return;
+  }
+
+  const FSoul Soul = SoulResult.right;
 
   UE_LOG(LogTemp, Display, TEXT("ForbocAI: Exporting Soul to Arweave..."));
 
   // Call SDK Ops
-  SoulOps::ExportToArweave(Soul, FString(), [this](FString TxId) {
-    // Logic inside callback (on game thread via Lambda, ensure thread safety if
-    // needed) Getting back on Game Thread usually handled by HTTP module
-    // callbacks.
-    UE_LOG(LogTemp, Display, TEXT("ForbocAI: Soul Exported! TxId: %s"), *TxId);
-    OnSoulExported(TxId);
-  });
+  SoulOps::ExportToArweave(Soul, FString())
+      .then([this](FSoulExportResult Result) {
+        if (Result.TxId.IsEmpty()) {
+          UE_LOG(LogTemp, Warning,
+                 TEXT("ForbocAI: Soul export returned no transaction id."));
+          return;
+        }
+
+        UE_LOG(LogTemp, Display, TEXT("ForbocAI: Soul Exported! TxId: %s"),
+               *Result.TxId);
+        OnSoulExported(Result.TxId);
+      })
+      .catch_([](std::string Error) {
+        UE_LOG(LogTemp, Warning, TEXT("ForbocAI: Soul export rejected: %s"),
+               UTF8_TO_TCHAR(Error.c_str()));
+      })
+      .execute();
 }

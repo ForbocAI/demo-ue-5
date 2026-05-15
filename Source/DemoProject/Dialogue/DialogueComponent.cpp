@@ -1,6 +1,6 @@
 
 #include "Dialogue/DialogueComponent.h"
-#include "AgentModule.h"
+#include "NPC/NPCModule.h"
 
 UDialogueComponent::UDialogueComponent() {
   PrimaryComponentTick.bCanEverTick = false;
@@ -32,9 +32,8 @@ void UDialogueComponent::SendDialogue(const FString &PlayerInput) {
            *PlayerInput);
 
     // Process via SDK async pipeline
-    AgentOps::Process(
-        *Agent, PlayerInput, {},
-        [this](FAgentResponse Response) {
+    AgentOps::Process(*Agent, PlayerInput, {})
+        .then([this](FAgentResponse Response) {
           // Record NPC response in history
           AppendToHistory(TEXT("NPC"), Response.Dialogue);
 
@@ -44,7 +43,11 @@ void UDialogueComponent::SendDialogue(const FString &PlayerInput) {
 
           // Fire Blueprint event for UI consumption
           OnDialogueResponse(Response.Dialogue);
-        });
+        })
+        .catch_([this](std::string Error) {
+          OnDialogueError(FString(UTF8_TO_TCHAR(Error.c_str())));
+        })
+        .execute();
   }();
 }
 

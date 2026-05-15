@@ -6,7 +6,7 @@
 
 using namespace ForbocAI;
 
-DEFINE_SPEC(FBotFunctionalCoreSpec, "ForbocAI.Bot.FunctionalCore", EAutomationTestFlags::ProductFilter | EAutomationTestFlags::ApplicationContextMask)
+DEFINE_SPEC(FBotFunctionalCoreSpec, "ForbocAI.Bot.FunctionalCore", EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FBotFunctionalCoreSpec::Define()
 {
@@ -18,8 +18,8 @@ void FBotFunctionalCoreSpec::Define()
             State::FBotState State = Store.GetState();
 
             TestEqual("Name", State.Name, TEXT("TestBot"));
-            TestEqual("Health", State.Stats.Health, 100.0f);
-            TestEqual("Phase", State.Phase, State::EBotPhase::Idle);
+            TestTrue("Health", FMath::IsNearlyEqual(State.Stats.Health, 100.0f));
+            TestTrue("Phase", State.Phase == State::EBotPhase::Idle);
             TestTrue("ID is valid", State.Id.IsValid());
         });
     });
@@ -39,7 +39,7 @@ void FBotFunctionalCoreSpec::Define()
                 Store.Dispatch(MoveAction);
 
                 auto State = Store.GetState();
-                TestEqual("Position.X", State.Position.X, 100.0f);
+                TestTrue("Position.X", FMath::IsNearlyEqual(State.Position.X, 100.0f));
             });
         });
 
@@ -55,7 +55,7 @@ void FBotFunctionalCoreSpec::Define()
                 Store.Dispatch(Damage);
                 
                 auto State = Store.GetState();
-                TestEqual("Health Reduced", State.Stats.Health, 90.0f);
+                TestTrue("Health Reduced", FMath::IsNearlyEqual(State.Stats.Health, 90.0f));
             });
 
             It("Should transition to Combat phase when damaged but healthy", [this]()
@@ -68,7 +68,7 @@ void FBotFunctionalCoreSpec::Define()
                 Store.Dispatch(Damage);
                 
                 auto State = Store.GetState();
-                TestEqual("Phase -> Combat", State.Phase, State::EBotPhase::Combat);
+                TestTrue("Phase -> Combat", State.Phase == State::EBotPhase::Combat);
             });
 
             It("Should transition to Flee phase when critically damaged", [this]()
@@ -81,7 +81,7 @@ void FBotFunctionalCoreSpec::Define()
                 Store.Dispatch(Damage);
                 
                 auto State = Store.GetState();
-                TestEqual("Phase -> Flee", State.Phase, State::EBotPhase::Flee);
+                TestTrue("Phase -> Flee", State.Phase == State::EBotPhase::Flee);
             });
         });
 
@@ -98,9 +98,9 @@ void FBotFunctionalCoreSpec::Define()
                 
                 auto State = Store.GetState();
                 TestTrue("Has Aggro", State.Memory.bHasAggro);
-                TestEqual("TimeSinceLastSeen", State.Memory.TimeSinceLastSeenPlayer, 0.0f);
-                TestEqual("LastKnownPos.X", State.Memory.LastKnownPlayerPos.X, 500.0f);
-                TestEqual("Phase -> Combat", State.Phase, State::EBotPhase::Combat);
+                TestTrue("TimeSinceLastSeen", FMath::IsNearlyEqual(State.Memory.TimeSinceLastSeenPlayer, 0.0f));
+                TestTrue("LastKnownPos.X", FMath::IsNearlyEqual(State.Memory.LastKnownPlayerPos.X, 500.0f));
+                TestTrue("Phase -> Combat", State.Phase == State::EBotPhase::Combat);
             });
         });
 

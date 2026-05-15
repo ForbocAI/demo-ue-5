@@ -28,10 +28,18 @@ void AMemoryDemo::BeginPlay() {
 
 void AMemoryDemo::RunMemorySequence() {
   // 1. Create an immutable memory store
-  FMemoryStore Store = MemoryOps::CreateStore();
+  FMemoryConfig Config;
+  FMemoryStore Store = MemoryFactory::CreateStore(Config);
+  const MemoryTypes::MemoryStoreInitializationResult InitResult =
+      MemoryOps::Initialize(Store);
+  if (InitResult.isLeft) {
+    UE_LOG(LogTemp, Warning, TEXT("MemoryDemo: Failed to initialize store: %s"),
+           *InitResult.left);
+    return;
+  }
   CurrentMemoryStore = MakeShared<const FMemoryStore>(Store);
   UE_LOG(LogTemp, Display,
-         TEXT("MemoryDemo: Created empty memory store"));
+          TEXT("MemoryDemo: Created empty memory store"));
 
   // 2. Store several memories with different types and importance
   StoreMemoryAndLog(
@@ -76,42 +84,45 @@ void AMemoryDemo::RunMemorySequence() {
 }
 
 void AMemoryDemo::StoreMemoryAndLog(const FString &Text,
-                                     const FString &Type,
-                                     float Importance) {
+                                    const FString &Type,
+                                    float Importance) {
   // MemoryOps::Store returns a NEW store (copy-on-write).
   // We rebind our shared pointer to the new store.
-  FMemoryStore Updated =
-      MemoryOps::Store(*CurrentMemoryStore, Text, Type, Importance);
-  CurrentMemoryStore = MakeShared<const FMemoryStore>(Updated);
+  const MemoryTypes::MemoryStoreAddResult Result =
+      MemoryOps::Store(*CurrentMemoryStore, Text, Type, Importance).Get();
+  if (Result.isLeft) {
+    UE_LOG(LogTemp, Warning, TEXT("MemoryDemo: Store failed for [%s]: %s"),
+           *Type, *Result.left);
+    return;
+  }
+
+  CurrentMemoryStore = MakeShared<const FMemoryStore>(Result.right);
 
   UE_LOG(LogTemp, Display,
-         TEXT("MemoryDemo: Stored [%s] (importance: %.1f) — \"%s\""),
+          TEXT("MemoryDemo: Stored [%s] (importance: %.1f) — \"%s\""),
          *Type, Importance, *Text);
 }
 
 void AMemoryDemo::RecallAndLog(const FString &Query) {
   UE_LOG(LogTemp, Display,
-         TEXT("MemoryDemo: Query: \"%s\""), *Query);
+          TEXT("MemoryDemo: Query: \"%s\""), *Query);
 
-  TArray<FMemoryItem> Results =
-      MemoryOps::Recall(*CurrentMemoryStore, Query, 3, 0.5f);
+  const MemoryTypes::MemoryStoreRecallResult Result =
+      MemoryOps::Recall(*CurrentMemoryStore, Query, 3).Get();
+  if (Result.isLeft) {
+    UE_LOG(LogTemp, Warning, TEXT("MemoryDemo: Recall failed: %s"),
+           *Result.left);
+    return;
+  }
 
-  Results.Num() > 0
-      ? [&]() {
-          // Log results recursively (FP-compliant)
-          const auto LogRecursive =
-              [&Results](int32 Idx, const auto &Self) -> void {
-            return Idx >= Results.Num()
-                       ? void()
-                       : (UE_LOG(LogTemp, Display,
-                                 TEXT("  [%d] (sim: %.2f) %s"), Idx,
-                                 Results[Idx].Similarity,
-                                 *Results[Idx].Text),
-                          Self(Idx + 1, Self));
-          };
-          LogRecursive(0, LogRecursive);
-        }()
-      : (UE_LOG(LogTemp, Display,
-                TEXT("  (no memories matched the query)")),
-         void());
+  const TArray<FMemoryItem> &Results = Result.right;
+  if (Results.Num() == 0) {
+    UE_LOG(LogTemp, Display, TEXT("  (no memories matched the query)"));
+    return;
+  }
+
+  for (int32 Index = 0; Index < Results.Num(); ++Index) {
+    UE_LOG(LogTemp, Display, TEXT("  [%d] (sim: %.2f) %s"), Index,
+           Results[Index].Similarity, *Results[Index].Text);
+  }
 }

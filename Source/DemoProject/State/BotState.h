@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "functional_core.hpp"
+#include "Core/functional_core.hpp"
 
 namespace ForbocAI {
 namespace State {

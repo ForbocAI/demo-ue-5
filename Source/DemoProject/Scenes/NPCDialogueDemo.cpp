@@ -35,29 +35,20 @@ void ANPCDialogueDemo::BeginPlay() {
 }
 
 void ANPCDialogueDemo::SendTestLinesRecursive(int32 Index) {
-  return Index >= TestDialogueLines.Num()
-             ? (UE_LOG(LogTemp, Display,
-                       TEXT("NPC Dialogue Demo: All %d lines sent. "
-                            "Conversation history:"),
-                       TestDialogueLines.Num()),
-                // Log conversation history recursively
-                [this]() {
-                  const TArray<FString> History =
-                      DialogueComp->GetConversationHistory();
-                  const auto LogHistoryRecursive =
-                      [&History](int32 Idx, const auto &Self) -> void {
-                    return Idx >= History.Num()
-                               ? void()
-                               : (UE_LOG(LogTemp, Display, TEXT("  [%d] %s"),
-                                         Idx, *History[Idx]),
-                                  Self(Idx + 1, Self));
-                  };
-                  LogHistoryRecursive(0, LogHistoryRecursive);
-                }(),
-                void())
-             : (DialogueComp->SendDialogue(TestDialogueLines[Index]),
-                // Use a timer to space out dialogue (simulates real conversation)
-                GetWorldTimerManager().SetTimerForNextTick(
-                    [this, Index]() { SendTestLinesRecursive(Index + 1); }),
-                void());
+  if (Index >= TestDialogueLines.Num()) {
+    UE_LOG(LogTemp, Display,
+           TEXT("NPC Dialogue Demo: All %d lines sent. Conversation history:"),
+           TestDialogueLines.Num());
+
+    const TArray<FString> History = DialogueComp->GetConversationHistory();
+    for (int32 HistoryIndex = 0; HistoryIndex < History.Num(); ++HistoryIndex) {
+      UE_LOG(LogTemp, Display, TEXT("  [%d] %s"), HistoryIndex,
+             *History[HistoryIndex]);
+    }
+    return;
+  }
+
+  DialogueComp->SendDialogue(TestDialogueLines[Index]);
+  GetWorldTimerManager().SetTimerForNextTick(
+      [this, Index]() { SendTestLinesRecursive(Index + 1); });
 }

@@ -2,9 +2,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Dialogue/DialogueComponent.h"
+#include "DemoProject/Dialogue/DialogueComponent.h"
 #include "GameFramework/Actor.h"
-#include "MemoryModule.h"
+#include "Memory/MemoryModule.h"
 #include "MemoryDemo.generated.h"
 
 /**

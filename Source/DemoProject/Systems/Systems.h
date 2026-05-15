@@ -78,10 +78,13 @@ struct FMovementQuery {
 inline func::Maybe<FBotAction>
 EvaluateHazards(const FBotState &State, const FOverlapResult &Overlap,
                 float DeltaTime) {
-  return (!Overlap.bOverlapping || State.Stats.Health <= 0.0f)
-             ? func::Maybe<FBotAction>{}
-             : func::Maybe<FBotAction>{FActionTakeDamage{
-                   Overlap.DamagePerSecond * DeltaTime, Overlap.HazardSource}};
+  if (!Overlap.bOverlapping || State.Stats.Health <= 0.0f) {
+    return func::nothing<FBotAction>();
+  }
+
+  return func::just<FBotAction>(FBotAction{
+      FActionTakeDamage{Overlap.DamagePerSecond * DeltaTime,
+                        Overlap.HazardSource}});
 }
 
 // ── Movement System ──
@@ -105,14 +108,15 @@ EvaluateMovement(const FBotState &State, const FMovementQuery &Query) {
       FVector::DistSquared(State.Position, Query.TargetPosition);
 
   // Already at target (within 1 unit) or dead
-  return (DistSq < 1.0f || State.Stats.Health <= 0.0f)
-             ? func::Maybe<FBotAction>{}
-             : func::Maybe<FBotAction>{FActionMove{
-                   FMath::VInterpConstantTo(State.Position,
-                                            Query.TargetPosition,
-                                            Query.DeltaTime,
-                                            Query.InterpSpeed),
-                   Query.InterpSpeed}};
+  if (DistSq < 1.0f || State.Stats.Health <= 0.0f) {
+    return func::nothing<FBotAction>();
+  }
+
+  return func::just<FBotAction>(
+      FBotAction{FActionMove{FMath::VInterpConstantTo(
+                                 State.Position, Query.TargetPosition,
+                                 Query.DeltaTime, Query.InterpSpeed),
+                             Query.InterpSpeed}});
 }
 
 // ── Awareness System ──
@@ -133,15 +137,18 @@ EvaluateMovement(const FBotState &State, const FMovementQuery &Query) {
  */
 inline func::Maybe<FBotAction>
 EvaluateAwareness(const FBotState &State, const FVisibilityResult &Vis) {
-  return (!Vis.bCanSeeEnemy || State.Stats.Health <= 0.0f)
-             ? func::Maybe<FBotAction>{}
-             // Only dispatch if enemy moved significantly or no aggro
-             : (State.Memory.bHasAggro &&
-                FVector::DistSquared(State.Memory.LastKnownPlayerPos,
-                                     Vis.EnemyPosition) < 100.0f)
-                   ? func::Maybe<FBotAction>{}
-                   : func::Maybe<FBotAction>{
-                         FActionSpotEnemy{Vis.EnemyPosition}};
+  if (!Vis.bCanSeeEnemy || State.Stats.Health <= 0.0f) {
+    return func::nothing<FBotAction>();
+  }
+
+  if (State.Memory.bHasAggro &&
+      FVector::DistSquared(State.Memory.LastKnownPlayerPos,
+                           Vis.EnemyPosition) < 100.0f) {
+    return func::nothing<FBotAction>();
+  }
+
+  return func::just<FBotAction>(
+      FBotAction{FActionSpotEnemy{Vis.EnemyPosition}});
 }
 
 // ── Phase System ──
@@ -160,12 +167,14 @@ EvaluateAwareness(const FBotState &State, const FVisibilityResult &Vis) {
 inline func::Maybe<FBotAction>
 EvaluatePhaseTransition(const FBotState &State) {
   // Flee threshold: 20% health in combat
-  return (State.Phase == EBotPhase::Combat &&
-          State.Stats.Health < State.Stats.MaxHealth * 0.2f &&
-          State.Memory.bHasAggro)
-             ? func::Maybe<FBotAction>{FActionFlee{
-                   State.Memory.LastKnownPlayerPos}}
-             : func::Maybe<FBotAction>{};
+  if (State.Phase == EBotPhase::Combat &&
+      State.Stats.Health < State.Stats.MaxHealth * 0.2f &&
+      State.Memory.bHasAggro) {
+    return func::just<FBotAction>(
+        FBotAction{FActionFlee{State.Memory.LastKnownPlayerPos}});
+  }
+
+  return func::nothing<FBotAction>();
 }
 
 // ── System Registry (typed list for pipeline) ──

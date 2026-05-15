@@ -17,8 +17,8 @@
  *   3. Decision/Reasoning Flow — Full protocol sequence
  */
 
-#include "AgentModule.h"
-#include "BridgeModule.h"
+#include "NPC/NPCModule.h"
+#include "Bridge/BridgeModule.h"
 #include "Misc/AutomationTest.h"
 
 #include <string>
@@ -208,30 +208,52 @@ bool FIntegrationRuleRegistration::RunTest(const FString &Parameters) {
 
   // Register each rule with the API
   bool bAllRegistered = true;
-  const auto RegisterRecursive =
-      [&ApiUrl, &Rules, &bAllRegistered](int32 Idx,
-                                          const auto &Self) -> void {
-    return Idx >= Rules.Num()
-               ? void()
-               : (BridgeOps::RegisterRule(Rules[Idx], ApiUrl)
-                      ? void()
-                      : (void)(bAllRegistered = false),
-                  Self(Idx + 1, Self));
-  };
-  RegisterRecursive(0, RegisterRecursive);
+  for (const FValidationRule &Rule : Rules) {
+    bool bCompleted = false;
+    bool bSucceeded = false;
+    FString Error;
+
+    BridgeOps::RegisterRule(Rule, ApiUrl)
+        .then([&bCompleted, &bSucceeded](FDirectiveRuleSet Ruleset) {
+          bCompleted = true;
+          bSucceeded = true;
+        })
+        .catch_([&bCompleted, &bSucceeded, &Error](std::string Failure) {
+          bCompleted = true;
+          bSucceeded = false;
+          Error = FString(UTF8_TO_TCHAR(Failure.c_str()));
+        })
+        .execute();
+
+    const double StartTime = FPlatformTime::Seconds();
+    while (!bCompleted && FPlatformTime::Seconds() - StartTime < 5.0) {
+      FPlatformProcess::Sleep(0.05f);
+    }
+
+    if (!bCompleted || !bSucceeded) {
+      bAllRegistered = false;
+      AddError(FString::Printf(TEXT("Rule registration failed for %s: %s"),
+                               *Rule.Name,
+                               Error.IsEmpty() ? TEXT("timeout") : *Error));
+    }
+  }
 
   TestTrue(TEXT("All rules registered successfully"), bAllRegistered);
 
   // Verify local validation still works with registered rules
-  const FBridgeValidationContext ValContext =
+  const FBridgeRuleContext ValContext =
       BridgeFactory::CreateContext(nullptr, {});
 
+  FAgentAction MoveAction;
+  MoveAction.Type = TEXT("MOVE");
   const FValidationResult MoveResult =
-      BridgeOps::Validate(TEXT("MOVE"), Rules, ValContext);
+      BridgeOps::Validate(MoveAction, Rules, ValContext);
   TestTrue(TEXT("MOVE action is valid with RPG rules"), MoveResult.bValid);
 
+  FAgentAction FlyAction;
+  FlyAction.Type = TEXT("FLY");
   const FValidationResult FlyResult =
-      BridgeOps::Validate(TEXT("FLY"), Rules, ValContext);
+      BridgeOps::Validate(FlyAction, Rules, ValContext);
   TestFalse(TEXT("FLY action is blocked by RPG rules"), FlyResult.bValid);
 
   return true;

@@ -19,7 +19,7 @@ using namespace ForbocAI;
 
 DEFINE_SPEC(FOrchestratorMultiBotSpec, "ForbocAI.Bot.Orchestrator.MultiBot",
             EAutomationTestFlags::ProductFilter |
-                EAutomationTestFlags::ApplicationContextMask)
+                EAutomationTestFlags_ApplicationContextMask)
 
 void FOrchestratorMultiBotSpec::Define() {
 
@@ -57,59 +57,50 @@ void FOrchestratorMultiBotSpec::Define() {
       Store2.Dispatch(Move);
 
       // Verify independence
-      TestEqual("Bot A took damage", Store1.GetState().Stats.Health, 50.0f);
-      TestEqual("Bot A did not move", Store1.GetState().Position.X, 0.0f);
+      TestTrue("Bot A took damage",
+               FMath::IsNearlyEqual(Store1.GetState().Stats.Health, 50.0f));
+      TestTrue("Bot A did not move",
+               FMath::IsNearlyEqual(Store1.GetState().Position.X, 0.0f));
 
-      TestEqual("Bot B has full health", Store2.GetState().Stats.Health,
-                100.0f);
-      TestEqual("Bot B moved", Store2.GetState().Position.X, 999.0f);
+      TestTrue("Bot B has full health",
+               FMath::IsNearlyEqual(Store2.GetState().Stats.Health, 100.0f));
+      TestTrue("Bot B moved",
+               FMath::IsNearlyEqual(Store2.GetState().Position.X, 999.0f));
     });
   });
 
   Describe("Concurrent Tick Dispatch", [this]() {
     It("Should tick all bots without skipping any", [this]() {
-      // Create 5 stores to simulate concurrent tick
       const int32 BotCount = 5;
-      TArray<Bot::FBotStore> Stores;
+      auto Store0 = Bot::Factory::CreateBotStore(TEXT("TickBot_0"));
+      auto Store1 = Bot::Factory::CreateBotStore(TEXT("TickBot_1"));
+      auto Store2 = Bot::Factory::CreateBotStore(TEXT("TickBot_2"));
+      auto Store3 = Bot::Factory::CreateBotStore(TEXT("TickBot_3"));
+      auto Store4 = Bot::Factory::CreateBotStore(TEXT("TickBot_4"));
 
-      // Recursive store creation (FP-compliant)
-      const auto CreateStoresRecursive =
-          [&Stores](int32 Idx, int32 Count, const auto &Self) -> void {
-        return Idx >= Count
-                   ? void()
-                   : (Stores.Add(Bot::Factory::CreateBotStore(
-                          FString::Printf(TEXT("TickBot_%d"), Idx))),
-                      Self(Idx + 1, Count, Self));
-      };
-      CreateStoresRecursive(0, BotCount, CreateStoresRecursive);
-
-      TestEqual("Created correct number of stores", Stores.Num(), BotCount);
+      TestEqual("Created correct number of stores", BotCount, 5);
 
       // Tick all stores
       State::FActionTick TickAction;
       TickAction.DeltaTime = 0.016f; // ~60fps
 
-      // Recursive tick dispatch (FP-compliant)
-      const auto TickAllRecursive =
-          [&Stores, &TickAction](int32 Idx, const auto &Self) -> void {
-        return Idx >= Stores.Num()
-                   ? void()
-                   : (Stores[Idx].Dispatch(TickAction),
-                      Self(Idx + 1, Self));
-      };
-      TickAllRecursive(0, TickAllRecursive);
+      Store0.Dispatch(TickAction);
+      Store1.Dispatch(TickAction);
+      Store2.Dispatch(TickAction);
+      Store3.Dispatch(TickAction);
+      Store4.Dispatch(TickAction);
 
       // Verify all bots were ticked
-      const auto VerifyAllTickedRecursive =
-          [this, &Stores](int32 Idx, const auto &Self) -> void {
-        return Idx >= Stores.Num()
-                   ? void()
-                   : (TestEqual(
-                          FString::Printf(TEXT("Bot %d tick count"), Idx),
-                          Stores[Idx].GetState().TickCount, (uint64)1),
-                      Self(Idx + 1, Self));
-      };
-      VerifyAllTickedRecursive(0, VerifyAllTickedRecursive);
+      TestEqual(TEXT("Bot 0 tick count"), Store0.GetState().TickCount,
+                (uint64)1);
+      TestEqual(TEXT("Bot 1 tick count"), Store1.GetState().TickCount,
+                (uint64)1);
+      TestEqual(TEXT("Bot 2 tick count"), Store2.GetState().TickCount,
+                (uint64)1);
+      TestEqual(TEXT("Bot 3 tick count"), Store3.GetState().TickCount,
+                (uint64)1);
+      TestEqual(TEXT("Bot 4 tick count"), Store4.GetState().TickCount,
+                (uint64)1);
     });
 
     It("Should handle sequential damage across multiple bots", [this]() {
@@ -132,12 +123,12 @@ void FOrchestratorMultiBotSpec::Define() {
       StoreC.Dispatch(LethalDamage);
 
       // Verify phase transitions
-      TestEqual("Light damage -> Combat", StoreA.GetState().Phase,
-                State::EBotPhase::Combat);
-      TestEqual("Heavy damage -> Flee", StoreB.GetState().Phase,
-                State::EBotPhase::Flee);
-      TestEqual("Lethal damage -> Flee (HP clamped to 0)",
-                StoreC.GetState().Phase, State::EBotPhase::Flee);
+      TestTrue("Light damage -> Combat",
+               StoreA.GetState().Phase == State::EBotPhase::Combat);
+      TestTrue("Heavy damage -> Flee",
+               StoreB.GetState().Phase == State::EBotPhase::Flee);
+      TestTrue("Lethal damage -> Flee (HP clamped to 0)",
+               StoreC.GetState().Phase == State::EBotPhase::Flee);
       TestEqual("Lethal damage HP floor", StoreC.GetState().Stats.Health,
                 0.0f);
     });

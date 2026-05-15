@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "AgentModule.h"
+#include "NPC/NPCModule.h"
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
 #include "DialogueComponent.generated.h"

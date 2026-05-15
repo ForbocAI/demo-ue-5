@@ -1,11 +1,11 @@
 #pragma once
 
-#include "AgentModule.h"
+#include "NPC/NPCModule.h"
 #include "Bot/Factories/BotFactory.h"
 #include "Bot/Factories/OrchestratorStoreFactory.h"
-#include "BotOrchestrator.generated.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "BotOrchestrator.generated.h"
 
 /**
  * ABotOrchestrator - The central brain for the Demo's AI entities.

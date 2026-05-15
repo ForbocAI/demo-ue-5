@@ -11,16 +11,14 @@
  * mark the tape completed, and recurse.
  */
 
-#include "AgentModule.h"
+#include "NPC/NPCModule.h"
 #include "Misc/AutomationTest.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "Protocol/ProtocolThunks.h"
 #include "Core/ThunkDetail.h"
 
-DEFINE_SPEC(FReasoningHandlerSpec, "ForbocAI.SDK.ReasoningHandler",
-            EAutomationTestFlags::ProductFilter |
-                EAutomationTestFlags::ApplicationContextMask)
+DEFINE_SPEC(FReasoningHandlerSpec, "ForbocAI.SDK.ReasoningHandler", EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FReasoningHandlerSpec::Define() {
 

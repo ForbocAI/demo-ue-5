@@ -3,9 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "Misc/AutomationTest.h"
 
-DEFINE_SPEC(FBotOrchestratorSpec, "ForbocAI.Bot.Orchestrator",
-            EAutomationTestFlags::ProductFilter |
-                EAutomationTestFlags::ApplicationContextMask)
+DEFINE_SPEC(FBotOrchestratorSpec, "ForbocAI.Bot.Orchestrator", EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FBotOrchestratorSpec::Define() {
   Describe("Bot Registration", [this]() {
