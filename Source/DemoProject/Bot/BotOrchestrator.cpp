@@ -70,7 +70,6 @@ void ABotOrchestrator::RegisterBot(AActor *Actor, FString Persona) {
     // Initialize SDK Agent
     FAgentConfig Config;
     Config.Persona = Persona;
-    Config.ApiUrl = ApiUrl;
 
     // AgentFactory::Create returns FAgent directly (immutable value).
     Instance.Agent =

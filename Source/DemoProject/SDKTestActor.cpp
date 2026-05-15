@@ -11,7 +11,6 @@ ASDKTestActor::ASDKTestActor() {
   PrimaryActorTick.bCanEverTick = false;
 
   Persona = TEXT("Cyber-Merchant");
-  ApiUrl = TEXT("https://api.forboc.ai");
 }
 
 void ASDKTestActor::BeginPlay() {
@@ -29,7 +28,6 @@ void ASDKTestActor::BeginPlay() {
 void ASDKTestActor::InitializeAgent() {
   FAgentConfig Config;
   Config.Persona = Persona;
-  Config.ApiUrl = ApiUrl;
 
   // Create agent via factory function (Functional C++ pattern).
   // MakeShared wraps the immutable FAgent so we can rebind later.
@@ -46,12 +44,12 @@ void ASDKTestActor::InitializeAgent() {
 
   // REGISTER RULES WITH API (Recursive — FP-compliant)
   const auto RegisterRulesRecursive =
-      [&ApiUrl = this->ApiUrl](const TArray<FValidationRule> &Rules, int32 Idx,
-                                const auto &Self) -> void {
-    return Idx >= Rules.Num()
-               ? void()
-               : (BridgeOps::RegisterRule(Rules[Idx], ApiUrl),
-                  Self(Rules, Idx + 1, Self));
+      [](const TArray<FValidationRule> &Rules, int32 Idx,
+                const auto &Self) -> void {
+     return Idx >= Rules.Num()
+                ? void()
+                : (BridgeOps::RegisterRule(Rules[Idx], FString()),
+                   Self(Rules, Idx + 1, Self));
   };
   RegisterRulesRecursive(ActiveRules, 0, RegisterRulesRecursive);
 
@@ -170,7 +168,7 @@ void ASDKTestActor::ExportSoul() {
   UE_LOG(LogTemp, Display, TEXT("ForbocAI: Exporting Soul to Arweave..."));
 
   // Call SDK Ops
-  SoulOps::ExportToArweave(Soul, ApiUrl, [this](FString TxId) {
+  SoulOps::ExportToArweave(Soul, FString(), [this](FString TxId) {
     // Logic inside callback (on game thread via Lambda, ensure thread safety if
     // needed) Getting back on Game Thread usually handled by HTTP module
     // callbacks.

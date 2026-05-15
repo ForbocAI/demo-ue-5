@@ -34,10 +34,6 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI")
   float ObservationInterval = 5.0f;
 
-  /** API URL for the SDK. */
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI")
-  FString ApiUrl = TEXT("http://localhost:8080");
-
   /** Register a physical actor as a managed bot. */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI")
   void RegisterBot(AActor *Actor, FString Persona);

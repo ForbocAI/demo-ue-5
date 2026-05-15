@@ -9,7 +9,6 @@ UDialogueComponent::UDialogueComponent() {
 void UDialogueComponent::InitializeDialogue() {
   FAgentConfig Config;
   Config.Persona = Persona;
-  Config.ApiUrl = ApiUrl;
 
   Agent = MakeShared<const FAgent>(AgentFactory::Create(Config));
 

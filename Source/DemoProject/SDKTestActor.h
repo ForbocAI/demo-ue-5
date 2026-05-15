@@ -40,9 +40,6 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI")
   FString Persona;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI")
-  FString ApiUrl;
-
   // --- State ---
 
   /**

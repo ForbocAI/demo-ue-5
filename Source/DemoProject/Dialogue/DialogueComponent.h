@@ -35,10 +35,6 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI|Dialogue")
   FString Persona = TEXT("NPC");
 
-  /** API URL for the SDK backend. */
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI|Dialogue")
-  FString ApiUrl = TEXT("http://localhost:8080");
-
   /** Maximum conversation history entries to retain. */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI|Dialogue")
   int32 MaxHistorySize = 50;
@@ -50,7 +46,7 @@ public:
 
   // --- Blueprint Callable ---
 
-  /** Initialize the dialogue agent from configured Persona/ApiUrl. */
+  /** Initialize the dialogue agent from configured Persona and SDK runtime config. */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI|Dialogue")
   void InitializeDialogue();
 
