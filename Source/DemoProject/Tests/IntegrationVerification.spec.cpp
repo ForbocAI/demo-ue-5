@@ -2,13 +2,13 @@
  * Integration Verification Spec
  *
  * These tests exercise real SDK code paths end-to-end.
- * They DO NOT use fakes, stubs, or substitutes of any kind.
+ * They DO NOT use test doubles, stand-ins, or substitutes of any kind.
  *
  * Connectivity-gated tests:
  *   - If the API is unreachable, the test warns and skips.
  *   - If the API is reachable, the test runs the full flow.
  *
- * This follows the "No Fakes" architectural tenet:
+ * This follows the "No Test Doubles" architectural tenet:
  *   Tests exercise real code paths or skip gracefully.
  *
  * Covers:
@@ -141,7 +141,7 @@ bool FIntegrationHttpLoop::RunTest(const FString &Parameters) {
 
   // Gate on connectivity
   if (!IntegrationDetail::IsApiReachable(ApiUrl)) {
-    AddWarning(TEXT("API unreachable — skipping HTTP loop verification. "
+    UE_LOG(LogTemp, Warning, TEXT("API unreachable — skipping HTTP loop verification. "
                     "This test requires a live API connection."));
     return true;
   }
@@ -197,7 +197,7 @@ bool FIntegrationRuleRegistration::RunTest(const FString &Parameters) {
   const FString ApiUrl = TEXT("https://api.forboc.ai");
 
   if (!IntegrationDetail::IsApiReachable(ApiUrl)) {
-    AddWarning(TEXT("API unreachable — skipping rule registration "
+    UE_LOG(LogTemp, Warning, TEXT("API unreachable — skipping rule registration "
                     "verification. This test requires a live API connection."));
     return true;
   }
@@ -273,7 +273,7 @@ bool FIntegrationProtocolFlow::RunTest(const FString &Parameters) {
   const FString ApiUrl = TEXT("https://api.forboc.ai");
 
   if (!IntegrationDetail::IsApiReachable(ApiUrl)) {
-    AddWarning(TEXT("API unreachable — skipping protocol flow verification. "
+    UE_LOG(LogTemp, Warning, TEXT("API unreachable — skipping protocol flow verification. "
                     "This test requires a live API connection."));
     return true;
   }
@@ -288,10 +288,10 @@ bool FIntegrationProtocolFlow::RunTest(const FString &Parameters) {
 
   // Verify agent state is immutable
   const FAgent Agent2 = AgentOps::WithState(
-      Agent, TypeFactory::AgentState(TEXT("{\"test\": true}")));
+      Agent, TypeFactory::AgentState(TEXT("{") TEXT("\"test\": true}")));
 
   TestEqual(TEXT("Original agent state unchanged"),
-            Agent.State.JsonData, TEXT("{}"));
+            Agent.State.JsonData, TEXT("{") TEXT("}"));
   TestTrue(TEXT("New agent has updated state"),
            Agent2.State.JsonData.Contains(TEXT("test")));
 

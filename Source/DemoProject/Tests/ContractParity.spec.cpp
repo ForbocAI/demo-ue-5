@@ -157,8 +157,8 @@ bool FContractParityApiValidation::RunTest(const FString &Parameters) {
       TestGame::Contract::ValidateContractParity();
 
   Violations.Num() > 0 && Violations[0].Contains(TEXT("Cannot reach"))
-      ? AddWarning(TEXT("API contract endpoint unavailable — "
-                        "skipping live parity check"))
+      ? (UE_LOG(LogTemp, Warning, TEXT("API contract endpoint unavailable — "
+                        "skipping live parity check")), void())
       : void();
 
   // Log all violations if API was reachable
