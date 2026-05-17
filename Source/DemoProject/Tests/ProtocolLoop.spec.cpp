@@ -25,7 +25,7 @@ void FProtocolLoopSpec::Define() {
     It("Should create an agent via AgentFactory with valid config", [this]() {
       FAgentConfig Config;
       Config.Persona = TEXT("TestNPC");
-      Config.ApiUrl = TEXT("http://localhost:8080");
+      SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
 
       const FAgent Agent = AgentFactory::Create(Config);
 
@@ -36,7 +36,7 @@ void FProtocolLoopSpec::Define() {
     It("Should create an immutable agent wrapped in TSharedPtr", [this]() {
       FAgentConfig Config;
       Config.Persona = TEXT("Immutable-Test");
-      Config.ApiUrl = TEXT("http://localhost:8080");
+      SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
 
       TSharedPtr<const FAgent> AgentPtr =
           MakeShared<const FAgent>(AgentFactory::Create(Config));
@@ -50,7 +50,7 @@ void FProtocolLoopSpec::Define() {
     It("Should return a new agent on WithState (immutable update)", [this]() {
       FAgentConfig Config;
       Config.Persona = TEXT("StateTester");
-      Config.ApiUrl = TEXT("http://localhost:8080");
+      SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
 
       const FAgent Original = AgentFactory::Create(Config);
       const FAgentState NewState =
@@ -72,7 +72,7 @@ void FProtocolLoopSpec::Define() {
       // but the call itself must not stall or segfault.
       FAgentConfig Config;
       Config.Persona = TEXT("AsyncTester");
-      Config.ApiUrl = TEXT("http://localhost:8080");
+      SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
 
       TSharedPtr<const FAgent> Agent =
           MakeShared<const FAgent>(AgentFactory::Create(Config));
@@ -102,7 +102,7 @@ void FProtocolLoopSpec::Define() {
     It("Should validate a valid action against RPG rules", [this]() {
       FAgentConfig Config;
       Config.Persona = TEXT("BridgeTester");
-      Config.ApiUrl = TEXT("http://localhost:8080");
+      SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
 
       const FAgent Agent = AgentFactory::Create(Config);
       TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();

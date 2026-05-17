@@ -19,8 +19,7 @@ in-editor to see each scene wired end-to-end.
 | Xcode | 15+ (macOS) |
 | Clang | 16+ (Linux) |
 
-The demo talks to the ForbocAI API over HTTP. By default it points at
-`https://api.forboc.ai`; override per-actor via the **Api Url** property.
+The demo talks to the ForbocAI API over HTTP. By default it uses production routing; for local-dev overrides, use `SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""))` globally as an internal escape hatch.
 
 ---
 

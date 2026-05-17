@@ -149,7 +149,7 @@ bool FIntegrationHttpLoop::RunTest(const FString &Parameters) {
   // Create agent via factory
   FAgentConfig Config;
   Config.Persona = TEXT("IntegrationTestPersona");
-  Config.ApiUrl = ApiUrl;
+  SDKConfig::SetApiConfig(ApiUrl, TEXT(""));
 
   const FAgent Agent = AgentFactory::Create(Config);
   TestFalse(TEXT("Agent ID is not empty"), Agent.Id.IsEmpty());
@@ -281,7 +281,7 @@ bool FIntegrationProtocolFlow::RunTest(const FString &Parameters) {
   // Create agent
   FAgentConfig Config;
   Config.Persona = TEXT("ProtocolFlowTestPersona");
-  Config.ApiUrl = ApiUrl;
+  SDKConfig::SetApiConfig(ApiUrl, TEXT(""));
 
   const FAgent Agent = AgentFactory::Create(Config);
   TestFalse(TEXT("Agent created with valid ID"), Agent.Id.IsEmpty());
