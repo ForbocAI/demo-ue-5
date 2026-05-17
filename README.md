@@ -72,9 +72,10 @@ The demo talks to the ForbocAI API over HTTP. By default it uses production rout
 ### 1. Create an agent
 
 ```cpp
+// Zero-config: SDKConfig targets api.forboc.ai by default. ApiUrl is an
+// internal escape hatch — set it only for non-production API instances.
 FAgentConfig Config;
 Config.Persona = TEXT("Cyber-Merchant");
-Config.ApiUrl  = TEXT("https://api.forboc.ai");
 
 CurrentAgent = MakeShared<const FAgent>(AgentFactory::Create(Config));
 ```
@@ -109,7 +110,7 @@ CurrentAgent =
    parent `SDKTestActor` → name it `BP_SDKTestAgent`.
 2. **Configure**: open `BP_SDKTestAgent` → Class Defaults.
    - **Persona**: e.g. `"Cyber-Merchant"`
-   - **Api Url**: `https://api.forboc.ai`
+   - **Api Url**: leave blank — the SDK defaults to `https://api.forboc.ai`. Set it only when pointing at a non-production API instance.
 3. **Implement events**: in the Event Graph, implement
    **Event On Agent Response** and wire it to **Print String**
    (or your dialogue widget).
