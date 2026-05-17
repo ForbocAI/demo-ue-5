@@ -122,30 +122,6 @@ CurrentAgent =
 
 ---
 
-## Plugin layout (heads-up)
-
-The submodule at `Plugins/ForbocAI_SDK/` points at the **root** of the
-[`sdk-ue-5.7`](https://github.com/ForbocAI/sdk-ue-5.7) repository, not at
-the SDK's internal plugin folder. As a result the actual `.uplugin` ends
-up nested:
-
-```
-demo-ue-5.7/Plugins/ForbocAI_SDK/Plugins/ForbocAI_SDK/ForbocAI_SDK.uplugin
-```
-
-UE 5.7 recurses into the project's `Plugins/` tree when it scans for
-`*.uplugin` files, so the plugin still loads automatically — there is
-nothing to do at install time. The SDK repo's own root-level files
-(`ForbocAI_SDK.uproject`, `Source/`, `ThirdParty/`, `scripts/`) live
-alongside the nested plugin folder; they exist for SDK-side development
-and the demo build does not depend on them.
-
-If you are vendoring this SDK into a new project from scratch (without
-the submodule), copy only `Plugins/ForbocAI_SDK/Plugins/ForbocAI_SDK/`
-into your project's `Plugins/` directory.
-
----
-
 ## Troubleshooting
 
 | Problem | Fix |
