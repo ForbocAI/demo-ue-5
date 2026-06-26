@@ -10,6 +10,7 @@ class AStaticMeshActor;
 class AFrenchGulchTerrainMesh;
 class ATalkableTownsperson;
 class AWalkingHorse;
+class UMaterialInterface;
 class UStaticMesh;
 
 UCLASS()
@@ -26,6 +27,7 @@ public:
 
 private:
   UStaticMesh *CubeMesh;
+  UMaterialInterface *BlockBaseMaterial;
   FFrenchGulchTerrainData TerrainData;
   FFrenchGulchOrthoData OrthoData;
   rtk::EnhancedStore<ForbocAI::Demo::FrenchGulch::FFrenchGulchMapState>
@@ -41,11 +43,12 @@ private:
   void SeedMapStore();
 
   AStaticMeshActor *SpawnBlock(const FString &Name, const FVector &Location,
-                               const FVector &Scale);
+                               const FVector &Scale,
+                               const FLinearColor &Color);
   AStaticMeshActor *SpawnTerrainBlock(
       const FString &Name,
       const ForbocAI::Demo::FrenchGulch::FFrenchGulchLocalPoint &Point,
-      const FVector &Scale);
+      const FVector &Scale, const FLinearColor &Color);
   void SpawnTerrainLabel(
       const FString &Text,
       const ForbocAI::Demo::FrenchGulch::FFrenchGulchLocalPoint &Point,

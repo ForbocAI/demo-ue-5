@@ -3,6 +3,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "FrenchGulch/Components/FrenchGulchLayout.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialInterface.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace FGL = ForbocAI::Demo::FrenchGulch::FrenchGulchLayout;
@@ -42,6 +44,23 @@ float HorseBackZ() {
 float HorseNameTextZ() {
   return WorldFeet(LegHeightFeet + BodyHeightFeet + NeckHeightFeet +
                    HeadHeightFeet);
+}
+
+void ApplyHorseBlockoutColor(UStaticMeshComponent *Part,
+                             UMaterialInterface *BaseMaterial,
+                             const FLinearColor &Color) {
+  if (!Part || !BaseMaterial) {
+    return;
+  }
+
+  UMaterialInstanceDynamic *Material =
+      UMaterialInstanceDynamic::Create(BaseMaterial, Part);
+  if (!Material) {
+    return;
+  }
+
+  Material->SetVectorParameterValue(TEXT("Color"), Color);
+  Part->SetMaterial(0, Material);
 }
 } // namespace
 
@@ -137,8 +156,12 @@ AWalkingHorse::AWalkingHorse()
 
   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeAsset(
       TEXT("/Engine/BasicShapes/Cube.Cube"));
+  static ConstructorHelpers::FObjectFinder<UMaterialInterface> BlockMaterial(
+      TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
   if (CubeAsset.Succeeded()) {
-    ConfigurePrimitive(CubeAsset.Object);
+    ConfigurePrimitive(CubeAsset.Object,
+                       BlockMaterial.Succeeded() ? BlockMaterial.Object
+                                                 : nullptr);
   }
 
   HorseName = TEXT("Town horse");
@@ -188,7 +211,8 @@ void AWalkingHorse::AdvancePatrol(float DeltaTime) {
   SetActorRotation(Delta.Rotation());
 }
 
-void AWalkingHorse::ConfigurePrimitive(UStaticMesh *Mesh) {
+void AWalkingHorse::ConfigurePrimitive(UStaticMesh *Mesh,
+                                       UMaterialInterface *BaseMaterial) {
   TArray<UStaticMeshComponent *> Parts = {
       BodyMesh,        NeckMesh,         HeadMesh,       FrontLeftLegMesh,
       FrontRightLegMesh, RearLeftLegMesh, RearRightLegMesh, TailMesh,
@@ -199,6 +223,24 @@ void AWalkingHorse::ConfigurePrimitive(UStaticMesh *Mesh) {
       Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
   }
+  ApplyHorseBlockoutColor(BodyMesh, BaseMaterial,
+                          FLinearColor(0.42f, 0.21f, 0.08f));
+  ApplyHorseBlockoutColor(NeckMesh, BaseMaterial,
+                          FLinearColor(0.34f, 0.16f, 0.06f));
+  ApplyHorseBlockoutColor(HeadMesh, BaseMaterial,
+                          FLinearColor(0.36f, 0.17f, 0.06f));
+  ApplyHorseBlockoutColor(FrontLeftLegMesh, BaseMaterial,
+                          FLinearColor(0.16f, 0.1f, 0.06f));
+  ApplyHorseBlockoutColor(FrontRightLegMesh, BaseMaterial,
+                          FLinearColor(0.16f, 0.1f, 0.06f));
+  ApplyHorseBlockoutColor(RearLeftLegMesh, BaseMaterial,
+                          FLinearColor(0.16f, 0.1f, 0.06f));
+  ApplyHorseBlockoutColor(RearRightLegMesh, BaseMaterial,
+                          FLinearColor(0.16f, 0.1f, 0.06f));
+  ApplyHorseBlockoutColor(TailMesh, BaseMaterial,
+                          FLinearColor(0.08f, 0.05f, 0.03f));
+  ApplyHorseBlockoutColor(SaddleMesh, BaseMaterial,
+                          FLinearColor(0.12f, 0.07f, 0.04f));
 }
 
 void AWalkingHorse::RefreshText() {

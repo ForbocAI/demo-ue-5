@@ -6,6 +6,7 @@
 
 class UStaticMeshComponent;
 class UTextRenderComponent;
+class UMaterialInterface;
 
 UCLASS()
 class DEMOPROJECT_API AWalkingHorse : public AActor {
@@ -69,6 +70,6 @@ private:
   float PauseRemaining;
 
   void AdvancePatrol(float DeltaTime);
-  void ConfigurePrimitive(UStaticMesh *Mesh);
+  void ConfigurePrimitive(UStaticMesh *Mesh, UMaterialInterface *BaseMaterial);
   void RefreshText();
 };

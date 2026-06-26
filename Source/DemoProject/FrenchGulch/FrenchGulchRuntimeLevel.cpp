@@ -6,6 +6,8 @@
 #include "Engine/TextRenderActor.h"
 #include "FrenchGulch/Entities/FrenchGulchEntities.h"
 #include "FrenchGulch/FrenchGulchTerrainMesh.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialInterface.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace FG = ForbocAI::Demo::FrenchGulch;
@@ -47,16 +49,66 @@ FVector LabelLocationForBlock(const FG::FFrenchGulchLandmark &Landmark) {
              (FGL::CubeHalfExtent() * Landmark.Scale.Z +
               FGL::BuildingFoundationHeight() + FGL::CubeHalfExtent());
 }
+
+FLinearColor BuildingColor() { return FLinearColor(0.62f, 0.38f, 0.2f); }
+
+FLinearColor RoadColor() { return FLinearColor(0.38f, 0.32f, 0.24f); }
+
+FLinearColor WaterColor() { return FLinearColor(0.09f, 0.34f, 0.6f); }
+
+FLinearColor FoliageColor() { return FLinearColor(0.12f, 0.34f, 0.16f); }
+
+FLinearColor RockColor() { return FLinearColor(0.43f, 0.4f, 0.35f); }
+
+FLinearColor MineColor() { return FLinearColor(0.28f, 0.24f, 0.2f); }
+
+FLinearColor MarkerColor() { return FLinearColor(0.72f, 0.52f, 0.12f); }
+
+FLinearColor ColorForNatureKind(FG::EFrenchGulchNatureFeatureKind Kind) {
+  switch (Kind) {
+  case FG::EFrenchGulchNatureFeatureKind::Water:
+    return WaterColor();
+  case FG::EFrenchGulchNatureFeatureKind::Rock:
+    return RockColor();
+  case FG::EFrenchGulchNatureFeatureKind::TreeGrove:
+  case FG::EFrenchGulchNatureFeatureKind::Shrub:
+    return FoliageColor();
+  case FG::EFrenchGulchNatureFeatureKind::PCGMarker:
+  case FG::EFrenchGulchNatureFeatureKind::WaterSystemMarker:
+    return MarkerColor();
+  }
+  return MarkerColor();
+}
+
+void ApplyBlockoutColor(AStaticMeshActor *Block, UMaterialInterface *BaseMaterial,
+                        const FLinearColor &Color) {
+  if (!Block || !BaseMaterial || !Block->GetStaticMeshComponent()) {
+    return;
+  }
+
+  UMaterialInstanceDynamic *Material =
+      UMaterialInstanceDynamic::Create(BaseMaterial, Block);
+  if (!Material) {
+    return;
+  }
+
+  Material->SetVectorParameterValue(TEXT("Color"), Color);
+  Block->GetStaticMeshComponent()->SetMaterial(0, Material);
+}
 } // namespace
 
 AFrenchGulchRuntimeLevel::AFrenchGulchRuntimeLevel()
-    : bSpawnOnBeginPlay(true), CubeMesh(nullptr),
+    : bSpawnOnBeginPlay(true), CubeMesh(nullptr), BlockBaseMaterial(nullptr),
       MapStore(FG::FrenchGulchSlice::ConfigureStore()) {
   PrimaryActorTick.bCanEverTick = false;
 
   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeAsset(
       TEXT("/Engine/BasicShapes/Cube.Cube"));
   CubeMesh = CubeAsset.Succeeded() ? CubeAsset.Object : nullptr;
+
+  static ConstructorHelpers::FObjectFinder<UMaterialInterface> BlockMaterial(
+      TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+  BlockBaseMaterial = BlockMaterial.Succeeded() ? BlockMaterial.Object : nullptr;
 }
 
 void AFrenchGulchRuntimeLevel::BeginPlay() {
@@ -117,7 +169,8 @@ void AFrenchGulchRuntimeLevel::SpawnTerrain() {
   } else {
     const FVector Scale = FallbackTerrainScale();
     SpawnBlock(TEXT("Fallback terrain plane"),
-               FVector(0.0f, 0.0f, -FGL::CubeHalfExtent() * Scale.Z), Scale);
+               FVector(0.0f, 0.0f, -FGL::CubeHalfExtent() * Scale.Z), Scale,
+               FoliageColor());
   }
 
   const FVector MainRoadScale = FGL::LongFeatureScale(24.0f, 22.0f, 1.6f);
@@ -127,24 +180,29 @@ void AFrenchGulchRuntimeLevel::SpawnTerrain() {
   const FVector RiparianScale = FGL::LongFeatureScale(22.0f, 23.0f, 0.8f);
 
   SpawnTerrainBlock(TEXT("Trinity Mountain / Main Street road"),
-                    FeatureLots(2.55f, 0.0f, MainRoadScale), MainRoadScale);
+                    FeatureLots(2.55f, 0.0f, MainRoadScale), MainRoadScale,
+                    RoadColor());
   SpawnTerrainBlock(TEXT("French Gulch Road south approach"),
                     FeatureLots(-0.1f, -5.9f, ApproachRoadScale),
-                    ApproachRoadScale);
+                    ApproachRoadScale, RoadColor());
   SpawnTerrainBlock(TEXT("Cline Gulch road north spur"),
-                    FeatureLots(-1.2f, 5.45f, SpurRoadScale), SpurRoadScale);
+                    FeatureLots(-1.2f, 5.45f, SpurRoadScale), SpurRoadScale,
+                    RoadColor());
   SpawnTerrainBlock(TEXT("Clear Creek corridor"),
-                    FeatureLots(4.7f, 0.0f, CreekScale), CreekScale);
+                    FeatureLots(4.7f, 0.0f, CreekScale), CreekScale,
+                    WaterColor());
   SpawnTerrainBlock(TEXT("Green riparian creek band"),
-                    FeatureLots(5.2f, 0.0f, RiparianScale), RiparianScale);
+                    FeatureLots(5.2f, 0.0f, RiparianScale), RiparianScale,
+                    FoliageColor());
 
   const FVector CemeteryScale = FGL::PadScaleFromFeet(40.0f, 26.0f, 2.0f);
   const FVector ParkScale = FGL::PadScaleFromFeet(36.0f, 38.0f, 1.6f);
   SpawnTerrainBlock(TEXT("IOOF cemetery terrace"),
                     FeatureLots(-0.425f, 2.55f, CemeteryScale),
-                    CemeteryScale);
+                    CemeteryScale, RockColor());
   SpawnTerrainBlock(TEXT("French Gulch County Park green"),
-                    FeatureLots(3.7f, 5.25f, ParkScale), ParkScale);
+                    FeatureLots(3.7f, 5.25f, ParkScale), ParkScale,
+                    FoliageColor());
 
   SpawnTerrainLabel(TEXT("actual terrain: Mapzen/AWS Terrarium heightmap"),
                     FGL::FromPostOfficeLots(-3.1f, 6.15f,
@@ -164,7 +222,8 @@ void AFrenchGulchRuntimeLevel::SpawnNaturalEnvironment() {
   const TArray<FG::FFrenchGulchNatureFeatureSeed> NatureFeatures =
       FG::FrenchGulchNature::BuildClearCreekNatureSeed();
   for (const FG::FFrenchGulchNatureFeatureSeed &Feature : NatureFeatures) {
-    SpawnTerrainBlock(Feature.Name, Feature.Location, Feature.Scale);
+    SpawnTerrainBlock(Feature.Name, Feature.Location, Feature.Scale,
+                      ColorForNatureKind(Feature.Kind));
     if (Feature.Kind == FG::EFrenchGulchNatureFeatureKind::PCGMarker ||
         Feature.Kind == FG::EFrenchGulchNatureFeatureKind::WaterSystemMarker) {
       SpawnTerrainLabel(Feature.Name,
@@ -178,7 +237,8 @@ void AFrenchGulchRuntimeLevel::SpawnTown() {
   const TArray<FG::FFrenchGulchLandmark> Landmarks =
       FG::FrenchGulchSelectors::SelectLandmarks(MapStore.getState());
   for (const FG::FFrenchGulchLandmark &Landmark : Landmarks) {
-    SpawnBlock(Landmark.Label, Landmark.Location, Landmark.Scale);
+    SpawnBlock(Landmark.Label, Landmark.Location, Landmark.Scale,
+               BuildingColor());
     SpawnLabel(Landmark.Label, LabelLocationForBlock(Landmark),
                FGL::CubeHalfExtent() * 0.48f);
   }
@@ -191,22 +251,26 @@ void AFrenchGulchRuntimeLevel::SpawnTown() {
   const FVector WagonYardScale = FGL::PadScaleFromFeet(33.0f, 33.0f, 1.6f);
 
   SpawnTerrainBlock(TEXT("Post office porch"),
-                    BuildingLots(0.0f, -0.36f, PorchScale), PorchScale);
+                    BuildingLots(0.0f, -0.36f, PorchScale), PorchScale,
+                    BuildingColor());
   SpawnTerrainBlock(TEXT("Cabin row west 1"),
-                    BuildingLots(-0.975f, -1.275f, CabinScale), CabinScale);
+                    BuildingLots(-0.975f, -1.275f, CabinScale), CabinScale,
+                    BuildingColor());
   SpawnTerrainBlock(TEXT("Cabin row west 2"),
-                    BuildingLots(-0.8f, 1.5f, CabinScale), CabinScale);
+                    BuildingLots(-0.8f, 1.5f, CabinScale), CabinScale,
+                    BuildingColor());
   SpawnTerrainBlock(TEXT("Cabin row creek 1"),
                     BuildingLots(4.55f, 0.4f, CreekCabinScale),
-                    CreekCabinScale);
+                    CreekCabinScale, BuildingColor());
   SpawnTerrainBlock(TEXT("Cabin row creek 2"),
                     BuildingLots(4.9f, 1.9f, CreekCabinScale),
-                    CreekCabinScale);
+                    CreekCabinScale, BuildingColor());
   SpawnTerrainBlock(TEXT("Barn and corral"),
-                    BuildingLots(1.2f, -2.6f, BarnScale), BarnScale);
+                    BuildingLots(1.2f, -2.6f, BarnScale), BarnScale,
+                    BuildingColor());
   SpawnTerrainBlock(TEXT("Wagon yard"),
                     FeatureLots(2.65f, -2.7f, WagonYardScale),
-                    WagonYardScale);
+                    WagonYardScale, RoadColor());
 
   SpawnTerrainLabel(TEXT("cemetery"),
                     FGL::FromPostOfficeLots(-0.425f, 2.55f,
@@ -224,16 +288,20 @@ void AFrenchGulchRuntimeLevel::SpawnMineApproach() {
   const FVector RockPileScale = FGL::PadScaleFromFeet(22.0f, 17.0f, 6.4f);
 
   SpawnTerrainBlock(TEXT("Mine road up gulch"),
-                    FeatureLots(-1.95f, 4.8f, MineRoadScale), MineRoadScale);
+                    FeatureLots(-1.95f, 4.8f, MineRoadScale), MineRoadScale,
+                    RoadColor());
   SpawnTerrainBlock(TEXT("Mine entrance"),
                     BuildingLots(-2.95f, 6.95f, MineEntranceScale),
-                    MineEntranceScale);
+                    MineEntranceScale, MineColor());
   SpawnTerrainBlock(TEXT("Mine timber lintel"),
-                    BuildingLots(-2.95f, 6.65f, LintelScale), LintelScale);
+                    BuildingLots(-2.95f, 6.65f, LintelScale), LintelScale,
+                    BuildingColor());
   SpawnTerrainBlock(TEXT("Ore cart marker"),
-                    BuildingLots(-2.05f, 5.7f, OreCartScale), OreCartScale);
+                    BuildingLots(-2.05f, 5.7f, OreCartScale), OreCartScale,
+                    MarkerColor());
   SpawnTerrainBlock(TEXT("Waste rock pile"),
-                    BuildingLots(-2.5f, 6.25f, RockPileScale), RockPileScale);
+                    BuildingLots(-2.5f, 6.25f, RockPileScale), RockPileScale,
+                    RockColor());
   SpawnTerrainLabel(TEXT("mine approach"),
                     FGL::FromPostOfficeLots(-2.95f, 6.95f,
                                             FGL::LabelHeightForScale(
@@ -282,7 +350,8 @@ void AFrenchGulchRuntimeLevel::SpawnHorses() {
 }
 
 AStaticMeshActor *AFrenchGulchRuntimeLevel::SpawnBlock(
-    const FString &Name, const FVector &Location, const FVector &Scale) {
+    const FString &Name, const FVector &Location, const FVector &Scale,
+    const FLinearColor &Color) {
   UWorld *World = GetWorld();
   if (!World || !CubeMesh) {
     return nullptr;
@@ -301,14 +370,15 @@ AStaticMeshActor *AFrenchGulchRuntimeLevel::SpawnBlock(
 
   Block->SetActorScale3D(Scale);
   Block->GetStaticMeshComponent()->SetStaticMesh(CubeMesh);
+  ApplyBlockoutColor(Block, BlockBaseMaterial, Color);
   Block->GetStaticMeshComponent()->SetMobility(EComponentMobility::Static);
   return Block;
 }
 
 AStaticMeshActor *AFrenchGulchRuntimeLevel::SpawnTerrainBlock(
     const FString &Name, const FG::FFrenchGulchLocalPoint &Point,
-    const FVector &Scale) {
-  return SpawnBlock(Name, FGL::ToWorld(TerrainData, Point), Scale);
+    const FVector &Scale, const FLinearColor &Color) {
+  return SpawnBlock(Name, FGL::ToWorld(TerrainData, Point), Scale, Color);
 }
 
 void AFrenchGulchRuntimeLevel::SpawnLabel(const FString &Text,

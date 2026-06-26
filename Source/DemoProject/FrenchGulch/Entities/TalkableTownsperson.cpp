@@ -7,6 +7,8 @@
 #include "FrenchGulch/Components/FrenchGulchLayout.h"
 #include "FrenchGulch/Components/FrenchGulchTerrainData.h"
 #include "GameFramework/Pawn.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialInterface.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace FGL = ForbocAI::Demo::FrenchGulch::FrenchGulchLayout;
@@ -42,6 +44,23 @@ float NameTextZ() { return PromptTextZ() + HatHeight() * NameAbovePromptRatio; }
 
 float DialogueTextZ() {
   return NameTextZ() + CharacterHeight() * DialogueAboveNameHeightRatio;
+}
+
+void ApplyNpcBlockoutColor(UStaticMeshComponent *Part,
+                           UMaterialInterface *BaseMaterial,
+                           const FLinearColor &Color) {
+  if (!Part || !BaseMaterial) {
+    return;
+  }
+
+  UMaterialInstanceDynamic *Material =
+      UMaterialInstanceDynamic::Create(BaseMaterial, Part);
+  if (!Material) {
+    return;
+  }
+
+  Material->SetVectorParameterValue(TEXT("Color"), Color);
+  Part->SetMaterial(0, Material);
 }
 } // namespace
 
@@ -102,12 +121,20 @@ ATalkableTownsperson::ATalkableTownsperson()
       TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
   static ConstructorHelpers::FObjectFinder<UStaticMesh> HatAsset(
       TEXT("/Engine/BasicShapes/Cube.Cube"));
+  static ConstructorHelpers::FObjectFinder<UMaterialInterface> BlockMaterial(
+      TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 
   if (BodyAsset.Succeeded()) {
     BodyMesh->SetStaticMesh(BodyAsset.Object);
   }
   if (HatAsset.Succeeded()) {
     HatMesh->SetStaticMesh(HatAsset.Object);
+  }
+  if (BlockMaterial.Succeeded()) {
+    ApplyNpcBlockoutColor(BodyMesh, BlockMaterial.Object,
+                          FLinearColor(0.22f, 0.28f, 0.32f));
+    ApplyNpcBlockoutColor(HatMesh, BlockMaterial.Object,
+                          FLinearColor(0.25f, 0.16f, 0.08f));
   }
 
   TownspersonName = TEXT("Townsperson");
