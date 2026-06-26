@@ -66,7 +66,7 @@ if [ -n "$UNREAL_BUILD" ]; then
   echo "Ensuring DemoProjectEditor is built..."
   set +e
   if [ "$BUILD_VIA_CMD" -eq 1 ]; then
-    powershell.exe -NoProfile -Command "& { & '$UNREAL_BUILD_ARG' 'DemoProjectEditor' 'Win64' 'Development' '-Project=$PROJECT_FILE_ARG' '-WaitMutex' '-NoHotReloadFromIDE' }"
+    powershell.exe -NoProfile -Command "& { & '$UNREAL_BUILD_ARG' 'DemoProjectEditor' 'Win64' 'Development' '-Project=$PROJECT_FILE_ARG' '-WaitMutex' '-NoHotReloadFromIDE'; exit \$LASTEXITCODE }"
   else
     "$UNREAL_BUILD" DemoProjectEditor Win64 Development "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE
   fi

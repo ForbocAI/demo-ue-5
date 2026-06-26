@@ -1,10 +1,14 @@
 #pragma once
 
-#include "NPC/NPCModule.h"
 #include "Bot/Factories/BotFactory.h"
 #include "Bot/Factories/OrchestratorStoreFactory.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
+#if WITH_FORBOC_AI_SDK_DEMO
+#include "NPC/NPCModule.h"
+#endif
+
 #include "BotOrchestrator.generated.h"
 
 /**
@@ -49,7 +53,7 @@ private:
   void RequestNextAction(ForbocAI::Orchestrator::FBotInstance &Instance);
 
   /** Multi-Round Protocol: Execute (Finalize) */
-  void ExecuteAction(AActor *BotActor, const FAgentAction &Action);
+  void ExecuteAction(AActor *BotActor, const FString &ActionType);
 
   /** Helper to map game state to strings for observation. */
   FString GetStateObservation(const ForbocAI::State::FBotState &State);

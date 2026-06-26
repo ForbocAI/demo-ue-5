@@ -4,8 +4,20 @@
 #include "CoreMinimal.h"
 #include "DemoProject/Dialogue/DialogueComponent.h"
 #include "GameFramework/Actor.h"
+
+#if WITH_FORBOC_AI_SDK_DEMO
 #include "Memory/MemoryModule.h"
+#endif
+
 #include "MemoryDemo.generated.h"
+
+#if !WITH_FORBOC_AI_SDK_DEMO
+struct FDemoMemoryItem {
+  FString Text;
+  FString Type;
+  float Importance;
+};
+#endif
 
 /**
  * AMemoryDemo — Demonstrates memory store/recall across interactions.
@@ -35,8 +47,13 @@ public:
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ForbocAI|Demo")
   UDialogueComponent *DialogueComp;
 
+#if WITH_FORBOC_AI_SDK_DEMO
   /** Current memory store — immutable, rebound on each store operation. */
   TSharedPtr<const FMemoryStore> CurrentMemoryStore;
+#else
+  /** Local gate-closed memory list used until the SDK-backed store is ready. */
+  TArray<FDemoMemoryItem> LocalMemoryStore;
+#endif
 
 private:
   /** Run the memory demonstration sequence. */

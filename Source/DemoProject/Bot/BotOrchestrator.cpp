@@ -67,6 +67,7 @@ void ABotOrchestrator::RegisterBot(AActor *Actor, FString Persona) {
     Instance.Store =
         ForbocAI::Bot::Factory::CreateBotStore(Actor->GetName());
 
+#if WITH_FORBOC_AI_SDK_DEMO
     // Initialize SDK Agent
     FAgentConfig Config;
     Config.Persona = Persona;
@@ -74,6 +75,11 @@ void ABotOrchestrator::RegisterBot(AActor *Actor, FString Persona) {
     // AgentFactory::Create returns FAgent directly (immutable value).
     Instance.Agent =
         MakeShared<const FAgent>(AgentFactory::Create(Config));
+#else
+    UE_LOG(LogTemp, Display,
+           TEXT("BotOrchestrator: SDK gate closed; registering '%s' with local state only"),
+           *Persona);
+#endif
 
     // Dispatch registration action to the registry store
     RegistryStore.Dispatch(
@@ -87,6 +93,7 @@ void ABotOrchestrator::RegisterBot(AActor *Actor, FString Persona) {
 }
 
 void ABotOrchestrator::RequestNextAction(FBotInstance &Instance) {
+#if WITH_FORBOC_AI_SDK_DEMO
   return !Instance.Agent.IsValid()
              ? void()
              : [&]() {
@@ -103,7 +110,7 @@ void ABotOrchestrator::RequestNextAction(FBotInstance &Instance) {
     AgentOps::Process(*Instance.Agent, Observation, {})
         .then([this, BotActor](FAgentResponse Response) {
           // Apply: route the finalized action back into the game world.
-          ExecuteAction(BotActor, Response.Action);
+          ExecuteAction(BotActor, Response.Action.Type);
         })
         .catch_([BotActor](std::string Error) {
           UE_LOG(LogTemp, Warning,
@@ -113,10 +120,23 @@ void ABotOrchestrator::RequestNextAction(FBotInstance &Instance) {
         })
         .execute();
   }();
+#else
+  ForbocAI::State::FBotState InternalState = Instance.Store.GetState();
+  const FString ActionType =
+      InternalState.Phase == ForbocAI::State::EBotPhase::Combat
+          ? TEXT("ATTACK")
+          : TEXT("MOVE");
+
+  UE_LOG(LogTemp, Display,
+         TEXT("BotOrchestrator: SDK gate closed; local observation '%s' -> %s"),
+         *GetStateObservation(InternalState), *ActionType);
+
+  ExecuteAction(Instance.BotActor, ActionType);
+#endif
 }
 
 void ABotOrchestrator::ExecuteAction(AActor *BotActor,
-                                     const FAgentAction &Action) {
+                                     const FString &ActionType) {
   FRegistryState Registry = RegistryStore.GetState();
 
   return (!BotActor || !Registry.Bots.Contains(BotActor))
@@ -125,10 +145,10 @@ void ABotOrchestrator::ExecuteAction(AActor *BotActor,
     FBotInstance Instance = Registry.Bots[BotActor];
 
     UE_LOG(LogTemp, Display, TEXT("BotOrchestrator: Executing '%s' for %s"),
-           *Action.Type, *BotActor->GetName());
+           *ActionType, *BotActor->GetName());
 
     // Map SDK Action -> Functional Action -> Dispatch to Store
-    (Action.Type == TEXT("MOVE"))
+    (ActionType == TEXT("MOVE"))
         ? ([&]() {
             ForbocAI::State::FActionMove Move;
             Move.TargetLocation =
@@ -137,7 +157,7 @@ void ABotOrchestrator::ExecuteAction(AActor *BotActor,
             Instance.Store.Dispatch(Move);
           }(),
           void())
-    : (Action.Type == TEXT("ATTACK"))
+    : (ActionType == TEXT("ATTACK"))
         ? ([&]() {
             ForbocAI::State::FActionAttack Attack;
             Instance.Store.Dispatch(Attack);

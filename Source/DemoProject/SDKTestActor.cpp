@@ -1,39 +1,42 @@
-
 #include "SDKTestActor.h"
-#include "NPC/NPCModule.h"
-#include "Bot/Factories/BotFactory.h" // Functional Core
+
+#if WITH_FORBOC_AI_SDK_DEMO
+#include "Bot/Factories/BotFactory.h"
 #include "Bridge/BridgeModule.h"
 #include "Memory/MemoryModule.h"
+#include "NPC/NPCModule.h"
 #include "Soul/SoulModule.h"
+#endif
 
 ASDKTestActor::ASDKTestActor() {
-  // No tick needed — this actor responds to events only.
   PrimaryActorTick.bCanEverTick = false;
-
   Persona = TEXT("Cyber-Merchant");
 }
 
 void ASDKTestActor::BeginPlay() {
   Super::BeginPlay();
 
-  // Auto-initialize if a Persona is configured
   if (Persona.Len() > 0) {
     InitializeAgent();
 
-    UE_LOG(LogTemp, Display, TEXT("SDKTestActor: Auto-initialized agent %s"),
-           *CurrentAgent->Id);
+#if WITH_FORBOC_AI_SDK_DEMO
+    if (CurrentAgent.IsValid()) {
+      UE_LOG(LogTemp, Display, TEXT("SDKTestActor: Auto-initialized agent %s"),
+             *CurrentAgent->Id);
+    }
+#else
+    UE_LOG(LogTemp, Display,
+           TEXT("SDKTestActor: SDK gate closed; sample actor is inert."));
+#endif
   }
 }
 
 void ASDKTestActor::InitializeAgent() {
+#if WITH_FORBOC_AI_SDK_DEMO
   FAgentConfig Config;
   Config.Persona = Persona;
 
-  // Create agent via factory function (Functional C++ pattern).
-  // MakeShared wraps the immutable FAgent so we can rebind later.
   CurrentAgent = MakeShared<const FAgent>(AgentFactory::Create(Config));
-
-  // Manually register RPG rules (formerly default) via Preset
   ActiveRules = BridgeOps::CreateRPGRules();
 
   UE_LOG(LogTemp, Display, TEXT("ForbocAI: Created Agent with Persona '%s'"),
@@ -42,49 +45,36 @@ void ASDKTestActor::InitializeAgent() {
          TEXT("ForbocAI: Registered %d validation rules via RPG Preset"),
          ActiveRules.Num());
 
-  // REGISTER RULES WITH API (Recursive — FP-compliant)
   const auto RegisterRulesRecursive =
       [](const TArray<FValidationRule> &Rules, int32 Idx,
-                const auto &Self) -> void {
-     return Idx >= Rules.Num()
-                ? void()
-                : (BridgeOps::RegisterRule(Rules[Idx], FString()),
-                   Self(Rules, Idx + 1, Self));
+         const auto &Self) -> void {
+    return Idx >= Rules.Num()
+               ? void()
+               : (BridgeOps::RegisterRule(Rules[Idx], FString()),
+                  Self(Rules, Idx + 1, Self));
   };
   RegisterRulesRecursive(ActiveRules, 0, RegisterRulesRecursive);
 
-  // Trigger Blueprint event
   OnAgentInitialized(CurrentAgent->Id);
 
-  // ==========================================
-  // FUNCTIONAL CORE VERIFICATION (BotFactory)
-  // ==========================================
-
-  // 1. Create a Bot Store (Closure)
   auto BotStore = ForbocAI::Bot::Factory::CreateBotStore(TEXT("TestBotOps"));
 
-  // 2. Initial State Check
   ForbocAI::State::FBotState InitState = BotStore.GetState();
   UE_LOG(LogTemp, Display,
          TEXT("FunctionalCore: Created Bot '%s' (Health: %.0f)"),
          *InitState.Name, InitState.Stats.Health);
 
-  // 3. Dispatch Action (Move)
   ForbocAI::State::FActionMove MoveAction;
   MoveAction.TargetLocation = FVector(100, 200, 300);
   MoveAction.Speed = 50.0f;
-
   BotStore.Dispatch(MoveAction);
 
-  // 4. Verify State Mutation
   ForbocAI::State::FBotState AfterMove = BotStore.GetState();
   UE_LOG(LogTemp, Display, TEXT("FunctionalCore: Post-Move Position: %s"),
          *AfterMove.Position.ToString());
 
-  // 5. Dispatch Action (Damage) -> Trigger Phase Change
   ForbocAI::State::FActionTakeDamage DamageAction;
-  DamageAction.Amount = 80.0f; // Drops HP to 20 (below 30%)
-
+  DamageAction.Amount = 80.0f;
   BotStore.Dispatch(DamageAction);
 
   ForbocAI::State::FBotState AfterDamage = BotStore.GetState();
@@ -92,23 +82,23 @@ void ASDKTestActor::InitializeAgent() {
       LogTemp, Display,
       TEXT("FunctionalCore: Post-Damage HP: %.0f, Phase: %d (Expected Flee=3)"),
       AfterDamage.Stats.Health, (int32)AfterDamage.Phase);
+#else
+  UE_LOG(LogTemp, Warning,
+         TEXT("SDKTestActor: InitializeAgent skipped because FORBOC_DEMO_WITH_SDK is not set."));
+  OnAgentInitialized(TEXT("sdk-gate-closed"));
+#endif
 }
 
 void ASDKTestActor::ProcessInput(const FString &InputText) {
+#if WITH_FORBOC_AI_SDK_DEMO
   if (!CurrentAgent.IsValid()) {
     UE_LOG(LogTemp, Warning,
            TEXT("ForbocAI: Cannot process input, agent not initialized."));
     return;
   }
 
-  // Process input via async pipeline.
   AgentOps::Process(*CurrentAgent, InputText, {})
       .then([this](FAgentResponse Response) {
-        // ==========================================
-        // BRIDGE: Validate the Agent's Action
-        // ==========================================
-        // We use the "ActiveRules" we manually registered.
-        // Context would typically include World State.
         const FBridgeRuleContext ValContext =
             BridgeFactory::CreateContext(&CurrentAgent->State, {});
 
@@ -121,14 +111,10 @@ void ASDKTestActor::ProcessInput(const FString &InputText) {
         } else {
           UE_LOG(LogTemp, Warning, TEXT("Bridge: Action BLOCKED (%s)"),
                  *ValResult.Reason);
-          // In a real game, we might override the response or prevent execution
-          // here.
         }
 
         UE_LOG(LogTemp, Display, TEXT("ForbocAI Response: %s"),
                *Response.Dialogue);
-
-        // Trigger Blueprint event
         OnAgentResponse(Response.Dialogue);
       })
       .catch_([](std::string Error) {
@@ -136,16 +122,21 @@ void ASDKTestActor::ProcessInput(const FString &InputText) {
                *FString(UTF8_TO_TCHAR(Error.c_str())));
       })
       .execute();
+#else
+  const FString Message =
+      FString::Printf(TEXT("SDK gate is closed; local actor received: %s"),
+                      *InputText);
+  UE_LOG(LogTemp, Warning, TEXT("SDKTestActor: %s"), *Message);
+  OnAgentResponse(Message);
+#endif
 }
 
 void ASDKTestActor::UpdateAgentState(const FString &NewStateDescription) {
-  if (!CurrentAgent.IsValid())
+#if WITH_FORBOC_AI_SDK_DEMO
+  if (!CurrentAgent.IsValid()) {
     return;
+  }
 
-  // Functional update — returns a NEW agent. The old agent
-  // data remains untouched; we rebind the shared pointer.
-
-  // Wrap the description in a simple JSON structure for the generic state
   const FString JsonState =
       FString::Printf(TEXT("{\"description\": \"%s\"}"), *NewStateDescription);
 
@@ -155,18 +146,21 @@ void ASDKTestActor::UpdateAgentState(const FString &NewStateDescription) {
 
   UE_LOG(LogTemp, Display, TEXT("ForbocAI: Updated Agent State to '%s'"),
          *JsonState);
+#else
+  UE_LOG(LogTemp, Warning,
+         TEXT("SDKTestActor: UpdateAgentState skipped while SDK gate is closed: %s"),
+         *NewStateDescription);
+#endif
 }
 
 void ASDKTestActor::ExportSoul() {
+#if WITH_FORBOC_AI_SDK_DEMO
   if (!CurrentAgent.IsValid()) {
     UE_LOG(LogTemp, Warning,
            TEXT("ForbocAI: Cannot export Soul, agent not initialized."));
     return;
   }
 
-  // Create Soul from current Agent State
-  // Note: We pass empty memories for demo simplicity, or fetch from
-  // MemoryModule if implemented.
   const SoulTypes::SoulCreationResult SoulResult =
       SoulOps::FromAgent(CurrentAgent->State, {}, CurrentAgent->Id,
                          CurrentAgent->Persona);
@@ -177,10 +171,8 @@ void ASDKTestActor::ExportSoul() {
   }
 
   const FSoul Soul = SoulResult.right;
-
   UE_LOG(LogTemp, Display, TEXT("ForbocAI: Exporting Soul to Arweave..."));
 
-  // Call SDK Ops
   SoulOps::ExportToArweave(Soul, FString())
       .then([this](FSoulExportResult Result) {
         if (Result.TxId.IsEmpty()) {
@@ -198,4 +190,8 @@ void ASDKTestActor::ExportSoul() {
                UTF8_TO_TCHAR(Error.c_str()));
       })
       .execute();
+#else
+  UE_LOG(LogTemp, Warning,
+         TEXT("SDKTestActor: ExportSoul skipped because SDK gate is closed."));
+#endif
 }

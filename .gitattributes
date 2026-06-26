@@ -31,3 +31,6 @@
 *.ogg binary
 *.fbx binary
 *.obj binary
+
+# Large staged source assets
+pre-game-assets/**/*.zip filter=lfs diff=lfs merge=lfs -text

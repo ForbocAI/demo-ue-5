@@ -20,6 +20,7 @@
  * systems are pure functions over state.
  */
 
+#include "Core/functional_core.hpp"
 #include "CoreMinimal.h"
 #include "State/Actions.h"
 #include "State/BotState.h"

@@ -69,7 +69,16 @@ struct ReducerVisitor {
     return Next;
   }
 
-  // 5. Default / Others
+  // 5. Flee
+  FBotState operator()(const FActionFlee &Action) const {
+    FBotState Next = CurrentState;
+    Next.Phase = EBotPhase::Flee;
+    Next.Memory.LastKnownPlayerPos = Action.AwayFrom;
+    Next.Memory.bHasAggro = true;
+    return Next;
+  }
+
+  // 6. Default / Others
   template <typename T> FBotState operator()(const T &Action) const {
     return CurrentState; // No change for unhandled actions
   }

@@ -5,6 +5,9 @@ Saved/
 DerivedDataCache/
 Build/
 Config/
+!Config/
+!Config/**
+!Config/DefaultEngine.ini
 
 # Plugin build artifacts
 Plugins/*/Binaries/
@@ -12,6 +15,12 @@ Plugins/*/Intermediate/
 
 # Content (not needed for code-only demo)
 Content/
+!Content/
+!Content/FrenchGulch/
+!Content/FrenchGulch/Heightmaps/
+!Content/FrenchGulch/Heightmaps/**
+!Content/FrenchGulch/Maps/
+!Content/FrenchGulch/Maps/**
 Releases/
 Collections/
 Developers/
@@ -20,9 +29,13 @@ User/
 # Unreal Assets
 *.uasset
 *.umap
+!Content/FrenchGulch/Maps/*.umap
 
 # Archives
 *.zip
+!pre-game-assets/
+!pre-game-assets/**
+!pre-game-assets/**/*.zip
 
 # Visual Studio / VS Code
 .vs/

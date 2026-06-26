@@ -27,6 +27,7 @@ void AMemoryDemo::BeginPlay() {
 }
 
 void AMemoryDemo::RunMemorySequence() {
+#if WITH_FORBOC_AI_SDK_DEMO
   // 1. Create an immutable memory store
   FMemoryConfig Config;
   FMemoryStore Store = MemoryFactory::CreateStore(Config);
@@ -40,6 +41,11 @@ void AMemoryDemo::RunMemorySequence() {
   CurrentMemoryStore = MakeShared<const FMemoryStore>(Store);
   UE_LOG(LogTemp, Display,
           TEXT("MemoryDemo: Created empty memory store"));
+#else
+  LocalMemoryStore.Empty();
+  UE_LOG(LogTemp, Display,
+         TEXT("MemoryDemo: SDK gate closed; using local memory list"));
+#endif
 
   // 2. Store several memories with different types and importance
   StoreMemoryAndLog(
@@ -86,6 +92,7 @@ void AMemoryDemo::RunMemorySequence() {
 void AMemoryDemo::StoreMemoryAndLog(const FString &Text,
                                     const FString &Type,
                                     float Importance) {
+#if WITH_FORBOC_AI_SDK_DEMO
   // MemoryOps::Store returns a NEW store (copy-on-write).
   // We rebind our shared pointer to the new store.
   const MemoryTypes::MemoryStoreAddResult Result =
@@ -101,12 +108,19 @@ void AMemoryDemo::StoreMemoryAndLog(const FString &Text,
   UE_LOG(LogTemp, Display,
           TEXT("MemoryDemo: Stored [%s] (importance: %.1f) — \"%s\""),
          *Type, Importance, *Text);
+#else
+  LocalMemoryStore.Add(FDemoMemoryItem{Text, Type, Importance});
+  UE_LOG(LogTemp, Display,
+         TEXT("MemoryDemo: Locally stored [%s] (importance: %.1f) \"%s\""),
+         *Type, Importance, *Text);
+#endif
 }
 
 void AMemoryDemo::RecallAndLog(const FString &Query) {
   UE_LOG(LogTemp, Display,
           TEXT("MemoryDemo: Query: \"%s\""), *Query);
 
+#if WITH_FORBOC_AI_SDK_DEMO
   const MemoryTypes::MemoryStoreRecallResult Result =
       MemoryOps::Recall(*CurrentMemoryStore, Query, 3).Get();
   if (Result.isLeft) {
@@ -125,4 +139,32 @@ void AMemoryDemo::RecallAndLog(const FString &Query) {
     UE_LOG(LogTemp, Display, TEXT("  [%d] (sim: %.2f) %s"), Index,
            Results[Index].Similarity, *Results[Index].Text);
   }
+#else
+  if (LocalMemoryStore.Num() == 0) {
+    UE_LOG(LogTemp, Display, TEXT("  (no local memories available)"));
+    return;
+  }
+
+  int32 Printed = 0;
+  for (const FDemoMemoryItem &Item : LocalMemoryStore) {
+    const bool bMatches =
+        (Query.Contains(TEXT("want"), ESearchCase::IgnoreCase) &&
+         Item.Text.Contains(TEXT("search"), ESearchCase::IgnoreCase)) ||
+        (Query.Contains(TEXT("buy"), ESearchCase::IgnoreCase) &&
+         Item.Text.Contains(TEXT("purchased"), ESearchCase::IgnoreCase)) ||
+        (Query.Contains(TEXT("companion"), ESearchCase::IgnoreCase) &&
+         Item.Text.Contains(TEXT("companion"), ESearchCase::IgnoreCase));
+
+    if (!bMatches && Printed > 0) {
+      continue;
+    }
+
+    UE_LOG(LogTemp, Display, TEXT("  [%d] (local) %s"), Printed, *Item.Text);
+    ++Printed;
+
+    if (Printed >= 3) {
+      return;
+    }
+  }
+#endif
 }

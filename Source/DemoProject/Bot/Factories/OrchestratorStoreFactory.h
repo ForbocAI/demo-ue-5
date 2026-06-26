@@ -1,8 +1,12 @@
 #pragma once
 
-#include "NPC/NPCModule.h"
 #include "Bot/Factories/BotFactory.h"
 #include "CoreMinimal.h"
+
+#if WITH_FORBOC_AI_SDK_DEMO
+#include "NPC/NPCModule.h"
+#endif
+
 #include <functional>
 #include <memory>
 
@@ -27,12 +31,18 @@ namespace Orchestrator {
 
 struct FBotInstance {
   AActor *BotActor;
+#if WITH_FORBOC_AI_SDK_DEMO
   TSharedPtr<const FAgent> Agent;
+#endif
   Bot::FBotStore Store;
   float LastObservationTime;
 
   FBotInstance()
-      : BotActor(nullptr), Agent(nullptr), Store({}),
+      : BotActor(nullptr),
+#if WITH_FORBOC_AI_SDK_DEMO
+        Agent(nullptr),
+#endif
+        Store({}),
         LastObservationTime(0.0f) {}
 };
 

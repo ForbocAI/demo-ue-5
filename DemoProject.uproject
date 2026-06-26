@@ -22,8 +22,20 @@
 			]
 		},
 		{
-			"Name": "ForbocAI_SDK",
+			"Name": "ProceduralMeshComponent",
 			"Enabled": true
+		},
+		{
+			"Name": "Water",
+			"Enabled": true
+		},
+		{
+			"Name": "PCG",
+			"Enabled": true
+		},
+		{
+			"Name": "ForbocAI_SDK",
+			"Enabled": false
 		}
 	]
 }

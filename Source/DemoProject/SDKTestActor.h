@@ -1,28 +1,21 @@
-
 #pragma once
 
-#include "NPC/NPCModule.h" // ForbocAI SDK
-#include "Bridge/BridgeModule.h" // Validation Rules
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
+#if WITH_FORBOC_AI_SDK_DEMO
+#include "Bridge/BridgeModule.h"
+#include "NPC/NPCModule.h"
+#endif
+
 #include "SDKTestActor.generated.h"
 
 /**
- * Demo Actor — ForbocAI SDK integration example.
+ * Demo Actor - ForbocAI SDK integration example.
  *
- * This is a UE boundary layer: AActors require UCLASS, a
- * constructor, and virtual overrides. These are UE framework
- * obligations, not violations of the FP architecture.
- *
- * The SDK itself (FAgent, AgentFactory, AgentOps, etc.)
- * follows strict FP: pure data structs, factory functions,
- * and free functions only.
- *
- * Because FAgent has const members (immutable data), it cannot
- * be reassigned with operator=. We wrap it in TSharedPtr<const FAgent>
- * to allow rebinding the pointer while the underlying data stays
- * immutable — the standard FP pattern for mutable references
- * to immutable values.
+ * The reflected class is always present so UnrealHeaderTool can parse it.
+ * SDK-only state and behavior are compiled only when
+ * FORBOC_DEMO_WITH_SDK=1 opens the feature gate.
  */
 UCLASS()
 class DEMOPROJECT_API ASDKTestActor : public AActor {
@@ -35,28 +28,13 @@ protected:
   virtual void BeginPlay() override;
 
 public:
-  // --- Configuration (Blueprint-editable) ---
-
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI")
   FString Persona;
 
-  // --- State ---
-
-  /**
-   * Current agent — wrapped in TSharedPtr because FAgent has
-   * const members (immutable). The pointer is rebound on each
-   * functional update; the data it points to is never mutated.
-   */
+#if WITH_FORBOC_AI_SDK_DEMO
   TSharedPtr<const FAgent> CurrentAgent;
-
-  /**
-   * Active Validation Rules.
-   * Registered via BridgeOps presets.
-   * Not a UPROPERTY because FValidationRule contains std::function.
-   */
   TArray<FValidationRule> ActiveRules;
-
-  // --- Blueprint Callable Functions ---
+#endif
 
   UFUNCTION(BlueprintCallable, Category = "ForbocAI")
   void InitializeAgent();
@@ -69,8 +47,6 @@ public:
 
   UFUNCTION(BlueprintCallable, Category = "ForbocAI")
   void ExportSoul();
-
-  // --- Events (implement in Blueprint) ---
 
   UFUNCTION(BlueprintImplementableEvent, Category = "ForbocAI")
   void OnAgentResponse(const FString &ResponseText);

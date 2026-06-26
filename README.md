@@ -1,9 +1,8 @@
 # ForbocAI SDK Demo Project (UE 5.7)
 
-A working Unreal Engine 5.7 project that shows how to integrate the
-[**ForbocAI SDK**](https://github.com/ForbocAI/sdk-ue-5.7) into a game:
-spawn agents, drive dialogue, route decisions through your game's
-ruleset, and manage multi-bot encounters from C++ or Blueprints.
+A working Unreal Engine 5.7 project for the ForbocAI game demo. It currently
+boots into the offline French Gulch prototype while the UE SDK integration is
+feature-gated closed.
 
 Use it as a reference, copy code into your own project, or open it
 in-editor to see each scene wired end-to-end.
@@ -19,14 +18,43 @@ in-editor to see each scene wired end-to-end.
 | Xcode | 15+ (macOS) |
 | Clang | 16+ (Linux) |
 
-The demo talks to the ForbocAI API over HTTP. By default it uses production routing; for local-dev overrides, use `SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""))` globally as an internal escape hatch.
+The SDK/API path talks to the ForbocAI API over HTTP, but that path is opt-in.
+The default build does not compile or load `ForbocAI_SDK`.
+
+---
+
+## UE SDK feature gate
+
+The UE SDK feature is closed by default so the playable demo can move forward
+before the next API, TS SDK, and UE SDK PRs land.
+
+To keep the door closed, build normally:
+
+```bash
+bash run-tests.sh
+```
+
+To reopen the SDK path for validation work, set `FORBOC_DEMO_WITH_SDK=1` before
+generating project files or building:
+
+```bash
+FORBOC_DEMO_WITH_SDK=1 bash run-tests.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:FORBOC_DEMO_WITH_SDK = "1"
+```
+
+Only use the open-gate path after the UE SDK is synced with the TS SDK/API map.
 
 ---
 
 ## Setup
 
-1. **Clone with submodules** — the SDK is a submodule pointing at
-   [`ForbocAI/sdk-ue-5.7`](https://github.com/ForbocAI/sdk-ue-5.7).
+1. **Clone** the demo project. The SDK submodule is present for integration
+   work, but it is not required for the default gate-closed prototype build.
 
    ```bash
    git clone --recurse-submodules https://github.com/ForbocAI/demo-ue-5.7.git
@@ -53,21 +81,23 @@ The demo talks to the ForbocAI API over HTTP. By default it uses production rout
 
 | Scene / Component | What it shows |
 |---|---|
-| `NPCDialogueDemo` | A persona-driven NPC conversation with persistent memory recall |
-| `CombatEncounterDemo` | Bridge validation — agent proposes actions, your ruleset accepts or rejects |
-| `MemoryDemo` | Memory store/recall round-trip |
-| `BotOrchestrator` | Multi-bot manager backed by an immutable store; spawn, route, and tear down agents |
-| `DialogueComponent` | Reusable actor component for chat-driven NPCs |
+| `FrenchGulch` runtime prototype | First-run 1899 French Gulch blockout with talkable townspeople |
+| `NPCDialogueDemo` | A persona-driven NPC conversation, backed by SDK calls only when the gate is open |
+| `CombatEncounterDemo` | Local validation while gate-closed; Bridge validation when SDK is enabled |
+| `MemoryDemo` | Local memory list while gate-closed; SDK memory store/recall when enabled |
+| `BotOrchestrator` | Multi-bot manager backed by an immutable store; SDK agent routing when enabled |
+| `DialogueComponent` | Reusable actor component for chat-driven NPCs with local fallback |
 | `SpeechComponent` | TTS + viseme blending hooks |
 | `ChatWidget` (UMG) | Drop-in dialogue UI |
 
-`SDKTestActor` is the minimal "hello world" entry point — start there.
+`SDKTestActor` is compiled only when `FORBOC_DEMO_WITH_SDK=1`.
 
 ---
 
 ## C++ usage
 
-`SDKTestActor.h` / `SDKTestActor.cpp` walk through the three core operations:
+When the SDK gate is open, `SDKTestActor.h` / `SDKTestActor.cpp` walk through
+the three core operations:
 
 ### 1. Create an agent
 
@@ -126,7 +156,7 @@ CurrentAgent =
 
 | Problem | Fix |
 |---|---|
-| `Plugin 'ForbocAI_SDK' failed to load` | Submodule missing or unbuilt — run `git submodule update --init --recursive`, then rebuild |
+| `Plugin 'ForbocAI_SDK' failed to load` | Only relevant with `FORBOC_DEMO_WITH_SDK=1`; sync the SDK submodule and rebuild |
 | Linker errors after C++ changes | Regenerate project files from `.uproject` |
 | `FAgent` assignment errors | Use `TSharedPtr<const FAgent>` — `FAgent` has `const` members |
 | No response from agent | Run the SDK CLI `doctor` command to check API connectivity |

@@ -1,12 +1,16 @@
 
 #include "Dialogue/DialogueComponent.h"
+
+#if WITH_FORBOC_AI_SDK_DEMO
 #include "NPC/NPCModule.h"
+#endif
 
 UDialogueComponent::UDialogueComponent() {
   PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UDialogueComponent::InitializeDialogue() {
+#if WITH_FORBOC_AI_SDK_DEMO
   FAgentConfig Config;
   Config.Persona = Persona;
 
@@ -17,9 +21,20 @@ void UDialogueComponent::InitializeDialogue() {
          *Agent->Id, *Persona);
 
   OnDialogueReady(Agent->Id);
+#else
+  const FString LocalAgentId =
+      FString::Printf(TEXT("offline-%s"), *Persona.Replace(TEXT(" "), TEXT("-")));
+
+  UE_LOG(LogTemp, Display,
+         TEXT("DialogueComponent: SDK gate closed; initialized local persona '%s' as '%s'"),
+         *Persona, *LocalAgentId);
+
+  OnDialogueReady(LocalAgentId);
+#endif
 }
 
 void UDialogueComponent::SendDialogue(const FString &PlayerInput) {
+#if WITH_FORBOC_AI_SDK_DEMO
   return !Agent.IsValid()
              ? (OnDialogueError(
                     TEXT("Cannot send dialogue: agent not initialized")),
@@ -49,6 +64,20 @@ void UDialogueComponent::SendDialogue(const FString &PlayerInput) {
         })
         .execute();
   }();
+#else
+  AppendToHistory(TEXT("Player"), PlayerInput);
+
+  const FString NPCText = FString::Printf(
+      TEXT("%s considers the question and answers from the local demo path: \"%s\""),
+      *Persona, *PlayerInput);
+
+  AppendToHistory(TEXT("NPC"), NPCText);
+
+  UE_LOG(LogTemp, Display,
+         TEXT("DialogueComponent: Offline NPC responds: '%s'"), *NPCText);
+
+  OnDialogueResponse(NPCText);
+#endif
 }
 
 TArray<FString> UDialogueComponent::GetConversationHistory() const {

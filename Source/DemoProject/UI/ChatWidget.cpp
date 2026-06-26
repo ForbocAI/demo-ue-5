@@ -88,7 +88,7 @@ void UChatWidget::OnInputCommitted(const FText &Text,
       // Clear input box
       ChatInputBox->SetText(FText::GetEmpty());
 
-      // Send to SDK via DialogueComponent
+      // Send via DialogueComponent. It uses the SDK only when the feature gate is open.
       BoundDialogue
           ? (BoundDialogue->SendDialogue(InputText), void())
           : AddChatMessage(TEXT("System"),

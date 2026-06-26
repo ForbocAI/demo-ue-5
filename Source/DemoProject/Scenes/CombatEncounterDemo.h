@@ -2,11 +2,15 @@
 #pragma once
 
 #include "Bot/Factories/BotFactory.h"
-#include "Bridge/BridgeModule.h"
 #include "CoreMinimal.h"
 #include "DemoProject/Dialogue/DialogueComponent.h"
 #include "GameFramework/Actor.h"
 #include "State/Actions.h"
+
+#if WITH_FORBOC_AI_SDK_DEMO
+#include "Bridge/BridgeModule.h"
+#endif
+
 #include "CombatEncounterDemo.generated.h"
 
 /**
@@ -40,14 +44,15 @@ public:
   /** Functional state store for the combat NPC. */
   ForbocAI::Bot::FBotStore BotStore;
 
+#if WITH_FORBOC_AI_SDK_DEMO
   /** Active validation rules for the encounter. */
   TArray<FValidationRule> CombatRules;
+#endif
 
 private:
   /** Run the combat simulation sequence. */
   void RunCombatSequence();
 
   /** Validate an action against combat rules and log the result. */
-  void ValidateAndLog(const FString &ActionType,
-                      const FAgentAction &Action);
+  void ValidateAndLog(const FString &ActionType);
 };

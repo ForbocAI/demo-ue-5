@@ -27,10 +27,15 @@ void ACombatEncounterDemo::BeginPlay() {
   DialogueComp->Persona = TEXT("Dungeon-Guardian");
   DialogueComp->InitializeDialogue();
 
+#if WITH_FORBOC_AI_SDK_DEMO
   // 3. Load RPG validation rules via Bridge preset
   CombatRules = BridgeOps::CreateRPGRules();
   UE_LOG(LogTemp, Display,
          TEXT("CombatDemo: Loaded %d validation rules"), CombatRules.Num());
+#else
+  UE_LOG(LogTemp, Display,
+         TEXT("CombatDemo: SDK gate closed; using local validation rules"));
+#endif
 
   // 4. Run the combat simulation
   RunCombatSequence();
@@ -58,14 +63,10 @@ void ACombatEncounterDemo::RunCombatSequence() {
          State1.Memory.bHasAggro ? TEXT("true") : TEXT("false"));
 
   // --- Phase 3: Validate a MOVE action (should be valid) ---
-  FAgentAction MoveAction;
-  MoveAction.Type = TEXT("MOVE");
-  ValidateAndLog(TEXT("MOVE (toward player)"), MoveAction);
+  ValidateAndLog(TEXT("MOVE"));
 
   // --- Phase 4: Validate an ATTACK action (should be valid in combat) ---
-  FAgentAction AttackAction;
-  AttackAction.Type = TEXT("ATTACK");
-  ValidateAndLog(TEXT("ATTACK (melee strike)"), AttackAction);
+  ValidateAndLog(TEXT("ATTACK"));
 
   // --- Phase 5: Take heavy damage → Flee phase ---
   FActionTakeDamage HeavyDamage;
@@ -79,9 +80,7 @@ void ACombatEncounterDemo::RunCombatSequence() {
          State2.Stats.Health, (int32)State2.Phase);
 
   // --- Phase 6: Validate FLY action (should be BLOCKED — grounded NPC) ---
-  FAgentAction FlyAction;
-  FlyAction.Type = TEXT("FLY");
-  ValidateAndLog(TEXT("FLY (invalid — grounded NPC)"), FlyAction);
+  ValidateAndLog(TEXT("FLY"));
 
   // --- Phase 7: NPC combat chatter ---
   DialogueComp->SendDialogue(
@@ -93,12 +92,15 @@ void ACombatEncounterDemo::RunCombatSequence() {
          (int32)BotStore.GetState().Phase);
 }
 
-void ACombatEncounterDemo::ValidateAndLog(const FString &ActionType,
-                                          const FAgentAction &Action) {
+void ACombatEncounterDemo::ValidateAndLog(const FString &ActionType) {
+#if WITH_FORBOC_AI_SDK_DEMO
   if (!DialogueComp->Agent.IsValid()) {
     UE_LOG(LogTemp, Warning, TEXT("CombatDemo: Cannot validate - no agent"));
     return;
   }
+
+  FAgentAction Action;
+  Action.Type = ActionType;
 
   const FBridgeRuleContext Context =
       BridgeFactory::CreateContext(&DialogueComp->Agent->State, {});
@@ -114,4 +116,17 @@ void ACombatEncounterDemo::ValidateAndLog(const FString &ActionType,
 
   UE_LOG(LogTemp, Warning, TEXT("CombatDemo: %s BLOCKED (%s)"), *ActionType,
          *Result.Reason);
+#else
+  const bool bValid = ActionType == TEXT("MOVE") || ActionType == TEXT("ATTACK");
+  if (bValid) {
+    UE_LOG(LogTemp, Display,
+           TEXT("CombatDemo: %s VALID (local gate-closed validation)"),
+           *ActionType);
+    return;
+  }
+
+  UE_LOG(LogTemp, Warning,
+         TEXT("CombatDemo: %s BLOCKED (local gate-closed validation)"),
+         *ActionType);
+#endif
 }

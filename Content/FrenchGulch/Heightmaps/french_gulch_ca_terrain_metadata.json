@@ -1,0 +1,39 @@
+{
+  "name": "French Gulch, California post-office-centered terrain sample",
+  "post_office": {
+    "lat": 40.701291,
+    "lon": -122.638465
+  },
+  "bounds": {
+    "north": 40.7156625,
+    "south": 40.6869164,
+    "west": -122.6574238,
+    "east": -122.6195062
+  },
+  "extent_meters": 3200.0,
+  "zoom": 14,
+  "csv_grid_size": 65,
+  "heightmap_size": 513,
+  "elevation_units": "meters",
+  "csv_min_elevation_m": 400.022,
+  "csv_max_elevation_m": 933.565,
+  "heightmap_min_elevation_m": 399.538,
+  "heightmap_max_elevation_m": 934.199,
+  "tile_format": "terrarium",
+  "tile_url_template": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+  "tile_format_reference": "https://github.com/tilezen/joerd/blob/master/docs/formats.md",
+  "ortho_source": "USGSImageryOnly MapServer",
+  "ortho_export_url": "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export",
+  "tile_urls": [
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2609/6159.png",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2610/6159.png",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2611/6159.png",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2609/6160.png",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2610/6160.png",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2611/6160.png",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2609/6161.png",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2610/6161.png",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2611/6161.png"
+  ],
+  "generated_by": "Tools/generate_french_gulch_heightmap.py"
+}

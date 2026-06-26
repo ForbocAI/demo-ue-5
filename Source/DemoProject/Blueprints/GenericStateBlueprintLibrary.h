@@ -1,6 +1,5 @@
 #pragma once
 
-#include "NPC/NPCModule.h"
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Serialization/JsonReader.h"

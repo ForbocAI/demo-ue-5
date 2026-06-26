@@ -1,17 +1,22 @@
 
 #pragma once
 
-#include "NPC/NPCModule.h"
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
+
+#if WITH_FORBOC_AI_SDK_DEMO
+#include "NPC/NPCModule.h"
+#endif
+
 #include "DialogueComponent.generated.h"
 
 /**
- * UDialogueComponent — Actor component for handling incoming Speak actions
- * from the ForbocAI SDK.
+ * UDialogueComponent - Actor component for handling incoming Speak actions.
  *
  * This is a UE boundary layer: UActorComponent requires UCLASS and virtual
- * overrides. The component delegates all logic to SDK-side free functions.
+ * overrides. With the SDK gate open, the component delegates to SDK-side free
+ * functions. With the gate closed, it returns deterministic local replies so
+ * the demo map remains playable while SDK/API work is pending.
  *
  * Responsibilities:
  *   - Receives dialogue text from AgentOps::Process responses
@@ -41,12 +46,14 @@ public:
 
   // --- State ---
 
-  /** Current agent — immutable reference via TSharedPtr. */
+#if WITH_FORBOC_AI_SDK_DEMO
+  /** Current agent - immutable reference via TSharedPtr. */
   TSharedPtr<const FAgent> Agent;
+#endif
 
   // --- Blueprint Callable ---
 
-  /** Initialize the dialogue agent from configured Persona and SDK runtime config. */
+  /** Initialize the dialogue agent from configured Persona. */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI|Dialogue")
   void InitializeDialogue();
 

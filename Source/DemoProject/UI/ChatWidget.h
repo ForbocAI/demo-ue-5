@@ -20,7 +20,7 @@
  *   - Auto-scrolling conversation log (newest at bottom)
  *   - Color-coded messages (Player = cyan, NPC = amber, System = gray)
  *   - Input field with enter-to-send
- *   - Binds to a DialogueComponent for SDK integration
+ *   - Binds to a DialogueComponent for SDK or offline dialogue
  *
  * User Story: As a game developer, I need a pre-built chat widget so
  * I can display NPC dialogue without building UI from scratch.
@@ -33,7 +33,7 @@ class DEMOPROJECT_API UChatWidget : public UUserWidget {
   GENERATED_BODY()
 
 public:
-  /** Bind this widget to a DialogueComponent for SDK-driven conversation. */
+  /** Bind this widget to a DialogueComponent for conversation. */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI|UI")
   void BindToDialogue(UDialogueComponent *InDialogueComp);
 
