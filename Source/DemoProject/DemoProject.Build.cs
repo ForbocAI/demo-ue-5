@@ -17,7 +17,7 @@ public class DemoProject : ModuleRules
 		PublicIncludePaths.AddRange(new string[] { ModuleDirectory, ModuleSourceRoot, ForbocSdkPublicRoot });
 		PrivateIncludePaths.AddRange(new string[] { ModuleDirectory, ModuleSourceRoot, ForbocSdkPublicRoot });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Json", "JsonUtilities", "ProceduralMeshComponent", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "EnhancedInput", "InputCore", "Json", "JsonUtilities", "ProceduralMeshComponent", "UMG" });
 
 		if (bEnableForbocAISDKDemo)
 		{

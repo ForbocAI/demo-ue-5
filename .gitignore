@@ -13,23 +13,10 @@ Config/
 Plugins/*/Binaries/
 Plugins/*/Intermediate/
 
-# Content (not needed for code-only demo)
-Content/
-!Content/
-!Content/FrenchGulch/
-!Content/FrenchGulch/Heightmaps/
-!Content/FrenchGulch/Heightmaps/**
-!Content/FrenchGulch/Maps/
-!Content/FrenchGulch/Maps/**
 Releases/
 Collections/
 Developers/
 User/
-
-# Unreal Assets
-*.uasset
-*.umap
-!Content/FrenchGulch/Maps/*.umap
 
 # Archives
 *.zip
@@ -66,3 +53,5 @@ __pycache__/
 *.tmp
 Plugins/short.txt
 Plugins/subject.txt
+pre-game-assets/uploads_files_4102381_Classic_Horse/
+pre-game-assets/uploads_files_4102381_animated_meshes_fbx/
