@@ -1,8 +1,8 @@
 # ForbocAI SDK Demo Project (UE 5.7)
 
-A working Unreal Engine 5.7 project for the ForbocAI game demo. It currently
-boots into the offline French Gulch prototype while the UE SDK integration is
-feature-gated closed.
+A working Unreal Engine 5.7 project for the ForbocAI game demo. It boots into
+the tracked French Gulch runtime prototype while the UE SDK integration is
+feature-gated closed by default.
 
 Use it as a reference, copy code into your own project, or open it
 in-editor to see each scene wired end-to-end.
@@ -74,6 +74,13 @@ Only use the open-gate path after the UE SDK is synced with the TS SDK/API map.
 3. **Build** the `Development Editor` configuration.
 
 4. **Launch** the editor from your IDE or by double-clicking `DemoProject.uproject`.
+   The project opens `/Game/Map/Maps/Runtime`, the default French Gulch demo
+   map configured in `Config/DefaultEngine.ini`.
+
+5. **Press Play** to enter the runtime prototype. The player and townspeople use
+   the project-owned Manny assets under `Content/Characters/Mannequins`; mounted
+   encounters use the committed Classic Horse and rider assets under
+   `Content/Characters/Horses/ClassicHorse`.
 
 ---
 
@@ -81,14 +88,17 @@ Only use the open-gate path after the UE SDK is synced with the TS SDK/API map.
 
 | Scene / Component | What it shows |
 |---|---|
-| `FrenchGulch` runtime prototype | First-run 1899 French Gulch blockout with talkable townspeople |
+| `/Game/Map/Maps/Runtime` | First-run 1899 French Gulch runtime map with talkable townspeople |
+| `Content/Characters/Mannequins` | Project-owned UE mannequin meshes, materials, rigs, and animation assets |
+| `Content/Characters/Horses/ClassicHorse` | Project-owned horse, mounted rider, animation, and texture assets |
 | `NPCDialogueDemo` | A persona-driven NPC conversation, backed by SDK calls only when the gate is open |
 | `CombatEncounterDemo` | Local validation while gate-closed; Bridge validation when SDK is enabled |
 | `MemoryDemo` | Local memory list while gate-closed; SDK memory store/recall when enabled |
 | `BotOrchestrator` | Multi-bot manager backed by an immutable store; SDK agent routing when enabled |
 | `DialogueComponent` | Reusable actor component for chat-driven NPCs with local fallback |
 | `SpeechComponent` | TTS + viseme blending hooks |
-| `ChatWidget` (UMG) | Drop-in dialogue UI |
+| `RuntimeChatWidget` | Source-built runtime conversation UI for the French Gulch prototype |
+| `ChatWidget` | UMG binding contract for SDK-backed dialogue surfaces |
 
 `SDKTestActor` is compiled only when `FORBOC_DEMO_WITH_SDK=1`.
 
@@ -134,21 +144,19 @@ CurrentAgent =
 
 ---
 
-## Blueprint usage
+## Blueprint and UMG usage
 
-1. **Create Blueprint**: Content Browser → New Blueprint Class →
-   parent `SDKTestActor` → name it `BP_SDKTestAgent`.
-2. **Configure**: open `BP_SDKTestAgent` → Class Defaults.
-   - **Persona**: e.g. `"Cyber-Merchant"`
-   - **Api Url**: leave blank — the SDK defaults to `https://api.forboc.ai`. Set it only when pointing at a non-production API instance.
-3. **Implement events**: in the Event Graph, implement
-   **Event On Agent Response** and wire it to **Print String**
-   (or your dialogue widget).
-4. **Test**:
-   - `Initialize Agent` fires automatically on `BeginPlay`.
-   - Call **Process Input** on a key press or UI event:
-     `"Hello, who are you?"`
-   - Call **Update Agent State** to change mood / context.
+The happy-path demo should run from source-controlled content. Do not create
+local-only Blueprint or UMG assets for the first-run experience.
+
+For runtime play, use the shipped `/Game/Map/Maps/Runtime` map and the C++
+`PrototypeGameMode`, `ThirdPersonCharacter`, `RuntimePlayerController`,
+`RuntimeLevel`, and `RuntimeChatWidget` classes.
+
+For SDK/API validation with `FORBOC_DEMO_WITH_SDK=1`, source-controlled
+Blueprint and UMG assets should bind to `SDKTestActor`, `DialogueComponent`,
+`SpeechComponent`, and `ChatWidget`. `ChatWidget` expects UMG widget bindings
+named `ChatInputBox`, `ChatScrollBox`, and `NPCNameLabel`.
 
 ---
 
