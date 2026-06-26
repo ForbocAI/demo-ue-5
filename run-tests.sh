@@ -85,7 +85,11 @@ fi
 # We use -ExecCmds to run tests and then quit.
 # We pipe both stdout and stderr to tee so we can parse it.
 set +e
-"$UNREAL_EDITOR" "$PROJECT_FILE_ARG" -ExecCmds="Automation RunTests ForbocAI; Quit" -log -NoUI -stdout -FullStdOutLogOutput | tee "$LOG_FILE"
+"$UNREAL_EDITOR" "$PROJECT_FILE_ARG" \
+  -ExecCmds="Automation RunTests ForbocAI; Quit" \
+  -log -NoUI -stdout -FullStdOutLogOutput \
+  -unattended -nop4 -nosplash -nullrhi -nosound -NoLiveCoding \
+  | tee "$LOG_FILE"
 UE_EXIT=$?
 set -e
 

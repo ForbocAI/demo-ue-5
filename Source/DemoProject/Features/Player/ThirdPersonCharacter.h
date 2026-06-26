@@ -44,10 +44,16 @@ private:
   UInputMappingContext *MappingContext;
 
   UPROPERTY()
+  UInputMappingContext *MouseMappingContext;
+
+  UPROPERTY()
   UInputAction *MoveAction;
 
   UPROPERTY()
   UInputAction *LookAction;
+
+  UPROPERTY()
+  UInputAction *MouseLookAction;
 
   UPROPERTY()
   UInputAction *JumpAction;

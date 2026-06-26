@@ -87,8 +87,8 @@ void MapKeyWithModifiers(const FInputKeyMapWithModifiers &Map) {
 } // namespace
 
 AThirdPersonCharacter::AThirdPersonCharacter()
-    : MappingContext(nullptr), MoveAction(nullptr), LookAction(nullptr),
-      JumpAction(nullptr) {
+    : MappingContext(nullptr), MouseMappingContext(nullptr), MoveAction(nullptr),
+      LookAction(nullptr), MouseLookAction(nullptr), JumpAction(nullptr) {
   GetCapsuleComponent()->InitCapsuleSize(CapsuleRadius, CapsuleHalfHeight);
 
   bUseControllerRotationPitch = false;
@@ -127,7 +127,12 @@ void AThirdPersonCharacter::BeginPlay() {
       if (UEnhancedInputLocalPlayerSubsystem *Subsystem =
               ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
                   LocalPlayer)) {
-        Subsystem->AddMappingContext(MappingContext, 0);
+        if (MappingContext) {
+          Subsystem->AddMappingContext(MappingContext, 0);
+        }
+        if (MouseMappingContext) {
+          Subsystem->AddMappingContext(MouseMappingContext, 0);
+        }
       }
     }
   }
@@ -144,6 +149,8 @@ void AThirdPersonCharacter::SetupPlayerInputComponent(
     EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this,
                               &AThirdPersonCharacter::Move);
     EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this,
+                              &AThirdPersonCharacter::Look);
+    EnhancedInput->BindAction(MouseLookAction, ETriggerEvent::Triggered, this,
                               &AThirdPersonCharacter::Look);
   }
 }
@@ -175,16 +182,24 @@ void AThirdPersonCharacter::DoJumpEnd() { StopJumping(); }
 
 void AThirdPersonCharacter::ConfigureTemplateCharacter() {
   if (USkeletalMesh *CharacterMesh = LoadObject<USkeletalMesh>(
-          nullptr, TEXT("/Game/Character/Mesh/SK_Mannequin.SK_Mannequin"))) {
+          nullptr,
+          TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"))) {
     GetMesh()->SetSkeletalMesh(CharacterMesh);
     GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -CapsuleHalfHeight));
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+  } else {
+    UE_LOG(LogTemp, Error,
+           TEXT("ThirdPerson: required Manny skeletal mesh is missing."));
   }
 
   if (UClass *AnimClass = LoadClass<UAnimInstance>(
           nullptr,
-          TEXT("/Game/Animations/ThirdPerson_AnimBP.ThirdPerson_AnimBP_C"))) {
+          TEXT("/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C"))) {
     GetMesh()->SetAnimInstanceClass(AnimClass);
+  } else {
+    UE_LOG(LogTemp, Error,
+           TEXT("ThirdPerson: required ABP_Unarmed animation blueprint is "
+                "missing."));
   }
 }
 
@@ -193,12 +208,17 @@ void AThirdPersonCharacter::ConfigureEnhancedInput() {
                            TEXT("IA_Move"), EInputActionValueType::Axis2D);
   LookAction = InputAction(TEXT("/Game/Input/Actions/IA_Look.IA_Look"), this,
                            TEXT("IA_Look"), EInputActionValueType::Axis2D);
+  MouseLookAction =
+      InputAction(TEXT("/Game/Input/Actions/IA_MouseLook.IA_MouseLook"), this,
+                  TEXT("IA_MouseLook"), EInputActionValueType::Axis2D);
   JumpAction = InputAction(TEXT("/Game/Input/Actions/IA_Jump.IA_Jump"), this,
                            TEXT("IA_Jump"), EInputActionValueType::Boolean);
 
   MappingContext = LoadObject<UInputMappingContext>(
-      nullptr, TEXT("/Game/Input/IMC_MapTP.IMC_MapTP"));
-  if (MappingContext) {
+      nullptr, TEXT("/Game/Input/IMC_Default.IMC_Default"));
+  MouseMappingContext = LoadObject<UInputMappingContext>(
+      nullptr, TEXT("/Game/Input/IMC_MouseLook.IMC_MouseLook"));
+  if (MappingContext && MouseMappingContext) {
     return;
   }
 
@@ -213,8 +233,10 @@ void AThirdPersonCharacter::ConfigureEnhancedInput() {
   MapKey({MappingContext, MoveAction, EKeys::Gamepad_Left2D});
   MapKey({MappingContext, LookAction, EKeys::Mouse2D});
   MapKey({MappingContext, LookAction, EKeys::Gamepad_Right2D});
+  MapKey({MappingContext, MouseLookAction, EKeys::Mouse2D});
   MapKey({MappingContext, JumpAction, EKeys::SpaceBar});
   MapKey({MappingContext, JumpAction, EKeys::Gamepad_FaceButton_Bottom});
+  MouseMappingContext = nullptr;
 }
 
 void AThirdPersonCharacter::Move(const FInputActionValue &Value) {

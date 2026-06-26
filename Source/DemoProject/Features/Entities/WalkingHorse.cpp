@@ -121,16 +121,14 @@ void AWalkingHorse::ConfigureImportedHorseAsset() {
 
   USkeletalMesh *ImportedMesh = LoadObject<USkeletalMesh>(
       nullptr,
-      TEXT("/Game/Map/Horses/ClassicHorse/SkeletalMesh/ClassicHorse_Equipment_A.ClassicHorse_Equipment_A"));
+      TEXT("/Game/Characters/Horses/ClassicHorse/SkeletalMesh/ClassicHorse_Equipment_A.ClassicHorse_Equipment_A"));
   UAnimSequence *WalkAnimation = LoadObject<UAnimSequence>(
       nullptr,
-      TEXT("/Game/Map/Horses/ClassicHorse/Animations/Horse_Walk.Horse_Walk"));
+      TEXT("/Game/Characters/Horses/ClassicHorse/Animations/Horse_Walk.Horse_Walk"));
   if (!ImportedMesh) {
-    ImportedHorseMesh->SetVisibility(false);
-    MountedRiderMesh->SetVisibility(false);
-    UE_LOG(LogTemp, Warning,
-           TEXT("Map: imported horse mesh is missing; horse actor %s "
-                "will not render."),
+    UE_LOG(LogTemp, Error,
+           TEXT("Map: required imported horse mesh is missing; horse actor %s "
+                "cannot render."),
            *HorseName);
     return;
   }
@@ -139,6 +137,10 @@ void AWalkingHorse::ConfigureImportedHorseAsset() {
   ImportedHorseMesh->SetVisibility(true);
   if (WalkAnimation) {
     ImportedHorseMesh->PlayAnimation(WalkAnimation, true);
+  } else {
+    UE_LOG(LogTemp, Error,
+           TEXT("Map: required horse walk animation is missing for %s."),
+           *HorseName);
   }
 
   if (!bMountedRider) {
@@ -148,18 +150,25 @@ void AWalkingHorse::ConfigureImportedHorseAsset() {
 
   USkeletalMesh *RiderMesh = LoadObject<USkeletalMesh>(
       nullptr,
-      TEXT("/Game/Map/Horses/ClassicHorse/Rider/SkeletalMesh/Rider_SkeletalMesh.Rider_SkeletalMesh"));
+      TEXT("/Game/Characters/Horses/ClassicHorse/Rider/SkeletalMesh/Rider_SkeletalMesh.Rider_SkeletalMesh"));
   UAnimSequence *RiderWalkAnimation = LoadObject<UAnimSequence>(
       nullptr,
-      TEXT("/Game/Map/Horses/ClassicHorse/Rider/Animations/Rider_Walk.Rider_Walk"));
+      TEXT("/Game/Characters/Horses/ClassicHorse/Rider/Animations/Rider_Walk.Rider_Walk"));
   if (bMountedRider && RiderMesh) {
     MountedRiderMesh->SetSkeletalMesh(RiderMesh);
     MountedRiderMesh->SetVisibility(true);
     if (RiderWalkAnimation) {
       MountedRiderMesh->PlayAnimation(RiderWalkAnimation, true);
+    } else {
+      UE_LOG(LogTemp, Error,
+             TEXT("Map: required mounted rider walk animation is missing for "
+                  "%s."),
+             *HorseName);
     }
   } else {
-    MountedRiderMesh->SetVisibility(false);
+    UE_LOG(LogTemp, Error,
+           TEXT("Map: required mounted rider mesh is missing for %s."),
+           *HorseName);
   }
 }
 

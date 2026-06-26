@@ -1,7 +1,6 @@
 #include "Features/Entities/TalkableTownsperson.h"
 
 #include "Animation/AnimInstance.h"
-#include "Animation/AnimSequence.h"
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -178,26 +177,25 @@ void ATalkableTownsperson::AdvancePatrol(float DeltaTime) {
 
 void ATalkableTownsperson::ConfigureSampleCharacterAsset() {
   if (USkeletalMesh *Mesh = LoadObject<USkeletalMesh>(
-          nullptr, TEXT("/Game/Character/Mesh/SK_Mannequin.SK_Mannequin"))) {
+          nullptr,
+          TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"))) {
     CharacterMesh->SetSkeletalMesh(Mesh);
   } else {
-    UE_LOG(LogTemp, Warning,
-           TEXT("Map: sample mannequin mesh is missing; townsperson "
+    UE_LOG(LogTemp, Error,
+           TEXT("Map: required Manny skeletal mesh is missing; townsperson "
                 "will not render."));
   }
 
   if (UClass *AnimClass = LoadClass<UAnimInstance>(
           nullptr,
-          TEXT("/Game/Animations/ThirdPerson_AnimBP.ThirdPerson_AnimBP_C"))) {
+          TEXT("/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C"))) {
     CharacterMesh->SetAnimInstanceClass(AnimClass);
     return;
   }
 
-  if (UAnimSequence *Idle = LoadObject<UAnimSequence>(
-          nullptr,
-          TEXT("/Game/Animations/ThirdPersonIdle.ThirdPersonIdle"))) {
-    CharacterMesh->PlayAnimation(Idle, true);
-  }
+  UE_LOG(LogTemp, Error,
+         TEXT("Map: required ABP_Unarmed animation blueprint is missing; "
+              "townsperson animation is unavailable."));
 }
 
 void ATalkableTownsperson::RefreshText() {
