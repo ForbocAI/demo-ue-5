@@ -40,8 +40,7 @@ private:
   UMaterialInterface *BlockBaseMaterial;
   FMapTerrainData TerrainData;
   FMapOrthoData OrthoData;
-  rtk::EnhancedStore<ForbocAI::Demo::Map::FMapState>
-      MapStore;
+  rtk::EnhancedStore<ForbocAI::Demo::Map::FRuntimeState> Store;
 
   void SpawnLevel();
   void SpawnTerrain();
@@ -50,7 +49,7 @@ private:
   void SpawnMineApproach();
   void SpawnTownspeople();
   void SpawnHorses();
-  void SeedMapStore();
+  void SeedRuntimeStore();
 
   AStaticMeshActor *SpawnBlock(
       const ForbocAI::Demo::Map::FMapBlockSpawn &BlockSpawn);
@@ -67,8 +66,7 @@ private:
   void SpawnLabel(const FString &Text, const FVector &Location,
                   float WorldSize = 42.0f);
   ATalkableTownsperson *SpawnTownsperson(
-      const FString &Name, const FString &InRole, const FString &Persona,
-      const TArray<FVector> &Route);
-  AWalkingHorse *SpawnHorse(const FString &Name, const TArray<FVector> &Route,
-                            bool bMountedRider);
+      const ForbocAI::Demo::Map::FTownspersonSeed &Seed);
+  AWalkingHorse *SpawnHorse(
+      const ForbocAI::Demo::Map::FHorseRouteSeed &Seed);
 };

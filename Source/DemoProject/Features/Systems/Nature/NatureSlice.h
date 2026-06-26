@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Systems/Nature/NatureActions.h"
+#include "Features/Systems/Nature/NatureFactories.h"
+#include "Features/Systems/Nature/NatureSelectors.h"
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {

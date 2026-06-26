@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Systems/Terrain/TerrainActions.h"
+#include "Features/Systems/Terrain/TerrainFactories.h"
+#include "Features/Systems/Terrain/TerrainSelectors.h"
 #include "Features/Systems/Terrain/TerrainTypes.h"
 
 namespace ForbocAI {

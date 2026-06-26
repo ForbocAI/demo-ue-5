@@ -1,7 +1,9 @@
 #include "Features/Player/ThirdPersonCharacter.h"
 
+#include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
@@ -172,9 +174,9 @@ void AThirdPersonCharacter::DoJumpStart() { Jump(); }
 void AThirdPersonCharacter::DoJumpEnd() { StopJumping(); }
 
 void AThirdPersonCharacter::ConfigureTemplateCharacter() {
-  if (USkeletalMesh *Mesh = LoadObject<USkeletalMesh>(
+  if (USkeletalMesh *CharacterMesh = LoadObject<USkeletalMesh>(
           nullptr, TEXT("/Game/Character/Mesh/SK_Mannequin.SK_Mannequin"))) {
-    GetMesh()->SetSkeletalMesh(Mesh);
+    GetMesh()->SetSkeletalMesh(CharacterMesh);
     GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -CapsuleHalfHeight));
     GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
   }

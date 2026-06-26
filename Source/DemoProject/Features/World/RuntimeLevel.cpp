@@ -5,8 +5,15 @@
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TextRenderActor.h"
 #include "Features/Entities/Entities.h"
-#include "Features/World/TerrainMesh.h"
+#include "Features/Systems/Horses/HorseSlice.h"
+#include "Features/Systems/Landmarks/LandmarkSlice.h"
+#include "Features/Systems/Nature/NatureSlice.h"
 #include "Features/Systems/RetroRendering.h"
+#include "Features/Systems/Runtime/RuntimeSlice.h"
+#include "Features/Systems/Spawn/SpawnSlice.h"
+#include "Features/Systems/Terrain/TerrainSlice.h"
+#include "Features/Systems/Townspeople/TownspersonSlice.h"
+#include "Features/World/TerrainMesh.h"
 #include "Materials/MaterialInterface.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -51,11 +58,6 @@ FG::FMapLocalPoint FeatureLots(float EastLots, float NorthLots,
   return GroundLots(EastLots, NorthLots, Scale, FGL::RoadSurfaceClearance());
 }
 
-FG::FMapLocalPoint RouteLots(float EastLots, float NorthLots) {
-  return FGL::FromPostOfficeLots(EastLots, NorthLots,
-                                 FGL::CharacterHeightOffset());
-}
-
 FVector FallbackTerrainScale() {
   const float PlaneScale =
       FMapTerrainData::TerrainWorldSize / (FGL::CubeHalfExtent() * 2.0f);
@@ -63,7 +65,7 @@ FVector FallbackTerrainScale() {
                                         FGL::CubeHalfExtent());
 }
 
-FVector LabelLocationForBlock(const FG::FMapLandmark &Landmark) {
+FVector LabelLocationForBlock(const FG::FLandmark &Landmark) {
   return Landmark.Location +
          FVector::UpVector *
              (FGL::CubeHalfExtent() * Landmark.Scale.Z +
@@ -118,7 +120,7 @@ TextureForNatureKind(FG::ENatureFeatureKind Kind) {
 
 ARuntimeLevel::ARuntimeLevel()
     : bSpawnOnBeginPlay(true), CubeMesh(nullptr), BlockBaseMaterial(nullptr),
-      MapStore(FG::MapSlice::ConfigureStore()) {
+      Store(FG::RuntimeStore::ConfigureStore()) {
   PrimaryActorTick.bCanEverTick = false;
 
   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeAsset(
@@ -139,7 +141,7 @@ void ARuntimeLevel::SpawnLevel() {
   FG::RetroRendering::ApplyRuntimeProfile();
   TerrainData.LoadFromContent();
   OrthoData.LoadFromContent();
-  SeedMapStore();
+  SeedRuntimeStore();
 
   SpawnTerrain();
   SpawnNaturalEnvironment();
@@ -161,18 +163,24 @@ void ARuntimeLevel::SpawnLevel() {
                     FGL::CubeHalfExtent() * 0.6f);
 }
 
-void ARuntimeLevel::SeedMapStore() {
-  MapStore.dispatch(FG::MapActions::TerrainLoaded()(
-      FG::MapFactories::TerrainLoadedPayload(
+void ARuntimeLevel::SeedRuntimeStore() {
+  Store.dispatch(FG::TerrainActions::TerrainLoaded()(
+      FG::TerrainFactories::LoadedPayload(
           {TerrainData.GetSourcePath(), OrthoData.GetSourcePath(),
            TerrainData.GetGridSize(), TerrainData.GetMinElevationMeters(),
            TerrainData.GetMaxElevationMeters()})));
-  MapStore.dispatch(FG::MapActions::LandmarksSeeded()(
+  Store.dispatch(FG::LandmarkActions::LandmarksSeeded()(
       FG::TownLandmarks::Build1899LandmarkSeed(TerrainData)));
-  MapStore.dispatch(FG::MapActions::PlayerSpawnAnchored()(
-      FG::MapFactories::SpawnPointPayload(
+  Store.dispatch(FG::SpawnActions::PlayerSpawnAnchored()(
+      FG::SpawnFactories::SpawnPointPayload(
           {FGL::ToWorld(TerrainData, FGL::PlayerSpawnPoint()),
            FGL::PlayerSpawnRotation(), FGL::PlayerSpawnAnchorLabel()})));
+  Store.dispatch(FG::TownspersonActions::TownspeopleSeeded()(
+      FG::TownspersonRoutes::Build1899TownspersonSeed()));
+  Store.dispatch(FG::HorseActions::HorsesSeeded()(
+      FG::HorseRoutes::Build1899HorseRouteSeed()));
+  Store.dispatch(FG::NatureActions::NatureSeeded()(
+      FG::NatureFeatures::BuildClearCreekNatureSeed()));
 }
 
 void ARuntimeLevel::SpawnTerrain() {
@@ -238,7 +246,7 @@ void ARuntimeLevel::SpawnTerrain() {
 
 void ARuntimeLevel::SpawnNaturalEnvironment() {
   const TArray<FG::FNatureFeatureSeed> NatureFeatures =
-      FG::NatureFeatures::BuildClearCreekNatureSeed();
+      FG::RuntimeSelectors::SelectNatureFeatures(Store.getState());
   for (const FG::FNatureFeatureSeed &Feature : NatureFeatures) {
     SpawnTerrainBlock({Feature.Name, Feature.Location, Feature.Scale,
                        TextureForNatureKind(Feature.Kind)});
@@ -252,9 +260,9 @@ void ARuntimeLevel::SpawnNaturalEnvironment() {
 }
 
 void ARuntimeLevel::SpawnTown() {
-  const TArray<FG::FMapLandmark> Landmarks =
-      FG::MapSelectors::SelectLandmarks(MapStore.getState());
-  for (const FG::FMapLandmark &Landmark : Landmarks) {
+  const TArray<FG::FLandmark> Landmarks =
+      FG::RuntimeSelectors::SelectLandmarks(Store.getState());
+  for (const FG::FLandmark &Landmark : Landmarks) {
     SpawnBlock({Landmark.Label, Landmark.Location, Landmark.Scale,
                 BuildingTexture()});
     SpawnLabel(Landmark.Label, LabelLocationForBlock(Landmark),
@@ -328,43 +336,18 @@ void ARuntimeLevel::SpawnMineApproach() {
 }
 
 void ARuntimeLevel::SpawnTownspeople() {
-  SpawnTownsperson(
-      TEXT("Elias Reed"), TEXT("Miner"),
-      TEXT("I know which shafts are paying and which timbers are tired."),
-      BuildRoute({RouteLots(-1.8f, 5.3f), RouteLots(-2.825f, 6.725f),
-                  RouteLots(-0.5f, 2.6f)}));
-
-  SpawnTownsperson(
-      TEXT("Clara Bell"), TEXT("Postmaster"),
-      TEXT("I sort mail, freight news, and every rumor that rides Main Street."),
-      BuildRoute({RouteLots(0.0f, -0.175f), RouteLots(0.9f, 0.4f),
-                  RouteLots(-0.35f, 0.625f)}));
-
-  SpawnTownsperson(
-      TEXT("Deputy Hale"), TEXT("Deputy"),
-      TEXT("I keep the peace between claim jumpers, teamsters, and drifters."),
-      BuildRoute({RouteLots(2.3f, 1.8f), RouteLots(3.475f, 4.2f),
-                  RouteLots(2.9f, -0.85f)}));
-
-  SpawnTownsperson(
-      TEXT("Mara Quinn"), TEXT("Traveler"),
-      TEXT("I came over the ridge with news from Redding and a wary horse."),
-      BuildRoute({RouteLots(1.525f, -2.5f), RouteLots(3.825f, 1.15f),
-                  RouteLots(4.775f, -1.15f)}));
-
-  SpawnTownsperson(
-      TEXT("Samuel Pike"), TEXT("Hotel Keeper"),
-      TEXT("Beds, meals, and claims gossip all pass through the hotel desk."),
-      BuildRoute({RouteLots(3.85f, 1.175f), RouteLots(2.9f, -0.95f),
-                  RouteLots(4.6f, 0.4f)}));
+  const TArray<FG::FTownspersonSeed> Townspeople =
+      FG::RuntimeSelectors::SelectTownspeople(Store.getState());
+  for (const FG::FTownspersonSeed &Townsperson : Townspeople) {
+    SpawnTownsperson(Townsperson);
+  }
 }
 
 void ARuntimeLevel::SpawnHorses() {
-  const TArray<FG::FMapHorseRouteSeed> HorseRoutes =
-      FG::HorseRoutes::Build1899HorseRouteSeed();
-  for (const FG::FMapHorseRouteSeed &HorseRoute : HorseRoutes) {
-    SpawnHorse(HorseRoute.Name, BuildRoute(HorseRoute.PatrolRoute),
-               HorseRoute.bMountedRider);
+  const TArray<FG::FHorseRouteSeed> HorseRoutes =
+      FG::RuntimeSelectors::SelectHorses(Store.getState());
+  for (const FG::FHorseRouteSeed &HorseRoute : HorseRoutes) {
+    SpawnHorse(HorseRoute);
   }
 }
 
@@ -436,8 +419,8 @@ TArray<FVector> ARuntimeLevel::BuildRoute(
 }
 
 ATalkableTownsperson *ARuntimeLevel::SpawnTownsperson(
-    const FString &Name, const FString &InRole, const FString &Persona,
-    const TArray<FVector> &Route) {
+    const FG::FTownspersonSeed &Seed) {
+  const TArray<FVector> Route = BuildRoute(Seed.PatrolRoute);
   UWorld *World = GetWorld();
   if (!World || Route.Num() == 0) {
     return nullptr;
@@ -446,13 +429,18 @@ ATalkableTownsperson *ARuntimeLevel::SpawnTownsperson(
   ATalkableTownsperson *Townsperson =
       World->SpawnActor<ATalkableTownsperson>(Route[0], FRotator::ZeroRotator);
   if (Townsperson) {
-    Townsperson->ConfigureTownsperson(Name, InRole, Persona, Route);
+    FTownspersonConfig Config;
+    Config.Name = Seed.Name;
+    Config.Role = Seed.Role;
+    Config.Persona = Seed.Persona;
+    Config.PatrolRoute = Route;
+    Townsperson->ConfigureTownsperson(Config);
   }
   return Townsperson;
 }
 
-AWalkingHorse *ARuntimeLevel::SpawnHorse(
-    const FString &Name, const TArray<FVector> &Route, bool bMountedRider) {
+AWalkingHorse *ARuntimeLevel::SpawnHorse(const FG::FHorseRouteSeed &Seed) {
+  const TArray<FVector> Route = BuildRoute(Seed.PatrolRoute);
   UWorld *World = GetWorld();
   if (!World || Route.Num() == 0) {
     return nullptr;
@@ -461,7 +449,11 @@ AWalkingHorse *ARuntimeLevel::SpawnHorse(
   AWalkingHorse *Horse =
       World->SpawnActor<AWalkingHorse>(Route[0], FRotator::ZeroRotator);
   if (Horse) {
-    Horse->ConfigureHorse(Name, Route, bMountedRider);
+    FWalkingHorseConfig Config;
+    Config.Name = Seed.Name;
+    Config.PatrolRoute = Route;
+    Config.bMountedRider = Seed.bMountedRider;
+    Horse->ConfigureHorse(Config);
   }
   return Horse;
 }

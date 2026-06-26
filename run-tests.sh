@@ -62,7 +62,7 @@ if [ -n "$UNREAL_BUILD" ]; then
 fi
 echo "Running ForbocAI.* tests..."
 
-echo "Checking French Gulch C++ parameter discipline..."
+echo "Checking feature C++ parameter discipline..."
 python3 "$PROJECT_ROOT/Scripts/check_param_count.py" --strict
 
 if [ -n "$UNREAL_BUILD" ]; then

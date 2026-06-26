@@ -8,6 +8,23 @@ class USphereComponent;
 class USkeletalMeshComponent;
 class UTextRenderComponent;
 
+USTRUCT(BlueprintType)
+struct FTownspersonConfig {
+  GENERATED_BODY()
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  FString Name;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  FString Role;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  FString Persona;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  TArray<FVector> PatrolRoute;
+};
+
 UCLASS()
 class DEMOPROJECT_API ATalkableTownsperson : public AActor {
   GENERATED_BODY()
@@ -19,9 +36,7 @@ public:
   virtual void Tick(float DeltaTime) override;
 
   UFUNCTION(BlueprintCallable, Category = "Map|NPC")
-  void ConfigureTownsperson(const FString &InName, const FString &InRole,
-                            const FString &InPersona,
-                            const TArray<FVector> &InPatrolRoute);
+  void ConfigureTownsperson(const FTownspersonConfig &Config);
 
   UFUNCTION(BlueprintCallable, Category = "Map|NPC")
   FString Interact(const FString &PlayerLine);

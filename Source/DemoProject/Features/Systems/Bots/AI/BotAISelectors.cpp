@@ -1,0 +1,27 @@
+#include "Features/Systems/Bots/AI/BotAISelectors.h"
+
+#include "Features/Systems/Bots/AI/BotAIAdapters.h"
+
+namespace ForbocAI {
+namespace Demo {
+namespace Map {
+namespace BotAISelectors {
+
+TArray<FBotAIComponent> SelectAll(const FBotAIState &State) {
+  return BotAIAdapters::BotAIAdapter().getSelectors().selectAll(State.Items);
+}
+
+func::Maybe<FBotAIComponent> SelectById(const FBotAIState &State,
+                                        const FString &Id) {
+  return BotAIAdapters::BotAIAdapter().getSelectors().selectById(State.Items,
+                                                                 Id);
+}
+
+int32 SelectTotal(const FBotAIState &State) {
+  return BotAIAdapters::BotAIAdapter().getSelectors().selectTotal(State.Items);
+}
+
+} // namespace BotAISelectors
+} // namespace Map
+} // namespace Demo
+} // namespace ForbocAI

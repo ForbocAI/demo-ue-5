@@ -112,7 +112,7 @@ def gather(root: pathlib.Path, max_params: int):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", default="Source/DemoProject/FrenchGulch")
+    parser.add_argument("--root", default="Source/DemoProject/Features")
     parser.add_argument("--max", type=int, default=2)
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()

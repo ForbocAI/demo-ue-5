@@ -1,4 +1,4 @@
-"""Create the project-owned French Gulch startup map.
+"""Create the project-owned runtime startup map.
 
 Run from the project root through UnrealEditor-Cmd:
 
@@ -9,14 +9,14 @@ import sys
 import unreal
 
 
-MAP_PACKAGE = "/Game/FrenchGulch/Maps/FrenchGulchRuntime"
-MAP_FOLDER = "/Game/FrenchGulch/Maps"
-GAME_MODE_CLASS = "/Script/DemoProject.FrenchGulchPrototypeGameMode"
-RUNTIME_LEVEL_CLASS = "/Script/DemoProject.FrenchGulchRuntimeLevel"
+MAP_PACKAGE = "/Game/Map/Maps/Runtime"
+MAP_FOLDER = "/Game/Map/Maps"
+GAME_MODE_CLASS = "/Script/DemoProject.PrototypeGameMode"
+RUNTIME_LEVEL_CLASS = "/Script/DemoProject.RuntimeLevel"
 
 
 def log(message: str) -> None:
-    unreal.log(f"FrenchGulchMap: {message}")
+    unreal.log(f"RuntimeMap: {message}")
 
 
 def load_required_class(path: str):
@@ -64,25 +64,25 @@ def configure_world_settings() -> None:
 def ensure_lighting() -> None:
     spawn_once(
         "/Script/Engine.DirectionalLight",
-        "FrenchGulch_DirectionalLight",
+        "Runtime_DirectionalLight",
         unreal.Vector(-2600.0, -1800.0, 4200.0),
         unreal.Rotator(-42.0, -30.0, 0.0),
     )
     spawn_once(
         "/Script/Engine.SkyAtmosphere",
-        "FrenchGulch_SkyAtmosphere",
+        "Runtime_SkyAtmosphere",
         unreal.Vector(0.0, 0.0, 0.0),
         unreal.Rotator(0.0, 0.0, 0.0),
     )
     spawn_once(
         "/Script/Engine.SkyLight",
-        "FrenchGulch_SkyLight",
+        "Runtime_SkyLight",
         unreal.Vector(0.0, 0.0, 1800.0),
         unreal.Rotator(0.0, 0.0, 0.0),
     )
     spawn_once(
         "/Script/Engine.ExponentialHeightFog",
-        "FrenchGulch_HeightFog",
+        "Runtime_HeightFog",
         unreal.Vector(0.0, 0.0, 0.0),
         unreal.Rotator(0.0, 0.0, 0.0),
     )
@@ -103,7 +103,7 @@ def main() -> int:
     ensure_lighting()
     spawn_once(
         RUNTIME_LEVEL_CLASS,
-        "FrenchGulchRuntimeLevel",
+        "RuntimeLevel",
         unreal.Vector(0.0, 0.0, 0.0),
         unreal.Rotator(0.0, 0.0, 0.0),
     )
@@ -120,5 +120,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as exc:
-        unreal.log_error(f"FrenchGulchMap: {exc}")
+        unreal.log_error(f"RuntimeMap: {exc}")
         raise SystemExit(1)

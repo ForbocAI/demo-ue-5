@@ -118,12 +118,11 @@ void ATalkableTownsperson::Tick(float DeltaTime) {
 }
 
 void ATalkableTownsperson::ConfigureTownsperson(
-    const FString &InName, const FString &InRole, const FString &InPersona,
-    const TArray<FVector> &InPatrolRoute) {
-  TownspersonName = InName;
-  TownspersonRole = InRole;
-  Persona = InPersona;
-  PatrolRoute = InPatrolRoute;
+    const FTownspersonConfig &Config) {
+  TownspersonName = Config.Name;
+  TownspersonRole = Config.Role;
+  Persona = Config.Persona;
+  PatrolRoute = Config.PatrolRoute;
   PatrolIndex = PatrolRoute.Num() > 1 ? 1 : 0;
   PauseRemaining = 0.0f;
 

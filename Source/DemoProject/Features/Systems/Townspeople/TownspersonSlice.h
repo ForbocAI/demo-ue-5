@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Systems/Townspeople/TownspersonActions.h"
+#include "Features/Systems/Townspeople/TownspersonFactories.h"
+#include "Features/Systems/Townspeople/TownspersonSelectors.h"
 #include "Features/Systems/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {

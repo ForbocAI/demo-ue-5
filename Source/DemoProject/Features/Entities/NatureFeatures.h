@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Systems/MapTypes.h"
+#include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
 namespace Demo {

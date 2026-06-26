@@ -36,7 +36,7 @@ TILE_URL_TEMPLATE = (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT_DIR = ROOT / "Content" / "FrenchGulch" / "Heightmaps"
+OUT_DIR = ROOT / "Content" / "Map" / "Heightmaps"
 CSV_PATH = OUT_DIR / "french_gulch_ca_terrain_65.csv"
 HEIGHTMAP_PATH = OUT_DIR / "french_gulch_ca_heightmap_513.png"
 PREVIEW_PATH = OUT_DIR / "french_gulch_ca_terrain_preview.png"

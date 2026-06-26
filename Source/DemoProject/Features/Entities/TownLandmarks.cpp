@@ -1,13 +1,14 @@
 #include "Features/Entities/TownLandmarks.h"
 
 #include "Features/Components/MapLayout.h"
+#include "Features/Systems/Landmarks/LandmarkFactories.h"
 
 namespace ForbocAI {
 namespace Demo {
 namespace Map {
 namespace TownLandmarks {
 namespace {
-void AddLandmark(TArray<FMapLandmark> &Landmarks,
+void AddLandmark(TArray<FLandmark> &Landmarks,
                  const FMapTerrainData &TerrainData, const TCHAR *Id,
                  const TCHAR *Label, float EastLotsFromPostOffice,
                  float NorthLotsFromPostOffice, float FrontageFeet,
@@ -19,15 +20,15 @@ void AddLandmark(TArray<FMapLandmark> &Landmarks,
                                             NorthLotsFromPostOffice),
       Scale, MapLayout::BuildingFoundationHeight());
 
-  Landmarks.Add(MapFactories::Landmark(
-      FString(Id), FString(Label), EMapLandmarkKind::Building,
-      MapLayout::ToWorld(TerrainData, Local), Scale));
+  Landmarks.Add(LandmarkFactories::Landmark(
+      {FString(Id), FString(Label), ELandmarkKind::Building,
+       MapLayout::ToWorld(TerrainData, Local), Scale}));
 }
 } // namespace
 
-TArray<FMapLandmark>
+TArray<FLandmark>
 Build1899LandmarkSeed(const FMapTerrainData &TerrainData) {
-  TArray<FMapLandmark> Landmarks;
+  TArray<FLandmark> Landmarks;
   AddLandmark(Landmarks, TerrainData, TEXT("post-office"),
               TEXT("U.S. Post Office false-front"), 0.0f, 0.0f, 34.0f,
               19.0f, 1.5f);
