@@ -3,6 +3,7 @@
 #include "FrenchGulch/Components/FrenchGulchOrthoData.h"
 #include "FrenchGulch/Components/FrenchGulchTerrainData.h"
 #include "FrenchGulch/Entities/FrenchGulchHorses.h"
+#include "FrenchGulch/Entities/FrenchGulchNature.h"
 #include "FrenchGulch/Entities/FrenchGulchTown.h"
 #include "FrenchGulch/Systems/FrenchGulchSlice.h"
 #include "Misc/AutomationTest.h"
@@ -78,6 +79,32 @@ bool FFrenchGulchSliceDataBackedMap::RunTest(const FString &Parameters) {
     TestTrue(FString::Printf(TEXT("%s has a patrol loop"), *HorseRoute.Name),
              HorseRoute.PatrolRoute.Num() >= 3);
   }
+
+  const TArray<FFrenchGulchNatureFeatureSeed> NatureFeatures =
+      FrenchGulchNature::BuildClearCreekNatureSeed();
+  TestTrue(TEXT("Clear Creek natural environment features are seeded"),
+           NatureFeatures.Num() >= 8);
+
+  bool bHasWater = false;
+  bool bHasRocks = false;
+  bool bHasVegetation = false;
+  bool bHasPCGMarker = false;
+  bool bHasWaterMarker = false;
+  for (const FFrenchGulchNatureFeatureSeed &Feature : NatureFeatures) {
+    bHasWater |= Feature.Kind == EFrenchGulchNatureFeatureKind::Water;
+    bHasRocks |= Feature.Kind == EFrenchGulchNatureFeatureKind::Rock;
+    bHasVegetation |=
+        Feature.Kind == EFrenchGulchNatureFeatureKind::TreeGrove ||
+        Feature.Kind == EFrenchGulchNatureFeatureKind::Shrub;
+    bHasPCGMarker |= Feature.Kind == EFrenchGulchNatureFeatureKind::PCGMarker;
+    bHasWaterMarker |=
+        Feature.Kind == EFrenchGulchNatureFeatureKind::WaterSystemMarker;
+  }
+  TestTrue(TEXT("Nature seed includes water"), bHasWater);
+  TestTrue(TEXT("Nature seed includes rocks"), bHasRocks);
+  TestTrue(TEXT("Nature seed includes vegetation"), bHasVegetation);
+  TestTrue(TEXT("Nature seed includes PCG marker"), bHasPCGMarker);
+  TestTrue(TEXT("Nature seed includes Water System marker"), bHasWaterMarker);
 
   return true;
 }

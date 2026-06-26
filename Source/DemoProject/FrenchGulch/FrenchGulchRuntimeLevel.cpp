@@ -72,6 +72,7 @@ void AFrenchGulchRuntimeLevel::SpawnLevel() {
   SeedMapStore();
 
   SpawnTerrain();
+  SpawnNaturalEnvironment();
   SpawnTown();
   SpawnMineApproach();
   SpawnTownspeople();
@@ -157,6 +158,20 @@ void AFrenchGulchRuntimeLevel::SpawnTerrain() {
                     FGL::FromPostOfficeLots(5.5f, -0.35f,
                                             FGL::CharacterHeightOffset() * 1.5f),
                     FGL::CubeHalfExtent() * 0.6f);
+}
+
+void AFrenchGulchRuntimeLevel::SpawnNaturalEnvironment() {
+  const TArray<FG::FFrenchGulchNatureFeatureSeed> NatureFeatures =
+      FG::FrenchGulchNature::BuildClearCreekNatureSeed();
+  for (const FG::FFrenchGulchNatureFeatureSeed &Feature : NatureFeatures) {
+    SpawnTerrainBlock(Feature.Name, Feature.Location, Feature.Scale);
+    if (Feature.Kind == FG::EFrenchGulchNatureFeatureKind::PCGMarker ||
+        Feature.Kind == FG::EFrenchGulchNatureFeatureKind::WaterSystemMarker) {
+      SpawnTerrainLabel(Feature.Name,
+                        FGL::AboveBlock(Feature.Location, Feature.Scale),
+                        FGL::CubeHalfExtent() * 0.36f);
+    }
+  }
 }
 
 void AFrenchGulchRuntimeLevel::SpawnTown() {

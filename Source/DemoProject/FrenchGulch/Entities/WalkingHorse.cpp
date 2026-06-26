@@ -21,7 +21,7 @@ constexpr float TailLengthFeet = 1.5f;
 constexpr float TailWidthFeet = 0.32f;
 constexpr float SaddleLengthFeet = 2.3f;
 constexpr float SaddleHeightFeet = 0.28f;
-constexpr float PatrolPauseSeconds = 1.4f;
+constexpr float HorsePatrolPauseSeconds = 1.4f;
 constexpr float WalkSpeedHorseLengthRatio = 0.58f;
 constexpr float RouteArrivalLegRatio = 0.8f;
 
@@ -39,7 +39,7 @@ float HorseBackZ() {
   return WorldFeet(LegHeightFeet + BodyHeightFeet + SaddleHeightFeet * 0.5f);
 }
 
-float NameTextZ() {
+float HorseNameTextZ() {
   return WorldFeet(LegHeightFeet + BodyHeightFeet + NeckHeightFeet +
                    HeadHeightFeet);
 }
@@ -47,7 +47,7 @@ float NameTextZ() {
 
 AWalkingHorse::AWalkingHorse()
     : WalkSpeed(WorldFeet(HorseLengthFeet) * WalkSpeedHorseLengthRatio),
-      PauseDuration(PatrolPauseSeconds), PatrolIndex(0),
+      PauseDuration(HorsePatrolPauseSeconds), PatrolIndex(0),
       PauseRemaining(0.0f) {
   PrimaryActorTick.bCanEverTick = true;
 
@@ -131,7 +131,7 @@ AWalkingHorse::AWalkingHorse()
 
   NameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NameText"));
   NameText->SetupAttachment(SceneRoot);
-  NameText->SetRelativeLocation(FVector(0.0f, 0.0f, NameTextZ()));
+  NameText->SetRelativeLocation(FVector(0.0f, 0.0f, HorseNameTextZ()));
   NameText->SetHorizontalAlignment(EHTA_Center);
   NameText->SetWorldSize(WorldFeet(1.35f));
 

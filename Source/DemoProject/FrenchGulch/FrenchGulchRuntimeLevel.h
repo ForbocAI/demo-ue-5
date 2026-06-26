@@ -33,6 +33,7 @@ private:
 
   void SpawnLevel();
   void SpawnTerrain();
+  void SpawnNaturalEnvironment();
   void SpawnTown();
   void SpawnMineApproach();
   void SpawnTownspeople();
