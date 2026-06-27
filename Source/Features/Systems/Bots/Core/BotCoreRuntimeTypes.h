@@ -1,14 +1,12 @@
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Core/functional_core.hpp"
+#include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace State {
+namespace Demo {
+namespace Level {
 
-// ── Sub-States ──
-
-struct FStats {
+struct FBotCoreStats {
   float Health = 100.0f;
   float MaxHealth = 100.0f;
   float Mana = 100.0f;
@@ -17,37 +15,31 @@ struct FStats {
   float MaxStamina = 100.0f;
 };
 
-struct FBotMemory {
-  // Minimal memory representation for now
+struct FBotCoreMemory {
   FVector LastKnownPlayerPos = FVector::ZeroVector;
   float TimeSinceLastSeenPlayer = 9999.0f;
   bool bHasAggro = false;
 };
 
-enum class EBotPhase { Idle, Patrol, Combat, Flee, Search };
+enum class EBotCorePhase { Idle, Patrol, Combat, Flee, Search };
 
-// ── Main State ──
-
-struct FBotState {
+struct FBotCoreRuntimeState {
   FGuid Id;
   FString Name;
 
   FVector Position;
   FRotator Rotation;
 
-  FStats Stats;
-  FBotMemory Memory;
+  FBotCoreStats Stats;
+  FBotCoreMemory Memory;
 
-  EBotPhase Phase = EBotPhase::Idle;
+  EBotCorePhase Phase = EBotCorePhase::Idle;
 
-  // "Redux" tick counter
   uint64 TickCount = 0;
 };
 
-// ── Initial State Factory ──
-
-inline FBotState CreateInitialState(FString InName) {
-  FBotState State;
+inline FBotCoreRuntimeState CreateBotCoreRuntimeInitialState(FString InName) {
+  FBotCoreRuntimeState State;
   State.Id = FGuid::NewGuid();
   State.Name = InName;
   State.Position = FVector::ZeroVector;
@@ -55,5 +47,6 @@ inline FBotState CreateInitialState(FString InName) {
   return State;
 }
 
-} // namespace State
+} // namespace Level
+} // namespace Demo
 } // namespace ForbocAI

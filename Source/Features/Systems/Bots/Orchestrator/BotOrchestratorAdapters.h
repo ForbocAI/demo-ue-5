@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Features/Systems/Runtime/RuntimeStore.h"
-#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
 #if WITH_FORBOC_AI_SDK_DEMO
@@ -51,7 +49,6 @@ private:
     float LastObservationTime = 0.0f;
   };
 
-  rtk::EnhancedStore<ForbocAI::Demo::Level::FRuntimeState> RuntimeStoreValue;
   TMap<AActor *, FBotRuntimeBinding> BotBindings;
 
   /** Multi-Round Protocol: Observe & Process */

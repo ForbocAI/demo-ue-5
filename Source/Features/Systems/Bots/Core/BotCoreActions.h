@@ -2,10 +2,11 @@
 
 #include "Core/rtk.hpp"
 
-#include "CoreMinimal.h"
+class AActor;
 
 namespace ForbocAI {
-namespace State {
+namespace Demo {
+namespace Level {
 
 struct FBotTickPayload {
   float DeltaTime = 0.0f;
@@ -91,5 +92,6 @@ BotFleeRequested() {
 }
 
 } // namespace BotCoreActions
-} // namespace State
+} // namespace Level
+} // namespace Demo
 } // namespace ForbocAI

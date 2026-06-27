@@ -2,6 +2,7 @@
 
 #include "Core/rtk.hpp"
 
+#include "Features/Components/ComponentsAdapters.h"
 #include "Features/Components/ComponentsActions.h"
 #include "Features/Components/ComponentsReducers.h"
 #include "Features/Components/ComponentsSelectors.h"

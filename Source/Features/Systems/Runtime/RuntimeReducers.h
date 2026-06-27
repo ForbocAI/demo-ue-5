@@ -9,11 +9,13 @@ namespace Demo {
 namespace Level {
 namespace RuntimeReducers {
 
+FRuntimeState ReduceRuntimeEcsProjected(const FRuntimeState &State);
+
 inline FRuntimeState ReduceRuntimeHydrated(
     const FRuntimeState &State, const rtk::PayloadAction<FRuntimeState> &Action) {
   return (func::pipe(State) |
           [&Action](FRuntimeState) -> FRuntimeState {
-            return Action.PayloadValue;
+            return ReduceRuntimeEcsProjected(Action.PayloadValue);
           })
       .val;
 }

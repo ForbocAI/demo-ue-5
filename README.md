@@ -4,8 +4,9 @@ A working Unreal Engine 5.7 project for the ForbocAI game demo. It boots into
 the tracked French Gulch runtime prototype while the UE SDK integration is
 feature-gated closed by default.
 
-Use it as a reference, copy code into your own project, or open it
-in-editor to see each scene wired end-to-end.
+Use it as a reference for project layout, runtime state flow, gameplay
+presentation boundaries, and SDK-gated integration. Copy the patterns into your
+own project rather than treating every demo-specific file as reusable SDK code.
 
 ---
 
@@ -89,58 +90,44 @@ Only use the open-gate path after the UE SDK is synced with the TS SDK/API map.
 | Scene / Component | What it shows |
 |---|---|
 | `/Game/Map/Maps/Runtime` | First-run 1899 French Gulch runtime map with talkable townspeople |
+| `Source/Core/ecs.hpp` | Neutral ECS primitives and request-object transforms |
+| `Source/Store.*` | Single configured runtime store for the playable demo |
+| `Source/Features` | RTK-style feature domains: actions, reducers, selectors, thunks, adapters, factories, and slices |
+| `Source/Views` | Unreal display/effect boundary for actors, widgets, input binding, and mesh application |
 | `Content/Characters/Mannequins` | Project-owned UE mannequin meshes, materials, rigs, and animation assets |
 | `Content/Characters/Horses/ClassicHorse` | Project-owned horse, mounted rider, animation, and texture assets |
-| `NPCDialogueDemo` | A persona-driven NPC conversation, backed by SDK calls only when the gate is open |
-| `CombatEncounterDemo` | Local validation while gate-closed; Bridge validation when SDK is enabled |
-| `MemoryDemo` | Local memory list while gate-closed; SDK memory store/recall when enabled |
-| `BotOrchestrator` | Multi-bot manager backed by an immutable store; SDK agent routing when enabled |
-| `DialogueComponent` | Reusable actor component for chat-driven NPCs with local fallback |
+| `Systems/Bots` | Multi-bot feature state backed by normalized RTK-style reducers/selectors |
+| `Systems/Dialogue` | Dialogue actions, reducers, selectors, and thunks for gate-closed runtime interaction |
 | `SpeechComponent` | TTS + viseme blending hooks |
 | `RuntimeChatWidget` | Source-built runtime conversation UI for the French Gulch prototype |
-| `ChatWidget` | UMG binding contract for SDK-backed dialogue surfaces |
 
-`SDKTestActor` is compiled only when `FORBOC_DEMO_WITH_SDK=1`.
+## Runtime architecture
 
----
+The demo uses one unidirectional runtime state path:
 
-## C++ usage
-
-When the SDK gate is open, `SDKTestActor.h` / `SDKTestActor.cpp` walk through
-the three core operations:
-
-### 1. Create an agent
-
-```cpp
-// Zero-config: SDKConfig targets api.forboc.ai by default. ApiUrl is an
-// internal escape hatch — set it only for non-production API instances.
-FAgentConfig Config;
-Config.Persona = TEXT("Cyber-Merchant");
-
-CurrentAgent = MakeShared<const FAgent>(AgentFactory::Create(Config));
+```text
+UE event / tick / overlap
+  -> RTK-style action or thunk
+  -> reducer-owned state transition
+  -> selector
+  -> UE view applies selected state
 ```
 
-### 2. Process player input
+`Source/Features` owns durable gameplay state and semantics. Feature code uses
+Redux Toolkit-style terms from the SDK `Core/rtk.hpp`: actions describe events,
+reducers own transitions, selectors own reads, thunks own imperative workflows,
+entity adapters own normalized collections, and `Source/Store.*` owns the single
+configured store.
 
-```cpp
-const FAgentResponse Response =
-    AgentOps::Process(*CurrentAgent, InputText, {});
+`Source/Core/ecs.hpp` is the neutral ECS layer for entity IDs, component/tag
+projection, and request-object transforms. `Core/functional_core.hpp` is used
+for pure composition, lazy values, and small unary transforms; it is not used as
+a substitute action/store model.
 
-OnAgentResponse(Response.Dialogue);
-```
-
-### 3. Update agent state
-
-```cpp
-const FAgentState NewState = TypeFactory::AgentState(TEXT("Alert"));
-
-// AgentOps::WithState returns a NEW agent — original stays untouched.
-CurrentAgent =
-    MakeShared<const FAgent>(AgentOps::WithState(*CurrentAgent, NewState));
-```
-
-> `FAgent` and friends are immutable: assign the result of any `AgentOps::*`
-> call back to your `TSharedPtr<const FAgent>` to retain it.
+`Source/Views` is display/effect code. Views may bind Unreal input, spawn or
+attach actors/widgets, create procedural meshes through `ProceduralMeshElement`,
+and apply selected transforms/text. Decisions belong in reducers, selectors,
+thunks, or ECS helpers.
 
 ---
 
@@ -150,13 +137,13 @@ The happy-path demo should run from source-controlled content. Do not create
 local-only Blueprint or UMG assets for the first-run experience.
 
 For runtime play, use the shipped `/Game/Map/Maps/Runtime` map and the C++
-`PrototypeGameMode`, `ThirdPersonCharacter`, `RuntimePlayerController`,
-`RuntimeLevel`, and `RuntimeChatWidget` classes.
+`LevelGameModeView`, `PlayerCharacterView`, `PlayerRuntimeControllerView`,
+`RuntimeLevelView`, and `RuntimeChatWidget` classes.
 
-For SDK/API validation with `FORBOC_DEMO_WITH_SDK=1`, source-controlled
-Blueprint and UMG assets should bind to `SDKTestActor`, `DialogueComponent`,
-`SpeechComponent`, and `ChatWidget`. `ChatWidget` expects UMG widget bindings
-named `ChatInputBox`, `ChatScrollBox`, and `NPCNameLabel`.
+For SDK/API validation with `FORBOC_DEMO_WITH_SDK=1`, add source-controlled
+Blueprint and UMG assets only after the SDK-facing runtime path is current.
+Runtime conversation UI should receive selected view models from the store, not
+own dialogue decisions in widget code.
 
 ---
 
@@ -166,9 +153,6 @@ named `ChatInputBox`, `ChatScrollBox`, and `NPCNameLabel`.
 |---|---|
 | `Plugin 'ForbocAI_SDK' failed to load` | Only relevant with `FORBOC_DEMO_WITH_SDK=1`; sync the SDK submodule and rebuild |
 | Linker errors after C++ changes | Regenerate project files from `.uproject` |
-| `FAgent` assignment errors | Use `TSharedPtr<const FAgent>` — `FAgent` has `const` members |
-| No response from agent | Run the SDK CLI `doctor` command to check API connectivity |
-| Missing `Response.Content` field | The field is `Response.Dialogue` |
 
 ---
 

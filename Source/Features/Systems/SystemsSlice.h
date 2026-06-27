@@ -3,6 +3,7 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/SystemsActions.h"
+#include "Features/Systems/SystemsAdapters.h"
 #include "Features/Systems/SystemsReducers.h"
 #include "Features/Systems/SystemsSelectors.h"
 #include "Features/Systems/SystemsTypes.h"

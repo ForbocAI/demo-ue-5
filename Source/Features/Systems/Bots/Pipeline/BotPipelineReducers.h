@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/Core/Reducers.h"
+#include "Features/Systems/Bots/Core/BotCoreReducers.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineSelectors.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineTypes.h"
 
@@ -25,11 +25,11 @@ inline FBotPipelineState ReducePipelineObserved(
 }
 
 inline FBotPipelineLogicResult ReduceLogic(
-    const ForbocAI::State::FBotState &State,
+    const FBotCoreRuntimeState &State,
     const FBotPipelineWorldSnapshot &World) {
   TArray<rtk::AnyAction> Actions;
-  Actions.Add(ForbocAI::State::BotCoreActions::BotTicked()(
-      ForbocAI::State::FBotTickPayload{World.DeltaTime}));
+  Actions.Add(BotCoreActions::BotTicked()(
+      FBotTickPayload{World.DeltaTime}));
 
   const TArray<rtk::AnyAction> SelectedActions =
       BotPipelineSelectors::SelectActionList(State, World);
@@ -46,22 +46,24 @@ inline FBotPipelineLogicResult ReduceLogic(
   return FBotPipelineLogicResult{Actions};
 }
 
-inline ForbocAI::State::FBotState ReduceActions(
-    const ForbocAI::State::FBotState &State,
+inline FBotCoreRuntimeState ReduceActions(
+    const FBotCoreRuntimeState &State,
     const TArray<rtk::AnyAction> &Actions, int32 Index = 0) {
   return Index >= Actions.Num()
              ? State
-             : ReduceActions(ForbocAI::State::Reduce(State, Actions[Index]),
-                             Actions, Index + 1);
+             : ReduceActions(
+                   BotCoreReducers::ReduceBotCoreRuntime(State,
+                                                         Actions[Index]),
+                   Actions, Index + 1);
 }
 
 inline FBotPipelineOutputResult ReduceOutput(
-    const ForbocAI::State::FBotState &NewState, int32 ActionCount) {
+    const FBotCoreRuntimeState &NewState, int32 ActionCount) {
   return FBotPipelineOutputResult{NewState, ActionCount};
 }
 
 inline FBotPipelineOutputResult ReducePipeline(
-    const ForbocAI::State::FBotState &CurrentState,
+    const FBotCoreRuntimeState &CurrentState,
     const FBotPipelineWorldSnapshot &World) {
   const FBotPipelineLogicResult Logic = ReduceLogic(CurrentState, World);
   return ReduceOutput(ReduceActions(CurrentState, Logic.Actions),
@@ -69,7 +71,7 @@ inline FBotPipelineOutputResult ReducePipeline(
 }
 
 inline FBotPipelineOutputResult ReduceIdlePipeline(
-    const ForbocAI::State::FBotState &CurrentState, float DeltaTime) {
+    const FBotCoreRuntimeState &CurrentState, float DeltaTime) {
   const FBotPipelineInputResult Input =
       BotPipelineSelectors::SelectDefaultInputSnapshot(DeltaTime);
   return ReducePipeline(CurrentState, Input.WorldSnapshot);

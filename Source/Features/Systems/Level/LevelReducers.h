@@ -2,6 +2,7 @@
 
 #include "Core/rtk.hpp"
 
+#include "Features/Components/Data/DataAdapters.h"
 #include "Features/Systems/Landmarks/LandmarkTypes.h"
 #include "Features/Systems/Level/LevelTypes.h"
 #include "Features/Systems/Nature/NatureTypes.h"
@@ -176,52 +177,6 @@ inline bool NatureFeatureNeedsLabel(ENatureFeatureKind Kind) {
          Kind == ENatureFeatureKind::WaterSystemMarker;
 }
 
-template <typename Source, typename Output, typename Mapper>
-inline TArray<Output> MapArrayRecursive(const TArray<Source> &Values,
-                                        Mapper MapValue, int32 Index,
-                                        TArray<Output> Acc) {
-  return Index >= Values.Num()
-             ? Acc
-             : ([&Values, MapValue, Index](TArray<Output> Next) {
-                 Next.Add(MapValue(Values[Index]));
-                 return MapArrayRecursive<Source, Output>(
-                     Values, MapValue, Index + 1, MoveTemp(Next));
-               })(MoveTemp(Acc));
-}
-
-template <typename Source, typename Output, typename Mapper>
-inline TArray<Output> MapArray(const TArray<Source> &Values, Mapper MapValue) {
-  TArray<Output> Acc;
-  Acc.Reserve(Values.Num());
-  return MapArrayRecursive<Source, Output>(Values, MapValue, 0, MoveTemp(Acc));
-}
-
-template <typename Source, typename Output, typename Mapper,
-          typename Predicate>
-inline TArray<Output> FilterMapArrayRecursive(const TArray<Source> &Values,
-                                              Predicate Keep,
-                                              Mapper MapValue, int32 Index,
-                                              TArray<Output> Acc) {
-  return Index >= Values.Num()
-             ? Acc
-             : ([&Values, Keep, MapValue, Index](TArray<Output> Next) {
-                 Keep(Values[Index]) && (Next.Add(MapValue(Values[Index])),
-                                         true);
-                 return FilterMapArrayRecursive<Source, Output>(
-                     Values, Keep, MapValue, Index + 1, MoveTemp(Next));
-               })(MoveTemp(Acc));
-}
-
-template <typename Source, typename Output, typename Mapper,
-          typename Predicate>
-inline TArray<Output> FilterMapArray(const TArray<Source> &Values,
-                                     Predicate Keep, Mapper MapValue) {
-  TArray<Output> Acc;
-  Acc.Reserve(Values.Num());
-  return FilterMapArrayRecursive<Source, Output>(
-      Values, Keep, MapValue, 0, MoveTemp(Acc));
-}
-
 inline TArray<FVector> BuildWorldRouteRecursive(
     const TArray<FLevelLocalPoint> &Route, const FLevelTerrainData &TerrainData,
     int32 Index, TArray<FVector> Acc) {
@@ -237,104 +192,144 @@ inline TArray<FVector> BuildWorldRouteRecursive(
 } // namespace detail
 
 inline FLevelBlockSpawn
+BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSpawnRequest &Request) {
+  const FVector Scale = detail::ScaleFromSeed(Request.Seed.Scale);
+  return {Request.Seed.Name,
+          detail::WorldLocationFromSeed(Request.Seed, Request.TerrainData,
+                                        Scale),
+          Scale,
+          Request.Seed.Texture};
+}
+
+inline FLevelLabelSpawn
+BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSpawnRequest &Request) {
+  const FVector ReferenceScale =
+      detail::ScaleFromSeed(Request.Seed.ReferenceScale);
+  return {Request.Seed.Text,
+          LevelLayoutSlice::ToWorld(
+              Request.TerrainData,
+              detail::LabelLocalPointFromSeed(Request.Seed, ReferenceScale)),
+          LevelLayoutSlice::CubeHalfExtent() * Request.Seed.WorldSizeScale};
+}
+
+inline FLevelRuntimeSectionSpawn
+BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSpawnRequest &Request) {
+  return {Data::DataAdapters::MapArray<FLevelRuntimeBlockSeed,
+                                       FLevelBlockSpawn>(
+              {Request.Seed.Blocks,
+               [&Request](const FLevelRuntimeBlockSeed &BlockSeed) {
+                return BuildRuntimeBlockSpawn(
+                    {BlockSeed, Request.TerrainData});
+              }}),
+          Data::DataAdapters::MapArray<FLevelRuntimeLabelSeed,
+                                       FLevelLabelSpawn>(
+              {Request.Seed.Labels,
+               [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
+                return BuildRuntimeLabelSpawn(
+                    {LabelSeed, Request.TerrainData});
+              }})};
+}
+
+inline FLevelRuntimeSectionSpawn
+BuildOverlaySectionSpawn(const FLevelOverlaySectionSpawnRequest &Request) {
+  return {TArray<FLevelBlockSpawn>(),
+          Data::DataAdapters::MapArray<FLevelRuntimeLabelSeed,
+                                       FLevelLabelSpawn>(
+              {Request.Seed.OverlayLabels,
+               [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
+                return BuildRuntimeLabelSpawn(
+                    {LabelSeed, Request.TerrainData});
+              }})};
+}
+
+inline FLevelRuntimeSectionSpawn
+BuildLandmarkSectionSpawn(const TArray<FLandmark> &Landmarks) {
+  return {Data::DataAdapters::MapArray<FLandmark, FLevelBlockSpawn>(
+              {Landmarks,
+               [](const FLandmark &Landmark) {
+                return FLevelBlockSpawn{Landmark.Label, Landmark.Location,
+                                        Landmark.Scale,
+                                        ELevelRetroTexture::BuildingTimber};
+              }}),
+          Data::DataAdapters::MapArray<FLandmark, FLevelLabelSpawn>(
+              {Landmarks,
+               [](const FLandmark &Landmark) {
+                return FLevelLabelSpawn{
+                    Landmark.Label, detail::LabelLocationForLandmark(Landmark),
+                    LevelLayoutSlice::CubeHalfExtent() * 0.48f};
+              }})};
+}
+
+inline FLevelRuntimeSectionSpawn
+BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
+  return {Data::DataAdapters::MapArray<FNatureFeatureSeed, FLevelBlockSpawn>(
+              {Request.Features,
+               [&Request](const FNatureFeatureSeed &Feature) {
+                return FLevelBlockSpawn{
+                    Feature.Name,
+                    LevelLayoutSlice::ToWorld(Request.TerrainData,
+                                             Feature.Location),
+                    Feature.Scale, detail::TextureForNatureKind(Feature.Kind)};
+              }}),
+          Data::DataAdapters::FilterMapArray<FNatureFeatureSeed,
+                                             FLevelLabelSpawn>(
+              {Request.Features,
+               [](const FNatureFeatureSeed &Feature) {
+                return detail::NatureFeatureNeedsLabel(Feature.Kind);
+              },
+               [&Request](const FNatureFeatureSeed &Feature) {
+                return FLevelLabelSpawn{
+                    Feature.Name,
+                    LevelLayoutSlice::ToWorld(
+                        Request.TerrainData,
+                        LevelLayoutSlice::AboveBlock(Feature.Location,
+                                                     Feature.Scale)),
+                    LevelLayoutSlice::CubeHalfExtent() * 0.36f};
+              }})};
+}
+
+inline TArray<FVector>
+BuildWorldRoute(const FLevelWorldRouteRequest &Request) {
+  TArray<FVector> Acc;
+  Acc.Reserve(Request.Route.Num());
+  return detail::BuildWorldRouteRecursive(
+      Request.Route, Request.TerrainData, 0, MoveTemp(Acc));
+}
+
+inline FLevelBlockSpawn
 BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSeed &Seed,
                        const FLevelTerrainData &TerrainData) {
-  const FVector Scale = detail::ScaleFromSeed(Seed.Scale);
-  return {Seed.Name,
-          detail::WorldLocationFromSeed(Seed, TerrainData, Scale),
-          Scale,
-          Seed.Texture};
+  return BuildRuntimeBlockSpawn({Seed, TerrainData});
 }
 
 inline FLevelLabelSpawn
 BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSeed &Seed,
                        const FLevelTerrainData &TerrainData) {
-  const FVector ReferenceScale = detail::ScaleFromSeed(Seed.ReferenceScale);
-  return {Seed.Text,
-          LevelLayoutSlice::ToWorld(
-              TerrainData,
-              detail::LabelLocalPointFromSeed(Seed, ReferenceScale)),
-          LevelLayoutSlice::CubeHalfExtent() * Seed.WorldSizeScale};
+  return BuildRuntimeLabelSpawn({Seed, TerrainData});
 }
 
 inline FLevelRuntimeSectionSpawn
 BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSeed &Seed,
                          const FLevelTerrainData &TerrainData) {
-  return {detail::MapArray<FLevelRuntimeBlockSeed, FLevelBlockSpawn>(
-              Seed.Blocks,
-              [&TerrainData](const FLevelRuntimeBlockSeed &BlockSeed) {
-                return BuildRuntimeBlockSpawn(BlockSeed, TerrainData);
-              }),
-          detail::MapArray<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
-              Seed.Labels,
-              [&TerrainData](const FLevelRuntimeLabelSeed &LabelSeed) {
-                return BuildRuntimeLabelSpawn(LabelSeed, TerrainData);
-              })};
+  return BuildRuntimeSectionSpawn({Seed, TerrainData});
 }
 
 inline FLevelRuntimeSectionSpawn
 BuildOverlaySectionSpawn(const FLevelRuntimeLayoutSeed &Seed,
                          const FLevelTerrainData &TerrainData) {
-  return {TArray<FLevelBlockSpawn>(),
-          detail::MapArray<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
-              Seed.OverlayLabels,
-              [&TerrainData](const FLevelRuntimeLabelSeed &LabelSeed) {
-                return BuildRuntimeLabelSpawn(LabelSeed, TerrainData);
-              })};
-}
-
-inline FLevelRuntimeSectionSpawn
-BuildLandmarkSectionSpawn(const TArray<FLandmark> &Landmarks) {
-  return {detail::MapArray<FLandmark, FLevelBlockSpawn>(
-              Landmarks,
-              [](const FLandmark &Landmark) {
-                return FLevelBlockSpawn{Landmark.Label, Landmark.Location,
-                                        Landmark.Scale,
-                                        ELevelRetroTexture::BuildingTimber};
-              }),
-          detail::MapArray<FLandmark, FLevelLabelSpawn>(
-              Landmarks,
-              [](const FLandmark &Landmark) {
-                return FLevelLabelSpawn{
-                    Landmark.Label, detail::LabelLocationForLandmark(Landmark),
-                    LevelLayoutSlice::CubeHalfExtent() * 0.48f};
-              })};
+  return BuildOverlaySectionSpawn({Seed, TerrainData});
 }
 
 inline FLevelRuntimeSectionSpawn
 BuildNatureSectionSpawn(const TArray<FNatureFeatureSeed> &Features,
                         const FLevelTerrainData &TerrainData) {
-  return {detail::MapArray<FNatureFeatureSeed, FLevelBlockSpawn>(
-              Features,
-              [&TerrainData](const FNatureFeatureSeed &Feature) {
-                return FLevelBlockSpawn{
-                    Feature.Name,
-                    LevelLayoutSlice::ToWorld(TerrainData, Feature.Location),
-                    Feature.Scale, detail::TextureForNatureKind(Feature.Kind)};
-              }),
-          detail::FilterMapArray<FNatureFeatureSeed, FLevelLabelSpawn>(
-              Features,
-              [](const FNatureFeatureSeed &Feature) {
-                return detail::NatureFeatureNeedsLabel(Feature.Kind);
-              },
-              [&TerrainData](const FNatureFeatureSeed &Feature) {
-                return FLevelLabelSpawn{
-                    Feature.Name,
-                    LevelLayoutSlice::ToWorld(
-                        TerrainData,
-                        LevelLayoutSlice::AboveBlock(Feature.Location,
-                                                     Feature.Scale)),
-                    LevelLayoutSlice::CubeHalfExtent() * 0.36f};
-              })};
+  return BuildNatureSectionSpawn({Features, TerrainData});
 }
 
 inline TArray<FVector>
 BuildWorldRoute(const TArray<FLevelLocalPoint> &Route,
                 const FLevelTerrainData &TerrainData) {
-  TArray<FVector> Acc;
-  Acc.Reserve(Route.Num());
-  return detail::BuildWorldRouteRecursive(Route, TerrainData, 0,
-                                          MoveTemp(Acc));
+  return BuildWorldRoute({Route, TerrainData});
 }
 
 inline FLevelSystemState

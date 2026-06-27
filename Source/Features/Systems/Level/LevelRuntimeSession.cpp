@@ -1,4 +1,4 @@
-#include "Features/Systems/Level/LevelRuntimeAdapters.h"
+#include "Features/Systems/Level/LevelRuntimeSession.h"
 
 #include "Dom/JsonObject.h"
 #include "Features/Components/Data/DataAdapters.h"
@@ -6,7 +6,7 @@
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
-namespace LevelSystemAdapters {
+namespace LevelRuntimeSession {
 
 namespace DataAdapters = ForbocAI::Demo::Data::DataAdapters;
 
@@ -235,7 +235,7 @@ FLevelRuntimeLayoutSeed BuildFrenchGulchRuntimeLayoutSeed() {
       LayoutFromJson, []() { return FLevelRuntimeLayoutSeed{}; });
 }
 
-} // namespace LevelSystemAdapters
+} // namespace LevelRuntimeSession
 } // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

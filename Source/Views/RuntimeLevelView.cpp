@@ -4,28 +4,26 @@
 #include "Components/TextRenderComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TextRenderActor.h"
-#include "Features/Entities/Characters/Bots/TalkableTownsperson.h"
-#include "Features/Entities/Characters/Bots/WalkingHorse.h"
-#include "Features/Systems/Level/LevelRuntimeAdapters.h"
-#include "Features/Systems/Level/LevelReducers.h"
+#include "Views/TownspersonView.h"
+#include "Views/HorseView.h"
 #include "Features/Systems/Rendering/RenderingSlice.h"
-#include "Features/Systems/Terrain/TerrainReducers.h"
+#include "Features/Systems/Runtime/RuntimeSlice.h"
 #include "Materials/MaterialInterface.h"
+#include "Store.h"
 #include "Views/TerrainMeshView.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace FG = ForbocAI::Demo::Level;
 
 ARuntimeLevelView::ARuntimeLevelView()
-    : bSpawnOnBeginPlay(true), CubeMesh(nullptr), BlockBaseMaterial(nullptr),
-      RuntimeSession() {
+    : bSpawnOnBeginPlay(true), CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
   PrimaryActorTick.bCanEverTick = false;
 
   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeAsset(
       TEXT("/Engine/BasicShapes/Cube.Cube"));
   CubeMesh = CubeAsset.Succeeded() ? CubeAsset.Object : nullptr;
 
-  BlockBaseMaterial = FG::RenderingActions::LoadBlockoutMaterial();
+  BlockBaseMaterial = FG::RenderingSlice::LoadBlockoutMaterial();
 }
 
 void ARuntimeLevelView::BeginPlay() {
@@ -34,68 +32,51 @@ void ARuntimeLevelView::BeginPlay() {
 }
 
 void ARuntimeLevelView::RenderLevel() {
-  FG::RenderingActions::ApplyRuntimeProfile();
-  TerrainData.LoadFromContent();
-  OrthoData.LoadFromContent();
-  RuntimeLayout = FG::LevelSystemAdapters::BuildFrenchGulchRuntimeLayoutSeed();
-  RuntimeSession.Seed(TerrainData, OrthoData);
-
-  RenderTerrain();
-  RenderNaturalEnvironment();
-  RenderTown();
-  RenderMineApproach();
-  RenderTownspeople();
-  RenderHorses();
-  RenderSection(FG::LevelSystemReducers::BuildOverlaySectionSpawn(
-      RuntimeLayout, TerrainData));
+  FG::RenderingSlice::ApplyRuntimeProfile();
+  auto Payload = FG::FRuntimeLevelViewPayload();
+  const auto Result = FG::Store::GetStore().dispatch(
+      FG::RuntimeSlice::RequestLevelViewPayload());
+  func::thenAsync(Result, [&Payload](auto Resolved) {
+    Payload = Resolved;
+  });
+  func::executeAsync(Result);
+  RenderLevelPayload(Payload);
 }
 
-void ARuntimeLevelView::RenderTerrain() {
+void ARuntimeLevelView::RenderLevelPayload(
+    const FG::FRuntimeLevelViewPayload &Payload) {
+  RenderTerrain(Payload);
+  RenderSections(Payload.Sections, 0);
+  RenderTownspeople(Payload.Townspeople, 0);
+  RenderHorses(Payload.Horses, 0);
+}
+
+void ARuntimeLevelView::RenderTerrain(
+    const FG::FRuntimeLevelViewPayload &Payload) {
   UWorld *World = GetWorld();
   func::match(
-      func::from_nullable_value(World, World != nullptr && TerrainData.IsLoaded()),
-      [this](UWorld *WorldValue) {
+      func::from_nullable_value(World,
+                                World != nullptr &&
+                                    Payload.bTerrainMeshLoaded),
+      [this, &Payload](UWorld *WorldValue) {
         ATerrainMeshView *TerrainMesh =
             WorldValue->SpawnActor<ATerrainMeshView>(FVector::ZeroVector,
                                                      FRotator::ZeroRotator);
         TerrainMesh ? (TerrainMesh->ApplyTerrainMeshPayload(
-                           FG::TerrainReducers::BuildTerrainMeshPayload(
-                               TerrainData, OrthoData)),
+                           Payload.TerrainMesh),
                        true)
                     : false;
       },
-      [this]() {
-        RenderBlock(FG::LevelSystemReducers::BuildRuntimeBlockSpawn(
-            RuntimeLayout.FallbackTerrainBlock, TerrainData));
+      [this, &Payload]() {
+        RenderBlock(Payload.FallbackTerrainBlock);
       });
-
-  RenderSection(FG::LevelSystemReducers::BuildRuntimeSectionSpawn(
-      RuntimeLayout.Terrain, TerrainData));
 }
 
-void ARuntimeLevelView::RenderNaturalEnvironment() {
-  RenderSection(FG::LevelSystemReducers::BuildNatureSectionSpawn(
-      RuntimeSession.SelectNatureFeatures(), TerrainData));
-}
-
-void ARuntimeLevelView::RenderTown() {
-  RenderSection(FG::LevelSystemReducers::BuildLandmarkSectionSpawn(
-      RuntimeSession.SelectLandmarks()));
-  RenderSection(FG::LevelSystemReducers::BuildRuntimeSectionSpawn(
-      RuntimeLayout.Town, TerrainData));
-}
-
-void ARuntimeLevelView::RenderMineApproach() {
-  RenderSection(FG::LevelSystemReducers::BuildRuntimeSectionSpawn(
-      RuntimeLayout.Mine, TerrainData));
-}
-
-void ARuntimeLevelView::RenderTownspeople() {
-  RenderTownspersonSeeds(RuntimeSession.SelectTownspeople(), 0);
-}
-
-void ARuntimeLevelView::RenderHorses() {
-  RenderHorseSeeds(RuntimeSession.SelectHorses(), 0);
+void ARuntimeLevelView::RenderSections(
+    const TArray<FG::FLevelRuntimeSectionSpawn> &Sections, int32 Index) {
+  Index >= Sections.Num()
+      ? void()
+      : (RenderSection(Sections[Index]), RenderSections(Sections, Index + 1));
 }
 
 void ARuntimeLevelView::RenderSection(
@@ -118,19 +99,20 @@ void ARuntimeLevelView::RenderLabels(
       : (RenderLabel(Labels[Index]), RenderLabels(Labels, Index + 1));
 }
 
-void ARuntimeLevelView::RenderTownspersonSeeds(
-    const TArray<FG::FTownspersonSeed> &Townspeople, int32 Index) {
+void ARuntimeLevelView::RenderTownspeople(
+    const TArray<FG::FRuntimeTownspersonViewSpawn> &Townspeople,
+    int32 Index) {
   Index >= Townspeople.Num()
       ? void()
       : (RenderTownsperson(Townspeople[Index]),
-         RenderTownspersonSeeds(Townspeople, Index + 1));
+         RenderTownspeople(Townspeople, Index + 1));
 }
 
-void ARuntimeLevelView::RenderHorseSeeds(
-    const TArray<FG::FHorseRouteSeed> &Horses, int32 Index) {
+void ARuntimeLevelView::RenderHorses(
+    const TArray<FG::FRuntimeHorseViewSpawn> &Horses, int32 Index) {
   Index >= Horses.Num()
       ? void()
-      : (RenderHorse(Horses[Index]), RenderHorseSeeds(Horses, Index + 1));
+      : (RenderHorse(Horses[Index]), RenderHorses(Horses, Index + 1));
 }
 
 AStaticMeshActor *ARuntimeLevelView::RenderBlock(
@@ -150,7 +132,7 @@ AStaticMeshActor *ARuntimeLevelView::RenderBlock(
         return Block
                    ? (Block->SetActorScale3D(BlockSpawn.Scale),
                       Block->GetStaticMeshComponent()->SetStaticMesh(CubeMesh),
-                      FG::RenderingActions::ApplyTexture(
+                      FG::RenderingSlice::ApplyTexture(
                           {Block->GetStaticMeshComponent(), BlockBaseMaterial,
                            BlockSpawn.Texture}),
                       Block->GetStaticMeshComponent()->SetMobility(
@@ -179,47 +161,45 @@ void ARuntimeLevelView::RenderLabel(
       []() {});
 }
 
-ATalkableTownsperson *ARuntimeLevelView::RenderTownsperson(
-    const FG::FTownspersonSeed &Seed) {
-  const TArray<FVector> Route =
-      FG::LevelSystemReducers::BuildWorldRoute(Seed.PatrolRoute, TerrainData);
+ATownspersonView *ARuntimeLevelView::RenderTownsperson(
+    const FG::FRuntimeTownspersonViewSpawn &Spawn) {
   UWorld *World = GetWorld();
   return func::match(
-      func::from_nullable_value(World, World != nullptr && Route.Num() > 0),
-      [&Seed, &Route](UWorld *WorldValue) -> ATalkableTownsperson * {
-        ATalkableTownsperson *Townsperson =
-            WorldValue->SpawnActor<ATalkableTownsperson>(
-                Route[0], FRotator::ZeroRotator);
-        FTownspersonConfig Config;
-        Config.Name = Seed.Name;
-        Config.Role = Seed.Role;
-        Config.Persona = Seed.Persona;
-        Config.InteractionPrompt = Seed.InteractionPrompt;
-        Config.DefaultPlayerLine = Seed.DefaultPlayerLine;
-        Config.PinnedResponse = Seed.PinnedResponse;
-        Config.PatrolRoute = Route;
+      func::from_nullable_value(
+          World, World != nullptr && Spawn.PatrolRoute.Num() > 0),
+      [&Spawn](UWorld *WorldValue) -> ATownspersonView * {
+        ATownspersonView *Townsperson =
+            WorldValue->SpawnActor<ATownspersonView>(
+                Spawn.PatrolRoute[0], FRotator::ZeroRotator);
+        FTownspersonViewConfig Config;
+        Config.Name = Spawn.Name;
+        Config.Role = Spawn.Role;
+        Config.Persona = Spawn.Persona;
+        Config.InteractionPrompt = Spawn.InteractionPrompt;
+        Config.DefaultPlayerLine = Spawn.DefaultPlayerLine;
+        Config.PinnedResponse = Spawn.PinnedResponse;
+        Config.PatrolRoute = Spawn.PatrolRoute;
         return Townsperson ? (Townsperson->ConfigureTownsperson(Config),
                               Townsperson)
                            : nullptr;
       },
-      []() -> ATalkableTownsperson * { return nullptr; });
+      []() -> ATownspersonView * { return nullptr; });
 }
 
-AWalkingHorse *ARuntimeLevelView::RenderHorse(
-    const FG::FHorseRouteSeed &Seed) {
-  const TArray<FVector> Route =
-      FG::LevelSystemReducers::BuildWorldRoute(Seed.PatrolRoute, TerrainData);
+AHorseView *ARuntimeLevelView::RenderHorse(
+    const FG::FRuntimeHorseViewSpawn &Spawn) {
   UWorld *World = GetWorld();
   return func::match(
-      func::from_nullable_value(World, World != nullptr && Route.Num() > 0),
-      [&Seed, &Route](UWorld *WorldValue) -> AWalkingHorse * {
-        AWalkingHorse *Horse = WorldValue->SpawnActor<AWalkingHorse>(
-            Route[0], FRotator::ZeroRotator);
-        FWalkingHorseConfig Config;
-        Config.Name = Seed.Name;
-        Config.PatrolRoute = Route;
-        Config.bMountedRider = Seed.bMountedRider;
+      func::from_nullable_value(
+          World, World != nullptr && Spawn.PatrolRoute.Num() > 0),
+      [&Spawn](UWorld *WorldValue) -> AHorseView * {
+        AHorseView *Horse = WorldValue->SpawnActor<AHorseView>(
+            Spawn.PatrolRoute[0], FRotator::ZeroRotator);
+        FHorseViewConfig Config;
+        Config.Name = Spawn.Name;
+        Config.PatrolRoute = Spawn.PatrolRoute;
+        Config.bMountedRider = Spawn.bMountedRider;
         return Horse ? (Horse->ConfigureHorse(Config), Horse) : nullptr;
       },
-      []() -> AWalkingHorse * { return nullptr; });
+      []() -> AHorseView * { return nullptr; });
 }

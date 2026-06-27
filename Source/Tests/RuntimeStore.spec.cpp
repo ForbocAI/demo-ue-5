@@ -1,4 +1,5 @@
 #include "CoreMinimal.h"
+#include "Core/ecs.hpp"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 #include "Features/Components/Level/LevelTypes.h"
 #include "Features/Entities/Characters/Bots/BotsAdapters.h"
@@ -8,11 +9,13 @@
 #include "Features/Systems/Landmarks/LandmarkSlice.h"
 #include "Features/Systems/Nature/NatureSlice.h"
 #include "Features/Systems/Rendering/RenderingSelectors.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
 #include "Features/Systems/Spawn/SpawnSlice.h"
 #include "Features/Systems/Terrain/TerrainSlice.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonSlice.h"
 #include "Misc/AutomationTest.h"
+#include "Store.h"
 
 using namespace ForbocAI::Demo::Level;
 
@@ -35,9 +38,9 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            TerrainData.GetMaxElevationMeters() >
                TerrainData.GetMinElevationMeters() + 250.0f);
 
-  rtk::EnhancedStore<FRuntimeState> Store =
-      RuntimeStore::ConfigureStore();
-  Store.dispatch(TerrainActions::TerrainLoaded()(
+  rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
+      Store::ConfigureStore();
+  EnhancedStoreValue.dispatch(TerrainActions::TerrainLoaded()(
       TerrainFactories::LoadedPayload(
           {TerrainData.GetSourcePath(), OrthoData.GetSourcePath(),
            TerrainData.GetGridSize(), TerrainData.GetMinElevationMeters(),
@@ -45,8 +48,8 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
 
   const TArray<FLandmark> Landmarks =
       LandmarksAdapters::Build1899LandmarkSeed(TerrainData);
-  Store.dispatch(LandmarkActions::LandmarksSeeded()(Landmarks));
-  Store.dispatch(SpawnActions::PlayerSpawnAnchored()(
+  EnhancedStoreValue.dispatch(LandmarkActions::LandmarksSeeded()(Landmarks));
+  EnhancedStoreValue.dispatch(SpawnActions::PlayerSpawnAnchored()(
       SpawnFactories::SpawnPointPayload(
           {LevelLayoutSlice::ToWorld(TerrainData, LevelLayoutSlice::PlayerSpawnPoint()),
            LevelLayoutSlice::PlayerSpawnRotation(),
@@ -54,19 +57,29 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
 
   const TArray<FTownspersonSeed> TownspersonSeeds =
       BotsAdapters::Build1899TownspersonSeed();
-  Store.dispatch(TownspersonActions::TownspeopleSeeded()(TownspersonSeeds));
+  EnhancedStoreValue.dispatch(TownspersonActions::TownspeopleSeeded()(TownspersonSeeds));
 
   const TArray<FHorseRouteSeed> HorseRouteSeeds =
       BotsAdapters::Build1899HorseRouteSeed();
-  Store.dispatch(HorseActions::HorsesSeeded()(HorseRouteSeeds));
+  EnhancedStoreValue.dispatch(HorseActions::HorsesSeeded()(HorseRouteSeeds));
 
   const TArray<FNatureFeatureSeed> NatureFeatureSeeds =
       NatureAdapters::BuildClearCreekNatureSeed();
-  Store.dispatch(NatureActions::NatureSeeded()(NatureFeatureSeeds));
+  EnhancedStoreValue.dispatch(NatureActions::NatureSeeded()(NatureFeatureSeeds));
 
-  const FRuntimeState &State = Store.getState();
+  const FRuntimeState &State = EnhancedStoreValue.getState();
   TestTrue(TEXT("RTK slice records terrain load"),
            RuntimeSelectors::SelectTerrainLoaded(State));
+  const ecs::FWorld &EcsWorld = RuntimeSelectors::SelectEcsWorld(State);
+  TestTrue(TEXT("Runtime store owns a projected ECS world"),
+           EcsWorld.Generation > 0);
+  TestTrue(TEXT("ECS registry includes Systems/Bots domain"),
+           EcsWorld.Domains.Nodes.Contains(ecs::domainPathKey(
+               ecs::createDomainPath({TEXT("Systems"), TEXT("Bots")}))));
+  TestTrue(TEXT("ECS registry includes Entities/Characters/Bots domain"),
+           EcsWorld.Domains.Nodes.Contains(ecs::domainPathKey(
+               ecs::createDomainPath({TEXT("Entities"), TEXT("Characters"),
+                                      TEXT("Bots")}))));
   TestEqual(TEXT("RTK entity adapter stores seeded landmarks"),
             RuntimeSelectors::SelectLandmarks(State).Num(),
             Landmarks.Num());
@@ -140,6 +153,21 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
     TestTrue(TEXT("Clara is friendly"),
              Clara.value.Alignment == EBotAlignment::Friendly);
   }
+  TestTrue(TEXT("Clara is projected into the ECS townspeople domain"),
+           RuntimeSelectors::SelectEcsEntityInDomain(
+               State, TEXT("bot:clara-bell"),
+               ecs::domainPathKey(ecs::createDomainPath(
+                   {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
+                    TEXT("Townspeople")}))));
+  const func::Maybe<ecs::FComponentValue> ClaraRole =
+      RuntimeSelectors::SelectEcsComponent(
+          State, TEXT("bot:clara-bell"), TEXT("Components/Bots/Role"));
+  TestTrue(TEXT("Clara role is projected as an ECS component"),
+           ClaraRole.hasValue);
+  if (ClaraRole.hasValue) {
+    TestEqual(TEXT("Clara ECS role"), ClaraRole.value.TextValue,
+              FString(TEXT("Postmaster")));
+  }
 
   const func::Maybe<FBotStatsComponent> SorrelStats =
       RuntimeSelectors::SelectBotStatsById(State, TEXT("sorrel-at-livery"));
@@ -149,6 +177,22 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
              !SorrelStats.value.bMountedRider);
     TestTrue(TEXT("Sorrel has route movement speed"),
              SorrelStats.value.MoveSpeed > 0.0f);
+  }
+  TestTrue(TEXT("Sorrel is projected into the ECS horse domain"),
+           RuntimeSelectors::SelectEcsEntityInDomain(
+               State, TEXT("bot:sorrel-at-livery"),
+               ecs::domainPathKey(ecs::createDomainPath(
+                   {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
+                    TEXT("Horses")}))));
+  const func::Maybe<ecs::FComponentValue> SorrelMoveSpeed =
+      RuntimeSelectors::SelectEcsComponent(
+          State, TEXT("bot:sorrel-at-livery"),
+          TEXT("Components/Stats/MoveSpeed"));
+  TestTrue(TEXT("Sorrel move speed is projected as an ECS component"),
+           SorrelMoveSpeed.hasValue);
+  if (SorrelMoveSpeed.hasValue) {
+    TestTrue(TEXT("Sorrel ECS move speed is positive"),
+             SorrelMoveSpeed.value.FloatValue > 0.0f);
   }
 
   const func::Maybe<FBotStrategicGoal> PostRoadGoal =

@@ -14,6 +14,10 @@ func::Maybe<FTownspersonSeed> SelectById(const FTownspersonState &State,
                                          const FString &Id);
 TArray<FTownspersonSeed> SelectByInteractionIntent(
     const FTownspersonState &State, ETownspersonInteractionIntent Intent);
+FTownspersonViewDefaults SelectViewDefaults(
+    const FTownspersonViewDefaultsRequest &Request);
+FTownspersonInteractionOverlapViewModel SelectInteractionOverlap(
+    const FTownspersonInteractionOverlapRequest &Request);
 
 } // namespace TownspersonSelectors
 } // namespace Level

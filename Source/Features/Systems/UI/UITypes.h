@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "CoreMinimal.h"
 #include "Types/SlateEnums.h"
 
 namespace ForbocAI {
@@ -44,6 +43,52 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 
+struct FUIChatMessageViewModelRequest {
+  FString Role;
+  FString Text;
+};
+
+struct FUIChatHistoryViewModelsRequest {
+  TArray<FString> History;
+};
+
+struct FUIRuntimeConversationViewModelRequest {
+  FString NpcName;
+  FString Role;
+  FString PlayerLine;
+  FString NpcReply;
+};
+
+struct FUIBindDialogueViewModelRequest {
+  FString Persona;
+  TArray<FString> History;
+  bool bBound = false;
+};
+
+struct FUIChatInputViewModelRequest {
+  FText Text;
+  ETextCommit::Type CommitMethod = ETextCommit::Default;
+  bool bDialogueBound = false;
+};
+
+struct FUIDialogueResponseViewModelRequest {
+  FString Persona;
+  FString NPCText;
+  bool bBound = false;
+};
+
+struct FUITownspersonInteractionCandidate {
+  int32 Index = INDEX_NONE;
+  FVector Location = FVector::ZeroVector;
+  bool bCanInteract = false;
+};
+
+struct FUISelectNearestTownspersonRequest {
+  FVector Origin = FVector::ZeroVector;
+  float MaxDistance = 0.0f;
+  TArray<FUITownspersonInteractionCandidate> Candidates;
+};
+
 struct FUIBindDialogueViewModel {
   bool bBound = false;
   FString Persona;
@@ -60,6 +105,13 @@ struct FUIChatInputViewModel {
 
 struct FUIDialogueResponseViewModel {
   ForbocAI::Demo::UI::FChatMessageViewModel Message;
+};
+
+struct FUISelectedTownspersonViewModel {
+  bool bFound = false;
+  int32 CandidateIndex = INDEX_NONE;
+  float DistanceSquared = 0.0f;
+  FString MissingMessage;
 };
 
 struct FUIPayload {
@@ -107,6 +159,53 @@ inline bool operator==(const FUIState &Left,
 
 inline bool operator!=(const FUIState &Left,
                        const FUIState &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FUIPayload &Left,
+                       const FUIPayload &Right) {
+  return Left.Id == Right.Id && Left.Conversation == Right.Conversation &&
+         Left.Messages == Right.Messages;
+}
+
+inline bool operator!=(const FUIPayload &Left,
+                       const FUIPayload &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FUITownspersonInteractionCandidate &Left,
+                       const FUITownspersonInteractionCandidate &Right) {
+  return Left.Index == Right.Index && Left.Location == Right.Location &&
+         Left.bCanInteract == Right.bCanInteract;
+}
+
+inline bool operator!=(const FUITownspersonInteractionCandidate &Left,
+                       const FUITownspersonInteractionCandidate &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FUISelectNearestTownspersonRequest &Left,
+                       const FUISelectNearestTownspersonRequest &Right) {
+  return Left.Origin == Right.Origin &&
+         FMath::IsNearlyEqual(Left.MaxDistance, Right.MaxDistance) &&
+         Left.Candidates == Right.Candidates;
+}
+
+inline bool operator!=(const FUISelectNearestTownspersonRequest &Left,
+                       const FUISelectNearestTownspersonRequest &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FUISelectedTownspersonViewModel &Left,
+                       const FUISelectedTownspersonViewModel &Right) {
+  return Left.bFound == Right.bFound &&
+         Left.CandidateIndex == Right.CandidateIndex &&
+         FMath::IsNearlyEqual(Left.DistanceSquared, Right.DistanceSquared) &&
+         Left.MissingMessage == Right.MissingMessage;
+}
+
+inline bool operator!=(const FUISelectedTownspersonViewModel &Left,
+                       const FUISelectedTownspersonViewModel &Right) {
   return !(Left == Right);
 }
 

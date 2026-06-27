@@ -5,12 +5,12 @@
 #include "Features/Systems/Bots/Pipeline/BotPipelineActions.h"
 #include "Features/Systems/Bots/Position/BotPositionActions.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
+#include "Store.h"
 
 using namespace ForbocAI::Demo::Level;
 
 ABotOrchestratorAdapter::ABotOrchestratorAdapter() {
   PrimaryActorTick.bCanEverTick = true;
-  RuntimeStoreValue = RuntimeStore::ConfigureStore();
 }
 
 void ABotOrchestratorAdapter::BeginPlay() {
@@ -34,10 +34,10 @@ void ABotOrchestratorAdapter::Tick(float DeltaTime) {
                     FBotRuntimeBinding *Binding =
                         BotBindings.Find(BotKeys[Idx]);
                     Binding
-                        ? (RuntimeStoreValue.dispatch(
+                        ? (Store::GetStore().dispatch(
                                BotPipelineActions::PipelineObserved()(
                                    FBotPipelinePayload{Binding->Id})),
-                           RuntimeStoreValue.dispatch(
+                           Store::GetStore().dispatch(
                                BotPositionActions::BotPositionMoved()(
                                    FBotPositionMoved{
                                        Binding->Id,
@@ -78,14 +78,14 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
 #endif
 
     BotBindings.Add(Actor, Binding);
-    RuntimeStoreValue.dispatch(BotActions::BotUpserted()(
+    Store::GetStore().dispatch(BotActions::BotUpserted()(
         FBotEntity{BotId, Persona.IsEmpty() ? BotId : Persona,
                    EBotEntityKind::Townsperson, EBotAlignment::Friendly,
                    true}));
-    RuntimeStoreValue.dispatch(BotPositionActions::BotPositionUpserted()(
+    Store::GetStore().dispatch(BotPositionActions::BotPositionUpserted()(
         FBotPositionComponent{BotId, FLevelLocalPoint{0.0f, 0.0f, 0.0f},
                               Actor->GetActorLocation(), true, true}));
-    RuntimeStoreValue.dispatch(BotOrchestratorActions::OrchestratorObserved()(
+    Store::GetStore().dispatch(BotOrchestratorActions::OrchestratorObserved()(
         FBotOrchestratorPayload{BotId}));
 
     UE_LOG(LogTemp, Display,
@@ -118,7 +118,7 @@ void ABotOrchestratorAdapter::RequestNextAction(
   }();
 #else
   const FString ActionType =
-      RuntimeSelectors::SelectBotAIById(RuntimeStoreValue.getState(),
+      RuntimeSelectors::SelectBotAIById(Store::GetStore().getState(),
                                         Binding.Id)
               .hasValue
           ? TEXT("MOVE")
@@ -144,7 +144,7 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
 
     (ActionType == TEXT("MOVE"))
         ? ([&]() {
-            RuntimeStoreValue.dispatch(BotPositionActions::BotPositionMoved()(
+            Store::GetStore().dispatch(BotPositionActions::BotPositionMoved()(
                 FBotPositionMoved{Binding->Id,
                                   FLevelLocalPoint{0.0f, 0.0f, 0.0f},
                                   BotActor->GetActorLocation() +
@@ -155,7 +155,7 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
           void())
     : (ActionType == TEXT("ATTACK"))
         ? ([&]() {
-            RuntimeStoreValue.dispatch(
+            Store::GetStore().dispatch(
                 BotOrchestratorActions::OrchestratorObserved()(
                     FBotOrchestratorPayload{Binding->Id}));
           }(),
@@ -166,7 +166,7 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
 
 FString ABotOrchestratorAdapter::GetStateObservation(
     const FString &BotId) const {
-  const FRuntimeState &State = RuntimeStoreValue.getState();
+  const FRuntimeState &State = Store::GetStore().getState();
   const func::Maybe<FBotEntity> Bot = RuntimeSelectors::SelectBotById(State, BotId);
   const func::Maybe<FBotPositionComponent> Position =
       RuntimeSelectors::SelectBotPositionById(State, BotId);

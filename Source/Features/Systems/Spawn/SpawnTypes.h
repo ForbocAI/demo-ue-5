@@ -2,8 +2,6 @@
 
 #include "Core/rtk.hpp"
 
-#include "CoreMinimal.h"
-
 namespace ForbocAI {
 namespace Demo {
 namespace Level {

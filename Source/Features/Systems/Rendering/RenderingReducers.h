@@ -9,7 +9,13 @@ namespace Demo {
 namespace Level {
 namespace RenderingReducers {
 
-FLevelRetroTextureApply NormalizeTextureApply(const FLevelRetroTextureApply &Input);
+FLevelRetroTextureApply
+NormalizeTextureApply(const FLevelRetroTextureApply &Input);
+
+FRenderingState
+ReduceRenderingProfileObserved(const FRenderingState &State,
+                               const rtk::PayloadAction<FRenderingPayload>
+                                   &Action);
 
 } // namespace RenderingReducers
 } // namespace Level

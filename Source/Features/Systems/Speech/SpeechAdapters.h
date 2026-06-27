@@ -3,7 +3,6 @@
 
 #include "Components/ActorComponent.h"
 #include "Components/AudioComponent.h"
-#include "CoreMinimal.h"
 #include "Sound/SoundWave.h"
 #include "SpeechAdapters.generated.h"
 
@@ -20,8 +19,7 @@
  *   - Provides Blueprint events for audio state
  *
  * Integration:
- *   - Pairs with UDialogueComponent: listen for DialogueResponse,
- *     call SpeakText() to generate audio + lip sync.
+ *   - Consume selected dialogue/speech state from the runtime store.
  *   - Attach to any actor with a SkeletalMeshComponent for lip sync.
  *   - Works without a mesh (audio-only mode).
  *
@@ -68,6 +66,29 @@ struct FVisemeMapping {
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Speech")
   float BlendWeight = 1.0f;
 };
+
+inline bool operator==(const FPhonemeEvent &Left,
+                       const FPhonemeEvent &Right) {
+  return Left.Phoneme == Right.Phoneme &&
+         FMath::IsNearlyEqual(Left.StartTime, Right.StartTime) &&
+         FMath::IsNearlyEqual(Left.Duration, Right.Duration);
+}
+
+inline bool operator!=(const FPhonemeEvent &Left,
+                       const FPhonemeEvent &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FVisemeMapping &Left,
+                       const FVisemeMapping &Right) {
+  return Left.MorphTargetName == Right.MorphTargetName &&
+         FMath::IsNearlyEqual(Left.BlendWeight, Right.BlendWeight);
+}
+
+inline bool operator!=(const FVisemeMapping &Left,
+                       const FVisemeMapping &Right) {
+  return !(Left == Right);
+}
 
 /**
  * Result of a TTS generation request.

@@ -1,18 +1,17 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Features/Systems/Runtime/RuntimeTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
-namespace RuntimeStore {
+namespace Store {
 
-const rtk::Slice<FRuntimeState> &GetSlice();
 rtk::EnhancedStore<FRuntimeState> ConfigureStore();
+rtk::EnhancedStore<FRuntimeState> &GetStore();
 
-} // namespace RuntimeStore
+} // namespace Store
 } // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -17,23 +17,22 @@ class DEMOPROJECT_API URuntimeChatWidget : public UUserWidget {
 public:
   virtual void NativeConstruct() override;
 
-  UFUNCTION(BlueprintCallable, Category = "Level|Chat")
-  void ShowConversation(const FString &NpcName, const FString &Role,
-                        const FString &PlayerLine, const FString &NpcReply);
+  void ShowConversationViewModel(
+      const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation);
 
 private:
   UPROPERTY()
-  UTextBlock *TitleText;
+  UTextBlock *TitleTextElement;
 
   UPROPERTY()
-  UTextBlock *PlayerText;
+  UTextBlock *PlayerTextElement;
 
   UPROPERTY()
-  UTextBlock *ReplyText;
+  UTextBlock *ReplyTextElement;
 
   void ApplyConversationViewModel(
       const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation);
 
-  UTextBlock *BuildTextBlock(const FString &Text, const FLinearColor &Color,
-                             float Size);
+  UTextBlock *BuildTextElement(const FString &Text, const FLinearColor &Color,
+                               float Size);
 };

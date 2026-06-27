@@ -6,6 +6,23 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace TownspersonSelectors {
+namespace {
+
+FString SelectInteractionPrompt(const FString &Prompt) {
+  return Prompt.IsEmpty() ? FString(TEXT("Press E to talk")) : Prompt;
+}
+
+FString SelectDefaultPlayerLine(const FString &PlayerLine) {
+  return PlayerLine.IsEmpty() ? FString(TEXT("What should I know here?"))
+                              : PlayerLine;
+}
+
+bool SelectOverlapMatches(const FTownspersonInteractionOverlapRequest &Request) {
+  return Request.bOtherActorPresent && !Request.bOtherActorIsSelf &&
+         Request.bOtherActorIsPawn;
+}
+
+} // namespace
 
 TArray<FTownspersonSeed> SelectAll(const FTownspersonState &State) {
   return (func::pipe(State.Items) |
@@ -42,6 +59,23 @@ TArray<FTownspersonSeed> SelectByInteractionIntent(
             return Matches;
           })
       .val;
+}
+
+FTownspersonViewDefaults SelectViewDefaults(
+    const FTownspersonViewDefaultsRequest &Request) {
+  return {SelectInteractionPrompt(Request.InteractionPrompt),
+          SelectDefaultPlayerLine(Request.DefaultPlayerLine)};
+}
+
+FTownspersonInteractionOverlapViewModel SelectInteractionOverlap(
+    const FTownspersonInteractionOverlapRequest &Request) {
+  const bool bMatches = SelectOverlapMatches(Request);
+  FTownspersonInteractionOverlapViewModel Model;
+  Model.bShouldApply = bMatches;
+  Model.bPlayerNearby =
+      bMatches ? Request.bEntering : Request.bCurrentPlayerNearby;
+  Model.bPromptVisible = Model.bPlayerNearby;
+  return Model;
 }
 
 } // namespace TownspersonSelectors

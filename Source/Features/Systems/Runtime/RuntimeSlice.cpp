@@ -1,8 +1,9 @@
-#include "Features/Systems/Runtime/RuntimeStore.h"
+#include "Features/Systems/Runtime/RuntimeSlice.h"
 
+#include "Features/Entities/Characters/Player/PlayerSlice.h"
 #include "Features/Systems/Bots/AI/BotAISlice.h"
 #include "Features/Systems/Bots/BotSlice.h"
-#include "Features/Systems/Bots/Core/Slice.h"
+#include "Features/Systems/Bots/Core/BotCoreSlice.h"
 #include "Features/Systems/Bots/Goals/BotGoalSlice.h"
 #include "Features/Systems/Bots/Horses/HorseSlice.h"
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorSlice.h"
@@ -11,22 +12,39 @@
 #include "Features/Systems/Bots/Position/BotPositionSlice.h"
 #include "Features/Systems/Bots/Stats/BotStatsSlice.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonSlice.h"
+#include "Features/Systems/Dialogue/DialogueSlice.h"
+#include "Features/Systems/Level/LevelSlice.h"
 #include "Features/Systems/Landmarks/LandmarkSlice.h"
 #include "Features/Systems/Nature/NatureSlice.h"
+#include "Features/Systems/Rendering/RenderingSlice.h"
 #include "Features/Systems/Runtime/RuntimeFactories.h"
+#include "Features/Systems/Runtime/RuntimeReducers.h"
+#include "Features/Systems/Runtime/RuntimeThunks.h"
 #include "Features/Systems/Spawn/SpawnSlice.h"
+#include "Features/Systems/Speech/SpeechSlice.h"
+#include "Features/Systems/SystemsSlice.h"
 #include "Features/Systems/Terrain/TerrainSlice.h"
+#include "Features/Systems/UI/UISlice.h"
 
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
-namespace RuntimeStore {
+namespace RuntimeSlice {
 namespace {
 
 const rtk::CaseReducer<FRuntimeState> &RootReducer() {
   static const rtk::CaseReducer<FRuntimeState> Reducer = []() {
     rtk::ReducersMapObject<FRuntimeState> Reducers;
-    Reducers.reducer(&FRuntimeState::Terrain, TerrainSlice::GetSlice().Reducer)
+    Reducers.reducer(&FRuntimeState::Player, PlayerSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::Systems, SystemsSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::Level, LevelSystemSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::Rendering,
+                 RenderingSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::Dialogue,
+                 DialogueSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::Speech, SpeechSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::UI, UISlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::Terrain, TerrainSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Spawn, SpawnSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Landmarks, LandmarkSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Townspeople,
@@ -46,7 +64,13 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
                  BotOrchestratorFactoriesSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::BotPipeline,
                  BotPipelineSlice::GetSlice().Reducer);
-    return rtk::combineReducers(Reducers);
+    const rtk::CaseReducer<FRuntimeState> CombinedReducers =
+        rtk::combineReducers(Reducers);
+    return [CombinedReducers](const FRuntimeState &State,
+                              const rtk::AnyAction &Action) -> FRuntimeState {
+      return RuntimeReducers::ReduceRuntimeEcsProjected(
+          CombinedReducers(State, Action));
+    };
   }();
   return Reducer;
 }
@@ -57,18 +81,33 @@ const rtk::Slice<FRuntimeState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FRuntimeState>> Slice =
       func::lazy([]() -> rtk::Slice<FRuntimeState> {
         return rtk::createSlice<FRuntimeState>(
-          TEXT("runtime"), RuntimeFactories::CreateInitialState(),
-          RootReducer());
+            TEXT("runtime"), RuntimeFactories::CreateInitialState(),
+            RootReducer());
       });
   return func::eval(Slice);
 }
 
-rtk::EnhancedStore<FRuntimeState> ConfigureStore() {
-  return rtk::configureStore<FRuntimeState>(
-      GetSlice().Reducer, RuntimeFactories::CreateInitialState());
+rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
+  return RuntimeThunks::RequestPlayerSpawn();
 }
 
-} // namespace RuntimeStore
+rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
+RequestLevelViewPayload() {
+  return RuntimeThunks::RequestLevelViewPayload();
+}
+
+rtk::ThunkAction<FDialogueReplyPayload, FRuntimeState>
+RequestLocalDialogueReply(const FLocalDialogueReplyRequest &Request) {
+  return RuntimeThunks::RequestLocalDialogueReply(Request);
+}
+
+rtk::ThunkAction<FRuntimeTownspersonInteractionPayload, FRuntimeState>
+RequestTownspersonInteraction(
+    const FRuntimeTownspersonInteractionRequest &Request) {
+  return RuntimeThunks::RequestTownspersonInteraction(Request);
+}
+
+} // namespace RuntimeSlice
 } // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

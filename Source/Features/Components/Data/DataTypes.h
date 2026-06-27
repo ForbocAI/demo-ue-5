@@ -30,6 +30,32 @@ template <typename Output> struct TJsonValueMapStep {
   TArray<Output> Acc;
 };
 
+template <typename Source, typename Output> struct TArrayMapRequest {
+  TArray<Source> Values;
+  TFunction<Output(const Source &)> MapValue;
+};
+
+template <typename Source, typename Output> struct TArrayMapStep {
+  TArray<Source> Values;
+  TFunction<Output(const Source &)> MapValue;
+  int32 Index = 0;
+  TArray<Output> Acc;
+};
+
+template <typename Source, typename Output> struct TArrayFilterMapRequest {
+  TArray<Source> Values;
+  TFunction<bool(const Source &)> Keep;
+  TFunction<Output(const Source &)> MapValue;
+};
+
+template <typename Source, typename Output> struct TArrayFilterMapStep {
+  TArray<Source> Values;
+  TFunction<bool(const Source &)> Keep;
+  TFunction<Output(const Source &)> MapValue;
+  int32 Index = 0;
+  TArray<Output> Acc;
+};
+
 struct FDataLoadedPayload {
   FString RelativePath;
   bool bLoaded = false;

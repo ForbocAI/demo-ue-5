@@ -2,19 +2,20 @@
 
 #include "Core/rtk.hpp"
 
-#include "Actions.h"
-#include "BotState.h"
+#include "Features/Systems/Bots/Core/BotCoreActions.h"
+#include "Features/Systems/Bots/Core/BotCoreRuntimeTypes.h"
 
 namespace ForbocAI {
-namespace State {
+namespace Demo {
+namespace Level {
 
 namespace BotCoreReducers {
 
-inline FBotState ReduceBotTicked(
-    const FBotState &State,
+inline FBotCoreRuntimeState ReduceBotTicked(
+    const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotTickPayload> &Action) {
   return (func::pipe(State) |
-          [&Action](FBotState Next) -> FBotState {
+          [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.TickCount++;
             Next.Memory.TimeSinceLastSeenPlayer += Action.PayloadValue.DeltaTime;
             Next.Memory.bHasAggro =
@@ -26,54 +27,55 @@ inline FBotState ReduceBotTicked(
       .val;
 }
 
-inline FBotState ReduceBotMoved(
-    const FBotState &State,
+inline FBotCoreRuntimeState ReduceBotMoved(
+    const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotMovePayload> &Action) {
   return (func::pipe(State) |
-          [&Action](FBotState Next) -> FBotState {
+          [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.Position = Action.PayloadValue.TargetLocation;
             return Next;
           })
       .val;
 }
 
-inline FBotState ReduceBotDamageTaken(
-    const FBotState &State,
+inline FBotCoreRuntimeState ReduceBotDamageTaken(
+    const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotDamageTakenPayload> &Action) {
   return (func::pipe(State) |
-          [&Action](FBotState Next) -> FBotState {
+          [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.Stats.Health =
                 FMath::Max(0.0f,
                            Next.Stats.Health - Action.PayloadValue.Amount);
             Next.Phase = Next.Stats.Health < Next.Stats.MaxHealth * 0.3f
-                             ? EBotPhase::Flee
-                             : EBotPhase::Combat;
+                             ? EBotCorePhase::Flee
+                             : EBotCorePhase::Combat;
             return Next;
           })
       .val;
 }
 
-inline FBotState ReduceBotEnemySpotted(
-    const FBotState &State,
+inline FBotCoreRuntimeState ReduceBotEnemySpotted(
+    const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotEnemySpottedPayload> &Action) {
   return (func::pipe(State) |
-          [&Action](FBotState Next) -> FBotState {
+          [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.Memory.LastKnownPlayerPos = Action.PayloadValue.EnemyLocation;
             Next.Memory.TimeSinceLastSeenPlayer = 0.0f;
             Next.Memory.bHasAggro = true;
-            Next.Phase = Next.Phase != EBotPhase::Flee ? EBotPhase::Combat
-                                                       : Next.Phase;
+            Next.Phase = Next.Phase != EBotCorePhase::Flee
+                             ? EBotCorePhase::Combat
+                             : Next.Phase;
             return Next;
           })
       .val;
 }
 
-inline FBotState ReduceBotFleeRequested(
-    const FBotState &State,
+inline FBotCoreRuntimeState ReduceBotFleeRequested(
+    const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotFleeRequestedPayload> &Action) {
   return (func::pipe(State) |
-          [&Action](FBotState Next) -> FBotState {
-            Next.Phase = EBotPhase::Flee;
+          [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
+            Next.Phase = EBotCorePhase::Flee;
             Next.Memory.LastKnownPlayerPos = Action.PayloadValue.AwayFrom;
             Next.Memory.bHasAggro = true;
             return Next;
@@ -81,18 +83,18 @@ inline FBotState ReduceBotFleeRequested(
       .val;
 }
 
-inline FBotState ReduceBotAttackRequested(
-    const FBotState &State,
+inline FBotCoreRuntimeState ReduceBotAttackRequested(
+    const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotAttackRequestedPayload> &) {
   return State;
 }
 
-inline const rtk::CaseReducer<FBotState> &BotReducer() {
-  static const func::Lazy<rtk::CaseReducer<FBotState>> Reducer = func::lazy(
-      []() -> rtk::CaseReducer<FBotState> {
-        return rtk::createReducer<FBotState>(
-            CreateInitialState(TEXT("Bot")),
-            [](rtk::ActionReducerMapBuilder<FBotState> &Builder) {
+inline const rtk::CaseReducer<FBotCoreRuntimeState> &BotReducer() {
+  static const func::Lazy<rtk::CaseReducer<FBotCoreRuntimeState>> Reducer =
+      func::lazy([]() -> rtk::CaseReducer<FBotCoreRuntimeState> {
+        return rtk::createReducer<FBotCoreRuntimeState>(
+            CreateBotCoreRuntimeInitialState(TEXT("Bot")),
+            [](rtk::ActionReducerMapBuilder<FBotCoreRuntimeState> &Builder) {
               Builder.addCase(BotCoreActions::BotTicked(), ReduceBotTicked)
                   .addCase(BotCoreActions::BotMoved(), ReduceBotMoved)
                   .addCase(BotCoreActions::BotDamageTaken(),
@@ -108,11 +110,14 @@ inline const rtk::CaseReducer<FBotState> &BotReducer() {
   return func::eval(Reducer);
 }
 
-} // namespace BotCoreReducers
-
-inline FBotState Reduce(const FBotState &State, const rtk::AnyAction &Action) {
-  return BotCoreReducers::BotReducer()(State, Action);
+inline FBotCoreRuntimeState
+ReduceBotCoreRuntime(const FBotCoreRuntimeState &State,
+                     const rtk::AnyAction &Action) {
+  return BotReducer()(State, Action);
 }
 
-} // namespace State
+} // namespace BotCoreReducers
+
+} // namespace Level
+} // namespace Demo
 } // namespace ForbocAI

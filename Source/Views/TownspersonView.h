@@ -2,14 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TalkableTownsperson.generated.h"
+#include "TownspersonView.generated.h"
 
 class USphereComponent;
 class USkeletalMeshComponent;
 class UTextRenderComponent;
 
 USTRUCT(BlueprintType)
-struct FTownspersonConfig {
+struct FTownspersonViewConfig {
   GENERATED_BODY()
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
@@ -35,20 +35,20 @@ struct FTownspersonConfig {
 };
 
 UCLASS()
-class DEMOPROJECT_API ATalkableTownsperson : public AActor {
+class DEMOPROJECT_API ATownspersonView : public AActor {
   GENERATED_BODY()
 
 public:
-  ATalkableTownsperson();
+  ATownspersonView();
 
   virtual void BeginPlay() override;
   virtual void Tick(float DeltaTime) override;
 
   UFUNCTION(BlueprintCallable, Category = "Level|NPC")
-  void ConfigureTownsperson(const FTownspersonConfig &Config);
+  void ConfigureTownsperson(const FTownspersonViewConfig &Config);
 
   UFUNCTION(BlueprintCallable, Category = "Level|NPC")
-  FString Interact(const FString &PlayerLine);
+  void ShowDialogueReply(const FString &Reply);
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
   bool IsPlayerNearby() const;
@@ -60,7 +60,13 @@ public:
   FString GetRole() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  FString GetPersona() const;
+
+  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
   FString GetDefaultPlayerLine() const;
+
+  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  FString GetPinnedResponse() const;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString TownspersonName;

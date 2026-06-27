@@ -2,13 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "WalkingHorse.generated.h"
+#include "HorseView.generated.h"
 
 class USkeletalMeshComponent;
 class UTextRenderComponent;
 
 USTRUCT(BlueprintType)
-struct FWalkingHorseConfig {
+struct FHorseViewConfig {
   GENERATED_BODY()
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
@@ -22,16 +22,16 @@ struct FWalkingHorseConfig {
 };
 
 UCLASS()
-class DEMOPROJECT_API AWalkingHorse : public AActor {
+class DEMOPROJECT_API AHorseView : public AActor {
   GENERATED_BODY()
 
 public:
-  AWalkingHorse();
+  AHorseView();
 
   virtual void Tick(float DeltaTime) override;
 
   UFUNCTION(BlueprintCallable, Category = "Level|Horse")
-  void ConfigureHorse(const FWalkingHorseConfig &Config);
+  void ConfigureHorse(const FHorseViewConfig &Config);
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   FString HorseName;

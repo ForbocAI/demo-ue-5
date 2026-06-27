@@ -3,24 +3,20 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Rendering/RenderingActions.h"
-#include "Features/Systems/Rendering/RenderingReducers.h"
-#include "Features/Systems/Rendering/RenderingSelectors.h"
 #include "Features/Systems/Rendering/RenderingTypes.h"
+
+class UMaterialInterface;
 
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace RenderingSlice {
 
-inline void ApplyRuntimeProfile() { RenderingActions::ApplyRuntimeProfile(); }
-
-inline UMaterialInterface *LoadBlockoutMaterial() {
-  return RenderingActions::LoadBlockoutMaterial();
-}
-
-inline void ApplyTexture(const FLevelRetroTextureApply &Request) {
-  RenderingActions::ApplyTexture(Request);
-}
+FRenderingState CreateInitialState();
+const rtk::Slice<FRenderingState> &GetSlice();
+void ApplyRuntimeProfile();
+UMaterialInterface *LoadBlockoutMaterial();
+void ApplyTexture(const FLevelRetroTextureApply &Request);
 
 } // namespace RenderingSlice
 } // namespace Level

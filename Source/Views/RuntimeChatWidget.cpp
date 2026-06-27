@@ -4,72 +4,72 @@
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
-#include "Components/VerticalBoxSlot.h"
-#include "Features/Systems/UI/UIReducers.h"
+#include "Features/Systems/UI/UISelectors.h"
 
 void URuntimeChatWidget::NativeConstruct() {
   Super::NativeConstruct();
 
   if (WidgetTree && !WidgetTree->RootWidget) {
-    UBorder *Panel = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
-    UVerticalBox *Stack =
+    UBorder *PanelElement =
+        WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
+    UVerticalBox *StackElement =
         WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
 
     const ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation =
-        ForbocAI::Demo::Level::UIReducers::BuildRuntimeConversationPlaceholder();
+        ForbocAI::Demo::Level::UISelectors::
+            SelectRuntimeConversationPlaceholder();
 
-    TitleText = BuildTextBlock(Conversation.Title, Conversation.TitleColor,
-                               Conversation.TitleSize);
-    PlayerText = BuildTextBlock(Conversation.PlayerLine,
-                                Conversation.PlayerColor,
-                                Conversation.BodySize);
-    ReplyText = BuildTextBlock(Conversation.NpcReply, Conversation.ReplyColor,
-                               Conversation.BodySize);
+    TitleTextElement = BuildTextElement(Conversation.Title,
+                                        Conversation.TitleColor,
+                                        Conversation.TitleSize);
+    PlayerTextElement = BuildTextElement(Conversation.PlayerLine,
+                                         Conversation.PlayerColor,
+                                         Conversation.BodySize);
+    ReplyTextElement = BuildTextElement(Conversation.NpcReply,
+                                        Conversation.ReplyColor,
+                                        Conversation.BodySize);
 
-    Panel->SetPadding(FMargin(Conversation.PanelPadding));
-    Panel->SetBrushColor(Conversation.PanelColor);
-    Panel->SetContent(Stack);
-    Stack->AddChildToVerticalBox(TitleText);
-    Stack->AddChildToVerticalBox(PlayerText);
-    Stack->AddChildToVerticalBox(ReplyText);
-    WidgetTree->RootWidget = Panel;
+    PanelElement->SetPadding(FMargin(Conversation.PanelPadding));
+    PanelElement->SetBrushColor(Conversation.PanelColor);
+    PanelElement->SetContent(StackElement);
+    StackElement->AddChildToVerticalBox(TitleTextElement);
+    StackElement->AddChildToVerticalBox(PlayerTextElement);
+    StackElement->AddChildToVerticalBox(ReplyTextElement);
+    WidgetTree->RootWidget = PanelElement;
   }
 }
 
-void URuntimeChatWidget::ShowConversation(
-    const FString &NpcName, const FString &Role, const FString &PlayerLine,
-    const FString &NpcReply) {
+void URuntimeChatWidget::ShowConversationViewModel(
+    const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation) {
   SetVisibility(ESlateVisibility::Visible);
-  ApplyConversationViewModel(
-      ForbocAI::Demo::Level::UIReducers::BuildRuntimeConversationViewModel(
-          NpcName, Role, PlayerLine, NpcReply));
+  ApplyConversationViewModel(Conversation);
 }
 
 void URuntimeChatWidget::ApplyConversationViewModel(
     const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation) {
-  if (TitleText) {
-    TitleText->SetText(FText::FromString(Conversation.Title));
+  if (TitleTextElement) {
+    TitleTextElement->SetText(FText::FromString(Conversation.Title));
   }
-  if (PlayerText) {
-    PlayerText->SetText(FText::FromString(Conversation.PlayerLine));
+  if (PlayerTextElement) {
+    PlayerTextElement->SetText(FText::FromString(Conversation.PlayerLine));
   }
-  if (ReplyText) {
-    ReplyText->SetText(FText::FromString(Conversation.NpcReply));
+  if (ReplyTextElement) {
+    ReplyTextElement->SetText(FText::FromString(Conversation.NpcReply));
   }
 }
 
-UTextBlock *URuntimeChatWidget::BuildTextBlock(
+UTextBlock *URuntimeChatWidget::BuildTextElement(
     const FString &Text, const FLinearColor &Color, float Size) {
-  UTextBlock *Block =
+  UTextBlock *Element =
       WidgetTree ? WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass())
                  : nullptr;
-  if (Block) {
-    Block->SetText(FText::FromString(Text));
-    Block->SetColorAndOpacity(FSlateColor(Color));
-    Block->SetAutoWrapText(true);
-    FSlateFontInfo Font = Block->GetFont();
+  if (Element) {
+    Element->SetText(FText::FromString(Text));
+    Element->SetColorAndOpacity(FSlateColor(Color));
+    Element->SetAutoWrapText(true);
+    FSlateFontInfo Font = Element->GetFont();
     Font.Size = Size;
-    Block->SetFont(Font);
+    Element->SetFont(Font);
   }
-  return Block;
+  return Element;
 }

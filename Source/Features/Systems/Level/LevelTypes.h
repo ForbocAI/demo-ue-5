@@ -2,9 +2,10 @@
 
 #include "Core/rtk.hpp"
 
-#include "CoreMinimal.h"
+#include "Features/Components/Level/LevelTypes.h"
 #include "Features/Components/Rendering/RenderingTypes.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
+#include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
@@ -93,6 +94,36 @@ struct FLevelLabelSpawn {
 struct FLevelRuntimeSectionSpawn {
   TArray<FLevelBlockSpawn> Blocks;
   TArray<FLevelLabelSpawn> Labels;
+};
+
+struct FLevelRuntimeBlockSpawnRequest {
+  FLevelRuntimeBlockSeed Seed;
+  FLevelTerrainData TerrainData;
+};
+
+struct FLevelRuntimeLabelSpawnRequest {
+  FLevelRuntimeLabelSeed Seed;
+  FLevelTerrainData TerrainData;
+};
+
+struct FLevelRuntimeSectionSpawnRequest {
+  FLevelRuntimeSectionSeed Seed;
+  FLevelTerrainData TerrainData;
+};
+
+struct FLevelOverlaySectionSpawnRequest {
+  FLevelRuntimeLayoutSeed Seed;
+  FLevelTerrainData TerrainData;
+};
+
+struct FLevelNatureSectionSpawnRequest {
+  TArray<FNatureFeatureSeed> Features;
+  FLevelTerrainData TerrainData;
+};
+
+struct FLevelWorldRouteRequest {
+  TArray<FLevelLocalPoint> Route;
+  FLevelTerrainData TerrainData;
 };
 
 struct FLevelSystemPayload {

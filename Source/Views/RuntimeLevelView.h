@@ -2,18 +2,28 @@
 
 #include "Core/functional_core.hpp"
 #include "CoreMinimal.h"
-#include "Features/Components/Level/LevelTypes.h"
-#include "Features/Systems/Level/LevelTypes.h"
-#include "Features/Systems/Runtime/RuntimeAdapters.h"
 #include "GameFramework/Actor.h"
 #include "RuntimeLevelView.generated.h"
 
 class AStaticMeshActor;
 class ATerrainMeshView;
-class ATalkableTownsperson;
-class AWalkingHorse;
+class ATownspersonView;
+class AHorseView;
 class UMaterialInterface;
 class UStaticMesh;
+
+namespace ForbocAI {
+namespace Demo {
+namespace Level {
+struct FLevelBlockSpawn;
+struct FLevelLabelSpawn;
+struct FLevelRuntimeSectionSpawn;
+struct FRuntimeHorseViewSpawn;
+struct FRuntimeLevelViewPayload;
+struct FRuntimeTownspersonViewSpawn;
+} // namespace Level
+} // namespace Demo
+} // namespace ForbocAI
 
 UCLASS()
 class DEMOPROJECT_API ARuntimeLevelView : public AActor {
@@ -30,18 +40,23 @@ public:
 private:
   UStaticMesh *CubeMesh;
   UMaterialInterface *BlockBaseMaterial;
-  FLevelTerrainData TerrainData;
-  FLevelOrthoData OrthoData;
-  ForbocAI::Demo::Level::FLevelRuntimeLayoutSeed RuntimeLayout;
-  ForbocAI::Demo::Level::RuntimeAdapters::FRuntimeLevelSession RuntimeSession;
 
   void RenderLevel();
+  void RenderLevelPayload(
+      const ForbocAI::Demo::Level::FRuntimeLevelViewPayload &Payload);
   void RenderTerrain();
-  void RenderNaturalEnvironment();
-  void RenderTown();
-  void RenderMineApproach();
-  void RenderTownspeople();
-  void RenderHorses();
+  void RenderTerrain(
+      const ForbocAI::Demo::Level::FRuntimeLevelViewPayload &Payload);
+  void RenderTownspeople(
+      const TArray<
+          ForbocAI::Demo::Level::FRuntimeTownspersonViewSpawn> &Townspeople,
+      int32 Index);
+  void RenderHorses(
+      const TArray<ForbocAI::Demo::Level::FRuntimeHorseViewSpawn> &Horses,
+      int32 Index);
+  void RenderSections(
+      const TArray<ForbocAI::Demo::Level::FLevelRuntimeSectionSpawn> &Sections,
+      int32 Index);
 
   void RenderSection(
       const ForbocAI::Demo::Level::FLevelRuntimeSectionSpawn &Section);
@@ -51,18 +66,11 @@ private:
   void RenderLabels(
       const TArray<ForbocAI::Demo::Level::FLevelLabelSpawn> &Labels,
       int32 Index);
-  void RenderTownspersonSeeds(
-      const TArray<ForbocAI::Demo::Level::FTownspersonSeed> &Townspeople,
-      int32 Index);
-  void RenderHorseSeeds(
-      const TArray<ForbocAI::Demo::Level::FHorseRouteSeed> &Horses,
-      int32 Index);
-
   AStaticMeshActor *RenderBlock(
       const ForbocAI::Demo::Level::FLevelBlockSpawn &BlockSpawn);
   void RenderLabel(const ForbocAI::Demo::Level::FLevelLabelSpawn &LabelSpawn);
-  ATalkableTownsperson *RenderTownsperson(
-      const ForbocAI::Demo::Level::FTownspersonSeed &Seed);
-  AWalkingHorse *RenderHorse(
-      const ForbocAI::Demo::Level::FHorseRouteSeed &Seed);
+  ATownspersonView *RenderTownsperson(
+      const ForbocAI::Demo::Level::FRuntimeTownspersonViewSpawn &Spawn);
+  AHorseView *RenderHorse(
+      const ForbocAI::Demo::Level::FRuntimeHorseViewSpawn &Spawn);
 };

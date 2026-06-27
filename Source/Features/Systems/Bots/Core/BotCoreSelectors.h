@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/Core/Types.h"
+#include "Features/Systems/Bots/Core/BotCoreTypes.h"
 
 namespace ForbocAI {
 namespace Demo {

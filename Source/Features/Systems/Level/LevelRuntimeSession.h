@@ -7,11 +7,11 @@
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
-namespace LevelSystemAdapters {
+namespace LevelRuntimeSession {
 
 FLevelRuntimeLayoutSeed BuildFrenchGulchRuntimeLayoutSeed();
 
-} // namespace LevelSystemAdapters
+} // namespace LevelRuntimeSession
 } // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

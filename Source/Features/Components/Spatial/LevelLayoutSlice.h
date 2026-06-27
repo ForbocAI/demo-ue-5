@@ -2,7 +2,6 @@
 
 #include "Core/rtk.hpp"
 
-#include "CoreMinimal.h"
 #include "Features/Components/Level/LevelTypes.h"
 
 namespace ForbocAI {

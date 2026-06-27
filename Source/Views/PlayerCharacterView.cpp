@@ -1,4 +1,4 @@
-#include "Features/Entities/Characters/Player/ThirdPersonCharacter.h"
+#include "Views/PlayerCharacterView.h"
 
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
+#include "Features/Entities/Characters/Player/PlayerSelectors.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -16,6 +17,8 @@
 #include "InputModifiers.h"
 #include "InputTriggers.h"
 #include "InputCoreTypes.h"
+
+namespace FGP = ForbocAI::Demo::Level::PlayerSelectors;
 
 namespace {
 constexpr float CapsuleRadius = 42.0f;
@@ -86,7 +89,7 @@ void MapKeyWithModifiers(const FInputKeyMapWithModifiers &Map) {
 }
 } // namespace
 
-AThirdPersonCharacter::AThirdPersonCharacter()
+APlayerCharacterView::APlayerCharacterView()
     : MappingContext(nullptr), MouseMappingContext(nullptr), MoveAction(nullptr),
       LookAction(nullptr), MouseLookAction(nullptr), JumpAction(nullptr) {
   GetCapsuleComponent()->InitCapsuleSize(CapsuleRadius, CapsuleHalfHeight);
@@ -119,7 +122,7 @@ AThirdPersonCharacter::AThirdPersonCharacter()
   ConfigureEnhancedInput();
 }
 
-void AThirdPersonCharacter::BeginPlay() {
+void APlayerCharacterView::BeginPlay() {
   Super::BeginPlay();
 
   if (APlayerController *PlayerController = Cast<APlayerController>(Controller)) {
@@ -138,49 +141,44 @@ void AThirdPersonCharacter::BeginPlay() {
   }
 }
 
-void AThirdPersonCharacter::SetupPlayerInputComponent(
+void APlayerCharacterView::SetupPlayerInputComponent(
     UInputComponent *PlayerInputComponent) {
   if (UEnhancedInputComponent *EnhancedInput =
           Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
     EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this,
-                              &AThirdPersonCharacter::DoJumpStart);
+                              &APlayerCharacterView::DoJumpStart);
     EnhancedInput->BindAction(JumpAction, ETriggerEvent::Completed, this,
-                              &AThirdPersonCharacter::DoJumpEnd);
+                              &APlayerCharacterView::DoJumpEnd);
     EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this,
-                              &AThirdPersonCharacter::Move);
+                              &APlayerCharacterView::Move);
     EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this,
-                              &AThirdPersonCharacter::Look);
+                              &APlayerCharacterView::Look);
     EnhancedInput->BindAction(MouseLookAction, ETriggerEvent::Triggered, this,
-                              &AThirdPersonCharacter::Look);
+                              &APlayerCharacterView::Look);
   }
 }
 
-void AThirdPersonCharacter::DoMove(float Right, float Forward) {
-  if (!Controller) {
-    return;
-  }
-
-  const FRotator Rotation = Controller->GetControlRotation();
-  const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
-  const FVector ForwardDirection =
-      FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-  const FVector RightDirection =
-      FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-  AddMovementInput(ForwardDirection, Forward);
-  AddMovementInput(RightDirection, Right);
+void APlayerCharacterView::DoMove(float Right, float Forward) {
+  const ForbocAI::Demo::Level::FPlayerMovementInputViewModel Model =
+      FGP::SelectMovementInput({Controller ? Controller->GetControlRotation()
+                                           : FRotator::ZeroRotator,
+                                Right, Forward, Controller != nullptr});
+  Model.bShouldMove
+      ? (AddMovementInput(Model.ForwardDirection, Model.ForwardScale),
+         AddMovementInput(Model.RightDirection, Model.RightScale), void())
+      : void();
 }
 
-void AThirdPersonCharacter::DoLook(float Yaw, float Pitch) {
+void APlayerCharacterView::DoLook(float Yaw, float Pitch) {
   AddControllerYawInput(Yaw);
   AddControllerPitchInput(Pitch);
 }
 
-void AThirdPersonCharacter::DoJumpStart() { Jump(); }
+void APlayerCharacterView::DoJumpStart() { Jump(); }
 
-void AThirdPersonCharacter::DoJumpEnd() { StopJumping(); }
+void APlayerCharacterView::DoJumpEnd() { StopJumping(); }
 
-void AThirdPersonCharacter::ConfigureTemplateCharacter() {
+void APlayerCharacterView::ConfigureTemplateCharacter() {
   if (USkeletalMesh *CharacterMesh = LoadObject<USkeletalMesh>(
           nullptr,
           TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"))) {
@@ -203,7 +201,7 @@ void AThirdPersonCharacter::ConfigureTemplateCharacter() {
   }
 }
 
-void AThirdPersonCharacter::ConfigureEnhancedInput() {
+void APlayerCharacterView::ConfigureEnhancedInput() {
   MoveAction = InputAction(TEXT("/Game/Input/Actions/IA_Move.IA_Move"), this,
                            TEXT("IA_Move"), EInputActionValueType::Axis2D);
   LookAction = InputAction(TEXT("/Game/Input/Actions/IA_Look.IA_Look"), this,
@@ -239,12 +237,12 @@ void AThirdPersonCharacter::ConfigureEnhancedInput() {
   MouseMappingContext = nullptr;
 }
 
-void AThirdPersonCharacter::Move(const FInputActionValue &Value) {
+void APlayerCharacterView::Move(const FInputActionValue &Value) {
   const FVector2D MovementVector = Value.Get<FVector2D>();
   DoMove(MovementVector.X, MovementVector.Y);
 }
 
-void AThirdPersonCharacter::Look(const FInputActionValue &Value) {
+void APlayerCharacterView::Look(const FInputActionValue &Value) {
   const FVector2D LookAxisVector = Value.Get<FVector2D>();
   DoLook(LookAxisVector.X, LookAxisVector.Y);
 }

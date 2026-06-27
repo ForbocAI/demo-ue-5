@@ -5,6 +5,7 @@
 #include "Features/Systems/Dialogue/DialogueActions.h"
 #include "Features/Systems/Dialogue/DialogueReducers.h"
 #include "Features/Systems/Dialogue/DialogueSelectors.h"
+#include "Features/Systems/Dialogue/DialogueThunks.h"
 #include "Features/Systems/Dialogue/DialogueTypes.h"
 
 namespace ForbocAI {
@@ -29,7 +30,9 @@ inline const rtk::Slice<FDialogueState> &GetSlice() {
             TEXT("systems/dialogue"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FDialogueState> &Builder) {
               Builder.addCase(DialogueActions::DialogueObserved(),
-                              DialogueReducers::ReduceDialogueObserved);
+                              DialogueReducers::ReduceDialogueObserved)
+                  .addAsyncThunk(DialogueThunks::RequestLocalReply(),
+                                 DialogueReducers::LocalReplyAsyncReducers());
             });
       });
   return func::eval(Slice);

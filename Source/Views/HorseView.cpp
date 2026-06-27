@@ -1,12 +1,14 @@
-#include "Features/Entities/Characters/Bots/WalkingHorse.h"
+#include "Views/HorseView.h"
 
 #include "Animation/AnimSequence.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/SkeletalMesh.h"
-#include "Features/Components/Spatial/LevelLayoutSlice.h"
+#include "Features/Components/Spatial/SpatialSelectors.h"
+#include "Features/Systems/Bots/Position/BotPositionSelectors.h"
 
-namespace FGL = ForbocAI::Demo::Level::LevelLayoutSlice;
+namespace FGS = ForbocAI::Demo::Level::SpatialSelectors;
+namespace FGP = ForbocAI::Demo::Level::BotPositionSelectors;
 
 namespace {
 constexpr float HorseLengthFeet = 8.0f;
@@ -21,7 +23,9 @@ constexpr float RouteArrivalLegRatio = 0.8f;
 constexpr float ImportedHorseScale = 0.62f;
 constexpr float MountedRiderScale = 0.62f;
 
-float WorldFeet(float Feet) { return FGL::ActorWorldUnitsFromFeet(Feet); }
+float WorldFeet(float Feet) {
+  return FGS::SelectActorWorldUnitsFromFeet(Feet);
+}
 
 float HorseBackZ() {
   return WorldFeet(LegHeightFeet + BodyHeightFeet + SaddleHeightFeet * 0.5f);
@@ -33,7 +37,7 @@ float HorseNameTextZ() {
 }
 } // namespace
 
-AWalkingHorse::AWalkingHorse()
+AHorseView::AHorseView()
     : WalkSpeed(WorldFeet(HorseLengthFeet) * WalkSpeedHorseLengthRatio),
       PauseDuration(HorsePatrolPauseSeconds), PatrolIndex(0),
       PauseRemaining(0.0f), bMountedRider(false) {
@@ -69,52 +73,40 @@ AWalkingHorse::AWalkingHorse()
   ConfigureImportedHorseAsset();
 }
 
-void AWalkingHorse::Tick(float DeltaTime) {
+void AHorseView::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
   AdvancePatrol(DeltaTime);
 }
 
-void AWalkingHorse::ConfigureHorse(const FWalkingHorseConfig &Config) {
+void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   HorseName = Config.Name;
   bMountedRider = Config.bMountedRider;
   PatrolRoute = Config.PatrolRoute;
-  PatrolIndex = PatrolRoute.Num() > 1 ? 1 : 0;
+  PatrolIndex = FGP::SelectInitialPatrolIndex(PatrolRoute);
   PauseRemaining = 0.0f;
-  if (PatrolRoute.Num() > 0) {
-    SetActorLocation(PatrolRoute[0]);
+  const ForbocAI::Demo::Level::FBotInitialPatrolLocationPayload Initial =
+      FGP::SelectInitialPatrolLocation({PatrolRoute});
+  if (Initial.bShouldMove) {
+    SetActorLocation(Initial.Location);
   }
   ConfigureImportedHorseAsset();
   RefreshText();
 }
 
-void AWalkingHorse::AdvancePatrol(float DeltaTime) {
-  if (PatrolRoute.Num() < 2) {
-    return;
-  }
-
-  if (PauseRemaining > 0.0f) {
-    PauseRemaining = FMath::Max(0.0f, PauseRemaining - DeltaTime);
-    return;
-  }
-
-  const FVector Current = GetActorLocation();
-  const FVector Target = PatrolRoute[PatrolIndex];
-  const FVector Delta = Target - Current;
-  const float Distance = Delta.Size();
-
-  if (Distance < WorldFeet(LegHeightFeet) * RouteArrivalLegRatio) {
-    PatrolIndex = (PatrolIndex + 1) % PatrolRoute.Num();
-    PauseRemaining = PauseDuration;
-    return;
-  }
-
-  const FVector Step =
-      Delta.GetSafeNormal() * FMath::Min(Distance, WalkSpeed * DeltaTime);
-  SetActorLocation(Current + Step);
-  SetActorRotation(Delta.Rotation());
+void AHorseView::AdvancePatrol(float DeltaTime) {
+  const ForbocAI::Demo::Level::FBotPatrolAdvancePayload Advance =
+      FGP::SelectPatrolAdvance(
+          {PatrolRoute, PatrolIndex, PauseRemaining, PauseDuration, WalkSpeed,
+           DeltaTime, GetActorLocation(),
+           WorldFeet(LegHeightFeet) * RouteArrivalLegRatio});
+  PatrolIndex = Advance.PatrolIndex;
+  PauseRemaining = Advance.PauseRemaining;
+  Advance.bShouldMove ? (SetActorLocation(Advance.Location), void()) : void();
+  Advance.bShouldRotate ? (SetActorRotation(Advance.Rotation), void())
+                         : void();
 }
 
-void AWalkingHorse::ConfigureImportedHorseAsset() {
+void AHorseView::ConfigureImportedHorseAsset() {
   if (!ImportedHorseMesh) {
     return;
   }
@@ -172,6 +164,6 @@ void AWalkingHorse::ConfigureImportedHorseAsset() {
   }
 }
 
-void AWalkingHorse::RefreshText() {
+void AHorseView::RefreshText() {
   NameText->SetText(FText::FromString(HorseName));
 }

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "CoreMinimal.h"
-#include "Features/Systems/Bots/Core/Actions.h"
-#include "Features/Systems/Bots/Core/BotState.h"
+#include "Features/Systems/Bots/Core/BotCoreActions.h"
+#include "Features/Systems/Bots/Core/BotCoreRuntimeTypes.h"
+
+class AActor;
 
 namespace ForbocAI {
 namespace Demo {
@@ -52,12 +53,12 @@ struct FBotPipelineLogicResult {
 };
 
 struct FBotPipelineOutputResult {
-  ForbocAI::State::FBotState NewState;
+  FBotCoreRuntimeState NewState;
   int32 ActionsDispatched = 0;
 };
 
 struct FBotPipelineTickInput {
-  ForbocAI::State::FBotState State;
+  FBotCoreRuntimeState State;
   FBotPipelineWorldSnapshot World;
 };
 

@@ -1,11 +1,10 @@
 
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
-#include "Features/Systems/Bots/Core/Actions.h"
-#include "Features/Systems/Bots/Core/BotState.h"
+#include "Features/Systems/Bots/Core/BotCoreActions.h"
+#include "Features/Systems/Bots/Core/BotCoreRuntimeTypes.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineReducers.h"
 
-using namespace ForbocAI::State;
 using namespace ForbocAI::Demo::Level;
 using namespace ForbocAI::Demo::Level::BotPipelineReducers;
 
@@ -28,7 +27,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FPipelineIdleTick::RunTest(const FString &Parameters) {
-  const FBotState Initial = CreateInitialState(TEXT("IdleBot"));
+  const FBotCoreRuntimeState Initial =
+      CreateBotCoreRuntimeInitialState(TEXT("IdleBot"));
   const FBotPipelineOutputResult Result = ReduceIdlePipeline(Initial, 0.016f);
 
   TestEqual(TEXT("Tick count advanced"), Result.NewState.TickCount,
@@ -47,7 +47,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
-  const FBotState Initial = CreateInitialState(TEXT("HazardBot"));
+  const FBotCoreRuntimeState Initial =
+      CreateBotCoreRuntimeInitialState(TEXT("HazardBot"));
 
   FBotPipelineWorldSnapshot World;
   World.DeltaTime = 1.0f;
@@ -71,7 +72,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FPipelineAwareness::RunTest(const FString &Parameters) {
-  const FBotState Initial = CreateInitialState(TEXT("AwareBot"));
+  const FBotCoreRuntimeState Initial =
+      CreateBotCoreRuntimeInitialState(TEXT("AwareBot"));
 
   FBotPipelineWorldSnapshot World;
   World.DeltaTime = 0.016f;
@@ -83,7 +85,7 @@ bool FPipelineAwareness::RunTest(const FString &Parameters) {
 
   TestTrue(TEXT("Bot has aggro"), Result.NewState.Memory.bHasAggro);
   TestEqual(TEXT("Phase is Combat"),
-            (int32)Result.NewState.Phase, (int32)EBotPhase::Combat);
+            (int32)Result.NewState.Phase, (int32)EBotCorePhase::Combat);
   TestEqual(TEXT("Remembers enemy position"),
             Result.NewState.Memory.LastKnownPlayerPos,
             FVector(500.0f, 200.0f, 0.0f));
@@ -98,9 +100,10 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
-  FBotState LowHealth = CreateInitialState(TEXT("FleeBot"));
+  FBotCoreRuntimeState LowHealth =
+      CreateBotCoreRuntimeInitialState(TEXT("FleeBot"));
   LowHealth.Stats.Health = 15.0f; // 15% health
-  LowHealth.Phase = EBotPhase::Combat;
+  LowHealth.Phase = EBotCorePhase::Combat;
   LowHealth.Memory.bHasAggro = true;
   LowHealth.Memory.LastKnownPlayerPos = FVector(300.0f, 0.0f, 0.0f);
 
@@ -110,7 +113,7 @@ bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
   const FBotPipelineOutputResult Result = ReducePipeline(LowHealth, World);
 
   TestEqual(TEXT("Phase transitioned to Flee"),
-            (int32)Result.NewState.Phase, (int32)EBotPhase::Flee);
+            (int32)Result.NewState.Phase, (int32)EBotCorePhase::Flee);
 
   return true;
 }
@@ -126,13 +129,13 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
 
   // Bot 1: Idle
   FBotPipelineTickInput Idle;
-  Idle.State = CreateInitialState(TEXT("Bot-Idle"));
+  Idle.State = CreateBotCoreRuntimeInitialState(TEXT("Bot-Idle"));
   Idle.World.DeltaTime = 0.016f;
   Inputs.Add(Idle);
 
   // Bot 2: In hazard
   FBotPipelineTickInput Hazard;
-  Hazard.State = CreateInitialState(TEXT("Bot-Hazard"));
+  Hazard.State = CreateBotCoreRuntimeInitialState(TEXT("Bot-Hazard"));
   Hazard.World.DeltaTime = 1.0f;
   Hazard.World.HazardOverlap.bOverlapping = true;
   Hazard.World.HazardOverlap.DamagePerSecond = 50.0f;
@@ -140,7 +143,7 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
 
   // Bot 3: Sees enemy
   FBotPipelineTickInput Aware;
-  Aware.State = CreateInitialState(TEXT("Bot-Aware"));
+  Aware.State = CreateBotCoreRuntimeInitialState(TEXT("Bot-Aware"));
   Aware.World.DeltaTime = 0.016f;
   Aware.World.Visibility.bCanSeeEnemy = true;
   Aware.World.Visibility.EnemyPosition = FVector(100.0f, 0.0f, 0.0f);
@@ -173,7 +176,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineDeterministic::RunTest(const FString &Parameters) {
   // Run the same pipeline twice — results must be identical
-  const FBotState Initial = CreateInitialState(TEXT("DetBot"));
+  const FBotCoreRuntimeState Initial =
+      CreateBotCoreRuntimeInitialState(TEXT("DetBot"));
 
   FBotPipelineWorldSnapshot World;
   World.DeltaTime = 0.5f;

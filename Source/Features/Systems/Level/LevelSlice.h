@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Level/LevelActions.h"
-#include "Features/Systems/Level/LevelRuntimeAdapters.h"
+#include "Features/Systems/Level/LevelRuntimeSession.h"
 #include "Features/Systems/Level/LevelReducers.h"
 #include "Features/Systems/Level/LevelSelectors.h"
 #include "Features/Systems/Level/LevelTypes.h"
@@ -38,7 +38,7 @@ inline const rtk::Slice<FLevelSystemState> &GetSlice() {
 }
 
 inline FLevelRuntimeLayoutSeed BuildFrenchGulchRuntimeLayoutSeed() {
-  return LevelSystemAdapters::BuildFrenchGulchRuntimeLayoutSeed();
+  return LevelRuntimeSession::BuildFrenchGulchRuntimeLayoutSeed();
 }
 
 inline FLevelBlockSpawn

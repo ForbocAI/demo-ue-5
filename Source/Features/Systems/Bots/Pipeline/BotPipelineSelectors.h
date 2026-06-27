@@ -50,27 +50,27 @@ inline FBotPipelineInputResult SelectDefaultInputSnapshot(float DeltaTime) {
 }
 
 inline func::Maybe<rtk::AnyAction> SelectHazardAction(
-    const ForbocAI::State::FBotState &State,
+    const FBotCoreRuntimeState &State,
     const FBotPipelineOverlapSnapshot &Overlap, float DeltaTime) {
   return (!Overlap.bOverlapping || State.Stats.Health <= 0.0f)
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
-                   ForbocAI::State::BotCoreActions::BotDamageTaken()(
-                       ForbocAI::State::FBotDamageTakenPayload{
+                   BotCoreActions::BotDamageTaken()(
+                       FBotDamageTakenPayload{
                            Overlap.DamagePerSecond * DeltaTime,
                            Overlap.HazardSource}));
 }
 
 inline func::Maybe<rtk::AnyAction> SelectMovementAction(
-    const ForbocAI::State::FBotState &State,
+    const FBotCoreRuntimeState &State,
     const FBotPipelineMovementSnapshot &Movement) {
   const float DistSq =
       FVector::DistSquared(State.Position, Movement.TargetPosition);
   return (DistSq < 1.0f || State.Stats.Health <= 0.0f)
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
-                   ForbocAI::State::BotCoreActions::BotMoved()(
-                       ForbocAI::State::FBotMovePayload{
+                   BotCoreActions::BotMoved()(
+                       FBotMovePayload{
                            FMath::VInterpConstantTo(
                                State.Position, Movement.TargetPosition,
                                Movement.DeltaTime, Movement.InterpSpeed),
@@ -78,7 +78,7 @@ inline func::Maybe<rtk::AnyAction> SelectMovementAction(
 }
 
 inline func::Maybe<rtk::AnyAction> SelectAwarenessAction(
-    const ForbocAI::State::FBotState &State,
+    const FBotCoreRuntimeState &State,
     const FBotPipelineVisibilitySnapshot &Visibility) {
   const bool bAlreadyHasAggro =
       State.Memory.bHasAggro &&
@@ -88,19 +88,18 @@ inline func::Maybe<rtk::AnyAction> SelectAwarenessAction(
           bAlreadyHasAggro)
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
-                   ForbocAI::State::BotCoreActions::BotEnemySpotted()(
-                       ForbocAI::State::FBotEnemySpottedPayload{
-                           Visibility.EnemyPosition}));
+                   BotCoreActions::BotEnemySpotted()(
+                       FBotEnemySpottedPayload{Visibility.EnemyPosition}));
 }
 
 inline func::Maybe<rtk::AnyAction> SelectPhaseAction(
-    const ForbocAI::State::FBotState &State) {
-  return (State.Phase == ForbocAI::State::EBotPhase::Combat &&
+    const FBotCoreRuntimeState &State) {
+  return (State.Phase == EBotCorePhase::Combat &&
           State.Stats.Health < State.Stats.MaxHealth * 0.2f &&
           State.Memory.bHasAggro)
              ? func::just<rtk::AnyAction>(
-                   ForbocAI::State::BotCoreActions::BotFleeRequested()(
-                       ForbocAI::State::FBotFleeRequestedPayload{
+                   BotCoreActions::BotFleeRequested()(
+                       FBotFleeRequestedPayload{
                            State.Memory.LastKnownPlayerPos}))
              : func::nothing<rtk::AnyAction>();
 }
@@ -113,7 +112,7 @@ inline TArray<rtk::AnyAction> SelectActionListAppend(
 }
 
 inline TArray<rtk::AnyAction> SelectActionList(
-    const ForbocAI::State::FBotState &State,
+    const FBotCoreRuntimeState &State,
     const FBotPipelineWorldSnapshot &World) {
   return (func::pipe(TArray<rtk::AnyAction>{}) |
           [&State, &World](TArray<rtk::AnyAction> Actions) {

@@ -20,29 +20,6 @@ struct FSpeechState {
   bool bSpeaking = false;
 };
 
-inline bool operator==(const FPhonemeEvent &Left,
-                       const FPhonemeEvent &Right) {
-  return Left.Phoneme == Right.Phoneme &&
-         FMath::IsNearlyEqual(Left.StartTime, Right.StartTime) &&
-         FMath::IsNearlyEqual(Left.Duration, Right.Duration);
-}
-
-inline bool operator!=(const FPhonemeEvent &Left,
-                       const FPhonemeEvent &Right) {
-  return !(Left == Right);
-}
-
-inline bool operator==(const FVisemeMapping &Left,
-                       const FVisemeMapping &Right) {
-  return Left.MorphTargetName == Right.MorphTargetName &&
-         FMath::IsNearlyEqual(Left.BlendWeight, Right.BlendWeight);
-}
-
-inline bool operator!=(const FVisemeMapping &Left,
-                       const FVisemeMapping &Right) {
-  return !(Left == Right);
-}
-
 inline bool operator==(const FSpeechState &Left,
                        const FSpeechState &Right) {
   return Left.LastActionId.hasValue == Right.LastActionId.hasValue &&

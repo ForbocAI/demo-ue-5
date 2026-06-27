@@ -2,11 +2,13 @@
 
 #include "Core/functional_core.hpp"
 #include "EngineUtils.h"
-#include "Features/Components/Level/LevelTypes.h"
-#include "Features/Components/Spatial/LevelLayoutSlice.h"
-#include "Features/Entities/Characters/Player/RuntimePlayerController.h"
-#include "Features/Entities/Characters/Player/ThirdPersonCharacter.h"
+#include "Views/PlayerCharacterView.h"
+#include "Features/Systems/Runtime/RuntimeSlice.h"
+#include "Store.h"
+#include "Views/PlayerRuntimeControllerView.h"
 #include "Views/RuntimeLevelView.h"
+
+namespace FG = ForbocAI::Demo::Level;
 
 namespace {
 ARuntimeLevelView *FirstRuntimeLevelView(
@@ -18,11 +20,20 @@ ARuntimeLevelView *FindRuntimeLevelView(UWorld *World) {
   TActorIterator<ARuntimeLevelView> Iterator(World);
   return FirstRuntimeLevelView(Iterator);
 }
+
+FTransform LoadPlayerSpawnTransform() {
+  auto Spawn = FG::FSpawnPointPayload();
+  const auto Result =
+      FG::Store::GetStore().dispatch(FG::RuntimeSlice::RequestPlayerSpawn());
+  func::thenAsync(Result, [&Spawn](auto Resolved) { Spawn = Resolved; });
+  func::executeAsync(Result);
+  return FTransform(Spawn.Rotation, Spawn.Location);
+}
 } // namespace
 
 ALevelGameModeView::ALevelGameModeView() : RuntimeLevelView(nullptr) {
-  DefaultPawnClass = AThirdPersonCharacter::StaticClass();
-  PlayerControllerClass = ARuntimePlayerController::StaticClass();
+  DefaultPawnClass = APlayerCharacterView::StaticClass();
+  PlayerControllerClass = APlayerRuntimeControllerView::StaticClass();
 }
 
 void ALevelGameModeView::StartPlay() {
@@ -46,17 +57,7 @@ void ALevelGameModeView::RestartPlayer(AController *NewPlayer) {
   func::match(
       func::from_nullable_value(NewPlayer, NewPlayer != nullptr),
       [this](AController *Player) {
-        FLevelTerrainData SpawnTerrain;
-        SpawnTerrain.LoadFromContent();
-        const FVector PostOfficeSpawn =
-            ForbocAI::Demo::Level::LevelLayoutSlice::ToWorld(
-                SpawnTerrain,
-                ForbocAI::Demo::Level::LevelLayoutSlice::PlayerSpawnPoint());
-        RestartPlayerAtTransform(
-            Player,
-            FTransform(
-                ForbocAI::Demo::Level::LevelLayoutSlice::PlayerSpawnRotation(),
-                PostOfficeSpawn));
+        RestartPlayerAtTransform(Player, LoadPlayerSpawnTransform());
       },
       []() {});
 }

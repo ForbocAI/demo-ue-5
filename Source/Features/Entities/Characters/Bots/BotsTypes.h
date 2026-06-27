@@ -3,9 +3,6 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Entities/Characters/Bots/BotsAdapters.h"
-#include "Features/Entities/Characters/Bots/TalkableTownsperson.h"
-#include "Features/Entities/Characters/Bots/BotsAdapters.h"
-#include "Features/Entities/Characters/Bots/WalkingHorse.h"
 #include "Features/Systems/Bots/AI/BotAITypes.h"
 #include "Features/Systems/Bots/BotTypes.h"
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"

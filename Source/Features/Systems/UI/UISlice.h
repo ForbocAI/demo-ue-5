@@ -17,7 +17,7 @@ inline FUIState CreateInitialState() {
           [](FUIState State) -> FUIState {
             State.LastActionId = func::nothing<FString>();
             State.Conversation =
-                UIReducers::BuildRuntimeConversationPlaceholder();
+                UISelectors::SelectRuntimeConversationPlaceholder();
             State.bConversationVisible = false;
             return State;
           })
