@@ -5,12 +5,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace SpawnActions {
 
 const rtk::ActionCreator<FSpawnPointPayload> &PlayerSpawnAnchored();
 
 } // namespace SpawnActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

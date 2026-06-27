@@ -2,16 +2,18 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TerrainActions {
 
 const rtk::ActionCreator<FTerrainLoadedPayload> &TerrainLoaded() {
-  static const rtk::ActionCreator<FTerrainLoadedPayload> Creator =
-      rtk::createAction<FTerrainLoadedPayload>(TEXT("terrain/loaded"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<FTerrainLoadedPayload>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<FTerrainLoadedPayload> {
+        return rtk::createAction<FTerrainLoadedPayload>(TEXT("terrain/loaded"));
+      });
+  return func::eval(Creator);
 }
 
 } // namespace TerrainActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -1,96 +1,117 @@
 #pragma once
 
+#include "Core/rtk.hpp"
+
 #include "Actions.h"
 #include "BotState.h"
-#include "Core/functional_core.hpp"
 
 namespace ForbocAI {
 namespace State {
 
-// ── Reducer Helpers ──
+namespace BotCoreReducers {
 
-// Handler for specific actions (Overload pattern)
-// We use a struct with operator() because C++ templated lambdas in std::visit
-// can be verbose.
+inline FBotState ReduceBotTicked(
+    const FBotState &State,
+    const rtk::PayloadAction<FBotTickPayload> &Action) {
+  return (func::pipe(State) |
+          [&Action](FBotState Next) -> FBotState {
+            Next.TickCount++;
+            Next.Memory.TimeSinceLastSeenPlayer += Action.PayloadValue.DeltaTime;
+            Next.Memory.bHasAggro =
+                Next.Memory.TimeSinceLastSeenPlayer > 10.0f
+                    ? false
+                    : Next.Memory.bHasAggro;
+            return Next;
+          })
+      .val;
+}
 
-struct ReducerVisitor {
-  const FBotState &CurrentState;
+inline FBotState ReduceBotMoved(
+    const FBotState &State,
+    const rtk::PayloadAction<FBotMovePayload> &Action) {
+  return (func::pipe(State) |
+          [&Action](FBotState Next) -> FBotState {
+            Next.Position = Action.PayloadValue.TargetLocation;
+            return Next;
+          })
+      .val;
+}
 
-  // 1. Tick
-  FBotState operator()(const FActionTick &Action) const {
-    FBotState Next = CurrentState;
-    Next.TickCount++;
+inline FBotState ReduceBotDamageTaken(
+    const FBotState &State,
+    const rtk::PayloadAction<FBotDamageTakenPayload> &Action) {
+  return (func::pipe(State) |
+          [&Action](FBotState Next) -> FBotState {
+            Next.Stats.Health =
+                FMath::Max(0.0f,
+                           Next.Stats.Health - Action.PayloadValue.Amount);
+            Next.Phase = Next.Stats.Health < Next.Stats.MaxHealth * 0.3f
+                             ? EBotPhase::Flee
+                             : EBotPhase::Combat;
+            return Next;
+          })
+      .val;
+}
 
-    // Memory Decay
-    Next.Memory.TimeSinceLastSeenPlayer += Action.DeltaTime;
-    if (Next.Memory.TimeSinceLastSeenPlayer > 10.0f) {
-      Next.Memory.bHasAggro = false; // Lost aggro
-    }
+inline FBotState ReduceBotEnemySpotted(
+    const FBotState &State,
+    const rtk::PayloadAction<FBotEnemySpottedPayload> &Action) {
+  return (func::pipe(State) |
+          [&Action](FBotState Next) -> FBotState {
+            Next.Memory.LastKnownPlayerPos = Action.PayloadValue.EnemyLocation;
+            Next.Memory.TimeSinceLastSeenPlayer = 0.0f;
+            Next.Memory.bHasAggro = true;
+            Next.Phase = Next.Phase != EBotPhase::Flee ? EBotPhase::Combat
+                                                       : Next.Phase;
+            return Next;
+          })
+      .val;
+}
 
-    return Next;
-  }
+inline FBotState ReduceBotFleeRequested(
+    const FBotState &State,
+    const rtk::PayloadAction<FBotFleeRequestedPayload> &Action) {
+  return (func::pipe(State) |
+          [&Action](FBotState Next) -> FBotState {
+            Next.Phase = EBotPhase::Flee;
+            Next.Memory.LastKnownPlayerPos = Action.PayloadValue.AwayFrom;
+            Next.Memory.bHasAggro = true;
+            return Next;
+          })
+      .val;
+}
 
-  // 2. Move
-  FBotState operator()(const FActionMove &Action) const {
-    FBotState Next = CurrentState;
-    // In a pure reducer, we just update the *intent* or physical state if we
-    // are the authority. Here we assume the Actuator will actually move the
-    // pawn, and we update our internal record. Or, if this is the "Brain"
-    // state, we might just set a "Goal" field. For this example, let's assume
-    // we update Position to Target for simulation (or interpolation).
-    Next.Position = Action.TargetLocation;
-    return Next;
-  }
+inline FBotState ReduceBotAttackRequested(
+    const FBotState &State,
+    const rtk::PayloadAction<FBotAttackRequestedPayload> &) {
+  return State;
+}
 
-  // 3. Take Damage
-  FBotState operator()(const FActionTakeDamage &Action) const {
-    FBotState Next = CurrentState;
-    Next.Stats.Health = FMath::Max(0.0f, Next.Stats.Health - Action.Amount);
+inline const rtk::CaseReducer<FBotState> &BotReducer() {
+  static const func::Lazy<rtk::CaseReducer<FBotState>> Reducer = func::lazy(
+      []() -> rtk::CaseReducer<FBotState> {
+        return rtk::createReducer<FBotState>(
+            CreateInitialState(TEXT("Bot")),
+            [](rtk::ActionReducerMapBuilder<FBotState> &Builder) {
+              Builder.addCase(BotCoreActions::BotTicked(), ReduceBotTicked)
+                  .addCase(BotCoreActions::BotMoved(), ReduceBotMoved)
+                  .addCase(BotCoreActions::BotDamageTaken(),
+                           ReduceBotDamageTaken)
+                  .addCase(BotCoreActions::BotEnemySpotted(),
+                           ReduceBotEnemySpotted)
+                  .addCase(BotCoreActions::BotFleeRequested(),
+                           ReduceBotFleeRequested)
+                  .addCase(BotCoreActions::BotAttackRequested(),
+                           ReduceBotAttackRequested);
+            });
+      });
+  return func::eval(Reducer);
+}
 
-    // Reaction: If hit, enter combat or flee
-    if (Next.Stats.Health < Next.Stats.MaxHealth * 0.3f) {
-      Next.Phase = EBotPhase::Flee;
-    } else {
-      Next.Phase = EBotPhase::Combat;
-    }
-    return Next;
-  }
+} // namespace BotCoreReducers
 
-  // 4. Spot Enemy
-  FBotState operator()(const FActionSpotEnemy &Action) const {
-    FBotState Next = CurrentState;
-    Next.Memory.LastKnownPlayerPos = Action.EnemyLocation;
-    Next.Memory.TimeSinceLastSeenPlayer = 0.0f;
-    Next.Memory.bHasAggro = true;
-
-    if (Next.Phase != EBotPhase::Flee) {
-      Next.Phase = EBotPhase::Combat;
-    }
-    return Next;
-  }
-
-  // 5. Flee
-  FBotState operator()(const FActionFlee &Action) const {
-    FBotState Next = CurrentState;
-    Next.Phase = EBotPhase::Flee;
-    Next.Memory.LastKnownPlayerPos = Action.AwayFrom;
-    Next.Memory.bHasAggro = true;
-    return Next;
-  }
-
-  // 6. Default / Others
-  template <typename T> FBotState operator()(const T &Action) const {
-    return CurrentState; // No change for unhandled actions
-  }
-};
-
-// ── Main Reducer Function ──
-
-inline FBotState Reduce(const FBotState &State, const FBotAction &Action) {
-  // We visit the action variant with our visitor.
-  // The visitor MUST implement operator() for every type in the variant,
-  // OR have a generic template operator().
-  return std::visit(ReducerVisitor{State}, Action);
+inline FBotState Reduce(const FBotState &State, const rtk::AnyAction &Action) {
+  return BotCoreReducers::BotReducer()(State, Action);
 }
 
 } // namespace State

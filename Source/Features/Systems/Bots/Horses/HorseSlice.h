@@ -1,19 +1,19 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Horses/HorseActions.h"
-#include "Features/Systems/Horses/HorseFactories.h"
-#include "Features/Systems/Horses/HorseSelectors.h"
-#include "Features/Systems/Horses/HorseTypes.h"
+#include "Features/Systems/Bots/Horses/HorseActions.h"
+#include "Features/Systems/Bots/Horses/HorseFactories.h"
+#include "Features/Systems/Bots/Horses/HorseSelectors.h"
+#include "Features/Systems/Bots/Horses/HorseTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace HorseSlice {
 
 const rtk::Slice<FHorseState> &GetSlice();
 
 } // namespace HorseSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

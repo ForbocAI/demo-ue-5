@@ -1,15 +1,16 @@
-#include "Features/Systems/RetroRendering.h"
+#include "Features/Systems/Rendering/RenderingActions.h"
 
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Texture2D.h"
+#include "Features/Systems/Rendering/RenderingSelectors.h"
 #include "HAL/IConsoleManager.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
-namespace RetroRendering {
+namespace Level {
+namespace RenderingActions {
 namespace {
 constexpr int32 TextureChannels = 4;
 
@@ -31,7 +32,7 @@ struct FRetroColorMix {
 };
 
 struct FRetroTextureCell {
-  EMapRetroTexture Texture;
+  ELevelRetroTexture Texture;
   int32 X;
   int32 Y;
 };
@@ -49,17 +50,21 @@ struct FRetroHashCell {
 };
 
 void SetCVarFloat(const FRetroCVarFloat &CVarValue) {
-  if (IConsoleVariable *CVar =
-          IConsoleManager::Get().FindConsoleVariable(CVarValue.Name)) {
-    CVar->Set(CVarValue.Value, ECVF_SetByGameSetting);
-  }
+  IConsoleVariable *Found =
+      IConsoleManager::Get().FindConsoleVariable(CVarValue.Name);
+  const func::Maybe<IConsoleVariable *> CVar =
+      func::from_nullable_value(Found, Found != nullptr);
+  CVar.hasValue && (CVar.value->Set(CVarValue.Value, ECVF_SetByGameSetting),
+                    true);
 }
 
 void SetCVarInt(const FRetroCVarInt &CVarValue) {
-  if (IConsoleVariable *CVar =
-          IConsoleManager::Get().FindConsoleVariable(CVarValue.Name)) {
-    CVar->Set(CVarValue.Value, ECVF_SetByGameSetting);
-  }
+  IConsoleVariable *Found =
+      IConsoleManager::Get().FindConsoleVariable(CVarValue.Name);
+  const func::Maybe<IConsoleVariable *> CVar =
+      func::from_nullable_value(Found, Found != nullptr);
+  CVar.hasValue && (CVar.value->Set(CVarValue.Value, ECVF_SetByGameSetting),
+                    true);
 }
 
 FColor Color(FRetroRgb Rgb) { return FColor(Rgb.R, Rgb.G, Rgb.B, 255); }
@@ -89,61 +94,61 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
   const int32 Noise =
       HashCell({Cell.X, Cell.Y, static_cast<int32>(Cell.Texture)});
   switch (Cell.Texture) {
-  case EMapRetroTexture::TerrainOrtho:
+  case ELevelRetroTexture::TerrainOrtho:
     return Mix({Color({111, 103, 78}), Color({72, 96, 55}), Noise % 5, 8});
-  case EMapRetroTexture::BuildingTimber:
+  case ELevelRetroTexture::BuildingTimber:
     if (Cell.X % 4 == 0 || Cell.Y % 7 == 0) {
       return Color({74, 47, 27});
     }
     return Mix({Color({128, 82, 43}), Color({171, 119, 66}), Noise % 4, 7});
-  case EMapRetroTexture::RoadDust:
+  case ELevelRetroTexture::RoadDust:
     if ((Cell.X + Cell.Y + Noise) % 11 == 0) {
       return Color({86, 75, 59});
     }
     return Mix({Color({128, 104, 73}), Color({176, 145, 96}), Noise % 5, 9});
-  case EMapRetroTexture::WaterCreek:
+  case ELevelRetroTexture::WaterCreek:
     if ((Cell.X * 2 + Cell.Y) % 13 == 0) {
       return Color({152, 189, 177});
     }
     return (Cell.Y / 2) % 2 == 0 ? Color({38, 92, 118})
                                   : Color({28, 64, 94});
-  case EMapRetroTexture::FoliageRiparian:
+  case ELevelRetroTexture::FoliageRiparian:
     if (Noise % 9 < 2) {
       return Color({36, 77, 39});
     }
     return Mix({Color({74, 112, 48}), Color({122, 143, 66}), Noise % 4, 6});
-  case EMapRetroTexture::RockGranite:
+  case ELevelRetroTexture::RockGranite:
     if ((Cell.X + Cell.Y + Noise) % 7 == 0) {
       return Color({74, 71, 66});
     }
     return Mix({Color({126, 121, 107}), Color({171, 160, 138}), Noise % 5, 8});
-  case EMapRetroTexture::MineTimber:
+  case ELevelRetroTexture::MineTimber:
     if (Cell.X % 3 == 0) {
       return Color({45, 35, 27});
     }
     return Mix({Color({78, 58, 39}), Color({111, 82, 50}), Noise % 4, 7});
-  case EMapRetroTexture::MarkerPaint:
+  case ELevelRetroTexture::MarkerPaint:
     return ((Cell.X / 2 + Cell.Y / 2) % 2 == 0) ? Color({171, 124, 28})
                                                 : Color({40, 33, 24});
-  case EMapRetroTexture::NpcBody:
+  case ELevelRetroTexture::NpcBody:
     return ((Cell.X + Cell.Y) % 5 == 0) ? Color({36, 45, 52})
                                         : Color({58, 73, 80});
-  case EMapRetroTexture::NpcHat:
+  case ELevelRetroTexture::NpcHat:
     return (Cell.X % 5 == 0) ? Color({60, 39, 20}) : Color({93, 63, 31});
-  case EMapRetroTexture::HorseCoat:
+  case ELevelRetroTexture::HorseCoat:
     return Mix({Color({94, 47, 22}), Color({139, 75, 33}), Noise % 4, 7});
-  case EMapRetroTexture::HorseLeg:
+  case ELevelRetroTexture::HorseLeg:
     return Mix({Color({38, 25, 15}), Color({75, 44, 22}), Noise % 3, 6});
-  case EMapRetroTexture::HorseTack:
+  case ELevelRetroTexture::HorseTack:
     return ((Cell.X + Cell.Y) % 6 == 0) ? Color({45, 28, 16})
                                         : Color({77, 48, 26});
   }
   return Color({255, 0, 255});
 }
 
-UTexture2D *CreateRetroTexture(EMapRetroTexture Texture) {
-  const FMapRetroTextureSpec &Spec =
-      RetroStyle::TextureSpec(Texture);
+UTexture2D *CreateRetroTexture(ELevelRetroTexture Texture) {
+  const FLevelRetroTextureSpec &Spec =
+      RenderingSelectors::SelectTextureSpec(Texture);
   UTexture2D *Result =
       UTexture2D::CreateTransient(Spec.Size.X, Spec.Size.Y, PF_B8G8R8A8);
   if (!Result || !Result->GetPlatformData() ||
@@ -181,7 +186,7 @@ UTexture2D *CreateRetroTexture(EMapRetroTexture Texture) {
   return Result;
 }
 
-UTexture2D *TextureFor(EMapRetroTexture Texture) {
+UTexture2D *TextureFor(ELevelRetroTexture Texture) {
   static TMap<uint8, UTexture2D *> TextureCache;
   const uint8 Key = static_cast<uint8>(Texture);
   if (UTexture2D **Cached = TextureCache.Find(Key)) {
@@ -195,8 +200,8 @@ UTexture2D *TextureFor(EMapRetroTexture Texture) {
 } // namespace
 
 void ApplyRuntimeProfile() {
-  const FMapRetroRenderProfile &Profile =
-      RetroStyle::RuntimeProfile();
+  const FLevelRetroRenderProfile &Profile =
+      RenderingSelectors::SelectRuntimeProfile();
   SetCVarInt({TEXT("r.AntiAliasingMethod"), Profile.AntiAliasingMethod});
   SetCVarInt({TEXT("r.PostProcessAAQuality"), Profile.PostProcessAAQuality});
   SetCVarInt({TEXT("r.TemporalAA.Upsampling"), 0});
@@ -222,7 +227,7 @@ UMaterialInterface *LoadBlockoutMaterial() {
       TEXT("/Engine/EngineMaterials/EmissiveTexturedMaterial.EmissiveTexturedMaterial"));
 }
 
-void ApplyTexture(const FMapRetroTextureApply &Request) {
+void ApplyTexture(const FLevelRetroTextureApply &Request) {
   if (!Request.Part || !Request.BaseMaterial) {
     return;
   }
@@ -242,7 +247,7 @@ void ApplyTexture(const FMapRetroTextureApply &Request) {
   Request.Part->SetMaterial(0, Material);
 }
 
-} // namespace RetroRendering
-} // namespace Map
+} // namespace RenderingActions
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

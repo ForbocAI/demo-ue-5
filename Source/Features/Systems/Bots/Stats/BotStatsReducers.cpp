@@ -5,22 +5,23 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotStatsReducers {
 
 FBotStatsState ReduceBotStatsSeeded(
     const FBotStatsState &State,
-    const rtk::Action<TArray<FBotStatsComponent>> &Action) {
-  FBotStatsState Next = State;
+    const rtk::PayloadAction<TArray<FBotStatsComponent>> &Action) {
+  return (func::pipe(State) | [&](FBotStatsState Next) -> FBotStatsState {
   Next.Items = BotStatsAdapters::BotStatsAdapter().setAll(
       State.Items, Action.PayloadValue);
   return Next;
+  }).val;
 }
 
 FBotStatsState ReduceBotStatsUpdated(
     const FBotStatsState &State,
-    const rtk::Action<FBotStatsUpdate> &Action) {
-  FBotStatsState Next = State;
+    const rtk::PayloadAction<FBotStatsUpdate> &Action) {
+  return (func::pipe(State) | [&](FBotStatsState Next) -> FBotStatsState {
   const FBotStatsUpdate Payload = Action.PayloadValue;
   Next.Items = BotStatsAdapters::BotStatsAdapter().updateOne(
       State.Items, Payload.Id,
@@ -32,27 +33,30 @@ FBotStatsState ReduceBotStatsUpdated(
         return Updated;
       });
   return Next;
+  }).val;
 }
 
 FBotStatsState ReduceTownspeopleSeeded(
     const FBotStatsState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action) {
-  FBotStatsState Next = State;
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
+  return (func::pipe(State) | [&](FBotStatsState Next) -> FBotStatsState {
   Next.Items = BotStatsAdapters::BotStatsAdapter().upsertMany(
       State.Items, BotStatsFactories::FromTownspeople(Action.PayloadValue));
   return Next;
+  }).val;
 }
 
 FBotStatsState ReduceHorsesSeeded(
     const FBotStatsState &State,
-    const rtk::Action<TArray<FHorseRouteSeed>> &Action) {
-  FBotStatsState Next = State;
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
+  return (func::pipe(State) | [&](FBotStatsState Next) -> FBotStatsState {
   Next.Items = BotStatsAdapters::BotStatsAdapter().upsertMany(
       State.Items, BotStatsFactories::FromHorses(Action.PayloadValue));
   return Next;
+  }).val;
 }
 
 } // namespace BotStatsReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

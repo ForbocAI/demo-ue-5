@@ -1,10 +1,10 @@
 #include "Features/Systems/Nature/NatureFactories.h"
 
-#include "Features/Systems/Nature/NatureAdapters.h"
+#include "Features/Systems/Nature/NatureEntityAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace NatureFactories {
 
 FNatureState CreateInitialState() {
@@ -14,6 +14,6 @@ FNatureState CreateInitialState() {
 }
 
 } // namespace NatureFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

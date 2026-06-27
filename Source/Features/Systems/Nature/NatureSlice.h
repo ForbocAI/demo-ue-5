@@ -8,12 +8,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace NatureSlice {
 
 const rtk::Slice<FNatureState> &GetSlice();
 
 } // namespace NatureSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

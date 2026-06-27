@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 enum class EBotGoalType : uint8 { Patrol, Converse, Travel, Idle };
 
@@ -14,7 +14,7 @@ struct FBotStrategicGoal {
   EBotGoalType Type;
   int32 Priority;
   FString TargetEntityId;
-  FMapLocalPoint TargetLocation;
+  FLevelLocalPoint TargetLocation;
   bool bHasTargetLocation;
   bool bCompleted;
 };
@@ -114,6 +114,6 @@ inline bool operator!=(const FBotGoalState &Left,
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

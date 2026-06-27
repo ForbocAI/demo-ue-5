@@ -1,31 +1,33 @@
 #pragma once
 
+#include "Core/rtk.hpp"
+
 #include "CoreMinimal.h"
-#include "Features/Components/TerrainData.h"
+#include "Features/Components/Level/LevelTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
-struct FMapLocalPoint {
+struct FLevelLocalPoint {
   float EastWest;
   float NorthSouth;
   float HeightOffset;
 };
 
-inline bool operator==(const FMapLocalPoint &Left,
-                       const FMapLocalPoint &Right) {
+inline bool operator==(const FLevelLocalPoint &Left,
+                       const FLevelLocalPoint &Right) {
   return FMath::IsNearlyEqual(Left.EastWest, Right.EastWest) &&
          FMath::IsNearlyEqual(Left.NorthSouth, Right.NorthSouth) &&
          FMath::IsNearlyEqual(Left.HeightOffset, Right.HeightOffset);
 }
 
-inline bool operator!=(const FMapLocalPoint &Left,
-                       const FMapLocalPoint &Right) {
+inline bool operator!=(const FLevelLocalPoint &Left,
+                       const FLevelLocalPoint &Right) {
   return !(Left == Right);
 }
 
-namespace MapLayout {
+namespace LevelLayoutSlice {
 float TownLotWorldUnits();
 float CubeHalfExtent();
 float BuildingFoundationHeight();
@@ -40,23 +42,23 @@ FVector BuildingScaleFromFeet(float FrontageFeet, float DepthFeet,
 FVector LongFeatureScale(float WidthFeet, float LengthLots, float HeightFeet);
 FVector PadScaleFromFeet(float WidthFeet, float DepthFeet, float HeightFeet);
 
-FMapLocalPoint Point(float EastWest, float NorthSouth,
+FLevelLocalPoint Point(float EastWest, float NorthSouth,
                              float HeightOffset = 0.0f);
-FMapLocalPoint FromPostOfficeLots(float EastLots, float NorthLots,
+FLevelLocalPoint FromPostOfficeLots(float EastLots, float NorthLots,
                                           float HeightOffset = 0.0f);
-FMapLocalPoint CenteredOnGround(const FMapLocalPoint &Point,
+FLevelLocalPoint CenteredOnGround(const FLevelLocalPoint &Point,
                                         const FVector &Scale,
                                         float GroundClearance = 0.0f);
-FMapLocalPoint AboveBlock(const FMapLocalPoint &Point,
+FLevelLocalPoint AboveBlock(const FLevelLocalPoint &Point,
                                   const FVector &Scale);
-FVector ToWorld(const FMapTerrainData &TerrainData,
-                const FMapLocalPoint &Point);
+FVector ToWorld(const FLevelTerrainData &TerrainData,
+                const FLevelLocalPoint &Point);
 
-FMapLocalPoint PlayerSpawnPoint();
+FLevelLocalPoint PlayerSpawnPoint();
 FRotator PlayerSpawnRotation();
 FString PlayerSpawnAnchorLabel();
-} // namespace MapLayout
+} // namespace LevelLayoutSlice
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

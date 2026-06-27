@@ -5,22 +5,33 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotPositionReducers {
 
 FBotPositionState ReduceBotPositionsSeeded(
     const FBotPositionState &State,
-    const rtk::Action<TArray<FBotPositionComponent>> &Action) {
-  FBotPositionState Next = State;
+    const rtk::PayloadAction<TArray<FBotPositionComponent>> &Action) {
+  return (func::pipe(State) | [&](FBotPositionState Next) -> FBotPositionState {
   Next.Items = BotPositionAdapters::BotPositionAdapter().setAll(
       State.Items, Action.PayloadValue);
   return Next;
+  }).val;
+}
+
+FBotPositionState ReduceBotPositionUpserted(
+    const FBotPositionState &State,
+    const rtk::PayloadAction<FBotPositionComponent> &Action) {
+  return (func::pipe(State) | [&](FBotPositionState Next) -> FBotPositionState {
+  Next.Items = BotPositionAdapters::BotPositionAdapter().upsertOne(
+      State.Items, Action.PayloadValue);
+  return Next;
+  }).val;
 }
 
 FBotPositionState ReduceBotPositionMoved(
     const FBotPositionState &State,
-    const rtk::Action<FBotPositionMoved> &Action) {
-  FBotPositionState Next = State;
+    const rtk::PayloadAction<FBotPositionMoved> &Action) {
+  return (func::pipe(State) | [&](FBotPositionState Next) -> FBotPositionState {
   const FBotPositionMoved Payload = Action.PayloadValue;
   Next.Items = BotPositionAdapters::BotPositionAdapter().updateOne(
       State.Items, Payload.Id,
@@ -34,27 +45,30 @@ FBotPositionState ReduceBotPositionMoved(
         return Updated;
       });
   return Next;
+  }).val;
 }
 
 FBotPositionState ReduceTownspeopleSeeded(
     const FBotPositionState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action) {
-  FBotPositionState Next = State;
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
+  return (func::pipe(State) | [&](FBotPositionState Next) -> FBotPositionState {
   Next.Items = BotPositionAdapters::BotPositionAdapter().upsertMany(
       State.Items, BotPositionFactories::FromTownspeople(Action.PayloadValue));
   return Next;
+  }).val;
 }
 
 FBotPositionState ReduceHorsesSeeded(
     const FBotPositionState &State,
-    const rtk::Action<TArray<FHorseRouteSeed>> &Action) {
-  FBotPositionState Next = State;
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
+  return (func::pipe(State) | [&](FBotPositionState Next) -> FBotPositionState {
   Next.Items = BotPositionAdapters::BotPositionAdapter().upsertMany(
       State.Items, BotPositionFactories::FromHorses(Action.PayloadValue));
   return Next;
+  }).val;
 }
 
 } // namespace BotPositionReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

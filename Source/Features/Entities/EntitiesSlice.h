@@ -1,8 +1,16 @@
 #pragma once
 
-#include "Features/Entities/HorseRoutes.h"
-#include "Features/Entities/NatureFeatures.h"
-#include "Features/Entities/TownLandmarks.h"
-#include "Features/Entities/TownspersonRoutes.h"
-#include "Features/Entities/TalkableTownsperson.h"
-#include "Features/Entities/WalkingHorse.h"
+#include "Core/rtk.hpp"
+
+#include "Features/Entities/EntitiesActions.h"
+#include "Features/Entities/EntitiesReducers.h"
+#include "Features/Entities/EntitiesSelectors.h"
+#include "Features/Entities/EntitiesTypes.h"
+#include "Features/Entities/Characters/CharactersSlice.h"
+#include "Features/Entities/Characters/Bots/BotsAdapters.h"
+#include "Features/Entities/Characters/Bots/TalkableTownsperson.h"
+#include "Features/Entities/Characters/Bots/BotsAdapters.h"
+#include "Features/Entities/Characters/Bots/WalkingHorse.h"
+#include "Features/Entities/Environments/EnvironmentsSlice.h"
+#include "Features/Entities/Environments/Landmarks/LandmarksAdapters.h"
+#include "Features/Entities/Environments/Nature/NatureSeedAdapters.h"

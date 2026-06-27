@@ -1,10 +1,10 @@
-#include "Features/Systems/Horses/HorseFactories.h"
+#include "Features/Systems/Bots/Horses/HorseFactories.h"
 
-#include "Features/Systems/Horses/HorseAdapters.h"
+#include "Features/Systems/Bots/Horses/HorseAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace HorseFactories {
 
 FHorseState CreateInitialState() {
@@ -14,6 +14,6 @@ FHorseState CreateInitialState() {
 }
 
 } // namespace HorseFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

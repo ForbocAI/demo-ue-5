@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Core/functional_core.hpp"
+#include "Core/rtk.hpp"
+
 #include "Features/Systems/Runtime/RuntimeTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace RuntimeSelectors {
 
 bool SelectTerrainLoaded(const FRuntimeState &State);
@@ -14,6 +15,10 @@ func::Maybe<FLandmark> SelectLandmarkById(const FRuntimeState &State,
                                           const FString &Id);
 FSpawnPointPayload SelectPlayerSpawn(const FRuntimeState &State);
 TArray<FTownspersonSeed> SelectTownspeople(const FRuntimeState &State);
+func::Maybe<FTownspersonSeed> SelectTownspersonById(
+    const FRuntimeState &State, const FString &Id);
+TArray<FTownspersonSeed> SelectTownspeopleByInteractionIntent(
+    const FRuntimeState &State, ETownspersonInteractionIntent Intent);
 TArray<FHorseRouteSeed> SelectHorses(const FRuntimeState &State);
 TArray<FNatureFeatureSeed> SelectNatureFeatures(const FRuntimeState &State);
 TArray<FBotEntity> SelectBots(const FRuntimeState &State);
@@ -36,6 +41,6 @@ func::Maybe<FBotStrategicGoal> SelectBotActiveGoalById(
     const FRuntimeState &State, const FString &Id);
 
 } // namespace RuntimeSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

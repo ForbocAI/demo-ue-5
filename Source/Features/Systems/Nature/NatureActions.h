@@ -5,12 +5,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace NatureActions {
 
 const rtk::ActionCreator<TArray<FNatureFeatureSeed>> &NatureSeeded();
 
 } // namespace NatureActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

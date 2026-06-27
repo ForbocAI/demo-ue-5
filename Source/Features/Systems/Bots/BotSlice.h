@@ -12,12 +12,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotSlice {
 
 const rtk::Slice<FBotState> &GetSlice();
 
 } // namespace BotSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

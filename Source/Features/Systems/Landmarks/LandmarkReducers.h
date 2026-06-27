@@ -5,14 +5,14 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace LandmarkReducers {
 
 FLandmarkState
 ReduceLandmarksSeeded(const FLandmarkState &State,
-                      const rtk::Action<TArray<FLandmark>> &Action);
+                      const rtk::PayloadAction<TArray<FLandmark>> &Action);
 
 } // namespace LandmarkReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

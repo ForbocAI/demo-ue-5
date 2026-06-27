@@ -1,22 +1,23 @@
-#include "Features/Systems/Horses/HorseReducers.h"
+#include "Features/Systems/Bots/Horses/HorseReducers.h"
 
-#include "Features/Systems/Horses/HorseAdapters.h"
+#include "Features/Systems/Bots/Horses/HorseAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace HorseReducers {
 
 FHorseState ReduceHorsesSeeded(
     const FHorseState &State,
-    const rtk::Action<TArray<FHorseRouteSeed>> &Action) {
-  FHorseState Next = State;
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
+  return (func::pipe(State) | [&](FHorseState Next) -> FHorseState {
   Next.Items =
       HorseAdapters::HorseAdapter().setAll(State.Items, Action.PayloadValue);
   return Next;
+  }).val;
 }
 
 } // namespace HorseReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

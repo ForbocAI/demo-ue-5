@@ -4,12 +4,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace NatureFactories {
 
 FNatureState CreateInitialState();
 
 } // namespace NatureFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

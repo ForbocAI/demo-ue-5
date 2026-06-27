@@ -13,7 +13,7 @@
  */
 
 #include "Misc/AutomationTest.h"
-#include "Features/Systems/Speech/SpeechComponent.h"
+#include "Features/Systems/Speech/SpeechAdapters.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechPhonemeEstimation,

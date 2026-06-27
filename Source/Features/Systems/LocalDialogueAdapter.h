@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 
-namespace ForbocAI::Demo::Map {
+namespace ForbocAI::Demo::Level {
 
 inline FString BuildLocalReply(const FString &Name, const FString &Role,
                                const FString &Persona,
@@ -15,4 +15,4 @@ inline FString BuildLocalReply(const FString &Name, const FString &Role,
       *Name, *Role, *Topic, *Persona);
 }
 
-} // namespace ForbocAI::Demo::Map
+} // namespace ForbocAI::Demo::Level

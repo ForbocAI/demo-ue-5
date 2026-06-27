@@ -8,12 +8,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalSlice {
 
 const rtk::Slice<FBotGoalState> &GetSlice();
 
 } // namespace BotGoalSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

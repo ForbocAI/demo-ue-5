@@ -8,12 +8,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotPositionSlice {
 
 const rtk::Slice<FBotPositionState> &GetSlice();
 
 } // namespace BotPositionSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

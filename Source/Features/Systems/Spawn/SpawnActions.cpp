@@ -2,16 +2,18 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace SpawnActions {
 
 const rtk::ActionCreator<FSpawnPointPayload> &PlayerSpawnAnchored() {
-  static const rtk::ActionCreator<FSpawnPointPayload> Creator =
-      rtk::createAction<FSpawnPointPayload>(TEXT("spawn/playerAnchored"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<FSpawnPointPayload>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<FSpawnPointPayload> {
+        return rtk::createAction<FSpawnPointPayload>(TEXT("spawn/playerAnchored"));
+      });
+  return func::eval(Creator);
 }
 
 } // namespace SpawnActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

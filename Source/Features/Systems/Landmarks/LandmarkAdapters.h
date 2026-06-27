@@ -5,12 +5,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace LandmarkAdapters {
 
-const rtk::EntityAdapterOps<FLandmark> &LandmarkAdapter();
+const rtk::EntityAdapter<FLandmark> &LandmarkAdapter();
 
 } // namespace LandmarkAdapters
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

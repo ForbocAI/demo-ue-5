@@ -5,7 +5,7 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
-#include "Features/Systems/UI/ConversationUI.h"
+#include "Features/Systems/UI/UIReducers.h"
 
 void URuntimeChatWidget::NativeConstruct() {
   Super::NativeConstruct();
@@ -16,7 +16,7 @@ void URuntimeChatWidget::NativeConstruct() {
         WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
 
     const ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation =
-        ForbocAI::Demo::UI::BuildRuntimeConversationPlaceholder();
+        ForbocAI::Demo::Level::UIReducers::BuildRuntimeConversationPlaceholder();
 
     TitleText = BuildTextBlock(Conversation.Title, Conversation.TitleColor,
                                Conversation.TitleSize);
@@ -41,7 +41,7 @@ void URuntimeChatWidget::ShowConversation(
     const FString &NpcReply) {
   SetVisibility(ESlateVisibility::Visible);
   ApplyConversationViewModel(
-      ForbocAI::Demo::UI::BuildRuntimeConversationViewModel(
+      ForbocAI::Demo::Level::UIReducers::BuildRuntimeConversationViewModel(
           NpcName, Role, PlayerLine, NpcReply));
 }
 

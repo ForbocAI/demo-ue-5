@@ -1,28 +1,23 @@
 #pragma once
 
+#include "Core/rtk.hpp"
+
 #include "CoreMinimal.h"
-#include "Features/Components/RetroStyle.h"
+#include "Features/Systems/Rendering/RenderingTypes.h"
 
 class UMaterialInterface;
-class UStaticMeshComponent;
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
-struct FMapRetroTextureApply {
-  UStaticMeshComponent *Part;
-  UMaterialInterface *BaseMaterial;
-  EMapRetroTexture Texture;
-};
-
-namespace RetroRendering {
+namespace RenderingActions {
 
 void ApplyRuntimeProfile();
 UMaterialInterface *LoadBlockoutMaterial();
-void ApplyTexture(const FMapRetroTextureApply &Request);
+void ApplyTexture(const FLevelRetroTextureApply &Request);
 
-} // namespace RetroRendering
-} // namespace Map
+} // namespace RenderingActions
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

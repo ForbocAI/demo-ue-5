@@ -5,13 +5,13 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotAIActions {
 
 const rtk::ActionCreator<TArray<FBotAIComponent>> &BotAISeeded();
 const rtk::ActionCreator<FBotAIUpdated> &BotAIUpdated();
 
 } // namespace BotAIActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

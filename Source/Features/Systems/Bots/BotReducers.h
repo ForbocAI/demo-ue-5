@@ -2,24 +2,26 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/BotTypes.h"
-#include "Features/Systems/Horses/HorseTypes.h"
-#include "Features/Systems/Townspeople/TownspersonTypes.h"
+#include "Features/Systems/Bots/Horses/HorseTypes.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotReducers {
 
 FBotState ReduceBotsSeeded(const FBotState &State,
-                           const rtk::Action<TArray<FBotEntity>> &Action);
+                           const rtk::PayloadAction<TArray<FBotEntity>> &Action);
+FBotState ReduceBotUpserted(const FBotState &State,
+                            const rtk::PayloadAction<FBotEntity> &Action);
 FBotState ReduceTownspeopleSeeded(
     const FBotState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action);
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action);
 FBotState ReduceHorsesSeeded(
     const FBotState &State,
-    const rtk::Action<TArray<FHorseRouteSeed>> &Action);
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action);
 
 } // namespace BotReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

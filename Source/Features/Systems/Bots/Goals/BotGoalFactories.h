@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
-#include "Features/Systems/Horses/HorseTypes.h"
-#include "Features/Systems/Townspeople/TownspersonTypes.h"
+#include "Features/Systems/Bots/Horses/HorseTypes.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalFactories {
 
 FBotGoalState CreateInitialState();
@@ -17,6 +17,6 @@ FromTownspeople(const TArray<FTownspersonSeed> &Seeds);
 TArray<FBotGoalComponent> FromHorses(const TArray<FHorseRouteSeed> &Seeds);
 
 } // namespace BotGoalFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

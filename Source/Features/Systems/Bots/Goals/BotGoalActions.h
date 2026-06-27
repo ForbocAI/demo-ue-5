@@ -5,7 +5,7 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalActions {
 
 const rtk::ActionCreator<TArray<FBotGoalComponent>> &BotGoalsSeeded();
@@ -13,6 +13,6 @@ const rtk::ActionCreator<FBotGoalAssignment> &BotGoalAssigned();
 const rtk::ActionCreator<FBotGoalCompleted> &BotGoalCompleted();
 
 } // namespace BotGoalActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -5,12 +5,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotAIAdapters {
 
-const rtk::EntityAdapterOps<FBotAIComponent> &BotAIAdapter();
+const rtk::EntityAdapter<FBotAIComponent> &BotAIAdapter();
 
 } // namespace BotAIAdapters
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

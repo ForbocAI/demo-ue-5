@@ -1,18 +1,29 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
+
+enum class ETownspersonInteractionIntent : uint8 {
+  General,
+  Dialogue,
+  Memory,
+  CombatValidation
+};
 
 struct FTownspersonSeed {
   FString Id;
   FString Name;
   FString Role;
   FString Persona;
-  TArray<FMapLocalPoint> PatrolRoute;
+  FString InteractionPrompt;
+  FString DefaultPlayerLine;
+  FString PinnedResponse;
+  ETownspersonInteractionIntent InteractionIntent;
+  TArray<FLevelLocalPoint> PatrolRoute;
 };
 
 struct FTownspersonState {
@@ -23,6 +34,10 @@ inline bool operator==(const FTownspersonSeed &Left,
                        const FTownspersonSeed &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name &&
          Left.Role == Right.Role && Left.Persona == Right.Persona &&
+         Left.InteractionPrompt == Right.InteractionPrompt &&
+         Left.DefaultPlayerLine == Right.DefaultPlayerLine &&
+         Left.PinnedResponse == Right.PinnedResponse &&
+         Left.InteractionIntent == Right.InteractionIntent &&
          Left.PatrolRoute == Right.PatrolRoute;
 }
 
@@ -41,6 +56,6 @@ inline bool operator!=(const FTownspersonState &Left,
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

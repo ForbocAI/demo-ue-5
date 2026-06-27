@@ -12,16 +12,25 @@ USTRUCT(BlueprintType)
 struct FTownspersonConfig {
   GENERATED_BODY()
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString Name;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString Role;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString Persona;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FString InteractionPrompt;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FString DefaultPlayerLine;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FString PinnedResponse;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   TArray<FVector> PatrolRoute;
 };
 
@@ -35,56 +44,68 @@ public:
   virtual void BeginPlay() override;
   virtual void Tick(float DeltaTime) override;
 
-  UFUNCTION(BlueprintCallable, Category = "Map|NPC")
+  UFUNCTION(BlueprintCallable, Category = "Level|NPC")
   void ConfigureTownsperson(const FTownspersonConfig &Config);
 
-  UFUNCTION(BlueprintCallable, Category = "Map|NPC")
+  UFUNCTION(BlueprintCallable, Category = "Level|NPC")
   FString Interact(const FString &PlayerLine);
 
-  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Map|NPC")
+  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
   bool IsPlayerNearby() const;
 
-  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Map|NPC")
+  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
   FString GetTownspersonName() const;
 
-  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Map|NPC")
+  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
   FString GetRole() const;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  FString GetDefaultPlayerLine() const;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString TownspersonName;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString TownspersonRole;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString Persona;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FString InteractionPrompt;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FString DefaultPlayerLine;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FString PinnedResponse;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   TArray<FVector> PatrolRoute;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   float WalkSpeed;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|NPC")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   float PauseDuration;
 
 private:
-  UPROPERTY(VisibleAnywhere, Category = "Map|NPC")
+  UPROPERTY(VisibleAnywhere, Category = "Level|NPC")
   USceneComponent *SceneRoot;
 
-  UPROPERTY(VisibleAnywhere, Category = "Map|NPC")
+  UPROPERTY(VisibleAnywhere, Category = "Level|NPC")
   USkeletalMeshComponent *CharacterMesh;
 
-  UPROPERTY(VisibleAnywhere, Category = "Map|NPC")
+  UPROPERTY(VisibleAnywhere, Category = "Level|NPC")
   USphereComponent *InteractionSphere;
 
-  UPROPERTY(VisibleAnywhere, Category = "Map|NPC")
+  UPROPERTY(VisibleAnywhere, Category = "Level|NPC")
   UTextRenderComponent *NameText;
 
-  UPROPERTY(VisibleAnywhere, Category = "Map|NPC")
+  UPROPERTY(VisibleAnywhere, Category = "Level|NPC")
   UTextRenderComponent *PromptText;
 
-  UPROPERTY(VisibleAnywhere, Category = "Map|NPC")
+  UPROPERTY(VisibleAnywhere, Category = "Level|NPC")
   UTextRenderComponent *DialogueText;
 
   int32 PatrolIndex;

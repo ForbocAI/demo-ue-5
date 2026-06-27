@@ -2,16 +2,18 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace LandmarkActions {
 
 const rtk::ActionCreator<TArray<FLandmark>> &LandmarksSeeded() {
-  static const rtk::ActionCreator<TArray<FLandmark>> Creator =
-      rtk::createAction<TArray<FLandmark>>(TEXT("landmarks/seeded"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<TArray<FLandmark>>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<TArray<FLandmark>> {
+        return rtk::createAction<TArray<FLandmark>>(TEXT("landmarks/seeded"));
+      });
+  return func::eval(Creator);
 }
 
 } // namespace LandmarkActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

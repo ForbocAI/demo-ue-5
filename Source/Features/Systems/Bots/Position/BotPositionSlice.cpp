@@ -1,36 +1,36 @@
 #include "Features/Systems/Bots/Position/BotPositionSlice.h"
 
 #include "Features/Systems/Bots/Position/BotPositionReducers.h"
-#include "Features/Systems/Horses/HorseActions.h"
-#include "Features/Systems/Townspeople/TownspersonActions.h"
+#include "Features/Systems/Bots/Horses/HorseActions.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotPositionSlice {
 
 const rtk::Slice<FBotPositionState> &GetSlice() {
-  static const rtk::Slice<FBotPositionState> Slice = []() {
-    rtk::SliceBuilder<FBotPositionState> Builder =
-        rtk::sliceBuilder<FBotPositionState>(
-            TEXT("botPosition"), BotPositionFactories::CreateInitialState());
-    Builder = rtk::addExtraCase(Builder,
-                                BotPositionActions::BotPositionsSeeded(),
+  static const func::Lazy<rtk::Slice<FBotPositionState>> Slice =
+      func::lazy([]() -> rtk::Slice<FBotPositionState> {
+        return rtk::createSlice<FBotPositionState>(
+          TEXT("botPosition"), BotPositionFactories::CreateInitialState(),
+          [](rtk::ActionReducerMapBuilder<FBotPositionState> &Builder) {
+    Builder.addCase(BotPositionActions::BotPositionsSeeded(),
                                 BotPositionReducers::ReduceBotPositionsSeeded);
-    Builder = rtk::addExtraCase(Builder,
-                                BotPositionActions::BotPositionMoved(),
+    Builder.addCase(BotPositionActions::BotPositionUpserted(),
+                                BotPositionReducers::ReduceBotPositionUpserted);
+    Builder.addCase(BotPositionActions::BotPositionMoved(),
                                 BotPositionReducers::ReduceBotPositionMoved);
-    Builder = rtk::addExtraCase(Builder,
-                                TownspersonActions::TownspeopleSeeded(),
+    Builder.addCase(TownspersonActions::TownspeopleSeeded(),
                                 BotPositionReducers::ReduceTownspeopleSeeded);
-    Builder = rtk::addExtraCase(Builder, HorseActions::HorsesSeeded(),
+    Builder.addCase(HorseActions::HorsesSeeded(),
                                 BotPositionReducers::ReduceHorsesSeeded);
-    return rtk::buildSlice(Builder);
-  }();
-  return Slice;
+  });
+      });
+  return func::eval(Slice);
 }
 
 } // namespace BotPositionSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

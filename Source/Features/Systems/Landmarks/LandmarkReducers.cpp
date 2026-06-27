@@ -4,20 +4,21 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace LandmarkReducers {
 
 FLandmarkState
 ReduceLandmarksSeeded(const FLandmarkState &State,
-                      const rtk::Action<TArray<FLandmark>> &Action) {
-  FLandmarkState Next = State;
+                      const rtk::PayloadAction<TArray<FLandmark>> &Action) {
+  return (func::pipe(State) | [&](FLandmarkState Next) -> FLandmarkState {
   Next.Items =
       LandmarkAdapters::LandmarkAdapter().setAll(State.Items,
                                                  Action.PayloadValue);
   return Next;
+  }).val;
 }
 
 } // namespace LandmarkReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

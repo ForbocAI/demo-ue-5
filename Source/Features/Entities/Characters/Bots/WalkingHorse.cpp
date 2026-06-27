@@ -1,12 +1,12 @@
-#include "Features/Entities/WalkingHorse.h"
+#include "Features/Entities/Characters/Bots/WalkingHorse.h"
 
 #include "Animation/AnimSequence.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/SkeletalMesh.h"
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 
-namespace FGL = ForbocAI::Demo::Map::MapLayout;
+namespace FGL = ForbocAI::Demo::Level::LevelLayoutSlice;
 
 namespace {
 constexpr float HorseLengthFeet = 8.0f;
@@ -127,7 +127,7 @@ void AWalkingHorse::ConfigureImportedHorseAsset() {
       TEXT("/Game/Characters/Horses/ClassicHorse/Animations/Horse_Walk.Horse_Walk"));
   if (!ImportedMesh) {
     UE_LOG(LogTemp, Error,
-           TEXT("Map: required imported horse mesh is missing; horse actor %s "
+           TEXT("Level: required imported horse mesh is missing; horse actor %s "
                 "cannot render."),
            *HorseName);
     return;
@@ -139,7 +139,7 @@ void AWalkingHorse::ConfigureImportedHorseAsset() {
     ImportedHorseMesh->PlayAnimation(WalkAnimation, true);
   } else {
     UE_LOG(LogTemp, Error,
-           TEXT("Map: required horse walk animation is missing for %s."),
+           TEXT("Level: required horse walk animation is missing for %s."),
            *HorseName);
   }
 
@@ -161,13 +161,13 @@ void AWalkingHorse::ConfigureImportedHorseAsset() {
       MountedRiderMesh->PlayAnimation(RiderWalkAnimation, true);
     } else {
       UE_LOG(LogTemp, Error,
-             TEXT("Map: required mounted rider walk animation is missing for "
+             TEXT("Level: required mounted rider walk animation is missing for "
                   "%s."),
              *HorseName);
     }
   } else {
     UE_LOG(LogTemp, Error,
-           TEXT("Map: required mounted rider mesh is missing for %s."),
+           TEXT("Level: required mounted rider mesh is missing for %s."),
            *HorseName);
   }
 }

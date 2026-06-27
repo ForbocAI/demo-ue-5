@@ -1,18 +1,18 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Townspeople/TownspersonTypes.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TownspersonReducers {
 
 FTownspersonState ReduceTownspeopleSeeded(
     const FTownspersonState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action);
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action);
 
 } // namespace TownspersonReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

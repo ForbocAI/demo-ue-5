@@ -4,13 +4,13 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace SpawnFactories {
 
 FSpawnState CreateInitialState();
 FSpawnPointPayload SpawnPointPayload(const FSpawnPointSource &Source);
 
 } // namespace SpawnFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

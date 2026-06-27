@@ -5,12 +5,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TerrainActions {
 
 const rtk::ActionCreator<FTerrainLoadedPayload> &TerrainLoaded();
 
 } // namespace TerrainActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -4,13 +4,13 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace LandmarkFactories {
 
 FLandmarkState CreateInitialState();
 FLandmark Landmark(const FLandmarkSource &Source);
 
 } // namespace LandmarkFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

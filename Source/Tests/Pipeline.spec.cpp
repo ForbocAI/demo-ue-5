@@ -3,12 +3,11 @@
 #include "Misc/AutomationTest.h"
 #include "Features/Systems/Bots/Core/Actions.h"
 #include "Features/Systems/Bots/Core/BotState.h"
-#include "Features/Systems/Bots/Pipeline/Pipeline.h"
-#include "Features/Systems/Bots/Pipeline/Systems.h"
+#include "Features/Systems/Bots/Pipeline/BotPipelineReducers.h"
 
 using namespace ForbocAI::State;
-using namespace ForbocAI::Systems;
-using namespace ForbocAI::Pipeline;
+using namespace ForbocAI::Demo::Level;
+using namespace ForbocAI::Demo::Level::BotPipelineReducers;
 
 /**
  * Pipeline Tests — validates the deterministic tick pipeline.
@@ -30,7 +29,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineIdleTick::RunTest(const FString &Parameters) {
   const FBotState Initial = CreateInitialState(TEXT("IdleBot"));
-  const FOutputPhaseResult Result = RunIdlePipeline(Initial, 0.016f);
+  const FBotPipelineOutputResult Result = ReduceIdlePipeline(Initial, 0.016f);
 
   TestEqual(TEXT("Tick count advanced"), Result.NewState.TickCount,
             (uint64)1);
@@ -50,12 +49,12 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
   const FBotState Initial = CreateInitialState(TEXT("HazardBot"));
 
-  FWorldSnapshot World;
+  FBotPipelineWorldSnapshot World;
   World.DeltaTime = 1.0f;
   World.HazardOverlap.bOverlapping = true;
   World.HazardOverlap.DamagePerSecond = 25.0f;
 
-  const FOutputPhaseResult Result = RunPipeline(Initial, World);
+  const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
   TestTrue(TEXT("Health reduced by hazard"),
            Result.NewState.Stats.Health < 100.0f);
@@ -74,13 +73,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FPipelineAwareness::RunTest(const FString &Parameters) {
   const FBotState Initial = CreateInitialState(TEXT("AwareBot"));
 
-  FWorldSnapshot World;
+  FBotPipelineWorldSnapshot World;
   World.DeltaTime = 0.016f;
   World.Visibility.bCanSeeEnemy = true;
   World.Visibility.EnemyPosition = FVector(500.0f, 200.0f, 0.0f);
   World.Visibility.Distance = 540.0f;
 
-  const FOutputPhaseResult Result = RunPipeline(Initial, World);
+  const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
   TestTrue(TEXT("Bot has aggro"), Result.NewState.Memory.bHasAggro);
   TestEqual(TEXT("Phase is Combat"),
@@ -105,10 +104,10 @@ bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
   LowHealth.Memory.bHasAggro = true;
   LowHealth.Memory.LastKnownPlayerPos = FVector(300.0f, 0.0f, 0.0f);
 
-  FWorldSnapshot World;
+  FBotPipelineWorldSnapshot World;
   World.DeltaTime = 0.016f;
 
-  const FOutputPhaseResult Result = RunPipeline(LowHealth, World);
+  const FBotPipelineOutputResult Result = ReducePipeline(LowHealth, World);
 
   TestEqual(TEXT("Phase transitioned to Flee"),
             (int32)Result.NewState.Phase, (int32)EBotPhase::Flee);
@@ -123,16 +122,16 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FPipelineMultiBot::RunTest(const FString &Parameters) {
-  TArray<FBotTickInput> Inputs;
+  TArray<FBotPipelineTickInput> Inputs;
 
   // Bot 1: Idle
-  FBotTickInput Idle;
+  FBotPipelineTickInput Idle;
   Idle.State = CreateInitialState(TEXT("Bot-Idle"));
   Idle.World.DeltaTime = 0.016f;
   Inputs.Add(Idle);
 
   // Bot 2: In hazard
-  FBotTickInput Hazard;
+  FBotPipelineTickInput Hazard;
   Hazard.State = CreateInitialState(TEXT("Bot-Hazard"));
   Hazard.World.DeltaTime = 1.0f;
   Hazard.World.HazardOverlap.bOverlapping = true;
@@ -140,15 +139,15 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
   Inputs.Add(Hazard);
 
   // Bot 3: Sees enemy
-  FBotTickInput Aware;
+  FBotPipelineTickInput Aware;
   Aware.State = CreateInitialState(TEXT("Bot-Aware"));
   Aware.World.DeltaTime = 0.016f;
   Aware.World.Visibility.bCanSeeEnemy = true;
   Aware.World.Visibility.EnemyPosition = FVector(100.0f, 0.0f, 0.0f);
   Inputs.Add(Aware);
 
-  const TArray<FOutputPhaseResult> Results =
-      RunMultiBotPipeline(Inputs);
+  const TArray<FBotPipelineOutputResult> Results =
+      ReduceMultiBotPipeline(Inputs);
 
   TestEqual(TEXT("3 bots processed"), Results.Num(), 3);
 
@@ -176,15 +175,15 @@ bool FPipelineDeterministic::RunTest(const FString &Parameters) {
   // Run the same pipeline twice — results must be identical
   const FBotState Initial = CreateInitialState(TEXT("DetBot"));
 
-  FWorldSnapshot World;
+  FBotPipelineWorldSnapshot World;
   World.DeltaTime = 0.5f;
   World.HazardOverlap.bOverlapping = true;
   World.HazardOverlap.DamagePerSecond = 10.0f;
   World.Visibility.bCanSeeEnemy = true;
   World.Visibility.EnemyPosition = FVector(200.0f, 100.0f, 0.0f);
 
-  const FOutputPhaseResult Run1 = RunPipeline(Initial, World);
-  const FOutputPhaseResult Run2 = RunPipeline(Initial, World);
+  const FBotPipelineOutputResult Run1 = ReducePipeline(Initial, World);
+  const FBotPipelineOutputResult Run2 = ReducePipeline(Initial, World);
 
   TestEqual(TEXT("Health deterministic"), Run1.NewState.Stats.Health,
             Run2.NewState.Stats.Health);

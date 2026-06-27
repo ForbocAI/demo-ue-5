@@ -1,15 +1,17 @@
 #pragma once
 
-#include "Features/Systems/Horses/HorseTypes.h"
+#include "Core/rtk.hpp"
+
+#include "Features/Systems/Bots/Horses/HorseTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace HorseSelectors {
 
 TArray<FHorseRouteSeed> SelectAll(const FHorseState &State);
 
 } // namespace HorseSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

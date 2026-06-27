@@ -4,16 +4,16 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalFactories {
 namespace {
 
-FMapLocalPoint FirstRoutePoint(const TArray<FMapLocalPoint> &Route) {
-  return Route.Num() > 0 ? Route[0] : FMapLocalPoint{0.0f, 0.0f, 0.0f};
+FLevelLocalPoint FirstRoutePoint(const TArray<FLevelLocalPoint> &Route) {
+  return Route.Num() > 0 ? Route[0] : FLevelLocalPoint{0.0f, 0.0f, 0.0f};
 }
 
 FBotStrategicGoal PatrolGoal(const FString &BotId,
-                             const TArray<FMapLocalPoint> &Route) {
+                             const TArray<FLevelLocalPoint> &Route) {
   FBotStrategicGoal Result;
   Result.Id = FString::Printf(TEXT("%s-patrol"), *BotId);
   Result.Type = EBotGoalType::Patrol;
@@ -70,6 +70,6 @@ TArray<FBotGoalComponent> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
 }
 
 } // namespace BotGoalFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

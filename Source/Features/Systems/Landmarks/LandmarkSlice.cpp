@@ -6,22 +6,23 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace LandmarkSlice {
 
 const rtk::Slice<FLandmarkState> &GetSlice() {
-  static const rtk::Slice<FLandmarkState> Slice = []() {
-    rtk::SliceBuilder<FLandmarkState> Builder =
-        rtk::sliceBuilder<FLandmarkState>(
-            TEXT("landmarks"), LandmarkFactories::CreateInitialState());
-    Builder = rtk::addExtraCase(Builder, LandmarkActions::LandmarksSeeded(),
+  static const func::Lazy<rtk::Slice<FLandmarkState>> Slice =
+      func::lazy([]() -> rtk::Slice<FLandmarkState> {
+        return rtk::createSlice<FLandmarkState>(
+          TEXT("landmarks"), LandmarkFactories::CreateInitialState(),
+          [](rtk::ActionReducerMapBuilder<FLandmarkState> &Builder) {
+    Builder.addCase(LandmarkActions::LandmarksSeeded(),
                                 LandmarkReducers::ReduceLandmarksSeeded);
-    return rtk::buildSlice(Builder);
-  }();
-  return Slice;
+  });
+      });
+  return func::eval(Slice);
 }
 
 } // namespace LandmarkSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

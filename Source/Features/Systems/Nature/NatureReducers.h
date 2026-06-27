@@ -5,14 +5,14 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace NatureReducers {
 
 FNatureState ReduceNatureSeeded(
     const FNatureState &State,
-    const rtk::Action<TArray<FNatureFeatureSeed>> &Action);
+    const rtk::PayloadAction<TArray<FNatureFeatureSeed>> &Action);
 
 } // namespace NatureReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

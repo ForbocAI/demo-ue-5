@@ -1,15 +1,21 @@
 #pragma once
 
-#include "Features/Systems/Townspeople/TownspersonTypes.h"
+#include "Core/rtk.hpp"
+
+#include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TownspersonSelectors {
 
 TArray<FTownspersonSeed> SelectAll(const FTownspersonState &State);
+func::Maybe<FTownspersonSeed> SelectById(const FTownspersonState &State,
+                                         const FString &Id);
+TArray<FTownspersonSeed> SelectByInteractionIntent(
+    const FTownspersonState &State, ETownspersonInteractionIntent Intent);
 
 } // namespace TownspersonSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

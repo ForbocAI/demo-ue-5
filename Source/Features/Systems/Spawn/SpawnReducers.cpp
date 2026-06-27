@@ -2,18 +2,19 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace SpawnReducers {
 
 FSpawnState
 ReducePlayerSpawnAnchored(const FSpawnState &State,
-                          const rtk::Action<FSpawnPointPayload> &Action) {
-  FSpawnState Next = State;
+                          const rtk::PayloadAction<FSpawnPointPayload> &Action) {
+  return (func::pipe(State) | [&](FSpawnState Next) -> FSpawnState {
   Next.PlayerSpawn = Action.PayloadValue;
   return Next;
+  }).val;
 }
 
 } // namespace SpawnReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

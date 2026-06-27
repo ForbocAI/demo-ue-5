@@ -5,7 +5,7 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 enum class EBotEntityKind : uint8 { Townsperson, Horse };
 enum class EBotAlignment : uint8 { Friendly, Neutral };
@@ -60,6 +60,6 @@ inline bool operator!=(const FBotState &Left, const FBotState &Right) {
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

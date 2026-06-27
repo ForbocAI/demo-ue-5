@@ -1,4 +1,4 @@
-#include "Features/Systems/Bots/Orchestrator/BotOrchestrator.h"
+#include "Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "Misc/AutomationTest.h"
@@ -15,7 +15,7 @@ void FBotOrchestratorSpec::Define() {
         return;
 
       AActor *TestActor = World->SpawnActor<AActor>();
-      ABotOrchestrator *Orchestrator = World->SpawnActor<ABotOrchestrator>();
+      ABotOrchestratorAdapter *Orchestrator = World->SpawnActor<ABotOrchestratorAdapter>();
 
       Orchestrator->RegisterBot(TestActor, TEXT("TestPersona"));
 

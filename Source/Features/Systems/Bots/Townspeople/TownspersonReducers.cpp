@@ -1,22 +1,23 @@
-#include "Features/Systems/Townspeople/TownspersonReducers.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonReducers.h"
 
-#include "Features/Systems/Townspeople/TownspersonAdapters.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TownspersonReducers {
 
 FTownspersonState ReduceTownspeopleSeeded(
     const FTownspersonState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action) {
-  FTownspersonState Next = State;
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
+  return (func::pipe(State) | [&](FTownspersonState Next) -> FTownspersonState {
   Next.Items = TownspersonAdapters::TownspersonAdapter().setAll(
       State.Items, Action.PayloadValue);
   return Next;
+  }).val;
 }
 
 } // namespace TownspersonReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

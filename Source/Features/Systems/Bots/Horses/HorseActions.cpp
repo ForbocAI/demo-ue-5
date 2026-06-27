@@ -1,17 +1,19 @@
-#include "Features/Systems/Horses/HorseActions.h"
+#include "Features/Systems/Bots/Horses/HorseActions.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace HorseActions {
 
 const rtk::ActionCreator<TArray<FHorseRouteSeed>> &HorsesSeeded() {
-  static const rtk::ActionCreator<TArray<FHorseRouteSeed>> Creator =
-      rtk::createAction<TArray<FHorseRouteSeed>>(TEXT("horses/seeded"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<TArray<FHorseRouteSeed>>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<TArray<FHorseRouteSeed>> {
+        return rtk::createAction<TArray<FHorseRouteSeed>>(TEXT("horses/seeded"));
+      });
+  return func::eval(Creator);
 }
 
 } // namespace HorseActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -5,14 +5,14 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace SpawnReducers {
 
 FSpawnState
 ReducePlayerSpawnAnchored(const FSpawnState &State,
-                          const rtk::Action<FSpawnPointPayload> &Action);
+                          const rtk::PayloadAction<FSpawnPointPayload> &Action);
 
 } // namespace SpawnReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

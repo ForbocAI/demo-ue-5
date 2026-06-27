@@ -11,13 +11,13 @@ USTRUCT(BlueprintType)
 struct FWalkingHorseConfig {
   GENERATED_BODY()
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Horse")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   FString Name;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Horse")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   TArray<FVector> PatrolRoute;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Horse")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   bool bMountedRider = false;
 };
 
@@ -30,32 +30,32 @@ public:
 
   virtual void Tick(float DeltaTime) override;
 
-  UFUNCTION(BlueprintCallable, Category = "Map|Horse")
+  UFUNCTION(BlueprintCallable, Category = "Level|Horse")
   void ConfigureHorse(const FWalkingHorseConfig &Config);
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Horse")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   FString HorseName;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Horse")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   TArray<FVector> PatrolRoute;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Horse")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   float WalkSpeed;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map|Horse")
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   float PauseDuration;
 
 private:
-  UPROPERTY(VisibleAnywhere, Category = "Map|Horse")
+  UPROPERTY(VisibleAnywhere, Category = "Level|Horse")
   USceneComponent *SceneRoot;
 
-  UPROPERTY(VisibleAnywhere, Category = "Map|Horse")
+  UPROPERTY(VisibleAnywhere, Category = "Level|Horse")
   USkeletalMeshComponent *ImportedHorseMesh;
 
-  UPROPERTY(VisibleAnywhere, Category = "Map|Horse")
+  UPROPERTY(VisibleAnywhere, Category = "Level|Horse")
   USkeletalMeshComponent *MountedRiderMesh;
 
-  UPROPERTY(VisibleAnywhere, Category = "Map|Horse")
+  UPROPERTY(VisibleAnywhere, Category = "Level|Horse")
   UTextRenderComponent *NameText;
 
   int32 PatrolIndex;

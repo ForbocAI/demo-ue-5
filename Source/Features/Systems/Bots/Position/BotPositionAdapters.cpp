@@ -2,19 +2,21 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotPositionAdapters {
 
-const rtk::EntityAdapterOps<FBotPositionComponent> &BotPositionAdapter() {
-  static const rtk::EntityAdapterOps<FBotPositionComponent> Adapter =
-      rtk::createEntityAdapter<FBotPositionComponent>(
+const rtk::EntityAdapter<FBotPositionComponent> &BotPositionAdapter() {
+  static const func::Lazy<rtk::EntityAdapter<FBotPositionComponent>> Adapter =
+      func::lazy([]() -> rtk::EntityAdapter<FBotPositionComponent> {
+        return rtk::createEntityAdapter<FBotPositionComponent>(
           [](const FBotPositionComponent &Position) -> FString {
             return Position.Id;
           });
-  return Adapter;
+      });
+  return func::eval(Adapter);
 }
 
 } // namespace BotPositionAdapters
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

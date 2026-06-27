@@ -1,17 +1,21 @@
-#include "Features/Systems/Horses/HorseSelectors.h"
+#include "Features/Systems/Bots/Horses/HorseSelectors.h"
 
-#include "Features/Systems/Horses/HorseAdapters.h"
+#include "Features/Systems/Bots/Horses/HorseAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace HorseSelectors {
 
 TArray<FHorseRouteSeed> SelectAll(const FHorseState &State) {
-  return HorseAdapters::HorseAdapter().getSelectors().selectAll(State.Items);
+  return (func::pipe(State.Items) |
+         [](const rtk::EntityState<FHorseRouteSeed> &Items)
+             -> TArray<FHorseRouteSeed> {
+    return HorseAdapters::HorseAdapter().getSelectors().selectAll(Items);
+  }).val;
 }
 
 } // namespace HorseSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

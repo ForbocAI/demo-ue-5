@@ -6,22 +6,23 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace SpawnSlice {
 
 const rtk::Slice<FSpawnState> &GetSlice() {
-  static const rtk::Slice<FSpawnState> Slice = []() {
-    rtk::SliceBuilder<FSpawnState> Builder =
-        rtk::sliceBuilder<FSpawnState>(
-            TEXT("spawn"), SpawnFactories::CreateInitialState());
-    Builder = rtk::addExtraCase(Builder, SpawnActions::PlayerSpawnAnchored(),
+  static const func::Lazy<rtk::Slice<FSpawnState>> Slice =
+      func::lazy([]() -> rtk::Slice<FSpawnState> {
+        return rtk::createSlice<FSpawnState>(
+      TEXT("spawn"), SpawnFactories::CreateInitialState(),
+      [](rtk::ActionReducerMapBuilder<FSpawnState> &Builder) {
+    Builder.addCase(SpawnActions::PlayerSpawnAnchored(),
                                 SpawnReducers::ReducePlayerSpawnAnchored);
-    return rtk::buildSlice(Builder);
-  }();
-  return Slice;
+  });
+      });
+  return func::eval(Slice);
 }
 
 } // namespace SpawnSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

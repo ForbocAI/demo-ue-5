@@ -1,22 +1,20 @@
 #include "CoreMinimal.h"
-#include "Features/Components/MapLayout.h"
-#include "Features/Components/OrthoData.h"
-#include "Features/Components/RetroStyle.h"
-#include "Features/Components/TerrainData.h"
-#include "Features/Entities/HorseRoutes.h"
-#include "Features/Entities/NatureFeatures.h"
-#include "Features/Entities/TownLandmarks.h"
-#include "Features/Entities/TownspersonRoutes.h"
-#include "Features/Systems/Horses/HorseSlice.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
+#include "Features/Components/Level/LevelTypes.h"
+#include "Features/Entities/Characters/Bots/BotsAdapters.h"
+#include "Features/Entities/Environments/Nature/NatureSeedAdapters.h"
+#include "Features/Entities/Environments/Landmarks/LandmarksAdapters.h"
+#include "Features/Systems/Bots/Horses/HorseSlice.h"
 #include "Features/Systems/Landmarks/LandmarkSlice.h"
 #include "Features/Systems/Nature/NatureSlice.h"
+#include "Features/Systems/Rendering/RenderingSelectors.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
 #include "Features/Systems/Spawn/SpawnSlice.h"
 #include "Features/Systems/Terrain/TerrainSlice.h"
-#include "Features/Systems/Townspeople/TownspersonSlice.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonSlice.h"
 #include "Misc/AutomationTest.h"
 
-using namespace ForbocAI::Demo::Map;
+using namespace ForbocAI::Demo::Level;
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FRuntimeStoreDataBackedMap,
@@ -24,8 +22,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
-  FMapTerrainData TerrainData;
-  FMapOrthoData OrthoData;
+  FLevelTerrainData TerrainData;
+  FLevelOrthoData OrthoData;
 
   TestTrue(TEXT("French Gulch heightmap CSV loads"),
            TerrainData.LoadFromContent());
@@ -46,24 +44,24 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            TerrainData.GetMaxElevationMeters()})));
 
   const TArray<FLandmark> Landmarks =
-      TownLandmarks::Build1899LandmarkSeed(TerrainData);
+      LandmarksAdapters::Build1899LandmarkSeed(TerrainData);
   Store.dispatch(LandmarkActions::LandmarksSeeded()(Landmarks));
   Store.dispatch(SpawnActions::PlayerSpawnAnchored()(
       SpawnFactories::SpawnPointPayload(
-          {MapLayout::ToWorld(TerrainData, MapLayout::PlayerSpawnPoint()),
-           MapLayout::PlayerSpawnRotation(),
-           MapLayout::PlayerSpawnAnchorLabel()})));
+          {LevelLayoutSlice::ToWorld(TerrainData, LevelLayoutSlice::PlayerSpawnPoint()),
+           LevelLayoutSlice::PlayerSpawnRotation(),
+           LevelLayoutSlice::PlayerSpawnAnchorLabel()})));
 
   const TArray<FTownspersonSeed> TownspersonSeeds =
-      TownspersonRoutes::Build1899TownspersonSeed();
+      BotsAdapters::Build1899TownspersonSeed();
   Store.dispatch(TownspersonActions::TownspeopleSeeded()(TownspersonSeeds));
 
   const TArray<FHorseRouteSeed> HorseRouteSeeds =
-      HorseRoutes::Build1899HorseRouteSeed();
+      BotsAdapters::Build1899HorseRouteSeed();
   Store.dispatch(HorseActions::HorsesSeeded()(HorseRouteSeeds));
 
   const TArray<FNatureFeatureSeed> NatureFeatureSeeds =
-      NatureFeatures::BuildClearCreekNatureSeed();
+      NatureAdapters::BuildClearCreekNatureSeed();
   Store.dispatch(NatureActions::NatureSeeded()(NatureFeatureSeeds));
 
   const FRuntimeState &State = Store.getState();
@@ -84,12 +82,12 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FSpawnPointPayload Spawn =
       RuntimeSelectors::SelectPlayerSpawn(State);
   TestEqual(TEXT("Player spawn anchor"), Spawn.AnchorLabel,
-            MapLayout::PlayerSpawnAnchorLabel());
+            LevelLayoutSlice::PlayerSpawnAnchorLabel());
   TestTrue(TEXT("Player spawn is above terrain"),
            Spawn.Location.Z >
                TerrainData.GetTerrainZAtWorld(
-                   MapLayout::PlayerSpawnPoint().EastWest,
-                   MapLayout::PlayerSpawnPoint().NorthSouth));
+                   LevelLayoutSlice::PlayerSpawnPoint().EastWest,
+                   LevelLayoutSlice::PlayerSpawnPoint().NorthSouth));
 
   TestEqual(TEXT("1899 horse routes are seeded"), HorseRouteSeeds.Num(), 3);
   TestEqual(TEXT("RTK entity adapter stores seeded horses"),
@@ -103,6 +101,22 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestEqual(TEXT("RTK entity adapter stores seeded townspeople"),
             RuntimeSelectors::SelectTownspeople(State).Num(),
             TownspersonSeeds.Num());
+
+  TestEqual(TEXT("Runtime has dialogue townsperson interaction"),
+            RuntimeSelectors::SelectTownspeopleByInteractionIntent(
+                State, ETownspersonInteractionIntent::Dialogue)
+                .Num(),
+            1);
+  TestEqual(TEXT("Runtime has memory townsperson interaction"),
+            RuntimeSelectors::SelectTownspeopleByInteractionIntent(
+                State, ETownspersonInteractionIntent::Memory)
+                .Num(),
+            1);
+  TestEqual(TEXT("Runtime has combat validation townsperson interaction"),
+            RuntimeSelectors::SelectTownspeopleByInteractionIntent(
+                State, ETownspersonInteractionIntent::CombatValidation)
+                .Num(),
+            1);
 
   const int32 BotEntityCount =
       TownspersonSeeds.Num() + HorseRouteSeeds.Num();
@@ -176,8 +190,8 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Nature seed includes PCG marker"), bHasPCGMarker);
   TestTrue(TEXT("Nature seed includes Water System marker"), bHasWaterMarker);
 
-  const FMapRetroRenderProfile &RetroProfile =
-      RetroStyle::RuntimeProfile();
+  const FLevelRetroRenderProfile &RetroProfile =
+      RenderingSelectors::SelectRuntimeProfile();
   TestEqual(TEXT("Retro profile is set to 3pm"),
             RetroProfile.TimeOfDayHour, 15.0f);
   TestEqual(TEXT("Retro profile disables anti-aliasing"),
@@ -185,8 +199,8 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Retro profile keeps long readable vistas"),
            RetroProfile.ViewDistanceScale >= 1.5f);
 
-  const TArray<FMapRetroTextureSpec> TextureCatalog =
-      RetroStyle::TextureCatalog();
+  const TArray<FLevelRetroTextureSpec> TextureCatalog =
+      RenderingSelectors::SelectTextureCatalog();
   TestTrue(TEXT("Retro texture catalog covers terrain, level, NPC, and horse surfaces"),
            TextureCatalog.Num() >= 13);
 

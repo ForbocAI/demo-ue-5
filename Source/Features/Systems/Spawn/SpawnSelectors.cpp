@@ -2,14 +2,17 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace SpawnSelectors {
 
 FSpawnPointPayload SelectPlayerSpawn(const FSpawnState &State) {
-  return State.PlayerSpawn;
+  return (func::pipe(State.PlayerSpawn) |
+         [](const FSpawnPointPayload &PlayerSpawn) -> FSpawnPointPayload {
+    return PlayerSpawn;
+  }).val;
 }
 
 } // namespace SpawnSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

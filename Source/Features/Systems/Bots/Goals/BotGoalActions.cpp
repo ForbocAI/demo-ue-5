@@ -2,28 +2,34 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalActions {
 
 const rtk::ActionCreator<TArray<FBotGoalComponent>> &BotGoalsSeeded() {
-  static const rtk::ActionCreator<TArray<FBotGoalComponent>> Creator =
-      rtk::createAction<TArray<FBotGoalComponent>>(TEXT("botGoals/seeded"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<TArray<FBotGoalComponent>>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<TArray<FBotGoalComponent>> {
+        return rtk::createAction<TArray<FBotGoalComponent>>(TEXT("botGoals/seeded"));
+      });
+  return func::eval(Creator);
 }
 
 const rtk::ActionCreator<FBotGoalAssignment> &BotGoalAssigned() {
-  static const rtk::ActionCreator<FBotGoalAssignment> Creator =
-      rtk::createAction<FBotGoalAssignment>(TEXT("botGoals/assigned"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<FBotGoalAssignment>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<FBotGoalAssignment> {
+        return rtk::createAction<FBotGoalAssignment>(TEXT("botGoals/assigned"));
+      });
+  return func::eval(Creator);
 }
 
 const rtk::ActionCreator<FBotGoalCompleted> &BotGoalCompleted() {
-  static const rtk::ActionCreator<FBotGoalCompleted> Creator =
-      rtk::createAction<FBotGoalCompleted>(TEXT("botGoals/completed"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<FBotGoalCompleted>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<FBotGoalCompleted> {
+        return rtk::createAction<FBotGoalCompleted>(TEXT("botGoals/completed"));
+      });
+  return func::eval(Creator);
 }
 
 } // namespace BotGoalActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

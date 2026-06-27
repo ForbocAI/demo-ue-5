@@ -2,28 +2,31 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/Position/BotPositionTypes.h"
-#include "Features/Systems/Horses/HorseTypes.h"
-#include "Features/Systems/Townspeople/TownspersonTypes.h"
+#include "Features/Systems/Bots/Horses/HorseTypes.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotPositionReducers {
 
 FBotPositionState ReduceBotPositionsSeeded(
     const FBotPositionState &State,
-    const rtk::Action<TArray<FBotPositionComponent>> &Action);
+    const rtk::PayloadAction<TArray<FBotPositionComponent>> &Action);
+FBotPositionState ReduceBotPositionUpserted(
+    const FBotPositionState &State,
+    const rtk::PayloadAction<FBotPositionComponent> &Action);
 FBotPositionState ReduceBotPositionMoved(
     const FBotPositionState &State,
-    const rtk::Action<FBotPositionMoved> &Action);
+    const rtk::PayloadAction<FBotPositionMoved> &Action);
 FBotPositionState ReduceTownspeopleSeeded(
     const FBotPositionState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action);
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action);
 FBotPositionState ReduceHorsesSeeded(
     const FBotPositionState &State,
-    const rtk::Action<TArray<FHorseRouteSeed>> &Action);
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action);
 
 } // namespace BotPositionReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Core/rtk.hpp"
+
 #include "CoreMinimal.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 struct FSpawnPointPayload {
   FVector Location;
@@ -52,6 +54,6 @@ inline bool operator!=(const FSpawnState &Left, const FSpawnState &Right) {
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

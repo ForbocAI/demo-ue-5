@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Core/functional_core.hpp"
+#include "Core/rtk.hpp"
+
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalSelectors {
 
 TArray<FBotGoalComponent> SelectAll(const FBotGoalState &State);
@@ -16,6 +17,6 @@ func::Maybe<FBotStrategicGoal> SelectActiveGoalById(
 int32 SelectTotal(const FBotGoalState &State);
 
 } // namespace BotGoalSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

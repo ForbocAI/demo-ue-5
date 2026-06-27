@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Core/functional_core.hpp"
+#include "Core/rtk.hpp"
+
 #include "Features/Systems/Bots/Stats/BotStatsTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotStatsSelectors {
 
 TArray<FBotStatsComponent> SelectAll(const FBotStatsState &State);
@@ -14,6 +15,6 @@ func::Maybe<FBotStatsComponent> SelectById(const FBotStatsState &State,
 int32 SelectTotal(const FBotStatsState &State);
 
 } // namespace BotStatsSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

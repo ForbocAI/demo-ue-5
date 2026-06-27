@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Features/Systems/Horses/HorseTypes.h"
+#include "Features/Systems/Bots/Horses/HorseTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace HorseFactories {
 
 FHorseState CreateInitialState();
 
 } // namespace HorseFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -1,15 +1,15 @@
-#include "Features/Entities/TalkableTownsperson.h"
+#include "Features/Entities/Characters/Bots/TalkableTownsperson.h"
 
 #include "Animation/AnimInstance.h"
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/SkeletalMesh.h"
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 #include "Features/Systems/LocalDialogueAdapter.h"
 #include "GameFramework/Pawn.h"
 
-namespace FGL = ForbocAI::Demo::Map::MapLayout;
+namespace FGL = ForbocAI::Demo::Level::LevelLayoutSlice;
 
 namespace {
 constexpr float CharacterHeightFeet = 5.5f;
@@ -98,6 +98,9 @@ ATalkableTownsperson::ATalkableTownsperson()
   TownspersonName = TEXT("Townsperson");
   TownspersonRole = TEXT("Resident");
   Persona = TEXT("I keep one eye on the mine road and one on the weather.");
+  InteractionPrompt = TEXT("Press E to talk");
+  DefaultPlayerLine = TEXT("What should I know here?");
+  PinnedResponse = FString();
 }
 
 void ATalkableTownsperson::BeginPlay() {
@@ -121,6 +124,13 @@ void ATalkableTownsperson::ConfigureTownsperson(
   TownspersonName = Config.Name;
   TownspersonRole = Config.Role;
   Persona = Config.Persona;
+  InteractionPrompt = Config.InteractionPrompt.IsEmpty()
+                          ? FString(TEXT("Press E to talk"))
+                          : Config.InteractionPrompt;
+  DefaultPlayerLine = Config.DefaultPlayerLine.IsEmpty()
+                          ? FString(TEXT("What should I know here?"))
+                          : Config.DefaultPlayerLine;
+  PinnedResponse = Config.PinnedResponse;
   PatrolRoute = Config.PatrolRoute;
   PatrolIndex = PatrolRoute.Num() > 1 ? 1 : 0;
   PauseRemaining = 0.0f;
@@ -132,11 +142,15 @@ void ATalkableTownsperson::ConfigureTownsperson(
 }
 
 FString ATalkableTownsperson::Interact(const FString &PlayerLine) {
-  const FString Reply = ForbocAI::Demo::Map::BuildLocalReply(
-      TownspersonName, TownspersonRole, Persona, PlayerLine);
+  const FString Reply =
+      PinnedResponse.IsEmpty()
+          ? ForbocAI::Demo::Level::BuildLocalReply(TownspersonName,
+                                                   TownspersonRole, Persona,
+                                                   PlayerLine)
+          : PinnedResponse;
   DialogueText->SetText(FText::FromString(Reply));
   DialogueText->SetVisibility(true);
-  UE_LOG(LogTemp, Display, TEXT("Map NPC reply: %s"), *Reply);
+  UE_LOG(LogTemp, Display, TEXT("Level NPC reply: %s"), *Reply);
   return Reply;
 }
 
@@ -147,6 +161,11 @@ FString ATalkableTownsperson::GetTownspersonName() const {
 }
 
 FString ATalkableTownsperson::GetRole() const { return TownspersonRole; }
+
+FString ATalkableTownsperson::GetDefaultPlayerLine() const {
+  return DefaultPlayerLine.IsEmpty() ? FString(TEXT("What should I know here?"))
+                                     : DefaultPlayerLine;
+}
 
 void ATalkableTownsperson::AdvancePatrol(float DeltaTime) {
   if (PatrolRoute.Num() < 2) {
@@ -182,7 +201,7 @@ void ATalkableTownsperson::ConfigureSampleCharacterAsset() {
     CharacterMesh->SetSkeletalMesh(Mesh);
   } else {
     UE_LOG(LogTemp, Error,
-           TEXT("Map: required Manny skeletal mesh is missing; townsperson "
+           TEXT("Level: required Manny skeletal mesh is missing; townsperson "
                 "will not render."));
   }
 
@@ -194,13 +213,16 @@ void ATalkableTownsperson::ConfigureSampleCharacterAsset() {
   }
 
   UE_LOG(LogTemp, Error,
-         TEXT("Map: required ABP_Unarmed animation blueprint is missing; "
+         TEXT("Level: required ABP_Unarmed animation blueprint is missing; "
               "townsperson animation is unavailable."));
 }
 
 void ATalkableTownsperson::RefreshText() {
   NameText->SetText(FText::FromString(
       FString::Printf(TEXT("%s\n%s"), *TownspersonName, *TownspersonRole)));
+  PromptText->SetText(FText::FromString(
+      InteractionPrompt.IsEmpty() ? FString(TEXT("Press E to talk"))
+                                  : InteractionPrompt));
 }
 
 void ATalkableTownsperson::HandleInteractionBegin(

@@ -5,7 +5,7 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 struct FBotStatsComponent {
   FString Id;
@@ -89,6 +89,6 @@ inline bool operator!=(const FBotStatsState &Left,
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

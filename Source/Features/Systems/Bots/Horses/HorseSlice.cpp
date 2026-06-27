@@ -1,27 +1,28 @@
-#include "Features/Systems/Horses/HorseSlice.h"
+#include "Features/Systems/Bots/Horses/HorseSlice.h"
 
-#include "Features/Systems/Horses/HorseActions.h"
-#include "Features/Systems/Horses/HorseFactories.h"
-#include "Features/Systems/Horses/HorseReducers.h"
+#include "Features/Systems/Bots/Horses/HorseActions.h"
+#include "Features/Systems/Bots/Horses/HorseFactories.h"
+#include "Features/Systems/Bots/Horses/HorseReducers.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace HorseSlice {
 
 const rtk::Slice<FHorseState> &GetSlice() {
-  static const rtk::Slice<FHorseState> Slice = []() {
-    rtk::SliceBuilder<FHorseState> Builder =
-        rtk::sliceBuilder<FHorseState>(
-            TEXT("horses"), HorseFactories::CreateInitialState());
-    Builder = rtk::addExtraCase(Builder, HorseActions::HorsesSeeded(),
+  static const func::Lazy<rtk::Slice<FHorseState>> Slice =
+      func::lazy([]() -> rtk::Slice<FHorseState> {
+        return rtk::createSlice<FHorseState>(
+      TEXT("horses"), HorseFactories::CreateInitialState(),
+      [](rtk::ActionReducerMapBuilder<FHorseState> &Builder) {
+    Builder.addCase(HorseActions::HorsesSeeded(),
                                 HorseReducers::ReduceHorsesSeeded);
-    return rtk::buildSlice(Builder);
-  }();
-  return Slice;
+  });
+      });
+  return func::eval(Slice);
 }
 
 } // namespace HorseSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

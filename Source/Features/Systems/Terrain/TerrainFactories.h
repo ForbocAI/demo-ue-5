@@ -4,13 +4,13 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TerrainFactories {
 
 FTerrainState CreateInitialState();
 FTerrainLoadedPayload LoadedPayload(const FTerrainLoadedSource &Source);
 
 } // namespace TerrainFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

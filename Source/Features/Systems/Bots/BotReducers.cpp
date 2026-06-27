@@ -5,37 +5,49 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotReducers {
 
 FBotState ReduceBotsSeeded(
     const FBotState &State,
-    const rtk::Action<TArray<FBotEntity>> &Action) {
-  FBotState Next = State;
+    const rtk::PayloadAction<TArray<FBotEntity>> &Action) {
+  return (func::pipe(State) | [&](FBotState Next) -> FBotState {
   Next.Items = BotAdapters::BotAdapter().setAll(State.Items,
                                                 Action.PayloadValue);
   return Next;
+  }).val;
+}
+
+FBotState ReduceBotUpserted(const FBotState &State,
+                            const rtk::PayloadAction<FBotEntity> &Action) {
+  return (func::pipe(State) | [&](FBotState Next) -> FBotState {
+  Next.Items =
+      BotAdapters::BotAdapter().upsertOne(State.Items, Action.PayloadValue);
+  return Next;
+  }).val;
 }
 
 FBotState ReduceTownspeopleSeeded(
     const FBotState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action) {
-  FBotState Next = State;
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
+  return (func::pipe(State) | [&](FBotState Next) -> FBotState {
   Next.Items = BotAdapters::BotAdapter().upsertMany(
       State.Items, BotFactories::FromTownspeople(Action.PayloadValue));
   return Next;
+  }).val;
 }
 
 FBotState ReduceHorsesSeeded(
     const FBotState &State,
-    const rtk::Action<TArray<FHorseRouteSeed>> &Action) {
-  FBotState Next = State;
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
+  return (func::pipe(State) | [&](FBotState Next) -> FBotState {
   Next.Items = BotAdapters::BotAdapter().upsertMany(
       State.Items, BotFactories::FromHorses(Action.PayloadValue));
   return Next;
+  }).val;
 }
 
 } // namespace BotReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

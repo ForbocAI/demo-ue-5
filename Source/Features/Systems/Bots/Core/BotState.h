@@ -17,7 +17,7 @@ struct FStats {
   float MaxStamina = 100.0f;
 };
 
-struct FMemory {
+struct FBotMemory {
   // Minimal memory representation for now
   FVector LastKnownPlayerPos = FVector::ZeroVector;
   float TimeSinceLastSeenPlayer = 9999.0f;
@@ -36,7 +36,7 @@ struct FBotState {
   FRotator Rotation;
 
   FStats Stats;
-  FMemory Memory;
+  FBotMemory Memory;
 
   EBotPhase Phase = EBotPhase::Idle;
 

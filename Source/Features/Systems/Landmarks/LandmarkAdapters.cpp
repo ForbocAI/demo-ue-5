@@ -2,17 +2,19 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace LandmarkAdapters {
 
-const rtk::EntityAdapterOps<FLandmark> &LandmarkAdapter() {
-  static const rtk::EntityAdapterOps<FLandmark> Adapter =
-      rtk::createEntityAdapter<FLandmark>(
+const rtk::EntityAdapter<FLandmark> &LandmarkAdapter() {
+  static const func::Lazy<rtk::EntityAdapter<FLandmark>> Adapter =
+      func::lazy([]() -> rtk::EntityAdapter<FLandmark> {
+        return rtk::createEntityAdapter<FLandmark>(
           [](const FLandmark &Landmark) -> FString { return Landmark.Id; });
-  return Adapter;
+      });
+  return func::eval(Adapter);
 }
 
 } // namespace LandmarkAdapters
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

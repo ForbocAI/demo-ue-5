@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 enum class EBotBehaviorState : uint8 { Idle, Patrol, Moving, Acting };
 
@@ -13,27 +13,27 @@ struct FBotAIComponent {
   FString Id;
   EBotBehaviorState BehaviorState;
   FString TargetEntityId;
-  FMapLocalPoint TargetLocation;
+  FLevelLocalPoint TargetLocation;
   bool bHasTargetLocation;
   int32 PatrolIndex;
-  TArray<FMapLocalPoint> PatrolRoute;
+  TArray<FLevelLocalPoint> PatrolRoute;
 };
 
 struct FBotAISource {
   FString Id;
   EBotBehaviorState BehaviorState;
   FString TargetEntityId;
-  FMapLocalPoint TargetLocation;
+  FLevelLocalPoint TargetLocation;
   bool bHasTargetLocation;
   int32 PatrolIndex;
-  TArray<FMapLocalPoint> PatrolRoute;
+  TArray<FLevelLocalPoint> PatrolRoute;
 };
 
 struct FBotAIUpdated {
   FString Id;
   EBotBehaviorState BehaviorState;
   FString TargetEntityId;
-  FMapLocalPoint TargetLocation;
+  FLevelLocalPoint TargetLocation;
   bool bHasTargetLocation;
   int32 PatrolIndex;
 };
@@ -92,6 +92,6 @@ inline bool operator!=(const FBotAIState &Left, const FBotAIState &Right) {
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

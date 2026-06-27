@@ -1,15 +1,17 @@
 #pragma once
 
+#include "Core/rtk.hpp"
+
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace NatureSelectors {
 
 TArray<FNatureFeatureSeed> SelectAll(const FNatureState &State);
 
 } // namespace NatureSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

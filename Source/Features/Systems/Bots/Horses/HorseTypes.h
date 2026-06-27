@@ -1,17 +1,17 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 struct FHorseRouteSeed {
   FString Id;
   FString Name;
   bool bMountedRider;
-  TArray<FMapLocalPoint> PatrolRoute;
+  TArray<FLevelLocalPoint> PatrolRoute;
 };
 
 struct FHorseState {
@@ -38,6 +38,6 @@ inline bool operator!=(const FHorseState &Left, const FHorseState &Right) {
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -1,20 +1,22 @@
-#include "Features/Systems/Townspeople/TownspersonAdapters.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TownspersonAdapters {
 
-const rtk::EntityAdapterOps<FTownspersonSeed> &TownspersonAdapter() {
-  static const rtk::EntityAdapterOps<FTownspersonSeed> Adapter =
-      rtk::createEntityAdapter<FTownspersonSeed>(
+const rtk::EntityAdapter<FTownspersonSeed> &TownspersonAdapter() {
+  static const func::Lazy<rtk::EntityAdapter<FTownspersonSeed>> Adapter =
+      func::lazy([]() -> rtk::EntityAdapter<FTownspersonSeed> {
+        return rtk::createEntityAdapter<FTownspersonSeed>(
           [](const FTownspersonSeed &Townsperson) -> FString {
             return Townsperson.Id;
           });
-  return Adapter;
+      });
+  return func::eval(Adapter);
 }
 
 } // namespace TownspersonAdapters
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -6,13 +6,13 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace RuntimeStore {
 
 const rtk::Slice<FRuntimeState> &GetSlice();
 rtk::EnhancedStore<FRuntimeState> ConfigureStore();
 
 } // namespace RuntimeStore
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -5,16 +5,16 @@
 #include "Features/Systems/Bots/Goals/BotGoalSelectors.h"
 #include "Features/Systems/Bots/Position/BotPositionSelectors.h"
 #include "Features/Systems/Bots/Stats/BotStatsSelectors.h"
-#include "Features/Systems/Horses/HorseSelectors.h"
+#include "Features/Systems/Bots/Horses/HorseSelectors.h"
 #include "Features/Systems/Landmarks/LandmarkSelectors.h"
 #include "Features/Systems/Nature/NatureSelectors.h"
 #include "Features/Systems/Spawn/SpawnSelectors.h"
 #include "Features/Systems/Terrain/TerrainSelectors.h"
-#include "Features/Systems/Townspeople/TownspersonSelectors.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonSelectors.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace RuntimeSelectors {
 
 bool SelectTerrainLoaded(const FRuntimeState &State) {
@@ -36,6 +36,17 @@ FSpawnPointPayload SelectPlayerSpawn(const FRuntimeState &State) {
 
 TArray<FTownspersonSeed> SelectTownspeople(const FRuntimeState &State) {
   return TownspersonSelectors::SelectAll(State.Townspeople);
+}
+
+func::Maybe<FTownspersonSeed> SelectTownspersonById(
+    const FRuntimeState &State, const FString &Id) {
+  return TownspersonSelectors::SelectById(State.Townspeople, Id);
+}
+
+TArray<FTownspersonSeed> SelectTownspeopleByInteractionIntent(
+    const FRuntimeState &State, ETownspersonInteractionIntent Intent) {
+  return TownspersonSelectors::SelectByInteractionIntent(State.Townspeople,
+                                                        Intent);
 }
 
 TArray<FHorseRouteSeed> SelectHorses(const FRuntimeState &State) {
@@ -98,6 +109,6 @@ func::Maybe<FBotStrategicGoal> SelectBotActiveGoalById(
 }
 
 } // namespace RuntimeSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

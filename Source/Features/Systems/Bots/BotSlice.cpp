@@ -1,32 +1,34 @@
 #include "Features/Systems/Bots/BotSlice.h"
 
 #include "Features/Systems/Bots/BotReducers.h"
-#include "Features/Systems/Horses/HorseActions.h"
-#include "Features/Systems/Townspeople/TownspersonActions.h"
+#include "Features/Systems/Bots/Horses/HorseActions.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotSlice {
 
 const rtk::Slice<FBotState> &GetSlice() {
-  static const rtk::Slice<FBotState> Slice = []() {
-    rtk::SliceBuilder<FBotState> Builder =
-        rtk::sliceBuilder<FBotState>(TEXT("bots"),
-                                     BotFactories::CreateInitialState());
-    Builder = rtk::addExtraCase(Builder, BotActions::BotsSeeded(),
+  static const func::Lazy<rtk::Slice<FBotState>> Slice =
+      func::lazy([]() -> rtk::Slice<FBotState> {
+        return rtk::createSlice<FBotState>(
+      TEXT("bots"), BotFactories::CreateInitialState(),
+      [](rtk::ActionReducerMapBuilder<FBotState> &Builder) {
+    Builder.addCase(BotActions::BotsSeeded(),
                                 BotReducers::ReduceBotsSeeded);
-    Builder = rtk::addExtraCase(Builder,
-                                TownspersonActions::TownspeopleSeeded(),
+    Builder.addCase(BotActions::BotUpserted(),
+                                BotReducers::ReduceBotUpserted);
+    Builder.addCase(TownspersonActions::TownspeopleSeeded(),
                                 BotReducers::ReduceTownspeopleSeeded);
-    Builder = rtk::addExtraCase(Builder, HorseActions::HorsesSeeded(),
+    Builder.addCase(HorseActions::HorsesSeeded(),
                                 BotReducers::ReduceHorsesSeeded);
-    return rtk::buildSlice(Builder);
-  }();
-  return Slice;
+  });
+      });
+  return func::eval(Slice);
 }
 
 } // namespace BotSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

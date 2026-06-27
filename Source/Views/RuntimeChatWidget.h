@@ -17,7 +17,7 @@ class DEMOPROJECT_API URuntimeChatWidget : public UUserWidget {
 public:
   virtual void NativeConstruct() override;
 
-  UFUNCTION(BlueprintCallable, Category = "Map|Chat")
+  UFUNCTION(BlueprintCallable, Category = "Level|Chat")
   void ShowConversation(const FString &NpcName, const FString &Role,
                         const FString &PlayerLine, const FString &NpcReply);
 

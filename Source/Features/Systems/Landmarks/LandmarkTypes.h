@@ -5,7 +5,7 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 enum class ELandmarkKind {
   Building,
@@ -69,6 +69,6 @@ inline bool operator!=(const FLandmarkState &Left,
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

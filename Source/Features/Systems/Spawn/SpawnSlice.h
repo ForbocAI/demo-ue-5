@@ -8,12 +8,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace SpawnSlice {
 
 const rtk::Slice<FSpawnState> &GetSlice();
 
 } // namespace SpawnSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

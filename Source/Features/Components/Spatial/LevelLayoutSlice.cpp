@@ -1,9 +1,9 @@
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
-namespace MapLayout {
+namespace Level {
+namespace LevelLayoutSlice {
 namespace {
 constexpr float TerrainLotsAcross = 32.0f;
 constexpr float PostOfficeEastLots = -3.1f;
@@ -21,7 +21,7 @@ constexpr float PlayerSpawnNorthLots = -0.825f;
 constexpr float PlayerSpawnExtraHeightRatio = 1.4f;
 constexpr float MainStreetFacingYawDegrees = 70.0f;
 
-FMapLocalPoint PostOfficeGroundPoint() {
+FLevelLocalPoint PostOfficeGroundPoint() {
   return Point(PostOfficeEastLots * TownLotWorldUnits(),
                PostOfficeNorthLots * TownLotWorldUnits());
 }
@@ -29,7 +29,10 @@ FMapLocalPoint PostOfficeGroundPoint() {
 } // namespace
 
 float TownLotWorldUnits() {
-  return FMapTerrainData::TerrainWorldSize / TerrainLotsAcross;
+  return (func::pipe(FLevelTerrainData::TerrainWorldSize) |
+         [](float TerrainWorldSize) -> float {
+    return TerrainWorldSize / TerrainLotsAcross;
+  }).val;
 }
 
 float CubeHalfExtent() { return CubeMeshSize * 0.5f; }
@@ -53,7 +56,7 @@ float LabelHeightForScale(const FVector &Scale) {
 
 float ActorWorldUnitsFromFeet(float Feet) {
   return Feet * ActorFootToTerrainRatio *
-         FMapTerrainData::TerrainWorldSize / ActorReferenceFeetAcross;
+         FLevelTerrainData::TerrainWorldSize / ActorReferenceFeetAcross;
 }
 
 float ActorMeshScaleFromFeet(float Feet) {
@@ -78,38 +81,38 @@ FVector PadScaleFromFeet(float WidthFeet, float DepthFeet, float HeightFeet) {
                  HeightFeet * BlockScalePerFoot);
 }
 
-FMapLocalPoint Point(float EastWest, float NorthSouth,
+FLevelLocalPoint Point(float EastWest, float NorthSouth,
                              float HeightOffset) {
   return {EastWest, NorthSouth, HeightOffset};
 }
 
-FMapLocalPoint FromPostOfficeLots(float EastLots, float NorthLots,
+FLevelLocalPoint FromPostOfficeLots(float EastLots, float NorthLots,
                                           float HeightOffset) {
-  const FMapLocalPoint PostOffice = PostOfficeGroundPoint();
+  const FLevelLocalPoint PostOffice = PostOfficeGroundPoint();
   return Point(PostOffice.EastWest + EastLots * TownLotWorldUnits(),
                PostOffice.NorthSouth + NorthLots * TownLotWorldUnits(),
                HeightOffset);
 }
 
-FMapLocalPoint CenteredOnGround(const FMapLocalPoint &Point,
+FLevelLocalPoint CenteredOnGround(const FLevelLocalPoint &Point,
                                         const FVector &Scale,
                                         float GroundClearance) {
   return {Point.EastWest, Point.NorthSouth,
           static_cast<float>(Scale.Z * CubeHalfExtent() + GroundClearance)};
 }
 
-FMapLocalPoint AboveBlock(const FMapLocalPoint &Point,
+FLevelLocalPoint AboveBlock(const FLevelLocalPoint &Point,
                                   const FVector &Scale) {
   return {Point.EastWest, Point.NorthSouth, LabelHeightForScale(Scale)};
 }
 
-FVector ToWorld(const FMapTerrainData &TerrainData,
-                const FMapLocalPoint &Point) {
+FVector ToWorld(const FLevelTerrainData &TerrainData,
+                const FLevelLocalPoint &Point) {
   return TerrainData.ToWorld(Point.EastWest, Point.NorthSouth,
                              Point.HeightOffset);
 }
 
-FMapLocalPoint PlayerSpawnPoint() {
+FLevelLocalPoint PlayerSpawnPoint() {
   return FromPostOfficeLots(
       0.0f, PlayerSpawnNorthLots,
       CharacterHeightOffset() + CubeHalfExtent() * PlayerSpawnExtraHeightRatio);
@@ -123,7 +126,7 @@ FString PlayerSpawnAnchorLabel() {
   return FString(TEXT("U.S. Post Office / 14200 Main St"));
 }
 
-} // namespace MapLayout
-} // namespace Map
+} // namespace LevelLayoutSlice
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

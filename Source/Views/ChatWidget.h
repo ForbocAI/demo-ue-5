@@ -7,11 +7,15 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "CoreMinimal.h"
-#include "Features/Systems/Dialogue/DialogueComponent.h"
+#include "Features/Systems/Dialogue/DialogueAdapters.h"
 #include "ChatWidget.generated.h"
 
 namespace ForbocAI::Demo::UI {
 struct FChatMessageViewModel;
+}
+namespace ForbocAI::Demo::Level {
+struct FUIBindDialogueViewModel;
+struct FUIChatInputViewModel;
 }
 
 /**
@@ -81,6 +85,14 @@ private:
   /** Add a message already composed by the UI system. */
   void AddChatMessageViewModel(
       const ForbocAI::Demo::UI::FChatMessageViewModel &Message);
+
+  /** Render a bind-dialogue model produced by the UI reducers. */
+  void ApplyBindDialogueViewModel(
+      const ForbocAI::Demo::Level::FUIBindDialogueViewModel &Model);
+
+  /** Render a committed-input model produced by the UI reducers. */
+  void ApplyChatInputViewModel(
+      const ForbocAI::Demo::Level::FUIChatInputViewModel &Model);
 
   /** Create a styled text block for a chat message. */
   UTextBlock *CreateMessageBlock(

@@ -1,10 +1,10 @@
-#include "Features/Systems/Townspeople/TownspersonFactories.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonFactories.h"
 
-#include "Features/Systems/Townspeople/TownspersonAdapters.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TownspersonFactories {
 
 FTownspersonState CreateInitialState() {
@@ -14,6 +14,6 @@ FTownspersonState CreateInitialState() {
 }
 
 } // namespace TownspersonFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

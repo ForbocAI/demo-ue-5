@@ -4,7 +4,7 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalSelectors {
 
 TArray<FBotGoalComponent> SelectAll(const FBotGoalState &State) {
@@ -32,6 +32,6 @@ int32 SelectTotal(const FBotGoalState &State) {
 }
 
 } // namespace BotGoalSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

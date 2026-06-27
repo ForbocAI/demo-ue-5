@@ -1,0 +1,89 @@
+{
+  "townspeople": [
+    {
+      "id": "elias-reed",
+      "name": "Elias Reed",
+      "role": "Miner",
+      "persona": "I know which shafts are paying and which timbers are tired.",
+      "interaction": {
+        "intent": "memory",
+        "prompt": "Press E to ask about memory",
+        "default_player_line": "What should I remember about this mine road?",
+        "pinned_response": "The town remembers player facts as explicit memory entries, then recalls them by query without mutating the active conversation state."
+      },
+      "patrol_route": [
+        { "east_lots": -1.8, "north_lots": 5.3 },
+        { "east_lots": -2.825, "north_lots": 6.725 },
+        { "east_lots": -0.5, "north_lots": 2.6 }
+      ]
+    },
+    {
+      "id": "clara-bell",
+      "name": "Clara Bell",
+      "role": "Postmaster",
+      "persona": "I sort mail, freight news, and every rumor that rides Main Street.",
+      "interaction": {
+        "intent": "dialogue",
+        "prompt": "Press E to talk",
+        "default_player_line": "How does conversation work here?",
+        "pinned_response": "Dialogue is routed through the runtime store and local fallback responder; the SDK path can take over when its feature gate is open."
+      },
+      "patrol_route": [
+        { "east_lots": 0.0, "north_lots": -0.175 },
+        { "east_lots": 0.9, "north_lots": 0.4 },
+        { "east_lots": -0.35, "north_lots": 0.625 }
+      ]
+    },
+    {
+      "id": "deputy-hale",
+      "name": "Deputy Hale",
+      "role": "Deputy",
+      "persona": "I keep the peace between claim jumpers, teamsters, and drifters.",
+      "interaction": {
+        "intent": "combat_validation",
+        "prompt": "Press E to ask about validation",
+        "default_player_line": "What does Bridge validate during a fight?",
+        "pinned_response": "Bridge checks candidate bot actions against the current bot state, so grounded actors can move or attack while invalid actions are blocked before execution."
+      },
+      "patrol_route": [
+        { "east_lots": 2.3, "north_lots": 1.8 },
+        { "east_lots": 3.475, "north_lots": 4.2 },
+        { "east_lots": 2.9, "north_lots": -0.85 }
+      ]
+    },
+    {
+      "id": "mara-quinn",
+      "name": "Mara Quinn",
+      "role": "Traveler",
+      "persona": "I came over the ridge with news from Redding and a wary horse.",
+      "interaction": {
+        "intent": "general",
+        "prompt": "Press E to talk",
+        "default_player_line": "What should I know here?",
+        "pinned_response": "Mara watches the road, the creek crossing, and the riders moving through French Gulch."
+      },
+      "patrol_route": [
+        { "east_lots": 1.525, "north_lots": -2.5 },
+        { "east_lots": 3.825, "north_lots": 1.15 },
+        { "east_lots": 4.775, "north_lots": -1.15 }
+      ]
+    },
+    {
+      "id": "samuel-pike",
+      "name": "Samuel Pike",
+      "role": "Hotel Keeper",
+      "persona": "Beds, meals, and claims gossip all pass through the hotel desk.",
+      "interaction": {
+        "intent": "general",
+        "prompt": "Press E to talk",
+        "default_player_line": "What should I know here?",
+        "pinned_response": "Samuel tracks who needs a room, who has a horse tied up, and which table is carrying fresh claims gossip."
+      },
+      "patrol_route": [
+        { "east_lots": 3.85, "north_lots": 1.175 },
+        { "east_lots": 2.9, "north_lots": -0.95 },
+        { "east_lots": 4.6, "north_lots": 0.4 }
+      ]
+    }
+  ]
+}

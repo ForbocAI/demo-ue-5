@@ -2,14 +2,16 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TerrainSelectors {
 
 bool SelectLoaded(const FTerrainState &State) {
-  return State.bTerrainLoaded;
+  return (func::pipe(State.bTerrainLoaded) |
+          [](bool bTerrainLoaded) -> bool { return bTerrainLoaded; })
+      .val;
 }
 
 } // namespace TerrainSelectors
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

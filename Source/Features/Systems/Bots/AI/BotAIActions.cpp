@@ -2,22 +2,26 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotAIActions {
 
 const rtk::ActionCreator<TArray<FBotAIComponent>> &BotAISeeded() {
-  static const rtk::ActionCreator<TArray<FBotAIComponent>> Creator =
-      rtk::createAction<TArray<FBotAIComponent>>(TEXT("botAI/seeded"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<TArray<FBotAIComponent>>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<TArray<FBotAIComponent>> {
+        return rtk::createAction<TArray<FBotAIComponent>>(TEXT("botAI/seeded"));
+      });
+  return func::eval(Creator);
 }
 
 const rtk::ActionCreator<FBotAIUpdated> &BotAIUpdated() {
-  static const rtk::ActionCreator<FBotAIUpdated> Creator =
-      rtk::createAction<FBotAIUpdated>(TEXT("botAI/updated"));
-  return Creator;
+  static const func::Lazy<rtk::ActionCreator<FBotAIUpdated>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<FBotAIUpdated> {
+        return rtk::createAction<FBotAIUpdated>(TEXT("botAI/updated"));
+      });
+  return func::eval(Creator);
 }
 
 } // namespace BotAIActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

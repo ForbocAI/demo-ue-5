@@ -4,7 +4,7 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotStatsFactories {
 
 FBotStatsState CreateInitialState() {
@@ -46,6 +46,6 @@ TArray<FBotStatsComponent> FromHorses(
 }
 
 } // namespace BotStatsFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

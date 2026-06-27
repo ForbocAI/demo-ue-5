@@ -5,12 +5,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace LandmarkActions {
 
 const rtk::ActionCreator<TArray<FLandmark>> &LandmarksSeeded();
 
 } // namespace LandmarkActions
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

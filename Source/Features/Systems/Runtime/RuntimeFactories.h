@@ -4,12 +4,12 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace RuntimeFactories {
 
 FRuntimeState CreateInitialState();
 
 } // namespace RuntimeFactories
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

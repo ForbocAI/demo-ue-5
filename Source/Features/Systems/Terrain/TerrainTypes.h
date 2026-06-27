@@ -1,10 +1,12 @@
 #pragma once
 
+#include "Core/rtk.hpp"
+
 #include "CoreMinimal.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 struct FTerrainLoadedPayload {
   FString TerrainSource;
@@ -29,6 +31,15 @@ struct FTerrainState {
   int32 GridSize;
   float MinElevationMeters;
   float MaxElevationMeters;
+};
+
+struct FTerrainMeshPayload {
+  bool bLoaded = false;
+  TArray<FVector> Vertices;
+  TArray<int32> Triangles;
+  TArray<FVector> Normals;
+  TArray<FVector2D> UVs;
+  TArray<FColor> VertexColors;
 };
 
 inline bool operator==(const FTerrainLoadedPayload &Left,
@@ -80,6 +91,18 @@ inline bool operator!=(const FTerrainState &Left,
   return !(Left == Right);
 }
 
-} // namespace Map
+inline bool operator==(const FTerrainMeshPayload &Left,
+                       const FTerrainMeshPayload &Right) {
+  return Left.bLoaded == Right.bLoaded && Left.Vertices == Right.Vertices &&
+         Left.Triangles == Right.Triangles && Left.Normals == Right.Normals &&
+         Left.UVs == Right.UVs && Left.VertexColors == Right.VertexColors;
+}
+
+inline bool operator!=(const FTerrainMeshPayload &Left,
+                       const FTerrainMeshPayload &Right) {
+  return !(Left == Right);
+}
+
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

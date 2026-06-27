@@ -2,31 +2,31 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
-#include "Features/Systems/Horses/HorseTypes.h"
-#include "Features/Systems/Townspeople/TownspersonTypes.h"
+#include "Features/Systems/Bots/Horses/HorseTypes.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalReducers {
 
 FBotGoalState ReduceBotGoalsSeeded(
     const FBotGoalState &State,
-    const rtk::Action<TArray<FBotGoalComponent>> &Action);
+    const rtk::PayloadAction<TArray<FBotGoalComponent>> &Action);
 FBotGoalState ReduceBotGoalAssigned(
     const FBotGoalState &State,
-    const rtk::Action<FBotGoalAssignment> &Action);
+    const rtk::PayloadAction<FBotGoalAssignment> &Action);
 FBotGoalState ReduceBotGoalCompleted(
     const FBotGoalState &State,
-    const rtk::Action<FBotGoalCompleted> &Action);
+    const rtk::PayloadAction<FBotGoalCompleted> &Action);
 FBotGoalState ReduceTownspeopleSeeded(
     const FBotGoalState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action);
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action);
 FBotGoalState ReduceHorsesSeeded(
     const FBotGoalState &State,
-    const rtk::Action<TArray<FHorseRouteSeed>> &Action);
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action);
 
 } // namespace BotGoalReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

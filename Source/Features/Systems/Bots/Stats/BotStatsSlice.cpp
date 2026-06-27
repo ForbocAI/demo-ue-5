@@ -1,34 +1,34 @@
 #include "Features/Systems/Bots/Stats/BotStatsSlice.h"
 
 #include "Features/Systems/Bots/Stats/BotStatsReducers.h"
-#include "Features/Systems/Horses/HorseActions.h"
-#include "Features/Systems/Townspeople/TownspersonActions.h"
+#include "Features/Systems/Bots/Horses/HorseActions.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotStatsSlice {
 
 const rtk::Slice<FBotStatsState> &GetSlice() {
-  static const rtk::Slice<FBotStatsState> Slice = []() {
-    rtk::SliceBuilder<FBotStatsState> Builder =
-        rtk::sliceBuilder<FBotStatsState>(
-            TEXT("botStats"), BotStatsFactories::CreateInitialState());
-    Builder = rtk::addExtraCase(Builder, BotStatsActions::BotStatsSeeded(),
+  static const func::Lazy<rtk::Slice<FBotStatsState>> Slice =
+      func::lazy([]() -> rtk::Slice<FBotStatsState> {
+        return rtk::createSlice<FBotStatsState>(
+          TEXT("botStats"), BotStatsFactories::CreateInitialState(),
+          [](rtk::ActionReducerMapBuilder<FBotStatsState> &Builder) {
+    Builder.addCase(BotStatsActions::BotStatsSeeded(),
                                 BotStatsReducers::ReduceBotStatsSeeded);
-    Builder = rtk::addExtraCase(Builder, BotStatsActions::BotStatsUpdated(),
+    Builder.addCase(BotStatsActions::BotStatsUpdated(),
                                 BotStatsReducers::ReduceBotStatsUpdated);
-    Builder = rtk::addExtraCase(Builder,
-                                TownspersonActions::TownspeopleSeeded(),
+    Builder.addCase(TownspersonActions::TownspeopleSeeded(),
                                 BotStatsReducers::ReduceTownspeopleSeeded);
-    Builder = rtk::addExtraCase(Builder, HorseActions::HorsesSeeded(),
+    Builder.addCase(HorseActions::HorsesSeeded(),
                                 BotStatsReducers::ReduceHorsesSeeded);
-    return rtk::buildSlice(Builder);
-  }();
-  return Slice;
+  });
+      });
+  return func::eval(Slice);
 }
 
 } // namespace BotStatsSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

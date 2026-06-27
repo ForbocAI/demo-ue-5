@@ -5,7 +5,7 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalReducers {
 namespace {
 
@@ -47,17 +47,18 @@ FBotGoalComponent CompleteGoal(const FBotGoalComponent &Current) {
 
 FBotGoalState ReduceBotGoalsSeeded(
     const FBotGoalState &State,
-    const rtk::Action<TArray<FBotGoalComponent>> &Action) {
-  FBotGoalState Next = State;
+    const rtk::PayloadAction<TArray<FBotGoalComponent>> &Action) {
+  return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
   Next.Items = BotGoalAdapters::BotGoalAdapter().setAll(
       State.Items, Action.PayloadValue);
   return Next;
+  }).val;
 }
 
 FBotGoalState ReduceBotGoalAssigned(
     const FBotGoalState &State,
-    const rtk::Action<FBotGoalAssignment> &Action) {
-  FBotGoalState Next = State;
+    const rtk::PayloadAction<FBotGoalAssignment> &Action) {
+  return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
   const FBotGoalAssignment Payload = Action.PayloadValue;
   Next.Items = BotGoalAdapters::BotGoalAdapter().updateOne(
       State.Items, Payload.Id,
@@ -65,12 +66,13 @@ FBotGoalState ReduceBotGoalAssigned(
         return AssignGoal(Current, Payload.Goal);
       });
   return Next;
+  }).val;
 }
 
 FBotGoalState ReduceBotGoalCompleted(
     const FBotGoalState &State,
-    const rtk::Action<FBotGoalCompleted> &Action) {
-  FBotGoalState Next = State;
+    const rtk::PayloadAction<FBotGoalCompleted> &Action) {
+  return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
   const FBotGoalCompleted Payload = Action.PayloadValue;
   Next.Items = BotGoalAdapters::BotGoalAdapter().updateOne(
       State.Items, Payload.Id,
@@ -78,27 +80,30 @@ FBotGoalState ReduceBotGoalCompleted(
         return CompleteGoal(Current);
       });
   return Next;
+  }).val;
 }
 
 FBotGoalState ReduceTownspeopleSeeded(
     const FBotGoalState &State,
-    const rtk::Action<TArray<FTownspersonSeed>> &Action) {
-  FBotGoalState Next = State;
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
+  return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
   Next.Items = BotGoalAdapters::BotGoalAdapter().upsertMany(
       State.Items, BotGoalFactories::FromTownspeople(Action.PayloadValue));
   return Next;
+  }).val;
 }
 
 FBotGoalState ReduceHorsesSeeded(
     const FBotGoalState &State,
-    const rtk::Action<TArray<FHorseRouteSeed>> &Action) {
-  FBotGoalState Next = State;
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
+  return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
   Next.Items = BotGoalAdapters::BotGoalAdapter().upsertMany(
       State.Items, BotGoalFactories::FromHorses(Action.PayloadValue));
   return Next;
+  }).val;
 }
 
 } // namespace BotGoalReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

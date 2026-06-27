@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 struct FBotPositionComponent {
   FString Id;
-  FMapLocalPoint LocalLocation;
+  FLevelLocalPoint LocalLocation;
   FVector WorldLocation;
   bool bHasWorldLocation;
   bool bFacingRight;
@@ -17,7 +17,7 @@ struct FBotPositionComponent {
 
 struct FBotPositionSource {
   FString Id;
-  FMapLocalPoint LocalLocation;
+  FLevelLocalPoint LocalLocation;
   FVector WorldLocation;
   bool bHasWorldLocation;
   bool bFacingRight;
@@ -25,7 +25,7 @@ struct FBotPositionSource {
 
 struct FBotPositionMoved {
   FString Id;
-  FMapLocalPoint LocalLocation;
+  FLevelLocalPoint LocalLocation;
   FVector WorldLocation;
   bool bHasWorldLocation;
   bool bFacingRight;
@@ -84,6 +84,6 @@ inline bool operator!=(const FBotPositionState &Left,
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

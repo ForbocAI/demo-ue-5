@@ -6,22 +6,23 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TerrainSlice {
 
 const rtk::Slice<FTerrainState> &GetSlice() {
-  static const rtk::Slice<FTerrainState> Slice = []() {
-    rtk::SliceBuilder<FTerrainState> Builder =
-        rtk::sliceBuilder<FTerrainState>(
-            TEXT("terrain"), TerrainFactories::CreateInitialState());
-    Builder = rtk::addExtraCase(Builder, TerrainActions::TerrainLoaded(),
+  static const func::Lazy<rtk::Slice<FTerrainState>> Slice =
+      func::lazy([]() -> rtk::Slice<FTerrainState> {
+        return rtk::createSlice<FTerrainState>(
+          TEXT("terrain"), TerrainFactories::CreateInitialState(),
+          [](rtk::ActionReducerMapBuilder<FTerrainState> &Builder) {
+    Builder.addCase(TerrainActions::TerrainLoaded(),
                                 TerrainReducers::ReduceTerrainLoaded);
-    return rtk::buildSlice(Builder);
-  }();
-  return Slice;
+  });
+      });
+  return func::eval(Slice);
 }
 
 } // namespace TerrainSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

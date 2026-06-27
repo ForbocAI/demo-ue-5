@@ -1,6 +1,6 @@
 #include "Views/ChatWidget.h"
 
-#include "Features/Systems/UI/ConversationUI.h"
+#include "Features/Systems/UI/UIReducers.h"
 
 void UChatWidget::NativeConstruct() {
   Super::NativeConstruct();
@@ -28,37 +28,19 @@ void UChatWidget::BindToDialogue(UDialogueComponent *InDialogueComp) {
 
   BoundDialogue = InDialogueComp;
 
-  return !BoundDialogue
-             ? void()
-             : [this]() {
-    // Set NPC name label
-    NPCNameLabel
-        ? (NPCNameLabel->SetText(
-               FText::FromString(BoundDialogue->Persona)),
-           void())
-        : void();
-
-    BoundDialogue->DialogueResponse.AddUniqueDynamic(
-        this, &UChatWidget::HandleDialogueResponse);
-
-    // Add system message
-    AddChatMessage(TEXT("System"),
-                   FString::Printf(TEXT("Connected to %s"),
-                                   *BoundDialogue->Persona));
-
-    const TArray<ForbocAI::Demo::UI::FChatMessageViewModel> History =
-        ForbocAI::Demo::UI::BuildChatHistoryViewModels(
-            BoundDialogue->GetConversationHistory());
-
-    for (const ForbocAI::Demo::UI::FChatMessageViewModel &Message : History) {
-      AddChatMessageViewModel(Message);
-    }
-  }();
+  const ForbocAI::Demo::Level::FUIBindDialogueViewModel Model =
+      ForbocAI::Demo::Level::UIReducers::BuildBindDialogueViewModel(
+          BoundDialogue ? BoundDialogue->Persona : FString(),
+          BoundDialogue ? BoundDialogue->GetConversationHistory()
+                        : TArray<FString>(),
+          BoundDialogue != nullptr);
+  ApplyBindDialogueViewModel(Model);
 }
 
 void UChatWidget::AddChatMessage(const FString &Role, const FString &Text) {
   AddChatMessageViewModel(
-      ForbocAI::Demo::UI::BuildChatMessageViewModel(Role, Text));
+      ForbocAI::Demo::Level::UIReducers::BuildChatMessageViewModel(Role,
+                                                                   Text));
 }
 
 void UChatWidget::AddChatMessageViewModel(
@@ -82,34 +64,52 @@ void UChatWidget::ClearChat() {
 
 void UChatWidget::OnInputCommitted(const FText &Text,
                                     ETextCommit::Type CommitMethod) {
-  // Only process on Enter key
-  return CommitMethod != ETextCommit::OnEnter
-             ? void()
-             : [this, &Text]() {
-    FString InputText = ForbocAI::Demo::UI::NormalizeSubmittedChatText(Text);
-
-    return InputText.IsEmpty()
-               ? void()
-               : [this, &InputText]() {
-      // Add player message to chat log
-      AddChatMessage(TEXT("Player"), InputText);
-
-      // Clear input box
-      ChatInputBox ? (ChatInputBox->SetText(FText::GetEmpty()), void())
-                   : void();
-
-      // Send via DialogueComponent. It uses the SDK only when the feature gate is open.
-      BoundDialogue
-          ? (BoundDialogue->SendDialogue(InputText), void())
-          : AddChatMessage(TEXT("System"),
-                           TEXT("Error: No dialogue component bound"));
-    }();
-  }();
+  ApplyChatInputViewModel(
+      ForbocAI::Demo::Level::UIReducers::BuildChatInputViewModel(
+          Text, CommitMethod, BoundDialogue != nullptr));
 }
 
 void UChatWidget::HandleDialogueResponse(const FString &NPCText) {
-  AddChatMessage(BoundDialogue ? BoundDialogue->Persona : TEXT("NPC"),
-                 NPCText);
+  AddChatMessageViewModel(
+      ForbocAI::Demo::Level::UIReducers::BuildDialogueResponseViewModel(
+          BoundDialogue ? BoundDialogue->Persona : FString(), NPCText,
+          BoundDialogue != nullptr)
+          .Message);
+}
+
+void UChatWidget::ApplyBindDialogueViewModel(
+    const ForbocAI::Demo::Level::FUIBindDialogueViewModel &Model) {
+  return !Model.bBound
+             ? void()
+             : [this, &Model]() {
+    NPCNameLabel
+        ? (NPCNameLabel->SetText(FText::FromString(Model.Persona)), void())
+        : void();
+
+    BoundDialogue->DialogueResponse.AddUniqueDynamic(
+        this, &UChatWidget::HandleDialogueResponse);
+
+    AddChatMessageViewModel(Model.ConnectionMessage);
+
+    for (const ForbocAI::Demo::UI::FChatMessageViewModel &Message :
+         Model.HistoryMessages) {
+      AddChatMessageViewModel(Message);
+    }
+  }();
+}
+
+void UChatWidget::ApplyChatInputViewModel(
+    const ForbocAI::Demo::Level::FUIChatInputViewModel &Model) {
+  return !Model.bShouldSend
+             ? void()
+             : [this, &Model]() {
+    AddChatMessageViewModel(Model.PlayerMessage);
+
+    ChatInputBox ? (ChatInputBox->SetText(FText::GetEmpty()), void()) : void();
+
+    BoundDialogue ? (BoundDialogue->SendDialogue(Model.InputText), void())
+                  : AddChatMessageViewModel(Model.ErrorMessage);
+  }();
 }
 
 UTextBlock *UChatWidget::CreateMessageBlock(

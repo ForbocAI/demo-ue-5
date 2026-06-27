@@ -1,18 +1,23 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Level/LevelTypes.h"
 #include "Features/Systems/Terrain/TerrainTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace TerrainReducers {
 
 FTerrainState
 ReduceTerrainLoaded(const FTerrainState &State,
-                    const rtk::Action<FTerrainLoadedPayload> &Action);
+                    const rtk::PayloadAction<FTerrainLoadedPayload> &Action);
+
+FTerrainMeshPayload
+BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
+                        const FLevelOrthoData &OrthoData);
 
 } // namespace TerrainReducers
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/MapLayout.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 
 enum class ENatureFeatureKind {
   Water,
@@ -20,7 +20,7 @@ struct FNatureFeatureSeed {
   FString Id;
   FString Name;
   ENatureFeatureKind Kind;
-  FMapLocalPoint Location;
+  FLevelLocalPoint Location;
   FVector Scale;
 };
 
@@ -48,6 +48,6 @@ inline bool operator!=(const FNatureState &Left, const FNatureState &Right) {
   return !(Left == Right);
 }
 
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

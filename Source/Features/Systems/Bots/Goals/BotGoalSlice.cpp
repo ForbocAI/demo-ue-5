@@ -1,36 +1,36 @@
 #include "Features/Systems/Bots/Goals/BotGoalSlice.h"
 
 #include "Features/Systems/Bots/Goals/BotGoalReducers.h"
-#include "Features/Systems/Horses/HorseActions.h"
-#include "Features/Systems/Townspeople/TownspersonActions.h"
+#include "Features/Systems/Bots/Horses/HorseActions.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
 
 namespace ForbocAI {
 namespace Demo {
-namespace Map {
+namespace Level {
 namespace BotGoalSlice {
 
 const rtk::Slice<FBotGoalState> &GetSlice() {
-  static const rtk::Slice<FBotGoalState> Slice = []() {
-    rtk::SliceBuilder<FBotGoalState> Builder =
-        rtk::sliceBuilder<FBotGoalState>(
-            TEXT("botGoals"), BotGoalFactories::CreateInitialState());
-    Builder = rtk::addExtraCase(Builder, BotGoalActions::BotGoalsSeeded(),
+  static const func::Lazy<rtk::Slice<FBotGoalState>> Slice =
+      func::lazy([]() -> rtk::Slice<FBotGoalState> {
+        return rtk::createSlice<FBotGoalState>(
+          TEXT("botGoals"), BotGoalFactories::CreateInitialState(),
+          [](rtk::ActionReducerMapBuilder<FBotGoalState> &Builder) {
+    Builder.addCase(BotGoalActions::BotGoalsSeeded(),
                                 BotGoalReducers::ReduceBotGoalsSeeded);
-    Builder = rtk::addExtraCase(Builder, BotGoalActions::BotGoalAssigned(),
+    Builder.addCase(BotGoalActions::BotGoalAssigned(),
                                 BotGoalReducers::ReduceBotGoalAssigned);
-    Builder = rtk::addExtraCase(Builder, BotGoalActions::BotGoalCompleted(),
+    Builder.addCase(BotGoalActions::BotGoalCompleted(),
                                 BotGoalReducers::ReduceBotGoalCompleted);
-    Builder = rtk::addExtraCase(Builder,
-                                TownspersonActions::TownspeopleSeeded(),
+    Builder.addCase(TownspersonActions::TownspeopleSeeded(),
                                 BotGoalReducers::ReduceTownspeopleSeeded);
-    Builder = rtk::addExtraCase(Builder, HorseActions::HorsesSeeded(),
+    Builder.addCase(HorseActions::HorsesSeeded(),
                                 BotGoalReducers::ReduceHorsesSeeded);
-    return rtk::buildSlice(Builder);
-  }();
-  return Slice;
+  });
+      });
+  return func::eval(Slice);
 }
 
 } // namespace BotGoalSlice
-} // namespace Map
+} // namespace Level
 } // namespace Demo
 } // namespace ForbocAI
