@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Blocks SDK commits made from inside the demo's submodule checkout.
+
+set -euo pipefail
+
+echo "Error: Do not modify or commit ForbocAI_SDK from demo-ue-5.7/Plugins."
+echo "Use ../sdk-ue-5.7 for SDK changes, then run demo-ue-5.7/update-sdk.sh."
+echo "First-time demo setup: demo-ue-5.7/setup-dev.sh"
+exit 1

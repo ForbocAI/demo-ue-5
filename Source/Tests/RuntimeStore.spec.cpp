@@ -10,21 +10,118 @@
 #include "Features/Systems/Landmarks/LandmarkSlice.h"
 #include "Features/Systems/Nature/NatureSlice.h"
 #include "Features/Systems/Rendering/RenderingSelectors.h"
+#include "Features/Systems/Runtime/RuntimeActions.h"
+#include "Features/Systems/Runtime/RuntimeFactories.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
 #include "Features/Systems/Spawn/SpawnSlice.h"
 #include "Features/Systems/Terrain/TerrainSlice.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonSlice.h"
 #include "Misc/AutomationTest.h"
+#include "Misc/OutputDevice.h"
 #include "Store.h"
 
 using namespace ForbocAI::Demo::Level;
+
+namespace {
+
+/**
+ * @brief Request object for recursively searching captured redux log lines.
+ */
+struct FReduxLoggerLineSearchRequest {
+  const TArray<FString> *Lines = nullptr;
+  FString Needle;
+  int32 Index = 0;
+};
+
+/**
+ * @brief Captures the demo redux logger category during automation tests.
+ */
+class FRuntimeReduxLoggerCaptureDevice final : public FOutputDevice {
+public:
+  /**
+   * @brief Stores the caller-owned line buffer used by Serialize.
+   * @signature explicit FRuntimeReduxLoggerCaptureDevice(TArray<FString> &InLines)
+   * @param InLines Mutable output collection for matching redux log lines.
+   *
+   * User Story: As a test author, I need a focused UE log sink so automation
+   * can prove redux-logger writes through the same output path as the console.
+   */
+  explicit FRuntimeReduxLoggerCaptureDevice(TArray<FString> &InLines)
+      : Lines(InLines) {}
+
+  /**
+   * @brief Records redux logger messages emitted through UE logging.
+   * @signature void Serialize(const TCHAR *V, ELogVerbosity::Type Verbosity, const FName &Category)
+   * @param V The log message text.
+   * @param Verbosity UE log verbosity for the emitted line.
+   * @param Category UE log category that produced the line.
+   *
+   * User Story: As automation coverage, I need to observe UE console output
+   * without changing the runtime store or SDK logger behavior.
+   */
+  void Serialize(const TCHAR *V, ELogVerbosity::Type Verbosity,
+                 const FName &Category) override {
+    (void)Verbosity;
+    Category == FName(TEXT("LogForbocDemoRedux"))
+        ? (Lines.Add(FString(V)), void())
+        : void();
+  }
+
+private:
+  TArray<FString> &Lines;
+};
+
+/**
+ * @brief Recursively checks captured redux logger lines for a substring.
+ * @signature bool ContainsReduxLoggerLineRecursive(const FReduxLoggerLineSearchRequest &Request)
+ * @param Request Search payload containing lines, substring, and current index.
+ * @return true when the substring appears in any captured line.
+ *
+ * User Story: As a test maintainer, I need a small pure helper so logger
+ * assertions stay separate from the UE output-device effect boundary.
+ */
+bool ContainsReduxLoggerLineRecursive(
+    const FReduxLoggerLineSearchRequest &Request) {
+  return Request.Index >= Request.Lines->Num()
+             ? false
+             : ((*Request.Lines)[Request.Index].Contains(Request.Needle)
+                    ? true
+                    : ContainsReduxLoggerLineRecursive(
+                          {Request.Lines, Request.Needle,
+                           Request.Index + 1}));
+}
+
+/**
+ * @brief Checks captured redux logger lines for a substring.
+ * @signature bool ContainsReduxLoggerLine(const FReduxLoggerLineSearchRequest &Request)
+ * @param Request Search payload containing lines and substring.
+ * @return true when the substring appears in any captured line.
+ *
+ * User Story: As automation coverage, I need readable assertions that prove
+ * dispatched RTK actions reach the redux-logger UE output sink.
+ */
+bool ContainsReduxLoggerLine(const FReduxLoggerLineSearchRequest &Request) {
+  return ContainsReduxLoggerLineRecursive(
+      {Request.Lines, Request.Needle, 0});
+}
+
+} // namespace
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FRuntimeStoreDataBackedMap,
     "ForbocAI.Runtime.Store.DataBackedMap",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
+/**
+ * @brief Verifies the runtime store projects JSON-backed terrain and feature data into RTK and ECS state.
+ * @signature bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters)
+ * @param Parameters Automation test parameters supplied by Unreal.
+ * @return true when the runtime store selectors and ECS projections match seeded data.
+ *
+ * User Story: As a demo maintainer, I need the runtime store to prove that
+ * reducers own gameplay state and ECS projection while views remain display-only.
+ */
 bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
       ForbocAI::Demo::Data::DataAdapters::LoadDemoRuntimeSettings();
@@ -251,6 +348,42 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
           RuntimeSelectors::SelectRenderingState(State));
   TestTrue(TEXT("Retro texture catalog covers terrain, level, NPC, and horse surfaces"),
            TextureCatalog.Num() >= 13);
+
+  return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FRuntimeStoreReduxLoggerMiddleware,
+    "ForbocAI.Runtime.Store.ReduxLoggerMiddleware",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+/**
+ * @brief Verifies the SDK redux-logger middleware writes RTK dispatch logs through UE output.
+ * @signature bool FRuntimeStoreReduxLoggerMiddleware::RunTest(const FString &Parameters)
+ * @param Parameters Automation test parameters supplied by Unreal.
+ * @return true when a dispatched action is captured from the UE log output path.
+ *
+ * User Story: As a developer debugging tests or runtime play, I need RTK
+ * actions to be visible in automation logs and the UE console from one store.
+ */
+bool FRuntimeStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
+  (void)Parameters;
+
+  TArray<FString> CapturedLines;
+  FRuntimeReduxLoggerCaptureDevice CaptureDevice(CapturedLines);
+
+  GLog->AddOutputDevice(&CaptureDevice);
+  rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
+      Store::ConfigureStore();
+  EnhancedStoreValue.dispatch(RuntimeActions::RuntimeHydrated()(
+      RuntimeFactories::CreateInitialState()));
+  GLog->RemoveOutputDevice(&CaptureDevice);
+
+  TestTrue(TEXT("Redux logger writes action title to UE automation output"),
+           ContainsReduxLoggerLine(
+               {&CapturedLines, TEXT("action runtime/hydrated"), 0}));
+  TestTrue(TEXT("Redux logger writes action payload row to UE automation output"),
+           ContainsReduxLoggerLine({&CapturedLines, TEXT("action    "), 0}));
 
   return true;
 }

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Blocks direct edits or manual pointer changes to Plugins/ForbocAI_SDK.
+
+set -euo pipefail
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+GUARD_ARGS=()
+
+if [ "${FORBOC_ALLOW_SDK_SUBMODULE_BUMP:-0}" = "1" ]; then
+  GUARD_ARGS+=(--allow-gitlink-change)
+fi
+
+bash "$PROJECT_ROOT/Scripts/check_sdk_submodule_guard.sh" "${GUARD_ARGS[@]}"

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Re-locks the SDK submodule after branch or checkout changes.
+
+set -euo pipefail
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+bash "$PROJECT_ROOT/Scripts/lock_sdk_submodule.sh" --lock

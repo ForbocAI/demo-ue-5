@@ -50,6 +50,32 @@ $env:FORBOC_DEMO_WITH_SDK = "1"
 
 Only use the open-gate path after the UE SDK is synced with the TS SDK/API map.
 
+## SDK submodule updates
+
+`Plugins/ForbocAI_SDK` is consumed as an immutable SDK submodule. Do not edit
+SDK files from inside the demo repo.
+
+Make SDK changes in `../sdk-ue-5.7`, commit them there, then bump the demo's
+submodule pointer with:
+
+```bash
+./update-sdk.sh
+```
+
+The demo locks the SDK submodule read-only with
+`Scripts/lock_sdk_submodule.sh`. `./update-sdk.sh` is the only approved path
+that unlocks the submodule, pulls the SDK, records the gitlink bump, and locks
+it again.
+
+The demo's test runner and hooks run `Scripts/check_sdk_submodule_guard.sh`,
+which rejects direct edits inside the submodule and rejects manual SDK pointer
+changes. To activate the local hooks:
+
+```bash
+git config core.hooksPath .githooks
+bash Scripts/lock_sdk_submodule.sh --lock
+```
+
 ---
 
 ## Setup
@@ -67,18 +93,27 @@ Only use the open-gate path after the UE SDK is synced with the TS SDK/API map.
    git submodule update --init --recursive
    ```
 
-2. **Generate project files**
+2. **Run first-time developer setup**
+
+   ```bash
+   ./setup-dev.sh
+   ```
+
+   This activates the demo hooks and locks `Plugins/ForbocAI_SDK` read-only so
+   SDK edits happen in `../sdk-ue-5.7`, not inside the demo submodule copy.
+
+3. **Generate project files**
    - **Windows**: right-click `DemoProject.uproject` → *Generate Visual Studio Project Files*.
    - **macOS**: right-click `DemoProject.uproject` → *Generate Xcode Project*.
    - **Linux**: run `UnrealEditor.sh -projectfiles -project="$PWD/DemoProject.uproject"`.
 
-3. **Build** the `Development Editor` configuration.
+4. **Build** the `Development Editor` configuration.
 
-4. **Launch** the editor from your IDE or by double-clicking `DemoProject.uproject`.
+5. **Launch** the editor from your IDE or by double-clicking `DemoProject.uproject`.
    The project opens `/Game/Map/Maps/Runtime`, the default French Gulch demo
    map configured in `Config/DefaultEngine.ini`.
 
-5. **Press Play** to enter the runtime prototype. The player and townspeople use
+6. **Press Play** to enter the runtime prototype. The player and townspeople use
    the project-owned Manny assets under `Content/Characters/Mannequins`; mounted
    encounters use the committed Classic Horse and rider assets under
    `Content/Characters/Horses/ClassicHorse`.

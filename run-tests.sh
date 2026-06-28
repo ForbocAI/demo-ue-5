@@ -62,6 +62,12 @@ if [ -n "$UNREAL_BUILD" ]; then
 fi
 echo "Running ForbocAI.* tests..."
 
+echo "Locking SDK submodule read-only..."
+bash "$PROJECT_ROOT/Scripts/lock_sdk_submodule.sh" --lock
+
+echo "Checking SDK submodule immutability..."
+bash "$PROJECT_ROOT/Scripts/check_sdk_submodule_guard.sh"
+
 echo "Checking feature C++ parameter discipline..."
 python3 "$PROJECT_ROOT/Scripts/check_param_count.py" --strict
 
