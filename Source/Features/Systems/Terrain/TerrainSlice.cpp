@@ -17,6 +17,9 @@ const rtk::Slice<FTerrainState> &GetSlice() {
           [](rtk::ActionReducerMapBuilder<FTerrainState> &Builder) {
     Builder.addCase(TerrainActions::TerrainLoaded(),
                                 TerrainReducers::ReduceTerrainLoaded);
+    Builder.addCase(
+        TerrainActions::TerrainMeshPayloadObserved(),
+        TerrainReducers::ReduceTerrainMeshPayloadObserved);
   });
       });
   return func::eval(Slice);

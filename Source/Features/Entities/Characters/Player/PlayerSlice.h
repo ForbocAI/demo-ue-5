@@ -16,6 +16,9 @@ inline FPlayerState CreateInitialState() {
   return (func::pipe(FPlayerState{}) |
           [](FPlayerState State) -> FPlayerState {
             State.LastActionId = func::nothing<FString>();
+            State.Presentation =
+                PlayerReducers::ReducePlayerPresentation(
+                    {TEXT("entities/player/presentationInitial")});
             State.bReady = false;
             return State;
           })
@@ -30,6 +33,12 @@ inline const rtk::Slice<FPlayerState> &GetSlice() {
             [](rtk::ActionReducerMapBuilder<FPlayerState> &Builder) {
               Builder.addCase(PlayerActions::PlayerObserved(),
                               PlayerReducers::ReducePlayerObserved);
+              Builder.addCase(
+                  PlayerActions::PlayerMovementInputObserved(),
+                  PlayerReducers::ReducePlayerMovementInputObserved);
+              Builder.addCase(
+                  PlayerActions::PlayerPresentationRequested(),
+                  PlayerReducers::ReducePlayerPresentationRequested);
             });
       });
   return func::eval(Slice);

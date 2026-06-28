@@ -43,6 +43,33 @@ FBotGoalComponent CompleteGoal(const FBotGoalComponent &Current) {
   return Updated;
 }
 
+TMap<FString, FBotStrategicGoal> ReduceActiveGoalByIdAppend(
+    const FBotGoalComponent &Goal, TMap<FString, FBotStrategicGoal> Acc) {
+  Goal.bHasActiveGoal ? (Acc.Add(Goal.Id, Goal.ActiveGoal), void()) : void();
+  return Acc;
+}
+
+TMap<FString, FBotStrategicGoal> ReduceActiveGoalsByIdAtIndex(
+    const TArray<FBotGoalComponent> &Goals, int32 Index,
+    TMap<FString, FBotStrategicGoal> Acc) {
+  return Index >= Goals.Num()
+             ? Acc
+             : ReduceActiveGoalsByIdAtIndex(
+                   Goals, Index + 1,
+                   ReduceActiveGoalByIdAppend(Goals[Index], Acc));
+}
+
+FBotGoalState ReduceActiveGoalIndex(const FBotGoalState &State) {
+  return (func::pipe(State) |
+          [](FBotGoalState Next) -> FBotGoalState {
+            Next.ActiveGoalsById = ReduceActiveGoalsById(
+                BotGoalAdapters::BotGoalAdapter().getSelectors().selectAll(
+                    Next.Items));
+            return Next;
+          })
+      .val;
+}
+
 } // namespace
 
 FBotGoalState ReduceBotGoalsSeeded(
@@ -51,7 +78,7 @@ FBotGoalState ReduceBotGoalsSeeded(
   return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
   Next.Items = BotGoalAdapters::BotGoalAdapter().setAll(
       State.Items, Action.PayloadValue);
-  return Next;
+  return ReduceActiveGoalIndex(Next);
   }).val;
 }
 
@@ -65,7 +92,7 @@ FBotGoalState ReduceBotGoalAssigned(
       [Payload](const FBotGoalComponent &Current) -> FBotGoalComponent {
         return AssignGoal(Current, Payload.Goal);
       });
-  return Next;
+  return ReduceActiveGoalIndex(Next);
   }).val;
 }
 
@@ -79,8 +106,13 @@ FBotGoalState ReduceBotGoalCompleted(
       [](const FBotGoalComponent &Current) -> FBotGoalComponent {
         return CompleteGoal(Current);
       });
-  return Next;
+  return ReduceActiveGoalIndex(Next);
   }).val;
+}
+
+TMap<FString, FBotStrategicGoal> ReduceActiveGoalsById(
+    const TArray<FBotGoalComponent> &Goals) {
+  return ReduceActiveGoalsByIdAtIndex(Goals, 0, {});
 }
 
 FBotGoalState ReduceTownspeopleSeeded(
@@ -89,7 +121,7 @@ FBotGoalState ReduceTownspeopleSeeded(
   return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
   Next.Items = BotGoalAdapters::BotGoalAdapter().upsertMany(
       State.Items, BotGoalFactories::FromTownspeople(Action.PayloadValue));
-  return Next;
+  return ReduceActiveGoalIndex(Next);
   }).val;
 }
 
@@ -99,7 +131,7 @@ FBotGoalState ReduceHorsesSeeded(
   return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
   Next.Items = BotGoalAdapters::BotGoalAdapter().upsertMany(
       State.Items, BotGoalFactories::FromHorses(Action.PayloadValue));
-  return Next;
+  return ReduceActiveGoalIndex(Next);
   }).val;
 }
 

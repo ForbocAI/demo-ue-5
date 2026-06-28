@@ -1,7 +1,6 @@
 #include "Features/Systems/Rendering/RenderingSlice.h"
 
 #include "Features/Systems/Rendering/RenderingReducers.h"
-#include "Features/Systems/Rendering/RenderingSelectors.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
 namespace ForbocAI {
@@ -13,8 +12,16 @@ FRenderingState CreateInitialState() {
   return (func::pipe(FRenderingState{}) |
           [](FRenderingState State) -> FRenderingState {
             State.LastActionId = func::nothing<FString>();
-            State.RuntimeProfile = RenderingSelectors::SelectRuntimeProfile();
-            State.TextureCatalog = RenderingSelectors::SelectTextureCatalog();
+            State.RuntimeProfile =
+                RenderingReducers::ReduceRuntimeProfileDefaults();
+            State.TextureCatalog =
+                RenderingReducers::ReduceTextureCatalogDefaults();
+            State.TownspersonPresentation =
+                RenderingReducers::ReduceTownspersonPresentation(
+                    {TEXT("systems/rendering/townspersonPresentationInitial")});
+            State.HorsePresentation =
+                RenderingReducers::ReduceHorsePresentation(
+                    {TEXT("systems/rendering/horsePresentationInitial")});
             State.bReady = false;
             return State;
           })
@@ -30,6 +37,12 @@ const rtk::Slice<FRenderingState> &GetSlice() {
               Builder.addCase(
                   RenderingActions::RenderingProfileObserved(),
                   RenderingReducers::ReduceRenderingProfileObserved);
+              Builder.addCase(
+                  RenderingActions::TownspersonPresentationRequested(),
+                  RenderingReducers::ReduceTownspersonPresentationRequested);
+              Builder.addCase(
+                  RenderingActions::HorsePresentationRequested(),
+                  RenderingReducers::ReduceHorsePresentationRequested);
             });
       });
   return func::eval(Slice);

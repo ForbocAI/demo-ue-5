@@ -56,6 +56,28 @@ FString BotBehaviorText(EBotBehaviorState State) {
                                                         : TEXT("Idle");
 }
 
+ecs::FComponentValue InteractionCandidateValue(
+    const FInteractionCandidate &Candidate) {
+  TMap<FString, ecs::FComponentValue> Fields;
+  Fields.Add(TEXT("index"), ecs::intValue(Candidate.Index));
+  Fields.Add(TEXT("entityId"), ecs::textValue(Candidate.EntityId));
+  Fields.Add(TEXT("location"), ecs::vec3Value(Candidate.Location));
+  Fields.Add(TEXT("canInteract"), ecs::boolValue(Candidate.bCanInteract));
+  return ecs::mapValue(Fields);
+}
+
+TArray<ecs::FComponentValue> InteractionCandidateList(
+    const TArray<FInteractionCandidate> &Candidates, int32 Index = 0,
+    TArray<ecs::FComponentValue> Acc = TArray<ecs::FComponentValue>()) {
+  return Index >= Candidates.Num()
+             ? Acc
+             : InteractionCandidateList(
+                   Candidates, Index + 1,
+                   ComponentsAdapters::AppendValue(
+                       ComponentsAdapters::CreateAppendValueRequest(
+                           Acc, InteractionCandidateValue(Candidates[Index]))));
+}
+
 } // namespace
 
 ecs::FWorld ProjectPlayer(ecs::FWorld World, const FPlayerState &Player) {
@@ -279,6 +301,47 @@ ecs::FWorld ProjectBotGoal(ecs::FWorld World,
       .val;
 }
 
+ecs::FWorld ProjectInteraction(ecs::FWorld World,
+                               const FInteractionState &Interaction) {
+  const ecs::EntityKey Entity = TEXT("systems:interaction:focus");
+  return (func::pipe(World) |
+          [&](ecs::FWorld Next) {
+            return ComponentsAdapters::WithDomain(
+                Next, Entity, {TEXT("Systems"), TEXT("Interaction")});
+          } |
+          [&](ecs::FWorld Next) {
+            return ComponentsAdapters::WithVec3(
+                Next, Entity, TEXT("Components/Spatial/Origin"),
+                Interaction.LastOrigin);
+          } |
+          [&](ecs::FWorld Next) {
+            return ComponentsAdapters::WithFloat(
+                Next, Entity, TEXT("Components/Spatial/MaxDistance"),
+                Interaction.LastMaxDistance);
+          } |
+          [&](ecs::FWorld Next) {
+            return ComponentsAdapters::WithList(
+                Next, Entity, TEXT("Components/Interaction/Candidates"),
+                InteractionCandidateList(Interaction.LastCandidates));
+          } |
+          [&](ecs::FWorld Next) {
+            return ComponentsAdapters::WithBool(
+                Next, Entity, TEXT("Components/Interaction/Found"),
+                Interaction.SelectedCandidate.bFound);
+          } |
+          [&](ecs::FWorld Next) {
+            return ComponentsAdapters::WithText(
+                Next, Entity, TEXT("Components/Interaction/EntityId"),
+                Interaction.SelectedCandidate.EntityId);
+          } |
+          [&](ecs::FWorld Next) {
+            return ComponentsAdapters::WithInt(
+                Next, Entity, TEXT("Components/Interaction/CandidateIndex"),
+                Interaction.SelectedCandidate.CandidateIndex);
+          })
+      .val;
+}
+
 ecs::FWorld ProjectRuntimeEcsWorld(const FRuntimeState &State) {
   return (func::pipe(ecs::createWorld()) |
           [&State](ecs::FWorld World) {
@@ -289,6 +352,10 @@ ecs::FWorld ProjectRuntimeEcsWorld(const FRuntimeState &State) {
           } |
           [&State](ecs::FWorld World) {
             return ProjectSpawn(World, State.Spawn);
+          } |
+          [&State](ecs::FWorld World) {
+            return ProjectInteraction(
+                World, RuntimeSelectors::SelectInteractionState(State));
           } |
           [&State](ecs::FWorld World) {
             const TArray<FLandmark> Landmarks =

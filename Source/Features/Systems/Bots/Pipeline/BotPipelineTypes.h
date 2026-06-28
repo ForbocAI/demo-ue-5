@@ -44,8 +44,49 @@ struct FBotPipelineWorldSnapshot {
   float DeltaTime = 0.0f;
 };
 
+struct FBotPipelineInputRequest {
+  float DeltaTime = 0.0f;
+  FBotPipelineOverlapSnapshot Hazard;
+  FBotPipelineVisibilitySnapshot Visibility;
+  FBotPipelineMovementSnapshot Movement;
+};
+
+struct FBotPipelineDefaultInputRequest {
+  float DeltaTime = 0.0f;
+};
+
 struct FBotPipelineInputResult {
   FBotPipelineWorldSnapshot WorldSnapshot;
+};
+
+struct FBotPipelineHazardActionRequest {
+  FBotCoreRuntimeState State;
+  FBotPipelineOverlapSnapshot Overlap;
+  float DeltaTime = 0.0f;
+};
+
+struct FBotPipelineMovementActionRequest {
+  FBotCoreRuntimeState State;
+  FBotPipelineMovementSnapshot Movement;
+};
+
+struct FBotPipelineAwarenessActionRequest {
+  FBotCoreRuntimeState State;
+  FBotPipelineVisibilitySnapshot Visibility;
+};
+
+struct FBotPipelinePhaseActionRequest {
+  FBotCoreRuntimeState State;
+};
+
+struct FBotPipelineActionListAppendRequest {
+  TArray<rtk::AnyAction> Actions;
+  func::Maybe<rtk::AnyAction> Action;
+};
+
+struct FBotPipelineActionListRequest {
+  FBotCoreRuntimeState State;
+  FBotPipelineWorldSnapshot World;
 };
 
 struct FBotPipelineLogicResult {

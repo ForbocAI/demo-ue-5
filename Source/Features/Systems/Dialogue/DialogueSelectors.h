@@ -29,19 +29,6 @@ inline bool SelectPending(const FDialogueState &State) {
   return State.bPending;
 }
 
-inline FString SelectLocalReply(const FLocalDialogueReplyRequest &Request) {
-  if (!Request.PinnedResponse.IsEmpty()) {
-    return Request.PinnedResponse;
-  }
-  const FString Topic = Request.PlayerLine.IsEmpty()
-                            ? FString(TEXT("the gulch"))
-                            : Request.PlayerLine.Left(64);
-  return FString::Printf(
-      TEXT("%s (%s): %s. Around here in 1899, every claim, road, and rumor ")
-      TEXT("runs through French Gulch. %s"),
-      *Request.Name, *Request.Role, *Topic, *Request.Persona);
-}
-
 } // namespace DialogueSelectors
 } // namespace Level
 } // namespace Demo

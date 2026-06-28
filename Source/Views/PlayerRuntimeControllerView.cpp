@@ -2,9 +2,10 @@
 
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
-#include "Features/Components/Spatial/SpatialSelectors.h"
+#include "Features/Systems/Interaction/InteractionSlice.h"
+#include "Features/Systems/Runtime/RuntimeActions.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
-#include "Features/Systems/UI/UISelectors.h"
 #include "GameFramework/Pawn.h"
 #include "InputCoreTypes.h"
 #include "Store.h"
@@ -13,10 +14,50 @@
 
 namespace FG = ForbocAI::Demo::Level;
 
+namespace {
+
+FG::FInteractionCandidatesObserved ObserveTownspersonCandidates(
+    const APlayerRuntimeControllerView &Controller, float InteractionDistance,
+    TArray<ATownspersonView *> &ObservedTownspeople) {
+  FG::FInteractionCandidatesObserved Observation;
+  Observation.Id = TEXT("systems/interaction/townspersonCandidatesObserved");
+  Observation.MaxDistance = InteractionDistance;
+
+  const APawn *ControlledPawn = Controller.GetPawn();
+  UWorld *World = Controller.GetWorld();
+  if (!ControlledPawn || !World) {
+    return Observation;
+  }
+
+  Observation.Origin = ControlledPawn->GetActorLocation();
+  for (TActorIterator<ATownspersonView> It(World); It; ++It) {
+    ATownspersonView *Candidate = *It;
+    const int32 Index = ObservedTownspeople.Add(Candidate);
+    Observation.Candidates.Add({Index, Candidate->GetTownspersonId(),
+                                Candidate->GetActorLocation(),
+                                Candidate->IsPlayerNearby()});
+  }
+  return Observation;
+}
+
+FG::FRuntimeTownspersonInteractionSource ObserveTownspersonInteractionSource(
+    const ATownspersonView &Townsperson) {
+  return {Townsperson.GetTownspersonName(), Townsperson.GetRole(),
+          Townsperson.GetPersona(), Townsperson.GetDefaultPlayerLine(),
+          Townsperson.GetPinnedResponse()};
+}
+
+void PresentMissingInteraction(const FString &Message) {
+  GEngine ? GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Cyan, Message)
+          : void();
+}
+
+} // namespace
+
 APlayerRuntimeControllerView::APlayerRuntimeControllerView()
     : InteractionDistance(
-          ForbocAI::Demo::Level::SpatialSelectors::SelectTownLotWorldUnits() *
-          2.1f),
+          FG::RuntimeSelectors::SelectTownspersonInteractionDistance(
+              FG::Store::GetStore().getState())),
       RuntimeConversationWidget(nullptr) {}
 
 void APlayerRuntimeControllerView::SetupInputComponent() {
@@ -29,21 +70,31 @@ void APlayerRuntimeControllerView::SetupInputComponent() {
 }
 
 void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
-  ATownspersonView *Townsperson = FindNearestTownsperson();
-  if (!Townsperson) {
-    const FString Reply =
-        FG::UISelectors::SelectNearestTownsperson({}).MissingMessage;
-    GEngine ? GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Cyan, Reply)
-            : void();
+  TArray<ATownspersonView *> Townspeople;
+  const FG::FInteractionCandidatesObserved Observation =
+      ObserveTownspersonCandidates(*this, InteractionDistance, Townspeople);
+  FG::Store::GetStore().dispatch(
+      FG::InteractionSlice::TownspersonCandidatesObserved(Observation));
+  const FG::FInteractionSelection Selection =
+      FG::RuntimeSelectors::SelectInteractionSelection(
+          FG::Store::GetStore().getState());
+
+  if (!Selection.bFound ||
+      !Townspeople.IsValidIndex(Selection.CandidateIndex)) {
+    PresentMissingInteraction(Selection.MissingMessage);
     return;
   }
 
+  ATownspersonView *Townsperson = Townspeople[Selection.CandidateIndex];
+  FG::Store::GetStore().dispatch(
+      FG::RuntimeActions::TownspersonInteractionSourceObserved()(
+          ObserveTownspersonInteractionSource(*Townsperson)));
+  const FG::FRuntimeTownspersonInteractionRequest Request =
+      FG::RuntimeSelectors::SelectTownspersonInteractionRequest(
+          FG::Store::GetStore().getState());
   auto InteractionPayload = FG::FRuntimeTownspersonInteractionPayload();
   const auto Result = FG::Store::GetStore().dispatch(
-      FG::RuntimeSlice::RequestTownspersonInteraction(
-          {Townsperson->GetTownspersonName(), Townsperson->GetRole(),
-           Townsperson->GetPersona(), Townsperson->GetDefaultPlayerLine(),
-           Townsperson->GetPinnedResponse()}));
+      FG::RuntimeSlice::RequestTownspersonInteraction(Request));
   func::thenAsync(Result, [&InteractionPayload](auto Resolved) {
     InteractionPayload = Resolved;
   });
@@ -70,31 +121,4 @@ void APlayerRuntimeControllerView::PresentConversationViewModel(
   if (RuntimeConversationWidget) {
     RuntimeConversationWidget->ShowConversationViewModel(Conversation);
   }
-}
-
-ATownspersonView *
-APlayerRuntimeControllerView::FindNearestTownsperson() const {
-  const APawn *ControlledPawn = GetPawn();
-  UWorld *World = GetWorld();
-  if (!ControlledPawn || !World) {
-    return nullptr;
-  }
-
-  const FVector Origin = ControlledPawn->GetActorLocation();
-  TArray<ATownspersonView *> Townspeople;
-  TArray<FG::FUITownspersonInteractionCandidate> Candidates;
-
-  for (TActorIterator<ATownspersonView> It(World); It; ++It) {
-    ATownspersonView *Candidate = *It;
-    const int32 Index = Townspeople.Add(Candidate);
-    Candidates.Add({Index, Candidate->GetActorLocation(),
-                    Candidate->IsPlayerNearby()});
-  }
-
-  const FG::FUISelectedTownspersonViewModel Selection =
-      FG::UISelectors::SelectNearestTownsperson(
-          {Origin, InteractionDistance, Candidates});
-  return Selection.bFound && Townspeople.IsValidIndex(Selection.CandidateIndex)
-             ? Townspeople[Selection.CandidateIndex]
-             : nullptr;
 }

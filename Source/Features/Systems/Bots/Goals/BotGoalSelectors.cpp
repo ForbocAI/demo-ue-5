@@ -18,12 +18,9 @@ func::Maybe<FBotGoalComponent> SelectById(const FBotGoalState &State,
       State.Items, Id);
 }
 
-func::Maybe<FBotStrategicGoal> SelectActiveGoalById(
-    const FBotGoalState &State, const FString &Id) {
-  const func::Maybe<FBotGoalComponent> Goals = SelectById(State, Id);
-  return Goals.hasValue && Goals.value.bHasActiveGoal
-             ? func::just(Goals.value.ActiveGoal)
-             : func::nothing<FBotStrategicGoal>();
+const TMap<FString, FBotStrategicGoal> &
+SelectActiveGoalsById(const FBotGoalState &State) {
+  return State.ActiveGoalsById;
 }
 
 int32 SelectTotal(const FBotGoalState &State) {

@@ -17,6 +17,20 @@ inline const rtk::ActionCreator<FRuntimeState> &RuntimeHydrated() {
   return func::eval(Creator);
 }
 
+inline const rtk::ActionCreator<FRuntimeTownspersonInteractionSource> &
+TownspersonInteractionSourceObserved() {
+  static const func::Lazy<
+      rtk::ActionCreator<FRuntimeTownspersonInteractionSource>>
+      Creator =
+          func::lazy([]()
+                         -> rtk::ActionCreator<
+                             FRuntimeTownspersonInteractionSource> {
+            return rtk::createAction<FRuntimeTownspersonInteractionSource>(
+                TEXT("runtime/townspersonInteractionSourceObserved"));
+          });
+  return func::eval(Creator);
+}
+
 } // namespace RuntimeActions
 } // namespace Level
 } // namespace Demo

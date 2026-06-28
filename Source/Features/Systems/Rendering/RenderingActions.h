@@ -10,6 +10,10 @@ namespace Level {
 namespace RenderingActions {
 
 const rtk::ActionCreator<FRenderingPayload> &RenderingProfileObserved();
+const rtk::ActionCreator<FRenderingPresentationRequest> &
+TownspersonPresentationRequested();
+const rtk::ActionCreator<FRenderingPresentationRequest> &
+HorsePresentationRequested();
 
 } // namespace RenderingActions
 } // namespace Level

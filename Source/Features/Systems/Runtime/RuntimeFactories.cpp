@@ -23,6 +23,7 @@
 #include "Features/Systems/Terrain/TerrainFactories.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonFactories.h"
 #include "Features/Systems/UI/UISlice.h"
+#include "Features/Systems/Interaction/InteractionSlice.h"
 
 namespace ForbocAI {
 namespace Demo {
@@ -36,6 +37,7 @@ FRuntimeState CreateInitialState() {
   State.Level = LevelSystemSlice::CreateInitialState();
   State.Rendering = RenderingSlice::CreateInitialState();
   State.Dialogue = DialogueSlice::CreateInitialState();
+  State.Interaction = InteractionSlice::CreateInitialState();
   State.Speech = SpeechSlice::CreateInitialState();
   State.UI = UISlice::CreateInitialState();
   State.Terrain = TerrainFactories::CreateInitialState();

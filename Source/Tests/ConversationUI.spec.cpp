@@ -1,5 +1,5 @@
 #include "CoreMinimal.h"
-#include "Features/Systems/UI/UISelectors.h"
+#include "Features/Systems/UI/UIReducers.h"
 #include "Misc/AutomationTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -9,7 +9,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
   const ForbocAI::Demo::UI::FChatMessageViewModel PlayerMessage =
-      ForbocAI::Demo::Level::UISelectors::SelectChatMessageViewModel(
+      ForbocAI::Demo::Level::UIReducers::ReduceChatMessageViewModel(
           {TEXT("Player"), TEXT("Hello")});
   TestEqual(TEXT("Player message is role-prefixed"), PlayerMessage.Text,
             FString(TEXT("[Player] Hello")));
@@ -19,7 +19,7 @@ bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
   const TArray<FString> History = {TEXT("NPC: Welcome back"),
                                    TEXT("Unlabeled message")};
   const TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Messages =
-      ForbocAI::Demo::Level::UISelectors::SelectChatHistoryViewModels(
+      ForbocAI::Demo::Level::UIReducers::ReduceChatHistoryViewModels(
           {History});
   TestEqual(TEXT("History produces view models"), Messages.Num(), 2);
   TestEqual(TEXT("Tagged history keeps role"), Messages[0].Text,
@@ -28,14 +28,14 @@ bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
             FString(TEXT("[Unknown] Unlabeled message")));
 
   TestEqual(TEXT("Submitted text is trimmed"),
-            ForbocAI::Demo::Level::UISelectors::
-                SelectNormalizedSubmittedChatText(
+            ForbocAI::Demo::Level::UIReducers::
+                ReduceNormalizedSubmittedChatText(
                     {FText::FromString(TEXT("  Ask around  ")),
                      ETextCommit::OnEnter, true}),
             FString(TEXT("Ask around")));
 
   const ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation =
-      ForbocAI::Demo::Level::UISelectors::SelectRuntimeConversationViewModel(
+      ForbocAI::Demo::Level::UIReducers::ReduceRuntimeConversationViewModel(
           {TEXT("Clara Bell"), TEXT("Postmaster"), TEXT("Any mail?"),
            TEXT("Only dust today.")});
   TestEqual(TEXT("Conversation title is composed"), Conversation.Title,

@@ -43,6 +43,7 @@ struct FBotGoalCompleted {
 
 struct FBotGoalState {
   rtk::EntityState<FBotGoalComponent> Items;
+  TMap<FString, FBotStrategicGoal> ActiveGoalsById;
 };
 
 inline bool operator==(const FBotStrategicGoal &Left,
@@ -104,9 +105,33 @@ inline bool operator!=(const FBotGoalCompleted &Left,
   return !(Left == Right);
 }
 
+inline bool ActiveGoalMapsEqualAtIndex(
+    const TArray<FString> &Keys,
+    const TMap<FString, FBotStrategicGoal> &Left,
+    const TMap<FString, FBotStrategicGoal> &Right, int32 Index) {
+  if (Index >= Keys.Num()) {
+    return true;
+  }
+
+  const FBotStrategicGoal *LeftGoal = Left.Find(Keys[Index]);
+  const FBotStrategicGoal *RightGoal = Right.Find(Keys[Index]);
+  return LeftGoal && RightGoal && *LeftGoal == *RightGoal &&
+         ActiveGoalMapsEqualAtIndex(Keys, Left, Right, Index + 1);
+}
+
+inline bool ActiveGoalMapsEqual(
+    const TMap<FString, FBotStrategicGoal> &Left,
+    const TMap<FString, FBotStrategicGoal> &Right) {
+  TArray<FString> Keys;
+  Left.GetKeys(Keys);
+  return Left.Num() == Right.Num() &&
+         ActiveGoalMapsEqualAtIndex(Keys, Left, Right, 0);
+}
+
 inline bool operator==(const FBotGoalState &Left,
                        const FBotGoalState &Right) {
-  return Left.Items == Right.Items;
+  return Left.Items == Right.Items &&
+         ActiveGoalMapsEqual(Left.ActiveGoalsById, Right.ActiveGoalsById);
 }
 
 inline bool operator!=(const FBotGoalState &Left,

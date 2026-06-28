@@ -26,13 +26,14 @@ struct FTownspersonSeed {
   TArray<FLevelLocalPoint> PatrolRoute;
 };
 
-struct FTownspersonState {
-  rtk::EntityState<FTownspersonSeed> Items;
-};
-
 struct FTownspersonViewDefaultsRequest {
   FString InteractionPrompt;
   FString DefaultPlayerLine;
+};
+
+struct FTownspersonIntentProjectionRequest {
+  TArray<FTownspersonSeed> Townspeople;
+  ETownspersonInteractionIntent Intent;
 };
 
 struct FTownspersonViewDefaults {
@@ -54,6 +55,16 @@ struct FTownspersonInteractionOverlapViewModel {
   bool bPromptVisible = false;
 };
 
+struct FTownspersonState {
+  rtk::EntityState<FTownspersonSeed> Items;
+  TArray<FTownspersonSeed> GeneralTownspeople;
+  TArray<FTownspersonSeed> DialogueTownspeople;
+  TArray<FTownspersonSeed> MemoryTownspeople;
+  TArray<FTownspersonSeed> CombatValidationTownspeople;
+  FTownspersonViewDefaults LastViewDefaults;
+  FTownspersonInteractionOverlapViewModel LastInteractionOverlap;
+};
+
 inline bool operator==(const FTownspersonSeed &Left,
                        const FTownspersonSeed &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name &&
@@ -70,9 +81,34 @@ inline bool operator!=(const FTownspersonSeed &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FTownspersonIntentProjectionRequest &Left,
+                       const FTownspersonIntentProjectionRequest &Right) {
+  return Left.Townspeople == Right.Townspeople && Left.Intent == Right.Intent;
+}
+
+inline bool operator!=(const FTownspersonIntentProjectionRequest &Left,
+                       const FTownspersonIntentProjectionRequest &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FTownspersonState &Left,
                        const FTownspersonState &Right) {
-  return Left.Items == Right.Items;
+  return Left.Items == Right.Items &&
+         Left.GeneralTownspeople == Right.GeneralTownspeople &&
+         Left.DialogueTownspeople == Right.DialogueTownspeople &&
+         Left.MemoryTownspeople == Right.MemoryTownspeople &&
+         Left.CombatValidationTownspeople ==
+             Right.CombatValidationTownspeople &&
+         Left.LastViewDefaults.InteractionPrompt ==
+             Right.LastViewDefaults.InteractionPrompt &&
+         Left.LastViewDefaults.DefaultPlayerLine ==
+             Right.LastViewDefaults.DefaultPlayerLine &&
+         Left.LastInteractionOverlap.bShouldApply ==
+             Right.LastInteractionOverlap.bShouldApply &&
+         Left.LastInteractionOverlap.bPlayerNearby ==
+             Right.LastInteractionOverlap.bPlayerNearby &&
+         Left.LastInteractionOverlap.bPromptVisible ==
+             Right.LastInteractionOverlap.bPromptVisible;
 }
 
 inline bool operator!=(const FTownspersonState &Left,

@@ -13,6 +13,7 @@
 #include "Features/Systems/Bots/Stats/BotStatsSlice.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonSlice.h"
 #include "Features/Systems/Dialogue/DialogueSlice.h"
+#include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Level/LevelSlice.h"
 #include "Features/Systems/Landmarks/LandmarkSlice.h"
 #include "Features/Systems/Nature/NatureSlice.h"
@@ -42,6 +43,8 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
                  RenderingSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Dialogue,
                  DialogueSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::Interaction,
+                 InteractionSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Speech, SpeechSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::UI, UISlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Terrain, TerrainSlice::GetSlice().Reducer)
@@ -69,7 +72,8 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
     return [CombinedReducers](const FRuntimeState &State,
                               const rtk::AnyAction &Action) -> FRuntimeState {
       return RuntimeReducers::ReduceRuntimeEcsProjected(
-          CombinedReducers(State, Action));
+          RuntimeReducers::ReduceRuntimeAction(
+              CombinedReducers(State, Action), Action));
     };
   }();
   return Reducer;

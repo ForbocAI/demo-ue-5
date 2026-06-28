@@ -30,7 +30,6 @@ private:
   URuntimeChatWidget *RuntimeConversationWidget;
 
   void InteractWithNearestTownsperson();
-  ATownspersonView *FindNearestTownsperson() const;
   void PresentConversationViewModel(
       const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation);
 };

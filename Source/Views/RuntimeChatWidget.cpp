@@ -4,7 +4,8 @@
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
-#include "Features/Systems/UI/UISelectors.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
+#include "Store.h"
 
 void URuntimeChatWidget::NativeConstruct() {
   Super::NativeConstruct();
@@ -16,8 +17,8 @@ void URuntimeChatWidget::NativeConstruct() {
         WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
 
     const ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation =
-        ForbocAI::Demo::Level::UISelectors::
-            SelectRuntimeConversationPlaceholder();
+        ForbocAI::Demo::Level::RuntimeSelectors::SelectRuntimeConversation(
+            ForbocAI::Demo::Level::Store::GetStore().getState());
 
     TitleTextElement = BuildTextElement(Conversation.Title,
                                         Conversation.TitleColor,

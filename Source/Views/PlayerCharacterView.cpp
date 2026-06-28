@@ -7,7 +7,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
-#include "Features/Entities/Characters/Player/PlayerSelectors.h"
+#include "Features/Entities/Characters/Player/PlayerActions.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -17,20 +18,18 @@
 #include "InputModifiers.h"
 #include "InputTriggers.h"
 #include "InputCoreTypes.h"
+#include "Store.h"
 
-namespace FGP = ForbocAI::Demo::Level::PlayerSelectors;
+namespace FG = ForbocAI::Demo::Level;
 
 namespace {
-constexpr float CapsuleRadius = 42.0f;
-constexpr float CapsuleHalfHeight = 96.0f;
-constexpr float FollowCameraArmLength = 400.0f;
-constexpr float RotationRateYaw = 500.0f;
-constexpr float JumpZVelocity = 500.0f;
-constexpr float AirControl = 0.35f;
-constexpr float MaxWalkSpeed = 500.0f;
-constexpr float MinAnalogWalkSpeed = 20.0f;
-constexpr float BrakingDecelerationWalking = 2000.0f;
-constexpr float BrakingDecelerationFalling = 1500.0f;
+FG::FPlayerPresentationViewModel ObservePlayerPresentation() {
+  FG::Store::GetStore().dispatch(
+      FG::PlayerActions::PlayerPresentationRequested()(
+          {TEXT("entities/player/presentationRequested")}));
+  return FG::RuntimeSelectors::SelectPlayerPresentation(
+      FG::Store::GetStore().getState());
+}
 
 UInputAction *InputAction(const TCHAR *AssetPath, UObject *Outer,
                           const FName Name, EInputActionValueType Type) {
@@ -91,8 +90,15 @@ void MapKeyWithModifiers(const FInputKeyMapWithModifiers &Map) {
 
 APlayerCharacterView::APlayerCharacterView()
     : MappingContext(nullptr), MouseMappingContext(nullptr), MoveAction(nullptr),
-      LookAction(nullptr), MouseLookAction(nullptr), JumpAction(nullptr) {
-  GetCapsuleComponent()->InitCapsuleSize(CapsuleRadius, CapsuleHalfHeight);
+      LookAction(nullptr), MouseLookAction(nullptr), JumpAction(nullptr),
+      MeshRelativeLocation(FVector::ZeroVector),
+      MeshRelativeRotation(FRotator::ZeroRotator) {
+  const FG::FPlayerPresentationViewModel Presentation =
+      ObservePlayerPresentation();
+  MeshRelativeLocation = Presentation.MeshRelativeLocation;
+  MeshRelativeRotation = Presentation.MeshRelativeRotation;
+  GetCapsuleComponent()->InitCapsuleSize(Presentation.CapsuleRadius,
+                                         Presentation.CapsuleHalfHeight);
 
   bUseControllerRotationPitch = false;
   bUseControllerRotationYaw = false;
@@ -100,17 +106,19 @@ APlayerCharacterView::APlayerCharacterView()
 
   UCharacterMovementComponent *Movement = GetCharacterMovement();
   Movement->bOrientRotationToMovement = true;
-  Movement->RotationRate = FRotator(0.0f, RotationRateYaw, 0.0f);
-  Movement->JumpZVelocity = JumpZVelocity;
-  Movement->AirControl = AirControl;
-  Movement->MaxWalkSpeed = MaxWalkSpeed;
-  Movement->MinAnalogWalkSpeed = MinAnalogWalkSpeed;
-  Movement->BrakingDecelerationWalking = BrakingDecelerationWalking;
-  Movement->BrakingDecelerationFalling = BrakingDecelerationFalling;
+  Movement->RotationRate = FRotator(0.0f, Presentation.RotationRateYaw, 0.0f);
+  Movement->JumpZVelocity = Presentation.JumpZVelocity;
+  Movement->AirControl = Presentation.AirControl;
+  Movement->MaxWalkSpeed = Presentation.MaxWalkSpeed;
+  Movement->MinAnalogWalkSpeed = Presentation.MinAnalogWalkSpeed;
+  Movement->BrakingDecelerationWalking =
+      Presentation.BrakingDecelerationWalking;
+  Movement->BrakingDecelerationFalling =
+      Presentation.BrakingDecelerationFalling;
 
   CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
   CameraBoom->SetupAttachment(RootComponent);
-  CameraBoom->TargetArmLength = FollowCameraArmLength;
+  CameraBoom->TargetArmLength = Presentation.FollowCameraArmLength;
   CameraBoom->bUsePawnControlRotation = true;
 
   FollowCamera =
@@ -160,9 +168,14 @@ void APlayerCharacterView::SetupPlayerInputComponent(
 
 void APlayerCharacterView::DoMove(float Right, float Forward) {
   const ForbocAI::Demo::Level::FPlayerMovementInputViewModel Model =
-      FGP::SelectMovementInput({Controller ? Controller->GetControlRotation()
-                                           : FRotator::ZeroRotator,
-                                Right, Forward, Controller != nullptr});
+      (FG::Store::GetStore().dispatch(
+           FG::PlayerActions::PlayerMovementInputObserved()(
+               {TEXT("entities/player/movementInputObserved"),
+                Controller ? Controller->GetControlRotation()
+                           : FRotator::ZeroRotator,
+                Right, Forward, Controller != nullptr})),
+       FG::RuntimeSelectors::SelectPlayerMovementInput(
+           FG::Store::GetStore().getState()));
   Model.bShouldMove
       ? (AddMovementInput(Model.ForwardDirection, Model.ForwardScale),
          AddMovementInput(Model.RightDirection, Model.RightScale), void())
@@ -183,8 +196,8 @@ void APlayerCharacterView::ConfigureTemplateCharacter() {
           nullptr,
           TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"))) {
     GetMesh()->SetSkeletalMesh(CharacterMesh);
-    GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -CapsuleHalfHeight));
-    GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+    GetMesh()->SetRelativeLocation(MeshRelativeLocation);
+    GetMesh()->SetRelativeRotation(MeshRelativeRotation);
   } else {
     UE_LOG(LogTemp, Error,
            TEXT("ThirdPerson: required Manny skeletal mesh is missing."));

@@ -3,7 +3,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Texture2D.h"
 #include "Features/Systems/Rendering/RenderingActions.h"
-#include "Features/Systems/Rendering/RenderingSelectors.h"
+#include "Features/Systems/Rendering/RenderingReducers.h"
 #include "HAL/IConsoleManager.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
@@ -148,8 +148,8 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
 }
 
 UTexture2D *CreateRetroTexture(ELevelRetroTexture Texture) {
-  const FLevelRetroTextureSpec &Spec =
-      RenderingSelectors::SelectTextureSpec(Texture);
+  const FLevelRetroTextureSpec Spec =
+      RenderingReducers::ReduceDefaultTextureSpec({Texture});
   UTexture2D *Result =
       UTexture2D::CreateTransient(Spec.Size.X, Spec.Size.Y, PF_B8G8R8A8);
   if (!Result || !Result->GetPlatformData() ||
@@ -206,8 +206,8 @@ ObserveRuntimeProfile(const FString &Id) {
               std::function<FRuntimeState()> GetState)
              -> func::AsyncResult<FRenderingPayload> {
     const FRenderingPayload Payload{
-        Id, RenderingSelectors::SelectRuntimeProfile(),
-        RenderingSelectors::SelectTextureCatalog()};
+        Id, RenderingReducers::ReduceRuntimeProfileDefaults(),
+        RenderingReducers::ReduceTextureCatalogDefaults()};
     return func::createAsyncResult<FRenderingPayload>(
         [Dispatch, Payload](std::function<void(FRenderingPayload)> Resolve,
                             std::function<void(std::string)> Reject) {
@@ -219,7 +219,7 @@ ObserveRuntimeProfile(const FString &Id) {
 
 void ApplyRuntimeProfile() {
   const FLevelRetroRenderProfile &Profile =
-      RenderingSelectors::SelectRuntimeProfile();
+      RenderingReducers::ReduceRuntimeProfileDefaults();
   SetCVarInt({TEXT("r.AntiAliasingMethod"), Profile.AntiAliasingMethod});
   SetCVarInt({TEXT("r.PostProcessAAQuality"), Profile.PostProcessAAQuality});
   SetCVarInt({TEXT("r.TemporalAA.Upsampling"), 0});

@@ -12,8 +12,8 @@ namespace BotGoalSelectors {
 TArray<FBotGoalComponent> SelectAll(const FBotGoalState &State);
 func::Maybe<FBotGoalComponent> SelectById(const FBotGoalState &State,
                                           const FString &Id);
-func::Maybe<FBotStrategicGoal> SelectActiveGoalById(
-    const FBotGoalState &State, const FString &Id);
+const TMap<FString, FBotStrategicGoal> &
+SelectActiveGoalsById(const FBotGoalState &State);
 int32 SelectTotal(const FBotGoalState &State);
 
 } // namespace BotGoalSelectors

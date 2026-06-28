@@ -16,6 +16,7 @@
 #include "Features/Systems/Bots/Pipeline/BotPipelineTypes.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 #include "Features/Systems/Dialogue/DialogueTypes.h"
+#include "Features/Systems/Interaction/InteractionTypes.h"
 #include "Features/Systems/Level/LevelTypes.h"
 #include "Features/Systems/Landmarks/LandmarkTypes.h"
 #include "Features/Systems/Nature/NatureTypes.h"
@@ -35,6 +36,7 @@ struct FRuntimeEcsState {
 };
 
 struct FRuntimeTownspersonViewSpawn {
+  FString Id;
   FString Name;
   FString Role;
   FString Persona;
@@ -74,6 +76,14 @@ struct FRuntimeTownspersonInteractionRequest {
   FString PinnedResponse;
 };
 
+struct FRuntimeTownspersonInteractionSource {
+  FString Name;
+  FString Role;
+  FString Persona;
+  FString DefaultPlayerLine;
+  FString PinnedResponse;
+};
+
 struct FRuntimeTownspersonInteractionPayload {
   FDialogueReplyPayload DialogueReply;
   FUIPayload UI;
@@ -100,7 +110,7 @@ inline bool operator!=(const FRuntimeEcsState &Left,
 
 inline bool operator==(const FRuntimeTownspersonViewSpawn &Left,
                        const FRuntimeTownspersonViewSpawn &Right) {
-  return Left.Name == Right.Name && Left.Role == Right.Role &&
+  return Left.Id == Right.Id && Left.Name == Right.Name && Left.Role == Right.Role &&
          Left.Persona == Right.Persona &&
          Left.InteractionPrompt == Right.InteractionPrompt &&
          Left.DefaultPlayerLine == Right.DefaultPlayerLine &&
@@ -136,6 +146,19 @@ inline bool operator!=(const FRuntimeTownspersonInteractionRequest &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FRuntimeTownspersonInteractionSource &Left,
+                       const FRuntimeTownspersonInteractionSource &Right) {
+  return Left.Name == Right.Name && Left.Role == Right.Role &&
+         Left.Persona == Right.Persona &&
+         Left.DefaultPlayerLine == Right.DefaultPlayerLine &&
+         Left.PinnedResponse == Right.PinnedResponse;
+}
+
+inline bool operator!=(const FRuntimeTownspersonInteractionSource &Left,
+                       const FRuntimeTownspersonInteractionSource &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FRuntimeTownspersonInteractionPayload &Left,
                        const FRuntimeTownspersonInteractionPayload &Right) {
   return Left.DialogueReply == Right.DialogueReply && Left.UI == Right.UI;
@@ -162,11 +185,13 @@ inline bool operator!=(const FRuntimeLevelViewPayload &Left,
 
 struct FRuntimeState {
   FRuntimeEcsState Ecs;
+  FRuntimeTownspersonInteractionRequest LastTownspersonInteractionRequest;
   FPlayerState Player;
   FSystemsState Systems;
   FLevelSystemState Level;
   FRenderingState Rendering;
   FDialogueState Dialogue;
+  FInteractionState Interaction;
   FSpeechState Speech;
   FUIState UI;
   FTerrainState Terrain;
@@ -189,11 +214,15 @@ struct FRuntimeState {
 inline bool operator==(const FRuntimeState &Left,
                        const FRuntimeState &Right) {
   return Left.Ecs == Right.Ecs &&
+         Left.LastTownspersonInteractionRequest ==
+             Right.LastTownspersonInteractionRequest &&
          Left.Player == Right.Player &&
          Left.Terrain == Right.Terrain &&
          Left.Systems == Right.Systems && Left.Level == Right.Level &&
          Left.Rendering == Right.Rendering &&
-         Left.Dialogue == Right.Dialogue && Left.Speech == Right.Speech &&
+         Left.Dialogue == Right.Dialogue &&
+         Left.Interaction == Right.Interaction &&
+         Left.Speech == Right.Speech &&
          Left.UI == Right.UI &&
          Left.Spawn == Right.Spawn &&
          Left.Landmarks == Right.Landmarks &&

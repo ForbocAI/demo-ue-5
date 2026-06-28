@@ -12,12 +12,18 @@ namespace TownspersonSelectors {
 TArray<FTownspersonSeed> SelectAll(const FTownspersonState &State);
 func::Maybe<FTownspersonSeed> SelectById(const FTownspersonState &State,
                                          const FString &Id);
-TArray<FTownspersonSeed> SelectByInteractionIntent(
-    const FTownspersonState &State, ETownspersonInteractionIntent Intent);
-FTownspersonViewDefaults SelectViewDefaults(
-    const FTownspersonViewDefaultsRequest &Request);
-FTownspersonInteractionOverlapViewModel SelectInteractionOverlap(
-    const FTownspersonInteractionOverlapRequest &Request);
+const TArray<FTownspersonSeed> &
+SelectGeneralTownspeople(const FTownspersonState &State);
+const TArray<FTownspersonSeed> &
+SelectDialogueTownspeople(const FTownspersonState &State);
+const TArray<FTownspersonSeed> &
+SelectMemoryTownspeople(const FTownspersonState &State);
+const TArray<FTownspersonSeed> &
+SelectCombatValidationTownspeople(const FTownspersonState &State);
+const FTownspersonViewDefaults &
+SelectLastViewDefaults(const FTownspersonState &State);
+const FTownspersonInteractionOverlapViewModel &
+SelectLastInteractionOverlap(const FTownspersonState &State);
 
 } // namespace TownspersonSelectors
 } // namespace Level

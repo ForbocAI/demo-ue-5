@@ -14,6 +14,30 @@ const rtk::ActionCreator<FRenderingPayload> &RenderingProfileObserved() {
   return func::eval(Creator);
 }
 
+const rtk::ActionCreator<FRenderingPresentationRequest> &
+TownspersonPresentationRequested() {
+  static const func::Lazy<rtk::ActionCreator<FRenderingPresentationRequest>>
+      Creator =
+          func::lazy(
+              []() -> rtk::ActionCreator<FRenderingPresentationRequest> {
+                return rtk::createAction<FRenderingPresentationRequest>(
+                    TEXT("systems/rendering/townspersonPresentationRequested"));
+              });
+  return func::eval(Creator);
+}
+
+const rtk::ActionCreator<FRenderingPresentationRequest> &
+HorsePresentationRequested() {
+  static const func::Lazy<rtk::ActionCreator<FRenderingPresentationRequest>>
+      Creator =
+          func::lazy(
+              []() -> rtk::ActionCreator<FRenderingPresentationRequest> {
+                return rtk::createAction<FRenderingPresentationRequest>(
+                    TEXT("systems/rendering/horsePresentationRequested"));
+              });
+  return func::eval(Creator);
+}
+
 } // namespace RenderingActions
 } // namespace Level
 } // namespace Demo

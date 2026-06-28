@@ -14,6 +14,32 @@ const rtk::ActionCreator<TArray<FTownspersonSeed>> &TownspeopleSeeded() {
   return func::eval(Creator);
 }
 
+const rtk::ActionCreator<FTownspersonViewDefaultsRequest> &
+ViewDefaultsRequested() {
+  static const func::Lazy<rtk::ActionCreator<FTownspersonViewDefaultsRequest>>
+      Creator =
+          func::lazy(
+              []() -> rtk::ActionCreator<FTownspersonViewDefaultsRequest> {
+                return rtk::createAction<FTownspersonViewDefaultsRequest>(
+                    TEXT("townspeople/viewDefaultsRequested"));
+              });
+  return func::eval(Creator);
+}
+
+const rtk::ActionCreator<FTownspersonInteractionOverlapRequest> &
+InteractionOverlapObserved() {
+  static const func::Lazy<
+      rtk::ActionCreator<FTownspersonInteractionOverlapRequest>>
+      Creator =
+          func::lazy([]()
+                         -> rtk::ActionCreator<
+                             FTownspersonInteractionOverlapRequest> {
+            return rtk::createAction<FTownspersonInteractionOverlapRequest>(
+                TEXT("townspeople/interactionOverlapObserved"));
+          });
+  return func::eval(Creator);
+}
+
 } // namespace TownspersonActions
 } // namespace Level
 } // namespace Demo

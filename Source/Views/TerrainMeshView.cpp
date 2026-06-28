@@ -1,8 +1,12 @@
 #include "Views/TerrainMeshView.h"
 
-#include "Features/Systems/Terrain/TerrainSelectors.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
+#include "Features/Systems/Terrain/TerrainActions.h"
+#include "Store.h"
 #include "Views/ProceduralMeshElement.h"
 #include "UObject/ConstructorHelpers.h"
+
+namespace FG = ForbocAI::Demo::Level;
 
 ATerrainMeshView::ATerrainMeshView() {
   PrimaryActorTick.bCanEverTick = false;
@@ -25,9 +29,11 @@ ATerrainMeshView::ATerrainMeshView() {
 
 bool ATerrainMeshView::ApplyTerrainMeshPayload(
     const ForbocAI::Demo::Level::FTerrainMeshPayload &Payload) {
-  const ForbocAI::Demo::Level::TerrainSelectors::FTerrainMeshSectionViewModel
-      Model = ForbocAI::Demo::Level::TerrainSelectors::
-          SelectTerrainMeshSectionViewModel(Payload);
+  FG::Store::GetStore().dispatch(
+      FG::TerrainActions::TerrainMeshPayloadObserved()(Payload));
+  const FG::FTerrainMeshSectionViewModel Model =
+      FG::RuntimeSelectors::SelectTerrainMeshSectionViewModel(
+          FG::Store::GetStore().getState());
   TArray<FProcMeshTangent> Tangents;
   return Model.bLoaded
              ? (ProceduralMeshElement->CreateMeshSection(

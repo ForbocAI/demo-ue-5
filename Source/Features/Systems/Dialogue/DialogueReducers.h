@@ -9,6 +9,29 @@ namespace Demo {
 namespace Level {
 namespace DialogueReducers {
 
+inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request) {
+  if (!Request.PinnedResponse.IsEmpty()) {
+    return Request.PinnedResponse;
+  }
+  const FString Topic = Request.PlayerLine.IsEmpty()
+                            ? FString(TEXT("the gulch"))
+                            : Request.PlayerLine.Left(64);
+  return FString::Printf(
+      TEXT("%s (%s): %s. Around here in 1899, every claim, road, and rumor ")
+      TEXT("runs through French Gulch. %s"),
+      *Request.Name, *Request.Role, *Topic, *Request.Persona);
+}
+
+inline FDialogueReplyPayload
+ReduceLocalReplyPayload(const FLocalDialogueReplyRequest &Request) {
+  FDialogueReplyPayload Payload;
+  Payload.Id = FString::Printf(TEXT("systems/dialogue/localReply/%s"),
+                               *Request.Name);
+  Payload.Request = Request;
+  Payload.Reply = ReduceLocalReply(Request);
+  return Payload;
+}
+
 inline FDialogueState ReduceDialogueObserved(
     const FDialogueState &State,
     const rtk::PayloadAction<FDialoguePayload> &Action) {

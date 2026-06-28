@@ -116,19 +116,13 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
             TownspersonSeeds.Num());
 
   TestEqual(TEXT("Runtime has dialogue townsperson interaction"),
-            RuntimeSelectors::SelectTownspeopleByInteractionIntent(
-                State, ETownspersonInteractionIntent::Dialogue)
-                .Num(),
+            RuntimeSelectors::SelectDialogueTownspeople(State).Num(),
             1);
   TestEqual(TEXT("Runtime has memory townsperson interaction"),
-            RuntimeSelectors::SelectTownspeopleByInteractionIntent(
-                State, ETownspersonInteractionIntent::Memory)
-                .Num(),
+            RuntimeSelectors::SelectMemoryTownspeople(State).Num(),
             1);
   TestEqual(TEXT("Runtime has combat validation townsperson interaction"),
-            RuntimeSelectors::SelectTownspeopleByInteractionIntent(
-                State, ETownspersonInteractionIntent::CombatValidation)
-                .Num(),
+            RuntimeSelectors::SelectCombatValidationTownspeople(State).Num(),
             1);
 
   const int32 BotEntityCount =
@@ -195,16 +189,16 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
              SorrelMoveSpeed.value.FloatValue > 0.0f);
   }
 
-  const func::Maybe<FBotStrategicGoal> PostRoadGoal =
-      RuntimeSelectors::SelectBotActiveGoalById(State,
-                                                TEXT("post-road-rider"));
+  const FBotStrategicGoal *PostRoadGoal =
+      RuntimeSelectors::SelectBotActiveGoalsById(State).Find(
+          TEXT("post-road-rider"));
   TestTrue(TEXT("Horse bot active goal is selectable"),
-           PostRoadGoal.hasValue);
-  if (PostRoadGoal.hasValue) {
+           PostRoadGoal != nullptr);
+  if (PostRoadGoal) {
     TestTrue(TEXT("Post road rider has a patrol goal"),
-             PostRoadGoal.value.Type == EBotGoalType::Patrol);
+             PostRoadGoal->Type == EBotGoalType::Patrol);
     TestTrue(TEXT("Post road rider goal targets a route location"),
-             PostRoadGoal.value.bHasTargetLocation);
+             PostRoadGoal->bHasTargetLocation);
   }
 
   TestTrue(TEXT("Clear Creek natural environment features are seeded"),
@@ -235,7 +229,8 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Nature seed includes Water System marker"), bHasWaterMarker);
 
   const FLevelRetroRenderProfile &RetroProfile =
-      RenderingSelectors::SelectRuntimeProfile();
+      RenderingSelectors::SelectRuntimeProfile(
+          RuntimeSelectors::SelectRenderingState(State));
   TestEqual(TEXT("Retro profile is set to 3pm"),
             RetroProfile.TimeOfDayHour, 15.0f);
   TestEqual(TEXT("Retro profile disables anti-aliasing"),
@@ -243,8 +238,9 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Retro profile keeps long readable vistas"),
            RetroProfile.ViewDistanceScale >= 1.5f);
 
-  const TArray<FLevelRetroTextureSpec> TextureCatalog =
-      RenderingSelectors::SelectTextureCatalog();
+  const TArray<FLevelRetroTextureSpec> &TextureCatalog =
+      RenderingSelectors::SelectTextureCatalog(
+          RuntimeSelectors::SelectRenderingState(State));
   TestTrue(TEXT("Retro texture catalog covers terrain, level, NPC, and horse surfaces"),
            TextureCatalog.Num() >= 13);
 

@@ -11,19 +11,9 @@ bool SelectLoaded(const FTerrainState &State) {
       .val;
 }
 
-FTerrainMeshSectionViewModel
-SelectTerrainMeshSectionViewModel(const FTerrainMeshPayload &Payload) {
-  return (func::pipe(FTerrainMeshSectionViewModel{}) |
-          [&Payload](FTerrainMeshSectionViewModel Model) {
-            Model.bLoaded = Payload.bLoaded;
-            Model.Vertices = Payload.Vertices;
-            Model.Triangles = Payload.Triangles;
-            Model.Normals = Payload.Normals;
-            Model.UVs = Payload.UVs;
-            Model.VertexColors = Payload.VertexColors;
-            return Model;
-          })
-      .val;
+const FTerrainMeshSectionViewModel &
+SelectLastMeshSection(const FTerrainState &State) {
+  return State.LastMeshSection;
 }
 
 } // namespace TerrainSelectors

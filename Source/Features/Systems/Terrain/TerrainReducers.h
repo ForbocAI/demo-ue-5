@@ -12,10 +12,15 @@ namespace TerrainReducers {
 FTerrainState
 ReduceTerrainLoaded(const FTerrainState &State,
                     const rtk::PayloadAction<FTerrainLoadedPayload> &Action);
+FTerrainState ReduceTerrainMeshPayloadObserved(
+    const FTerrainState &State,
+    const rtk::PayloadAction<FTerrainMeshPayload> &Action);
 
 FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
                         const FLevelOrthoData &OrthoData);
+FTerrainMeshSectionViewModel
+ReduceTerrainMeshSectionViewModel(const FTerrainMeshPayload &Payload);
 
 } // namespace TerrainReducers
 } // namespace Level

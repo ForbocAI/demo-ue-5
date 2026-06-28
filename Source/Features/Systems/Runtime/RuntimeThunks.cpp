@@ -7,12 +7,13 @@
 #include "Features/Entities/Environments/Nature/NatureSeedAdapters.h"
 #include "Features/Systems/Bots/Horses/HorseActions.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
+#include "Features/Systems/Dialogue/DialogueReducers.h"
 #include "Features/Systems/Dialogue/DialogueThunks.h"
-#include "Features/Systems/Dialogue/DialogueSelectors.h"
 #include "Features/Systems/Landmarks/LandmarkActions.h"
 #include "Features/Systems/Level/LevelRuntimeSession.h"
 #include "Features/Systems/Nature/NatureActions.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
+#include "Features/Systems/Runtime/RuntimeReducers.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Features/Systems/Spawn/SpawnActions.h"
 #include "Features/Systems/Spawn/SpawnFactories.h"
@@ -56,14 +57,9 @@ void DispatchRuntimeSeeded(
       NatureAdapters::BuildClearCreekNatureSeed()));
 }
 
-FDialogueReplyPayload SelectLocalDialogueReplyPayload(
+FDialogueReplyPayload ReduceLocalDialogueReplyPayload(
     const FLocalDialogueReplyRequest &Request) {
-  FDialogueReplyPayload Payload;
-  Payload.Id = FString::Printf(TEXT("systems/dialogue/localReply/%s"),
-                               *Request.Name);
-  Payload.Request = Request;
-  Payload.Reply = DialogueSelectors::SelectLocalReply(Request);
-  return Payload;
+  return DialogueReducers::ReduceLocalReplyPayload(Request);
 }
 
 } // namespace
@@ -104,7 +100,7 @@ RequestLevelViewPayload() {
           func::executeAsync(RenderingThunks::ObserveRuntimeProfile(
                                  TEXT("runtime/rendering/profileObserved"))(
               Dispatch, GetState));
-          Resolve(RuntimeSelectors::SelectLevelViewPayload(
+          Resolve(RuntimeReducers::ReduceLevelViewPayload(
               GetState(), {&TerrainData, &OrthoData, &RuntimeLayout}));
         });
   };
@@ -124,7 +120,7 @@ RequestLocalDialogueReply(const FLocalDialogueReplyRequest &Request) {
           (void)Reject;
           Dispatch(DialogueThunks::RequestLocalReply().pending(Request));
           const FDialogueReplyPayload Payload =
-              SelectLocalDialogueReplyPayload(Request);
+              ReduceLocalDialogueReplyPayload(Request);
           Dispatch(DialogueThunks::RequestLocalReply().fulfilled(Payload));
           Resolve(Payload);
         });
@@ -145,15 +141,15 @@ RequestTownspersonInteraction(
             std::function<void(std::string)> Reject) {
           (void)Reject;
           const FLocalDialogueReplyRequest DialogueRequest =
-              RuntimeSelectors::SelectLocalDialogueReplyRequest(Request);
+              RuntimeReducers::ReduceLocalDialogueReplyRequest(Request);
           Dispatch(
               DialogueThunks::RequestLocalReply().pending(DialogueRequest));
           const FDialogueReplyPayload DialogueReply =
-              SelectLocalDialogueReplyPayload(DialogueRequest);
+              ReduceLocalDialogueReplyPayload(DialogueRequest);
           Dispatch(DialogueThunks::RequestLocalReply().fulfilled(
               DialogueReply));
           const FRuntimeTownspersonInteractionPayload Payload =
-              RuntimeSelectors::SelectTownspersonInteractionPayload(
+              RuntimeReducers::ReduceTownspersonInteractionPayload(
                   DialogueReply);
           Dispatch(UIActions::ConversationPresented()(Payload.UI));
           Resolve(Payload);

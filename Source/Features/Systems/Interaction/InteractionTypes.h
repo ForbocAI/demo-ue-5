@@ -1,0 +1,98 @@
+#pragma once
+
+#include "Core/rtk.hpp"
+
+namespace ForbocAI {
+namespace Demo {
+namespace Level {
+
+struct FInteractionCandidate {
+  int32 Index = INDEX_NONE;
+  FString EntityId;
+  FVector Location = FVector::ZeroVector;
+  bool bCanInteract = false;
+};
+
+struct FInteractionCandidatesObserved {
+  FString Id;
+  FVector Origin = FVector::ZeroVector;
+  float MaxDistance = 0.0f;
+  TArray<FInteractionCandidate> Candidates;
+};
+
+struct FInteractionSelection {
+  bool bFound = false;
+  int32 CandidateIndex = INDEX_NONE;
+  FString EntityId;
+  float DistanceSquared = 0.0f;
+  FString MissingMessage;
+};
+
+struct FInteractionState {
+  func::Maybe<FString> LastActionId = func::nothing<FString>();
+  FVector LastOrigin = FVector::ZeroVector;
+  float LastMaxDistance = 0.0f;
+  float TownspersonMaxDistance = 0.0f;
+  TArray<FInteractionCandidate> LastCandidates;
+  FInteractionSelection SelectedCandidate;
+};
+
+inline bool operator==(const FInteractionCandidate &Left,
+                       const FInteractionCandidate &Right) {
+  return Left.Index == Right.Index && Left.EntityId == Right.EntityId &&
+         Left.Location == Right.Location &&
+         Left.bCanInteract == Right.bCanInteract;
+}
+
+inline bool operator!=(const FInteractionCandidate &Left,
+                       const FInteractionCandidate &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FInteractionCandidatesObserved &Left,
+                       const FInteractionCandidatesObserved &Right) {
+  return Left.Id == Right.Id && Left.Origin == Right.Origin &&
+         FMath::IsNearlyEqual(Left.MaxDistance, Right.MaxDistance) &&
+         Left.Candidates == Right.Candidates;
+}
+
+inline bool operator!=(const FInteractionCandidatesObserved &Left,
+                       const FInteractionCandidatesObserved &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FInteractionSelection &Left,
+                       const FInteractionSelection &Right) {
+  return Left.bFound == Right.bFound &&
+         Left.CandidateIndex == Right.CandidateIndex &&
+         Left.EntityId == Right.EntityId &&
+         FMath::IsNearlyEqual(Left.DistanceSquared, Right.DistanceSquared) &&
+         Left.MissingMessage == Right.MissingMessage;
+}
+
+inline bool operator!=(const FInteractionSelection &Left,
+                       const FInteractionSelection &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FInteractionState &Left,
+                       const FInteractionState &Right) {
+  return Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
+         (!Left.LastActionId.hasValue ||
+          Left.LastActionId.value == Right.LastActionId.value) &&
+         Left.LastOrigin == Right.LastOrigin &&
+         FMath::IsNearlyEqual(Left.LastMaxDistance, Right.LastMaxDistance) &&
+         FMath::IsNearlyEqual(Left.TownspersonMaxDistance,
+                              Right.TownspersonMaxDistance) &&
+         Left.LastCandidates == Right.LastCandidates &&
+         Left.SelectedCandidate == Right.SelectedCandidate;
+}
+
+inline bool operator!=(const FInteractionState &Left,
+                       const FInteractionState &Right) {
+  return !(Left == Right);
+}
+
+} // namespace Level
+} // namespace Demo
+} // namespace ForbocAI

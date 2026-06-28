@@ -17,6 +17,12 @@ const rtk::Slice<FTownspersonState> &GetSlice() {
           [](rtk::ActionReducerMapBuilder<FTownspersonState> &Builder) {
     Builder.addCase(TownspersonActions::TownspeopleSeeded(),
                                 TownspersonReducers::ReduceTownspeopleSeeded);
+    Builder.addCase(
+        TownspersonActions::ViewDefaultsRequested(),
+        TownspersonReducers::ReduceViewDefaultsRequested);
+    Builder.addCase(
+        TownspersonActions::InteractionOverlapObserved(),
+        TownspersonReducers::ReduceInteractionOverlapObserved);
   });
       });
   return func::eval(Slice);

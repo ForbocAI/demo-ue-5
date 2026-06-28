@@ -32,6 +32,29 @@ const rtk::ActionCreator<FBotPositionMoved> &BotPositionMoved() {
   return func::eval(Creator);
 }
 
+const rtk::ActionCreator<FBotInitialPatrolLocationRequest> &
+InitialPatrolObserved() {
+  static const func::Lazy<rtk::ActionCreator<FBotInitialPatrolLocationRequest>>
+      Creator =
+          func::lazy(
+              []() -> rtk::ActionCreator<FBotInitialPatrolLocationRequest> {
+                return rtk::createAction<FBotInitialPatrolLocationRequest>(
+                    TEXT("botPosition/initialPatrolObserved"));
+              });
+  return func::eval(Creator);
+}
+
+const rtk::ActionCreator<FBotPatrolAdvanceRequest> &
+PatrolAdvanceObserved() {
+  static const func::Lazy<rtk::ActionCreator<FBotPatrolAdvanceRequest>>
+      Creator =
+          func::lazy([]() -> rtk::ActionCreator<FBotPatrolAdvanceRequest> {
+            return rtk::createAction<FBotPatrolAdvanceRequest>(
+                TEXT("botPosition/patrolAdvanceObserved"));
+          });
+  return func::eval(Creator);
+}
+
 } // namespace BotPositionActions
 } // namespace Level
 } // namespace Demo

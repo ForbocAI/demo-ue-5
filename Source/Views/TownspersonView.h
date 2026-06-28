@@ -13,6 +13,9 @@ struct FTownspersonViewConfig {
   GENERATED_BODY()
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FString Id;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString Name;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
@@ -54,6 +57,9 @@ public:
   bool IsPlayerNearby() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  FString GetTownspersonId() const;
+
+  UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
   FString GetTownspersonName() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
@@ -67,6 +73,9 @@ public:
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
   FString GetPinnedResponse() const;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FString TownspersonId;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString TownspersonName;
@@ -116,6 +125,7 @@ private:
 
   int32 PatrolIndex;
   float PauseRemaining;
+  float PatrolArrivalDistance;
   bool bPlayerNearby;
 
   void AdvancePatrol(float DeltaTime);

@@ -19,6 +19,8 @@ FBotGoalState ReduceBotGoalAssigned(
 FBotGoalState ReduceBotGoalCompleted(
     const FBotGoalState &State,
     const rtk::PayloadAction<FBotGoalCompleted> &Action);
+TMap<FString, FBotStrategicGoal> ReduceActiveGoalsById(
+    const TArray<FBotGoalComponent> &Goals);
 FBotGoalState ReduceTownspeopleSeeded(
     const FBotGoalState &State,
     const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action);

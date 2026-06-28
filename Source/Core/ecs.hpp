@@ -717,6 +717,7 @@ inline FDomainRegistry createCrossDomainRegistry() {
   Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Glyphs")}, EDomainKind::Component);
   Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Health")}, EDomainKind::Component);
   Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Input")}, EDomainKind::Input);
+  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Interaction")}, EDomainKind::Component);
   Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Level")}, EDomainKind::Data);
   Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Lifecycle")}, EDomainKind::Component);
   Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Narrative")}, EDomainKind::Narrative);
@@ -752,6 +753,7 @@ inline FDomainRegistry createCrossDomainRegistry() {
   Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Dialogue")}, EDomainKind::Narrative);
   Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Factories")}, EDomainKind::System);
   Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Input")}, EDomainKind::Input);
+  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Interaction")}, EDomainKind::System);
   Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Landmarks")}, EDomainKind::System);
   Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Level")}, EDomainKind::System);
   Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Nature")}, EDomainKind::Procgen);

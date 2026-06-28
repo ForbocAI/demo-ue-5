@@ -172,6 +172,7 @@ ATownspersonView *ARuntimeLevelView::RenderTownsperson(
             WorldValue->SpawnActor<ATownspersonView>(
                 Spawn.PatrolRoute[0], FRotator::ZeroRotator);
         FTownspersonViewConfig Config;
+        Config.Id = Spawn.Id;
         Config.Name = Spawn.Name;
         Config.Role = Spawn.Role;
         Config.Persona = Spawn.Persona;

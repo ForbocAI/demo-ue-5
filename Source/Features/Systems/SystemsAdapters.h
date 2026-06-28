@@ -7,6 +7,7 @@
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
 #include "Features/Systems/Bots/Position/BotPositionTypes.h"
 #include "Features/Systems/Bots/Stats/BotStatsTypes.h"
+#include "Features/Systems/Interaction/InteractionTypes.h"
 #include "Features/Systems/Spawn/SpawnTypes.h"
 #include "Features/Systems/Terrain/TerrainTypes.h"
 
@@ -28,6 +29,8 @@ ecs::FWorld ProjectBotPosition(ecs::FWorld World,
 ecs::FWorld ProjectBotAI(ecs::FWorld World, const FBotAIComponent &AI);
 ecs::FWorld ProjectBotGoal(ecs::FWorld World,
                            const FBotGoalComponent &Goal);
+ecs::FWorld ProjectInteraction(ecs::FWorld World,
+                               const FInteractionState &Interaction);
 ecs::FWorld ProjectRuntimeEcsWorld(const FRuntimeState &State);
 
 } // namespace SystemsAdapters

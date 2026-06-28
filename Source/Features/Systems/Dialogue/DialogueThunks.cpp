@@ -1,22 +1,12 @@
 #include "Features/Systems/Dialogue/DialogueThunks.h"
 
-#include "Features/Systems/Dialogue/DialogueSelectors.h"
+#include "Features/Systems/Dialogue/DialogueReducers.h"
 
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace DialogueThunks {
 namespace {
-
-FDialogueReplyPayload LocalReplyPayload(
-    const FLocalDialogueReplyRequest &Request) {
-  FDialogueReplyPayload Payload;
-  Payload.Id = FString::Printf(TEXT("systems/dialogue/localReply/%s"),
-                               *Request.Name);
-  Payload.Request = Request;
-  Payload.Reply = DialogueSelectors::SelectLocalReply(Request);
-  return Payload;
-}
 
 } // namespace
 
@@ -43,7 +33,8 @@ RequestLocalReply() {
                                     Resolve,
                                 std::function<void(std::string)> Reject) {
                         (void)Reject;
-                        Resolve(LocalReplyPayload(Request));
+                        Resolve(DialogueReducers::ReduceLocalReplyPayload(
+                            Request));
                       });
                 });
           });

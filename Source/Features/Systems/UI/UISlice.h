@@ -4,7 +4,6 @@
 
 #include "Features/Systems/UI/UIActions.h"
 #include "Features/Systems/UI/UIReducers.h"
-#include "Features/Systems/UI/UISelectors.h"
 #include "Features/Systems/UI/UITypes.h"
 
 namespace ForbocAI {
@@ -17,7 +16,7 @@ inline FUIState CreateInitialState() {
           [](FUIState State) -> FUIState {
             State.LastActionId = func::nothing<FString>();
             State.Conversation =
-                UISelectors::SelectRuntimeConversationPlaceholder();
+                UIReducers::ReduceRuntimeConversationPlaceholder();
             State.bConversationVisible = false;
             return State;
           })

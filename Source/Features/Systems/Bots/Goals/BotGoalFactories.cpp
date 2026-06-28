@@ -41,6 +41,7 @@ FBotGoalComponent ActiveGoalComponent(const FString &BotId,
 FBotGoalState CreateInitialState() {
   FBotGoalState State;
   State.Items = BotGoalAdapters::BotGoalAdapter().getInitialState();
+  State.ActiveGoalsById = {};
   return State;
 }
 

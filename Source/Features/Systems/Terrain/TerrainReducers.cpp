@@ -134,12 +134,39 @@ ReduceTerrainLoaded(const FTerrainState &State,
   }).val;
 }
 
+FTerrainState ReduceTerrainMeshPayloadObserved(
+    const FTerrainState &State,
+    const rtk::PayloadAction<FTerrainMeshPayload> &Action) {
+  return (func::pipe(State) |
+          [&Action](FTerrainState Next) -> FTerrainState {
+            Next.LastMeshSection =
+                ReduceTerrainMeshSectionViewModel(Action.PayloadValue);
+            return Next;
+          })
+      .val;
+}
+
 FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
                         const FLevelOrthoData &OrthoData) {
   return TerrainData.IsLoaded()
              ? BuildLoadedTerrainMeshPayload(TerrainData, OrthoData)
              : FTerrainMeshPayload{};
+}
+
+FTerrainMeshSectionViewModel
+ReduceTerrainMeshSectionViewModel(const FTerrainMeshPayload &Payload) {
+  return (func::pipe(FTerrainMeshSectionViewModel{}) |
+          [&Payload](FTerrainMeshSectionViewModel Model) {
+            Model.bLoaded = Payload.bLoaded;
+            Model.Vertices = Payload.Vertices;
+            Model.Triangles = Payload.Triangles;
+            Model.Normals = Payload.Normals;
+            Model.UVs = Payload.UVs;
+            Model.VertexColors = Payload.VertexColors;
+            return Model;
+          })
+      .val;
 }
 
 } // namespace TerrainReducers

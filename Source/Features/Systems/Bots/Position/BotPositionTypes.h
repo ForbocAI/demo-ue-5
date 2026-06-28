@@ -62,6 +62,9 @@ struct FBotInitialPatrolLocationPayload {
 
 struct FBotPositionState {
   rtk::EntityState<FBotPositionComponent> Items;
+  int32 LastInitialPatrolIndex = 0;
+  FBotInitialPatrolLocationPayload LastInitialPatrolLocation;
+  FBotPatrolAdvancePayload LastPatrolAdvance;
 };
 
 inline bool operator==(const FBotPositionComponent &Left,
@@ -157,7 +160,10 @@ inline bool operator!=(const FBotInitialPatrolLocationPayload &Left,
 
 inline bool operator==(const FBotPositionState &Left,
                        const FBotPositionState &Right) {
-  return Left.Items == Right.Items;
+  return Left.Items == Right.Items &&
+         Left.LastInitialPatrolIndex == Right.LastInitialPatrolIndex &&
+         Left.LastInitialPatrolLocation == Right.LastInitialPatrolLocation &&
+         Left.LastPatrolAdvance == Right.LastPatrolAdvance;
 }
 
 inline bool operator!=(const FBotPositionState &Left,

@@ -12,6 +12,9 @@ const rtk::ActionCreator<TArray<FBotPositionComponent>> &
 BotPositionsSeeded();
 const rtk::ActionCreator<FBotPositionComponent> &BotPositionUpserted();
 const rtk::ActionCreator<FBotPositionMoved> &BotPositionMoved();
+const rtk::ActionCreator<FBotInitialPatrolLocationRequest> &
+InitialPatrolObserved();
+const rtk::ActionCreator<FBotPatrolAdvanceRequest> &PatrolAdvanceObserved();
 
 } // namespace BotPositionActions
 } // namespace Level

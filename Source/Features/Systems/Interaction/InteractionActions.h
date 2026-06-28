@@ -1,0 +1,26 @@
+#pragma once
+
+#include "Core/rtk.hpp"
+
+#include "Features/Systems/Interaction/InteractionTypes.h"
+
+namespace ForbocAI {
+namespace Demo {
+namespace Level {
+namespace InteractionActions {
+
+inline const rtk::ActionCreator<FInteractionCandidatesObserved> &
+TownspersonCandidatesObserved() {
+  static const func::Lazy<rtk::ActionCreator<FInteractionCandidatesObserved>>
+      Creator = func::lazy(
+          []() -> rtk::ActionCreator<FInteractionCandidatesObserved> {
+            return rtk::createAction<FInteractionCandidatesObserved>(
+                TEXT("systems/interaction/townspersonCandidatesObserved"));
+          });
+  return func::eval(Creator);
+}
+
+} // namespace InteractionActions
+} // namespace Level
+} // namespace Demo
+} // namespace ForbocAI

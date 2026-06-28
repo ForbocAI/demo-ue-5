@@ -60,6 +60,7 @@ private:
 
   int32 PatrolIndex;
   float PauseRemaining;
+  float PatrolArrivalDistance;
   bool bMountedRider;
 
   void AdvancePatrol(float DeltaTime);

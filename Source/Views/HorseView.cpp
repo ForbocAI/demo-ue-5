@@ -4,45 +4,53 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/SkeletalMesh.h"
-#include "Features/Components/Spatial/SpatialSelectors.h"
-#include "Features/Systems/Bots/Position/BotPositionSelectors.h"
+#include "Features/Systems/Bots/Position/BotPositionActions.h"
+#include "Features/Systems/Rendering/RenderingActions.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
+#include "Store.h"
 
-namespace FGS = ForbocAI::Demo::Level::SpatialSelectors;
-namespace FGP = ForbocAI::Demo::Level::BotPositionSelectors;
+namespace FG = ForbocAI::Demo::Level;
 
 namespace {
-constexpr float HorseLengthFeet = 8.0f;
-constexpr float BodyHeightFeet = 2.0f;
-constexpr float LegHeightFeet = 3.25f;
-constexpr float NeckHeightFeet = 1.65f;
-constexpr float HeadHeightFeet = 0.95f;
-constexpr float SaddleHeightFeet = 0.28f;
-constexpr float HorsePatrolPauseSeconds = 1.4f;
-constexpr float WalkSpeedHorseLengthRatio = 0.58f;
-constexpr float RouteArrivalLegRatio = 0.8f;
-constexpr float ImportedHorseScale = 0.62f;
-constexpr float MountedRiderScale = 0.62f;
 
-float WorldFeet(float Feet) {
-  return FGS::SelectActorWorldUnitsFromFeet(Feet);
+FG::FBotInitialPatrolLocationPayload
+ObserveInitialPatrol(const TArray<FVector> &PatrolRoute, int32 &PatrolIndex) {
+  FG::Store::GetStore().dispatch(
+      FG::BotPositionActions::InitialPatrolObserved()({PatrolRoute}));
+  PatrolIndex = FG::RuntimeSelectors::SelectBotInitialPatrolIndex(
+      FG::Store::GetStore().getState());
+  return FG::RuntimeSelectors::SelectBotInitialPatrolLocation(
+      FG::Store::GetStore().getState());
 }
 
-float HorseBackZ() {
-  return WorldFeet(LegHeightFeet + BodyHeightFeet + SaddleHeightFeet * 0.5f);
+FG::FBotPatrolAdvancePayload
+ObservePatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
+  FG::Store::GetStore().dispatch(
+      FG::BotPositionActions::PatrolAdvanceObserved()(Request));
+  return FG::RuntimeSelectors::SelectBotPatrolAdvance(
+      FG::Store::GetStore().getState());
 }
 
-float HorseNameTextZ() {
-  return WorldFeet(LegHeightFeet + BodyHeightFeet + NeckHeightFeet +
-                   HeadHeightFeet);
+FG::FHorsePresentationViewModel ObserveHorsePresentation() {
+  FG::Store::GetStore().dispatch(
+      FG::RenderingActions::HorsePresentationRequested()(
+          {TEXT("systems/rendering/horsePresentationRequested")}));
+  return FG::RuntimeSelectors::SelectHorsePresentation(
+      FG::Store::GetStore().getState());
 }
 } // namespace
 
 AHorseView::AHorseView()
-    : WalkSpeed(WorldFeet(HorseLengthFeet) * WalkSpeedHorseLengthRatio),
-      PauseDuration(HorsePatrolPauseSeconds), PatrolIndex(0),
-      PauseRemaining(0.0f), bMountedRider(false) {
+    : WalkSpeed(0.0f), PauseDuration(0.0f), PatrolIndex(0),
+      PauseRemaining(0.0f), PatrolArrivalDistance(0.0f),
+      bMountedRider(false) {
   PrimaryActorTick.bCanEverTick = true;
   HorseName = TEXT("Town horse");
+  const FG::FHorsePresentationViewModel Presentation =
+      ObserveHorsePresentation();
+  WalkSpeed = Presentation.WalkSpeed;
+  PauseDuration = Presentation.PauseDuration;
+  PatrolArrivalDistance = Presentation.PatrolArrivalDistance;
 
   SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
   RootComponent = SceneRoot;
@@ -51,24 +59,22 @@ AHorseView::AHorseView()
       CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ImportedHorseMesh"));
   ImportedHorseMesh->SetupAttachment(SceneRoot);
   ImportedHorseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-  ImportedHorseMesh->SetRelativeScale3D(
-      FVector(ImportedHorseScale, ImportedHorseScale, ImportedHorseScale));
+  ImportedHorseMesh->SetRelativeScale3D(Presentation.ImportedHorseScale);
   ImportedHorseMesh->SetVisibility(false);
 
   MountedRiderMesh =
       CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MountedRiderMesh"));
   MountedRiderMesh->SetupAttachment(SceneRoot);
   MountedRiderMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-  MountedRiderMesh->SetRelativeLocation(FVector(0.0f, 0.0f, HorseBackZ()));
-  MountedRiderMesh->SetRelativeScale3D(
-      FVector(MountedRiderScale, MountedRiderScale, MountedRiderScale));
+  MountedRiderMesh->SetRelativeLocation(Presentation.MountedRiderLocation);
+  MountedRiderMesh->SetRelativeScale3D(Presentation.MountedRiderScale);
   MountedRiderMesh->SetVisibility(false);
 
   NameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NameText"));
   NameText->SetupAttachment(SceneRoot);
-  NameText->SetRelativeLocation(FVector(0.0f, 0.0f, HorseNameTextZ()));
+  NameText->SetRelativeLocation(Presentation.NameTextLocation);
   NameText->SetHorizontalAlignment(EHTA_Center);
-  NameText->SetWorldSize(WorldFeet(1.35f));
+  NameText->SetWorldSize(Presentation.NameTextWorldSize);
 
   ConfigureImportedHorseAsset();
 }
@@ -82,10 +88,9 @@ void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   HorseName = Config.Name;
   bMountedRider = Config.bMountedRider;
   PatrolRoute = Config.PatrolRoute;
-  PatrolIndex = FGP::SelectInitialPatrolIndex(PatrolRoute);
   PauseRemaining = 0.0f;
   const ForbocAI::Demo::Level::FBotInitialPatrolLocationPayload Initial =
-      FGP::SelectInitialPatrolLocation({PatrolRoute});
+      ObserveInitialPatrol(PatrolRoute, PatrolIndex);
   if (Initial.bShouldMove) {
     SetActorLocation(Initial.Location);
   }
@@ -95,10 +100,9 @@ void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
 
 void AHorseView::AdvancePatrol(float DeltaTime) {
   const ForbocAI::Demo::Level::FBotPatrolAdvancePayload Advance =
-      FGP::SelectPatrolAdvance(
+      ObservePatrolAdvance(
           {PatrolRoute, PatrolIndex, PauseRemaining, PauseDuration, WalkSpeed,
-           DeltaTime, GetActorLocation(),
-           WorldFeet(LegHeightFeet) * RouteArrivalLegRatio});
+           DeltaTime, GetActorLocation(), PatrolArrivalDistance});
   PatrolIndex = Advance.PatrolIndex;
   PauseRemaining = Advance.PauseRemaining;
   Advance.bShouldMove ? (SetActorLocation(Advance.Location), void()) : void();

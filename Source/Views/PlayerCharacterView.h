@@ -58,6 +58,9 @@ private:
   UPROPERTY()
   UInputAction *JumpAction;
 
+  FVector MeshRelativeLocation;
+  FRotator MeshRelativeRotation;
+
   void ConfigureTemplateCharacter();
   void ConfigureEnhancedInput();
   void Move(const FInputActionValue &Value);

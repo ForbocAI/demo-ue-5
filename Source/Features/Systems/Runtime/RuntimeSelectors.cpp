@@ -1,44 +1,25 @@
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 
-#include "Features/Components/Data/DataAdapters.h"
+#include "Features/Entities/Characters/Player/PlayerSelectors.h"
 #include "Features/Systems/Bots/AI/BotAISelectors.h"
 #include "Features/Systems/Bots/BotSelectors.h"
 #include "Features/Systems/Bots/Goals/BotGoalSelectors.h"
 #include "Features/Systems/Bots/Position/BotPositionSelectors.h"
 #include "Features/Systems/Bots/Stats/BotStatsSelectors.h"
 #include "Features/Systems/Bots/Horses/HorseSelectors.h"
-#include "Features/Systems/Level/LevelReducers.h"
 #include "Features/Systems/Landmarks/LandmarkSelectors.h"
 #include "Features/Systems/Nature/NatureSelectors.h"
+#include "Features/Systems/Rendering/RenderingSelectors.h"
 #include "Features/Systems/Spawn/SpawnSelectors.h"
 #include "Features/Systems/Terrain/TerrainSelectors.h"
-#include "Features/Systems/Terrain/TerrainReducers.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonSelectors.h"
+#include "Features/Systems/Interaction/InteractionSelectors.h"
 #include "Features/Systems/UI/UISelectors.h"
 
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace RuntimeSelectors {
-namespace {
-
-TArray<FVector> SelectWorldRoute(const TArray<FLevelLocalPoint> &Route,
-                                 const FLevelTerrainData *TerrainData) {
-  return TerrainData
-             ? LevelSystemReducers::BuildWorldRoute({Route, *TerrainData})
-             : TArray<FVector>();
-}
-
-FRuntimeLevelViewPayload EmptyLevelViewPayload() {
-  return FRuntimeLevelViewPayload();
-}
-
-void AppendSection(TArray<FLevelRuntimeSectionSpawn> &Sections,
-                   const FLevelRuntimeSectionSpawn &Section) {
-  Sections.Add(Section);
-}
-
-} // namespace
 
 const FPlayerState &SelectPlayerState(const FRuntimeState &State) {
   return State.Player;
@@ -60,6 +41,10 @@ const FDialogueState &SelectDialogueState(const FRuntimeState &State) {
   return State.Dialogue;
 }
 
+const FInteractionState &SelectInteractionState(const FRuntimeState &State) {
+  return State.Interaction;
+}
+
 const FSpeechState &SelectSpeechState(const FRuntimeState &State) {
   return State.Speech;
 }
@@ -70,6 +55,11 @@ const FUIState &SelectUIState(const FRuntimeState &State) {
 
 bool SelectTerrainLoaded(const FRuntimeState &State) {
   return TerrainSelectors::SelectLoaded(State.Terrain);
+}
+
+const FTerrainMeshSectionViewModel &
+SelectTerrainMeshSectionViewModel(const FRuntimeState &State) {
+  return TerrainSelectors::SelectLastMeshSection(State.Terrain);
 }
 
 TArray<FLandmark> SelectLandmarks(const FRuntimeState &State) {
@@ -94,10 +84,20 @@ func::Maybe<FTownspersonSeed> SelectTownspersonById(
   return TownspersonSelectors::SelectById(State.Townspeople, Id);
 }
 
-TArray<FTownspersonSeed> SelectTownspeopleByInteractionIntent(
-    const FRuntimeState &State, ETownspersonInteractionIntent Intent) {
-  return TownspersonSelectors::SelectByInteractionIntent(State.Townspeople,
-                                                        Intent);
+const TArray<FTownspersonSeed> &
+SelectDialogueTownspeople(const FRuntimeState &State) {
+  return TownspersonSelectors::SelectDialogueTownspeople(State.Townspeople);
+}
+
+const TArray<FTownspersonSeed> &
+SelectMemoryTownspeople(const FRuntimeState &State) {
+  return TownspersonSelectors::SelectMemoryTownspeople(State.Townspeople);
+}
+
+const TArray<FTownspersonSeed> &
+SelectCombatValidationTownspeople(const FRuntimeState &State) {
+  return TownspersonSelectors::SelectCombatValidationTownspeople(
+      State.Townspeople);
 }
 
 TArray<FHorseRouteSeed> SelectHorses(const FRuntimeState &State) {
@@ -108,92 +108,69 @@ TArray<FNatureFeatureSeed> SelectNatureFeatures(const FRuntimeState &State) {
   return NatureSelectors::SelectAll(State.Nature);
 }
 
-FRuntimeTownspersonViewSpawn SelectTownspersonViewSpawn(
-    const FRuntimeTownspersonViewSpawnRequest &Request) {
-  return {Request.Seed.Name,
-          Request.Seed.Role,
-          Request.Seed.Persona,
-          Request.Seed.InteractionPrompt,
-          Request.Seed.DefaultPlayerLine,
-          Request.Seed.PinnedResponse,
-          SelectWorldRoute(Request.Seed.PatrolRoute, Request.TerrainData)};
+const FRuntimeTownspersonInteractionRequest &
+SelectTownspersonInteractionRequest(const FRuntimeState &State) {
+  return State.LastTownspersonInteractionRequest;
 }
 
-FRuntimeHorseViewSpawn
-SelectHorseViewSpawn(const FRuntimeHorseViewSpawnRequest &Request) {
-  return {Request.Seed.Name,
-          SelectWorldRoute(Request.Seed.PatrolRoute, Request.TerrainData),
-          Request.Seed.bMountedRider};
+const FInteractionSelection &SelectInteractionSelection(
+    const FRuntimeState &State) {
+  return InteractionSelectors::SelectSelectedCandidate(State.Interaction);
 }
 
-FLocalDialogueReplyRequest SelectLocalDialogueReplyRequest(
-    const FRuntimeTownspersonInteractionRequest &Request) {
-  return {Request.Name, Request.Role, Request.Persona, Request.PlayerLine,
-          Request.PinnedResponse};
+float SelectTownspersonInteractionDistance(const FRuntimeState &State) {
+  return InteractionSelectors::SelectTownspersonInteractionDistance(
+      State.Interaction);
 }
 
-FUIPayload SelectConversationPresentedPayload(
-    const FDialogueReplyPayload &DialogueReply) {
-  FUIPayload Payload;
-  Payload.Id = FString::Printf(TEXT("systems/ui/conversation/%s"),
-                               *DialogueReply.Request.Name);
-  Payload.Conversation = UISelectors::SelectRuntimeConversationViewModel(
-      {DialogueReply.Request.Name, DialogueReply.Request.Role,
-       DialogueReply.Request.PlayerLine, DialogueReply.Reply});
-  return Payload;
+const FPlayerMovementInputViewModel &
+SelectPlayerMovementInput(const FRuntimeState &State) {
+  return PlayerSelectors::SelectMovementInput(State.Player);
 }
 
-FRuntimeTownspersonInteractionPayload SelectTownspersonInteractionPayload(
-    const FDialogueReplyPayload &DialogueReply) {
-  return {DialogueReply, SelectConversationPresentedPayload(DialogueReply)};
+const FPlayerPresentationViewModel &
+SelectPlayerPresentation(const FRuntimeState &State) {
+  return PlayerSelectors::SelectPresentation(State.Player);
 }
 
-FRuntimeLevelViewPayload SelectLevelViewPayload(
-    const FRuntimeState &State,
-    const FRuntimeLevelViewPayloadRequest &Request) {
-  if (!Request.TerrainData || !Request.OrthoData || !Request.RuntimeLayout) {
-    return EmptyLevelViewPayload();
-  }
+int32 SelectBotInitialPatrolIndex(const FRuntimeState &State) {
+  return BotPositionSelectors::SelectLastInitialPatrolIndex(State.BotPosition);
+}
 
-  FRuntimeLevelViewPayload Payload;
-  Payload.TerrainMesh = TerrainReducers::BuildTerrainMeshPayload(
-      *Request.TerrainData, *Request.OrthoData);
-  Payload.bTerrainMeshLoaded = Payload.TerrainMesh.bLoaded;
-  Payload.FallbackTerrainBlock = LevelSystemReducers::BuildRuntimeBlockSpawn(
-      {Request.RuntimeLayout->FallbackTerrainBlock, *Request.TerrainData});
+const FBotInitialPatrolLocationPayload &
+SelectBotInitialPatrolLocation(const FRuntimeState &State) {
+  return BotPositionSelectors::SelectLastInitialPatrolLocation(
+      State.BotPosition);
+}
 
-  AppendSection(Payload.Sections,
-                LevelSystemReducers::BuildRuntimeSectionSpawn(
-                    {Request.RuntimeLayout->Terrain, *Request.TerrainData}));
-  AppendSection(Payload.Sections,
-                LevelSystemReducers::BuildNatureSectionSpawn(
-                    {SelectNatureFeatures(State), *Request.TerrainData}));
-  AppendSection(Payload.Sections,
-                LevelSystemReducers::BuildLandmarkSectionSpawn(
-                    SelectLandmarks(State)));
-  AppendSection(Payload.Sections,
-                LevelSystemReducers::BuildRuntimeSectionSpawn(
-                    {Request.RuntimeLayout->Town, *Request.TerrainData}));
-  AppendSection(Payload.Sections,
-                LevelSystemReducers::BuildRuntimeSectionSpawn(
-                    {Request.RuntimeLayout->Mine, *Request.TerrainData}));
-  AppendSection(Payload.Sections,
-                LevelSystemReducers::BuildOverlaySectionSpawn(
-                    {*Request.RuntimeLayout, *Request.TerrainData}));
+const FBotPatrolAdvancePayload &
+SelectBotPatrolAdvance(const FRuntimeState &State) {
+  return BotPositionSelectors::SelectLastPatrolAdvance(State.BotPosition);
+}
 
-  Payload.Townspeople =
-      Data::DataAdapters::MapArray<FTownspersonSeed,
-                                   FRuntimeTownspersonViewSpawn>(
-          {SelectTownspeople(State),
-           [&Request](const FTownspersonSeed &Seed) {
-             return SelectTownspersonViewSpawn({Seed, Request.TerrainData});
-           }});
-  Payload.Horses =
-      Data::DataAdapters::MapArray<FHorseRouteSeed, FRuntimeHorseViewSpawn>(
-          {SelectHorses(State), [&Request](const FHorseRouteSeed &Seed) {
-             return SelectHorseViewSpawn({Seed, Request.TerrainData});
-           }});
-  return Payload;
+const FTownspersonViewDefaults &
+SelectTownspersonViewDefaults(const FRuntimeState &State) {
+  return TownspersonSelectors::SelectLastViewDefaults(State.Townspeople);
+}
+
+const FTownspersonInteractionOverlapViewModel &
+SelectTownspersonInteractionOverlap(const FRuntimeState &State) {
+  return TownspersonSelectors::SelectLastInteractionOverlap(State.Townspeople);
+}
+
+ForbocAI::Demo::UI::FRuntimeConversationViewModel
+SelectRuntimeConversation(const FRuntimeState &State) {
+  return UISelectors::SelectConversation(State.UI);
+}
+
+const FTownspersonPresentationViewModel &
+SelectTownspersonPresentation(const FRuntimeState &State) {
+  return RenderingSelectors::SelectTownspersonPresentation(State.Rendering);
+}
+
+const FHorsePresentationViewModel &
+SelectHorsePresentation(const FRuntimeState &State) {
+  return RenderingSelectors::SelectHorsePresentation(State.Rendering);
 }
 
 TArray<FBotEntity> SelectBots(const FRuntimeState &State) {
@@ -242,9 +219,9 @@ func::Maybe<FBotGoalComponent> SelectBotGoalById(
   return BotGoalSelectors::SelectById(State.BotGoals, Id);
 }
 
-func::Maybe<FBotStrategicGoal> SelectBotActiveGoalById(
-    const FRuntimeState &State, const FString &Id) {
-  return BotGoalSelectors::SelectActiveGoalById(State.BotGoals, Id);
+const TMap<FString, FBotStrategicGoal> &
+SelectBotActiveGoalsById(const FRuntimeState &State) {
+  return BotGoalSelectors::SelectActiveGoalsById(State.BotGoals);
 }
 
 const ecs::FWorld &SelectEcsWorld(const FRuntimeState &State) {

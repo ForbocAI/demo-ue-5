@@ -7,6 +7,48 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace BotPositionReducers {
+namespace {
+
+FBotPatrolAdvancePayload
+ReduceIdlePatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
+  FBotPatrolAdvancePayload Payload;
+  Payload.Location = Request.CurrentLocation;
+  Payload.PatrolIndex = Request.PatrolIndex;
+  Payload.PauseRemaining = Request.PauseRemaining;
+  return Payload;
+}
+
+FBotPatrolAdvancePayload
+ReducePauseCountdownPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
+  FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
+  Payload.PauseRemaining =
+      FMath::Max(0.0f, Request.PauseRemaining - Request.DeltaTime);
+  return Payload;
+}
+
+FBotPatrolAdvancePayload
+ReduceArrivedPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
+  FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
+  Payload.PatrolIndex = (Request.PatrolIndex + 1) % Request.PatrolRoute.Num();
+  Payload.PauseRemaining = Request.PauseDuration;
+  return Payload;
+}
+
+FBotPatrolAdvancePayload
+ReduceMovingPatrolAdvance(const FBotPatrolAdvanceRequest &Request,
+                          const FVector &Delta, float Distance) {
+  FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
+  Payload.Location =
+      Request.CurrentLocation +
+      Delta.GetSafeNormal() *
+          FMath::Min(Distance, Request.WalkSpeed * Request.DeltaTime);
+  Payload.Rotation = Delta.Rotation();
+  Payload.bShouldMove = true;
+  Payload.bShouldRotate = true;
+  return Payload;
+}
+
+} // namespace
 
 FBotPositionState ReduceBotPositionsSeeded(
     const FBotPositionState &State,
@@ -66,6 +108,62 @@ FBotPositionState ReduceHorsesSeeded(
       State.Items, BotPositionFactories::FromHorses(Action.PayloadValue));
   return Next;
   }).val;
+}
+
+FBotPositionState ReduceInitialPatrolObserved(
+    const FBotPositionState &State,
+    const rtk::PayloadAction<FBotInitialPatrolLocationRequest> &Action) {
+  return (func::pipe(State) |
+          [&Action](FBotPositionState Next) -> FBotPositionState {
+            Next.LastInitialPatrolIndex =
+                ReduceInitialPatrolIndex(Action.PayloadValue.PatrolRoute);
+            Next.LastInitialPatrolLocation =
+                ReduceInitialPatrolLocation(Action.PayloadValue);
+            return Next;
+          })
+      .val;
+}
+
+FBotPositionState ReducePatrolAdvanceObserved(
+    const FBotPositionState &State,
+    const rtk::PayloadAction<FBotPatrolAdvanceRequest> &Action) {
+  return (func::pipe(State) |
+          [&Action](FBotPositionState Next) -> FBotPositionState {
+            Next.LastPatrolAdvance = ReducePatrolAdvance(Action.PayloadValue);
+            return Next;
+          })
+      .val;
+}
+
+int32 ReduceInitialPatrolIndex(const TArray<FVector> &PatrolRoute) {
+  return PatrolRoute.Num() > 1 ? 1 : 0;
+}
+
+FBotInitialPatrolLocationPayload ReduceInitialPatrolLocation(
+    const FBotInitialPatrolLocationRequest &Request) {
+  FBotInitialPatrolLocationPayload Payload;
+  Payload.bShouldMove = Request.PatrolRoute.Num() > 0;
+  Payload.Location =
+      Payload.bShouldMove ? Request.PatrolRoute[0] : FVector::ZeroVector;
+  return Payload;
+}
+
+FBotPatrolAdvancePayload
+ReducePatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
+  if (Request.PatrolRoute.Num() < 2) {
+    return ReduceIdlePatrolAdvance(Request);
+  }
+
+  if (Request.PauseRemaining > 0.0f) {
+    return ReducePauseCountdownPatrolAdvance(Request);
+  }
+
+  const FVector Target = Request.PatrolRoute[Request.PatrolIndex];
+  const FVector Delta = Target - Request.CurrentLocation;
+  const float Distance = Delta.Size();
+  return Distance < Request.ArrivalDistance
+             ? ReduceArrivedPatrolAdvance(Request)
+             : ReduceMovingPatrolAdvance(Request, Delta, Distance);
 }
 
 } // namespace BotPositionReducers
