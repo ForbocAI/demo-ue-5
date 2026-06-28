@@ -64,6 +64,7 @@ FRuntimeState CreateInitialState() {
       BotOrchestratorFactoriesSlice::CreateInitialState();
   State.BotPipeline = BotPipelineSlice::CreateInitialState();
   State.Level.TerrainSources = Settings.LevelTerrainSources;
+  State.Level.DataSources = Settings.LevelDataSources;
   State.Level.Geometry = Settings.LevelGeometry;
   State.Player.Presentation =
       PlayerReducers::ReducePlayerPresentation(Settings.PlayerPresentation);

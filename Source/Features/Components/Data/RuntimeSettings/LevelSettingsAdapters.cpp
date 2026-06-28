@@ -17,6 +17,29 @@ ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object) {
   return Settings;
 }
 
+FLevelDataSourceSettings
+ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object) {
+  const Json::FJsonStringReader String = Json::StringIn(Object);
+  FLevelDataSourceSettings Settings;
+  Settings.RuntimeLayoutJsonPath = String(TEXT("runtime_layout_json_path"));
+  Settings.LandmarksJsonPath = String(TEXT("landmarks_json_path"));
+  Settings.TownspeopleJsonPath = String(TEXT("townspeople_json_path"));
+  Settings.HorsesJsonPath = String(TEXT("horses_json_path"));
+  Settings.NatureJsonPath = String(TEXT("nature_json_path"));
+  return Settings;
+}
+
+FRuntimeValidationSettings
+ReadRuntimeValidationSettings(const TSharedPtr<FJsonObject> &Object) {
+  const Json::FJsonIntReader Int = Json::IntIn(Object);
+  const Json::FJsonFloatReader Float = Json::FloatIn(Object);
+  FRuntimeValidationSettings Settings;
+  Settings.TerrainGridSize = Int(TEXT("terrain_grid_size"));
+  Settings.OrthoGridSize = Int(TEXT("ortho_grid_size"));
+  Settings.TerrainMinReliefMeters = Float(TEXT("terrain_min_relief_meters"));
+  return Settings;
+}
+
 FLevelGeometrySettings
 ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonFloatReader Float = Json::FloatIn(Object);

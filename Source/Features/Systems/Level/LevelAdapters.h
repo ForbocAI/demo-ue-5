@@ -10,15 +10,15 @@ namespace Level {
 namespace LevelAdapters {
 
 /**
- * @brief Loads the authored French Gulch runtime layout from Content JSON.
+ * @brief Loads an authored runtime layout from Content JSON.
  *
  * @signature func::Maybe<FLevelRuntimeLayoutSeed>
- * LoadFrenchGulchRuntimeLayoutSeed()
+ * LoadRuntimeLayoutSeed(const FString &RelativeJsonPath)
  *
  * User story: As a level author, invalid or missing authored layout data is
  * rejected at the adapter boundary instead of becoming reducer-owned state.
  */
-func::Maybe<FLevelRuntimeLayoutSeed> LoadFrenchGulchRuntimeLayoutSeed();
+FLevelRuntimeLayoutSeed LoadRuntimeLayoutSeed(const FString &RelativeJsonPath);
 
 } // namespace LevelAdapters
 } // namespace Level

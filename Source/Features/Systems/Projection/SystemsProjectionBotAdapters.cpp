@@ -97,13 +97,10 @@ ecs::FComponentValue StrategicGoalValue(const FBotStrategicGoal &Goal) {
  */
 TArray<ecs::FComponentValue>
 StrategicGoalList(const TArray<FBotStrategicGoal> &Goals) {
-  return ComponentsAdapters::MapComponentValues(
-      ComponentsAdapters::TMapComponentValuesRequest<FBotStrategicGoal>{
-          Goals,
-          [](const FBotStrategicGoal &Goal) {
-            return StrategicGoalValue(Goal);
-          },
-          0, TArray<ecs::FComponentValue>()});
+  return ecs::mapComponentValues<FBotStrategicGoal>(
+      Goals, [](const FBotStrategicGoal &Goal) {
+        return StrategicGoalValue(Goal);
+      });
 }
 
 /**
@@ -254,15 +251,13 @@ ecs::FWorld ProjectBotStats(const FProjectBotStatsEcsPayload &Payload) {
   return (func::pipe(Payload.World) |
           [Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithDomainSteps(
-                {World,
-                 BuildBotProjectionDomainSteps(
-                     {Entity, FString(TEXT("Stats"))}),
-                 0});
+                {World, BuildBotProjectionDomainSteps(
+                            {Entity, FString(TEXT("Stats"))})});
           } |
           [&Payload, Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithComponentSteps(
-                {World, BuildBotStatsComponentSteps({Entity, Payload.Stats}),
-                 0});
+                {World, BuildBotStatsComponentSteps(
+                            {Entity, Payload.Stats})});
           })
       .val;
 }
@@ -274,16 +269,13 @@ ProjectBotPosition(const FProjectBotPositionEcsPayload &Payload) {
   return (func::pipe(Payload.World) |
           [Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithDomainSteps(
-                {World,
-                 BuildBotProjectionDomainSteps(
-                     {Entity, FString(TEXT("Position"))}),
-                 0});
+                {World, BuildBotProjectionDomainSteps(
+                            {Entity, FString(TEXT("Position"))})});
           } |
           [&Payload, Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithComponentSteps(
-                {World,
-                 BuildBotPositionComponentSteps({Entity, Payload.Position}),
-                 0});
+                {World, BuildBotPositionComponentSteps(
+                            {Entity, Payload.Position})});
           })
       .val;
 }
@@ -293,13 +285,12 @@ ecs::FWorld ProjectBotAI(const FProjectBotAIEcsPayload &Payload) {
   return (func::pipe(Payload.World) |
           [Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithDomainSteps(
-                {World,
-                 BuildBotProjectionDomainSteps({Entity, FString(TEXT("AI"))}),
-                 0});
+                {World, BuildBotProjectionDomainSteps(
+                            {Entity, FString(TEXT("AI"))})});
           } |
           [&Payload, Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithComponentSteps(
-                {World, BuildBotAIComponentSteps({Entity, Payload.AI}), 0});
+                {World, BuildBotAIComponentSteps({Entity, Payload.AI})});
           })
       .val;
 }
@@ -309,15 +300,12 @@ ecs::FWorld ProjectBotGoal(const FProjectBotGoalEcsPayload &Payload) {
   return (func::pipe(Payload.World) |
           [Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithDomainSteps(
-                {World,
-                 BuildBotProjectionDomainSteps(
-                     {Entity, FString(TEXT("Goals"))}),
-                 0});
+                {World, BuildBotProjectionDomainSteps(
+                            {Entity, FString(TEXT("Goals"))})});
           } |
           [&Payload, Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithComponentSteps(
-                {World, BuildBotGoalComponentSteps({Entity, Payload.Goal}),
-                 0});
+                {World, BuildBotGoalComponentSteps({Entity, Payload.Goal})});
           })
       .val;
 }

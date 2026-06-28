@@ -26,6 +26,11 @@ SelectTerrainSources(const FLevelSystemState &State) {
   return State.TerrainSources;
 }
 
+inline const ForbocAI::Demo::Data::FLevelDataSourceSettings &
+SelectDataSources(const FLevelSystemState &State) {
+  return State.DataSources;
+}
+
 inline const ForbocAI::Demo::Data::FLevelGeometrySettings &
 SelectGeometry(const FLevelSystemState &State) {
   return State.Geometry;

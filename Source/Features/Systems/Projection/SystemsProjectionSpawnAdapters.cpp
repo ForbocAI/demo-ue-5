@@ -66,11 +66,11 @@ ecs::FWorld ProjectSpawn(const FProjectSpawnEcsPayload &Payload) {
   return (func::pipe(Payload.World) |
           [Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithDomainSteps(
-                {World, BuildSpawnDomainSteps(Entity), 0});
+                {World, BuildSpawnDomainSteps(Entity)});
           } |
           [&Payload, Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithComponentSteps(
-                {World, BuildSpawnComponentSteps({Entity, Payload.Spawn}), 0});
+                {World, BuildSpawnComponentSteps({Entity, Payload.Spawn})});
           })
       .val;
 }

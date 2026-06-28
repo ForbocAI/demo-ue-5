@@ -60,59 +60,46 @@ ecs::FWorld WithResource(const FEcsResourceProjectionRequest &Request) {
       Request.World, Request.Name, Request.Value));
 }
 
-/**
- * @brief Applies one domain projection step from a step-list request.
- * @signature ecs::FWorld ProjectDomainStep(const FEcsDomainStepsProjectionRequest &Request)
- *
- * User Story: As an ECS projection adapter, I need batch domain wiring to stay
- * data-driven while preserving unary request flow.
- */
-ecs::FWorld ProjectDomainStep(const FEcsDomainStepsProjectionRequest &Request) {
-  const FEcsDomainProjectionStep Step = Request.Steps[Request.Index];
-  return WithDomain({Request.World, Step.Entity, Step.Segments});
+ecs::FWorld ProjectDomainStep(const ecs::FWorld &World,
+                              const FEcsDomainProjectionStep &Step) {
+  return WithDomain({World, Step.Entity, Step.Segments});
 }
 
 /**
- * @brief Recursively applies domain projection steps to a world.
- * @signature ecs::FWorld WithDomainSteps(const FEcsDomainStepsProjectionRequest &Request)
+ * @brief Applies domain projection steps to a world through the ECS fold.
+ * @signature ecs::FWorld WithDomainSteps(const FEcsDomainStepsProjectionPayload &Payload)
  *
  * User Story: As a systems feature author, I need repeated ECS domain
  * projection to live in neutral component infrastructure instead of sibling
  * systems helpers.
  */
-ecs::FWorld WithDomainSteps(const FEcsDomainStepsProjectionRequest &Request) {
-  return Request.Index >= Request.Steps.Num()
-             ? Request.World
-             : WithDomainSteps({ProjectDomainStep(Request), Request.Steps,
-                                Request.Index + 1});
+ecs::FWorld WithDomainSteps(const FEcsDomainStepsProjectionPayload &Payload) {
+  return ecs::foldArray<FEcsDomainProjectionStep, ecs::FWorld>(
+      Payload.World, Payload.Steps,
+      [](const ecs::FWorld &Acc, const FEcsDomainProjectionStep &Step) {
+        return ProjectDomainStep(Acc, Step);
+      });
+}
+
+ecs::FWorld ProjectComponentStep(const ecs::FWorld &World,
+                                 const FEcsComponentProjectionStep &Step) {
+  return WithComponent({World, Step.Entity, Step.Type, Step.Value});
 }
 
 /**
- * @brief Applies one component projection step from a step-list request.
- * @signature ecs::FWorld ProjectComponentStep(const FEcsComponentStepsProjectionRequest &Request)
- *
- * User Story: As an ECS projection adapter, I need component writes to flow
- * through one request object so field batches compose predictably.
- */
-ecs::FWorld
-ProjectComponentStep(const FEcsComponentStepsProjectionRequest &Request) {
-  const FEcsComponentProjectionStep Step = Request.Steps[Request.Index];
-  return WithComponent({Request.World, Step.Entity, Step.Type, Step.Value});
-}
-
-/**
- * @brief Recursively applies component projection steps to a world.
- * @signature ecs::FWorld WithComponentSteps(const FEcsComponentStepsProjectionRequest &Request)
+ * @brief Applies component projection steps to a world through the ECS fold.
+ * @signature ecs::FWorld WithComponentSteps(const FEcsComponentStepsProjectionPayload &Payload)
  *
  * User Story: As feature projection code, I need reusable component batch
  * application that keeps reducers and adapters small.
  */
 ecs::FWorld
-WithComponentSteps(const FEcsComponentStepsProjectionRequest &Request) {
-  return Request.Index >= Request.Steps.Num()
-             ? Request.World
-             : WithComponentSteps({ProjectComponentStep(Request),
-                                   Request.Steps, Request.Index + 1});
+WithComponentSteps(const FEcsComponentStepsProjectionPayload &Payload) {
+  return ecs::foldArray<FEcsComponentProjectionStep, ecs::FWorld>(
+      Payload.World, Payload.Steps,
+      [](const ecs::FWorld &Acc, const FEcsComponentProjectionStep &Step) {
+        return ProjectComponentStep(Acc, Step);
+      });
 }
 
 ecs::FComponentValue LocalPointValue(const FLevelLocalPoint &Point) {
@@ -133,16 +120,15 @@ ecs::FComponentValue RotationValue(const FRotator &Rotation) {
 
 TArray<ecs::FComponentValue>
 LocalPointList(const TArray<FLevelLocalPoint> &Points) {
-  return MapComponentValues(TMapComponentValuesRequest<FLevelLocalPoint>{
-      Points,
-      [](const FLevelLocalPoint &Point) { return LocalPointValue(Point); }, 0,
-      TArray<ecs::FComponentValue>()});
+  return ecs::mapComponentValues<FLevelLocalPoint>(
+      Points, [](const FLevelLocalPoint &Point) {
+        return LocalPointValue(Point);
+      });
 }
 
 TArray<ecs::FComponentValue> StringList(const TArray<FString> &Values) {
-  return MapComponentValues(TMapComponentValuesRequest<FString>{
-      Values, [](const FString &Value) { return ecs::textValue(Value); }, 0,
-      TArray<ecs::FComponentValue>()});
+  return ecs::mapComponentValues<FString>(
+      Values, [](const FString &Value) { return ecs::textValue(Value); });
 }
 
 } // namespace ComponentsAdapters

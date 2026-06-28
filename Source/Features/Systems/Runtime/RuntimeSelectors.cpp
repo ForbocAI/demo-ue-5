@@ -39,6 +39,11 @@ SelectLevelTerrainSources(const FRuntimeState &State) {
   return LevelSystemSelectors::SelectTerrainSources(State.Level);
 }
 
+const ForbocAI::Demo::Data::FLevelDataSourceSettings &
+SelectLevelDataSources(const FRuntimeState &State) {
+  return LevelSystemSelectors::SelectDataSources(State.Level);
+}
+
 const ForbocAI::Demo::Data::FLevelGeometrySettings &
 SelectLevelGeometry(const FRuntimeState &State) {
   return LevelSystemSelectors::SelectGeometry(State.Level);

@@ -50,13 +50,10 @@ InteractionCandidateValue(const FInteractionCandidate &Candidate) {
  */
 TArray<ecs::FComponentValue> InteractionCandidateList(
     const TArray<FInteractionCandidate> &Candidates) {
-  return ComponentsAdapters::MapComponentValues(
-      ComponentsAdapters::TMapComponentValuesRequest<FInteractionCandidate>{
-          Candidates,
-          [](const FInteractionCandidate &Candidate) {
-            return InteractionCandidateValue(Candidate);
-          },
-          0, TArray<ecs::FComponentValue>()});
+  return ecs::mapComponentValues<FInteractionCandidate>(
+      Candidates, [](const FInteractionCandidate &Candidate) {
+        return InteractionCandidateValue(Candidate);
+      });
 }
 
 /**
@@ -111,13 +108,12 @@ ProjectInteraction(const FProjectInteractionEcsPayload &Payload) {
   return (func::pipe(Payload.World) |
           [Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithDomainSteps(
-                {World, BuildInteractionDomainSteps(Entity), 0});
+                {World, BuildInteractionDomainSteps(Entity)});
           } |
           [&Payload, Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithComponentSteps(
-                {World,
-                 BuildInteractionComponentSteps({Entity, Payload.Interaction}),
-                 0});
+                {World, BuildInteractionComponentSteps(
+                            {Entity, Payload.Interaction})});
           })
       .val;
 }

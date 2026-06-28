@@ -127,6 +127,10 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
       ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
   const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
       Settings.LevelTerrainSources;
+  const ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources =
+      Settings.LevelDataSources;
+  const ForbocAI::Demo::Data::FRuntimeValidationSettings Validation =
+      Settings.RuntimeValidation;
   const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
       Settings.LevelGeometry;
   FLevelTerrainData TerrainData;
@@ -136,11 +140,14 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            TerrainData.LoadFromContent({Sources, Geometry}));
   TestTrue(TEXT("French Gulch USGS ortho CSV loads"),
            OrthoData.LoadFromContent({Sources}));
-  TestEqual(TEXT("Terrain grid is 65x65"), TerrainData.GetGridSize(), 65);
-  TestEqual(TEXT("Ortho grid is 65x65"), OrthoData.GetGridSize(), 65);
+  TestEqual(TEXT("Terrain grid matches authored validation data"),
+            TerrainData.GetGridSize(), Validation.TerrainGridSize);
+  TestEqual(TEXT("Ortho grid matches authored validation data"),
+            OrthoData.GetGridSize(), Validation.OrthoGridSize);
   TestTrue(TEXT("Terrain has relief"),
            TerrainData.GetMaxElevationMeters() >
-               TerrainData.GetMinElevationMeters() + 250.0f);
+               TerrainData.GetMinElevationMeters() +
+                   Validation.TerrainMinReliefMeters);
 
   rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
       Store::ConfigureStore();
@@ -151,7 +158,8 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            TerrainData.GetMaxElevationMeters()})));
 
   const TArray<FLandmark> Landmarks =
-      LandmarksAdapters::Build1899LandmarkSeed({TerrainData, Geometry});
+      LandmarksAdapters::BuildLandmarkSeed(
+          {DataSources.LandmarksJsonPath, TerrainData, Geometry});
   EnhancedStoreValue.dispatch(LandmarkActions::LandmarksSeeded()(Landmarks));
   EnhancedStoreValue.dispatch(SpawnActions::PlayerSpawnAnchored()(
       SpawnFactories::SpawnPointPayload(
@@ -161,15 +169,16 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            LevelLayoutSlice::PlayerSpawnAnchorLabel(Geometry)})));
 
   const TArray<FTownspersonSeed> TownspersonSeeds =
-      BotsAdapters::Build1899TownspersonSeed(Geometry);
+      BotsAdapters::BuildTownspersonSeed(
+          {DataSources.TownspeopleJsonPath, Geometry});
   EnhancedStoreValue.dispatch(TownspersonActions::TownspeopleSeeded()(TownspersonSeeds));
 
   const TArray<FHorseRouteSeed> HorseRouteSeeds =
-      BotsAdapters::Build1899HorseRouteSeed(Geometry);
+      BotsAdapters::BuildHorseRouteSeed({DataSources.HorsesJsonPath, Geometry});
   EnhancedStoreValue.dispatch(HorseActions::HorsesSeeded()(HorseRouteSeeds));
 
   const TArray<FNatureFeatureSeed> NatureFeatureSeeds =
-      NatureAdapters::BuildClearCreekNatureSeed(Geometry);
+      NatureAdapters::BuildNatureSeed({DataSources.NatureJsonPath, Geometry});
   EnhancedStoreValue.dispatch(NatureActions::NatureSeeded()(NatureFeatureSeeds));
 
   const FRuntimeState &State = EnhancedStoreValue.getState();

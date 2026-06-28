@@ -13,11 +13,12 @@ namespace Level {
 namespace LandmarksAdapters {
 
 struct FLandmarkSeedBuildRequest {
+  FString RelativeJsonPath;
   FLevelTerrainData TerrainData;
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
-TArray<FLandmark> Build1899LandmarkSeed(
+TArray<FLandmark> BuildLandmarkSeed(
     const FLandmarkSeedBuildRequest &Request);
 
 } // namespace LandmarksAdapters

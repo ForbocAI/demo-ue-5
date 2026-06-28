@@ -27,6 +27,12 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
   Settings.LevelTerrainSources =
       LevelSettingsAdapters::ReadLevelTerrainSourceSettings(
           ObjectValue(TEXT("level_terrain_sources")));
+  Settings.LevelDataSources =
+      LevelSettingsAdapters::ReadLevelDataSourceSettings(
+          ObjectValue(TEXT("level_data_sources")));
+  Settings.RuntimeValidation =
+      LevelSettingsAdapters::ReadRuntimeValidationSettings(
+          ObjectValue(TEXT("runtime_validation")));
   Settings.LevelGeometry = LevelSettingsAdapters::ReadLevelGeometrySettings(
       ObjectValue(TEXT("level_geometry")));
   Settings.RenderingAssets =
@@ -47,15 +53,9 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
 }
 
 FDemoRuntimeSettings LoadDemoRuntimeSettings() {
-  return func::match(
-      Json::LoadObjectFromContent({TEXT("Data/runtime_demo_settings.json")}),
-      [](const TSharedPtr<FJsonObject> &Root) {
-        return ReadDemoRuntimeSettings(Root);
-      },
-      []() {
-        checkf(false, TEXT("Runtime demo settings JSON is required"));
-        return FDemoRuntimeSettings();
-      });
+  return ReadDemoRuntimeSettings(
+      Json::LoadRequiredObjectFromContent(
+          {TEXT("Data/runtime_demo_settings.json")}));
 }
 
 } // namespace RuntimeSettingsAdapters

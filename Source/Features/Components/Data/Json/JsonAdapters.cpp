@@ -103,20 +103,30 @@ LoadObjectFromContent(const FJsonContentObjectRequest &Request) {
                      });
 }
 
+TSharedPtr<FJsonObject>
+LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request) {
+  const func::Maybe<TSharedPtr<FJsonObject>> Root = LoadObjectFromContent(Request);
+  checkf(Root.hasValue, TEXT("Required Data JSON missing or invalid: %s"),
+         *Request.RelativePath);
+  return Root.value;
+}
+
 FString ReadString(const FJsonFieldRequest &Request) {
   FString Value;
-  return Request.Object.IsValid() &&
-                 Request.Object->TryGetStringField(Request.FieldName, Value)
-             ? Value
-             : FString();
+  const bool bRead = Request.Object.IsValid() &&
+                     Request.Object->TryGetStringField(Request.FieldName, Value);
+  checkf(bRead, TEXT("Required JSON string missing: %s"),
+         *Request.FieldName);
+  return Value;
 }
 
 float ReadFloat(const FJsonFieldRequest &Request) {
   double Value = 0.0;
-  return Request.Object.IsValid() &&
-                 Request.Object->TryGetNumberField(Request.FieldName, Value)
-             ? static_cast<float>(Value)
-             : 0.0f;
+  const bool bRead = Request.Object.IsValid() &&
+                     Request.Object->TryGetNumberField(Request.FieldName, Value);
+  checkf(bRead, TEXT("Required JSON number missing: %s"),
+         *Request.FieldName);
+  return static_cast<float>(Value);
 }
 
 int32 ReadInt(const FJsonFieldRequest &Request) {
@@ -125,19 +135,20 @@ int32 ReadInt(const FJsonFieldRequest &Request) {
 
 bool ReadBool(const FJsonFieldRequest &Request) {
   bool Value = false;
-  return Request.Object.IsValid() &&
-                 Request.Object->TryGetBoolField(Request.FieldName, Value)
-             ? Value
-             : false;
+  const bool bRead = Request.Object.IsValid() &&
+                     Request.Object->TryGetBoolField(Request.FieldName, Value);
+  checkf(bRead, TEXT("Required JSON bool missing: %s"), *Request.FieldName);
+  return Value;
 }
 
 TArray<TSharedPtr<FJsonValue>> ReadArray(const FJsonFieldRequest &Request) {
   const TArray<TSharedPtr<FJsonValue>> *Values = nullptr;
-  return Request.Object.IsValid() &&
-                 Request.Object->TryGetArrayField(Request.FieldName, Values) &&
-                 Values != nullptr
-             ? *Values
-             : TArray<TSharedPtr<FJsonValue>>();
+  const bool bRead =
+      Request.Object.IsValid() &&
+      Request.Object->TryGetArrayField(Request.FieldName, Values) &&
+      Values != nullptr;
+  checkf(bRead, TEXT("Required JSON array missing: %s"), *Request.FieldName);
+  return *Values;
 }
 
 func::Maybe<TSharedPtr<FJsonObject>>

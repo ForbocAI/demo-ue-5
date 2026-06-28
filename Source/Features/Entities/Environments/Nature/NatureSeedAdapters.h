@@ -11,8 +11,13 @@ namespace Demo {
 namespace Level {
 namespace NatureAdapters {
 
-TArray<FNatureFeatureSeed> BuildClearCreekNatureSeed(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+struct FNatureSeedBuildRequest {
+  FString RelativeJsonPath;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+TArray<FNatureFeatureSeed> BuildNatureSeed(
+    const FNatureSeedBuildRequest &Request);
 
 } // namespace NatureAdapters
 } // namespace Level

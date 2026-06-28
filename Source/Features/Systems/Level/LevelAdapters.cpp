@@ -10,19 +10,14 @@ namespace LevelAdapters {
 
 namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
 
-namespace {
-
-constexpr const TCHAR *RuntimeLevelDataPath =
-    TEXT("Data/french_gulch_runtime_level.json");
-
-} // namespace
-
-func::Maybe<FLevelRuntimeLayoutSeed> LoadFrenchGulchRuntimeLayoutSeed() {
-  return func::mbind(
-      JsonAdapters::LoadObjectFromContent({RuntimeLevelDataPath}),
-      [](const TSharedPtr<FJsonObject> &Root) {
-        return RuntimeLayout::LayoutFromJson({Root});
-      });
+FLevelRuntimeLayoutSeed LoadRuntimeLayoutSeed(const FString &RelativeJsonPath) {
+  const TSharedPtr<FJsonObject> Root =
+      JsonAdapters::LoadRequiredObjectFromContent({RelativeJsonPath});
+  const func::Maybe<FLevelRuntimeLayoutSeed> Layout =
+      RuntimeLayout::LayoutFromJson({Root});
+  checkf(Layout.hasValue, TEXT("Runtime layout JSON is invalid: %s"),
+         *RelativeJsonPath);
+  return Layout.value;
 }
 
 } // namespace LevelAdapters

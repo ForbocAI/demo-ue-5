@@ -15,6 +15,8 @@ const FSystemsState &SelectSystemsState(const FRuntimeState &State);
 const FLevelSystemState &SelectLevelState(const FRuntimeState &State);
 const ForbocAI::Demo::Data::FLevelTerrainSourceSettings &
 SelectLevelTerrainSources(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FLevelDataSourceSettings &
+SelectLevelDataSources(const FRuntimeState &State);
 const ForbocAI::Demo::Data::FLevelGeometrySettings &
 SelectLevelGeometry(const FRuntimeState &State);
 const FRenderingState &SelectRenderingState(const FRuntimeState &State);

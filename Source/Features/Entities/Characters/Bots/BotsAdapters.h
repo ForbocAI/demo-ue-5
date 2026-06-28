@@ -18,10 +18,15 @@ namespace Demo {
 namespace Level {
 namespace BotsAdapters {
 
-TArray<FTownspersonSeed> Build1899TownspersonSeed(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
-TArray<FHorseRouteSeed> Build1899HorseRouteSeed(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+struct FBotSeedBuildRequest {
+  FString RelativeJsonPath;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+TArray<FTownspersonSeed> BuildTownspersonSeed(
+    const FBotSeedBuildRequest &Request);
+TArray<FHorseRouteSeed> BuildHorseRouteSeed(
+    const FBotSeedBuildRequest &Request);
 
 } // namespace BotsAdapters
 } // namespace Level

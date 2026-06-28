@@ -656,6 +656,20 @@ inline FComponentValue listValue(const TArray<FComponentValue> &RawValue) {
   return Value;
 }
 
+/**
+ * @brief Maps source rows into ECS component values through the neutral array mapper.
+ * @signature template <typename Source> inline TArray<FComponentValue> mapComponentValues(const TArray<Source> &Items, std::function<FComponentValue(const Source &)> MapValue)
+ *
+ * User Story: As projection adapters, component-list values should share one
+ * ECS mapper instead of building request/factory families per source noun.
+ */
+template <typename Source>
+inline TArray<FComponentValue>
+mapComponentValues(const TArray<Source> &Items,
+                   std::function<FComponentValue(const Source &)> MapValue) {
+  return mapArray<Source, FComponentValue>(Items, MapValue);
+}
+
 inline bool componentValuePtrEquals(const TSharedPtr<FComponentValue> &Left,
                                     const TSharedPtr<FComponentValue> &Right);
 
@@ -1618,6 +1632,42 @@ typedef std::function<FWorldTransform(const ComponentType &)>
 typedef std::function<FWorldTransform(const EntityKey &)>
     FEntityKeyWorldTransformFactory;
 
+template <typename Item>
+using TWorldRowProjector =
+    std::function<FWorld(const FWorld &, const Item &)>;
+
+/**
+ * @brief Projects selected rows into a world through one row projector.
+ * @signature template <typename Item> inline FWorld projectRows(const FWorld &World, const TArray<Item> &Items, TWorldRowProjector<Item> Project)
+ *
+ * User Story: As RTK selector projection code, selected entity-adapter rows
+ * should fold into ECS through one reusable world transform shape.
+ */
+template <typename Item>
+inline FWorld projectRows(const FWorld &World, const TArray<Item> &Items,
+                          TWorldRowProjector<Item> Project) {
+  return foldArray<Item, FWorld>(
+      World, Items, [Project](const FWorld &Acc, const Item &ItemValue) {
+        return Project(Acc, ItemValue);
+      });
+}
+
+/**
+ * @brief Runs a list of world transforms through the shared fold shape.
+ * @signature inline FWorld foldWorldTransforms(const FWorld &World, const TArray<FWorldTransform> &Transforms)
+ *
+ * User Story: As reducer-owned ECS projection, system execution should read as
+ * a fold over named world transforms instead of hand-composed nested calls.
+ */
+inline FWorld foldWorldTransforms(const FWorld &World,
+                                  const TArray<FWorldTransform> &Transforms) {
+  return foldArray<FWorldTransform, FWorld>(
+      World, Transforms,
+      [](const FWorld &Acc, const FWorldTransform &Transform) {
+        return Transform(Acc);
+      });
+}
+
 struct FSpawnedEntity {
   FWorld World;
   FEntityId Id;
@@ -2206,6 +2256,92 @@ inline FWorld markManyDirty(const FMarkManyDirtyRequest &Request) {
       });
 }
 
+typedef std::function<FRelationship(const FRelationship &)>
+    FRelationshipTransform;
+
+struct FRelationshipWrite {
+  EntityKey Entity;
+  FRelationshipTransform Transform;
+};
+
+/**
+ * @brief Assigns a parent on one relationship value.
+ */
+inline FRelationship assignRelationshipParent(const EntityKey &Parent,
+                                              const FRelationship &Value) {
+  FRelationship Next = Value;
+  Next.Parent = func::just(Parent);
+  return Next;
+}
+
+/**
+ * @brief Clears the parent on one relationship value.
+ */
+inline FRelationship clearRelationshipParent(const FRelationship &Value) {
+  FRelationship Next = Value;
+  Next.Parent = func::nothing<EntityKey>();
+  return Next;
+}
+
+/**
+ * @brief Adds a child to one relationship value.
+ */
+inline FRelationship appendRelationshipChild(const EntityKey &Child,
+                                             const FRelationship &Value) {
+  FRelationship Next = Value;
+  Next.Children.AddUnique(Child);
+  return Next;
+}
+
+/**
+ * @brief Removes a child from one relationship value.
+ */
+inline FRelationship eraseRelationshipChild(const EntityKey &Child,
+                                            const FRelationship &Value) {
+  FRelationship Next = Value;
+  Next.Children.Remove(Child);
+  return Next;
+}
+
+/**
+ * @brief Applies one relationship write by reading default-or-present first.
+ */
+inline FWorld applyRelationshipWrite(const FWorld &World,
+                                     const FRelationshipWrite &Write) {
+  FWorld Next = World;
+  Next.Relationships.Add(
+      Write.Entity,
+      Write.Transform(getRelationshipOrDefault(createGetRelationshipRequest(
+          Next.Relationships, Write.Entity))));
+  return Next;
+}
+
+/**
+ * @brief Applies relationship writes through one fold.
+ */
+inline FWorld foldRelationshipWrites(const FWorld &World,
+                                     const TArray<FRelationshipWrite> &Writes) {
+  return foldArray<FRelationshipWrite, FWorld>(
+      World, Writes, [](const FWorld &Acc, const FRelationshipWrite &Write) {
+        return applyRelationshipWrite(Acc, Write);
+      });
+}
+
+inline EntityKey relationshipWriteEntity(const FRelationshipWrite &Write) {
+  return Write.Entity;
+}
+
+/**
+ * @brief Marks every entity touched by relationship writes through dirty fold.
+ */
+inline FWorld
+markRelationshipWritesDirty(const FWorld &World,
+                             const TArray<FRelationshipWrite> &Writes) {
+  return markManyDirty(createMarkManyDirtyRequest(
+      World,
+      mapArray<FRelationshipWrite, EntityKey>(Writes, relationshipWriteEntity)));
+}
+
 /**
  * @brief Allocates and marks one entity in the supplied world.
  *
@@ -2373,17 +2509,19 @@ inline FWorld despawnEntity(const FDespawnEntityRequest &Request) {
  * pure request transform and mark both touched entities.
  */
 inline FWorld setParent(const FSetParentRequest &Request) {
-  FWorld World = Request.World;
-  FRelationship ChildRelationship = getRelationshipOrDefault(
-      createGetRelationshipRequest(World.Relationships, Request.Child));
-  ChildRelationship.Parent = func::just(Request.Parent);
-  World.Relationships.Add(Request.Child, ChildRelationship);
-  FRelationship ParentRelationship = getRelationshipOrDefault(
-      createGetRelationshipRequest(World.Relationships, Request.Parent));
-  ParentRelationship.Children.AddUnique(Request.Child);
-  World.Relationships.Add(Request.Parent, ParentRelationship);
-  return markManyDirty(
-      createMarkManyDirtyRequest(World, {Request.Child, Request.Parent}));
+  TArray<FRelationshipWrite> Writes;
+  Writes.Add(
+      {Request.Child,
+       [Parent = Request.Parent](const FRelationship &Relationship) {
+         return assignRelationshipParent(Parent, Relationship);
+       }});
+  Writes.Add(
+      {Request.Parent,
+       [Child = Request.Child](const FRelationship &Relationship) {
+         return appendRelationshipChild(Child, Relationship);
+       }});
+  return markRelationshipWritesDirty(
+      foldRelationshipWrites(Request.World, Writes), Writes);
 }
 
 /**
@@ -2406,17 +2544,17 @@ inline FWorld addChild(const FAddChildRequest &Request) {
  * unary transition over the world value.
  */
 inline FWorld removeChild(const FRemoveChildRequest &Request) {
-  FWorld World = Request.World;
-  FRelationship ParentRelationship = getRelationshipOrDefault(
-      createGetRelationshipRequest(World.Relationships, Request.Parent));
-  ParentRelationship.Children.Remove(Request.Child);
-  World.Relationships.Add(Request.Parent, ParentRelationship);
-  FRelationship ChildRelationship = getRelationshipOrDefault(
-      createGetRelationshipRequest(World.Relationships, Request.Child));
-  ChildRelationship.Parent = func::nothing<EntityKey>();
-  World.Relationships.Add(Request.Child, ChildRelationship);
-  return markManyDirty(
-      createMarkManyDirtyRequest(World, {Request.Parent, Request.Child}));
+  TArray<FRelationshipWrite> Writes;
+  Writes.Add(
+      {Request.Parent,
+       [Child = Request.Child](const FRelationship &Relationship) {
+         return eraseRelationshipChild(Child, Relationship);
+       }});
+  Writes.Add({Request.Child, [](const FRelationship &Relationship) {
+               return clearRelationshipParent(Relationship);
+             }});
+  return markRelationshipWritesDirty(
+      foldRelationshipWrites(Request.World, Writes), Writes);
 }
 
 inline TArray<EntityKey> appendUniqueEntity(TArray<EntityKey> Entities,

@@ -74,6 +74,20 @@ struct FLevelTerrainSourceSettings {
   FString OrthoCsvPath;
 };
 
+struct FLevelDataSourceSettings {
+  FString RuntimeLayoutJsonPath;
+  FString LandmarksJsonPath;
+  FString TownspeopleJsonPath;
+  FString HorsesJsonPath;
+  FString NatureJsonPath;
+};
+
+struct FRuntimeValidationSettings {
+  int32 TerrainGridSize = 0;
+  int32 OrthoGridSize = 0;
+  float TerrainMinReliefMeters = 0.0f;
+};
+
 struct FLevelGeometrySettings {
   float TerrainWorldSize = 0.0f;
   float TerrainElevationScale = 0.0f;
@@ -168,6 +182,8 @@ struct FDemoRuntimeSettings {
   FInteractionSettings Interaction;
   FTownspersonDefaultsSettings TownspersonDefaults;
   FLevelTerrainSourceSettings LevelTerrainSources;
+  FLevelDataSourceSettings LevelDataSources;
+  FRuntimeValidationSettings RuntimeValidation;
   FLevelGeometrySettings LevelGeometry;
   FRenderingAssetPathSettings RenderingAssets;
   FRenderingProfileSettings RenderingProfile;
@@ -238,6 +254,20 @@ inline bool operator==(const FLevelTerrainSourceSettings &Left,
 
 inline bool operator!=(const FLevelTerrainSourceSettings &Left,
                        const FLevelTerrainSourceSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FLevelDataSourceSettings &Left,
+                       const FLevelDataSourceSettings &Right) {
+  return Left.RuntimeLayoutJsonPath == Right.RuntimeLayoutJsonPath &&
+         Left.LandmarksJsonPath == Right.LandmarksJsonPath &&
+         Left.TownspeopleJsonPath == Right.TownspeopleJsonPath &&
+         Left.HorsesJsonPath == Right.HorsesJsonPath &&
+         Left.NatureJsonPath == Right.NatureJsonPath;
+}
+
+inline bool operator!=(const FLevelDataSourceSettings &Left,
+                       const FLevelDataSourceSettings &Right) {
   return !(Left == Right);
 }
 

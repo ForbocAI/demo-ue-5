@@ -13,9 +13,6 @@ namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
 
 namespace {
 
-constexpr const TCHAR *LandmarkDataPath =
-    TEXT("Data/french_gulch_landmarks.json");
-
 struct FLandmarkFromJsonRequest {
   const FLevelTerrainData *TerrainData = nullptr;
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
@@ -45,21 +42,15 @@ FLandmark LandmarkFromJson(const FLandmarkFromJsonRequest &Request) {
 } // namespace
 
 TArray<FLandmark>
-Build1899LandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
-  return func::match(
-      JsonAdapters::LoadObjectFromContent({LandmarkDataPath}),
-      [&Request](const TSharedPtr<FJsonObject> &Root) {
-        const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
-        return JsonAdapters::MapJsonValues<FLandmark>(
-            Array(TEXT("landmarks")),
-            [&Request](const TSharedPtr<FJsonObject> &LandmarkObject) {
-              return LandmarkFromJson(
-                  {&Request.TerrainData, Request.Geometry, LandmarkObject});
-            });
-      },
-      []() {
-        checkf(false, TEXT("Landmark seed JSON is required"));
-        return TArray<FLandmark>();
+BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
+  const TSharedPtr<FJsonObject> Root =
+      JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
+  const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
+  return JsonAdapters::MapJsonValues<FLandmark>(
+      Array(TEXT("landmarks")),
+      [&Request](const TSharedPtr<FJsonObject> &LandmarkObject) {
+        return LandmarkFromJson(
+            {&Request.TerrainData, Request.Geometry, LandmarkObject});
       });
 }
 

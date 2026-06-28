@@ -38,6 +38,7 @@ struct FRuntimeSeedDispatchRequest {
   const std::function<rtk::AnyAction(const rtk::AnyAction &)> &Dispatch;
   const FLevelTerrainData &TerrainData;
   const FLevelOrthoData &OrthoData;
+  ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources;
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
@@ -54,8 +55,9 @@ void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
            Request.TerrainData.GetMinElevationMeters(),
            Request.TerrainData.GetMaxElevationMeters()})));
   Request.Dispatch(LandmarkActions::LandmarksSeeded()(
-      LandmarksAdapters::Build1899LandmarkSeed(
-          {Request.TerrainData, Request.Geometry})));
+      LandmarksAdapters::BuildLandmarkSeed(
+          {Request.DataSources.LandmarksJsonPath, Request.TerrainData,
+           Request.Geometry})));
   Request.Dispatch(SpawnActions::PlayerSpawnAnchored()(
       SpawnFactories::SpawnPointPayload(
           {LevelLayoutSlice::ToWorld(
@@ -64,12 +66,15 @@ void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
            LevelLayoutSlice::PlayerSpawnRotation(Request.Geometry),
            LevelLayoutSlice::PlayerSpawnAnchorLabel(Request.Geometry)})));
   Request.Dispatch(TownspersonActions::TownspeopleSeeded()(
-      BotsAdapters::Build1899TownspersonSeed(Request.Geometry)));
+      BotsAdapters::BuildTownspersonSeed(
+          {Request.DataSources.TownspeopleJsonPath, Request.Geometry})));
   Request.Dispatch(
       HorseActions::HorsesSeeded()(
-          BotsAdapters::Build1899HorseRouteSeed(Request.Geometry)));
+          BotsAdapters::BuildHorseRouteSeed(
+              {Request.DataSources.HorsesJsonPath, Request.Geometry})));
   Request.Dispatch(NatureActions::NatureSeeded()(
-      NatureAdapters::BuildClearCreekNatureSeed(Request.Geometry)));
+      NatureAdapters::BuildNatureSeed(
+          {Request.DataSources.NatureJsonPath, Request.Geometry})));
 }
 
 FDialogueReplyPayload ReduceLocalDialogueReplyPayload(
@@ -92,10 +97,13 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
           const FRuntimeState State = GetState();
           const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
               RuntimeSelectors::SelectLevelTerrainSources(State);
+          const ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources =
+              RuntimeSelectors::SelectLevelDataSources(State);
           const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
               RuntimeSelectors::SelectLevelGeometry(State);
           LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
-          DispatchRuntimeSeeded({Dispatch, TerrainData, OrthoData, Geometry});
+          DispatchRuntimeSeeded(
+              {Dispatch, TerrainData, OrthoData, DataSources, Geometry});
           Resolve(RuntimeSelectors::SelectPlayerSpawn(GetState()));
         });
   };
@@ -116,21 +124,21 @@ RequestLevelViewPayload() {
           const FRuntimeState State = GetState();
           const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
               RuntimeSelectors::SelectLevelTerrainSources(State);
+          const ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources =
+              RuntimeSelectors::SelectLevelDataSources(State);
           const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
               RuntimeSelectors::SelectLevelGeometry(State);
           LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
-          const func::Maybe<FLevelRuntimeLayoutSeed> RuntimeLayout =
-              LevelAdapters::LoadFrenchGulchRuntimeLayoutSeed();
-          if (!RuntimeLayout.hasValue) {
-            Reject("French Gulch runtime layout JSON failed to load");
-            return;
-          }
-          DispatchRuntimeSeeded({Dispatch, TerrainData, OrthoData, Geometry});
+          const FLevelRuntimeLayoutSeed RuntimeLayout =
+              LevelAdapters::LoadRuntimeLayoutSeed(
+                  DataSources.RuntimeLayoutJsonPath);
+          DispatchRuntimeSeeded(
+              {Dispatch, TerrainData, OrthoData, DataSources, Geometry});
           func::executeAsync(RenderingThunks::ObserveRuntimeProfile(
                                  TEXT("runtime/rendering/profileObserved"))(
               Dispatch, GetState));
           Resolve(RuntimeReducers::ReduceLevelViewPayload(
-              GetState(), {&TerrainData, &OrthoData, &RuntimeLayout.value,
+              GetState(), {&TerrainData, &OrthoData, &RuntimeLayout,
                            &Geometry}));
         });
   };

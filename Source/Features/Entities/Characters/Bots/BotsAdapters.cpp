@@ -12,10 +12,6 @@ namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
 
 namespace {
 
-constexpr const TCHAR *TownspeopleDataPath =
-    TEXT("Data/french_gulch_townspeople.json");
-constexpr const TCHAR *HorseDataPath = TEXT("Data/french_gulch_horses.json");
-
 struct FRouteLotsRequest {
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
   float EastLots = 0.0f;
@@ -168,39 +164,27 @@ FHorseRouteSeed HorseRouteFromJson(
 
 } // namespace
 
-TArray<FTownspersonSeed> Build1899TownspersonSeed(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
-  return func::match(
-      JsonAdapters::LoadObjectFromContent({TownspeopleDataPath}),
-      [&Geometry](const TSharedPtr<FJsonObject> &Root) {
-        const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
-        return JsonAdapters::MapJsonValues<FTownspersonSeed>(
-            Array(TEXT("townspeople")),
-            [&Geometry](const TSharedPtr<FJsonObject> &TownspersonObject) {
-              return TownspersonFromJson({TownspersonObject, Geometry});
-            });
-      },
-      []() {
-        checkf(false, TEXT("Townsperson seed JSON is required"));
-        return TArray<FTownspersonSeed>();
+TArray<FTownspersonSeed> BuildTownspersonSeed(
+    const FBotSeedBuildRequest &Request) {
+  const TSharedPtr<FJsonObject> Root =
+      JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
+  const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
+  return JsonAdapters::MapJsonValues<FTownspersonSeed>(
+      Array(TEXT("townspeople")),
+      [&Request](const TSharedPtr<FJsonObject> &TownspersonObject) {
+        return TownspersonFromJson({TownspersonObject, Request.Geometry});
       });
 }
 
-TArray<FHorseRouteSeed> Build1899HorseRouteSeed(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
-  return func::match(
-      JsonAdapters::LoadObjectFromContent({HorseDataPath}),
-      [&Geometry](const TSharedPtr<FJsonObject> &Root) {
-        const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
-        return JsonAdapters::MapJsonValues<FHorseRouteSeed>(
-            Array(TEXT("horses")),
-            [&Geometry](const TSharedPtr<FJsonObject> &HorseObject) {
-              return HorseRouteFromJson({HorseObject, Geometry});
-            });
-      },
-      []() {
-        checkf(false, TEXT("Horse route seed JSON is required"));
-        return TArray<FHorseRouteSeed>();
+TArray<FHorseRouteSeed> BuildHorseRouteSeed(
+    const FBotSeedBuildRequest &Request) {
+  const TSharedPtr<FJsonObject> Root =
+      JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
+  const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
+  return JsonAdapters::MapJsonValues<FHorseRouteSeed>(
+      Array(TEXT("horses")),
+      [&Request](const TSharedPtr<FJsonObject> &HorseObject) {
+        return HorseRouteFromJson({HorseObject, Request.Geometry});
       });
 }
 

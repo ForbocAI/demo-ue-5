@@ -137,12 +137,12 @@ ecs::FWorld
 ApplyEntityProjection(const FApplyEntityProjectionPayload &Payload) {
   return (func::pipe(Payload.World) |
           [&Payload](ecs::FWorld Next) {
-            return ComponentsAdapters::WithDomainSteps(
-                {Next, Payload.Domains, 0});
+            return ComponentsAdapters::WithDomainSteps({Next,
+                                                        Payload.Domains});
           } |
           [&Payload](ecs::FWorld Next) {
             return ComponentsAdapters::WithComponentSteps(
-                {Next, Payload.Components, 0});
+                {Next, Payload.Components});
           })
       .val;
 }

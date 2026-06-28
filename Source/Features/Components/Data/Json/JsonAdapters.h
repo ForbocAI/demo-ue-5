@@ -62,6 +62,16 @@ func::Maybe<TSharedPtr<FJsonObject>>
 LoadObjectFromContent(const FJsonContentObjectRequest &Request);
 
 /**
+ * @brief Loads a required JSON object from the project Content directory.
+ * @signature TSharedPtr<FJsonObject> LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request)
+ *
+ * User story: As a runtime data boundary, missing authored JSON should fail
+ * before actions dispatch instead of producing fallback state.
+ */
+TSharedPtr<FJsonObject>
+LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request);
+
+/**
  * @brief Reads one string field from a JSON object request.
  * @signature FString ReadString(const FJsonFieldRequest &Request)
  *
@@ -228,7 +238,10 @@ MapJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values,
               TFunction<Output(const TSharedPtr<FJsonObject> &)> MapValue) {
   return ecs::mapArray<TSharedPtr<FJsonValue>, Output>(
       Values, [MapValue](const TSharedPtr<FJsonValue> &Value) {
-        return MapValue(Value->AsObject());
+        const TSharedPtr<FJsonObject> Object =
+            Value.IsValid() ? Value->AsObject() : TSharedPtr<FJsonObject>();
+        checkf(Object.IsValid(), TEXT("Required JSON array object missing"));
+        return MapValue(Object);
       });
 }
 

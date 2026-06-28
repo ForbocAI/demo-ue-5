@@ -18,6 +18,26 @@ FLevelTerrainSourceSettings
 ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object);
 
 /**
+ * @brief Reads authored level data source paths from one JSON object.
+ * @signature FLevelDataSourceSettings ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object)
+ *
+ * User story: As a runtime thunk author, every authored data file path should
+ * enter the single RTK store as settings data instead of feature constants.
+ */
+FLevelDataSourceSettings
+ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object);
+
+/**
+ * @brief Reads runtime validation settings from one JSON object.
+ * @signature FRuntimeValidationSettings ReadRuntimeValidationSettings(const TSharedPtr<FJsonObject> &Object)
+ *
+ * User story: As an automation test author, expected authored data dimensions
+ * should live in JSON beside the source data instead of test constants.
+ */
+FRuntimeValidationSettings
+ReadRuntimeValidationSettings(const TSharedPtr<FJsonObject> &Object);
+
+/**
  * @brief Reads level geometry settings from one JSON object.
  * @signature FLevelGeometrySettings ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object)
  *

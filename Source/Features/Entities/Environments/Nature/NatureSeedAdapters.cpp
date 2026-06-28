@@ -12,8 +12,6 @@ namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
 
 namespace {
 
-constexpr const TCHAR *NatureDataPath = TEXT("Data/french_gulch_nature.json");
-
 struct FFeatureLotsRequest {
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
   float EastLots = 0.0f;
@@ -144,21 +142,15 @@ FNatureFeatureSeed FeatureFromJson(const FFeatureFromJsonRequest &Request) {
 
 } // namespace
 
-TArray<FNatureFeatureSeed> BuildClearCreekNatureSeed(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
-  return func::match(
-      JsonAdapters::LoadObjectFromContent({NatureDataPath}),
-      [&Geometry](const TSharedPtr<FJsonObject> &Root) {
-        const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
-        return JsonAdapters::MapJsonValues<FNatureFeatureSeed>(
-            Array(TEXT("features")),
-            [&Geometry](const TSharedPtr<FJsonObject> &FeatureObject) {
-              return FeatureFromJson({Geometry, FeatureObject});
-            });
-      },
-      []() {
-        checkf(false, TEXT("Nature seed JSON is required"));
-        return TArray<FNatureFeatureSeed>();
+TArray<FNatureFeatureSeed> BuildNatureSeed(
+    const FNatureSeedBuildRequest &Request) {
+  const TSharedPtr<FJsonObject> Root =
+      JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
+  const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
+  return JsonAdapters::MapJsonValues<FNatureFeatureSeed>(
+      Array(TEXT("features")),
+      [&Request](const TSharedPtr<FJsonObject> &FeatureObject) {
+        return FeatureFromJson({Request.Geometry, FeatureObject});
       });
 }
 

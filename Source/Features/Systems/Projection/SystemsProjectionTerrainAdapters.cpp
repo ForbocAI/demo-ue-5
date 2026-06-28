@@ -70,12 +70,12 @@ ecs::FWorld ProjectTerrain(const FProjectTerrainEcsPayload &Payload) {
   return (func::pipe(Payload.World) |
           [Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithDomainSteps(
-                {World, BuildTerrainDomainSteps(Entity), 0});
+                {World, BuildTerrainDomainSteps(Entity)});
           } |
           [&Payload, Entity](ecs::FWorld World) {
             return ComponentsAdapters::WithComponentSteps(
-                {World, BuildTerrainComponentSteps({Entity, Payload.Terrain}),
-                 0});
+                {World,
+                 BuildTerrainComponentSteps({Entity, Payload.Terrain})});
           })
       .val;
 }
