@@ -1,4 +1,6 @@
 #include "CoreMinimal.h"
+#include "Features/Systems/Speech/SpeechAdapters.h"
+#include "GameFramework/Actor.h"
 #include "Misc/AutomationTest.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/PackageName.h"
@@ -7,7 +9,18 @@
 namespace {
 constexpr const TCHAR *RuntimeMapPackage = TEXT("/Game/Map/Maps/Runtime");
 constexpr const TCHAR *RuntimeGameModeClass =
-    TEXT("/Script/DemoProject.LevelGameModeView");
+    TEXT("/Game/Blueprints/BP_LevelGameMode.BP_LevelGameMode_C");
+constexpr const TCHAR *RuntimePlayerControllerClass =
+    TEXT("/Game/Blueprints/BP_PlayerRuntimeController."
+         "BP_PlayerRuntimeController_C");
+constexpr const TCHAR *RuntimeLevelViewClass =
+    TEXT("/Game/Blueprints/BP_RuntimeLevelView.BP_RuntimeLevelView_C");
+constexpr const TCHAR *RuntimeTownspersonViewClass =
+    TEXT("/Game/Blueprints/BP_TownspersonView.BP_TownspersonView_C");
+constexpr const TCHAR *RuntimeSpeechPresenterClass =
+    TEXT("/Game/Blueprints/BP_SpeechPresenter.BP_SpeechPresenter_C");
+constexpr const TCHAR *RuntimeChatWidgetClass =
+    TEXT("/Game/UI/WBP_Chat.WBP_Chat_C");
 constexpr const TCHAR *GameMapsSettingsSection =
     TEXT("/Script/EngineSettings.GameMapsSettings");
 
@@ -21,6 +34,18 @@ bool AssetLoads(const TCHAR *ObjectPath) {
 
 bool ClassLoads(const TCHAR *ClassPath) {
   return FSoftClassPath(ClassPath).TryLoadClass<UObject>() != nullptr;
+}
+
+UClass *LoadClass(const TCHAR *ClassPath) {
+  return FSoftClassPath(ClassPath).TryLoadClass<UObject>();
+}
+
+bool ActorClassHasSpeechComponent(const TCHAR *ClassPath) {
+  const UClass *Class = LoadClass(ClassPath);
+  const AActor *DefaultActor =
+      Class ? Cast<AActor>(Class->GetDefaultObject()) : nullptr;
+  return DefaultActor &&
+         DefaultActor->FindComponentByClass<USpeechComponent>() != nullptr;
 }
 
 FString ConfigValue(const TCHAR *Section, const TCHAR *Key) {
@@ -41,6 +66,18 @@ bool FContentAssetsProjectOwnedRuntimeSurface::RunTest(
            PackageExists(RuntimeMapPackage));
   TestTrue(TEXT("Default runtime game mode class loads"),
            ClassLoads(RuntimeGameModeClass));
+  TestTrue(TEXT("Runtime player controller Blueprint class loads"),
+           ClassLoads(RuntimePlayerControllerClass));
+  TestTrue(TEXT("Runtime level Blueprint class loads"),
+           ClassLoads(RuntimeLevelViewClass));
+  TestTrue(TEXT("Runtime townsperson Blueprint class loads"),
+           ClassLoads(RuntimeTownspersonViewClass));
+  TestTrue(TEXT("Runtime speech presenter Blueprint class loads"),
+           ClassLoads(RuntimeSpeechPresenterClass));
+  TestTrue(TEXT("Runtime WBP_Chat widget class loads"),
+           ClassLoads(RuntimeChatWidgetClass));
+  TestTrue(TEXT("Runtime speech presenter owns USpeechComponent"),
+           ActorClassHasSpeechComponent(RuntimeSpeechPresenterClass));
   TestEqual(TEXT("Game default map opens the tracked runtime map"),
             ConfigValue(GameMapsSettingsSection, TEXT("GameDefaultMap")),
             FString(RuntimeMapPackage));

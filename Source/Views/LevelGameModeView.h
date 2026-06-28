@@ -6,7 +6,7 @@
 
 class ARuntimeLevelView;
 
-UCLASS()
+UCLASS(Blueprintable)
 class DEMOPROJECT_API ALevelGameModeView : public AGameModeBase {
   GENERATED_BODY()
 

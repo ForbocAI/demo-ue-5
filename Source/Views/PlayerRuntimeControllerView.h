@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Templates/SubclassOf.h"
 #include "PlayerRuntimeControllerView.generated.h"
 
 class ATownspersonView;
@@ -11,7 +12,7 @@ namespace ForbocAI::Demo::UI {
 struct FRuntimeConversationViewModel;
 }
 
-UCLASS()
+UCLASS(Blueprintable)
 class DEMOPROJECT_API APlayerRuntimeControllerView
     : public APlayerController {
   GENERATED_BODY()
@@ -25,6 +26,9 @@ protected:
 private:
   UPROPERTY(EditDefaultsOnly, Category = "Level|Interaction")
   float InteractionDistance;
+
+  UPROPERTY(EditDefaultsOnly, Category = "Level|UI")
+  TSubclassOf<URuntimeChatWidget> RuntimeConversationWidgetClass;
 
   UPROPERTY()
   URuntimeChatWidget *RuntimeConversationWidget;

@@ -3,16 +3,19 @@
 Run from the project root through UnrealEditor-Cmd:
 
   UnrealEditor-Cmd.exe DemoProject.uproject -run=pythonscript -script=Tools/create_french_gulch_map.py
+
+Run Tools/create_demo_blueprint_assets.py first so the map can use the tracked
+Blueprint game mode and presentation actors.
 """
 
-import sys
 import unreal
 
 
 MAP_PACKAGE = "/Game/Map/Maps/Runtime"
 MAP_FOLDER = "/Game/Map/Maps"
-GAME_MODE_CLASS = "/Script/DemoProject.PrototypeGameMode"
-RUNTIME_LEVEL_CLASS = "/Script/DemoProject.RuntimeLevel"
+GAME_MODE_CLASS = "/Game/Blueprints/BP_LevelGameMode.BP_LevelGameMode_C"
+RUNTIME_LEVEL_CLASS = "/Game/Blueprints/BP_RuntimeLevelView.BP_RuntimeLevelView_C"
+SPEECH_PRESENTER_CLASS = "/Game/Blueprints/BP_SpeechPresenter.BP_SpeechPresenter_C"
 
 
 def log(message: str) -> None:
@@ -31,8 +34,22 @@ def actor_class_path(actor) -> str:
     return actor_class.get_path_name() if actor_class else ""
 
 
+def editor_actor_subsystem():
+    return unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+
+
+def editor_world():
+    return unreal.get_editor_subsystem(
+        unreal.UnrealEditorSubsystem
+    ).get_editor_world()
+
+
+def level_editor_subsystem():
+    return unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+
+
 def actor_exists(class_path: str) -> bool:
-    for actor in unreal.EditorLevelLibrary.get_all_level_actors():
+    for actor in editor_actor_subsystem().get_all_level_actors():
         if actor_class_path(actor) == class_path:
             return True
     return False
@@ -43,7 +60,7 @@ def spawn_once(class_path: str, label: str, location, rotation):
     if actor_exists(class_path):
         log(f"{label} already exists")
         return None
-    actor = unreal.EditorLevelLibrary.spawn_actor_from_class(
+    actor = editor_actor_subsystem().spawn_actor_from_class(
         actor_class, location, rotation
     )
     if actor is None:
@@ -53,7 +70,7 @@ def spawn_once(class_path: str, label: str, location, rotation):
 
 
 def configure_world_settings() -> None:
-    world = unreal.EditorLevelLibrary.get_editor_world()
+    world = editor_world()
     if world is None:
         raise RuntimeError("No editor world is loaded")
     world_settings = world.get_world_settings()
@@ -94,7 +111,7 @@ def main() -> int:
 
     if unreal.EditorAssetLibrary.does_asset_exist(MAP_PACKAGE):
         log(f"Loading {MAP_PACKAGE}")
-        unreal.EditorLevelLibrary.load_level(MAP_PACKAGE)
+        level_editor_subsystem().load_level(MAP_PACKAGE)
     else:
         log(f"Creating {MAP_PACKAGE}")
         unreal.EditorLoadingAndSavingUtils.new_blank_map(False)
@@ -107,8 +124,14 @@ def main() -> int:
         unreal.Vector(0.0, 0.0, 0.0),
         unreal.Rotator(0.0, 0.0, 0.0),
     )
+    spawn_once(
+        SPEECH_PRESENTER_CLASS,
+        "RuntimeSpeechPresenter",
+        unreal.Vector(260.0, 120.0, 120.0),
+        unreal.Rotator(0.0, 180.0, 0.0),
+    )
 
-    world = unreal.EditorLevelLibrary.get_editor_world()
+    world = editor_world()
     if not unreal.EditorLoadingAndSavingUtils.save_map(world, MAP_PACKAGE):
         raise RuntimeError(f"Failed to save {MAP_PACKAGE}")
 

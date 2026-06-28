@@ -99,7 +99,7 @@ Only use the open-gate path after the UE SDK is synced with the TS SDK/API map.
 | `Systems/Bots` | Multi-bot feature state backed by normalized RTK-style reducers/selectors |
 | `Systems/Dialogue` | Dialogue actions, reducers, selectors, and thunks for gate-closed runtime interaction |
 | `SpeechComponent` | TTS + viseme blending hooks |
-| `RuntimeChatWidget` | Source-built runtime conversation UI for the French Gulch prototype |
+| `/Game/UI/WBP_Chat` | Source-controlled UMG conversation UI parented to `RuntimeChatWidget` |
 
 ## Runtime architecture
 
@@ -133,17 +133,18 @@ thunks, or ECS helpers.
 
 ## Blueprint and UMG usage
 
-The happy-path demo should run from source-controlled content. Do not create
+The happy-path demo runs from source-controlled content. Do not create
 local-only Blueprint or UMG assets for the first-run experience.
 
-For runtime play, use the shipped `/Game/Map/Maps/Runtime` map and the C++
-`LevelGameModeView`, `PlayerCharacterView`, `PlayerRuntimeControllerView`,
-`RuntimeLevelView`, and `RuntimeChatWidget` classes.
+The shipped runtime map uses `/Game/Blueprints/BP_LevelGameMode`, which wires
+`/Game/Blueprints/BP_PlayerRuntimeController` to `/Game/UI/WBP_Chat`.
+`/Game/Blueprints/BP_RuntimeLevelView`, `/Game/Blueprints/BP_TownspersonView`,
+and `/Game/Blueprints/BP_SpeechPresenter` provide the tracked editor-facing
+presentation assets for the level, dialogue actors, and speech component.
 
-For SDK/API validation with `FORBOC_DEMO_WITH_SDK=1`, add source-controlled
-Blueprint and UMG assets only after the SDK-facing runtime path is current.
-Runtime conversation UI should receive selected view models from the store, not
-own dialogue decisions in widget code.
+`WBP_Chat` receives selected view models from the single runtime store through
+`RuntimeChatWidget`. Dialogue, speech, and interaction decisions belong in
+actions, reducers, thunks, selectors, and ECS helpers, not in widget graphs.
 
 ---
 

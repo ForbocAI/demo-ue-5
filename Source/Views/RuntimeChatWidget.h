@@ -10,7 +10,7 @@ namespace ForbocAI::Demo::UI {
 struct FRuntimeConversationViewModel;
 }
 
-UCLASS()
+UCLASS(Blueprintable)
 class DEMOPROJECT_API URuntimeChatWidget : public UUserWidget {
   GENERATED_BODY()
 

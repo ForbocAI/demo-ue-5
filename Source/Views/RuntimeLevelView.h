@@ -25,7 +25,7 @@ struct FRuntimeTownspersonViewSpawn;
 } // namespace Demo
 } // namespace ForbocAI
 
-UCLASS()
+UCLASS(Blueprintable)
 class DEMOPROJECT_API ARuntimeLevelView : public AActor {
   GENERATED_BODY()
 

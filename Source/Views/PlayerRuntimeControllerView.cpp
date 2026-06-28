@@ -58,6 +58,7 @@ APlayerRuntimeControllerView::APlayerRuntimeControllerView()
     : InteractionDistance(
           FG::RuntimeSelectors::SelectTownspersonInteractionDistance(
               FG::Store::GetStore().getState())),
+      RuntimeConversationWidgetClass(URuntimeChatWidget::StaticClass()),
       RuntimeConversationWidget(nullptr) {}
 
 void APlayerRuntimeControllerView::SetupInputComponent() {
@@ -112,7 +113,7 @@ void APlayerRuntimeControllerView::PresentConversationViewModel(
     const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation) {
   if (!RuntimeConversationWidget) {
     RuntimeConversationWidget = CreateWidget<URuntimeChatWidget>(
-        this, URuntimeChatWidget::StaticClass());
+        this, RuntimeConversationWidgetClass);
     if (RuntimeConversationWidget) {
       RuntimeConversationWidget->AddToViewport();
     }

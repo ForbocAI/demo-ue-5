@@ -37,7 +37,7 @@ struct FTownspersonViewConfig {
   TArray<FVector> PatrolRoute;
 };
 
-UCLASS()
+UCLASS(Blueprintable)
 class DEMOPROJECT_API ATownspersonView : public AActor {
   GENERATED_BODY()
 
