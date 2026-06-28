@@ -181,10 +181,19 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("ECS registry includes Systems/Bots domain"),
            EcsWorld.Domains.Nodes.Contains(ecs::domainPathKey(
                ecs::createDomainPath({TEXT("Systems"), TEXT("Bots")}))));
+  TestTrue(TEXT("ECS registry includes Systems/Projection/Bots/Stats domain"),
+           EcsWorld.Domains.Nodes.Contains(ecs::domainPathKey(
+               ecs::createDomainPath({TEXT("Systems"), TEXT("Projection"),
+                                      TEXT("Bots"), TEXT("Stats")}))));
   TestTrue(TEXT("ECS registry includes Entities/Characters/Bots domain"),
            EcsWorld.Domains.Nodes.Contains(ecs::domainPathKey(
                ecs::createDomainPath({TEXT("Entities"), TEXT("Characters"),
                                       TEXT("Bots")}))));
+  TestTrue(TEXT("Terrain entity is projected through Systems/Projection/Terrain"),
+           RuntimeSelectors::SelectEcsEntityInDomain(
+               State, TEXT("level:terrain"),
+               ecs::domainPathKey(ecs::createDomainPath(
+                   {TEXT("Systems"), TEXT("Projection"), TEXT("Terrain")}))));
   TestEqual(TEXT("RTK entity adapter stores seeded landmarks"),
             RuntimeSelectors::SelectLandmarks(State).Num(),
             Landmarks.Num());

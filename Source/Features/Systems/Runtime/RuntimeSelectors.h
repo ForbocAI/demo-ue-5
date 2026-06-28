@@ -22,6 +22,8 @@ const FDialogueState &SelectDialogueState(const FRuntimeState &State);
 const FInteractionState &SelectInteractionState(const FRuntimeState &State);
 const FSpeechState &SelectSpeechState(const FRuntimeState &State);
 const FUIState &SelectUIState(const FRuntimeState &State);
+const FTerrainState &SelectTerrainState(const FRuntimeState &State);
+const FSpawnState &SelectSpawnState(const FRuntimeState &State);
 bool SelectTerrainLoaded(const FRuntimeState &State);
 const FTerrainMeshSectionViewModel &
 SelectTerrainMeshSectionViewModel(const FRuntimeState &State);

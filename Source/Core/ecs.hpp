@@ -35,6 +35,284 @@ typedef FString EventType;
 typedef FString DomainPathKey;
 typedef FString SystemName;
 
+/**
+ * @brief Folds a TArray with a unary request payload and recursive functional step.
+ * @signature template <typename Item, typename Accumulator> inline Accumulator foldArray(Accumulator Acc, const TArray<Item> &Items, std::function<Accumulator(const Accumulator &, const Item &)> Step, int32 Index = 0)
+ *
+ * User Story: As ECS core code, I need reusable value folding so world,
+ * registry, and inspection transforms compound through functional_core
+ * composition instead of bespoke loops.
+ */
+template <typename Item, typename Accumulator>
+inline Accumulator foldArray(
+    Accumulator Acc, const TArray<Item> &Items,
+    std::function<Accumulator(const Accumulator &, const Item &)> Step,
+    int32 Index = 0) {
+  return Index >= Items.Num()
+             ? Acc
+             : foldArray<Item, Accumulator>(
+                   Step(Acc, Items[Index]), Items, Step, Index + 1);
+}
+
+/**
+ * @brief Returns true when every item satisfies a predicate.
+ * @signature template <typename Item> inline bool allArray(const TArray<Item> &Items, std::function<bool(const Item &)> Predicate, int32 Index = 0)
+ *
+ * User Story: As ECS validation code, I need reusable universal checks that
+ * compose with Maybe/Either flows instead of hand-written loops.
+ */
+template <typename Item>
+inline bool allArray(const TArray<Item> &Items,
+                     std::function<bool(const Item &)> Predicate,
+                     int32 Index = 0) {
+  return Index >= Items.Num()
+             ? true
+             : Predicate(Items[Index]) &&
+                   allArray<Item>(Items, Predicate, Index + 1);
+}
+
+/**
+ * @brief Returns true when any item satisfies a predicate.
+ * @signature template <typename Item> inline bool anyArray(const TArray<Item> &Items, std::function<bool(const Item &)> Predicate, int32 Index = 0)
+ *
+ * User Story: As ECS query code, I need reusable existential checks for tags,
+ * domains, and component membership without repeated imperative branches.
+ */
+template <typename Item>
+inline bool anyArray(const TArray<Item> &Items,
+                     std::function<bool(const Item &)> Predicate,
+                     int32 Index = 0) {
+  return Index >= Items.Num()
+             ? false
+             : Predicate(Items[Index]) ||
+                   anyArray<Item>(Items, Predicate, Index + 1);
+}
+
+/**
+ * @brief Returns true when an array contains one value.
+ * @signature template <typename Item> inline bool containsValue(const TArray<Item> &Values, const Item &Value)
+ *
+ * User Story: As ECS predicates, tag/domain/component checks should share one
+ * membership primitive instead of repeating equivalent lambdas.
+ */
+template <typename Item>
+inline bool containsValue(const TArray<Item> &Values, const Item &Value) {
+  return anyArray<Item>(
+      Values, [&Value](const Item &Candidate) { return Candidate == Value; });
+}
+
+/**
+ * @brief Filters a TArray through a recursive value-returning request.
+ * @signature template <typename Item> inline TArray<Item> filterArray(const TArray<Item> &Items, std::function<bool(const Item &)> Predicate, TArray<Item> Acc = TArray<Item>(), int32 Index = 0)
+ *
+ * User Story: As ECS query code, entity lists should narrow through reusable
+ * functional composition rather than ad hoc view- or system-local loops.
+ */
+template <typename Item>
+inline TArray<Item> filterArray(const TArray<Item> &Items,
+                                std::function<bool(const Item &)> Predicate,
+                                TArray<Item> Acc = TArray<Item>(),
+                                int32 Index = 0) {
+  return Index >= Items.Num()
+             ? Acc
+             : filterArray<Item>(
+                   Items, Predicate,
+                   Predicate(Items[Index]) ? appendValue<Item>(Acc, Items[Index])
+                                           : Acc,
+                   Index + 1);
+}
+
+/**
+ * @brief Appends one item to a value array.
+ * @signature template <typename Item> inline TArray<Item> appendValue(TArray<Item> Values, const Item &Value)
+ *
+ * User Story: As recursive ECS helpers, I need a small unary append primitive
+ * so folds and filters can compound without mutable caller-owned arrays.
+ */
+template <typename Item>
+inline TArray<Item> appendValue(TArray<Item> Values, const Item &Value) {
+  Values.Add(Value);
+  return Values;
+}
+
+/**
+ * @brief Appends one item only if it is not already present.
+ * @signature template <typename Item> inline TArray<Item> appendUniqueValue(TArray<Item> Values, const Item &Value)
+ *
+ * User Story: As ECS indexing code, I need set-like array updates that remain
+ * value-returning and fold-friendly.
+ */
+template <typename Item>
+inline TArray<Item> appendUniqueValue(TArray<Item> Values, const Item &Value) {
+  Values.AddUnique(Value);
+  return Values;
+}
+
+/**
+ * @brief Appends every item from one array to another.
+ * @signature template <typename Item> inline TArray<Item> appendValues(TArray<Item> Values, const TArray<Item> &AdditionalValues)
+ *
+ * User Story: As ECS query code, I need reusable array concatenation so entity
+ * discovery can be expressed as folds.
+ */
+template <typename Item>
+inline TArray<Item> appendValues(TArray<Item> Values,
+                                 const TArray<Item> &AdditionalValues) {
+  Values.Append(AdditionalValues);
+  return Values;
+}
+
+/**
+ * @brief Concatenates arrays through the shared fold primitive.
+ * @signature template <typename Item> inline TArray<Item> concatArrays(const TArray<TArray<Item>> &Arrays)
+ *
+ * User Story: As ECS entity discovery, repeated entity sources should combine
+ * through one reusable fold instead of repeated append calls.
+ */
+template <typename Item>
+inline TArray<Item> concatArrays(const TArray<TArray<Item>> &Arrays) {
+  return foldArray<TArray<Item>, TArray<Item>>(
+      TArray<Item>(), Arrays,
+      [](const TArray<Item> &Acc, const TArray<Item> &Values) {
+        return appendValues<Item>(Acc, Values);
+      });
+}
+
+/**
+ * @brief Returns values with duplicates removed while preserving first-seen order.
+ * @signature template <typename Item> inline TArray<Item> uniqueArray(const TArray<Item> &Values)
+ *
+ * User Story: As ECS indexing code, uniqueness passes should share one
+ * reusable fold over AddUnique semantics.
+ */
+template <typename Item>
+inline TArray<Item> uniqueArray(const TArray<Item> &Values) {
+  return foldArray<Item, TArray<Item>>(
+      TArray<Item>(), Values,
+      [](const TArray<Item> &Acc, const Item &Value) {
+        return appendUniqueValue<Item>(Acc, Value);
+      });
+}
+
+/**
+ * @brief Builds an index array from zero to Count - 1 through recursion.
+ * @signature inline TArray<int32> indexRange(int32 Count, int32 Index = 0, TArray<int32> Acc = TArray<int32>())
+ *
+ * User Story: As ECS list code, I need index-aware checks without imperative
+ * counter loops.
+ */
+inline TArray<int32> indexRange(int32 Count, int32 Index = 0,
+                                TArray<int32> Acc = TArray<int32>()) {
+  return Index >= Count
+             ? Acc
+             : indexRange(Count, Index + 1, appendValue<int32>(Acc, Index));
+}
+
+/**
+ * @brief Extracts all keys from a TMap as a value array.
+ * @signature template <typename Key, typename Value> inline TArray<Key> mapKeys(const TMap<Key, Value> &Values)
+ *
+ * User Story: As ECS inspection and equality code, I need map traversal to
+ * start from value arrays so recursive array folds can do the work.
+ */
+template <typename Key, typename Value>
+inline TArray<Key> mapKeys(const TMap<Key, Value> &Values) {
+  TArray<Key> Keys;
+  Values.GetKeys(Keys);
+  return Keys;
+}
+
+/**
+ * @brief Appends all keys from a map to an existing array.
+ * @signature template <typename Key, typename Value> inline TArray<Key> appendMapKeys(TArray<Key> Values, const TMap<Key, Value> &Map)
+ *
+ * User Story: As ECS entity discovery, component-table keys should append
+ * through one composable primitive shared by all entity indexes.
+ */
+template <typename Key, typename Value>
+inline TArray<Key> appendMapKeys(TArray<Key> Values,
+                                 const TMap<Key, Value> &Map) {
+  return appendValues<Key>(Values, mapKeys<Key, Value>(Map));
+}
+
+/**
+ * @brief Lifts a TMap lookup into Maybe without copying the found value.
+ * @signature template <typename Key, typename Value> inline func::Maybe<const Value *> findMapValuePtr(const TMap<Key, Value> &Values, const Key &KeyValue)
+ *
+ * User Story: As ECS lookup code, I need pointer-returning Maybe values so
+ * nested lookups compose efficiently through mbind/fmap without duplicating
+ * large component tables.
+ */
+template <typename Key, typename Value>
+inline func::Maybe<const Value *>
+findMapValuePtr(const TMap<Key, Value> &Values, const Key &KeyValue) {
+  const Value *ValuePtr = Values.Find(KeyValue);
+  return ValuePtr ? func::just<const Value *>(ValuePtr)
+                  : func::nothing<const Value *>();
+}
+
+/**
+ * @brief Lifts a TMap lookup into Maybe by copying the found value.
+ * @signature template <typename Key, typename Value> inline func::Maybe<Value> findMapValue(const TMap<Key, Value> &Values, const Key &KeyValue)
+ *
+ * User Story: As ECS read boundaries, small value reads should share one
+ * Maybe-producing copied lookup instead of repeating pointer matches.
+ */
+template <typename Key, typename Value>
+inline func::Maybe<Value>
+findMapValue(const TMap<Key, Value> &Values, const Key &KeyValue) {
+  return func::match(
+      findMapValuePtr<Key, Value>(Values, KeyValue),
+      [](const Value *ValuePtr) { return func::just(*ValuePtr); },
+      []() { return func::nothing<Value>(); });
+}
+
+/**
+ * @brief Checks whether a keyed array value contains an item.
+ * @signature template <typename Key, typename Item> inline bool mapArrayContains(const TMap<Key, TArray<Item>> &Values, const Key &KeyValue, const Item &Value)
+ *
+ * User Story: As ECS tag/domain predicates, map-of-array membership should be
+ * one reusable Maybe + contains composition.
+ */
+template <typename Key, typename Item>
+inline bool
+mapArrayContains(const TMap<Key, TArray<Item>> &Values, const Key &KeyValue,
+                 const Item &Value) {
+  return func::match(
+      findMapValuePtr<Key, TArray<Item>>(Values, KeyValue),
+      [&Value](const TArray<Item> *FoundValues) {
+        return containsValue<Item>(*FoundValues, Value);
+      },
+      []() { return false; });
+}
+
+/**
+ * @brief Compares two TMaps by key set and value comparator through reusable folds.
+ * @signature template <typename Key, typename Value> inline bool mapValuesEqual(const TMap<Key, Value> &Left, const TMap<Key, Value> &Right, std::function<bool(const Value &, const Value &)> Equals)
+ *
+ * User Story: As ECS equality code, component stores, resources, events, and
+ * relationships should share one composable map comparison primitive.
+ */
+template <typename Key, typename Value>
+inline bool mapValuesEqual(const TMap<Key, Value> &Left,
+                           const TMap<Key, Value> &Right,
+                           std::function<bool(const Value &, const Value &)>
+                               Equals) {
+  const TArray<Key> Keys = mapKeys<Key, Value>(Left);
+  return Left.Num() == Right.Num() &&
+         allArray<Key>(
+             Keys,
+             [&Left, &Right, Equals](const Key &KeyValue) {
+               return func::match(
+                   findMapValuePtr<Key, Value>(Right, KeyValue),
+                   [&Left, &KeyValue, Equals](const Value *RightValue) {
+                     const Value *LeftValue = Left.Find(KeyValue);
+                     return LeftValue && Equals(*LeftValue, *RightValue);
+                   },
+                   []() { return false; });
+             });
+}
+
 struct FEntityId {
   int64 Index;
   int32 Generation;
@@ -117,6 +395,50 @@ inline bool operator!=(const FAllocatedEntity &Left,
 }
 
 /**
+ * @brief Reads the last reusable entity id from the allocator.
+ * @signature inline func::Maybe<FEntityId> lastFreedEntity(const FAllocator &Allocator)
+ *
+ * User Story: As allocation code, I need the reusable-id branch represented as
+ * Maybe so fresh allocation composes without imperative checks.
+ */
+inline func::Maybe<FEntityId> lastFreedEntity(const FAllocator &Allocator) {
+  return Allocator.Freed.Num() > 0 ? func::just(Allocator.Freed.Last())
+                                   : func::nothing<FEntityId>();
+}
+
+/**
+ * @brief Allocates a previously freed entity id.
+ * @signature inline FAllocatedEntity allocateRecycledEntity(FAllocator Allocator, const FEntityId &Entity)
+ *
+ * User Story: As allocator code, I need recycled allocation to be a small
+ * unary-friendly value transform used by the Maybe match branch.
+ */
+inline FAllocatedEntity allocateRecycledEntity(FAllocator Allocator,
+                                               const FEntityId &Entity) {
+  FAllocatedEntity Result;
+  Allocator.Freed.Pop();
+  Result.Entity = Entity;
+  Result.Allocator = Allocator;
+  return Result;
+}
+
+/**
+ * @brief Allocates a fresh entity id and records its generation.
+ * @signature inline FAllocatedEntity allocateFreshEntity(FAllocator Allocator)
+ *
+ * User Story: As allocator code, I need the fresh-id branch isolated so entity
+ * allocation composes from reusable branch functions.
+ */
+inline FAllocatedEntity allocateFreshEntity(FAllocator Allocator) {
+  FAllocatedEntity Result;
+  Result.Entity = createEntityId(Allocator.NextIndex, 0);
+  Allocator.Generations.Add(Allocator.NextIndex, 0);
+  Allocator.NextIndex += 1;
+  Result.Allocator = Allocator;
+  return Result;
+}
+
+/**
  * @brief Allocates a fresh or recycled entity id.
  * @signature inline FAllocatedEntity allocateEntity(FAllocator Allocator)
  *
@@ -124,17 +446,41 @@ inline bool operator!=(const FAllocatedEntity &Left,
  * allocator state plus the allocated id so state transitions stay value based.
  */
 inline FAllocatedEntity allocateEntity(FAllocator Allocator) {
-  FAllocatedEntity Result;
-  if (Allocator.Freed.Num() > 0) {
-    Result.Entity = Allocator.Freed.Last();
-    Allocator.Freed.Pop();
-  } else {
-    Result.Entity = createEntityId(Allocator.NextIndex, 0);
-    Allocator.Generations.Add(Allocator.NextIndex, 0);
-    Allocator.NextIndex += 1;
-  }
-  Result.Allocator = Allocator;
-  return Result;
+  return func::match(
+      lastFreedEntity(Allocator),
+      [&Allocator](const FEntityId &Entity) {
+        return allocateRecycledEntity(Allocator, Entity);
+      },
+      [&Allocator]() { return allocateFreshEntity(Allocator); });
+}
+
+/**
+ * @brief Checks whether an entity id matches its allocator generation.
+ * @signature inline bool entityGenerationMatches(const FAllocator &Allocator, const FEntityId &Id)
+ *
+ * User Story: As allocator code, I need stale-handle checks to share one Maybe
+ * lookup predicate across free and alive queries.
+ */
+inline bool entityGenerationMatches(const FAllocator &Allocator,
+                                    const FEntityId &Id) {
+  return func::match(
+      findMapValue<int64, int32>(Allocator.Generations, Id.Index),
+      [&Id](const int32 &Current) { return Current == Id.Generation; },
+      []() { return false; });
+}
+
+/**
+ * @brief Frees an entity id after its generation is known to match.
+ * @signature inline FAllocator freeMatchedEntity(FAllocator Allocator, const FEntityId &Id)
+ *
+ * User Story: As despawn code, I need generation incrementing isolated from the
+ * Maybe predicate that decides whether an id can be released.
+ */
+inline FAllocator freeMatchedEntity(FAllocator Allocator, const FEntityId &Id) {
+  const int32 NextGeneration = Id.Generation + 1;
+  Allocator.Generations.Add(Id.Index, NextGeneration);
+  Allocator.Freed.Add(createEntityId(Id.Index, NextGeneration));
+  return Allocator;
 }
 
 /**
@@ -145,13 +491,9 @@ inline FAllocatedEntity allocateEntity(FAllocator Allocator) {
  * their slot has been released.
  */
 inline FAllocator freeEntity(FAllocator Allocator, const FEntityId &Id) {
-  const int32 *Current = Allocator.Generations.Find(Id.Index);
-  if (Current && *Current == Id.Generation) {
-    const int32 NextGeneration = *Current + 1;
-    Allocator.Generations.Add(Id.Index, NextGeneration);
-    Allocator.Freed.Add(createEntityId(Id.Index, NextGeneration));
-  }
-  return Allocator;
+  return entityGenerationMatches(Allocator, Id)
+             ? freeMatchedEntity(Allocator, Id)
+             : Allocator;
 }
 
 /**
@@ -162,8 +504,7 @@ inline FAllocator freeEntity(FAllocator Allocator, const FEntityId &Id) {
  * component data.
  */
 inline bool isAlive(const FAllocator &Allocator, const FEntityId &Id) {
-  const int32 *Current = Allocator.Generations.Find(Id.Index);
-  return Current && *Current == Id.Generation;
+  return entityGenerationMatches(Allocator, Id);
 }
 
 enum class EComponentValueKind {
@@ -245,18 +586,36 @@ inline FComponentValue
 mapValue(const TMap<FString, FComponentValue> &RawValue) {
   FComponentValue Value = noneValue();
   Value.Kind = EComponentValueKind::Map;
-  for (const TPair<FString, FComponentValue> &Entry : RawValue) {
-    Value.MapValue.Add(Entry.Key, MakeShared<FComponentValue>(Entry.Value));
-  }
+  const TArray<FString> Keys = mapKeys<FString, FComponentValue>(RawValue);
+  Value.MapValue = foldArray<FString,
+                             TMap<FString, TSharedPtr<FComponentValue>>>(
+      TMap<FString, TSharedPtr<FComponentValue>>(), Keys,
+      [&RawValue](const TMap<FString, TSharedPtr<FComponentValue>> &Acc,
+                  const FString &Key) {
+        return func::match(
+            findMapValuePtr<FString, FComponentValue>(RawValue, Key),
+            [&Acc, &Key](const FComponentValue *Found) {
+              TMap<FString, TSharedPtr<FComponentValue>> Next = Acc;
+              Next.Add(Key, MakeShared<FComponentValue>(*Found));
+              return Next;
+            },
+            [&Acc]() { return Acc; });
+      });
   return Value;
 }
 
 inline FComponentValue listValue(const TArray<FComponentValue> &RawValue) {
   FComponentValue Value = noneValue();
   Value.Kind = EComponentValueKind::List;
-  for (const FComponentValue &Entry : RawValue) {
-    Value.ListValue.Add(MakeShared<FComponentValue>(Entry));
-  }
+  Value.ListValue = foldArray<FComponentValue,
+                              TArray<TSharedPtr<FComponentValue>>>(
+      TArray<TSharedPtr<FComponentValue>>(), RawValue,
+      [](const TArray<TSharedPtr<FComponentValue>> &Acc,
+         const FComponentValue &Entry) {
+        TArray<TSharedPtr<FComponentValue>> Next = Acc;
+        Next.Add(MakeShared<FComponentValue>(Entry));
+        return Next;
+      });
   return Value;
 }
 
@@ -266,30 +625,24 @@ inline bool componentValuePtrEquals(const TSharedPtr<FComponentValue> &Left,
 inline bool componentMapEquals(
     const TMap<FString, TSharedPtr<FComponentValue>> &Left,
     const TMap<FString, TSharedPtr<FComponentValue>> &Right) {
-  if (Left.Num() != Right.Num()) {
-    return false;
-  }
-  for (const TPair<FString, TSharedPtr<FComponentValue>> &Entry : Left) {
-    const TSharedPtr<FComponentValue> *RightValue = Right.Find(Entry.Key);
-    if (!RightValue || !componentValuePtrEquals(Entry.Value, *RightValue)) {
-      return false;
-    }
-  }
-  return true;
+  return mapValuesEqual<FString, TSharedPtr<FComponentValue>>(
+      Left, Right,
+      [](const TSharedPtr<FComponentValue> &LeftValue,
+         const TSharedPtr<FComponentValue> &RightValue) {
+        return componentValuePtrEquals(LeftValue, RightValue);
+      });
 }
 
 inline bool componentListEquals(
     const TArray<TSharedPtr<FComponentValue>> &Left,
     const TArray<TSharedPtr<FComponentValue>> &Right) {
-  if (Left.Num() != Right.Num()) {
-    return false;
-  }
-  for (int32 Index = 0; Index < Left.Num(); ++Index) {
-    if (!componentValuePtrEquals(Left[Index], Right[Index])) {
-      return false;
-    }
-  }
-  return true;
+  const TArray<int32> Indices = indexRange(Left.Num());
+  return Left.Num() == Right.Num() &&
+         allArray<int32>(
+             Indices,
+             [&Left, &Right](const int32 &Index) {
+               return componentValuePtrEquals(Left[Index], Right[Index]);
+             });
 }
 
 inline bool operator==(const FComponentValue &Left,
@@ -415,6 +768,53 @@ struct FCreateDomainNodeRequest {
   EDomainKind Kind = EDomainKind::Unknown;
 };
 
+struct FCreateFieldSchemaRequest {
+  FString Name;
+  FString Kind;
+  bool bRequired = false;
+  FString Description;
+};
+
+struct FCreateComponentSchemaRequest {
+  ComponentType Type;
+  DomainPathKey Domain;
+  TArray<FFieldSchema> Fields;
+  TArray<Tag> Tags;
+  FString Description;
+};
+
+struct FCreateCapabilitySpecRequest {
+  FString Name;
+  DomainPathKey Domain;
+  TArray<ComponentType> Reads;
+  TArray<ComponentType> Writes;
+  TArray<ResourceName> Resources;
+  TArray<EventType> Emits;
+};
+
+struct FCreateSystemSpecRequest {
+  SystemName Name;
+  DomainPathKey Domain;
+  TArray<ComponentType> Components;
+  TArray<Tag> Tags;
+  TArray<ResourceName> Resources;
+  TArray<EventType> Emits;
+};
+
+struct FCreateResourceSpecRequest {
+  ResourceName Name;
+  DomainPathKey Domain;
+  FString Kind;
+  FString Description;
+};
+
+struct FCreateEventSpecRequest {
+  EventType Type;
+  DomainPathKey Domain;
+  TArray<FFieldSchema> Fields;
+  FString Description;
+};
+
 struct FPushUniqueStringRequest {
   TArray<FString> Values;
   FString Value;
@@ -512,99 +912,105 @@ inline FDomainNode createDomainNode(const FCreateDomainNodeRequest &Request) {
 
 /**
  * @brief Creates a field schema for component/resource/event contracts.
+ * @signature inline FFieldSchema createFieldSchema(const FCreateFieldSchemaRequest &Request)
+ *
+ * User Story: As a registry author, I need schema fields to be built from one
+ * explicit payload so neutral domain metadata composes predictably.
  */
-inline FFieldSchema createFieldSchema(const FString &Name, const FString &Kind,
-                                      bool bRequired,
-                                      const FString &Description) {
+inline FFieldSchema createFieldSchema(const FCreateFieldSchemaRequest &Request) {
   FFieldSchema Schema;
-  Schema.Name = Name;
-  Schema.Kind = Kind;
-  Schema.bRequired = bRequired;
-  Schema.Description = Description;
+  Schema.Name = Request.Name;
+  Schema.Kind = Request.Kind;
+  Schema.bRequired = Request.bRequired;
+  Schema.Description = Request.Description;
   return Schema;
 }
 
 /**
  * @brief Creates an ECS component schema owned by one domain path.
+ * @signature inline FComponentSchema createComponentSchema(const FCreateComponentSchemaRequest &Request)
+ *
+ * User Story: As a component-domain owner, I need component schema
+ * construction to stay unary and data-shaped for registry folds.
  */
 inline FComponentSchema
-createComponentSchema(const ComponentType &Type, const DomainPathKey &Domain,
-                      const TArray<FFieldSchema> &Fields,
-                      const TArray<Tag> &Tags, const FString &Description) {
+createComponentSchema(const FCreateComponentSchemaRequest &Request) {
   FComponentSchema Schema;
-  Schema.Type = Type;
-  Schema.Domain = Domain;
-  Schema.Fields = Fields;
-  Schema.Tags = Tags;
-  Schema.Description = Description;
+  Schema.Type = Request.Type;
+  Schema.Domain = Request.Domain;
+  Schema.Fields = Request.Fields;
+  Schema.Tags = Request.Tags;
+  Schema.Description = Request.Description;
   return Schema;
 }
 
 /**
  * @brief Creates a capability contract describing component/resource access.
+ * @signature inline FCapabilitySpec createCapabilitySpec(const FCreateCapabilitySpecRequest &Request)
+ *
+ * User Story: As an ECS systems author, I need capability metadata to be a
+ * plain request-to-value transform below RTK slices.
  */
 inline FCapabilitySpec
-createCapabilitySpec(const FString &Name, const DomainPathKey &Domain,
-                     const TArray<ComponentType> &Reads,
-                     const TArray<ComponentType> &Writes,
-                     const TArray<ResourceName> &Resources,
-                     const TArray<EventType> &Emits) {
+createCapabilitySpec(const FCreateCapabilitySpecRequest &Request) {
   FCapabilitySpec Spec;
-  Spec.Name = Name;
-  Spec.Domain = Domain;
-  Spec.Reads = Reads;
-  Spec.Writes = Writes;
-  Spec.Resources = Resources;
-  Spec.Emits = Emits;
+  Spec.Name = Request.Name;
+  Spec.Domain = Request.Domain;
+  Spec.Reads = Request.Reads;
+  Spec.Writes = Request.Writes;
+  Spec.Resources = Request.Resources;
+  Spec.Emits = Request.Emits;
   return Spec;
 }
 
 /**
  * @brief Creates a system contract for registry inspection and validation.
+ * @signature inline FSystemSpec createSystemSpec(const FCreateSystemSpecRequest &Request)
+ *
+ * User Story: As an ECS system author, I need system metadata to remain a
+ * value object that reducers may reference without owning system execution.
  */
-inline FSystemSpec createSystemSpec(const SystemName &Name,
-                                    const DomainPathKey &Domain,
-                                    const TArray<ComponentType> &Components,
-                                    const TArray<Tag> &Tags,
-                                    const TArray<ResourceName> &Resources,
-                                    const TArray<EventType> &Emits) {
+inline FSystemSpec createSystemSpec(const FCreateSystemSpecRequest &Request) {
   FSystemSpec Spec;
-  Spec.Name = Name;
-  Spec.Domain = Domain;
-  Spec.RequiredComponents = Components;
-  Spec.RequiredTags = Tags;
-  Spec.Resources = Resources;
-  Spec.Emits = Emits;
+  Spec.Name = Request.Name;
+  Spec.Domain = Request.Domain;
+  Spec.RequiredComponents = Request.Components;
+  Spec.RequiredTags = Request.Tags;
+  Spec.Resources = Request.Resources;
+  Spec.Emits = Request.Emits;
   return Spec;
 }
 
 /**
  * @brief Creates a named ECS resource contract owned by one domain.
+ * @signature inline FResourceSpec createResourceSpec(const FCreateResourceSpecRequest &Request)
+ *
+ * User Story: As a resource-domain maintainer, I need resource specs created
+ * from one payload so registration remains foldable and neutral.
  */
-inline FResourceSpec createResourceSpec(const ResourceName &Name,
-                                        const DomainPathKey &Domain,
-                                        const FString &Kind,
-                                        const FString &Description) {
+inline FResourceSpec
+createResourceSpec(const FCreateResourceSpecRequest &Request) {
   FResourceSpec Spec;
-  Spec.Name = Name;
-  Spec.Domain = Domain;
-  Spec.Kind = Kind;
-  Spec.Description = Description;
+  Spec.Name = Request.Name;
+  Spec.Domain = Request.Domain;
+  Spec.Kind = Request.Kind;
+  Spec.Description = Request.Description;
   return Spec;
 }
 
 /**
  * @brief Creates a typed event contract owned by one domain.
+ * @signature inline FEventSpec createEventSpec(const FCreateEventSpecRequest &Request)
+ *
+ * User Story: As an event-domain maintainer, I need event specs to remain ECS
+ * metadata rather than replacing RTK action semantics.
  */
-inline FEventSpec createEventSpec(const EventType &Type,
-                                  const DomainPathKey &Domain,
-                                  const TArray<FFieldSchema> &Fields,
-                                  const FString &Description) {
+inline FEventSpec createEventSpec(const FCreateEventSpecRequest &Request) {
   FEventSpec Spec;
-  Spec.Type = Type;
-  Spec.Domain = Domain;
-  Spec.Fields = Fields;
-  Spec.Description = Description;
+  Spec.Type = Request.Type;
+  Spec.Domain = Request.Domain;
+  Spec.Fields = Request.Fields;
+  Spec.Description = Request.Description;
   return Spec;
 }
 
@@ -920,13 +1326,13 @@ registerEventType(const FRegisterEventSpecRequest &Request) {
 
 /**
  * @brief Builds the neutral cross-domain taxonomy shared by ECS cores.
- * @signature inline FDomainRegistry createCrossDomainRegistry()
+ * @signature inline FDomainRegistry buildCrossDomainRegistry()
  *
  * User Story: As a feature author, I need Components / Entities / Systems /
  * Ui domains with stable subdomains so project systems can query and inspect
  * data without importing presentational view layers.
  */
-inline FDomainRegistry createCrossDomainRegistry() {
+inline FDomainRegistry buildCrossDomainRegistry() {
   return registerDomainPaths(
       {createDomainRegistry(),
        {
@@ -1035,6 +1441,29 @@ inline FDomainRegistry createCrossDomainRegistry() {
            {{TEXT("Systems"), TEXT("Level"), TEXT("TerrainGeometry")},
             EDomainKind::System},
            {{TEXT("Systems"), TEXT("Nature")}, EDomainKind::Procgen},
+           {{TEXT("Systems"), TEXT("Projection")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
+             TEXT("AI")},
+            EDomainKind::Ai},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
+             TEXT("Goals")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
+             TEXT("Position")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
+             TEXT("Stats")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Interaction")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Runtime")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Spawn")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Projection"), TEXT("Terrain")},
+            EDomainKind::System},
            {{TEXT("Systems"), TEXT("Rendering")}, EDomainKind::Rendering},
            {{TEXT("Systems"), TEXT("Runtime")}, EDomainKind::System},
            {{TEXT("Systems"), TEXT("Services")}, EDomainKind::Service},
@@ -1049,9 +1478,39 @@ inline FDomainRegistry createCrossDomainRegistry() {
        0});
 }
 
+/**
+ * @brief Returns the lazily memoized neutral ECS domain registry.
+ * @signature inline const FDomainRegistry &crossDomainRegistryCache()
+ *
+ * User Story: As every new world initializes, I need the static taxonomy to be
+ * computed once through functional_core lazy evaluation instead of rebuilt for
+ * each world value.
+ */
+inline const FDomainRegistry &crossDomainRegistryCache() {
+  static const func::Lazy<FDomainRegistry> Registry =
+      func::lazy([]() { return buildCrossDomainRegistry(); });
+  return func::eval(Registry);
+}
+
+/**
+ * @brief Copies the cached neutral ECS domain registry into a world.
+ * @signature inline FDomainRegistry createCrossDomainRegistry()
+ *
+ * User Story: As a reducer storing ECS world state, I need each world to own a
+ * plain registry value while the expensive construction path remains lazy.
+ */
+inline FDomainRegistry createCrossDomainRegistry() {
+  return crossDomainRegistryCache();
+}
+
 struct FRelationship {
   func::Maybe<EntityKey> Parent;
   TArray<EntityKey> Children;
+};
+
+struct FGetRelationshipRequest {
+  const TMap<EntityKey, FRelationship> &Relationships;
+  EntityKey Entity;
 };
 
 /**
@@ -1075,6 +1534,34 @@ inline bool operator!=(const FRelationship &Left,
   return !(Left == Right);
 }
 
+/**
+ * @brief Builds a relationship lookup request payload.
+ * @signature inline FGetRelationshipRequest createGetRelationshipRequest(const TMap<EntityKey, FRelationship> &Relationships, const EntityKey &Entity)
+ *
+ * User Story: As hierarchy ECS code, I need relationship reads to share one
+ * lookup payload instead of repeating map branches.
+ */
+inline FGetRelationshipRequest
+createGetRelationshipRequest(const TMap<EntityKey, FRelationship> &Relationships,
+                             const EntityKey &Entity) {
+  return {Relationships, Entity};
+}
+
+/**
+ * @brief Reads a relationship or returns an empty default relationship.
+ * @signature inline FRelationship getRelationshipOrDefault(const FGetRelationshipRequest &Request)
+ *
+ * User Story: As relationship reducers, parent and child updates should share
+ * one Maybe-backed read helper.
+ */
+inline FRelationship
+getRelationshipOrDefault(const FGetRelationshipRequest &Request) {
+  return func::or_else(
+      findMapValue<EntityKey, FRelationship>(Request.Relationships,
+                                             Request.Entity),
+      createRelationship());
+}
+
 struct FWorld {
   FAllocator Allocator;
   ComponentStore Components;
@@ -1087,6 +1574,12 @@ struct FWorld {
   TArray<EntityKey> DirtyEntities;
   int64 Generation;
 };
+
+typedef std::function<FWorld(const FWorld &)> FWorldTransform;
+typedef std::function<FWorldTransform(const ComponentType &)>
+    FComponentTypeWorldTransformFactory;
+typedef std::function<FWorldTransform(const EntityKey &)>
+    FEntityKeyWorldTransformFactory;
 
 struct FSpawnedEntity {
   FWorld World;
@@ -1125,8 +1618,451 @@ struct FSetEntityDomainRequest {
   DomainPathKey Domain;
 };
 
-inline FWorld setEntityDomain(FWorld World, const EntityKey &Entity,
-                              const DomainPathKey &Domain);
+struct FMarkDirtyRequest {
+  FWorld World;
+  EntityKey Entity;
+};
+
+struct FMarkManyDirtyRequest {
+  FWorld World;
+  TArray<EntityKey> Entities;
+};
+
+struct FSpawnEntityInDomainRequest {
+  FWorld World;
+  DomainPathKey Domain;
+};
+
+struct FRemoveEntityRequest {
+  FWorld World;
+  EntityKey Entity;
+};
+
+struct FDespawnEntityRequest {
+  FWorld World;
+  FEntityId Id;
+};
+
+struct FSetParentRequest {
+  FWorld World;
+  EntityKey Child;
+  EntityKey Parent;
+};
+
+struct FAddChildRequest {
+  FWorld World;
+  EntityKey Parent;
+  EntityKey Child;
+};
+
+struct FRemoveChildRequest {
+  FWorld World;
+  EntityKey Parent;
+  EntityKey Child;
+};
+
+struct FGetComponentRequest {
+  const FWorld &World;
+  EntityKey Entity;
+  ComponentType Type;
+};
+
+struct FHasComponentRequest {
+  const FWorld &World;
+  EntityKey Entity;
+  ComponentType Type;
+};
+
+struct FRemoveComponentRequest {
+  FWorld World;
+  EntityKey Entity;
+  ComponentType Type;
+};
+
+struct FHasTagRequest {
+  const FWorld &World;
+  EntityKey Entity;
+  Tag TagValue;
+};
+
+struct FGetResourceRequest {
+  const FWorld &World;
+  ResourceName Name;
+};
+
+struct FReadEventsRequest {
+  const FWorld &World;
+  EventType Type;
+};
+
+struct FEntityInDomainRequest {
+  const FWorld &World;
+  EntityKey Entity;
+  DomainPathKey Domain;
+};
+
+struct FQueryComponentsRequest {
+  const FWorld &World;
+  TArray<ComponentType> Types;
+  TArray<EntityKey> Entities;
+};
+
+struct FQueryEntitiesByComponentsRequest {
+  const FWorld &World;
+  TArray<ComponentType> Types;
+};
+
+struct FQueryEntitiesByTagRequest {
+  const FWorld &World;
+  Tag TagValue;
+};
+
+struct FQueryEntitiesByDomainRequest {
+  const FWorld &World;
+  DomainPathKey Domain;
+};
+
+struct FQueryChildrenRequest {
+  const FWorld &World;
+  EntityKey Parent;
+};
+
+struct FGatherUnwrapRequest {
+  const FWorld &World;
+  EntityKey Entity;
+  TArray<ComponentType> Types;
+};
+
+/**
+ * @brief Builds the dirty-marking request payload.
+ * @signature inline FMarkDirtyRequest createMarkDirtyRequest(FWorld World, const EntityKey &Entity)
+ *
+ * User Story: As ECS reducer code, I need one reusable factory for dirty
+ * marking payloads instead of scattered aggregate construction.
+ */
+inline FMarkDirtyRequest createMarkDirtyRequest(FWorld World,
+                                                const EntityKey &Entity) {
+  return {World, Entity};
+}
+
+/**
+ * @brief Builds the multi-entity dirty-marking request payload.
+ * @signature inline FMarkManyDirtyRequest createMarkManyDirtyRequest(FWorld World, const TArray<EntityKey> &Entities)
+ *
+ * User Story: As relationship reducers, I need repeated dirty marking to use a
+ * foldable payload rather than nested calls.
+ */
+inline FMarkManyDirtyRequest
+createMarkManyDirtyRequest(FWorld World, const TArray<EntityKey> &Entities) {
+  return {World, Entities};
+}
+
+/**
+ * @brief Builds the spawn-in-domain request payload.
+ * @signature inline FSpawnEntityInDomainRequest createSpawnEntityInDomainRequest(FWorld World, const DomainPathKey &Domain)
+ *
+ * User Story: As spawn code, I need a reusable payload factory for domain-bound
+ * entity allocation.
+ */
+inline FSpawnEntityInDomainRequest
+createSpawnEntityInDomainRequest(FWorld World, const DomainPathKey &Domain) {
+  return {World, Domain};
+}
+
+/**
+ * @brief Builds the entity-removal request payload.
+ * @signature inline FRemoveEntityRequest createRemoveEntityRequest(FWorld World, const EntityKey &Entity)
+ *
+ * User Story: As lifecycle code, I need entity cleanup payloads constructed
+ * consistently from one factory.
+ */
+inline FRemoveEntityRequest createRemoveEntityRequest(FWorld World,
+                                                      const EntityKey &Entity) {
+  return {World, Entity};
+}
+
+/**
+ * @brief Builds the despawn request payload.
+ * @signature inline FDespawnEntityRequest createDespawnEntityRequest(FWorld World, const FEntityId &Id)
+ *
+ * User Story: As lifecycle code, I need allocator cleanup payloads constructed
+ * consistently from one factory.
+ */
+inline FDespawnEntityRequest createDespawnEntityRequest(FWorld World,
+                                                        const FEntityId &Id) {
+  return {World, Id};
+}
+
+/**
+ * @brief Builds the parent-setting request payload.
+ * @signature inline FSetParentRequest createSetParentRequest(FWorld World, const EntityKey &Child, const EntityKey &Parent)
+ *
+ * User Story: As relationship code, I need parent writes to use a reusable
+ * payload factory.
+ */
+inline FSetParentRequest createSetParentRequest(FWorld World,
+                                                const EntityKey &Child,
+                                                const EntityKey &Parent) {
+  return {World, Child, Parent};
+}
+
+/**
+ * @brief Builds the child-adding request payload.
+ * @signature inline FAddChildRequest createAddChildRequest(FWorld World, const EntityKey &Parent, const EntityKey &Child)
+ *
+ * User Story: As hierarchy code, I need child-add payloads constructed
+ * consistently before delegating to relationship reducers.
+ */
+inline FAddChildRequest createAddChildRequest(FWorld World,
+                                              const EntityKey &Parent,
+                                              const EntityKey &Child) {
+  return {World, Parent, Child};
+}
+
+/**
+ * @brief Builds the child-removal request payload.
+ * @signature inline FRemoveChildRequest createRemoveChildRequest(FWorld World, const EntityKey &Parent, const EntityKey &Child)
+ *
+ * User Story: As hierarchy code, I need child-removal payloads constructed
+ * consistently before applying relationship reducers.
+ */
+inline FRemoveChildRequest createRemoveChildRequest(FWorld World,
+                                                    const EntityKey &Parent,
+                                                    const EntityKey &Child) {
+  return {World, Parent, Child};
+}
+
+/**
+ * @brief Builds the component-write request payload.
+ * @signature inline FSetComponentRequest createSetComponentRequest(FWorld World, const EntityKey &Entity, const ComponentType &Type, const FComponentValue &Value)
+ *
+ * User Story: As component reducers, I need one factory for component writes so
+ * callers do not hand-assemble payload structs.
+ */
+inline FSetComponentRequest
+createSetComponentRequest(FWorld World, const EntityKey &Entity,
+                          const ComponentType &Type,
+                          const FComponentValue &Value) {
+  return {World, Entity, Type, Value};
+}
+
+/**
+ * @brief Builds the component-read request payload.
+ * @signature inline FGetComponentRequest createGetComponentRequest(const FWorld &World, const EntityKey &Entity, const ComponentType &Type)
+ *
+ * User Story: As ECS readers, I need component lookup payloads created through
+ * one factory before Maybe composition.
+ */
+inline FGetComponentRequest
+createGetComponentRequest(const FWorld &World, const EntityKey &Entity,
+                          const ComponentType &Type) {
+  return {World, Entity, Type};
+}
+
+/**
+ * @brief Builds the component-membership request payload.
+ * @signature inline FHasComponentRequest createHasComponentRequest(const FWorld &World, const EntityKey &Entity, const ComponentType &Type)
+ *
+ * User Story: As ECS query code, I need component membership payloads reused
+ * across system and selector queries.
+ */
+inline FHasComponentRequest
+createHasComponentRequest(const FWorld &World, const EntityKey &Entity,
+                          const ComponentType &Type) {
+  return {World, Entity, Type};
+}
+
+/**
+ * @brief Builds the component-removal request payload.
+ * @signature inline FRemoveComponentRequest createRemoveComponentRequest(FWorld World, const EntityKey &Entity, const ComponentType &Type)
+ *
+ * User Story: As ECS reducers, I need component removal payloads created from
+ * a single factory.
+ */
+inline FRemoveComponentRequest
+createRemoveComponentRequest(FWorld World, const EntityKey &Entity,
+                             const ComponentType &Type) {
+  return {World, Entity, Type};
+}
+
+/**
+ * @brief Builds the tag-write request payload.
+ * @signature inline FSetTagRequest createSetTagRequest(FWorld World, const EntityKey &Entity, const Tag &TagValue)
+ *
+ * User Story: As tag reducers, I need tag write payloads created through one
+ * factory before world transitions.
+ */
+inline FSetTagRequest createSetTagRequest(FWorld World,
+                                          const EntityKey &Entity,
+                                          const Tag &TagValue) {
+  return {World, Entity, TagValue};
+}
+
+/**
+ * @brief Builds the tag-membership request payload.
+ * @signature inline FHasTagRequest createHasTagRequest(const FWorld &World, const EntityKey &Entity, const Tag &TagValue)
+ *
+ * User Story: As ECS query code, I need tag predicates to share one request
+ * factory.
+ */
+inline FHasTagRequest createHasTagRequest(const FWorld &World,
+                                          const EntityKey &Entity,
+                                          const Tag &TagValue) {
+  return {World, Entity, TagValue};
+}
+
+/**
+ * @brief Builds the resource-write request payload.
+ * @signature inline FSetResourceRequest createSetResourceRequest(FWorld World, const ResourceName &Name, const FComponentValue &Value)
+ *
+ * User Story: As resource reducers, I need resource write payloads created
+ * through one reusable factory.
+ */
+inline FSetResourceRequest
+createSetResourceRequest(FWorld World, const ResourceName &Name,
+                         const FComponentValue &Value) {
+  return {World, Name, Value};
+}
+
+/**
+ * @brief Builds the resource-read request payload.
+ * @signature inline FGetResourceRequest createGetResourceRequest(const FWorld &World, const ResourceName &Name)
+ *
+ * User Story: As ECS readers, I need resource lookup payloads created through
+ * one factory before Maybe composition.
+ */
+inline FGetResourceRequest createGetResourceRequest(const FWorld &World,
+                                                    const ResourceName &Name) {
+  return {World, Name};
+}
+
+/**
+ * @brief Builds the event-push request payload.
+ * @signature inline FPushEventRequest createPushEventRequest(FWorld World, const EventType &Type, const FComponentValue &Payload)
+ *
+ * User Story: As ECS event code, I need event queue writes created through one
+ * reusable payload factory.
+ */
+inline FPushEventRequest createPushEventRequest(FWorld World,
+                                                const EventType &Type,
+                                                const FComponentValue &Payload) {
+  return {World, Type, Payload};
+}
+
+/**
+ * @brief Builds the event-read request payload.
+ * @signature inline FReadEventsRequest createReadEventsRequest(const FWorld &World, const EventType &Type)
+ *
+ * User Story: As ECS systems, I need event reads created through one factory
+ * before matching optional queues.
+ */
+inline FReadEventsRequest createReadEventsRequest(const FWorld &World,
+                                                  const EventType &Type) {
+  return {World, Type};
+}
+
+/**
+ * @brief Builds the entity-domain write request payload.
+ * @signature inline FSetEntityDomainRequest createSetEntityDomainRequest(FWorld World, const EntityKey &Entity, const DomainPathKey &Domain)
+ *
+ * User Story: As domain projection code, I need entity-domain payloads created
+ * through one factory before ECS reducers apply them.
+ */
+inline FSetEntityDomainRequest
+createSetEntityDomainRequest(FWorld World, const EntityKey &Entity,
+                             const DomainPathKey &Domain) {
+  return {World, Entity, Domain};
+}
+
+/**
+ * @brief Builds the entity-domain membership request payload.
+ * @signature inline FEntityInDomainRequest createEntityInDomainRequest(const FWorld &World, const EntityKey &Entity, const DomainPathKey &Domain)
+ *
+ * User Story: As ECS domain queries, I need membership predicates to reuse one
+ * payload factory.
+ */
+inline FEntityInDomainRequest
+createEntityInDomainRequest(const FWorld &World, const EntityKey &Entity,
+                            const DomainPathKey &Domain) {
+  return {World, Entity, Domain};
+}
+
+/**
+ * @brief Builds the component-query request payload.
+ * @signature inline FQueryComponentsRequest createQueryComponentsRequest(const FWorld &World, const TArray<ComponentType> &Types, const TArray<EntityKey> &Entities)
+ *
+ * User Story: As ECS system execution, I need component query payloads created
+ * through one reusable factory.
+ */
+inline FQueryComponentsRequest
+createQueryComponentsRequest(const FWorld &World,
+                             const TArray<ComponentType> &Types,
+                             const TArray<EntityKey> &Entities) {
+  return {World, Types, Entities};
+}
+
+/**
+ * @brief Builds the all-entities component-query request payload.
+ * @signature inline FQueryEntitiesByComponentsRequest createQueryEntitiesByComponentsRequest(const FWorld &World, const TArray<ComponentType> &Types)
+ *
+ * User Story: As selectors, I need all-entity component queries to share one
+ * request factory.
+ */
+inline FQueryEntitiesByComponentsRequest
+createQueryEntitiesByComponentsRequest(const FWorld &World,
+                                       const TArray<ComponentType> &Types) {
+  return {World, Types};
+}
+
+/**
+ * @brief Builds the tag-query request payload.
+ * @signature inline FQueryEntitiesByTagRequest createQueryEntitiesByTagRequest(const FWorld &World, const Tag &TagValue)
+ *
+ * User Story: As selectors, I need tag queries to share one request factory.
+ */
+inline FQueryEntitiesByTagRequest
+createQueryEntitiesByTagRequest(const FWorld &World, const Tag &TagValue) {
+  return {World, TagValue};
+}
+
+/**
+ * @brief Builds the domain-query request payload.
+ * @signature inline FQueryEntitiesByDomainRequest createQueryEntitiesByDomainRequest(const FWorld &World, const DomainPathKey &Domain)
+ *
+ * User Story: As selectors, I need domain queries to share one request factory.
+ */
+inline FQueryEntitiesByDomainRequest
+createQueryEntitiesByDomainRequest(const FWorld &World,
+                                   const DomainPathKey &Domain) {
+  return {World, Domain};
+}
+
+/**
+ * @brief Builds the child-query request payload.
+ * @signature inline FQueryChildrenRequest createQueryChildrenRequest(const FWorld &World, const EntityKey &Parent)
+ *
+ * User Story: As hierarchy selectors, I need child queries to share one
+ * payload factory.
+ */
+inline FQueryChildrenRequest createQueryChildrenRequest(const FWorld &World,
+                                                        const EntityKey &Parent) {
+  return {World, Parent};
+}
+
+/**
+ * @brief Builds the component-gathering request payload.
+ * @signature inline FGatherUnwrapRequest createGatherUnwrapRequest(const FWorld &World, const EntityKey &Entity, const TArray<ComponentType> &Types)
+ *
+ * User Story: As ECS system execution, I need component gathering to share one
+ * request factory before fold-based lookup.
+ */
+inline FGatherUnwrapRequest
+createGatherUnwrapRequest(const FWorld &World, const EntityKey &Entity,
+                          const TArray<ComponentType> &Types) {
+  return {World, Entity, Types};
+}
+
+inline FWorld setEntityDomain(const FSetEntityDomainRequest &Request);
 
 /**
  * @brief Creates a fresh ECS world with allocator and cross-domain registry.
@@ -1144,74 +2080,47 @@ inline FWorld createWorld() {
 
 inline bool componentTableEquals(const ComponentTable &Left,
                                  const ComponentTable &Right) {
-  if (Left.Num() != Right.Num()) {
-    return false;
-  }
-  for (const TPair<EntityKey, FComponentValue> &Entry : Left) {
-    const FComponentValue *RightValue = Right.Find(Entry.Key);
-    if (!RightValue || *RightValue != Entry.Value) {
-      return false;
-    }
-  }
-  return true;
+  return mapValuesEqual<EntityKey, FComponentValue>(
+      Left, Right,
+      [](const FComponentValue &LeftValue,
+         const FComponentValue &RightValue) { return LeftValue == RightValue; });
 }
 
 inline bool componentStoreEquals(const ComponentStore &Left,
                                  const ComponentStore &Right) {
-  if (Left.Num() != Right.Num()) {
-    return false;
-  }
-  for (const TPair<ComponentType, ComponentTable> &Entry : Left) {
-    const ComponentTable *RightValue = Right.Find(Entry.Key);
-    if (!RightValue || !componentTableEquals(Entry.Value, *RightValue)) {
-      return false;
-    }
-  }
-  return true;
+  return mapValuesEqual<ComponentType, ComponentTable>(
+      Left, Right,
+      [](const ComponentTable &LeftValue, const ComponentTable &RightValue) {
+        return componentTableEquals(LeftValue, RightValue);
+      });
 }
 
 template <typename Value>
 inline bool arrayMapEquals(const TMap<FString, TArray<Value>> &Left,
                            const TMap<FString, TArray<Value>> &Right) {
-  if (Left.Num() != Right.Num()) {
-    return false;
-  }
-  for (const TPair<FString, TArray<Value>> &Entry : Left) {
-    const TArray<Value> *RightValue = Right.Find(Entry.Key);
-    if (!RightValue || *RightValue != Entry.Value) {
-      return false;
-    }
-  }
-  return true;
+  return mapValuesEqual<FString, TArray<Value>>(
+      Left, Right,
+      [](const TArray<Value> &LeftValue, const TArray<Value> &RightValue) {
+        return LeftValue == RightValue;
+      });
 }
 
 inline bool resourceStoreEquals(const ResourceStore &Left,
                                 const ResourceStore &Right) {
-  if (Left.Num() != Right.Num()) {
-    return false;
-  }
-  for (const TPair<ResourceName, FComponentValue> &Entry : Left) {
-    const FComponentValue *RightValue = Right.Find(Entry.Key);
-    if (!RightValue || *RightValue != Entry.Value) {
-      return false;
-    }
-  }
-  return true;
+  return mapValuesEqual<ResourceName, FComponentValue>(
+      Left, Right,
+      [](const FComponentValue &LeftValue,
+         const FComponentValue &RightValue) { return LeftValue == RightValue; });
 }
 
 inline bool relationshipStoreEquals(
     const TMap<EntityKey, FRelationship> &Left,
     const TMap<EntityKey, FRelationship> &Right) {
-  if (Left.Num() != Right.Num()) {
-    return false;
-  }
-  for (const TPair<EntityKey, FRelationship> &Entry : Left) {
-    const FRelationship *RightValue = Right.Find(Entry.Key);
-    if (!RightValue || *RightValue != Entry.Value) {
-      return false;
-    }
-  }
-  return true;
+  return mapValuesEqual<EntityKey, FRelationship>(
+      Left, Right,
+      [](const FRelationship &LeftValue, const FRelationship &RightValue) {
+        return LeftValue == RightValue;
+      });
 }
 
 inline bool operator==(const FWorld &Left, const FWorld &Right) {
@@ -1233,11 +2142,31 @@ inline bool operator!=(const FWorld &Left, const FWorld &Right) {
 
 /**
  * @brief Marks an entity dirty and increments the world generation.
+ * @signature inline FWorld markDirty(const FMarkDirtyRequest &Request)
+ *
+ * User Story: As a reducer-owned ECS transition, dirty tracking should be a
+ * unary world transform that can be composed without hidden side effects.
  */
-inline FWorld markDirty(FWorld World, const EntityKey &Entity) {
-  World.DirtyEntities.AddUnique(Entity);
+inline FWorld markDirty(const FMarkDirtyRequest &Request) {
+  FWorld World = Request.World;
+  World.DirtyEntities.AddUnique(Request.Entity);
   World.Generation += 1;
   return World;
+}
+
+/**
+ * @brief Marks multiple entities dirty through a fold.
+ * @signature inline FWorld markManyDirty(const FMarkManyDirtyRequest &Request)
+ *
+ * User Story: As relationship reducers, I need multi-entity dirty updates to
+ * compose from the single-entity reducer rather than repeating nested calls.
+ */
+inline FWorld markManyDirty(const FMarkManyDirtyRequest &Request) {
+  return foldArray<EntityKey, FWorld>(
+      Request.World, Request.Entities,
+      [](const FWorld &World, const EntityKey &Entity) {
+        return markDirty(createMarkDirtyRequest(World, Entity));
+      });
 }
 
 /**
@@ -1250,7 +2179,7 @@ inline FSpawnedEntity spawnEntity(FWorld World) {
   World.Allocator = Allocated.Allocator;
   const EntityKey Entity = entityKey(Allocated.Entity);
   FSpawnedEntity Spawned;
-  Spawned.World = markDirty(World, Entity);
+  Spawned.World = markDirty(createMarkDirtyRequest(World, Entity));
   Spawned.Id = Allocated.Entity;
   Spawned.Entity = Entity;
   return Spawned;
@@ -1258,84 +2187,199 @@ inline FSpawnedEntity spawnEntity(FWorld World) {
 
 /**
  * @brief Allocates one entity and associates it with an ECS domain.
+ * @signature inline FSpawnedEntity spawnEntityInDomain(const FSpawnEntityInDomainRequest &Request)
+ *
+ * User Story: As a spawn reducer, I need entity creation and domain wiring to
+ * return one next world value from a request payload.
  */
-inline FSpawnedEntity spawnEntityInDomain(FWorld World,
-                                          const DomainPathKey &Domain) {
-  const FSpawnedEntity Spawned = spawnEntity(World);
+inline FSpawnedEntity
+spawnEntityInDomain(const FSpawnEntityInDomainRequest &Request) {
+  const FSpawnedEntity Spawned = spawnEntity(Request.World);
   FSpawnedEntity WithDomain = Spawned;
-  WithDomain.World = setEntityDomain(Spawned.World, Spawned.Entity, Domain);
+  WithDomain.World = setEntityDomain(createSetEntityDomainRequest(
+      Spawned.World, Spawned.Entity, Request.Domain));
   return WithDomain;
 }
 
 /**
- * @brief Removes an entity's component, tag, domain, and relationship data.
+ * @brief Builds a transform factory that removes one entity from component tables.
+ * @signature inline FComponentTypeWorldTransformFactory removeEntityFromComponentType(const EntityKey &Entity)
+ *
+ * User Story: As lifecycle reducers, entity component cleanup should be a
+ * curried factory that folds through component types without local loops.
  */
-inline FWorld removeEntity(FWorld World, const EntityKey &Entity) {
-  for (TPair<ComponentType, ComponentTable> &Entry : World.Components) {
-    Entry.Value.Remove(Entity);
-  }
-  World.Tags.Remove(Entity);
-  World.EntityDomains.Remove(Entity);
-  World.Relationships.Remove(Entity);
-  for (TPair<EntityKey, FRelationship> &Entry : World.Relationships) {
-    Entry.Value.Children.Remove(Entity);
-  }
-  World.DirtyEntities.Remove(Entity);
-  return markDirty(World, Entity);
+inline FComponentTypeWorldTransformFactory
+removeEntityFromComponentType(const EntityKey &Entity) {
+  return [Entity](const ComponentType &Type) {
+    return [Entity, Type](const FWorld &World) {
+      FWorld Next = World;
+      ComponentTable Table = Next.Components.FindChecked(Type);
+      Table.Remove(Entity);
+      Next.Components.Add(Type, Table);
+      return Next;
+    };
+  };
+}
+
+/**
+ * @brief Builds a world transform that removes an entity from every component table.
+ * @signature inline FWorldTransform removeEntityComponentIndexes(const EntityKey &Entity)
+ *
+ * User Story: As lifecycle reducers, component index cleanup should compose as
+ * one unary world transform inside the despawn pipeline.
+ */
+inline FWorldTransform removeEntityComponentIndexes(const EntityKey &Entity) {
+  return [Entity](const FWorld &World) {
+    const FComponentTypeWorldTransformFactory RemoveFromType =
+        removeEntityFromComponentType(Entity);
+    return foldArray<ComponentType, FWorld>(
+        World, mapKeys<ComponentType, ComponentTable>(World.Components),
+        [RemoveFromType](const FWorld &Acc, const ComponentType &Type) {
+          return RemoveFromType(Type)(Acc);
+        });
+  };
+}
+
+/**
+ * @brief Builds a world transform that removes direct entity-owned indexes.
+ * @signature inline FWorldTransform removeEntityDirectIndexes(const EntityKey &Entity)
+ *
+ * User Story: As lifecycle reducers, direct tag/domain/relationship/dirty
+ * cleanup should be one named unary transform.
+ */
+inline FWorldTransform removeEntityDirectIndexes(const EntityKey &Entity) {
+  return [Entity](const FWorld &World) {
+    FWorld Next = World;
+    Next.Tags.Remove(Entity);
+    Next.EntityDomains.Remove(Entity);
+    Next.Relationships.Remove(Entity);
+    Next.DirtyEntities.Remove(Entity);
+    return Next;
+  };
+}
+
+/**
+ * @brief Builds a transform factory that removes one child from one parent relationship.
+ * @signature inline FEntityKeyWorldTransformFactory removeEntityFromRelationshipParent(const EntityKey &Entity)
+ *
+ * User Story: As hierarchy reducers, parent child-list cleanup should be a
+ * curried transform instead of a relationship-table loop.
+ */
+inline FEntityKeyWorldTransformFactory
+removeEntityFromRelationshipParent(const EntityKey &Entity) {
+  return [Entity](const EntityKey &Parent) {
+    return [Entity, Parent](const FWorld &World) {
+      FWorld Next = World;
+      FRelationship Relationship = Next.Relationships.FindChecked(Parent);
+      Relationship.Children.Remove(Entity);
+      Next.Relationships.Add(Parent, Relationship);
+      return Next;
+    };
+  };
+}
+
+/**
+ * @brief Builds a world transform that removes an entity from parent child lists.
+ * @signature inline FWorldTransform removeEntityRelationshipChildIndexes(const EntityKey &Entity)
+ *
+ * User Story: As hierarchy reducers, child-list cleanup should fold through
+ * relationship keys as a reusable world transform.
+ */
+inline FWorldTransform
+removeEntityRelationshipChildIndexes(const EntityKey &Entity) {
+  return [Entity](const FWorld &World) {
+    const FEntityKeyWorldTransformFactory RemoveFromParent =
+        removeEntityFromRelationshipParent(Entity);
+    return foldArray<EntityKey, FWorld>(
+        World, mapKeys<EntityKey, FRelationship>(World.Relationships),
+        [RemoveFromParent](const FWorld &Acc, const EntityKey &Parent) {
+          return RemoveFromParent(Parent)(Acc);
+        });
+  };
+}
+
+/**
+ * @brief Removes an entity's component, tag, domain, and relationship data.
+ * @signature inline FWorld removeEntity(const FRemoveEntityRequest &Request)
+ *
+ * User Story: As a despawn reducer, I need every entity-owned ECS index cleaned
+ * through one world-in/world-out request.
+ */
+inline FWorld removeEntity(const FRemoveEntityRequest &Request) {
+  const FWorld World =
+      (func::pipe(Request.World) |
+       removeEntityComponentIndexes(Request.Entity) |
+       removeEntityDirectIndexes(Request.Entity) |
+       removeEntityRelationshipChildIndexes(Request.Entity))
+          .val;
+  return markDirty(createMarkDirtyRequest(World, Request.Entity));
 }
 
 /**
  * @brief Frees an id and removes the matching entity data from the world.
+ * @signature inline FWorld despawnEntity(const FDespawnEntityRequest &Request)
+ *
+ * User Story: As a lifecycle reducer, I need allocator and entity-index
+ * cleanup to move through one typed request.
  */
-inline FWorld despawnEntity(FWorld World, const FEntityId &Id) {
-  World.Allocator = freeEntity(World.Allocator, Id);
-  return removeEntity(World, entityKey(Id));
+inline FWorld despawnEntity(const FDespawnEntityRequest &Request) {
+  FWorld World = Request.World;
+  World.Allocator = freeEntity(World.Allocator, Request.Id);
+  return removeEntity(createRemoveEntityRequest(World, entityKey(Request.Id)));
 }
 
 /**
  * @brief Sets a parent relationship using immutable world-in/world-out data.
+ * @signature inline FWorld setParent(const FSetParentRequest &Request)
+ *
+ * User Story: As relationship ECS code, I need parent/child writes to stay a
+ * pure request transform and mark both touched entities.
  */
-inline FWorld setParent(FWorld World, const EntityKey &Child,
-                        const EntityKey &Parent) {
-  FRelationship ChildRelationship =
-      World.Relationships.Contains(Child) ? World.Relationships.FindRef(Child)
-                                          : createRelationship();
-  ChildRelationship.Parent = func::just(Parent);
-  World.Relationships.Add(Child, ChildRelationship);
-  FRelationship ParentRelationship =
-      World.Relationships.Contains(Parent)
-          ? World.Relationships.FindRef(Parent)
-          : createRelationship();
-  ParentRelationship.Children.AddUnique(Child);
-  World.Relationships.Add(Parent, ParentRelationship);
-  return markDirty(markDirty(World, Child), Parent);
+inline FWorld setParent(const FSetParentRequest &Request) {
+  FWorld World = Request.World;
+  FRelationship ChildRelationship = getRelationshipOrDefault(
+      createGetRelationshipRequest(World.Relationships, Request.Child));
+  ChildRelationship.Parent = func::just(Request.Parent);
+  World.Relationships.Add(Request.Child, ChildRelationship);
+  FRelationship ParentRelationship = getRelationshipOrDefault(
+      createGetRelationshipRequest(World.Relationships, Request.Parent));
+  ParentRelationship.Children.AddUnique(Request.Child);
+  World.Relationships.Add(Request.Parent, ParentRelationship);
+  return markManyDirty(
+      createMarkManyDirtyRequest(World, {Request.Child, Request.Parent}));
 }
 
 /**
  * @brief Adds one child to a parent relationship.
+ * @signature inline FWorld addChild(const FAddChildRequest &Request)
+ *
+ * User Story: As ECS relationship code, adding children should compose through
+ * the same parent-setting primitive instead of duplicating write logic.
  */
-inline FWorld addChild(FWorld World, const EntityKey &Parent,
-                       const EntityKey &Child) {
-  return setParent(World, Child, Parent);
+inline FWorld addChild(const FAddChildRequest &Request) {
+  return setParent(createSetParentRequest(Request.World, Request.Child,
+                                          Request.Parent));
 }
 
 /**
  * @brief Removes one child from a parent relationship.
+ * @signature inline FWorld removeChild(const FRemoveChildRequest &Request)
+ *
+ * User Story: As relationship ECS code, removing children should be a typed
+ * unary transition over the world value.
  */
-inline FWorld removeChild(FWorld World, const EntityKey &Parent,
-                          const EntityKey &Child) {
-  FRelationship ParentRelationship =
-      World.Relationships.Contains(Parent)
-          ? World.Relationships.FindRef(Parent)
-          : createRelationship();
-  ParentRelationship.Children.Remove(Child);
-  World.Relationships.Add(Parent, ParentRelationship);
-  FRelationship ChildRelationship =
-      World.Relationships.Contains(Child) ? World.Relationships.FindRef(Child)
-                                          : createRelationship();
+inline FWorld removeChild(const FRemoveChildRequest &Request) {
+  FWorld World = Request.World;
+  FRelationship ParentRelationship = getRelationshipOrDefault(
+      createGetRelationshipRequest(World.Relationships, Request.Parent));
+  ParentRelationship.Children.Remove(Request.Child);
+  World.Relationships.Add(Request.Parent, ParentRelationship);
+  FRelationship ChildRelationship = getRelationshipOrDefault(
+      createGetRelationshipRequest(World.Relationships, Request.Child));
   ChildRelationship.Parent = func::nothing<EntityKey>();
-  World.Relationships.Add(Child, ChildRelationship);
-  return markDirty(markDirty(World, Parent), Child);
+  World.Relationships.Add(Request.Child, ChildRelationship);
+  return markManyDirty(
+      createMarkManyDirtyRequest(World, {Request.Parent, Request.Child}));
 }
 
 inline TArray<EntityKey> appendUniqueEntity(TArray<EntityKey> Entities,
@@ -1348,23 +2392,26 @@ inline TArray<EntityKey> appendUniqueEntity(TArray<EntityKey> Entities,
  * @brief Returns all known entities across domains, tags, and components.
  */
 inline TArray<EntityKey> allEntities(const FWorld &World) {
-  TArray<EntityKey> Entities;
-  TArray<EntityKey> DomainEntities;
-  World.EntityDomains.GenerateKeyArray(DomainEntities);
-  Entities.Append(DomainEntities);
-  TArray<EntityKey> TaggedEntities;
-  World.Tags.GenerateKeyArray(TaggedEntities);
-  Entities.Append(TaggedEntities);
-  for (const TPair<ComponentType, ComponentTable> &Entry : World.Components) {
-    TArray<EntityKey> ComponentEntities;
-    Entry.Value.GenerateKeyArray(ComponentEntities);
-    Entities.Append(ComponentEntities);
-  }
-  TArray<EntityKey> UniqueEntities;
-  for (const EntityKey &Entity : Entities) {
-    UniqueEntities.AddUnique(Entity);
-  }
-  return UniqueEntities;
+  const TArray<EntityKey> DomainEntities =
+      mapKeys<EntityKey, TArray<DomainPathKey>>(World.EntityDomains);
+  const TArray<EntityKey> TaggedEntities =
+      mapKeys<EntityKey, TArray<Tag>>(World.Tags);
+  const TArray<ComponentType> ComponentTypes =
+      mapKeys<ComponentType, ComponentTable>(World.Components);
+  const TArray<EntityKey> ComponentEntities =
+      foldArray<ComponentType, TArray<EntityKey>>(
+      TArray<EntityKey>(), ComponentTypes,
+      [&World](const TArray<EntityKey> &Acc, const ComponentType &Type) {
+        return func::match(
+            findMapValuePtr<ComponentType, ComponentTable>(World.Components,
+                                                           Type),
+            [&Acc](const ComponentTable *Table) {
+              return appendMapKeys<EntityKey, FComponentValue>(Acc, *Table);
+            },
+            [&Acc]() { return Acc; });
+      });
+  return uniqueArray<EntityKey>(concatArrays<EntityKey>(
+      {DomainEntities, TaggedEntities, ComponentEntities}));
 }
 
 /**
@@ -1377,44 +2424,71 @@ inline TArray<EntityKey> allEntities(const FWorld &World) {
 inline FWorld setComponent(const FSetComponentRequest &Request) {
   FWorld World = Request.World;
   World.Components.FindOrAdd(Request.Type).Add(Request.Entity, Request.Value);
-  return markDirty(World, Request.Entity);
-}
-
-inline FWorld setComponent(FWorld World, const EntityKey &Entity,
-                           const ComponentType &Type,
-                           const FComponentValue &Value) {
-  return setComponent({World, Entity, Type, Value});
+  return markDirty(createMarkDirtyRequest(World, Request.Entity));
 }
 
 /**
  * @brief Reads one component value from an entity.
+ * @signature inline func::Maybe<FComponentValue> getComponent(const FGetComponentRequest &Request)
+ *
+ * User Story: As ECS system code, nested component-table lookups should
+ * short-circuit through Maybe rather than branching around nullable pointers.
  */
-inline func::Maybe<FComponentValue> getComponent(const FWorld &World,
-                                                 const EntityKey &Entity,
-                                                 const ComponentType &Type) {
-  const ComponentTable *Table = World.Components.Find(Type);
-  const FComponentValue *Value = Table ? Table->Find(Entity) : nullptr;
-  return Value ? func::just(*Value) : func::nothing<FComponentValue>();
+inline func::Maybe<FComponentValue>
+getComponent(const FGetComponentRequest &Request) {
+  return func::mbind(
+      findMapValuePtr<ComponentType, ComponentTable>(
+          Request.World.Components, Request.Type),
+      [&Request](const ComponentTable *Table) {
+        return findMapValue<EntityKey, FComponentValue>(*Table,
+                                                        Request.Entity);
+      });
 }
 
 /**
  * @brief Checks whether an entity currently has a component type.
+ * @signature inline bool hasComponent(const FHasComponentRequest &Request)
+ *
+ * User Story: As ECS query code, component membership should reuse the Maybe
+ * reader so read semantics stay centralized.
  */
-inline bool hasComponent(const FWorld &World, const EntityKey &Entity,
-                         const ComponentType &Type) {
-  return getComponent(World, Entity, Type).hasValue;
+inline bool hasComponent(const FHasComponentRequest &Request) {
+  return func::is_just(getComponent(createGetComponentRequest(
+      Request.World, Request.Entity, Request.Type)));
+}
+
+/**
+ * @brief Builds a table-present branch for removing one component value.
+ * @signature inline std::function<FWorld(const ComponentTable &)> removeComponentFromPresentTable(const FRemoveComponentRequest &Request)
+ *
+ * User Story: As ECS reducers, component removal should isolate the present
+ * table branch so Maybe matching replaces imperative nullable checks.
+ */
+inline std::function<FWorld(const ComponentTable &)>
+removeComponentFromPresentTable(const FRemoveComponentRequest &Request) {
+  return [&Request](const ComponentTable &Table) {
+    FWorld Next = Request.World;
+    ComponentTable UpdatedTable = Table;
+    UpdatedTable.Remove(Request.Entity);
+    Next.Components.Add(Request.Type, UpdatedTable);
+    return Next;
+  };
 }
 
 /**
  * @brief Removes one component value from an entity and marks it dirty.
+ * @signature inline FWorld removeComponent(const FRemoveComponentRequest &Request)
+ *
+ * User Story: As ECS reducers, component removal should remain a unary
+ * world-in/world-out transform.
  */
-inline FWorld removeComponent(FWorld World, const EntityKey &Entity,
-                              const ComponentType &Type) {
-  ComponentTable *Table = World.Components.Find(Type);
-  if (Table) {
-    Table->Remove(Entity);
-  }
-  return markDirty(World, Entity);
+inline FWorld removeComponent(const FRemoveComponentRequest &Request) {
+  const FWorld World = func::match(
+      findMapValue<ComponentType, ComponentTable>(Request.World.Components,
+                                                 Request.Type),
+      removeComponentFromPresentTable(Request),
+      [&Request]() { return Request.World; });
+  return markDirty(createMarkDirtyRequest(World, Request.Entity));
 }
 
 /**
@@ -1423,20 +2497,19 @@ inline FWorld removeComponent(FWorld World, const EntityKey &Entity,
 inline FWorld setTag(const FSetTagRequest &Request) {
   FWorld World = Request.World;
   World.Tags.FindOrAdd(Request.Entity).AddUnique(Request.TagValue);
-  return markDirty(World, Request.Entity);
-}
-
-inline FWorld setTag(FWorld World, const EntityKey &Entity,
-                     const Tag &TagValue) {
-  return setTag({World, Entity, TagValue});
+  return markDirty(createMarkDirtyRequest(World, Request.Entity));
 }
 
 /**
  * @brief Checks whether an entity currently has a tag.
+ * @signature inline bool hasTag(const FHasTagRequest &Request)
+ *
+ * User Story: As ECS query code, tag membership should use Maybe lookup plus
+ * reusable array predicates.
  */
-inline bool hasTag(const FWorld &World, const EntityKey &Entity, const Tag &TagValue) {
-  const TArray<Tag> *Tags = World.Tags.Find(Entity);
-  return Tags && Tags->Contains(TagValue);
+inline bool hasTag(const FHasTagRequest &Request) {
+  return mapArrayContains<EntityKey, Tag>(Request.World.Tags, Request.Entity,
+                                          Request.TagValue);
 }
 
 /**
@@ -1449,18 +2522,17 @@ inline FWorld setResource(const FSetResourceRequest &Request) {
   return World;
 }
 
-inline FWorld setResource(FWorld World, const ResourceName &Name,
-                          const FComponentValue &Value) {
-  return setResource({World, Name, Value});
-}
-
 /**
  * @brief Reads one resource value from the world.
+ * @signature inline func::Maybe<FComponentValue> getResource(const FGetResourceRequest &Request)
+ *
+ * User Story: As ECS side-effect orchestration code, resource reads should be
+ * optional values instead of nullable pointer branches.
  */
-inline func::Maybe<FComponentValue> getResource(const FWorld &World,
-                                                const ResourceName &Name) {
-  const FComponentValue *Value = World.Resources.Find(Name);
-  return Value ? func::just(*Value) : func::nothing<FComponentValue>();
+inline func::Maybe<FComponentValue>
+getResource(const FGetResourceRequest &Request) {
+  return findMapValue<ResourceName, FComponentValue>(Request.World.Resources,
+                                                    Request.Name);
 }
 
 /**
@@ -1472,18 +2544,18 @@ inline FWorld pushEvent(const FPushEventRequest &Request) {
   return World;
 }
 
-inline FWorld pushEvent(FWorld World, const EventType &Type,
-                        const FComponentValue &Payload) {
-  return pushEvent({World, Type, Payload});
-}
-
 /**
  * @brief Reads queued event payloads for one event type.
+ * @signature inline TArray<FComponentValue> readEvents(const FReadEventsRequest &Request)
+ *
+ * User Story: As ECS systems code, event queues should materialize through a
+ * Maybe match at the boundary.
  */
-inline TArray<FComponentValue> readEvents(const FWorld &World,
-                                          const EventType &Type) {
-  const TArray<FComponentValue> *Queue = World.Events.Find(Type);
-  return Queue ? *Queue : TArray<FComponentValue>();
+inline TArray<FComponentValue> readEvents(const FReadEventsRequest &Request) {
+  return func::or_else(
+      findMapValue<EventType, TArray<FComponentValue>>(Request.World.Events,
+                                                       Request.Type),
+      TArray<FComponentValue>());
 }
 
 /**
@@ -1500,64 +2572,87 @@ inline FWorld clearEvents(FWorld World) {
 inline FWorld setEntityDomain(const FSetEntityDomainRequest &Request) {
   FWorld World = Request.World;
   World.EntityDomains.FindOrAdd(Request.Entity).AddUnique(Request.Domain);
-  return markDirty(World, Request.Entity);
-}
-
-inline FWorld setEntityDomain(FWorld World, const EntityKey &Entity,
-                              const DomainPathKey &Domain) {
-  return setEntityDomain({World, Entity, Domain});
+  return markDirty(createMarkDirtyRequest(World, Request.Entity));
 }
 
 /**
  * @brief Checks whether an entity belongs to a domain path.
+ * @signature inline bool entityInDomain(const FEntityInDomainRequest &Request)
+ *
+ * User Story: As ECS domain queries, membership should be a Maybe lookup plus
+ * an array predicate instead of borrowing sibling-domain logic.
  */
-inline bool entityInDomain(const FWorld &World, const EntityKey &Entity,
-                           const DomainPathKey &Domain) {
-  const TArray<DomainPathKey> *Domains = World.EntityDomains.Find(Entity);
-  return Domains && Domains->Contains(Domain);
+inline bool entityInDomain(const FEntityInDomainRequest &Request) {
+  return mapArrayContains<EntityKey, DomainPathKey>(
+      Request.World.EntityDomains, Request.Entity, Request.Domain);
 }
 
 /**
  * @brief Filters entities that contain every requested component type.
+ * @signature inline TArray<EntityKey> queryComponents(const FQueryComponentsRequest &Request)
+ *
+ * User Story: As ECS system execution, component filtering should compose from
+ * reusable predicates and request-shaped readers.
  */
-inline TArray<EntityKey> queryComponents(const FWorld &World,
-                                         const TArray<ComponentType> &Types,
-                                         const TArray<EntityKey> &Entities) {
-  return Entities.FilterByPredicate([&World, &Types](const EntityKey &Entity) {
-    return !Types.ContainsByPredicate([&World, &Entity](const ComponentType &Type) {
-      return !hasComponent(World, Entity, Type);
-    });
-  });
+inline TArray<EntityKey> queryComponents(const FQueryComponentsRequest &Request) {
+  return filterArray<EntityKey>(
+      Request.Entities,
+      [&Request](const EntityKey &Entity) {
+        return allArray<ComponentType>(
+            Request.Types,
+            [&Request, &Entity](const ComponentType &Type) {
+              return hasComponent(createHasComponentRequest(Request.World,
+                                                            Entity, Type));
+            });
+      });
 }
 
 /**
  * @brief Queries all world entities by required components.
+ * @signature inline TArray<EntityKey> queryEntitiesByComponents(const FQueryEntitiesByComponentsRequest &Request)
+ *
+ * User Story: As selectors or reducers query ECS state, component queries
+ * should pass through one payload and remain view-neutral.
  */
 inline TArray<EntityKey>
-queryEntitiesByComponents(const FWorld &World,
-                          const TArray<ComponentType> &Types) {
-  return queryComponents(World, Types, allEntities(World));
+queryEntitiesByComponents(const FQueryEntitiesByComponentsRequest &Request) {
+  return queryComponents(createQueryComponentsRequest(
+      Request.World, Request.Types, allEntities(Request.World)));
 }
 
 /**
  * @brief Queries all world entities by tag.
+ * @signature inline TArray<EntityKey> queryEntitiesByTag(const FQueryEntitiesByTagRequest &Request)
+ *
+ * User Story: As selectors derive entity lists, tag filtering should reuse the
+ * same functional query primitives as systems.
  */
-inline TArray<EntityKey> queryEntitiesByTag(const FWorld &World,
-                                            const Tag &TagValue) {
-  return allEntities(World).FilterByPredicate(
-      [&World, &TagValue](const EntityKey &Entity) {
-        return hasTag(World, Entity, TagValue);
+inline TArray<EntityKey>
+queryEntitiesByTag(const FQueryEntitiesByTagRequest &Request) {
+  const TArray<EntityKey> Entities = allEntities(Request.World);
+  return filterArray<EntityKey>(
+      Entities,
+      [&Request](const EntityKey &Entity) {
+        return hasTag(createHasTagRequest(Request.World, Entity,
+                                          Request.TagValue));
       });
 }
 
 /**
  * @brief Queries all world entities by domain path.
+ * @signature inline TArray<EntityKey> queryEntitiesByDomain(const FQueryEntitiesByDomainRequest &Request)
+ *
+ * User Story: As feature domains query ECS ownership, domain filtering should
+ * import downward into neutral ECS predicates.
  */
-inline TArray<EntityKey> queryEntitiesByDomain(const FWorld &World,
-                                               const DomainPathKey &Domain) {
-  return allEntities(World).FilterByPredicate(
-      [&World, &Domain](const EntityKey &Entity) {
-        return entityInDomain(World, Entity, Domain);
+inline TArray<EntityKey>
+queryEntitiesByDomain(const FQueryEntitiesByDomainRequest &Request) {
+  const TArray<EntityKey> Entities = allEntities(Request.World);
+  return filterArray<EntityKey>(
+      Entities,
+      [&Request](const EntityKey &Entity) {
+        return entityInDomain(createEntityInDomainRequest(
+            Request.World, Entity, Request.Domain));
       });
 }
 
@@ -1570,31 +2665,49 @@ inline TArray<EntityKey> queryDirtyEntities(const FWorld &World) {
 
 /**
  * @brief Returns child entity keys for a parent.
+ * @signature inline TArray<EntityKey> queryChildren(const FQueryChildrenRequest &Request)
+ *
+ * User Story: As hierarchy selectors, child reads should materialize through
+ * Maybe instead of nullable pointer branches.
  */
-inline TArray<EntityKey> queryChildren(const FWorld &World,
-                                       const EntityKey &Parent) {
-  const FRelationship *Relationship = World.Relationships.Find(Parent);
-  return Relationship ? Relationship->Children : TArray<EntityKey>();
+inline TArray<EntityKey> queryChildren(const FQueryChildrenRequest &Request) {
+  return getRelationshipOrDefault(createGetRelationshipRequest(
+             Request.World.Relationships, Request.Parent))
+      .Children;
 }
 
 /**
  * @brief Gathers available component values for a system input entity.
+ * @signature inline TMap<ComponentType, FComponentValue> gatherUnwrap(const FGatherUnwrapRequest &Request)
+ *
+ * User Story: As ECS system execution, component gathering should fold over
+ * requested types and let Maybe decide whether each component is present.
  */
 inline TMap<ComponentType, FComponentValue>
-gatherUnwrap(const FWorld &World, const EntityKey &Entity,
-             const TArray<ComponentType> &Types) {
-  TMap<ComponentType, FComponentValue> Result;
-  for (const ComponentType &Type : Types) {
-    func::Maybe<FComponentValue> Value = getComponent(World, Entity, Type);
-    if (Value.hasValue) {
-      Result.Add(Type, Value.value);
-    }
-  }
-  return Result;
+gatherUnwrap(const FGatherUnwrapRequest &Request) {
+  return foldArray<ComponentType, TMap<ComponentType, FComponentValue>>(
+      TMap<ComponentType, FComponentValue>(), Request.Types,
+      [&Request](const TMap<ComponentType, FComponentValue> &Acc,
+                 const ComponentType &Type) {
+        return func::match(
+            getComponent(createGetComponentRequest(Request.World,
+                                                   Request.Entity, Type)),
+            [&Acc, &Type](const FComponentValue &Value) {
+              TMap<ComponentType, FComponentValue> Next = Acc;
+              Next.Add(Type, Value);
+              return Next;
+            },
+            [&Acc]() { return Acc; });
+      });
 }
 
-typedef TFunction<FWorld(FWorld, EntityKey, TMap<ComponentType, FComponentValue>)>
-    SystemFn;
+struct FSystemExecutionPayload {
+  FWorld World;
+  EntityKey Entity;
+  TMap<ComponentType, FComponentValue> Components;
+};
+
+typedef TFunction<FWorld(const FSystemExecutionPayload &)> SystemFn;
 
 struct FSystemDescriptor {
   TArray<ComponentType> RequiredComponents;
@@ -1603,191 +2716,429 @@ struct FSystemDescriptor {
   SystemFn System;
 };
 
-/**
- * @brief Creates a system descriptor for pure ECS system execution.
- */
-inline FSystemDescriptor createSystemDescriptor(const TArray<ComponentType> &Components,
-                                                const TArray<Tag> &Tags,
-                                                func::Maybe<DomainPathKey> Domain,
-                                                SystemFn System) {
+struct FRunSystemRequest {
+  FWorld World;
+  TArray<ComponentType> Components;
+  TArray<EntityKey> Entities;
+  SystemFn System;
+};
+
+struct FRunSystemDescriptorRequest {
+  FWorld World;
+  TArray<EntityKey> Entities;
   FSystemDescriptor Descriptor;
-  Descriptor.RequiredComponents = Components;
-  Descriptor.RequiredTags = Tags;
-  Descriptor.Domain = Domain;
-  Descriptor.System = System;
-  return Descriptor;
+};
+
+/**
+ * @brief Builds a system execution payload.
+ * @signature inline FSystemExecutionPayload createSystemExecutionPayload(FWorld World, const EntityKey &Entity, const TMap<ComponentType, FComponentValue> &Components)
+ *
+ * User Story: As ECS systems, I need every system invocation to receive one
+ * explicit payload rather than scalar parameters.
+ */
+inline FSystemExecutionPayload createSystemExecutionPayload(
+    FWorld World, const EntityKey &Entity,
+    const TMap<ComponentType, FComponentValue> &Components) {
+  return {World, Entity, Components};
 }
 
 /**
- * @brief Checks that an entity has all required tags for a system.
+ * @brief Builds a run-system request payload.
+ * @signature inline FRunSystemRequest createRunSystemRequest(FWorld World, const TArray<ComponentType> &Components, const TArray<EntityKey> &Entities, SystemFn System)
+ *
+ * User Story: As ECS execution code, I need system runs to receive one payload
+ * rather than scalar parameters.
  */
-inline bool matchesRequiredTags(const FWorld &World, const EntityKey &Entity,
-                                const TArray<Tag> &Tags) {
-  return !Tags.ContainsByPredicate([&World, &Entity](const Tag &TagValue) {
-    return !hasTag(World, Entity, TagValue);
-  });
+inline FRunSystemRequest
+createRunSystemRequest(FWorld World, const TArray<ComponentType> &Components,
+                       const TArray<EntityKey> &Entities, SystemFn System) {
+  return {World, Components, Entities, System};
 }
 
 /**
- * @brief Checks the optional domain guard for a system descriptor.
+ * @brief Builds a run-system-descriptor request payload.
+ * @signature inline FRunSystemDescriptorRequest createRunSystemDescriptorRequest(FWorld World, const TArray<EntityKey> &Entities, const FSystemDescriptor &Descriptor)
+ *
+ * User Story: As ECS execution code, descriptor-based system runs should
+ * receive one payload and compose matching internally.
  */
-inline bool matchesSystemDomain(const FWorld &World, const EntityKey &Entity,
-                                const func::Maybe<DomainPathKey> &Domain) {
-  return !Domain.hasValue || entityInDomain(World, Entity, Domain.value);
+inline FRunSystemDescriptorRequest createRunSystemDescriptorRequest(
+    FWorld World, const TArray<EntityKey> &Entities,
+    const FSystemDescriptor &Descriptor) {
+  return {World, Entities, Descriptor};
+}
+
+/**
+ * @brief Creates a reusable predicate that checks all required tags.
+ * @signature inline std::function<bool(const EntityKey &)> requireTags(const FWorld &World, const TArray<Tag> &Tags)
+ *
+ * User Story: As ECS system matching, tag requirements should be expressed as
+ * a function factory returning a unary predicate over entities.
+ */
+inline std::function<bool(const EntityKey &)>
+requireTags(const FWorld &World, const TArray<Tag> &Tags) {
+  return [&World, Tags](const EntityKey &Entity) {
+    return allArray<Tag>(
+        Tags,
+        [&World, &Entity](const Tag &TagValue) {
+          return hasTag(createHasTagRequest(World, Entity, TagValue));
+        });
+  };
+}
+
+/**
+ * @brief Creates a reusable predicate that checks an optional domain guard.
+ * @signature inline std::function<bool(const EntityKey &)> requireOptionalDomain(const FWorld &World, const func::Maybe<DomainPathKey> &Domain)
+ *
+ * User Story: As ECS system matching, optional domain guards should be
+ * first-class unary predicates that compose with tag predicates.
+ */
+inline std::function<bool(const EntityKey &)>
+requireOptionalDomain(const FWorld &World,
+                      const func::Maybe<DomainPathKey> &Domain) {
+  return [&World, Domain](const EntityKey &Entity) {
+    return func::match(
+        Domain,
+        [&World, &Entity](const DomainPathKey &DomainValue) {
+          return entityInDomain(
+              createEntityInDomainRequest(World, Entity, DomainValue));
+        },
+        []() { return true; });
+  };
+}
+
+/**
+ * @brief Creates a reusable predicate for descriptor tag/domain requirements.
+ * @signature inline std::function<bool(const EntityKey &)> requireSystemDescriptor(const FWorld &World, const FSystemDescriptor &Descriptor)
+ *
+ * User Story: As ECS system execution, descriptor matching should be a
+ * functional composition of smaller entity predicates.
+ */
+inline std::function<bool(const EntityKey &)>
+requireSystemDescriptor(const FWorld &World,
+                        const FSystemDescriptor &Descriptor) {
+  return func::all_pass<EntityKey>(
+      {requireTags(World, Descriptor.RequiredTags),
+       requireOptionalDomain(World, Descriptor.Domain)});
 }
 
 /**
  * @brief Runs one pure ECS system over matching entities.
+ * @signature inline FWorld runSystem(const FRunSystemRequest &Request)
+ *
+ * User Story: As ECS execution code, running a system should fold over matching
+ * entities and invoke systems with a single execution payload.
  */
-inline FWorld runSystem(FWorld World, const TArray<ComponentType> &Components,
-                        const TArray<EntityKey> &Entities, SystemFn System) {
-  const TArray<EntityKey> Matching = queryComponents(World, Components, Entities);
-  FWorld Next = World;
-  for (const EntityKey &Entity : Matching) {
-    Next = System(Next, Entity, gatherUnwrap(Next, Entity, Components));
-  }
-  return Next;
+inline FWorld runSystem(const FRunSystemRequest &Request) {
+  const TArray<EntityKey> Matching = queryComponents(
+      createQueryComponentsRequest(Request.World, Request.Components,
+                                   Request.Entities));
+  return foldArray<EntityKey, FWorld>(
+      Request.World, Matching,
+      [&Request](const FWorld &World, const EntityKey &Entity) {
+        return Request.System(createSystemExecutionPayload(
+            World, Entity,
+            gatherUnwrap(createGatherUnwrapRequest(World, Entity,
+                                                   Request.Components))));
+      });
 }
 
 /**
  * @brief Runs a system descriptor over entities matching components, tags, and
  * optional domain.
+ * @signature inline FWorld runSystemDescriptor(const FRunSystemDescriptorRequest &Request)
+ *
+ * User Story: As ECS execution code, descriptor execution should compose
+ * component queries, descriptor guards, and system invocation through shared
+ * request helpers.
  */
-inline FWorld runSystemDescriptor(FWorld World,
-                                  const TArray<EntityKey> &Entities,
-                                  const FSystemDescriptor &Descriptor) {
+inline FWorld
+runSystemDescriptor(const FRunSystemDescriptorRequest &Request) {
+  const TArray<EntityKey> ComponentMatches = queryComponents(
+      createQueryComponentsRequest(Request.World,
+                                   Request.Descriptor.RequiredComponents,
+                                   Request.Entities));
+  const std::function<bool(const EntityKey &)> MatchesDescriptor =
+      requireSystemDescriptor(Request.World, Request.Descriptor);
   const TArray<EntityKey> Matching =
-      queryComponents(World, Descriptor.RequiredComponents, Entities)
-          .FilterByPredicate([&World, &Descriptor](const EntityKey &Entity) {
-            return matchesRequiredTags(World, Entity,
-                                       Descriptor.RequiredTags) &&
-                   matchesSystemDomain(World, Entity, Descriptor.Domain);
-          });
-  FWorld Next = World;
-  for (const EntityKey &Entity : Matching) {
-    Next = Descriptor.System(
-        Next, Entity, gatherUnwrap(Next, Entity, Descriptor.RequiredComponents));
-  }
-  return Next;
+      filterArray<EntityKey>(ComponentMatches, MatchesDescriptor);
+  return runSystem(createRunSystemRequest(
+      Request.World, Request.Descriptor.RequiredComponents, Matching,
+      Request.Descriptor.System));
+}
+
+struct FValidateEntityDomainRequest {
+  const FWorld &World;
+  EntityKey Entity;
+  DomainPathKey Domain;
+};
+
+struct FValidateSystemSpecRequest {
+  const FDomainRegistry &Registry;
+  FSystemSpec Spec;
+};
+
+/**
+ * @brief Creates a reusable predicate that checks for a key in a map.
+ * @signature template <typename Key, typename Value> inline std::function<bool(const Key &)> mapHasKey(const TMap<Key, Value> &Values)
+ *
+ * User Story: As registry validation, repeated existence checks should be one
+ * map predicate factory rather than per-domain request/factory pairs.
+ */
+template <typename Key, typename Value>
+inline std::function<bool(const Key &)>
+mapHasKey(const TMap<Key, Value> &Values) {
+  return [&Values](const Key &KeyValue) { return Values.Contains(KeyValue); };
 }
 
 /**
- * @brief Checks whether the registry contains a domain.
+ * @brief Creates a reusable Either validator for required map keys.
+ * @signature template <typename Key, typename Value> inline std::function<func::Either<FString, bool>(const Key &)> requireMapKey(const TMap<Key, Value> &Values, std::function<FString(const Key &)> ErrorMessage)
+ *
+ * User Story: As registry validation, missing-key failures should be a generic
+ * validation function that composes with Either bind.
  */
-inline bool domainExists(const FDomainRegistry &Registry,
-                         const DomainPathKey &Domain) {
-  return Registry.Nodes.Contains(Domain);
+template <typename Key, typename Value>
+inline std::function<func::Either<FString, bool>(const Key &)> requireMapKey(
+    const TMap<Key, Value> &Values,
+    std::function<FString(const Key &)> ErrorMessage) {
+  const std::function<bool(const Key &)> Exists = mapHasKey<Key, Value>(Values);
+  return [Exists, ErrorMessage](const Key &KeyValue) {
+    return Exists(KeyValue) ? func::make_right<FString, bool>(true)
+                            : func::make_left<FString, bool>(
+                                  ErrorMessage(KeyValue));
+  };
 }
 
 /**
- * @brief Checks whether the registry contains a component schema.
+ * @brief Validates every item with an Either-returning unary validator.
+ * @signature template <typename Item> inline func::Either<FString, bool> validateEach(const TArray<Item> &Items, std::function<func::Either<FString, bool>(const Item &)> Validate, int32 Index = 0)
+ *
+ * User Story: As ECS validation, list validation should reuse one recursive
+ * Either pipeline rather than open-coded loops.
  */
-inline bool componentSchemaExists(const FDomainRegistry &Registry,
-                                  const ComponentType &Type) {
-  return Registry.ComponentSchemas.Contains(Type);
-}
-
-/**
- * @brief Checks whether the registry contains a resource spec.
- */
-inline bool resourceSpecExists(const FDomainRegistry &Registry,
-                               const ResourceName &Name) {
-  return Registry.ResourceSpecs.Contains(Name);
-}
-
-/**
- * @brief Checks whether the registry contains an event spec.
- */
-inline bool eventSpecExists(const FDomainRegistry &Registry,
-                            const EventType &Type) {
-  return Registry.EventSpecs.Contains(Type);
-}
-
-/**
- * @brief Validates that a domain exists and returns Either error data.
- */
-inline func::Either<FString, bool>
-validateDomainExists(const FDomainRegistry &Registry,
-                     const DomainPathKey &Domain) {
-  return domainExists(Registry, Domain)
+template <typename Item>
+inline func::Either<FString, bool> validateEach(
+    const TArray<Item> &Items,
+    std::function<func::Either<FString, bool>(const Item &)> Validate,
+    int32 Index = 0) {
+  return Index >= Items.Num()
              ? func::make_right<FString, bool>(true)
-             : func::make_left<FString, bool>(
-                   FString::Printf(TEXT("Missing ECS domain: %s"), *Domain));
+             : func::ebind(Validate(Items[Index]),
+                           [&Items, Validate, Index](const bool &) {
+                             return validateEach<Item>(Items, Validate,
+                                                       Index + 1);
+                           });
 }
 
 /**
- * @brief Validates that a component schema exists and returns Either error data.
+ * @brief Creates a reusable domain-exists validator for a registry.
+ * @signature inline std::function<func::Either<FString, bool>(const DomainPathKey &)> requireDomain(const FDomainRegistry &Registry)
+ *
+ * User Story: As registry validation, domain validation should be a reusable
+ * function factory over a registry.
  */
-inline func::Either<FString, bool>
-validateComponentSchemaExists(const FDomainRegistry &Registry,
-                              const ComponentType &Type) {
-  return componentSchemaExists(Registry, Type)
-             ? func::make_right<FString, bool>(true)
-             : func::make_left<FString, bool>(FString::Printf(
-                   TEXT("Missing ECS component schema: %s"), *Type));
+inline std::function<func::Either<FString, bool>(const DomainPathKey &)>
+requireDomain(const FDomainRegistry &Registry) {
+  return requireMapKey<DomainPathKey, FDomainNode>(
+      Registry.Nodes, [](const DomainPathKey &Domain) {
+        return FString::Printf(TEXT("Missing ECS domain: %s"), *Domain);
+      });
+}
+
+/**
+ * @brief Creates a reusable component-schema validator for a registry.
+ * @signature inline std::function<func::Either<FString, bool>(const ComponentType &)> requireComponentSchema(const FDomainRegistry &Registry)
+ *
+ * User Story: As registry validation, component schema validation should be a
+ * reusable function factory over a registry.
+ */
+inline std::function<func::Either<FString, bool>(const ComponentType &)>
+requireComponentSchema(const FDomainRegistry &Registry) {
+  return requireMapKey<ComponentType, FComponentSchema>(
+      Registry.ComponentSchemas, [](const ComponentType &Type) {
+        return FString::Printf(TEXT("Missing ECS component schema: %s"), *Type);
+      });
+}
+
+/**
+ * @brief Builds an entity-domain validation request payload.
+ * @signature inline FValidateEntityDomainRequest createValidateEntityDomainRequest(const FWorld &World, const EntityKey &Entity, const DomainPathKey &Domain)
+ *
+ * User Story: As ECS validation, entity-domain validation should still use one
+ * payload at the multi-input domain boundary.
+ */
+inline FValidateEntityDomainRequest
+createValidateEntityDomainRequest(const FWorld &World, const EntityKey &Entity,
+                                  const DomainPathKey &Domain) {
+  return {World, Entity, Domain};
+}
+
+/**
+ * @brief Builds a system-spec validation request payload.
+ * @signature inline FValidateSystemSpecRequest createValidateSystemSpecRequest(const FDomainRegistry &Registry, const FSystemSpec &Spec)
+ *
+ * User Story: As registry validation, system spec validation remains one
+ * payload at the public multi-input boundary.
+ */
+inline FValidateSystemSpecRequest
+createValidateSystemSpecRequest(const FDomainRegistry &Registry,
+                                const FSystemSpec &Spec) {
+  return {Registry, Spec};
 }
 
 /**
  * @brief Validates entity membership in a domain.
+ * @signature inline func::Either<FString, bool> validateEntityDomain(const FValidateEntityDomainRequest &Request)
+ *
+ * User Story: As ECS validation, domain membership failures should return
+ * Either errors and reuse entity-domain predicates.
  */
 inline func::Either<FString, bool>
-validateEntityDomain(const FWorld &World, const EntityKey &Entity,
-                     const DomainPathKey &Domain) {
-  return entityInDomain(World, Entity, Domain)
+validateEntityDomain(const FValidateEntityDomainRequest &Request) {
+  return entityInDomain(createEntityInDomainRequest(
+             Request.World, Request.Entity, Request.Domain))
              ? func::make_right<FString, bool>(true)
              : func::make_left<FString, bool>(FString::Printf(
-                   TEXT("Entity %s is not in ECS domain %s"), *Entity,
-                   *Domain));
+                   TEXT("Entity %s is not in ECS domain %s"),
+                   *Request.Entity, *Request.Domain));
 }
 
 /**
  * @brief Validates a system spec against registered domain/component contracts.
+ * @signature inline func::Either<FString, bool> validateSystemSpec(const FValidateSystemSpecRequest &Request)
+ *
+ * User Story: As registry validation, system spec checks should compose domain
+ * and component validation through functional_core Either semantics.
  */
 inline func::Either<FString, bool>
-validateSystemSpec(const FDomainRegistry &Registry, const FSystemSpec &Spec) {
-  func::Either<FString, bool> DomainResult =
-      validateDomainExists(Registry, Spec.Domain);
-  if (DomainResult.isLeft) {
-    return DomainResult;
-  }
-  for (const ComponentType &Type : Spec.RequiredComponents) {
-    func::Either<FString, bool> ComponentResult =
-        validateComponentSchemaExists(Registry, Type);
-    if (ComponentResult.isLeft) {
-      return ComponentResult;
-    }
-  }
-  return func::make_right<FString, bool>(true);
+validateSystemSpec(const FValidateSystemSpecRequest &Request) {
+  return func::ebind(
+      requireDomain(Request.Registry)(Request.Spec.Domain),
+      [&Request](const bool &) {
+        return validateEach<ComponentType>(
+            Request.Spec.RequiredComponents,
+            requireComponentSchema(Request.Registry));
+      });
+}
+
+typedef func::ArgDispatcher<int32, FComponentValue, FString>
+    FComponentValueFormatter;
+
+/**
+ * @brief Converts a component value kind into a dispatcher key.
+ * @signature inline int32 componentValueKindKey(EComponentValueKind Kind)
+ *
+ * User Story: As ECS inspection code, enum formatting should use a stable
+ * dispatcher key that composes with functional_core dispatch helpers.
+ */
+inline int32 componentValueKindKey(EComponentValueKind Kind) {
+  return static_cast<int32>(Kind);
+}
+
+/**
+ * @brief Creates a reusable formatter registration function.
+ * @signature inline std::function<FComponentValueFormatter(FComponentValueFormatter)> registerComponentValueFormatter(EComponentValueKind Kind, std::function<FString(const FComponentValue &)> Format)
+ *
+ * User Story: As ECS inspection code, component formatter registration should
+ * be a reusable function factory for pipeline composition.
+ */
+inline std::function<FComponentValueFormatter(FComponentValueFormatter)>
+registerComponentValueFormatter(
+    EComponentValueKind Kind,
+    std::function<FString(const FComponentValue &)> Format) {
+  return [Kind, Format](FComponentValueFormatter Dispatcher) {
+    return func::arg_dispatcher_register<int32, FComponentValue, FString>(
+        Dispatcher, componentValueKindKey(Kind), Format);
+  };
+}
+
+/**
+ * @brief Builds the component value formatter through functional composition.
+ * @signature inline FComponentValueFormatter createComponentValueFormatter()
+ *
+ * User Story: As ECS inspection code, component formatting should be a
+ * dispatcher assembled from reusable registrations instead of a branch ladder.
+ */
+inline FComponentValueFormatter createComponentValueFormatter() {
+  return (func::pipe(
+              func::create_arg_dispatcher<int32, FComponentValue, FString>())
+          | registerComponentValueFormatter(
+                EComponentValueKind::None,
+                [](const FComponentValue &) { return FString(TEXT("None")); })
+          | registerComponentValueFormatter(
+                EComponentValueKind::Bool,
+                [](const FComponentValue &Value) {
+                  return Value.BoolValue ? FString(TEXT("true"))
+                                         : FString(TEXT("false"));
+                })
+          | registerComponentValueFormatter(
+                EComponentValueKind::Int,
+                [](const FComponentValue &Value) {
+                  return FString::Printf(TEXT("%lld"), Value.IntValue);
+                })
+          | registerComponentValueFormatter(
+                EComponentValueKind::Float,
+                [](const FComponentValue &Value) {
+                  return FString::SanitizeFloat(Value.FloatValue);
+                })
+          | registerComponentValueFormatter(
+                EComponentValueKind::Text,
+                [](const FComponentValue &Value) { return Value.TextValue; })
+          | registerComponentValueFormatter(
+                EComponentValueKind::Vec2,
+                [](const FComponentValue &Value) {
+                  return Value.Vec2Value.ToString();
+                })
+          | registerComponentValueFormatter(
+                EComponentValueKind::Vec3,
+                [](const FComponentValue &Value) {
+                  return Value.Vec3Value.ToString();
+                })
+          | registerComponentValueFormatter(
+                EComponentValueKind::Map,
+                [](const FComponentValue &Value) {
+                  return FString::Printf(TEXT("Map(len=%d)"),
+                                         Value.MapValue.Num());
+                })
+          | registerComponentValueFormatter(
+                EComponentValueKind::List,
+                [](const FComponentValue &Value) {
+                  return FString::Printf(TEXT("List(len=%d)"),
+                                         Value.ListValue.Num());
+                }))
+      .val;
+}
+
+/**
+ * @brief Returns the lazily initialized component value formatter.
+ * @signature inline const FComponentValueFormatter &componentValueFormatter()
+ *
+ * User Story: As ECS inspection code, formatter registration should be built
+ * once and reused by every inspection call.
+ */
+inline const FComponentValueFormatter &componentValueFormatter() {
+  static const func::Lazy<FComponentValueFormatter> Formatter =
+      func::lazy([]() { return createComponentValueFormatter(); });
+  return func::eval(Formatter);
 }
 
 /**
  * @brief Formats a component value for ECS inspection output.
+ * @signature inline FString componentValueToString(const FComponentValue &Value)
+ *
+ * User Story: As ECS inspection code, component formatting should dispatch
+ * through a reusable functional table.
  */
 inline FString componentValueToString(const FComponentValue &Value) {
-  return Value.Kind == EComponentValueKind::Bool
-             ? (Value.BoolValue ? TEXT("true") : TEXT("false"))
-             : Value.Kind == EComponentValueKind::Int
-                   ? FString::Printf(TEXT("%lld"), Value.IntValue)
-                   : Value.Kind == EComponentValueKind::Float
-                         ? FString::SanitizeFloat(Value.FloatValue)
-                         : Value.Kind == EComponentValueKind::Text
-                               ? Value.TextValue
-                               : Value.Kind == EComponentValueKind::Vec2
-                                     ? Value.Vec2Value.ToString()
-                                     : Value.Kind == EComponentValueKind::Vec3
-                                           ? Value.Vec3Value.ToString()
-                                           : Value.Kind ==
-                                                     EComponentValueKind::Map
-                                                 ? FString::Printf(
-                                                       TEXT("Map(len=%d)"),
-                                                       Value.MapValue.Num())
-                                                 : Value.Kind ==
-                                                           EComponentValueKind::
-                                                               List
-                                                       ? FString::Printf(
-                                                             TEXT("List(len=%d)"),
-                                                             Value.ListValue.Num())
-                                                       : TEXT("None");
+  const FComponentValueFormatter &Formatter = componentValueFormatter();
+  const int32 Key = componentValueKindKey(Value.Kind);
+  const func::Maybe<FString> Formatted =
+      func::arg_dispatcher_dispatch_maybe<int32, FComponentValue, FString>(
+      {&Formatter, &Key, &Value});
+  checkf(Formatted.hasValue, TEXT("Unhandled ECS component value kind: %d"),
+         Key);
+  return Formatted.value;
 }
 
 struct FWorldInspection {
@@ -1854,6 +3205,16 @@ struct FEntityInspection {
   TMap<ComponentType, FComponentValue> Components;
 };
 
+typedef std::function<FEntityInspection(const FEntityInspection &)>
+    FEntityInspectionTransform;
+typedef std::function<FEntityInspectionTransform(const ComponentType &)>
+    FComponentInspectionTransformFactory;
+typedef std::function<FComponentInspectionTransformFactory(const EntityKey &)>
+    FEntityComponentInspectionFactory;
+typedef std::function<TArray<Tag>(const EntityKey &)> FTagInspectionSelector;
+typedef std::function<TArray<DomainPathKey>(const EntityKey &)>
+    FDomainInspectionSelector;
+
 inline bool operator==(const FEntityInspection &Left,
                        const FEntityInspection &Right) {
   return Left.Entity == Right.Entity && Left.Tags == Right.Tags &&
@@ -1867,22 +3228,95 @@ inline bool operator!=(const FEntityInspection &Left,
 }
 
 /**
- * @brief Inspects one entity's tags, domains, and component values.
+ * @brief Creates an empty inspection record for one entity.
+ * @signature inline FEntityInspection createEntityInspection(const EntityKey &Entity)
+ *
+ * User Story: As inspection code, I need the display record initialized in one
+ * reusable pure constructor before selectors add derived values.
  */
-inline FEntityInspection inspect(const FWorld &World, const EntityKey &Entity) {
+inline FEntityInspection createEntityInspection(const EntityKey &Entity) {
   FEntityInspection Inspection;
   Inspection.Entity = Entity;
-  const TArray<Tag> *Tags = World.Tags.Find(Entity);
-  Inspection.Tags = Tags ? *Tags : TArray<Tag>();
-  const TArray<DomainPathKey> *Domains = World.EntityDomains.Find(Entity);
-  Inspection.Domains = Domains ? *Domains : TArray<DomainPathKey>();
-  for (const TPair<ComponentType, ComponentTable> &Entry : World.Components) {
-    const FComponentValue *Value = Entry.Value.Find(Entity);
-    if (Value) {
-      Inspection.Components.Add(Entry.Key, *Value);
-    }
-  }
   return Inspection;
+}
+
+/**
+ * @brief Builds a selector for entity tags used by inspection.
+ * @signature inline FTagInspectionSelector inspectTagsInWorld(const FWorld &World)
+ *
+ * User Story: As display inspection code, tag lookup should be a unary selector
+ * over entity keys instead of nullable pointer logic.
+ */
+inline FTagInspectionSelector inspectTagsInWorld(const FWorld &World) {
+  return [&World](const EntityKey &Entity) {
+    return func::match(
+        findMapValue<EntityKey, TArray<Tag>>(World.Tags, Entity),
+        [](const TArray<Tag> &Tags) { return Tags; },
+        []() { return TArray<Tag>(); });
+  };
+}
+
+/**
+ * @brief Builds a selector for entity domains used by inspection.
+ * @signature inline FDomainInspectionSelector inspectDomainsInWorld(const FWorld &World)
+ *
+ * User Story: As display inspection code, domain lookup should be a unary
+ * selector over entity keys instead of nullable pointer logic.
+ */
+inline FDomainInspectionSelector inspectDomainsInWorld(const FWorld &World) {
+  return [&World](const EntityKey &Entity) {
+    return func::match(
+        findMapValue<EntityKey, TArray<DomainPathKey>>(World.EntityDomains,
+                                                      Entity),
+        [](const TArray<DomainPathKey> &Domains) { return Domains; },
+        []() { return TArray<DomainPathKey>(); });
+  };
+}
+
+/**
+ * @brief Builds curried component inspection transforms for one world.
+ * @signature inline FEntityComponentInspectionFactory inspectComponentsInWorld(const FWorld &World)
+ *
+ * User Story: As ECS inspection code, component display data should fold
+ * through curried transforms instead of component table loops.
+ */
+inline FEntityComponentInspectionFactory
+inspectComponentsInWorld(const FWorld &World) {
+  return [&World](const EntityKey &Entity) {
+    return [&World, Entity](const ComponentType &Type) {
+      return [&World, Entity, Type](const FEntityInspection &Inspection) {
+        return func::match(
+            getComponent(createGetComponentRequest(World, Entity, Type)),
+            [&Type, &Inspection](const FComponentValue &Value) {
+              FEntityInspection Next = Inspection;
+              Next.Components.Add(Type, Value);
+              return Next;
+            },
+            [&Inspection]() { return Inspection; });
+      };
+    };
+  };
+}
+
+/**
+ * @brief Inspects one entity's tags, domains, and component values.
+ * @signature inline FEntityInspection inspect(const FWorld &World, const EntityKey &Entity)
+ *
+ * User Story: As display code, entity inspection should derive read-only
+ * projection data from selectors and ECS lookups without owning logic.
+ */
+inline FEntityInspection inspect(const FWorld &World, const EntityKey &Entity) {
+  FEntityInspection Inspection = createEntityInspection(Entity);
+  Inspection.Tags = inspectTagsInWorld(World)(Entity);
+  Inspection.Domains = inspectDomainsInWorld(World)(Entity);
+  const FComponentInspectionTransformFactory AddComponent =
+      inspectComponentsInWorld(World)(Entity);
+  return foldArray<ComponentType, FEntityInspection>(
+      Inspection, mapKeys<ComponentType, ComponentTable>(World.Components),
+      [AddComponent](const FEntityInspection &Acc,
+                     const ComponentType &Type) {
+        return AddComponent(Type)(Acc);
+      });
 }
 
 } // namespace ecs

@@ -1,0 +1,23 @@
+#pragma once
+
+#include "Features/Systems/Projection/SystemsProjectionTypes.h"
+
+namespace ForbocAI {
+namespace Demo {
+namespace Level {
+namespace SystemsProjectionInteractionAdapters {
+
+/**
+ * @brief Projects interaction slice state into ECS domain and component state.
+ *
+ * @signature ecs::FWorld ProjectInteraction(const FProjectInteractionEcsPayload &Payload)
+ *
+ * User Story: As a runtime reducer, I need selected interaction state
+ * normalized into ECS without adding candidate logic to views.
+ */
+ecs::FWorld ProjectInteraction(const FProjectInteractionEcsPayload &Payload);
+
+} // namespace SystemsProjectionInteractionAdapters
+} // namespace Level
+} // namespace Demo
+} // namespace ForbocAI

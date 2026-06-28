@@ -70,46 +70,49 @@ struct FEcsResourceProjectionRequest {
   ecs::FComponentValue Value;
 };
 
+struct FEcsDomainProjectionStep {
+  ecs::EntityKey Entity;
+  TArray<FString> Segments;
+};
+
+struct FEcsComponentProjectionStep {
+  ecs::EntityKey Entity;
+  ecs::ComponentType Type;
+  ecs::FComponentValue Value;
+};
+
+struct FEcsDomainStepsProjectionRequest {
+  ecs::FWorld World;
+  TArray<FEcsDomainProjectionStep> Steps;
+  int32 Index = 0;
+};
+
+struct FEcsComponentStepsProjectionRequest {
+  ecs::FWorld World;
+  TArray<FEcsComponentProjectionStep> Steps;
+  int32 Index = 0;
+};
+
 ecs::DomainPathKey DomainKey(const TArray<FString> &Segments);
 
 ecs::FWorld WithDomain(const FEcsDomainProjectionRequest &Request);
-ecs::FWorld WithDomain(ecs::FWorld World, const ecs::EntityKey &Entity,
-                       const TArray<FString> &Segments);
 ecs::FWorld WithComponent(const FEcsComponentProjectionRequest &Request);
-ecs::FWorld WithComponent(ecs::FWorld World, const ecs::EntityKey &Entity,
-                          const ecs::ComponentType &Type,
-                          const ecs::FComponentValue &Value);
 ecs::FWorld WithText(const FEcsTextProjectionRequest &Request);
-ecs::FWorld WithText(ecs::FWorld World, const ecs::EntityKey &Entity,
-                     const ecs::ComponentType &Type, const FString &Value);
 ecs::FWorld WithBool(const FEcsBoolProjectionRequest &Request);
-ecs::FWorld WithBool(ecs::FWorld World, const ecs::EntityKey &Entity,
-                     const ecs::ComponentType &Type, bool Value);
 ecs::FWorld WithInt(const FEcsIntProjectionRequest &Request);
-ecs::FWorld WithInt(ecs::FWorld World, const ecs::EntityKey &Entity,
-                    const ecs::ComponentType &Type, int64 Value);
 ecs::FWorld WithFloat(const FEcsFloatProjectionRequest &Request);
-ecs::FWorld WithFloat(ecs::FWorld World, const ecs::EntityKey &Entity,
-                      const ecs::ComponentType &Type, float Value);
 ecs::FWorld WithVec3(const FEcsVec3ProjectionRequest &Request);
-ecs::FWorld WithVec3(ecs::FWorld World, const ecs::EntityKey &Entity,
-                     const ecs::ComponentType &Type, const FVector &Value);
 ecs::FWorld WithList(const FEcsListProjectionRequest &Request);
-ecs::FWorld WithList(ecs::FWorld World, const ecs::EntityKey &Entity,
-                     const ecs::ComponentType &Type,
-                     const TArray<ecs::FComponentValue> &Value);
 ecs::FWorld WithResource(const FEcsResourceProjectionRequest &Request);
+ecs::FWorld WithDomainSteps(const FEcsDomainStepsProjectionRequest &Request);
+ecs::FWorld
+WithComponentSteps(const FEcsComponentStepsProjectionRequest &Request);
 
 ecs::FComponentValue LocalPointValue(const FLevelLocalPoint &Point);
 ecs::FComponentValue RotationValue(const FRotator &Rotation);
 TArray<ecs::FComponentValue>
-LocalPointList(const TArray<FLevelLocalPoint> &Points, int32 Index = 0,
-               TArray<ecs::FComponentValue> Acc =
-                   TArray<ecs::FComponentValue>());
-TArray<ecs::FComponentValue>
-StringList(const TArray<FString> &Values, int32 Index = 0,
-           TArray<ecs::FComponentValue> Acc =
-               TArray<ecs::FComponentValue>());
+LocalPointList(const TArray<FLevelLocalPoint> &Points);
+TArray<ecs::FComponentValue> StringList(const TArray<FString> &Values);
 
 template <typename T>
 struct TAppendValueRequest {
@@ -118,40 +121,64 @@ struct TAppendValueRequest {
 };
 
 template <typename T>
-TAppendValueRequest<T> CreateAppendValueRequest(TArray<T> Values,
-                                                const T &Value) {
-  return {Values, Value};
-}
-
-template <typename T>
 TArray<T> AppendValue(const TAppendValueRequest<T> &Request) {
   TArray<T> Values = Request.Values;
   Values.Add(Request.Value);
   return Values;
 }
 
-template <typename Item, typename Projector>
-struct TProjectManyRequest {
-  ecs::FWorld World;
-  const TArray<Item> *Items = nullptr;
-  Projector Project;
-  int32 Index = 0;
+template <typename Item> struct TMapComponentValuesRequest {
+  const TArray<Item> &Items;
+  std::function<ecs::FComponentValue(const Item &)> Project;
+  int32 Index;
+  TArray<ecs::FComponentValue> Acc;
 };
 
-template <typename Item, typename Projector>
-TProjectManyRequest<Item, Projector>
-CreateProjectManyRequest(ecs::FWorld World, const TArray<Item> &Items,
-                         Projector Project, int32 Index = 0) {
-  return {World, &Items, Project, Index};
+/**
+ * @brief Maps one array into ECS component values through a recursive unary payload.
+ * @signature template <typename Item> TArray<ecs::FComponentValue> MapComponentValues(const TMapComponentValuesRequest<Item> &Request)
+ *
+ * User Story: As projection code, I need one neutral mapper for strategic
+ * goals, interaction candidates, string lists, and local-point lists.
+ */
+template <typename Item>
+TArray<ecs::FComponentValue>
+MapComponentValues(const TMapComponentValuesRequest<Item> &Request) {
+  return Request.Index >= Request.Items.Num()
+             ? Request.Acc
+             : MapComponentValues(TMapComponentValuesRequest<Item>{
+                   Request.Items, Request.Project, Request.Index + 1,
+                   AppendValue(TAppendValueRequest<ecs::FComponentValue>{
+                       Request.Acc,
+                       Request.Project(Request.Items[Request.Index])})});
 }
 
-template <typename Item, typename Projector>
-ecs::FWorld ProjectMany(const TProjectManyRequest<Item, Projector> &Request) {
-  return !Request.Items || Request.Index >= Request.Items->Num()
+template <typename Item> struct TEcsRowProjectionPayload {
+  ecs::FWorld World;
+  const Item &ItemValue;
+};
+
+template <typename Item> struct TProjectRowsRequest {
+  ecs::FWorld World;
+  const TArray<Item> &Items;
+  std::function<ecs::FWorld(const TEcsRowProjectionPayload<Item> &)> Project;
+  int32 Index;
+};
+
+/**
+ * @brief Recursively projects selected rows into an ECS world.
+ * @signature template <typename Item> ecs::FWorld ProjectRows(const TProjectRowsRequest<Item> &Request)
+ *
+ * User Story: As systems projection code, I need RTK selector results to
+ * become ECS components while preserving unary payload semantics.
+ */
+template <typename Item>
+ecs::FWorld ProjectRows(const TProjectRowsRequest<Item> &Request) {
+  return Request.Index >= Request.Items.Num()
              ? Request.World
-             : ProjectMany(TProjectManyRequest<Item, Projector>{
-                   Request.Project(Request.World,
-                                   (*Request.Items)[Request.Index]),
+             : ProjectRows(TProjectRowsRequest<Item>{
+                   Request.Project(TEcsRowProjectionPayload<Item>{
+                       Request.World, Request.Items[Request.Index]}),
                    Request.Items, Request.Project, Request.Index + 1});
 }
 

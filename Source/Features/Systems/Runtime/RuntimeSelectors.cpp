@@ -64,6 +64,14 @@ const FUIState &SelectUIState(const FRuntimeState &State) {
   return State.UI;
 }
 
+const FTerrainState &SelectTerrainState(const FRuntimeState &State) {
+  return State.Terrain;
+}
+
+const FSpawnState &SelectSpawnState(const FRuntimeState &State) {
+  return State.Spawn;
+}
+
 bool SelectTerrainLoaded(const FRuntimeState &State) {
   return TerrainSelectors::SelectLoaded(State.Terrain);
 }
@@ -257,13 +265,15 @@ const ecs::FWorld &SelectEcsWorld(const FRuntimeState &State) {
 func::Maybe<ecs::FComponentValue>
 SelectEcsComponent(const FRuntimeState &State, const ecs::EntityKey &Entity,
                    const ecs::ComponentType &Type) {
-  return ecs::getComponent(SelectEcsWorld(State), Entity, Type);
+  return ecs::getComponent(
+      ecs::createGetComponentRequest(SelectEcsWorld(State), Entity, Type));
 }
 
 bool SelectEcsEntityInDomain(const FRuntimeState &State,
                              const ecs::EntityKey &Entity,
                              const ecs::DomainPathKey &Domain) {
-  return ecs::entityInDomain(SelectEcsWorld(State), Entity, Domain);
+  return ecs::entityInDomain(ecs::createEntityInDomainRequest(
+      SelectEcsWorld(State), Entity, Domain));
 }
 
 ecs::FEntityInspection

@@ -38,7 +38,8 @@ void ReduceAppendSection(TArray<FLevelRuntimeSectionSpawn> &Sections,
 FRuntimeState ReduceRuntimeEcsProjected(const FRuntimeState &State) {
   return (func::pipe(State) |
           [](FRuntimeState Next) -> FRuntimeState {
-            Next.Ecs.World = SystemsAdapters::ProjectRuntimeEcsWorld(Next);
+            Next.Ecs.World =
+                SystemsAdapters::ProjectRuntimeEcsWorld({Next});
             return Next;
           })
       .val;
