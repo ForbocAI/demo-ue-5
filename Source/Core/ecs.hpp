@@ -410,6 +410,63 @@ struct FDomainRegistry {
   TMap<EventType, FEventSpec> EventSpecs;
 };
 
+struct FCreateDomainNodeRequest {
+  FDomainPath Path;
+  EDomainKind Kind = EDomainKind::Unknown;
+};
+
+struct FPushUniqueStringRequest {
+  TArray<FString> Values;
+  FString Value;
+};
+
+struct FRegisterDomainRequest {
+  FDomainRegistry Registry;
+  FDomainNode Node;
+};
+
+struct FRegisterDomainPathRequest {
+  FDomainRegistry Registry;
+  TArray<FString> Segments;
+  EDomainKind Kind = EDomainKind::Unknown;
+};
+
+struct FDomainPathRegistration {
+  TArray<FString> Segments;
+  EDomainKind Kind = EDomainKind::Unknown;
+};
+
+struct FRegisterDomainPathsRequest {
+  FDomainRegistry Registry;
+  TArray<FDomainPathRegistration> Registrations;
+  int32 Index = 0;
+};
+
+struct FRegisterComponentSchemaRequest {
+  FDomainRegistry Registry;
+  FComponentSchema Schema;
+};
+
+struct FRegisterCapabilitySpecRequest {
+  FDomainRegistry Registry;
+  FCapabilitySpec Spec;
+};
+
+struct FRegisterSystemSpecRequest {
+  FDomainRegistry Registry;
+  FSystemSpec Spec;
+};
+
+struct FRegisterResourceSpecRequest {
+  FDomainRegistry Registry;
+  FResourceSpec Spec;
+};
+
+struct FRegisterEventSpecRequest {
+  FDomainRegistry Registry;
+  FEventSpec Spec;
+};
+
 /**
  * @brief Creates a neutral ECS domain path from ordered path segments.
  * @signature inline FDomainPath createDomainPath(const TArray<FString> &Segments)
@@ -441,11 +498,15 @@ inline DomainPathKey domainPathKey(const FDomainPath &Path) {
 
 /**
  * @brief Creates a registry node describing a domain/subdomain boundary.
+ * @signature inline FDomainNode createDomainNode(const FCreateDomainNodeRequest &Request)
+ *
+ * User Story: As a feature maintainer, I need domain-node construction to use
+ * one request payload so ECS taxonomy helpers stay unary and composable.
  */
-inline FDomainNode createDomainNode(const FDomainPath &Path, EDomainKind Kind) {
+inline FDomainNode createDomainNode(const FCreateDomainNodeRequest &Request) {
   FDomainNode Node;
-  Node.Path = Path;
-  Node.Kind = Kind;
+  Node.Path = Request.Path;
+  Node.Kind = Request.Kind;
   return Node;
 }
 
@@ -643,123 +704,218 @@ inline bool operator!=(const FDomainRegistry &Left,
 
 /**
  * @brief Creates an empty ECS domain registry.
+ * @signature inline FDomainRegistry createDomainRegistry()
+ *
+ * User Story: As an ECS feature author, I need a fresh registry value before
+ * composing domain registrations into a world.
  */
 inline FDomainRegistry createDomainRegistry() { return FDomainRegistry(); }
 
-inline void pushUnique(TArray<FString> &Values, const FString &Value) {
-  Values.AddUnique(Value);
+/**
+ * @brief Returns an array with one value present at most once.
+ * @signature inline TArray<FString> pushUniqueString(const FPushUniqueStringRequest &Request)
+ *
+ * User Story: As a registry maintainer, I need set-like index updates to stay
+ * value-returning so ECS helpers remain composable with functional-core
+ * pipelines.
+ */
+inline TArray<FString>
+pushUniqueString(const FPushUniqueStringRequest &Request) {
+  TArray<FString> Values = Request.Values;
+  Values.AddUnique(Request.Value);
+  return Values;
 }
 
 /**
  * @brief Registers one domain node and wires it to its parent when present.
+ * @signature inline FDomainRegistry registerDomain(const FRegisterDomainRequest &Request)
  *
  * Architecture: This keeps neutral domain topology below feature slices so
  * feature code can import downward without borrowing sibling-domain helpers.
  */
-inline FDomainRegistry registerDomain(FDomainRegistry Registry,
-                                      const FDomainNode &Node) {
+inline FDomainRegistry registerDomain(const FRegisterDomainRequest &Request) {
+  FDomainRegistry Registry = Request.Registry;
+  const FDomainNode Node = Request.Node;
   const DomainPathKey Key = domainPathKey(Node.Path);
   Registry.Nodes.Add(Key, Node);
-  if (Node.Path.Segments.Num() > 1) {
-    FDomainPath ParentPath = Node.Path;
-    ParentPath.Segments.RemoveAt(ParentPath.Segments.Num() - 1);
-    const DomainPathKey ParentKey = domainPathKey(ParentPath);
-    FDomainNode *Parent = Registry.Nodes.Find(ParentKey);
-    if (Parent) {
-      pushUnique(Parent->Children, Key);
-    }
-  }
-  return Registry;
+  return Node.Path.Segments.Num() > 1
+             ? ([Registry, Node, Key]() mutable {
+                 FDomainPath ParentPath = Node.Path;
+                 ParentPath.Segments.RemoveAt(ParentPath.Segments.Num() - 1);
+                 const DomainPathKey ParentKey = domainPathKey(ParentPath);
+                 FDomainNode *Parent = Registry.Nodes.Find(ParentKey);
+                 Parent != nullptr
+                     ? (Parent->Children =
+                            pushUniqueString({Parent->Children, Key}),
+                        void())
+                     : void();
+                 return Registry;
+               })()
+             : Registry;
 }
 
 /**
  * @brief Unary helper for registering a domain from path segments and kind.
+ * @signature inline FDomainRegistry registerDomainPath(const FRegisterDomainPathRequest &Request)
+ *
+ * User Story: As a feature author, I can register ECS subdomains through one
+ * payload, matching the unary functional-core cookbook pattern.
  */
-inline FDomainRegistry registerDomainPath(FDomainRegistry Registry,
-                                          const TArray<FString> &Segments,
-                                          EDomainKind Kind) {
-  return registerDomain(Registry, createDomainNode(createDomainPath(Segments), Kind));
+inline FDomainRegistry
+registerDomainPath(const FRegisterDomainPathRequest &Request) {
+  return registerDomain(
+      {Request.Registry,
+       createDomainNode({createDomainPath(Request.Segments), Request.Kind})});
+}
+
+/**
+ * @brief Recursively registers a list of domain path declarations.
+ * @signature inline FDomainRegistry registerDomainPaths(FRegisterDomainPathsRequest Request)
+ *
+ * User Story: As a maintainer, I can extend the ECS taxonomy by appending data
+ * declarations without spreading imperative registration statements through
+ * the registry factory.
+ */
+inline FDomainRegistry
+registerDomainPaths(FRegisterDomainPathsRequest Request) {
+  return Request.Index >= Request.Registrations.Num()
+             ? Request.Registry
+             : ([Request]() mutable {
+                 const FDomainPathRegistration Registration =
+                     Request.Registrations[Request.Index];
+                 Request.Registry =
+                     registerDomainPath({Request.Registry,
+                                         Registration.Segments,
+                                         Registration.Kind});
+                 Request.Index = Request.Index + 1;
+                 return registerDomainPaths(MoveTemp(Request));
+               })();
 }
 
 /**
  * @brief Registers one component schema and indexes it under its owning domain.
+ * @signature inline FDomainRegistry registerComponentSchema(const FRegisterComponentSchemaRequest &Request)
+ *
+ * User Story: As a component author, schema registration is a unary payload
+ * transition over a registry value.
  */
-inline FDomainRegistry registerComponentSchema(FDomainRegistry Registry,
-                                               const FComponentSchema &Schema) {
+inline FDomainRegistry
+registerComponentSchema(const FRegisterComponentSchemaRequest &Request) {
+  FDomainRegistry Registry = Request.Registry;
+  const FComponentSchema Schema = Request.Schema;
   Registry.ComponentSchemas.Add(Schema.Type, Schema);
   FDomainNode *Domain = Registry.Nodes.Find(Schema.Domain);
-  if (Domain) {
-    pushUnique(Domain->ComponentSchemas, Schema.Type);
-  }
+  Domain != nullptr
+      ? (Domain->ComponentSchemas =
+             pushUniqueString({Domain->ComponentSchemas, Schema.Type}),
+         void())
+      : void();
   return Registry;
 }
 
 /**
  * @brief Registers one capability spec and indexes it under its owning domain.
+ * @signature inline FDomainRegistry registerCapabilitySpec(const FRegisterCapabilitySpecRequest &Request)
+ *
+ * User Story: As a systems author, capability registration stays a value
+ * transition that can be composed below RTK slices.
  */
-inline FDomainRegistry registerCapabilitySpec(FDomainRegistry Registry,
-                                              const FCapabilitySpec &Spec) {
+inline FDomainRegistry
+registerCapabilitySpec(const FRegisterCapabilitySpecRequest &Request) {
+  FDomainRegistry Registry = Request.Registry;
+  const FCapabilitySpec Spec = Request.Spec;
   Registry.Capabilities.Add(Spec.Name, Spec);
   FDomainNode *Domain = Registry.Nodes.Find(Spec.Domain);
-  if (Domain) {
-    pushUnique(Domain->Capabilities, Spec.Name);
-  }
+  Domain != nullptr
+      ? (Domain->Capabilities =
+             pushUniqueString({Domain->Capabilities, Spec.Name}),
+         void())
+      : void();
   return Registry;
 }
 
 /**
  * @brief Registers one system spec and indexes it under its owning domain.
+ * @signature inline FDomainRegistry registerSystemSpec(const FRegisterSystemSpecRequest &Request)
+ *
+ * User Story: As an ECS systems author, system registration remains a pure
+ * registry transform and never owns store semantics.
  */
-inline FDomainRegistry registerSystemSpec(FDomainRegistry Registry,
-                                          const FSystemSpec &Spec) {
+inline FDomainRegistry
+registerSystemSpec(const FRegisterSystemSpecRequest &Request) {
+  FDomainRegistry Registry = Request.Registry;
+  const FSystemSpec Spec = Request.Spec;
   Registry.Systems.Add(Spec.Name, Spec);
   FDomainNode *Domain = Registry.Nodes.Find(Spec.Domain);
-  if (Domain) {
-    pushUnique(Domain->Systems, Spec.Name);
-  }
+  Domain != nullptr
+      ? (Domain->Systems = pushUniqueString({Domain->Systems, Spec.Name}),
+         void())
+      : void();
   return Registry;
 }
 
 /**
  * @brief Registers one resource spec and indexes it under its owning domain.
+ * @signature inline FDomainRegistry registerResourceSpec(const FRegisterResourceSpecRequest &Request)
+ *
+ * User Story: As a resource author, resource registration stays below feature
+ * domains and composes as a unary ECS transform.
  */
-inline FDomainRegistry registerResourceSpec(FDomainRegistry Registry,
-                                            const FResourceSpec &Spec) {
+inline FDomainRegistry
+registerResourceSpec(const FRegisterResourceSpecRequest &Request) {
+  FDomainRegistry Registry = Request.Registry;
+  const FResourceSpec Spec = Request.Spec;
   Registry.ResourceSpecs.Add(Spec.Name, Spec);
   FDomainNode *Domain = Registry.Nodes.Find(Spec.Domain);
-  if (Domain) {
-    pushUnique(Domain->Resources, Spec.Name);
-  }
+  Domain != nullptr
+      ? (Domain->Resources = pushUniqueString({Domain->Resources, Spec.Name}),
+         void())
+      : void();
   return Registry;
 }
 
 /**
  * @brief Alias for resource-spec registration used by feature code.
+ * @signature inline FDomainRegistry registerResource(const FRegisterResourceSpecRequest &Request)
+ *
+ * User Story: As feature code, I can use RTK-style explicit names while ECS
+ * resources remain plain registry values.
  */
-inline FDomainRegistry registerResource(FDomainRegistry Registry,
-                                        const FResourceSpec &Spec) {
-  return registerResourceSpec(Registry, Spec);
+inline FDomainRegistry
+registerResource(const FRegisterResourceSpecRequest &Request) {
+  return registerResourceSpec(Request);
 }
 
 /**
  * @brief Registers one event spec and indexes it under its owning domain.
+ * @signature inline FDomainRegistry registerEventSpec(const FRegisterEventSpecRequest &Request)
+ *
+ * User Story: As an ECS event author, event registration is declarative domain
+ * metadata and does not replace RTK actions.
  */
-inline FDomainRegistry registerEventSpec(FDomainRegistry Registry,
-                                         const FEventSpec &Spec) {
+inline FDomainRegistry
+registerEventSpec(const FRegisterEventSpecRequest &Request) {
+  FDomainRegistry Registry = Request.Registry;
+  const FEventSpec Spec = Request.Spec;
   Registry.EventSpecs.Add(Spec.Type, Spec);
   FDomainNode *Domain = Registry.Nodes.Find(Spec.Domain);
-  if (Domain) {
-    pushUnique(Domain->Events, Spec.Type);
-  }
+  Domain != nullptr
+      ? (Domain->Events = pushUniqueString({Domain->Events, Spec.Type}),
+         void())
+      : void();
   return Registry;
 }
 
 /**
  * @brief Alias for event-spec registration used by feature code.
+ * @signature inline FDomainRegistry registerEventType(const FRegisterEventSpecRequest &Request)
+ *
+ * User Story: As feature code, I can declare ECS event metadata without
+ * confusing it with dispatched RTK action events.
  */
-inline FDomainRegistry registerEventType(FDomainRegistry Registry,
-                                         const FEventSpec &Spec) {
-  return registerEventSpec(Registry, Spec);
+inline FDomainRegistry
+registerEventType(const FRegisterEventSpecRequest &Request) {
+  return registerEventSpec(Request);
 }
 
 /**
@@ -771,67 +927,126 @@ inline FDomainRegistry registerEventType(FDomainRegistry Registry,
  * data without importing presentational view layers.
  */
 inline FDomainRegistry createCrossDomainRegistry() {
-  FDomainRegistry Registry = createDomainRegistry();
-  Registry = registerDomainPath(Registry, {TEXT("Components")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Attributes")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Bots")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Data")}, EDomainKind::Data);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Frame")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Framebuffer")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Geometry")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Glyphs")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Health")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Input")}, EDomainKind::Input);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Interaction")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Level")}, EDomainKind::Data);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Lifecycle")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Narrative")}, EDomainKind::Narrative);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Position")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Random")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Rendering")}, EDomainKind::Rendering);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Spatial")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("Stats")}, EDomainKind::Component);
-  Registry = registerDomainPath(Registry, {TEXT("Components"), TEXT("UI")}, EDomainKind::Ui);
-  Registry = registerDomainPath(Registry, {TEXT("Entities")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Characters")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Characters"), TEXT("Bots")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"), TEXT("Horses")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"), TEXT("Townspeople")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Characters"), TEXT("Player")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Environments")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Environments"), TEXT("Landmarks")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Environments"), TEXT("Nature")}, EDomainKind::Entity);
-  Registry = registerDomainPath(Registry, {TEXT("Entities"), TEXT("Session")}, EDomainKind::Session);
-  Registry = registerDomainPath(Registry, {TEXT("Systems")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("AI")}, EDomainKind::Ai);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Core")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Goals")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Horses")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Orchestrator")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Orchestrator"), TEXT("Factories")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Pipeline")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Position")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Stats")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Bots"), TEXT("Townspeople")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Capabilities")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Dialogue")}, EDomainKind::Narrative);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Factories")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Input")}, EDomainKind::Input);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Interaction")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Landmarks")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Level")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Nature")}, EDomainKind::Procgen);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Rendering")}, EDomainKind::Rendering);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Runtime")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Services")}, EDomainKind::Service);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Spawn")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Speech")}, EDomainKind::Narrative);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Terrain")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Transformations")}, EDomainKind::System);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("UI")}, EDomainKind::Ui);
-  Registry = registerDomainPath(Registry, {TEXT("Systems"), TEXT("Utils")}, EDomainKind::Service);
-  return Registry;
+  return registerDomainPaths(
+      {createDomainRegistry(),
+       {
+           {{TEXT("Components")}, EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Attributes")},
+            EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Bots")}, EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Data")}, EDomainKind::Data},
+           {{TEXT("Components"), TEXT("Data"), TEXT("Json")},
+            EDomainKind::Data},
+           {{TEXT("Components"), TEXT("Data"), TEXT("Json"),
+             TEXT("Values")},
+            EDomainKind::Data},
+           {{TEXT("Components"), TEXT("Frame")}, EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Framebuffer")},
+            EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Geometry")},
+            EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Glyphs")}, EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Health")}, EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Input")}, EDomainKind::Input},
+           {{TEXT("Components"), TEXT("Interaction")},
+            EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Level")}, EDomainKind::Data},
+           {{TEXT("Components"), TEXT("Level"), TEXT("TerrainGeometry")},
+            EDomainKind::Data},
+           {{TEXT("Components"), TEXT("Lifecycle")},
+            EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Narrative")},
+            EDomainKind::Narrative},
+           {{TEXT("Components"), TEXT("Position")},
+            EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Random")}, EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Rendering")},
+            EDomainKind::Rendering},
+           {{TEXT("Components"), TEXT("Spatial")}, EDomainKind::Component},
+           {{TEXT("Components"), TEXT("Stats")}, EDomainKind::Component},
+           {{TEXT("Components"), TEXT("UI")}, EDomainKind::Ui},
+           {{TEXT("Entities")}, EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Characters")}, EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots")},
+            EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
+             TEXT("Horses")},
+            EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
+             TEXT("Townspeople")},
+            EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Characters"), TEXT("Player")},
+            EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Environments")}, EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Environments"), TEXT("Landmarks")},
+            EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Environments"), TEXT("Nature")},
+            EDomainKind::Entity},
+           {{TEXT("Entities"), TEXT("Session")}, EDomainKind::Session},
+           {{TEXT("Systems")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("AI")}, EDomainKind::Ai},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Core")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Goals")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Horses")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Orchestrator")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Orchestrator"),
+             TEXT("Factories")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Pipeline")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Position")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Stats")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Bots"), TEXT("Townspeople")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Capabilities")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Dialogue")}, EDomainKind::Narrative},
+           {{TEXT("Systems"), TEXT("Factories")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Input")}, EDomainKind::Input},
+           {{TEXT("Systems"), TEXT("Interaction")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Landmarks")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
+             TEXT("Enums")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
+             TEXT("Scales")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
+             TEXT("Blocks")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
+             TEXT("Labels")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
+             TEXT("Sections")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
+             TEXT("Layout")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Level"), TEXT("TerrainGeometry")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Nature")}, EDomainKind::Procgen},
+           {{TEXT("Systems"), TEXT("Rendering")}, EDomainKind::Rendering},
+           {{TEXT("Systems"), TEXT("Runtime")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Services")}, EDomainKind::Service},
+           {{TEXT("Systems"), TEXT("Spawn")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Speech")}, EDomainKind::Narrative},
+           {{TEXT("Systems"), TEXT("Terrain")}, EDomainKind::System},
+           {{TEXT("Systems"), TEXT("Transformations")},
+            EDomainKind::System},
+           {{TEXT("Systems"), TEXT("UI")}, EDomainKind::Ui},
+           {{TEXT("Systems"), TEXT("Utils")}, EDomainKind::Service},
+       },
+       0});
 }
 
 struct FRelationship {

@@ -18,6 +18,20 @@ struct FJsonFieldRequest {
   FString FieldName;
 };
 
+/**
+ * @brief Identifies one JSON array value while preserving field context.
+ *
+ * @signature struct FJsonArrayValueObjectRequest
+ *
+ * User story: As a data adapter author, I can validate authored array entries
+ * without a feature system owning neutral JSON error-shaping logic.
+ */
+struct FJsonArrayValueObjectRequest {
+  TSharedPtr<FJsonValue> Value;
+  FString FieldName;
+  int32 Index = 0;
+};
+
 struct FPlayerPresentationSettings {
   float CapsuleRadius = 0.0f;
   float CapsuleHalfHeight = 0.0f;
@@ -170,6 +184,37 @@ template <typename Output> struct TJsonValueMapRequest {
 template <typename Output> struct TJsonValueMapStep {
   TArray<TSharedPtr<FJsonValue>> Values;
   TFunction<Output(const TSharedPtr<FJsonObject> &)> MapValue;
+  int32 Index = 0;
+  TArray<Output> Acc;
+};
+
+/**
+ * @brief Request for mapping required JSON object values into typed payloads.
+ *
+ * @signature template <typename Output> struct TRequiredJsonValueMapRequest
+ *
+ * User story: As a feature adapter author, I can map repeated JSON records
+ * through one request object and keep scalar argument lists out of shared
+ * primitives.
+ */
+template <typename Output> struct TRequiredJsonValueMapRequest {
+  TArray<TSharedPtr<FJsonValue>> Values;
+  TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue;
+  FString FieldName;
+};
+
+/**
+ * @brief Recursive step state for required JSON object value mapping.
+ *
+ * @signature template <typename Output> struct TRequiredJsonValueMapStep
+ *
+ * User story: As a maintainer, I can inspect pure recursive map state without
+ * hidden mutable loop variables in feature adapters.
+ */
+template <typename Output> struct TRequiredJsonValueMapStep {
+  TArray<TSharedPtr<FJsonValue>> Values;
+  TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue;
+  FString FieldName;
   int32 Index = 0;
   TArray<Output> Acc;
 };
