@@ -28,19 +28,17 @@ struct FLevelRuntimeSectionArrayRequest {
 func::Maybe<FLevelRuntimeSectionSeed>
 BuildSectionFromArrays(const FLevelRuntimeSectionArrayRequest &Request) {
   const func::Maybe<TArray<FLevelRuntimeBlockSeed>> ParsedBlocks =
-      JsonValues::MapRequiredJsonValues<FLevelRuntimeBlockSeed>(
-          {Request.Blocks,
-           [](const TSharedPtr<FJsonObject> &BlockObject) {
-             return BlockFromJson({BlockObject});
-           },
-           TEXT("blocks")});
+      JsonValues::MapRequiredJsonValuesWith<FLevelRuntimeBlockSeed>(
+          TEXT("blocks"),
+          [](const TSharedPtr<FJsonObject> &BlockObject) {
+            return BlockFromJson({BlockObject});
+          })(Request.Blocks);
   const func::Maybe<TArray<FLevelRuntimeLabelSeed>> ParsedLabels =
-      JsonValues::MapRequiredJsonValues<FLevelRuntimeLabelSeed>(
-          {Request.Labels,
-           [](const TSharedPtr<FJsonObject> &LabelObject) {
-             return LabelFromJson({LabelObject});
-           },
-           TEXT("labels")});
+      JsonValues::MapRequiredJsonValuesWith<FLevelRuntimeLabelSeed>(
+          TEXT("labels"),
+          [](const TSharedPtr<FJsonObject> &LabelObject) {
+            return LabelFromJson({LabelObject});
+          })(Request.Labels);
   return ParsedBlocks.hasValue && ParsedLabels.hasValue
              ? func::just(FLevelRuntimeSectionSeed{ParsedBlocks.value,
                                                    ParsedLabels.value})

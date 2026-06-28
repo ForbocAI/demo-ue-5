@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 
-#include "Features/Components/Data/DataAdapters.h"
 #include "Features/Systems/Landmarks/LandmarkTypes.h"
 #include "Features/Systems/Level/LevelTypes.h"
 #include "Features/Systems/Nature/NatureTypes.h"
@@ -237,73 +237,69 @@ BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSpawnRequest &Request) {
 
 inline FLevelRuntimeSectionSpawn
 BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSpawnRequest &Request) {
-  return {Data::DataAdapters::MapArray<FLevelRuntimeBlockSeed,
-                                       FLevelBlockSpawn>(
-              {Request.Seed.Blocks,
-               [&Request](const FLevelRuntimeBlockSeed &BlockSeed) {
+  return {ecs::mapArray<FLevelRuntimeBlockSeed, FLevelBlockSpawn>(
+              Request.Seed.Blocks,
+              [&Request](const FLevelRuntimeBlockSeed &BlockSeed) {
                 return BuildRuntimeBlockSpawn(
                     {BlockSeed, Request.TerrainData, Request.Geometry});
-              }}),
-          Data::DataAdapters::MapArray<FLevelRuntimeLabelSeed,
-                                       FLevelLabelSpawn>(
-              {Request.Seed.Labels,
-               [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
+              }),
+          ecs::mapArray<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
+              Request.Seed.Labels,
+              [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
                 return BuildRuntimeLabelSpawn(
                     {LabelSeed, Request.TerrainData, Request.Geometry});
-              }})};
+              })};
 }
 
 inline FLevelRuntimeSectionSpawn
 BuildOverlaySectionSpawn(const FLevelOverlaySectionSpawnRequest &Request) {
   return {TArray<FLevelBlockSpawn>(),
-          Data::DataAdapters::MapArray<FLevelRuntimeLabelSeed,
-                                       FLevelLabelSpawn>(
-              {Request.Seed.OverlayLabels,
-               [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
+          ecs::mapArray<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
+              Request.Seed.OverlayLabels,
+              [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
                 return BuildRuntimeLabelSpawn(
                     {LabelSeed, Request.TerrainData, Request.Geometry});
-              }})};
+              })};
 }
 
 inline FLevelRuntimeSectionSpawn
 BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
-  return {Data::DataAdapters::MapArray<FLandmark, FLevelBlockSpawn>(
-              {Request.Landmarks,
-               [](const FLandmark &Landmark) {
+  return {ecs::mapArray<FLandmark, FLevelBlockSpawn>(
+              Request.Landmarks,
+              [](const FLandmark &Landmark) {
                 return FLevelBlockSpawn{Landmark.Label, Landmark.Location,
                                         Landmark.Scale,
                                         ELevelRetroTexture::BuildingTimber};
-              }}),
-          Data::DataAdapters::MapArray<FLandmark, FLevelLabelSpawn>(
-              {Request.Landmarks,
-               [&Request](const FLandmark &Landmark) {
+              }),
+          ecs::mapArray<FLandmark, FLevelLabelSpawn>(
+              Request.Landmarks,
+              [&Request](const FLandmark &Landmark) {
                 return FLevelLabelSpawn{
                     Landmark.Label,
                     detail::LabelLocationForLandmark(
                         {Landmark, Request.Geometry}),
                     LevelLayoutSlice::CubeHalfExtent(Request.Geometry) *
                         Request.Geometry.LandmarkLabelWorldSizeScale};
-              }})};
+              })};
 }
 
 inline FLevelRuntimeSectionSpawn
 BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
-  return {Data::DataAdapters::MapArray<FNatureFeatureSeed, FLevelBlockSpawn>(
-              {Request.Features,
-               [&Request](const FNatureFeatureSeed &Feature) {
+  return {ecs::mapArray<FNatureFeatureSeed, FLevelBlockSpawn>(
+              Request.Features,
+              [&Request](const FNatureFeatureSeed &Feature) {
                 return FLevelBlockSpawn{
                     Feature.Name,
                     LevelLayoutSlice::ToWorld(
                         {Request.TerrainData, Feature.Location}),
                     Feature.Scale, detail::TextureForNatureKind(Feature.Kind)};
-              }}),
-          Data::DataAdapters::FilterMapArray<FNatureFeatureSeed,
-                                             FLevelLabelSpawn>(
-              {Request.Features,
-               [](const FNatureFeatureSeed &Feature) {
+              }),
+          ecs::filterMapArray<FNatureFeatureSeed, FLevelLabelSpawn>(
+              Request.Features,
+              [](const FNatureFeatureSeed &Feature) {
                 return detail::NatureFeatureNeedsLabel(Feature.Kind);
               },
-               [&Request](const FNatureFeatureSeed &Feature) {
+              [&Request](const FNatureFeatureSeed &Feature) {
                 return FLevelLabelSpawn{
                     Feature.Name,
                     LevelLayoutSlice::ToWorld(
@@ -313,7 +309,7 @@ BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
                               Feature.Scale})}),
                     LevelLayoutSlice::CubeHalfExtent(Request.Geometry) *
                         Request.Geometry.NatureLabelWorldSizeScale};
-              }})};
+              })};
 }
 
 inline TArray<FVector>

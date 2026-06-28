@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/DataTypes.h"
 
@@ -86,27 +87,30 @@ namespace detail {
 /**
  * @brief Recursively maps required JSON object values into typed outputs.
  *
- * @signature template <typename Output> func::Maybe<TArray<Output>> MapRequiredJsonValuesRecursive(TRequiredJsonValueMapStep<Output> Step)
+ * @signature template <typename Output> func::Maybe<TArray<Output>> MapRequiredJsonValuesRecursive(const TArray<TSharedPtr<FJsonValue>> &Values, const FString &FieldName, TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue, int32 Index, TArray<Output> Acc)
  *
  * User story: As a shared data primitive, array mapping can stay lazy-looking
  * and unary while higher feature domains import downward into it.
  */
 template <typename Output>
 func::Maybe<TArray<Output>>
-MapRequiredJsonValuesRecursive(TRequiredJsonValueMapStep<Output> Step) {
-  return Step.Index >= Step.Values.Num()
-             ? func::just(Step.Acc)
+MapRequiredJsonValuesRecursive(
+    const TArray<TSharedPtr<FJsonValue>> &Values, const FString &FieldName,
+    TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue,
+    int32 Index, TArray<Output> Acc) {
+  return Index >= Values.Num()
+             ? func::just(Acc)
              : func::mbind(
-                   ReadArrayObject({Step.Values[Step.Index], Step.FieldName,
-                                    Step.Index}),
-                   [Step](const TSharedPtr<FJsonObject> &Object) mutable {
+                   ReadArrayObject({Values[Index], FieldName, Index}),
+                   [&Values, FieldName, MapValue, Index, Acc](
+                       const TSharedPtr<FJsonObject> &Object) mutable {
                      return func::mbind(
-                         Step.MapValue(Object),
-                         [Step](const Output &Parsed) mutable {
-                           Step.Acc.Add(Parsed);
-                           Step.Index = Step.Index + 1;
+                         MapValue(Object),
+                         [&Values, FieldName, MapValue, Index,
+                          Acc](const Output &Parsed) mutable {
                            return MapRequiredJsonValuesRecursive<Output>(
-                               MoveTemp(Step));
+                               Values, FieldName, MapValue, Index + 1,
+                               ecs::appendValue<Output>(Acc, Parsed));
                          });
                    });
 }
@@ -114,21 +118,25 @@ MapRequiredJsonValuesRecursive(TRequiredJsonValueMapStep<Output> Step) {
 } // namespace detail
 
 /**
- * @brief Maps required JSON object values into a typed array.
+ * @brief Creates a unary mapper for required JSON object arrays.
  *
- * @signature template <typename Output> func::Maybe<TArray<Output>> MapRequiredJsonValues(TRequiredJsonValueMapRequest<Output> Request)
+ * @signature template <typename Output> TFunction<func::Maybe<TArray<Output>>(const TArray<TSharedPtr<FJsonValue>> &)> MapRequiredJsonValuesWith(const FString &FieldName, TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue)
  *
  * User story: As a feature adapter author, repeated authored ECS seed data can
- * be transformed with a unary request payload and fail before reducer dispatch.
+ * be transformed by a captured parser and fail before reducer dispatch.
  */
 template <typename Output>
-func::Maybe<TArray<Output>>
-MapRequiredJsonValues(TRequiredJsonValueMapRequest<Output> Request) {
-  TArray<Output> Acc;
-  Acc.Reserve(Request.Values.Num());
-  return detail::MapRequiredJsonValuesRecursive<Output>(
-      {MoveTemp(Request.Values), MoveTemp(Request.MapValue),
-       MoveTemp(Request.FieldName), 0, MoveTemp(Acc)});
+TFunction<func::Maybe<TArray<Output>>(
+    const TArray<TSharedPtr<FJsonValue>> &)>
+MapRequiredJsonValuesWith(
+    const FString &FieldName,
+    TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue) {
+  return [FieldName, MapValue](const TArray<TSharedPtr<FJsonValue>> &Values) {
+    TArray<Output> Acc;
+    Acc.Reserve(Values.Num());
+    return detail::MapRequiredJsonValuesRecursive<Output>(
+        Values, FieldName, MapValue, 0, MoveTemp(Acc));
+  };
 }
 
 } // namespace JsonValueAdapters

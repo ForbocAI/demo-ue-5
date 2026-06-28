@@ -149,6 +149,43 @@ inline TArray<Item> appendUniqueValue(TArray<Item> Values, const Item &Value) {
 }
 
 /**
+ * @brief Maps a TArray through one reusable unary transform.
+ * @signature template <typename Source, typename Output> inline TArray<Output> mapArray(const TArray<Source> &Items, std::function<Output(const Source &)> MapValue)
+ *
+ * User Story: As ECS projection code, repeated source-to-view transforms should
+ * read as one neutral fold instead of request/factory boilerplate per domain.
+ */
+template <typename Source, typename Output>
+inline TArray<Output>
+mapArray(const TArray<Source> &Items,
+         std::function<Output(const Source &)> MapValue) {
+  return foldArray<Source, TArray<Output>>(
+      TArray<Output>(), Items,
+      [MapValue](const TArray<Output> &Acc, const Source &Item) {
+        return appendValue<Output>(Acc, MapValue(Item));
+      });
+}
+
+/**
+ * @brief Filters and maps a TArray through reusable unary predicates.
+ * @signature template <typename Source, typename Output> inline TArray<Output> filterMapArray(const TArray<Source> &Items, std::function<bool(const Source &)> Keep, std::function<Output(const Source &)> MapValue)
+ *
+ * User Story: As ECS query code, selection and projection should compose
+ * through one neutral fold instead of repeated sibling-domain helper code.
+ */
+template <typename Source, typename Output>
+inline TArray<Output>
+filterMapArray(const TArray<Source> &Items,
+               std::function<bool(const Source &)> Keep,
+               std::function<Output(const Source &)> MapValue) {
+  return foldArray<Source, TArray<Output>>(
+      TArray<Output>(), Items,
+      [Keep, MapValue](const TArray<Output> &Acc, const Source &Item) {
+        return Keep(Item) ? appendValue<Output>(Acc, MapValue(Item)) : Acc;
+      });
+}
+
+/**
  * @brief Appends every item from one array to another.
  * @signature template <typename Item> inline TArray<Item> appendValues(TArray<Item> Values, const TArray<Item> &AdditionalValues)
  *

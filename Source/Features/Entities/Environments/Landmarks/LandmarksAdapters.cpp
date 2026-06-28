@@ -1,6 +1,6 @@
 #include "Features/Entities/Environments/Landmarks/LandmarksAdapters.h"
 
-#include "Features/Components/Data/DataAdapters.h"
+#include "Features/Components/Data/Json/JsonAdapters.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 #include "Features/Systems/Landmarks/LandmarkFactories.h"
 
@@ -9,7 +9,7 @@ namespace Demo {
 namespace Level {
 namespace LandmarksAdapters {
 
-namespace DataAdapters = ForbocAI::Demo::Data::DataAdapters;
+namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
 
 namespace {
 
@@ -23,24 +23,22 @@ struct FLandmarkFromJsonRequest {
 };
 
 FLandmark LandmarkFromJson(const FLandmarkFromJsonRequest &Request) {
+  const JsonAdapters::FJsonStringReader String =
+      JsonAdapters::StringIn(Request.LandmarkObject);
+  const JsonAdapters::FJsonFloatReader Float =
+      JsonAdapters::FloatIn(Request.LandmarkObject);
   const FVector Scale = LevelLayoutSlice::BuildingScaleFromFeet(
-      {Request.Geometry,
-       DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("frontage_feet")}),
-       DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("depth_feet")}),
-       DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("stories")})});
+      {Request.Geometry, Float(TEXT("frontage_feet")),
+       Float(TEXT("depth_feet")), Float(TEXT("stories"))});
   const FLevelLocalPoint Local = LevelLayoutSlice::CenteredOnGround(
       {Request.Geometry,
        LevelLayoutSlice::FromPostOfficeLots(
-           {Request.Geometry,
-            DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("east_lots")}),
-            DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("north_lots")}),
+           {Request.Geometry, Float(TEXT("east_lots")), Float(TEXT("north_lots")),
             0.0f}),
        Scale, LevelLayoutSlice::BuildingFoundationHeight(Request.Geometry)});
 
   return LandmarkFactories::Landmark(
-      {DataAdapters::ReadString({Request.LandmarkObject, TEXT("id")}),
-       DataAdapters::ReadString({Request.LandmarkObject, TEXT("label")}),
-       ELandmarkKind::Building,
+      {String(TEXT("id")), String(TEXT("label")), ELandmarkKind::Building,
        LevelLayoutSlice::ToWorld({*Request.TerrainData, Local}), Scale});
 }
 
@@ -49,16 +47,20 @@ FLandmark LandmarkFromJson(const FLandmarkFromJsonRequest &Request) {
 TArray<FLandmark>
 Build1899LandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
   return func::match(
-      DataAdapters::LoadObjectFromContent({LandmarkDataPath}),
+      JsonAdapters::LoadObjectFromContent({LandmarkDataPath}),
       [&Request](const TSharedPtr<FJsonObject> &Root) {
-        return DataAdapters::MapJsonValues<FLandmark>(
-            {DataAdapters::ReadArray({Root, TEXT("landmarks")}),
-             [&Request](const TSharedPtr<FJsonObject> &LandmarkObject) {
-               return LandmarkFromJson(
-                   {&Request.TerrainData, Request.Geometry, LandmarkObject});
-             }});
+        const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
+        return JsonAdapters::MapJsonValues<FLandmark>(
+            Array(TEXT("landmarks")),
+            [&Request](const TSharedPtr<FJsonObject> &LandmarkObject) {
+              return LandmarkFromJson(
+                  {&Request.TerrainData, Request.Geometry, LandmarkObject});
+            });
       },
-      []() { return TArray<FLandmark>(); });
+      []() {
+        checkf(false, TEXT("Landmark seed JSON is required"));
+        return TArray<FLandmark>();
+      });
 }
 
 } // namespace LandmarksAdapters

@@ -1,6 +1,6 @@
 #include "Features/Systems/Runtime/RuntimeReducers.h"
 
-#include "Features/Components/Data/DataAdapters.h"
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/Horses/HorseSelectors.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonSelectors.h"
 #include "Features/Systems/Landmarks/LandmarkSelectors.h"
@@ -132,18 +132,17 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
                            *Request.Geometry}));
 
   Payload.Townspeople =
-      Data::DataAdapters::MapArray<FTownspersonSeed,
-                                   FRuntimeTownspersonViewSpawn>(
-          {TownspersonSelectors::SelectAll(State.Townspeople),
-           [&Request](const FTownspersonSeed &Seed) {
+      ecs::mapArray<FTownspersonSeed, FRuntimeTownspersonViewSpawn>(
+          TownspersonSelectors::SelectAll(State.Townspeople),
+          [&Request](const FTownspersonSeed &Seed) {
              return ReduceTownspersonViewSpawn({Seed, Request.TerrainData});
-           }});
+          });
   Payload.Horses =
-      Data::DataAdapters::MapArray<FHorseRouteSeed, FRuntimeHorseViewSpawn>(
-          {HorseSelectors::SelectAll(State.Horses),
-           [&Request](const FHorseRouteSeed &Seed) {
+      ecs::mapArray<FHorseRouteSeed, FRuntimeHorseViewSpawn>(
+          HorseSelectors::SelectAll(State.Horses),
+          [&Request](const FHorseRouteSeed &Seed) {
              return ReduceHorseViewSpawn({Seed, Request.TerrainData});
-           }});
+          });
   return Payload;
 }
 

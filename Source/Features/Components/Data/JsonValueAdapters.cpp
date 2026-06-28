@@ -1,6 +1,6 @@
 #include "Features/Components/Data/JsonValueAdapters.h"
 
-#include "Features/Components/Data/DataAdapters.h"
+#include "Features/Components/Data/Json/JsonAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
@@ -37,7 +37,7 @@ func::Maybe<float> ReadRequiredFloat(const FJsonFieldRequest &Request) {
 func::Maybe<TSharedPtr<FJsonObject>>
 ReadRequiredObject(const FJsonFieldRequest &Request) {
   const func::Maybe<TSharedPtr<FJsonObject>> Value =
-      DataAdapters::ReadObject(Request);
+      JsonAdapters::ReadObject(Request);
   return Value.hasValue
              ? Value
              : (LogInvalidField(Request),

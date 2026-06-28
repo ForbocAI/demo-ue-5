@@ -33,12 +33,11 @@ struct FLevelRuntimeLayoutFieldsRequest {
  */
 func::Maybe<TArray<FLevelRuntimeLabelSeed>>
 ReadOverlayLabels(const TArray<TSharedPtr<FJsonValue>> &Values) {
-  return JsonValues::MapRequiredJsonValues<FLevelRuntimeLabelSeed>(
-      {Values,
-       [](const TSharedPtr<FJsonObject> &LabelObject) {
-         return LabelFromJson({LabelObject});
-       },
-       TEXT("overlay_labels")});
+  return JsonValues::MapRequiredJsonValuesWith<FLevelRuntimeLabelSeed>(
+      TEXT("overlay_labels"),
+      [](const TSharedPtr<FJsonObject> &LabelObject) {
+        return LabelFromJson({LabelObject});
+      })(Values);
 }
 
 /**

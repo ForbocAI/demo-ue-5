@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
@@ -105,27 +106,14 @@ inline bool operator!=(const FBotGoalCompleted &Left,
   return !(Left == Right);
 }
 
-inline bool ActiveGoalMapsEqualAtIndex(
-    const TArray<FString> &Keys,
-    const TMap<FString, FBotStrategicGoal> &Left,
-    const TMap<FString, FBotStrategicGoal> &Right, int32 Index) {
-  if (Index >= Keys.Num()) {
-    return true;
-  }
-
-  const FBotStrategicGoal *LeftGoal = Left.Find(Keys[Index]);
-  const FBotStrategicGoal *RightGoal = Right.Find(Keys[Index]);
-  return LeftGoal && RightGoal && *LeftGoal == *RightGoal &&
-         ActiveGoalMapsEqualAtIndex(Keys, Left, Right, Index + 1);
-}
-
 inline bool ActiveGoalMapsEqual(
     const TMap<FString, FBotStrategicGoal> &Left,
     const TMap<FString, FBotStrategicGoal> &Right) {
-  TArray<FString> Keys;
-  Left.GetKeys(Keys);
-  return Left.Num() == Right.Num() &&
-         ActiveGoalMapsEqualAtIndex(Keys, Left, Right, 0);
+  return ecs::mapValuesEqual<FString, FBotStrategicGoal>(
+      Left, Right, [](const FBotStrategicGoal &LeftGoal,
+                      const FBotStrategicGoal &RightGoal) {
+        return LeftGoal == RightGoal;
+      });
 }
 
 inline bool operator==(const FBotGoalState &Left,

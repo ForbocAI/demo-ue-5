@@ -1,6 +1,6 @@
 #include "Features/Systems/Runtime/RuntimeFactories.h"
 
-#include "Features/Components/Data/DataAdapters.h"
+#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Entities/Characters/Player/PlayerReducers.h"
 #include "Features/Entities/Characters/Player/PlayerSlice.h"
 #include "Features/Systems/Bots/AI/BotAIFactories.h"
@@ -37,7 +37,7 @@ namespace RuntimeFactories {
 
 FRuntimeState CreateInitialState() {
   const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
-      ForbocAI::Demo::Data::DataAdapters::LoadDemoRuntimeSettings();
+      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
   FRuntimeState State;
   State.Player = PlayerSlice::CreateInitialState();
   State.Systems = SystemsSlice::CreateInitialState();

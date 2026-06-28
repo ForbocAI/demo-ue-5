@@ -1,6 +1,6 @@
 #include "CoreMinimal.h"
 #include "Core/ecs.hpp"
-#include "Features/Components/Data/DataAdapters.h"
+#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 #include "Features/Components/Level/LevelTypes.h"
 #include "Features/Entities/Characters/Bots/BotsAdapters.h"
@@ -124,7 +124,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
  */
 bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
-      ForbocAI::Demo::Data::DataAdapters::LoadDemoRuntimeSettings();
+      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
   const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
       Settings.LevelTerrainSources;
   const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =

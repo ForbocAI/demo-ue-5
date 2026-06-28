@@ -1,6 +1,6 @@
 #include "Features/Systems/Rendering/RenderingReducers.h"
 
-#include "Features/Components/Data/DataAdapters.h"
+#include "Core/ecs.hpp"
 #include "Features/Components/Spatial/SpatialSelectors.h"
 
 namespace ForbocAI {
@@ -106,9 +106,9 @@ FLevelRetroRenderProfile ReduceRuntimeProfile(
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
     const TArray<ForbocAI::Demo::Data::FRenderingTextureSpecSettings>
         &Settings) {
-  return ForbocAI::Demo::Data::DataAdapters::MapArray<
+  return ecs::mapArray<
       ForbocAI::Demo::Data::FRenderingTextureSpecSettings,
-      FLevelRetroTextureSpec>({Settings, ReduceTextureCatalogItem});
+      FLevelRetroTextureSpec>(Settings, ReduceTextureCatalogItem);
 }
 
 FRenderingAssetPaths ReduceRenderingAssetPaths(

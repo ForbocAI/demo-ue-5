@@ -1,6 +1,6 @@
 #include "Features/Systems/Level/LevelAdapters.h"
 
-#include "Features/Components/Data/DataAdapters.h"
+#include "Features/Components/Data/Json/JsonAdapters.h"
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutAdapters.h"
 
 namespace ForbocAI {
@@ -8,7 +8,7 @@ namespace Demo {
 namespace Level {
 namespace LevelAdapters {
 
-namespace DataAdapters = ForbocAI::Demo::Data::DataAdapters;
+namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
 
 namespace {
 
@@ -19,7 +19,7 @@ constexpr const TCHAR *RuntimeLevelDataPath =
 
 func::Maybe<FLevelRuntimeLayoutSeed> LoadFrenchGulchRuntimeLayoutSeed() {
   return func::mbind(
-      DataAdapters::LoadObjectFromContent({RuntimeLevelDataPath}),
+      JsonAdapters::LoadObjectFromContent({RuntimeLevelDataPath}),
       [](const TSharedPtr<FJsonObject> &Root) {
         return RuntimeLayout::LayoutFromJson({Root});
       });
