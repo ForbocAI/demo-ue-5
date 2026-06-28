@@ -8,7 +8,6 @@ INCLUDE_ROOTS = [
     'Content/Map/Heightmaps',
     'Scripts',
     'Source',
-    'Tools',
 ]
 
 ROOT_FILES = [
@@ -18,9 +17,7 @@ ROOT_FILES = [
     '.gitmodules',
     'DemoProject.uproject',
     'README.md',
-    'run-tests.sh',
     'style-guide.md',
-    'update-sdk.sh',
 ]
 
 TEXT_EXTENSIONS = {

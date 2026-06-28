@@ -6,11 +6,12 @@
 set -euo pipefail
 
 SUBMODULE_DIR="Plugins/ForbocAI_SDK"
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GUARD_SCRIPT="$PROJECT_ROOT/Scripts/check_sdk_submodule_guard.sh"
 LOCK_SCRIPT="$PROJECT_ROOT/Scripts/lock_sdk_submodule.sh"
+SUBMODULE_PATH="$PROJECT_ROOT/$SUBMODULE_DIR"
 
-if [ ! -d "$SUBMODULE_DIR/.git" ] && [ ! -f "$SUBMODULE_DIR/.git" ]; then
+if [ ! -d "$SUBMODULE_PATH/.git" ] && [ ! -f "$SUBMODULE_PATH/.git" ]; then
   echo "Error: Submodule directory $SUBMODULE_DIR not initialized."
   echo "Run: git submodule update --init --recursive"
   exit 1
@@ -24,7 +25,7 @@ bash "$LOCK_SCRIPT" --unlock
 trap 'bash "$LOCK_SCRIPT" --lock' EXIT
 
 echo "Fetching latest SDK submodule from origin/main..."
-cd "$SUBMODULE_DIR"
+cd "$SUBMODULE_PATH"
 git fetch origin main
 git checkout main
 git pull --rebase origin main
@@ -33,8 +34,8 @@ SHORT_SHA=$(git rev-parse --short HEAD)
 SUBJECT=$(git log -1 --format="%s")
 cd - > /dev/null
 
-if git diff --quiet -- "$SUBMODULE_DIR" &&
-   git diff --cached --quiet -- "$SUBMODULE_DIR"; then
+if git -C "$PROJECT_ROOT" diff --quiet -- "$SUBMODULE_DIR" &&
+   git -C "$PROJECT_ROOT" diff --cached --quiet -- "$SUBMODULE_DIR"; then
   echo "Submodule is already at the latest commit ($SHORT_SHA)."
   exit 0
 fi

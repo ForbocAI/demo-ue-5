@@ -35,5 +35,5 @@
     "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2610/6161.png",
     "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/14/2611/6161.png"
   ],
-  "generated_by": "Tools/generate_french_gulch_heightmap.py"
+  "generated_by": "Scripts/Tools/generate_french_gulch_heightmap.py"
 }

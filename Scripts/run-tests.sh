@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Locate project root
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_FILE="$PROJECT_ROOT/DemoProject.uproject"
 PROJECT_FILE_ARG="$PROJECT_FILE"
 UNREAL_BUILD=""
@@ -70,6 +70,9 @@ bash "$PROJECT_ROOT/Scripts/check_sdk_submodule_guard.sh"
 
 echo "Checking feature C++ parameter discipline..."
 python3 "$PROJECT_ROOT/Scripts/check_param_count.py" --strict
+
+echo "Updating file line count documentation..."
+python3 "$PROJECT_ROOT/Scripts/DOCS/count_project_lines.py"
 
 if [ -n "$UNREAL_BUILD" ]; then
   echo "Ensuring DemoProjectEditor is built..."

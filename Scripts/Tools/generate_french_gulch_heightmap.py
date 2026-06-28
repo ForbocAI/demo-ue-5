@@ -35,7 +35,7 @@ TILE_URL_TEMPLATE = (
     "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
 )
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / "Content" / "Map" / "Heightmaps"
 CSV_PATH = OUT_DIR / "french_gulch_ca_terrain_65.csv"
 HEIGHTMAP_PATH = OUT_DIR / "french_gulch_ca_heightmap_513.png"

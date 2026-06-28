@@ -2,10 +2,10 @@
 
 Run from the project root through UnrealEditor-Cmd:
 
-  UnrealEditor-Cmd.exe DemoProject.uproject -run=pythonscript -script=Tools/create_french_gulch_map.py
+  UnrealEditor-Cmd.exe DemoProject.uproject -run=pythonscript -script=Scripts/Tools/create_french_gulch_map.py
 
-Run Tools/create_demo_blueprint_assets.py first so the map can use the tracked
-Blueprint game mode and presentation actors.
+Run Scripts/Tools/create_demo_blueprint_assets.py first so the map can use the
+tracked Blueprint game mode and presentation actors.
 """
 
 import unreal

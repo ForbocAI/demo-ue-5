@@ -32,14 +32,14 @@ before the next API, TS SDK, and UE SDK PRs land.
 To keep the door closed, build normally:
 
 ```bash
-bash run-tests.sh
+bash Scripts/run-tests.sh
 ```
 
 To reopen the SDK path for validation work, set `FORBOC_DEMO_WITH_SDK=1` before
 generating project files or building:
 
 ```bash
-FORBOC_DEMO_WITH_SDK=1 bash run-tests.sh
+FORBOC_DEMO_WITH_SDK=1 bash Scripts/run-tests.sh
 ```
 
 On Windows PowerShell:
@@ -59,13 +59,13 @@ Make SDK changes in `../sdk-ue-5.7`, commit them there, then bump the demo's
 submodule pointer with:
 
 ```bash
-./update-sdk.sh
+bash Scripts/update-sdk.sh
 ```
 
 The demo locks the SDK submodule read-only with
-`Scripts/lock_sdk_submodule.sh`. `./update-sdk.sh` is the only approved path
-that unlocks the submodule, pulls the SDK, records the gitlink bump, and locks
-it again.
+`Scripts/lock_sdk_submodule.sh`. `Scripts/update-sdk.sh` is the only approved
+path that unlocks the submodule, pulls the SDK, records the gitlink bump, and
+locks it again.
 
 The demo's test runner and hooks run `Scripts/check_sdk_submodule_guard.sh`,
 which rejects direct edits inside the submodule and rejects manual SDK pointer
@@ -96,7 +96,7 @@ bash Scripts/lock_sdk_submodule.sh --lock
 2. **Run first-time developer setup**
 
    ```bash
-   ./setup-dev.sh
+   bash Scripts/setup-dev.sh
    ```
 
    This activates the demo hooks and locks `Plugins/ForbocAI_SDK` read-only so

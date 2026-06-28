@@ -3,7 +3,7 @@
 Run from the project root through UnrealEditor-Cmd after building the editor
 module:
 
-  UnrealEditor-Cmd.exe DemoProject.uproject -run=pythonscript -script=Tools/create_demo_blueprint_assets.py
+  UnrealEditor-Cmd.exe DemoProject.uproject -run=pythonscript -script=Scripts/Tools/create_demo_blueprint_assets.py
 """
 
 import unreal

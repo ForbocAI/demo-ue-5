@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "=== ForbocAI UE demo setup ==="
 if [ -d "$PROJECT_ROOT/Plugins/ForbocAI_SDK" ]; then
@@ -38,9 +38,9 @@ SDK rule:
 
 To change SDK code:
   1. Edit and commit in ../sdk-ue-5.7
-  2. Return here and run ./update-sdk.sh
+  2. Return here and run bash Scripts/update-sdk.sh
 
 To work on demo code:
-  Edit Source/, Content/, Config/, Tools/, or Scripts/ as usual.
+  Edit Source/, Content/, Config/, or Scripts/ as usual.
 
 MSG

@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SDK_SUBMODULE="Plugins/ForbocAI_SDK"
 SDK_PATH="$PROJECT_ROOT/$SDK_SUBMODULE"
-SDK_POLICY="Plugins/ForbocAI_SDK is read-only in the demo. Edit ../sdk-ue-5.7, commit there, then run ./update-sdk.sh here."
+SDK_POLICY="Plugins/ForbocAI_SDK is read-only in the demo. Edit ../sdk-ue-5.7, commit there, then run bash Scripts/update-sdk.sh here."
 
 git_submodule_env() {
   env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git "$@"
@@ -30,14 +30,14 @@ git_submodule_env() {
 if [ ! -d "$SDK_PATH" ]; then
   echo "Error: SDK submodule directory is missing: $SDK_SUBMODULE"
   echo "Run: git submodule update --init --recursive"
-  echo "First-time setup: ./setup-dev.sh"
+  echo "First-time setup: bash Scripts/setup-dev.sh"
   exit 1
 fi
 
 if [ ! -d "$SDK_PATH/.git" ] && [ ! -f "$SDK_PATH/.git" ]; then
   echo "Error: $SDK_SUBMODULE is not an initialized git submodule."
   echo "Run: git submodule update --init --recursive"
-  echo "First-time setup: ./setup-dev.sh"
+  echo "First-time setup: bash Scripts/setup-dev.sh"
   exit 1
 fi
 
@@ -53,13 +53,13 @@ fi
 
 if [ "$ALLOW_GITLINK_CHANGE" -eq 0 ]; then
   if ! git -C "$PROJECT_ROOT" diff --quiet -- "$SDK_SUBMODULE"; then
-    echo "Error: The SDK submodule pointer changed outside ./update-sdk.sh."
+    echo "Error: The SDK submodule pointer changed outside bash Scripts/update-sdk.sh."
     echo "$SDK_POLICY"
     exit 1
   fi
 
   if ! git -C "$PROJECT_ROOT" diff --cached --quiet -- "$SDK_SUBMODULE"; then
-    echo "Error: Staged SDK submodule pointer changes must be created by ./update-sdk.sh."
+    echo "Error: Staged SDK submodule pointer changes must be created by bash Scripts/update-sdk.sh."
     echo "$SDK_POLICY"
     exit 1
   fi

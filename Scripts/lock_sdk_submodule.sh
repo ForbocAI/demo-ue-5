@@ -9,7 +9,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SDK_SUBMODULE="Plugins/ForbocAI_SDK"
 SDK_PATH="$PROJECT_ROOT/$SDK_SUBMODULE"
 SDK_HOOKS_PATH="$PROJECT_ROOT/.githooks/sdk-submodule"
-SDK_POLICY="Plugins/ForbocAI_SDK is read-only in the demo. Edit ../sdk-ue-5.7, commit there, then run ./update-sdk.sh here."
+SDK_POLICY="Plugins/ForbocAI_SDK is read-only in the demo. Edit ../sdk-ue-5.7, commit there, then run bash Scripts/update-sdk.sh here."
 
 git_submodule_env() {
   env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git "$@"
@@ -92,14 +92,14 @@ esac
 if [ ! -d "$SDK_PATH" ]; then
   echo "Error: SDK submodule directory is missing: $SDK_SUBMODULE"
   echo "Run: git submodule update --init --recursive"
-  echo "First-time setup: ./setup-dev.sh"
+  echo "First-time setup: bash Scripts/setup-dev.sh"
   exit 1
 fi
 
 if [ ! -d "$SDK_PATH/.git" ] && [ ! -f "$SDK_PATH/.git" ]; then
   echo "Error: $SDK_SUBMODULE is not an initialized git submodule."
   echo "Run: git submodule update --init --recursive"
-  echo "First-time setup: ./setup-dev.sh"
+  echo "First-time setup: bash Scripts/setup-dev.sh"
   exit 1
 fi
 
@@ -109,7 +109,7 @@ if [ "$MODE" = "--unlock" ]; then
   remove_windows_write_deny
   find "$SDK_PATH" -path "$SDK_PATH/.git" -prune -o -type d -exec chmod u+w {} +
   find "$SDK_PATH" -path "$SDK_PATH/.git" -prune -o -type f -exec chmod u+w {} +
-  echo "SDK submodule unlocked for ./update-sdk.sh only."
+  echo "SDK submodule unlocked for bash Scripts/update-sdk.sh only."
   exit 0
 fi
 
