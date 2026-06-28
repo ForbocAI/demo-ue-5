@@ -3,7 +3,10 @@
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Features/Systems/Speech/SpeechAdapters.h"
-#include "UObject/ConstructorHelpers.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
+#include "Store.h"
+
+namespace FG = ForbocAI::Demo::Level;
 
 ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
     : SceneRoot(CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"))),
@@ -14,10 +17,11 @@ ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
   RootComponent = SceneRoot;
   PresentationMesh->SetupAttachment(SceneRoot);
 
-  static ConstructorHelpers::FObjectFinder<USkeletalMesh> DefaultMesh(
-      TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple."
-           "SKM_Manny_Simple"));
-  if (DefaultMesh.Succeeded()) {
-    PresentationMesh->SetSkeletalMesh(DefaultMesh.Object);
+  const FG::FRuntimeState State = FG::Store::GetStore().getState();
+  const FG::FPlayerPresentationViewModel Presentation =
+      FG::RuntimeSelectors::SelectPlayerPresentation(State);
+  if (USkeletalMesh *Mesh =
+          LoadObject<USkeletalMesh>(nullptr, *Presentation.MeshPath)) {
+    PresentationMesh->SetSkeletalMesh(Mesh);
   }
 }

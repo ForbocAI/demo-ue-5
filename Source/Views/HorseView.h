@@ -81,6 +81,10 @@ private:
   float PauseRemaining;
   float PatrolArrivalDistance;
   bool bMountedRider;
+  FString HorseMeshPath;
+  FString HorseWalkAnimationPath;
+  FString RiderMeshPath;
+  FString RiderWalkAnimationPath;
 
   void AdvancePatrol(float DeltaTime);
   void ConfigureImportedHorseAsset();

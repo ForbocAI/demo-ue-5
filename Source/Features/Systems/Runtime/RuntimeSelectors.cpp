@@ -8,6 +8,7 @@
 #include "Features/Systems/Bots/Stats/BotStatsSelectors.h"
 #include "Features/Systems/Bots/Horses/HorseSelectors.h"
 #include "Features/Systems/Landmarks/LandmarkSelectors.h"
+#include "Features/Systems/Level/LevelSelectors.h"
 #include "Features/Systems/Nature/NatureSelectors.h"
 #include "Features/Systems/Rendering/RenderingSelectors.h"
 #include "Features/Systems/Spawn/SpawnSelectors.h"
@@ -31,6 +32,16 @@ const FSystemsState &SelectSystemsState(const FRuntimeState &State) {
 
 const FLevelSystemState &SelectLevelState(const FRuntimeState &State) {
   return State.Level;
+}
+
+const ForbocAI::Demo::Data::FLevelTerrainSourceSettings &
+SelectLevelTerrainSources(const FRuntimeState &State) {
+  return LevelSystemSelectors::SelectTerrainSources(State.Level);
+}
+
+const ForbocAI::Demo::Data::FLevelGeometrySettings &
+SelectLevelGeometry(const FRuntimeState &State) {
+  return LevelSystemSelectors::SelectGeometry(State.Level);
 }
 
 const FRenderingState &SelectRenderingState(const FRuntimeState &State) {
@@ -131,6 +142,21 @@ SelectPlayerMovementInput(const FRuntimeState &State) {
 const FPlayerPresentationViewModel &
 SelectPlayerPresentation(const FRuntimeState &State) {
   return PlayerSelectors::SelectPresentation(State.Player);
+}
+
+const FLevelRetroRenderProfile &
+SelectRuntimeProfile(const FRuntimeState &State) {
+  return RenderingSelectors::SelectRuntimeProfile(State.Rendering);
+}
+
+const TArray<FLevelRetroTextureSpec> &
+SelectTextureCatalog(const FRuntimeState &State) {
+  return RenderingSelectors::SelectTextureCatalog(State.Rendering);
+}
+
+const FRenderingAssetPaths &
+SelectRenderingAssetPaths(const FRuntimeState &State) {
+  return RenderingSelectors::SelectRenderingAssetPaths(State.Rendering);
 }
 
 int32 SelectBotInitialPatrolIndex(const FRuntimeState &State) {

@@ -4,6 +4,7 @@
 #include "Engine/Texture2D.h"
 #include "Features/Systems/Rendering/RenderingActions.h"
 #include "Features/Systems/Rendering/RenderingReducers.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "HAL/IConsoleManager.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
@@ -147,9 +148,16 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
   return Color({255, 0, 255});
 }
 
-UTexture2D *CreateRetroTexture(ELevelRetroTexture Texture) {
-  const FLevelRetroTextureSpec Spec =
-      RenderingReducers::ReduceDefaultTextureSpec({Texture});
+FString TextureCacheKey(const FLevelRetroTextureSpec &Spec) {
+  return FString::Printf(TEXT("%d:%d:%d"), static_cast<int32>(Spec.Texture),
+                         Spec.Size.X, Spec.Size.Y);
+}
+
+UTexture2D *CreateRetroTexture(const FLevelRetroTextureSpec &Spec) {
+  if (Spec.Size.X <= 0 || Spec.Size.Y <= 0) {
+    return nullptr;
+  }
+
   UTexture2D *Result =
       UTexture2D::CreateTransient(Spec.Size.X, Spec.Size.Y, PF_B8G8R8A8);
   if (!Result || !Result->GetPlatformData() ||
@@ -175,7 +183,7 @@ UTexture2D *CreateRetroTexture(ELevelRetroTexture Texture) {
   Pixels.Reserve(Spec.Size.X * Spec.Size.Y);
   for (int32 Y = 0; Y < Spec.Size.Y; ++Y) {
     for (int32 X = 0; X < Spec.Size.X; ++X) {
-      Pixels.Add(PaletteColor({Texture, X, Y}));
+      Pixels.Add(PaletteColor({Spec.Texture, X, Y}));
     }
   }
   FMemory::Memcpy(Data, Pixels.GetData(),
@@ -187,14 +195,14 @@ UTexture2D *CreateRetroTexture(ELevelRetroTexture Texture) {
   return Result;
 }
 
-UTexture2D *TextureFor(ELevelRetroTexture Texture) {
-  static TMap<uint8, UTexture2D *> TextureCache;
-  const uint8 Key = static_cast<uint8>(Texture);
+UTexture2D *TextureFor(const FLevelRetroTextureSpec &Spec) {
+  static TMap<FString, UTexture2D *> TextureCache;
+  const FString Key = TextureCacheKey(Spec);
   if (UTexture2D **Cached = TextureCache.Find(Key)) {
     return *Cached;
   }
 
-  UTexture2D *Created = CreateRetroTexture(Texture);
+  UTexture2D *Created = CreateRetroTexture(Spec);
   TextureCache.Add(Key, Created);
   return Created;
 }
@@ -205,9 +213,10 @@ ObserveRuntimeProfile(const FString &Id) {
   return [Id](std::function<rtk::AnyAction(const rtk::AnyAction &)> Dispatch,
               std::function<FRuntimeState()> GetState)
              -> func::AsyncResult<FRenderingPayload> {
+    const FRuntimeState State = GetState();
     const FRenderingPayload Payload{
-        Id, RenderingReducers::ReduceRuntimeProfileDefaults(),
-        RenderingReducers::ReduceTextureCatalogDefaults()};
+        Id, RuntimeSelectors::SelectRuntimeProfile(State),
+        RuntimeSelectors::SelectTextureCatalog(State)};
     return func::createAsyncResult<FRenderingPayload>(
         [Dispatch, Payload](std::function<void(FRenderingPayload)> Resolve,
                             std::function<void(std::string)> Reject) {
@@ -217,9 +226,7 @@ ObserveRuntimeProfile(const FString &Id) {
   };
 }
 
-void ApplyRuntimeProfile() {
-  const FLevelRetroRenderProfile &Profile =
-      RenderingReducers::ReduceRuntimeProfileDefaults();
+void ApplyRuntimeProfile(const FLevelRetroRenderProfile &Profile) {
   SetCVarInt({TEXT("r.AntiAliasingMethod"), Profile.AntiAliasingMethod});
   SetCVarInt({TEXT("r.PostProcessAAQuality"), Profile.PostProcessAAQuality});
   SetCVarInt({TEXT("r.TemporalAA.Upsampling"), 0});
@@ -239,10 +246,8 @@ void ApplyRuntimeProfile() {
   SetCVarFloat({TEXT("r.Streaming.MipBias"), 2.0f});
 }
 
-UMaterialInterface *LoadBlockoutMaterial() {
-  return LoadObject<UMaterialInterface>(
-      nullptr,
-      TEXT("/Engine/EngineMaterials/EmissiveTexturedMaterial.EmissiveTexturedMaterial"));
+UMaterialInterface *LoadBlockoutMaterial(const FString &Path) {
+  return LoadObject<UMaterialInterface>(nullptr, *Path);
 }
 
 void ApplyTexture(const FLevelRetroTextureApply &Request) {
@@ -250,7 +255,9 @@ void ApplyTexture(const FLevelRetroTextureApply &Request) {
     return;
   }
 
-  UTexture2D *RetroTexture = TextureFor(Request.Texture);
+  const FLevelRetroTextureSpec Spec = RenderingReducers::ReduceTextureSpec(
+      {Request.Texture, Request.TextureCatalog});
+  UTexture2D *RetroTexture = TextureFor(Spec);
   if (!RetroTexture) {
     return;
   }

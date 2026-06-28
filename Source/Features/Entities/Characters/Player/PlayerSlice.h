@@ -16,9 +16,6 @@ inline FPlayerState CreateInitialState() {
   return (func::pipe(FPlayerState{}) |
           [](FPlayerState State) -> FPlayerState {
             State.LastActionId = func::nothing<FString>();
-            State.Presentation =
-                PlayerReducers::ReducePlayerPresentation(
-                    {TEXT("entities/player/presentationInitial")});
             State.bReady = false;
             return State;
           })

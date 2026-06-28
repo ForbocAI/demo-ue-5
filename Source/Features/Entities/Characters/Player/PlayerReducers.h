@@ -2,6 +2,7 @@
 
 #include "Core/rtk.hpp"
 
+#include "Features/Components/Data/DataTypes.h"
 #include "Features/Entities/Characters/Player/PlayerTypes.h"
 
 namespace ForbocAI {
@@ -39,23 +40,39 @@ inline FPlayerMovementInputViewModel ReduceMovementInput(
   return Model;
 }
 
+/**
+ * @brief Maps JSON-backed player presentation settings into selector state.
+ *
+ * @signature FPlayerPresentationViewModel ReducePlayerPresentation(const
+ * ForbocAI::Demo::Data::FPlayerPresentationSettings &Settings)
+ *
+ * User story: As a player, camera, movement, mesh, and input assets can be
+ * tuned from data while the Redux reducer remains the owner of presentation
+ * state.
+ */
 inline FPlayerPresentationViewModel ReducePlayerPresentation(
-    const FPlayerPresentationRequest &Request) {
-  (void)Request;
+    const ForbocAI::Demo::Data::FPlayerPresentationSettings &Settings) {
   FPlayerPresentationViewModel Model;
-  Model.CapsuleRadius = 42.0f;
-  Model.CapsuleHalfHeight = 96.0f;
-  Model.FollowCameraArmLength = 400.0f;
-  Model.RotationRateYaw = 500.0f;
-  Model.JumpZVelocity = 500.0f;
-  Model.AirControl = 0.35f;
-  Model.MaxWalkSpeed = 500.0f;
-  Model.MinAnalogWalkSpeed = 20.0f;
-  Model.BrakingDecelerationWalking = 2000.0f;
-  Model.BrakingDecelerationFalling = 1500.0f;
-  Model.MeshRelativeLocation =
-      FVector(0.0f, 0.0f, -Model.CapsuleHalfHeight);
-  Model.MeshRelativeRotation = FRotator(0.0f, -90.0f, 0.0f);
+  Model.CapsuleRadius = Settings.CapsuleRadius;
+  Model.CapsuleHalfHeight = Settings.CapsuleHalfHeight;
+  Model.FollowCameraArmLength = Settings.FollowCameraArmLength;
+  Model.RotationRateYaw = Settings.RotationRateYaw;
+  Model.JumpZVelocity = Settings.JumpZVelocity;
+  Model.AirControl = Settings.AirControl;
+  Model.MaxWalkSpeed = Settings.MaxWalkSpeed;
+  Model.MinAnalogWalkSpeed = Settings.MinAnalogWalkSpeed;
+  Model.BrakingDecelerationWalking = Settings.BrakingDecelerationWalking;
+  Model.BrakingDecelerationFalling = Settings.BrakingDecelerationFalling;
+  Model.MeshRelativeLocation = Settings.MeshRelativeLocation;
+  Model.MeshRelativeRotation = Settings.MeshRelativeRotation;
+  Model.MeshPath = Settings.MeshPath;
+  Model.AnimationBlueprintClassPath = Settings.AnimationBlueprintClassPath;
+  Model.MoveActionPath = Settings.MoveActionPath;
+  Model.LookActionPath = Settings.LookActionPath;
+  Model.MouseLookActionPath = Settings.MouseLookActionPath;
+  Model.JumpActionPath = Settings.JumpActionPath;
+  Model.DefaultMappingContextPath = Settings.DefaultMappingContextPath;
+  Model.MouseMappingContextPath = Settings.MouseMappingContextPath;
   return Model;
 }
 
@@ -77,7 +94,6 @@ inline FPlayerState ReducePlayerPresentationRequested(
   return (func::pipe(State) |
           [&Action](FPlayerState Next) -> FPlayerState {
             Next.LastActionId = func::just(Action.PayloadValue.Id);
-            Next.Presentation = ReducePlayerPresentation(Action.PayloadValue);
             return Next;
           })
       .val;

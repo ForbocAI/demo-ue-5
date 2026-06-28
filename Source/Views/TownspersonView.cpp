@@ -71,6 +71,9 @@ ATownspersonView::ATownspersonView()
   WalkSpeed = Presentation.WalkSpeed;
   PauseDuration = Presentation.PauseDuration;
   PatrolArrivalDistance = Presentation.PatrolArrivalDistance;
+  CharacterMeshPath = Presentation.MeshPath;
+  CharacterAnimationBlueprintClassPath =
+      Presentation.AnimationBlueprintClassPath;
 
   SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
   RootComponent = SceneRoot;
@@ -115,10 +118,10 @@ ATownspersonView::ATownspersonView()
 
   const ForbocAI::Demo::Level::FTownspersonViewDefaults Defaults =
       ObserveTownspersonViewDefaults({});
-  TownspersonId = TEXT("townsperson");
-  TownspersonName = TEXT("Townsperson");
-  TownspersonRole = TEXT("Resident");
-  Persona = TEXT("I keep one eye on the mine road and one on the weather.");
+  TownspersonId = Defaults.Id;
+  TownspersonName = Defaults.Name;
+  TownspersonRole = Defaults.Role;
+  Persona = Defaults.Persona;
   InteractionPrompt = Defaults.InteractionPrompt;
   DefaultPlayerLine = Defaults.DefaultPlayerLine;
   PinnedResponse = FString();
@@ -201,9 +204,8 @@ void ATownspersonView::AdvancePatrol(float DeltaTime) {
 }
 
 void ATownspersonView::ConfigureSampleCharacterAsset() {
-  if (USkeletalMesh *Mesh = LoadObject<USkeletalMesh>(
-          nullptr,
-          TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"))) {
+  if (USkeletalMesh *Mesh =
+          LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath)) {
     CharacterMesh->SetSkeletalMesh(Mesh);
   } else {
     UE_LOG(LogTemp, Error,
@@ -212,8 +214,7 @@ void ATownspersonView::ConfigureSampleCharacterAsset() {
   }
 
   if (UClass *AnimClass = LoadClass<UAnimInstance>(
-          nullptr,
-          TEXT("/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C"))) {
+          nullptr, *CharacterAnimationBlueprintClassPath)) {
     CharacterMesh->SetAnimInstanceClass(AnimClass);
     return;
   }

@@ -3,7 +3,6 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Level/LevelActions.h"
-#include "Features/Systems/Level/LevelRuntimeSession.h"
 #include "Features/Systems/Level/LevelReducers.h"
 #include "Features/Systems/Level/LevelSelectors.h"
 #include "Features/Systems/Level/LevelTypes.h"
@@ -37,43 +36,28 @@ inline const rtk::Slice<FLevelSystemState> &GetSlice() {
   return func::eval(Slice);
 }
 
-inline FLevelRuntimeLayoutSeed BuildFrenchGulchRuntimeLayoutSeed() {
-  return LevelRuntimeSession::BuildFrenchGulchRuntimeLayoutSeed();
-}
-
-inline FLevelBlockSpawn
-BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSeed &Seed,
-                       const FLevelTerrainData &TerrainData) {
-  return LevelSystemReducers::BuildRuntimeBlockSpawn(Seed, TerrainData);
+inline FLevelRuntimeSectionSpawn
+BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSpawnRequest &Request) {
+  return LevelSystemReducers::BuildRuntimeSectionSpawn(Request);
 }
 
 inline FLevelRuntimeSectionSpawn
-BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSeed &Seed,
-                         const FLevelTerrainData &TerrainData) {
-  return LevelSystemReducers::BuildRuntimeSectionSpawn(Seed, TerrainData);
+BuildOverlaySectionSpawn(const FLevelOverlaySectionSpawnRequest &Request) {
+  return LevelSystemReducers::BuildOverlaySectionSpawn(Request);
 }
 
 inline FLevelRuntimeSectionSpawn
-BuildOverlaySectionSpawn(const FLevelRuntimeLayoutSeed &Seed,
-                         const FLevelTerrainData &TerrainData) {
-  return LevelSystemReducers::BuildOverlaySectionSpawn(Seed, TerrainData);
+BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
+  return LevelSystemReducers::BuildLandmarkSectionSpawn(Request);
 }
 
 inline FLevelRuntimeSectionSpawn
-BuildLandmarkSectionSpawn(const TArray<FLandmark> &Landmarks) {
-  return LevelSystemReducers::BuildLandmarkSectionSpawn(Landmarks);
+BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
+  return LevelSystemReducers::BuildNatureSectionSpawn(Request);
 }
 
-inline FLevelRuntimeSectionSpawn
-BuildNatureSectionSpawn(const TArray<FNatureFeatureSeed> &Features,
-                        const FLevelTerrainData &TerrainData) {
-  return LevelSystemReducers::BuildNatureSectionSpawn(Features, TerrainData);
-}
-
-inline TArray<FVector> BuildWorldRoute(
-    const TArray<FLevelLocalPoint> &Route,
-    const FLevelTerrainData &TerrainData) {
-  return LevelSystemReducers::BuildWorldRoute(Route, TerrainData);
+inline TArray<FVector> BuildWorldRoute(const FLevelWorldRouteRequest &Request) {
+  return LevelSystemReducers::BuildWorldRoute(Request);
 }
 
 } // namespace LevelSystemSlice

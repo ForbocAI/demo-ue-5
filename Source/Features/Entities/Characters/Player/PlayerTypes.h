@@ -43,6 +43,14 @@ struct FPlayerPresentationViewModel {
   float BrakingDecelerationFalling = 0.0f;
   FVector MeshRelativeLocation = FVector::ZeroVector;
   FRotator MeshRelativeRotation = FRotator::ZeroRotator;
+  FString MeshPath;
+  FString AnimationBlueprintClassPath;
+  FString MoveActionPath;
+  FString LookActionPath;
+  FString MouseLookActionPath;
+  FString JumpActionPath;
+  FString DefaultMappingContextPath;
+  FString MouseMappingContextPath;
 };
 
 struct FPlayerState {
@@ -118,7 +126,16 @@ inline bool operator==(const FPlayerPresentationViewModel &Left,
          FMath::IsNearlyEqual(Left.BrakingDecelerationFalling,
                               Right.BrakingDecelerationFalling) &&
          Left.MeshRelativeLocation == Right.MeshRelativeLocation &&
-         Left.MeshRelativeRotation == Right.MeshRelativeRotation;
+         Left.MeshRelativeRotation == Right.MeshRelativeRotation &&
+         Left.MeshPath == Right.MeshPath &&
+         Left.AnimationBlueprintClassPath ==
+             Right.AnimationBlueprintClassPath &&
+         Left.MoveActionPath == Right.MoveActionPath &&
+         Left.LookActionPath == Right.LookActionPath &&
+         Left.MouseLookActionPath == Right.MouseLookActionPath &&
+         Left.JumpActionPath == Right.JumpActionPath &&
+         Left.DefaultMappingContextPath == Right.DefaultMappingContextPath &&
+         Left.MouseMappingContextPath == Right.MouseMappingContextPath;
 }
 
 inline bool operator!=(const FPlayerPresentationViewModel &Left,

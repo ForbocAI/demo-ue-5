@@ -95,7 +95,8 @@ FRuntimeTownspersonInteractionPayload ReduceTownspersonInteractionPayload(
 FRuntimeLevelViewPayload ReduceLevelViewPayload(
     const FRuntimeState &State,
     const FRuntimeLevelViewPayloadRequest &Request) {
-  if (!Request.TerrainData || !Request.OrthoData || !Request.RuntimeLayout) {
+  if (!Request.TerrainData || !Request.OrthoData || !Request.RuntimeLayout ||
+      !Request.Geometry) {
     return ReduceEmptyLevelViewPayload();
   }
 
@@ -103,31 +104,31 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
   Payload.TerrainMesh = TerrainReducers::BuildTerrainMeshPayload(
       *Request.TerrainData, *Request.OrthoData);
   Payload.bTerrainMeshLoaded = Payload.TerrainMesh.bLoaded;
-  Payload.FallbackTerrainBlock = LevelSystemReducers::BuildRuntimeBlockSpawn(
-      {Request.RuntimeLayout->FallbackTerrainBlock, *Request.TerrainData});
 
   ReduceAppendSection(Payload.Sections,
                       LevelSystemReducers::BuildRuntimeSectionSpawn(
                           {Request.RuntimeLayout->Terrain,
-                           *Request.TerrainData}));
+                           *Request.TerrainData, *Request.Geometry}));
   ReduceAppendSection(Payload.Sections,
                       LevelSystemReducers::BuildNatureSectionSpawn(
                           {NatureSelectors::SelectAll(State.Nature),
-                           *Request.TerrainData}));
+                           *Request.TerrainData, *Request.Geometry}));
   ReduceAppendSection(Payload.Sections,
                       LevelSystemReducers::BuildLandmarkSectionSpawn(
-                          LandmarkSelectors::SelectAll(State.Landmarks)));
+                          {LandmarkSelectors::SelectAll(State.Landmarks),
+                           *Request.Geometry}));
   ReduceAppendSection(Payload.Sections,
                       LevelSystemReducers::BuildRuntimeSectionSpawn(
                           {Request.RuntimeLayout->Town,
-                           *Request.TerrainData}));
+                           *Request.TerrainData, *Request.Geometry}));
   ReduceAppendSection(Payload.Sections,
                       LevelSystemReducers::BuildRuntimeSectionSpawn(
                           {Request.RuntimeLayout->Mine,
-                           *Request.TerrainData}));
+                           *Request.TerrainData, *Request.Geometry}));
   ReduceAppendSection(Payload.Sections,
                       LevelSystemReducers::BuildOverlaySectionSpawn(
-                          {*Request.RuntimeLayout, *Request.TerrainData}));
+                          {*Request.RuntimeLayout, *Request.TerrainData,
+                           *Request.Geometry}));
 
   Payload.Townspeople =
       Data::DataAdapters::MapArray<FTownspersonSeed,

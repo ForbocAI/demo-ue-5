@@ -12,16 +12,6 @@ FRenderingState CreateInitialState() {
   return (func::pipe(FRenderingState{}) |
           [](FRenderingState State) -> FRenderingState {
             State.LastActionId = func::nothing<FString>();
-            State.RuntimeProfile =
-                RenderingReducers::ReduceRuntimeProfileDefaults();
-            State.TextureCatalog =
-                RenderingReducers::ReduceTextureCatalogDefaults();
-            State.TownspersonPresentation =
-                RenderingReducers::ReduceTownspersonPresentation(
-                    {TEXT("systems/rendering/townspersonPresentationInitial")});
-            State.HorsePresentation =
-                RenderingReducers::ReduceHorsePresentation(
-                    {TEXT("systems/rendering/horsePresentationInitial")});
             State.bReady = false;
             return State;
           })
@@ -48,10 +38,12 @@ const rtk::Slice<FRenderingState> &GetSlice() {
   return func::eval(Slice);
 }
 
-void ApplyRuntimeProfile() { RenderingThunks::ApplyRuntimeProfile(); }
+void ApplyRuntimeProfile(const FLevelRetroRenderProfile &Profile) {
+  RenderingThunks::ApplyRuntimeProfile(Profile);
+}
 
-UMaterialInterface *LoadBlockoutMaterial() {
-  return RenderingThunks::LoadBlockoutMaterial();
+UMaterialInterface *LoadBlockoutMaterial(const FString &Path) {
+  return RenderingThunks::LoadBlockoutMaterial(Path);
 }
 
 void ApplyTexture(const FLevelRetroTextureApply &Request) {

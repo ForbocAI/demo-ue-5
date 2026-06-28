@@ -13,137 +13,143 @@ namespace Level {
 namespace LevelSystemReducers {
 namespace detail {
 
-inline FLevelLocalPoint GroundLots(float EastLots, float NorthLots,
-                                   const FVector &Scale,
-                                   float Clearance) {
+struct FGroundLotsRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  float EastLots = 0.0f;
+  float NorthLots = 0.0f;
+  FVector Scale = FVector::OneVector;
+  float Clearance = 0.0f;
+};
+
+struct FScaleFromSeedRequest {
+  FLevelRuntimeScaleSeed Seed;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+struct FLocalPointFromSeedRequest {
+  FLevelRuntimeBlockSeed Seed;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  FVector Scale = FVector::OneVector;
+};
+
+struct FWorldLocationFromSeedRequest {
+  FLevelRuntimeBlockSeed Seed;
+  FLevelTerrainData TerrainData;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  FVector Scale = FVector::OneVector;
+};
+
+struct FLabelHeightOffsetRequest {
+  FLevelRuntimeLabelSeed Seed;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  FVector ReferenceScale = FVector::OneVector;
+};
+
+struct FLabelLocalPointRequest {
+  FLevelRuntimeLabelSeed Seed;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  FVector ReferenceScale = FVector::OneVector;
+};
+
+struct FLandmarkLabelLocationRequest {
+  FLandmark Landmark;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+inline FLevelLocalPoint GroundLots(const FGroundLotsRequest &Request) {
   return LevelLayoutSlice::CenteredOnGround(
-      LevelLayoutSlice::FromPostOfficeLots(EastLots, NorthLots), Scale,
-      Clearance);
+      {Request.Geometry,
+       LevelLayoutSlice::FromPostOfficeLots(
+           {Request.Geometry, Request.EastLots, Request.NorthLots, 0.0f}),
+       Request.Scale, Request.Clearance});
 }
 
-inline FLevelLocalPoint BuildingLots(float EastLots, float NorthLots,
-                                     const FVector &Scale) {
-  return GroundLots(EastLots, NorthLots, Scale,
-                    LevelLayoutSlice::BuildingFoundationHeight());
+inline FLevelLocalPoint BuildingLots(const FGroundLotsRequest &Request) {
+  return GroundLots({Request.Geometry, Request.EastLots, Request.NorthLots,
+                     Request.Scale,
+                     LevelLayoutSlice::BuildingFoundationHeight(
+                         Request.Geometry)});
 }
 
-inline FLevelLocalPoint FeatureLots(float EastLots, float NorthLots,
-                                    const FVector &Scale) {
-  return GroundLots(EastLots, NorthLots, Scale,
-                    LevelLayoutSlice::RoadSurfaceClearance());
+inline FLevelLocalPoint FeatureLots(const FGroundLotsRequest &Request) {
+  return GroundLots({Request.Geometry, Request.EastLots, Request.NorthLots,
+                     Request.Scale,
+                     LevelLayoutSlice::RoadSurfaceClearance(Request.Geometry)});
 }
 
-inline FVector FallbackTerrainScale() {
-  const float PlaneScale = FLevelTerrainData::TerrainWorldSize /
-                           (LevelLayoutSlice::CubeHalfExtent() * 2.0f);
-  return FVector(PlaneScale, PlaneScale,
-                 LevelLayoutSlice::RoadSurfaceClearance() /
-                     LevelLayoutSlice::CubeHalfExtent());
-}
-
-inline FVector ScaleFromSeed(const FLevelRuntimeScaleSeed &Seed) {
-  return func::or_else(
-      func::multi_match<ELevelRuntimeScaleMode, FVector>(
-          Seed.Mode,
-          {
-              func::when<ELevelRuntimeScaleMode, FVector>(
-                  func::equals<ELevelRuntimeScaleMode>(
-                      ELevelRuntimeScaleMode::Building),
-                  [&Seed](ELevelRuntimeScaleMode) {
-                    return LevelLayoutSlice::BuildingScaleFromFeet(
-                        Seed.FrontageFeet, Seed.DepthFeet, Seed.Stories);
-                  }),
-              func::when<ELevelRuntimeScaleMode, FVector>(
-                  func::equals<ELevelRuntimeScaleMode>(
-                      ELevelRuntimeScaleMode::LongFeature),
-                  [&Seed](ELevelRuntimeScaleMode) {
-                    return LevelLayoutSlice::LongFeatureScale(
-                        Seed.WidthFeet, Seed.LengthLots, Seed.HeightFeet);
-                  }),
-              func::when<ELevelRuntimeScaleMode, FVector>(
-                  func::equals<ELevelRuntimeScaleMode>(
-                      ELevelRuntimeScaleMode::FallbackTerrain),
-                  [](ELevelRuntimeScaleMode) { return FallbackTerrainScale(); }),
-          }),
-      LevelLayoutSlice::PadScaleFromFeet(Seed.WidthFeet, Seed.DepthFeet,
-                                         Seed.HeightFeet));
+inline FVector ScaleFromSeed(const FScaleFromSeedRequest &Request) {
+  return Request.Seed.Mode == ELevelRuntimeScaleMode::Building
+             ? LevelLayoutSlice::BuildingScaleFromFeet(
+                   {Request.Geometry, Request.Seed.FrontageFeet,
+                    Request.Seed.DepthFeet, Request.Seed.Stories})
+             : Request.Seed.Mode == ELevelRuntimeScaleMode::LongFeature
+                   ? LevelLayoutSlice::LongFeatureScale(
+                         {Request.Geometry, Request.Seed.WidthFeet,
+                          Request.Seed.LengthLots, Request.Seed.HeightFeet})
+                   : LevelLayoutSlice::PadScaleFromFeet(
+                         {Request.Geometry, Request.Seed.WidthFeet,
+                          Request.Seed.DepthFeet, Request.Seed.HeightFeet});
 }
 
 inline FLevelLocalPoint LocalPointFromSeed(
-    const FLevelRuntimeBlockSeed &Seed, const FVector &Scale) {
-  return func::or_else(
-      func::multi_match<ELevelRuntimeAnchorMode, FLevelLocalPoint>(
-          Seed.Anchor,
-          {
-              func::when<ELevelRuntimeAnchorMode, FLevelLocalPoint>(
-                  func::equals<ELevelRuntimeAnchorMode>(
-                      ELevelRuntimeAnchorMode::BuildingLots),
-                  [&Seed, &Scale](ELevelRuntimeAnchorMode) {
-                    return BuildingLots(Seed.EastLots, Seed.NorthLots, Scale);
-                  }),
-              func::when<ELevelRuntimeAnchorMode, FLevelLocalPoint>(
-                  func::equals<ELevelRuntimeAnchorMode>(
-                      ELevelRuntimeAnchorMode::PostOfficeLots),
-                  [&Seed](ELevelRuntimeAnchorMode) {
-                    return LevelLayoutSlice::FromPostOfficeLots(
-                        Seed.EastLots, Seed.NorthLots);
-                  }),
-          }),
-      FeatureLots(Seed.EastLots, Seed.NorthLots, Scale));
+    const FLocalPointFromSeedRequest &Request) {
+  return Request.Seed.Anchor == ELevelRuntimeAnchorMode::BuildingLots
+             ? BuildingLots({Request.Geometry, Request.Seed.EastLots,
+                             Request.Seed.NorthLots, Request.Scale, 0.0f})
+             : Request.Seed.Anchor == ELevelRuntimeAnchorMode::PostOfficeLots
+                   ? LevelLayoutSlice::FromPostOfficeLots(
+                         {Request.Geometry, Request.Seed.EastLots,
+                          Request.Seed.NorthLots, 0.0f})
+                   : FeatureLots({Request.Geometry, Request.Seed.EastLots,
+                                  Request.Seed.NorthLots, Request.Scale,
+                                  0.0f});
 }
 
-inline FVector WorldLocationFromSeed(const FLevelRuntimeBlockSeed &Seed,
-                                     const FLevelTerrainData &TerrainData,
-                                     const FVector &Scale) {
-  return Seed.Anchor == ELevelRuntimeAnchorMode::World
-             ? Seed.WorldLocation
-             : LevelLayoutSlice::ToWorld(TerrainData,
-                                          LocalPointFromSeed(Seed, Scale));
+inline FVector WorldLocationFromSeed(
+    const FWorldLocationFromSeedRequest &Request) {
+  return Request.Seed.Anchor == ELevelRuntimeAnchorMode::World
+             ? Request.Seed.WorldLocation
+             : LevelLayoutSlice::ToWorld(
+                   {Request.TerrainData,
+                    LocalPointFromSeed({Request.Seed, Request.Geometry,
+                                        Request.Scale})});
 }
 
-inline float LabelHeightOffsetFromSeed(const FLevelRuntimeLabelSeed &Seed,
-                                       const FVector &ReferenceScale) {
-  return func::or_else(
-      func::multi_match<ELevelRuntimeLabelHeightMode, float>(
-          Seed.Height,
-          {
-              func::when<ELevelRuntimeLabelHeightMode, float>(
-                  func::equals<ELevelRuntimeLabelHeightMode>(
-                      ELevelRuntimeLabelHeightMode::LabelForScale),
-                  [&ReferenceScale](ELevelRuntimeLabelHeightMode) {
-                    return LevelLayoutSlice::LabelHeightForScale(
-                        ReferenceScale);
-                  }),
-              func::when<ELevelRuntimeLabelHeightMode, float>(
-                  func::equals<ELevelRuntimeLabelHeightMode>(
-                      ELevelRuntimeLabelHeightMode::AboveBlock),
-                  [&ReferenceScale](ELevelRuntimeLabelHeightMode) {
-                    return LevelLayoutSlice::AboveBlock(
-                               LevelLayoutSlice::Point(0.0f, 0.0f),
-                               ReferenceScale)
-                        .HeightOffset;
-                  }),
-          }),
-      Seed.HeightOffset);
+inline float LabelHeightOffsetFromSeed(
+    const FLabelHeightOffsetRequest &Request) {
+  return Request.Seed.Height == ELevelRuntimeLabelHeightMode::LabelForScale
+             ? LevelLayoutSlice::LabelHeightForScale(
+                   {Request.Geometry, Request.ReferenceScale})
+             : Request.Seed.Height == ELevelRuntimeLabelHeightMode::AboveBlock
+                   ? LevelLayoutSlice::AboveBlock(
+                         {Request.Geometry,
+                          LevelLayoutSlice::Point({0.0f, 0.0f, 0.0f}),
+                          Request.ReferenceScale})
+                         .HeightOffset
+                   : Request.Seed.HeightOffset;
 }
 
 inline FLevelLocalPoint LabelLocalPointFromSeed(
-    const FLevelRuntimeLabelSeed &Seed, const FVector &ReferenceScale) {
-  const float HeightOffset = LabelHeightOffsetFromSeed(Seed, ReferenceScale);
-  return LevelLayoutSlice::FromPostOfficeLots(Seed.EastLots, Seed.NorthLots,
-                                             HeightOffset);
+    const FLabelLocalPointRequest &Request) {
+  const float HeightOffset = LabelHeightOffsetFromSeed(
+      {Request.Seed, Request.Geometry, Request.ReferenceScale});
+  return LevelLayoutSlice::FromPostOfficeLots(
+      {Request.Geometry, Request.Seed.EastLots, Request.Seed.NorthLots,
+       HeightOffset});
 }
 
-inline FVector LabelLocationForLandmark(const FLandmark &Landmark) {
-  return Landmark.Location + FVector::UpVector *
-                                 (LevelLayoutSlice::CubeHalfExtent() *
-                                      Landmark.Scale.Z +
-                                  LevelLayoutSlice::BuildingFoundationHeight() +
-                                  LevelLayoutSlice::CubeHalfExtent());
+inline FVector LabelLocationForLandmark(
+    const FLandmarkLabelLocationRequest &Request) {
+  return Request.Landmark.Location +
+         FVector::UpVector *
+             (LevelLayoutSlice::CubeHalfExtent(Request.Geometry) *
+                  Request.Landmark.Scale.Z +
+              LevelLayoutSlice::BuildingFoundationHeight(Request.Geometry) +
+              LevelLayoutSlice::CubeHalfExtent(Request.Geometry));
 }
 
 inline ELevelRetroTexture TextureForNatureKind(ENatureFeatureKind Kind) {
-  return func::or_else(
+  const func::Maybe<ELevelRetroTexture> Texture =
       func::multi_match<ENatureFeatureKind, ELevelRetroTexture>(
           Kind,
           {
@@ -168,8 +174,21 @@ inline ELevelRetroTexture TextureForNatureKind(ENatureFeatureKind Kind) {
                   [](ENatureFeatureKind) {
                     return ELevelRetroTexture::FoliageRiparian;
                   }),
-          }),
-      ELevelRetroTexture::MarkerPaint);
+              func::when<ENatureFeatureKind, ELevelRetroTexture>(
+                  func::equals<ENatureFeatureKind>(
+                      ENatureFeatureKind::PCGMarker),
+                  [](ENatureFeatureKind) {
+                    return ELevelRetroTexture::MarkerPaint;
+                  }),
+              func::when<ENatureFeatureKind, ELevelRetroTexture>(
+                  func::equals<ENatureFeatureKind>(
+                      ENatureFeatureKind::WaterSystemMarker),
+                  [](ENatureFeatureKind) {
+                    return ELevelRetroTexture::MarkerPaint;
+                  }),
+          });
+  checkf(Texture.hasValue, TEXT("Unhandled nature feature kind"));
+  return Texture.value;
 }
 
 inline bool NatureFeatureNeedsLabel(ENatureFeatureKind Kind) {
@@ -183,7 +202,8 @@ inline TArray<FVector> BuildWorldRouteRecursive(
   return Index >= Route.Num()
              ? Acc
              : ([&Route, &TerrainData, Index](TArray<FVector> Next) {
-                 Next.Add(LevelLayoutSlice::ToWorld(TerrainData, Route[Index]));
+                 Next.Add(LevelLayoutSlice::ToWorld(
+                     {TerrainData, Route[Index]}));
                  return BuildWorldRouteRecursive(Route, TerrainData, Index + 1,
                                                  MoveTemp(Next));
                })(MoveTemp(Acc));
@@ -193,10 +213,11 @@ inline TArray<FVector> BuildWorldRouteRecursive(
 
 inline FLevelBlockSpawn
 BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSpawnRequest &Request) {
-  const FVector Scale = detail::ScaleFromSeed(Request.Seed.Scale);
+  const FVector Scale =
+      detail::ScaleFromSeed({Request.Seed.Scale, Request.Geometry});
   return {Request.Seed.Name,
-          detail::WorldLocationFromSeed(Request.Seed, Request.TerrainData,
-                                        Scale),
+          detail::WorldLocationFromSeed(
+              {Request.Seed, Request.TerrainData, Request.Geometry, Scale}),
           Scale,
           Request.Seed.Texture};
 }
@@ -204,12 +225,14 @@ BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSpawnRequest &Request) {
 inline FLevelLabelSpawn
 BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSpawnRequest &Request) {
   const FVector ReferenceScale =
-      detail::ScaleFromSeed(Request.Seed.ReferenceScale);
+      detail::ScaleFromSeed({Request.Seed.ReferenceScale, Request.Geometry});
   return {Request.Seed.Text,
           LevelLayoutSlice::ToWorld(
-              Request.TerrainData,
-              detail::LabelLocalPointFromSeed(Request.Seed, ReferenceScale)),
-          LevelLayoutSlice::CubeHalfExtent() * Request.Seed.WorldSizeScale};
+              {Request.TerrainData,
+               detail::LabelLocalPointFromSeed(
+                   {Request.Seed, Request.Geometry, ReferenceScale})}),
+          LevelLayoutSlice::CubeHalfExtent(Request.Geometry) *
+              Request.Seed.WorldSizeScale};
 }
 
 inline FLevelRuntimeSectionSpawn
@@ -219,14 +242,14 @@ BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSpawnRequest &Request) {
               {Request.Seed.Blocks,
                [&Request](const FLevelRuntimeBlockSeed &BlockSeed) {
                 return BuildRuntimeBlockSpawn(
-                    {BlockSeed, Request.TerrainData});
+                    {BlockSeed, Request.TerrainData, Request.Geometry});
               }}),
           Data::DataAdapters::MapArray<FLevelRuntimeLabelSeed,
                                        FLevelLabelSpawn>(
               {Request.Seed.Labels,
                [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
                 return BuildRuntimeLabelSpawn(
-                    {LabelSeed, Request.TerrainData});
+                    {LabelSeed, Request.TerrainData, Request.Geometry});
               }})};
 }
 
@@ -238,25 +261,28 @@ BuildOverlaySectionSpawn(const FLevelOverlaySectionSpawnRequest &Request) {
               {Request.Seed.OverlayLabels,
                [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
                 return BuildRuntimeLabelSpawn(
-                    {LabelSeed, Request.TerrainData});
+                    {LabelSeed, Request.TerrainData, Request.Geometry});
               }})};
 }
 
 inline FLevelRuntimeSectionSpawn
-BuildLandmarkSectionSpawn(const TArray<FLandmark> &Landmarks) {
+BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
   return {Data::DataAdapters::MapArray<FLandmark, FLevelBlockSpawn>(
-              {Landmarks,
+              {Request.Landmarks,
                [](const FLandmark &Landmark) {
                 return FLevelBlockSpawn{Landmark.Label, Landmark.Location,
                                         Landmark.Scale,
                                         ELevelRetroTexture::BuildingTimber};
               }}),
           Data::DataAdapters::MapArray<FLandmark, FLevelLabelSpawn>(
-              {Landmarks,
-               [](const FLandmark &Landmark) {
+              {Request.Landmarks,
+               [&Request](const FLandmark &Landmark) {
                 return FLevelLabelSpawn{
-                    Landmark.Label, detail::LabelLocationForLandmark(Landmark),
-                    LevelLayoutSlice::CubeHalfExtent() * 0.48f};
+                    Landmark.Label,
+                    detail::LabelLocationForLandmark(
+                        {Landmark, Request.Geometry}),
+                    LevelLayoutSlice::CubeHalfExtent(Request.Geometry) *
+                        Request.Geometry.LandmarkLabelWorldSizeScale};
               }})};
 }
 
@@ -267,8 +293,8 @@ BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
                [&Request](const FNatureFeatureSeed &Feature) {
                 return FLevelBlockSpawn{
                     Feature.Name,
-                    LevelLayoutSlice::ToWorld(Request.TerrainData,
-                                             Feature.Location),
+                    LevelLayoutSlice::ToWorld(
+                        {Request.TerrainData, Feature.Location}),
                     Feature.Scale, detail::TextureForNatureKind(Feature.Kind)};
               }}),
           Data::DataAdapters::FilterMapArray<FNatureFeatureSeed,
@@ -281,10 +307,12 @@ BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
                 return FLevelLabelSpawn{
                     Feature.Name,
                     LevelLayoutSlice::ToWorld(
-                        Request.TerrainData,
-                        LevelLayoutSlice::AboveBlock(Feature.Location,
-                                                     Feature.Scale)),
-                    LevelLayoutSlice::CubeHalfExtent() * 0.36f};
+                        {Request.TerrainData,
+                         LevelLayoutSlice::AboveBlock(
+                             {Request.Geometry, Feature.Location,
+                              Feature.Scale})}),
+                    LevelLayoutSlice::CubeHalfExtent(Request.Geometry) *
+                        Request.Geometry.NatureLabelWorldSizeScale};
               }})};
 }
 
@@ -294,42 +322,6 @@ BuildWorldRoute(const FLevelWorldRouteRequest &Request) {
   Acc.Reserve(Request.Route.Num());
   return detail::BuildWorldRouteRecursive(
       Request.Route, Request.TerrainData, 0, MoveTemp(Acc));
-}
-
-inline FLevelBlockSpawn
-BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSeed &Seed,
-                       const FLevelTerrainData &TerrainData) {
-  return BuildRuntimeBlockSpawn({Seed, TerrainData});
-}
-
-inline FLevelLabelSpawn
-BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSeed &Seed,
-                       const FLevelTerrainData &TerrainData) {
-  return BuildRuntimeLabelSpawn({Seed, TerrainData});
-}
-
-inline FLevelRuntimeSectionSpawn
-BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSeed &Seed,
-                         const FLevelTerrainData &TerrainData) {
-  return BuildRuntimeSectionSpawn({Seed, TerrainData});
-}
-
-inline FLevelRuntimeSectionSpawn
-BuildOverlaySectionSpawn(const FLevelRuntimeLayoutSeed &Seed,
-                         const FLevelTerrainData &TerrainData) {
-  return BuildOverlaySectionSpawn({Seed, TerrainData});
-}
-
-inline FLevelRuntimeSectionSpawn
-BuildNatureSectionSpawn(const TArray<FNatureFeatureSeed> &Features,
-                        const FLevelTerrainData &TerrainData) {
-  return BuildNatureSectionSpawn({Features, TerrainData});
-}
-
-inline TArray<FVector>
-BuildWorldRoute(const TArray<FLevelLocalPoint> &Route,
-                const FLevelTerrainData &TerrainData) {
-  return BuildWorldRoute({Route, TerrainData});
 }
 
 inline FLevelSystemState

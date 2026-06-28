@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
@@ -30,6 +31,20 @@ struct FInteractionCandidatesObserved {
 };
 
 /**
+ * @brief Reducer request for selecting a nearest candidate with configured
+ * empty-state messaging.
+ */
+struct FInteractionNearestCandidateRequest {
+  FInteractionCandidatesObserved Observation;
+  FString MissingMessage;
+};
+
+struct FInteractionDistanceSettingsRequest {
+  ForbocAI::Demo::Data::FInteractionSettings Interaction;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+/**
  * @brief Reducer-owned result of selecting an interaction target.
  */
 struct FInteractionSelection {
@@ -48,6 +63,7 @@ struct FInteractionState {
   FVector LastOrigin = FVector::ZeroVector;
   float LastMaxDistance = 0.0f;
   float TownspersonMaxDistance = 0.0f;
+  FString NoTownspersonMessage;
   TArray<FInteractionCandidate> LastCandidates;
   FInteractionSelection SelectedCandidate;
 };
@@ -76,6 +92,17 @@ inline bool operator!=(const FInteractionCandidatesObserved &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FInteractionNearestCandidateRequest &Left,
+                       const FInteractionNearestCandidateRequest &Right) {
+  return Left.Observation == Right.Observation &&
+         Left.MissingMessage == Right.MissingMessage;
+}
+
+inline bool operator!=(const FInteractionNearestCandidateRequest &Left,
+                       const FInteractionNearestCandidateRequest &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FInteractionSelection &Left,
                        const FInteractionSelection &Right) {
   return Left.bFound == Right.bFound &&
@@ -99,6 +126,7 @@ inline bool operator==(const FInteractionState &Left,
          FMath::IsNearlyEqual(Left.LastMaxDistance, Right.LastMaxDistance) &&
          FMath::IsNearlyEqual(Left.TownspersonMaxDistance,
                               Right.TownspersonMaxDistance) &&
+         Left.NoTownspersonMessage == Right.NoTownspersonMessage &&
          Left.LastCandidates == Right.LastCandidates &&
          Left.SelectedCandidate == Right.SelectedCandidate;
 }

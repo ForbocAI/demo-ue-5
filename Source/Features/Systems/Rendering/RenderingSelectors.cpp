@@ -15,6 +15,11 @@ SelectTextureCatalog(const FRenderingState &State) {
   return State.TextureCatalog;
 }
 
+const FRenderingAssetPaths &SelectRenderingAssetPaths(
+    const FRenderingState &State) {
+  return State.AssetPaths;
+}
+
 const FTownspersonPresentationViewModel &
 SelectTownspersonPresentation(const FRenderingState &State) {
   return State.TownspersonPresentation;

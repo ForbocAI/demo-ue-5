@@ -3,9 +3,9 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
-bool FLevelOrthoData::LoadFromContent() {
-  SourcePath = FPaths::ProjectContentDir() /
-               TEXT("Map/Heightmaps/french_gulch_ca_ortho_65.csv");
+bool FLevelOrthoData::LoadFromContent(
+    const FLevelOrthoDataLoadRequest &Request) {
+  SourcePath = FPaths::ProjectContentDir() / Request.Sources.OrthoCsvPath;
 
   TArray<FString> Lines;
   if (!FFileHelper::LoadFileToStringArray(Lines, *SourcePath)) {
@@ -75,7 +75,7 @@ bool FLevelOrthoData::IsLoaded() const {
 
 FColor FLevelOrthoData::GetColorAt(int32 Row, int32 Column) const {
   if (!IsLoaded()) {
-    return FColor(89, 116, 73);
+    return FColor();
   }
 
   const int32 ClampedRow = FMath::Clamp(Row, 0, GridSize - 1);
@@ -87,9 +87,11 @@ int32 FLevelOrthoData::GetGridSize() const { return GridSize; }
 
 FString FLevelOrthoData::GetSourcePath() const { return SourcePath; }
 
-bool FLevelTerrainData::LoadFromContent() {
-  SourcePath = FPaths::ProjectContentDir() /
-               TEXT("Map/Heightmaps/french_gulch_ca_terrain_65.csv");
+bool FLevelTerrainData::LoadFromContent(
+    const FLevelTerrainDataLoadRequest &Request) {
+  TerrainWorldSize = Request.Geometry.TerrainWorldSize;
+  ElevationScale = Request.Geometry.TerrainElevationScale;
+  SourcePath = FPaths::ProjectContentDir() / Request.Sources.TerrainCsvPath;
 
   TArray<FString> Lines;
   if (!FFileHelper::LoadFileToStringArray(Lines, *SourcePath)) {
@@ -186,6 +188,12 @@ float FLevelTerrainData::GetMinElevationMeters() const {
 float FLevelTerrainData::GetMaxElevationMeters() const {
   return MaxElevationMeters;
 }
+
+float FLevelTerrainData::GetTerrainWorldSize() const {
+  return TerrainWorldSize;
+}
+
+float FLevelTerrainData::GetElevationScale() const { return ElevationScale; }
 
 FString FLevelTerrainData::GetSourcePath() const { return SourcePath; }
 

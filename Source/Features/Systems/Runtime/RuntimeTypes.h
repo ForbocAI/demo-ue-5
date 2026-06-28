@@ -87,6 +87,7 @@ struct FRuntimeLevelViewPayloadRequest {
   const FLevelTerrainData *TerrainData = nullptr;
   const FLevelOrthoData *OrthoData = nullptr;
   const FLevelRuntimeLayoutSeed *RuntimeLayout = nullptr;
+  const ForbocAI::Demo::Data::FLevelGeometrySettings *Geometry = nullptr;
 };
 
 /**
@@ -125,7 +126,6 @@ struct FRuntimeTownspersonInteractionPayload {
 struct FRuntimeLevelViewPayload {
   bool bTerrainMeshLoaded = false;
   FTerrainMeshPayload TerrainMesh;
-  FLevelBlockSpawn FallbackTerrainBlock;
   TArray<FLevelRuntimeSectionSpawn> Sections;
   TArray<FRuntimeTownspersonViewSpawn> Townspeople;
   TArray<FRuntimeHorseViewSpawn> Horses;
@@ -206,7 +206,6 @@ inline bool operator==(const FRuntimeLevelViewPayload &Left,
                        const FRuntimeLevelViewPayload &Right) {
   return Left.bTerrainMeshLoaded == Right.bTerrainMeshLoaded &&
          Left.TerrainMesh == Right.TerrainMesh &&
-         Left.FallbackTerrainBlock == Right.FallbackTerrainBlock &&
          Left.Sections == Right.Sections &&
          Left.Townspeople == Right.Townspeople && Left.Horses == Right.Horses;
 }

@@ -18,10 +18,6 @@ inline FInteractionState CreateInitialState() {
   return (func::pipe(FInteractionState{}) |
           [](FInteractionState State) -> FInteractionState {
             State.LastActionId = func::nothing<FString>();
-            State.TownspersonMaxDistance =
-                InteractionReducers::ReduceTownspersonInteractionDistance();
-            State.SelectedCandidate =
-                InteractionReducers::ReduceEmptySelection();
             return State;
           })
       .val;

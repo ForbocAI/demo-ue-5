@@ -2,6 +2,7 @@
 
 #include "Core/rtk.hpp"
 
+#include "Features/Components/Data/DataTypes.h"
 #include "Features/Systems/Bots/AI/BotAIAdapters.h"
 #include "Features/Systems/Bots/BotAdapters.h"
 #include "Features/Systems/Bots/Goals/BotGoalAdapters.h"
@@ -17,8 +18,10 @@ namespace Demo {
 namespace Level {
 namespace BotsAdapters {
 
-TArray<FTownspersonSeed> Build1899TownspersonSeed();
-TArray<FHorseRouteSeed> Build1899HorseRouteSeed();
+TArray<FTownspersonSeed> Build1899TownspersonSeed(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+TArray<FHorseRouteSeed> Build1899HorseRouteSeed(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
 
 } // namespace BotsAdapters
 } // namespace Level

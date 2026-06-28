@@ -8,10 +8,10 @@
 #include "Views/HorseView.h"
 #include "Features/Systems/Rendering/RenderingSlice.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
+#include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Materials/MaterialInterface.h"
 #include "Store.h"
 #include "Views/TerrainMeshView.h"
-#include "UObject/ConstructorHelpers.h"
 
 namespace FG = ForbocAI::Demo::Level;
 
@@ -19,11 +19,13 @@ ARuntimeLevelView::ARuntimeLevelView()
     : bSpawnOnBeginPlay(true), CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
   PrimaryActorTick.bCanEverTick = false;
 
-  static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeAsset(
-      TEXT("/Engine/BasicShapes/Cube.Cube"));
-  CubeMesh = CubeAsset.Succeeded() ? CubeAsset.Object : nullptr;
-
-  BlockBaseMaterial = FG::RenderingSlice::LoadBlockoutMaterial();
+  const FG::FRuntimeState State = FG::Store::GetStore().getState();
+  const FG::FRenderingAssetPaths AssetPaths =
+      FG::RuntimeSelectors::SelectRenderingAssetPaths(State);
+  CubeMesh = LoadObject<UStaticMesh>(nullptr, *AssetPaths.LevelCubeMeshPath);
+  BlockBaseMaterial =
+      FG::RenderingSlice::LoadBlockoutMaterial(AssetPaths.BlockoutMaterialPath);
+  TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(State);
 }
 
 void ARuntimeLevelView::BeginPlay() {
@@ -32,7 +34,9 @@ void ARuntimeLevelView::BeginPlay() {
 }
 
 void ARuntimeLevelView::RenderLevel() {
-  FG::RenderingSlice::ApplyRuntimeProfile();
+  FG::RenderingSlice::ApplyRuntimeProfile(
+      FG::RuntimeSelectors::SelectRuntimeProfile(
+          FG::Store::GetStore().getState()));
   auto Payload = FG::FRuntimeLevelViewPayload();
   const auto Result = FG::Store::GetStore().dispatch(
       FG::RuntimeSlice::RequestLevelViewPayload());
@@ -40,6 +44,8 @@ void ARuntimeLevelView::RenderLevel() {
     Payload = Resolved;
   });
   func::executeAsync(Result);
+  TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(
+      FG::Store::GetStore().getState());
   RenderLevelPayload(Payload);
 }
 
@@ -67,9 +73,7 @@ void ARuntimeLevelView::RenderTerrain(
                        true)
                     : false;
       },
-      [this, &Payload]() {
-        RenderBlock(Payload.FallbackTerrainBlock);
-      });
+      []() {});
 }
 
 void ARuntimeLevelView::RenderSections(
@@ -134,7 +138,7 @@ AStaticMeshActor *ARuntimeLevelView::RenderBlock(
                       Block->GetStaticMeshComponent()->SetStaticMesh(CubeMesh),
                       FG::RenderingSlice::ApplyTexture(
                           {Block->GetStaticMeshComponent(), BlockBaseMaterial,
-                           BlockSpawn.Texture}),
+                           BlockSpawn.Texture, TextureCatalog}),
                       Block->GetStaticMeshComponent()->SetMobility(
                           EComponentMobility::Static),
                       Block)

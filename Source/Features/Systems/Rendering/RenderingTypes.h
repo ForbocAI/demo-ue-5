@@ -2,6 +2,7 @@
 
 #include "Core/rtk.hpp"
 
+#include "Features/Components/Data/DataTypes.h"
 #include "Features/Components/Rendering/RenderingTypes.h"
 
 class UMaterialInterface;
@@ -15,6 +16,7 @@ struct FLevelRetroTextureApply {
   UStaticMeshComponent *Part;
   UMaterialInterface *BaseMaterial;
   ELevelRetroTexture Texture;
+  TArray<FLevelRetroTextureSpec> TextureCatalog;
 };
 
 struct FRenderingPayload {
@@ -32,8 +34,19 @@ struct FRenderingTextureSpecRequest {
   TArray<FLevelRetroTextureSpec> Catalog;
 };
 
-struct FRenderingDefaultTextureSpecRequest {
-  ELevelRetroTexture Texture;
+struct FRenderingAssetPaths {
+  FString LevelCubeMeshPath;
+  FString BlockoutMaterialPath;
+};
+
+struct FTownspersonPresentationReduceRequest {
+  ForbocAI::Demo::Data::FTownspersonPresentationSettings Settings;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+struct FHorsePresentationReduceRequest {
+  ForbocAI::Demo::Data::FHorsePresentationSettings Settings;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FTownspersonPresentationViewModel {
@@ -51,9 +64,12 @@ struct FTownspersonPresentationViewModel {
   FString InteractionPrompt;
   FVector DialogueTextLocation = FVector::ZeroVector;
   float DialogueTextWorldSize = 0.0f;
+  FString MeshPath;
+  FString AnimationBlueprintClassPath;
 };
 
 struct FHorsePresentationViewModel {
+  FString DefaultName;
   float WalkSpeed = 0.0f;
   float PauseDuration = 0.0f;
   float PatrolArrivalDistance = 0.0f;
@@ -62,12 +78,17 @@ struct FHorsePresentationViewModel {
   FVector MountedRiderScale = FVector::OneVector;
   FVector NameTextLocation = FVector::ZeroVector;
   float NameTextWorldSize = 0.0f;
+  FString HorseMeshPath;
+  FString HorseWalkAnimationPath;
+  FString RiderMeshPath;
+  FString RiderWalkAnimationPath;
 };
 
 struct FRenderingState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
+  FRenderingAssetPaths AssetPaths;
   FTownspersonPresentationViewModel TownspersonPresentation;
   FHorsePresentationViewModel HorsePresentation;
   bool bReady = false;
@@ -104,13 +125,14 @@ inline bool operator!=(const FRenderingTextureSpecRequest &Left,
   return !(Left == Right);
 }
 
-inline bool operator==(const FRenderingDefaultTextureSpecRequest &Left,
-                       const FRenderingDefaultTextureSpecRequest &Right) {
-  return Left.Texture == Right.Texture;
+inline bool operator==(const FRenderingAssetPaths &Left,
+                       const FRenderingAssetPaths &Right) {
+  return Left.LevelCubeMeshPath == Right.LevelCubeMeshPath &&
+         Left.BlockoutMaterialPath == Right.BlockoutMaterialPath;
 }
 
-inline bool operator!=(const FRenderingDefaultTextureSpecRequest &Left,
-                       const FRenderingDefaultTextureSpecRequest &Right) {
+inline bool operator!=(const FRenderingAssetPaths &Left,
+                       const FRenderingAssetPaths &Right) {
   return !(Left == Right);
 }
 
@@ -134,7 +156,10 @@ inline bool operator==(const FTownspersonPresentationViewModel &Left,
          Left.InteractionPrompt == Right.InteractionPrompt &&
          Left.DialogueTextLocation == Right.DialogueTextLocation &&
          FMath::IsNearlyEqual(Left.DialogueTextWorldSize,
-                              Right.DialogueTextWorldSize);
+                              Right.DialogueTextWorldSize) &&
+         Left.MeshPath == Right.MeshPath &&
+         Left.AnimationBlueprintClassPath ==
+             Right.AnimationBlueprintClassPath;
 }
 
 inline bool operator!=(const FTownspersonPresentationViewModel &Left,
@@ -144,7 +169,8 @@ inline bool operator!=(const FTownspersonPresentationViewModel &Left,
 
 inline bool operator==(const FHorsePresentationViewModel &Left,
                        const FHorsePresentationViewModel &Right) {
-  return FMath::IsNearlyEqual(Left.WalkSpeed, Right.WalkSpeed) &&
+  return Left.DefaultName == Right.DefaultName &&
+         FMath::IsNearlyEqual(Left.WalkSpeed, Right.WalkSpeed) &&
          FMath::IsNearlyEqual(Left.PauseDuration, Right.PauseDuration) &&
          FMath::IsNearlyEqual(Left.PatrolArrivalDistance,
                               Right.PatrolArrivalDistance) &&
@@ -153,7 +179,11 @@ inline bool operator==(const FHorsePresentationViewModel &Left,
          Left.MountedRiderScale == Right.MountedRiderScale &&
          Left.NameTextLocation == Right.NameTextLocation &&
          FMath::IsNearlyEqual(Left.NameTextWorldSize,
-                              Right.NameTextWorldSize);
+                              Right.NameTextWorldSize) &&
+         Left.HorseMeshPath == Right.HorseMeshPath &&
+         Left.HorseWalkAnimationPath == Right.HorseWalkAnimationPath &&
+         Left.RiderMeshPath == Right.RiderMeshPath &&
+         Left.RiderWalkAnimationPath == Right.RiderWalkAnimationPath;
 }
 
 inline bool operator!=(const FHorsePresentationViewModel &Left,
@@ -168,6 +198,7 @@ inline bool operator==(const FRenderingState &Left,
           Left.LastActionId.value == Right.LastActionId.value) &&
          Left.RuntimeProfile == Right.RuntimeProfile &&
          Left.TextureCatalog == Right.TextureCatalog &&
+         Left.AssetPaths == Right.AssetPaths &&
          Left.TownspersonPresentation == Right.TownspersonPresentation &&
          Left.HorsePresentation == Right.HorsePresentation &&
          Left.bReady == Right.bReady;

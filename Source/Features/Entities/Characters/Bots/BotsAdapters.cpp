@@ -17,6 +17,7 @@ constexpr const TCHAR *TownspeopleDataPath =
 constexpr const TCHAR *HorseDataPath = TEXT("Data/french_gulch_horses.json");
 
 struct FRouteLotsRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
   float EastLots = 0.0f;
   float NorthLots = 0.0f;
 };
@@ -26,24 +27,39 @@ struct FInteractionStringRequest {
   FString FieldName;
 };
 
+struct FTownspersonFromJsonRequest {
+  TSharedPtr<FJsonObject> TownspersonObject;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+struct FHorseRouteFromJsonRequest {
+  TSharedPtr<FJsonObject> HorseObject;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
 FLevelLocalPoint TownspersonRouteLots(const FRouteLotsRequest &Request) {
   return LevelLayoutSlice::FromPostOfficeLots(
-      Request.EastLots, Request.NorthLots,
-      LevelLayoutSlice::CharacterHeightOffset());
+      {Request.Geometry, Request.EastLots, Request.NorthLots,
+       LevelLayoutSlice::CharacterHeightOffset(Request.Geometry)});
 }
 
 FLevelLocalPoint HorseRouteLots(const FRouteLotsRequest &Request) {
   return LevelLayoutSlice::FromPostOfficeLots(
-      Request.EastLots, Request.NorthLots,
-      LevelLayoutSlice::RoadSurfaceClearance());
+      {Request.Geometry, Request.EastLots, Request.NorthLots,
+       LevelLayoutSlice::RoadSurfaceClearance(Request.Geometry)});
 }
 
 ETownspersonInteractionIntent InteractionIntentFromJson(
     const FString &Intent) {
-  return func::or_else(
+  const func::Maybe<ETownspersonInteractionIntent> Parsed =
       func::multi_match<FString, ETownspersonInteractionIntent>(
           Intent.ToLower(),
           {
+              func::when<FString, ETownspersonInteractionIntent>(
+                  func::equals<FString>(TEXT("general")),
+                  [](const FString &) {
+                    return ETownspersonInteractionIntent::General;
+                  }),
               func::when<FString, ETownspersonInteractionIntent>(
                   func::equals<FString>(TEXT("dialogue")),
                   [](const FString &) {
@@ -59,20 +75,24 @@ ETownspersonInteractionIntent InteractionIntentFromJson(
                   [](const FString &) {
                     return ETownspersonInteractionIntent::CombatValidation;
                   }),
-          }),
-      ETownspersonInteractionIntent::General);
+          });
+  checkf(Parsed.hasValue, TEXT("Invalid townsperson interaction intent: %s"),
+         *Intent);
+  return Parsed.value;
 }
 
 TArray<FLevelLocalPoint> TownspersonPatrolRouteFromJson(
-    const TSharedPtr<FJsonObject> &TownspersonObject) {
+    const TSharedPtr<FJsonObject> &TownspersonObject,
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
   return (func::pipe(
               DataAdapters::ReadArray({TownspersonObject, TEXT("patrol_route")})) |
-          [](const TArray<TSharedPtr<FJsonValue>> &RouteValues)
+          [&Geometry](const TArray<TSharedPtr<FJsonValue>> &RouteValues)
               -> TArray<FLevelLocalPoint> {
             return DataAdapters::MapJsonValues<FLevelLocalPoint>(
-                {RouteValues, [](const TSharedPtr<FJsonObject> &Point) {
+                {RouteValues, [&Geometry](const TSharedPtr<FJsonObject> &Point) {
                   return TownspersonRouteLots(
-                      {DataAdapters::ReadFloat({Point, TEXT("east_lots")}),
+                      {Geometry,
+                       DataAdapters::ReadFloat({Point, TEXT("east_lots")}),
                        DataAdapters::ReadFloat({Point, TEXT("north_lots")})});
                 }});
           })
@@ -80,15 +100,17 @@ TArray<FLevelLocalPoint> TownspersonPatrolRouteFromJson(
 }
 
 TArray<FLevelLocalPoint> HorsePatrolRouteFromJson(
-    const TSharedPtr<FJsonObject> &HorseObject) {
+    const TSharedPtr<FJsonObject> &HorseObject,
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
   return (func::pipe(
               DataAdapters::ReadArray({HorseObject, TEXT("patrol_route")})) |
-          [](const TArray<TSharedPtr<FJsonValue>> &RouteValues)
+          [&Geometry](const TArray<TSharedPtr<FJsonValue>> &RouteValues)
               -> TArray<FLevelLocalPoint> {
             return DataAdapters::MapJsonValues<FLevelLocalPoint>(
-                {RouteValues, [](const TSharedPtr<FJsonObject> &Point) {
+                {RouteValues, [&Geometry](const TSharedPtr<FJsonObject> &Point) {
                   return HorseRouteLots(
-                      {DataAdapters::ReadFloat({Point, TEXT("east_lots")}),
+                      {Geometry,
+                       DataAdapters::ReadFloat({Point, TEXT("east_lots")}),
                        DataAdapters::ReadFloat({Point, TEXT("north_lots")})});
                 }});
           })
@@ -96,35 +118,33 @@ TArray<FLevelLocalPoint> HorsePatrolRouteFromJson(
 }
 
 FString ReadInteractionString(const FInteractionStringRequest &Request) {
-  return func::match(
-      Request.Interaction,
-      [&Request](const TSharedPtr<FJsonObject> &InteractionObject) {
-        return DataAdapters::ReadString({InteractionObject, Request.FieldName});
-      },
-      []() { return FString(); });
+  checkf(Request.Interaction.hasValue,
+         TEXT("Townsperson interaction object is required"));
+  return DataAdapters::ReadString({Request.Interaction.value,
+                                   Request.FieldName});
 }
 
 ETownspersonInteractionIntent ReadInteractionIntent(
     const func::Maybe<TSharedPtr<FJsonObject>> &Interaction) {
-  return func::match(
-      Interaction,
-      [](const TSharedPtr<FJsonObject> &InteractionObject) {
-        return InteractionIntentFromJson(
-            DataAdapters::ReadString({InteractionObject, TEXT("intent")}));
-      },
-      []() { return ETownspersonInteractionIntent::General; });
+  checkf(Interaction.hasValue,
+         TEXT("Townsperson interaction object is required"));
+  return InteractionIntentFromJson(
+      DataAdapters::ReadString({Interaction.value, TEXT("intent")}));
 }
 
 FTownspersonSeed TownspersonFromJson(
-    const TSharedPtr<FJsonObject> &TownspersonObject) {
+    const FTownspersonFromJsonRequest &Request) {
   const func::Maybe<TSharedPtr<FJsonObject>> Interaction =
-      DataAdapters::ReadObject({TownspersonObject, TEXT("interaction")});
+      DataAdapters::ReadObject({Request.TownspersonObject, TEXT("interaction")});
 
   FTownspersonSeed Seed;
-  Seed.Id = DataAdapters::ReadString({TownspersonObject, TEXT("id")});
-  Seed.Name = DataAdapters::ReadString({TownspersonObject, TEXT("name")});
-  Seed.Role = DataAdapters::ReadString({TownspersonObject, TEXT("role")});
-  Seed.Persona = DataAdapters::ReadString({TownspersonObject, TEXT("persona")});
+  Seed.Id = DataAdapters::ReadString({Request.TownspersonObject, TEXT("id")});
+  Seed.Name =
+      DataAdapters::ReadString({Request.TownspersonObject, TEXT("name")});
+  Seed.Role =
+      DataAdapters::ReadString({Request.TownspersonObject, TEXT("role")});
+  Seed.Persona =
+      DataAdapters::ReadString({Request.TownspersonObject, TEXT("persona")});
   Seed.InteractionPrompt =
       ReadInteractionString({Interaction, TEXT("prompt")});
   Seed.DefaultPlayerLine =
@@ -132,40 +152,50 @@ FTownspersonSeed TownspersonFromJson(
   Seed.PinnedResponse =
       ReadInteractionString({Interaction, TEXT("pinned_response")});
   Seed.InteractionIntent = ReadInteractionIntent(Interaction);
-  Seed.PatrolRoute = TownspersonPatrolRouteFromJson(TownspersonObject);
+  Seed.PatrolRoute =
+      TownspersonPatrolRouteFromJson(Request.TownspersonObject,
+                                     Request.Geometry);
   return Seed;
 }
 
-FHorseRouteSeed HorseRouteFromJson(const TSharedPtr<FJsonObject> &HorseObject) {
+FHorseRouteSeed HorseRouteFromJson(
+    const FHorseRouteFromJsonRequest &Request) {
   FHorseRouteSeed Seed;
-  Seed.Id = DataAdapters::ReadString({HorseObject, TEXT("id")});
-  Seed.Name = DataAdapters::ReadString({HorseObject, TEXT("name")});
+  Seed.Id = DataAdapters::ReadString({Request.HorseObject, TEXT("id")});
+  Seed.Name = DataAdapters::ReadString({Request.HorseObject, TEXT("name")});
   Seed.bMountedRider =
-      DataAdapters::ReadBool({HorseObject, TEXT("mounted_rider")});
-  Seed.PatrolRoute = HorsePatrolRouteFromJson(HorseObject);
+      DataAdapters::ReadBool({Request.HorseObject, TEXT("mounted_rider")});
+  Seed.PatrolRoute =
+      HorsePatrolRouteFromJson(Request.HorseObject, Request.Geometry);
   return Seed;
 }
 
 } // namespace
 
-TArray<FTownspersonSeed> Build1899TownspersonSeed() {
+TArray<FTownspersonSeed> Build1899TownspersonSeed(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
   return func::match(
       DataAdapters::LoadObjectFromContent({TownspeopleDataPath}),
-      [](const TSharedPtr<FJsonObject> &Root) {
+      [&Geometry](const TSharedPtr<FJsonObject> &Root) {
         return DataAdapters::MapJsonValues<FTownspersonSeed>(
             {DataAdapters::ReadArray({Root, TEXT("townspeople")}),
-             TownspersonFromJson});
+             [&Geometry](const TSharedPtr<FJsonObject> &TownspersonObject) {
+               return TownspersonFromJson({TownspersonObject, Geometry});
+             }});
       },
       []() { return TArray<FTownspersonSeed>(); });
 }
 
-TArray<FHorseRouteSeed> Build1899HorseRouteSeed() {
+TArray<FHorseRouteSeed> Build1899HorseRouteSeed(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
   return func::match(
       DataAdapters::LoadObjectFromContent({HorseDataPath}),
-      [](const TSharedPtr<FJsonObject> &Root) {
+      [&Geometry](const TSharedPtr<FJsonObject> &Root) {
         return DataAdapters::MapJsonValues<FHorseRouteSeed>(
             {DataAdapters::ReadArray({Root, TEXT("horses")}),
-             HorseRouteFromJson});
+             [&Geometry](const TSharedPtr<FJsonObject> &HorseObject) {
+               return HorseRouteFromJson({HorseObject, Geometry});
+             }});
       },
       []() { return TArray<FHorseRouteSeed>(); });
 }

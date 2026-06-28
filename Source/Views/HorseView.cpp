@@ -46,12 +46,16 @@ AHorseView::AHorseView()
       PauseRemaining(0.0f), PatrolArrivalDistance(0.0f),
       bMountedRider(false) {
   PrimaryActorTick.bCanEverTick = true;
-  HorseName = TEXT("Town horse");
   const FG::FHorsePresentationViewModel Presentation =
       ObserveHorsePresentation();
+  HorseName = Presentation.DefaultName;
   WalkSpeed = Presentation.WalkSpeed;
   PauseDuration = Presentation.PauseDuration;
   PatrolArrivalDistance = Presentation.PatrolArrivalDistance;
+  HorseMeshPath = Presentation.HorseMeshPath;
+  HorseWalkAnimationPath = Presentation.HorseWalkAnimationPath;
+  RiderMeshPath = Presentation.RiderMeshPath;
+  RiderWalkAnimationPath = Presentation.RiderWalkAnimationPath;
 
   SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
   RootComponent = SceneRoot;
@@ -117,11 +121,9 @@ void AHorseView::ConfigureImportedHorseAsset() {
   }
 
   USkeletalMesh *ImportedMesh = LoadObject<USkeletalMesh>(
-      nullptr,
-      TEXT("/Game/Characters/Horses/ClassicHorse/SkeletalMesh/ClassicHorse_Equipment_A.ClassicHorse_Equipment_A"));
+      nullptr, *HorseMeshPath);
   UAnimSequence *WalkAnimation = LoadObject<UAnimSequence>(
-      nullptr,
-      TEXT("/Game/Characters/Horses/ClassicHorse/Animations/Horse_Walk.Horse_Walk"));
+      nullptr, *HorseWalkAnimationPath);
   if (!ImportedMesh) {
     UE_LOG(LogTemp, Error,
            TEXT("Level: required imported horse mesh is missing; horse actor %s "
@@ -146,11 +148,9 @@ void AHorseView::ConfigureImportedHorseAsset() {
   }
 
   USkeletalMesh *RiderMesh = LoadObject<USkeletalMesh>(
-      nullptr,
-      TEXT("/Game/Characters/Horses/ClassicHorse/Rider/SkeletalMesh/Rider_SkeletalMesh.Rider_SkeletalMesh"));
+      nullptr, *RiderMeshPath);
   UAnimSequence *RiderWalkAnimation = LoadObject<UAnimSequence>(
-      nullptr,
-      TEXT("/Game/Characters/Horses/ClassicHorse/Rider/Animations/Rider_Walk.Rider_Walk"));
+      nullptr, *RiderWalkAnimationPath);
   if (bMountedRider && RiderMesh) {
     MountedRiderMesh->SetSkeletalMesh(RiderMesh);
     MountedRiderMesh->SetVisibility(true);

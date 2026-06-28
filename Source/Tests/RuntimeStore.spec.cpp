@@ -1,5 +1,6 @@
 #include "CoreMinimal.h"
 #include "Core/ecs.hpp"
+#include "Features/Components/Data/DataAdapters.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 #include "Features/Components/Level/LevelTypes.h"
 #include "Features/Entities/Characters/Bots/BotsAdapters.h"
@@ -25,13 +26,19 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
+  const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
+      ForbocAI::Demo::Data::DataAdapters::LoadDemoRuntimeSettings();
+  const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
+      Settings.LevelTerrainSources;
+  const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
+      Settings.LevelGeometry;
   FLevelTerrainData TerrainData;
   FLevelOrthoData OrthoData;
 
   TestTrue(TEXT("French Gulch heightmap CSV loads"),
-           TerrainData.LoadFromContent());
+           TerrainData.LoadFromContent({Sources, Geometry}));
   TestTrue(TEXT("French Gulch USGS ortho CSV loads"),
-           OrthoData.LoadFromContent());
+           OrthoData.LoadFromContent({Sources}));
   TestEqual(TEXT("Terrain grid is 65x65"), TerrainData.GetGridSize(), 65);
   TestEqual(TEXT("Ortho grid is 65x65"), OrthoData.GetGridSize(), 65);
   TestTrue(TEXT("Terrain has relief"),
@@ -47,24 +54,25 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            TerrainData.GetMaxElevationMeters()})));
 
   const TArray<FLandmark> Landmarks =
-      LandmarksAdapters::Build1899LandmarkSeed(TerrainData);
+      LandmarksAdapters::Build1899LandmarkSeed({TerrainData, Geometry});
   EnhancedStoreValue.dispatch(LandmarkActions::LandmarksSeeded()(Landmarks));
   EnhancedStoreValue.dispatch(SpawnActions::PlayerSpawnAnchored()(
       SpawnFactories::SpawnPointPayload(
-          {LevelLayoutSlice::ToWorld(TerrainData, LevelLayoutSlice::PlayerSpawnPoint()),
-           LevelLayoutSlice::PlayerSpawnRotation(),
-           LevelLayoutSlice::PlayerSpawnAnchorLabel()})));
+          {LevelLayoutSlice::ToWorld(
+               {TerrainData, LevelLayoutSlice::PlayerSpawnPoint(Geometry)}),
+           LevelLayoutSlice::PlayerSpawnRotation(Geometry),
+           LevelLayoutSlice::PlayerSpawnAnchorLabel(Geometry)})));
 
   const TArray<FTownspersonSeed> TownspersonSeeds =
-      BotsAdapters::Build1899TownspersonSeed();
+      BotsAdapters::Build1899TownspersonSeed(Geometry);
   EnhancedStoreValue.dispatch(TownspersonActions::TownspeopleSeeded()(TownspersonSeeds));
 
   const TArray<FHorseRouteSeed> HorseRouteSeeds =
-      BotsAdapters::Build1899HorseRouteSeed();
+      BotsAdapters::Build1899HorseRouteSeed(Geometry);
   EnhancedStoreValue.dispatch(HorseActions::HorsesSeeded()(HorseRouteSeeds));
 
   const TArray<FNatureFeatureSeed> NatureFeatureSeeds =
-      NatureAdapters::BuildClearCreekNatureSeed();
+      NatureAdapters::BuildClearCreekNatureSeed(Geometry);
   EnhancedStoreValue.dispatch(NatureActions::NatureSeeded()(NatureFeatureSeeds));
 
   const FRuntimeState &State = EnhancedStoreValue.getState();
@@ -95,12 +103,12 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FSpawnPointPayload Spawn =
       RuntimeSelectors::SelectPlayerSpawn(State);
   TestEqual(TEXT("Player spawn anchor"), Spawn.AnchorLabel,
-            LevelLayoutSlice::PlayerSpawnAnchorLabel());
+            LevelLayoutSlice::PlayerSpawnAnchorLabel(Geometry));
   TestTrue(TEXT("Player spawn is above terrain"),
            Spawn.Location.Z >
                TerrainData.GetTerrainZAtWorld(
-                   LevelLayoutSlice::PlayerSpawnPoint().EastWest,
-                   LevelLayoutSlice::PlayerSpawnPoint().NorthSouth));
+                   LevelLayoutSlice::PlayerSpawnPoint(Geometry).EastWest,
+                   LevelLayoutSlice::PlayerSpawnPoint(Geometry).NorthSouth));
 
   TestEqual(TEXT("1899 horse routes are seeded"), HorseRouteSeeds.Num(), 3);
   TestEqual(TEXT("RTK entity adapter stores seeded horses"),

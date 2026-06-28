@@ -2,6 +2,7 @@
 
 #include "Core/rtk.hpp"
 
+#include "Features/Components/Data/DataTypes.h"
 #include "Features/Components/Spatial/SpatialSelectors.h"
 #include "Features/Systems/Interaction/InteractionTypes.h"
 
@@ -11,23 +12,38 @@ namespace Level {
 namespace InteractionReducers {
 
 /**
- * @brief Pure reducer helper for the no-target player message.
+ * @brief Maps JSON-backed interaction settings into the no-target player
+ * message.
+ *
+ * @signature FString ReduceNoTownspersonMessage(const
+ * ForbocAI::Demo::Data::FInteractionSettings &Settings)
+ *
+ * User story: As a content author, the player-facing missing-target message
+ * can change in JSON without view logic or reducer constants.
  */
-inline FString ReduceNoTownspersonMessage() {
-  return TEXT("No talkable townsperson nearby.");
+inline FString ReduceNoTownspersonMessage(
+    const ForbocAI::Demo::Data::FInteractionSettings &Settings) {
+  return Settings.NoTownspersonMessage;
 }
 
 /**
- * @brief Pure reducer helper that derives the interaction radius from spatial
- * selectors.
+ * @brief Maps JSON-backed interaction range settings into world units.
+ *
+ * @signature float ReduceTownspersonInteractionDistance(const
+ * FInteractionDistanceSettingsRequest &Request)
+ *
+ * User story: As a level designer, interaction range can be tuned in JSON
+ * while RTK state remains the authority for gameplay distance.
  */
-inline float ReduceTownspersonInteractionDistance() {
-  return SpatialSelectors::SelectTownLotWorldUnits() * 2.1f;
+inline float ReduceTownspersonInteractionDistance(
+    const FInteractionDistanceSettingsRequest &Request) {
+  return SpatialSelectors::SelectTownLotWorldUnits(Request.Geometry) *
+         Request.Interaction.TownspersonMaxDistanceLots;
 }
 
-inline FInteractionSelection ReduceEmptySelection() {
+inline FInteractionSelection ReduceEmptySelection(const FString &Message) {
   FInteractionSelection Selection;
-  Selection.MissingMessage = ReduceNoTownspersonMessage();
+  Selection.MissingMessage = Message;
   return Selection;
 }
 
@@ -52,13 +68,13 @@ inline bool ReduceCandidateIsCloser(float CandidateDistanceSquared,
 }
 
 inline FInteractionSelection ReduceCloserCandidate(
-    const FInteractionCandidatesObserved &Request,
+    const FInteractionNearestCandidateRequest &Request,
     const FInteractionCandidate &Candidate,
     FInteractionSelection Current) {
   const float CandidateDistanceSquared =
-      ReduceDistanceSquared(Request, Candidate);
+      ReduceDistanceSquared(Request.Observation, Candidate);
   const bool bSelected =
-      ReduceCandidateWithinRange(Request, Candidate) &&
+      ReduceCandidateWithinRange(Request.Observation, Candidate) &&
       ReduceCandidateIsCloser(CandidateDistanceSquared, Current);
   Current.bFound = bSelected ? true : Current.bFound;
   Current.CandidateIndex =
@@ -66,24 +82,26 @@ inline FInteractionSelection ReduceCloserCandidate(
   Current.EntityId = bSelected ? Candidate.EntityId : Current.EntityId;
   Current.DistanceSquared =
       bSelected ? CandidateDistanceSquared : Current.DistanceSquared;
-  Current.MissingMessage = ReduceNoTownspersonMessage();
+  Current.MissingMessage = Request.MissingMessage;
   return Current;
 }
 
 inline FInteractionSelection ReduceNearestCandidateRecursive(
-    const FInteractionCandidatesObserved &Request, int32 Index,
+    const FInteractionNearestCandidateRequest &Request, int32 Index,
     FInteractionSelection Current) {
-  return Index >= Request.Candidates.Num()
+  return Index >= Request.Observation.Candidates.Num()
              ? Current
              : ReduceNearestCandidateRecursive(
                    Request, Index + 1,
-                   ReduceCloserCandidate(Request, Request.Candidates[Index],
-                                         Current));
+                   ReduceCloserCandidate(
+                       Request, Request.Observation.Candidates[Index],
+                       Current));
 }
 
 inline FInteractionSelection ReduceNearestCandidate(
-    const FInteractionCandidatesObserved &Request) {
-  return ReduceNearestCandidateRecursive(Request, 0, ReduceEmptySelection());
+    const FInteractionNearestCandidateRequest &Request) {
+  return ReduceNearestCandidateRecursive(
+      Request, 0, ReduceEmptySelection(Request.MissingMessage));
 }
 
 /**
@@ -99,7 +117,8 @@ inline FInteractionState ReduceTownspersonCandidatesObserved(
             Next.LastMaxDistance = Action.PayloadValue.MaxDistance;
             Next.LastCandidates = Action.PayloadValue.Candidates;
             Next.SelectedCandidate =
-                ReduceNearestCandidate(Action.PayloadValue);
+                ReduceNearestCandidate(
+                    {Action.PayloadValue, Next.NoTownspersonMessage});
             return Next;
           })
       .val;

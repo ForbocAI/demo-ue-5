@@ -1,0 +1,197 @@
+{
+  "player_presentation": {
+    "capsule_radius": 42.0,
+    "capsule_half_height": 96.0,
+    "follow_camera_arm_length": 400.0,
+    "rotation_rate_yaw": 500.0,
+    "jump_z_velocity": 500.0,
+    "air_control": 0.35,
+    "max_walk_speed": 500.0,
+    "min_analog_walk_speed": 20.0,
+    "braking_deceleration_walking": 2000.0,
+    "braking_deceleration_falling": 1500.0,
+    "mesh_relative_location": { "x": 0.0, "y": 0.0, "z": -96.0 },
+    "mesh_relative_rotation": { "pitch": 0.0, "yaw": -90.0, "roll": 0.0 },
+    "mesh_path": "/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple",
+    "animation_blueprint_class_path": "/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C",
+    "move_action_path": "/Game/Input/Actions/IA_Move.IA_Move",
+    "look_action_path": "/Game/Input/Actions/IA_Look.IA_Look",
+    "mouse_look_action_path": "/Game/Input/Actions/IA_MouseLook.IA_MouseLook",
+    "jump_action_path": "/Game/Input/Actions/IA_Jump.IA_Jump",
+    "default_mapping_context_path": "/Game/Input/IMC_Default.IMC_Default",
+    "mouse_mapping_context_path": "/Game/Input/IMC_MouseLook.IMC_MouseLook"
+  },
+  "interaction": {
+    "townsperson_max_distance_lots": 2.1,
+    "no_townsperson_message": "No talkable townsperson nearby."
+  },
+  "townsperson_defaults": {
+    "id": "townsperson",
+    "name": "Townsperson",
+    "role": "Resident",
+    "persona": "I keep one eye on the mine road and one on the weather.",
+    "interaction_prompt": "Press E to talk",
+    "default_player_line": "What should I know here?"
+  },
+  "level_terrain_sources": {
+    "terrain_csv_path": "Map/Heightmaps/french_gulch_ca_terrain_65.csv",
+    "ortho_csv_path": "Map/Heightmaps/french_gulch_ca_ortho_65.csv"
+  },
+  "level_geometry": {
+    "terrain_world_size": 6400.0,
+    "terrain_elevation_scale": 2.0,
+    "terrain_lots_across": 32.0,
+    "post_office_east_lots": -3.1,
+    "post_office_north_lots": 0.0,
+    "cube_mesh_size": 100.0,
+    "block_scale_per_foot": 0.05,
+    "height_scale_per_story": 1.1,
+    "foundation_height_ratio": 0.15,
+    "road_clearance_ratio": 0.06,
+    "character_height_ratio": 1.2,
+    "label_clearance_ratio": 1.1,
+    "actor_foot_to_terrain_ratio": 0.4,
+    "actor_reference_feet_across": 128.0,
+    "player_spawn_north_lots": -0.825,
+    "player_spawn_extra_height_ratio": 1.4,
+    "main_street_facing_yaw_degrees": 70.0,
+    "player_spawn_anchor_label": "U.S. Post Office / 14200 Main St",
+    "landmark_label_world_size_scale": 0.48,
+    "nature_label_world_size_scale": 0.36
+  },
+  "rendering_assets": {
+    "level_cube_mesh_path": "/Engine/BasicShapes/Cube.Cube",
+    "blockout_material_path": "/Engine/EngineMaterials/EmissiveTexturedMaterial.EmissiveTexturedMaterial"
+  },
+  "rendering_profile": {
+    "time_of_day_hour": 15.0,
+    "anti_aliasing_method": 0,
+    "post_process_aa_quality": 0,
+    "screen_percentage": 55.0,
+    "view_distance_scale": 1.65,
+    "foliage_density_scale": 0.85,
+    "grass_density_scale": 0.85,
+    "sun_pitch_degrees": -56.0,
+    "sun_yaw_degrees": -64.0,
+    "directional_light_intensity": 8.5,
+    "directional_light_source_angle": 0.08,
+    "shadow_cascades": 1,
+    "shadow_max_resolution": 512
+  },
+  "texture_catalog": [
+    {
+      "texture": "terrain_ortho",
+      "name": "terrain-ortho-dither",
+      "use": "dithered terrain color from the French Gulch ortho sample",
+      "size": 16
+    },
+    {
+      "texture": "building_timber",
+      "name": "building-timber",
+      "use": "false-front buildings, cabins, porch boards, and hotel/store silhouettes",
+      "size": 16
+    },
+    {
+      "texture": "road_dust",
+      "name": "road-dust",
+      "use": "Main Street, French Gulch Road, wagon yard, and mine road",
+      "size": 16
+    },
+    {
+      "texture": "water_creek",
+      "name": "clear-creek-water",
+      "use": "Clear Creek ribbon, shallow bends, and future Water System guide surfaces",
+      "size": 16
+    },
+    {
+      "texture": "foliage_riparian",
+      "name": "riparian-foliage",
+      "use": "cottonwoods, willow shrubs, chaparral, and PCG foliage markers",
+      "size": 16
+    },
+    {
+      "texture": "rock_granite",
+      "name": "creek-granite-rock",
+      "use": "boulders, creek stone shelves, cemetery terrace, and hillside rock scatter",
+      "size": 16
+    },
+    {
+      "texture": "mine_timber",
+      "name": "mine-dark-timber",
+      "use": "mine entrance, timber supports, and waste-rock edge pieces",
+      "size": 16
+    },
+    {
+      "texture": "marker_paint",
+      "name": "prototype-marker-paint",
+      "use": "PCG/Water staging markers and remaining non-final blockout markers",
+      "size": 16
+    },
+    {
+      "texture": "npc_body",
+      "name": "npc-work-cloth",
+      "use": "primitive townspeople clothing",
+      "size": 16
+    },
+    {
+      "texture": "npc_hat",
+      "name": "npc-worn-hat",
+      "use": "primitive townspeople hats",
+      "size": 16
+    },
+    {
+      "texture": "horse_coat",
+      "name": "horse-coat",
+      "use": "walking horse body, neck, and head primitives",
+      "size": 16
+    },
+    {
+      "texture": "horse_leg",
+      "name": "horse-leg-dark",
+      "use": "walking horse legs and tail primitives",
+      "size": 16
+    },
+    {
+      "texture": "horse_tack",
+      "name": "horse-tack-saddle",
+      "use": "walking horse saddle and tack primitives",
+      "size": 16
+    }
+  ],
+  "townsperson_presentation": {
+    "character_height_feet": 5.5,
+    "character_shoulder_width_feet": 1.75,
+    "patrol_pause_seconds": 1.6,
+    "prompt_above_head_feet": 1.15,
+    "name_above_prompt_feet": 1.75,
+    "dialogue_above_name_height_ratio": 0.41,
+    "interaction_radius_lots": 0.9,
+    "walk_speed_height_ratio": 0.86,
+    "mannequin_scale": 0.82,
+    "mannequin_offset_feet": { "x": 0.0, "y": 0.0, "z": -0.18 },
+    "mannequin_rotation": { "pitch": 0.0, "yaw": -90.0, "roll": 0.0 },
+    "prompt_text_scale": 0.82,
+    "dialogue_text_scale": 0.7,
+    "mesh_path": "/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple",
+    "animation_blueprint_class_path": "/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C"
+  },
+  "horse_presentation": {
+    "default_name": "Town horse",
+    "horse_length_feet": 8.0,
+    "body_height_feet": 2.0,
+    "leg_height_feet": 3.25,
+    "neck_height_feet": 1.65,
+    "head_height_feet": 0.95,
+    "saddle_height_feet": 0.28,
+    "patrol_pause_seconds": 1.4,
+    "walk_speed_horse_length_ratio": 0.58,
+    "route_arrival_leg_ratio": 0.8,
+    "imported_horse_scale": 0.62,
+    "mounted_rider_scale": 0.62,
+    "name_text_world_size_feet": 1.35,
+    "horse_mesh_path": "/Game/Characters/Horses/ClassicHorse/SkeletalMesh/ClassicHorse_Equipment_A.ClassicHorse_Equipment_A",
+    "horse_walk_animation_path": "/Game/Characters/Horses/ClassicHorse/Animations/Horse_Walk.Horse_Walk",
+    "rider_mesh_path": "/Game/Characters/Horses/ClassicHorse/Rider/SkeletalMesh/Rider_SkeletalMesh.Rider_SkeletalMesh",
+    "rider_walk_animation_path": "/Game/Characters/Horses/ClassicHorse/Rider/Animations/Rider_Walk.Rider_Walk"
+  }
+}

@@ -218,7 +218,7 @@ inline FVisemeMapping ActiveVisemeAtTime(
 }
 
 /**
- * Simple phoneme estimation from text (fallback when TTS doesn't provide phonemes).
+ * Simple phoneme estimation from text when TTS does not provide phonemes.
  * Pure function — deterministic text-to-phoneme conversion.
  *
  * This is a rough approximation for demo purposes.

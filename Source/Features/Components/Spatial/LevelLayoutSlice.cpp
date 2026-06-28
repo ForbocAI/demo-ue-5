@@ -5,125 +5,127 @@ namespace Demo {
 namespace Level {
 namespace LevelLayoutSlice {
 namespace {
-constexpr float TerrainLotsAcross = 32.0f;
-constexpr float PostOfficeEastLots = -3.1f;
-constexpr float PostOfficeNorthLots = 0.0f;
-constexpr float CubeMeshSize = 100.0f;
-constexpr float BlockScalePerFoot = 0.05f;
-constexpr float HeightScalePerStory = 1.1f;
-constexpr float FoundationHeightRatio = 0.15f;
-constexpr float RoadClearanceRatio = 0.06f;
-constexpr float CharacterHeightRatio = 1.2f;
-constexpr float LabelClearanceRatio = 1.1f;
-constexpr float ActorFootToTerrainRatio = 0.4f;
-constexpr float ActorReferenceFeetAcross = 128.0f;
-constexpr float PlayerSpawnNorthLots = -0.825f;
-constexpr float PlayerSpawnExtraHeightRatio = 1.4f;
-constexpr float MainStreetFacingYawDegrees = 70.0f;
 
-FLevelLocalPoint PostOfficeGroundPoint() {
-  return Point(PostOfficeEastLots * TownLotWorldUnits(),
-               PostOfficeNorthLots * TownLotWorldUnits());
+FLevelLocalPoint PostOfficeGroundPoint(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return Point({Geometry.PostOfficeEastLots * TownLotWorldUnits(Geometry),
+                Geometry.PostOfficeNorthLots * TownLotWorldUnits(Geometry),
+                0.0f});
 }
 
 } // namespace
 
-float TownLotWorldUnits() {
-  return (func::pipe(FLevelTerrainData::TerrainWorldSize) |
-         [](float TerrainWorldSize) -> float {
-    return TerrainWorldSize / TerrainLotsAcross;
-  }).val;
+float TownLotWorldUnits(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return Geometry.TerrainWorldSize / Geometry.TerrainLotsAcross;
 }
 
-float CubeHalfExtent() { return CubeMeshSize * 0.5f; }
-
-float BuildingFoundationHeight() {
-  return CubeHalfExtent() * FoundationHeightRatio;
+float CubeHalfExtent(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return Geometry.CubeMeshSize * 0.5f;
 }
 
-float RoadSurfaceClearance() {
-  return CubeHalfExtent() * RoadClearanceRatio;
+float BuildingFoundationHeight(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return CubeHalfExtent(Geometry) * Geometry.FoundationHeightRatio;
 }
 
-float CharacterHeightOffset() {
-  return CubeHalfExtent() * CharacterHeightRatio;
+float RoadSurfaceClearance(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return CubeHalfExtent(Geometry) * Geometry.RoadClearanceRatio;
 }
 
-float LabelHeightForScale(const FVector &Scale) {
-  return (Scale.Z * CubeMeshSize) + BuildingFoundationHeight() +
-         (CubeHalfExtent() * LabelClearanceRatio);
+float CharacterHeightOffset(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return CubeHalfExtent(Geometry) * Geometry.CharacterHeightRatio;
 }
 
-float ActorWorldUnitsFromFeet(float Feet) {
-  return Feet * ActorFootToTerrainRatio *
-         FLevelTerrainData::TerrainWorldSize / ActorReferenceFeetAcross;
+float LabelHeightForScale(const FLevelLabelHeightRequest &Request) {
+  return (Request.Scale.Z * Request.Geometry.CubeMeshSize) +
+         BuildingFoundationHeight(Request.Geometry) +
+         (CubeHalfExtent(Request.Geometry) *
+          Request.Geometry.LabelClearanceRatio);
 }
 
-float ActorMeshScaleFromFeet(float Feet) {
-  return ActorWorldUnitsFromFeet(Feet) / (CubeHalfExtent() * 2.0f);
+float ActorWorldUnitsFromFeet(const FLevelActorFeetRequest &Request) {
+  return Request.Feet * Request.Geometry.ActorFootToTerrainRatio *
+         Request.Geometry.TerrainWorldSize /
+         Request.Geometry.ActorReferenceFeetAcross;
 }
 
-FVector BuildingScaleFromFeet(float FrontageFeet, float DepthFeet,
-                              float Stories) {
-  return FVector(FrontageFeet * BlockScalePerFoot,
-                 DepthFeet * BlockScalePerFoot,
-                 Stories * HeightScalePerStory);
+float ActorMeshScaleFromFeet(const FLevelActorFeetRequest &Request) {
+  return ActorWorldUnitsFromFeet(Request) /
+         (CubeHalfExtent(Request.Geometry) * 2.0f);
 }
 
-FVector LongFeatureScale(float WidthFeet, float LengthLots, float HeightFeet) {
-  return FVector(WidthFeet * BlockScalePerFoot,
-                 LengthLots * TownLotWorldUnits() / CubeMeshSize,
-                 HeightFeet * BlockScalePerFoot);
+FVector BuildingScaleFromFeet(const FLevelBuildingScaleRequest &Request) {
+  return FVector(Request.FrontageFeet * Request.Geometry.BlockScalePerFoot,
+                 Request.DepthFeet * Request.Geometry.BlockScalePerFoot,
+                 Request.Stories * Request.Geometry.HeightScalePerStory);
 }
 
-FVector PadScaleFromFeet(float WidthFeet, float DepthFeet, float HeightFeet) {
-  return FVector(WidthFeet * BlockScalePerFoot, DepthFeet * BlockScalePerFoot,
-                 HeightFeet * BlockScalePerFoot);
+FVector LongFeatureScale(const FLevelLongFeatureScaleRequest &Request) {
+  return FVector(
+      Request.WidthFeet * Request.Geometry.BlockScalePerFoot,
+      Request.LengthLots * TownLotWorldUnits(Request.Geometry) /
+          Request.Geometry.CubeMeshSize,
+      Request.HeightFeet * Request.Geometry.BlockScalePerFoot);
 }
 
-FLevelLocalPoint Point(float EastWest, float NorthSouth,
-                             float HeightOffset) {
-  return {EastWest, NorthSouth, HeightOffset};
+FVector PadScaleFromFeet(const FLevelPadScaleRequest &Request) {
+  return FVector(Request.WidthFeet * Request.Geometry.BlockScalePerFoot,
+                 Request.DepthFeet * Request.Geometry.BlockScalePerFoot,
+                 Request.HeightFeet * Request.Geometry.BlockScalePerFoot);
 }
 
-FLevelLocalPoint FromPostOfficeLots(float EastLots, float NorthLots,
-                                          float HeightOffset) {
-  const FLevelLocalPoint PostOffice = PostOfficeGroundPoint();
-  return Point(PostOffice.EastWest + EastLots * TownLotWorldUnits(),
-               PostOffice.NorthSouth + NorthLots * TownLotWorldUnits(),
-               HeightOffset);
+FLevelLocalPoint Point(const FLevelLayoutPointRequest &Request) {
+  return {Request.EastWest, Request.NorthSouth, Request.HeightOffset};
 }
 
-FLevelLocalPoint CenteredOnGround(const FLevelLocalPoint &Point,
-                                        const FVector &Scale,
-                                        float GroundClearance) {
-  return {Point.EastWest, Point.NorthSouth,
-          static_cast<float>(Scale.Z * CubeHalfExtent() + GroundClearance)};
+FLevelLocalPoint FromPostOfficeLots(const FLevelLayoutLotsRequest &Request) {
+  const FLevelLocalPoint PostOffice = PostOfficeGroundPoint(Request.Geometry);
+  return Point({PostOffice.EastWest +
+                    Request.EastLots * TownLotWorldUnits(Request.Geometry),
+                PostOffice.NorthSouth +
+                    Request.NorthLots * TownLotWorldUnits(Request.Geometry),
+                Request.HeightOffset});
 }
 
-FLevelLocalPoint AboveBlock(const FLevelLocalPoint &Point,
-                                  const FVector &Scale) {
-  return {Point.EastWest, Point.NorthSouth, LabelHeightForScale(Scale)};
+FLevelLocalPoint CenteredOnGround(
+    const FLevelCenteredOnGroundRequest &Request) {
+  return {Request.Point.EastWest, Request.Point.NorthSouth,
+          static_cast<float>(Request.Scale.Z *
+                                 CubeHalfExtent(Request.Geometry) +
+                             Request.GroundClearance)};
 }
 
-FVector ToWorld(const FLevelTerrainData &TerrainData,
-                const FLevelLocalPoint &Point) {
-  return TerrainData.ToWorld(Point.EastWest, Point.NorthSouth,
-                             Point.HeightOffset);
+FLevelLocalPoint AboveBlock(const FLevelAboveBlockRequest &Request) {
+  return {Request.Point.EastWest, Request.Point.NorthSouth,
+          LabelHeightForScale({Request.Geometry, Request.Scale})};
 }
 
-FLevelLocalPoint PlayerSpawnPoint() {
+FVector ToWorld(const FLevelToWorldRequest &Request) {
+  return Request.TerrainData.ToWorld(Request.Point.EastWest,
+                                     Request.Point.NorthSouth,
+                                     Request.Point.HeightOffset);
+}
+
+FLevelLocalPoint PlayerSpawnPoint(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
   return FromPostOfficeLots(
-      0.0f, PlayerSpawnNorthLots,
-      CharacterHeightOffset() + CubeHalfExtent() * PlayerSpawnExtraHeightRatio);
+      {Geometry, 0.0f, Geometry.PlayerSpawnNorthLots,
+       CharacterHeightOffset(Geometry) +
+           CubeHalfExtent(Geometry) * Geometry.PlayerSpawnExtraHeightRatio});
 }
 
-FRotator PlayerSpawnRotation() {
-  return FRotator(0.0f, MainStreetFacingYawDegrees, 0.0f);
+FRotator PlayerSpawnRotation(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return FRotator(0.0f, Geometry.MainStreetFacingYawDegrees, 0.0f);
 }
 
-FString PlayerSpawnAnchorLabel() {
-  return FString(TEXT("U.S. Post Office / 14200 Main St"));
+FString PlayerSpawnAnchorLabel(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return Geometry.PlayerSpawnAnchorLabel;
 }
 
 } // namespace LevelLayoutSlice

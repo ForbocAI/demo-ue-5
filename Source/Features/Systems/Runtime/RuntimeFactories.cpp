@@ -1,5 +1,7 @@
 #include "Features/Systems/Runtime/RuntimeFactories.h"
 
+#include "Features/Components/Data/DataAdapters.h"
+#include "Features/Entities/Characters/Player/PlayerReducers.h"
 #include "Features/Entities/Characters/Player/PlayerSlice.h"
 #include "Features/Systems/Bots/AI/BotAIFactories.h"
 #include "Features/Systems/Bots/BotFactories.h"
@@ -16,14 +18,17 @@
 #include "Features/Systems/Landmarks/LandmarkFactories.h"
 #include "Features/Systems/Nature/NatureFactories.h"
 #include "Features/Systems/Rendering/RenderingSlice.h"
+#include "Features/Systems/Rendering/RenderingReducers.h"
 #include "Features/Systems/Runtime/RuntimeReducers.h"
 #include "Features/Systems/Spawn/SpawnFactories.h"
 #include "Features/Systems/Speech/SpeechSlice.h"
 #include "Features/Systems/SystemsSlice.h"
 #include "Features/Systems/Terrain/TerrainFactories.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonFactories.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonReducers.h"
 #include "Features/Systems/UI/UISlice.h"
 #include "Features/Systems/Interaction/InteractionSlice.h"
+#include "Features/Systems/Interaction/InteractionReducers.h"
 
 namespace ForbocAI {
 namespace Demo {
@@ -31,6 +36,8 @@ namespace Level {
 namespace RuntimeFactories {
 
 FRuntimeState CreateInitialState() {
+  const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
+      ForbocAI::Demo::Data::DataAdapters::LoadDemoRuntimeSettings();
   FRuntimeState State;
   State.Player = PlayerSlice::CreateInitialState();
   State.Systems = SystemsSlice::CreateInitialState();
@@ -56,6 +63,32 @@ FRuntimeState CreateInitialState() {
   State.BotOrchestratorFactories =
       BotOrchestratorFactoriesSlice::CreateInitialState();
   State.BotPipeline = BotPipelineSlice::CreateInitialState();
+  State.Level.TerrainSources = Settings.LevelTerrainSources;
+  State.Level.Geometry = Settings.LevelGeometry;
+  State.Player.Presentation =
+      PlayerReducers::ReducePlayerPresentation(Settings.PlayerPresentation);
+  State.Rendering.RuntimeProfile =
+      RenderingReducers::ReduceRuntimeProfile(Settings.RenderingProfile);
+  State.Rendering.TextureCatalog =
+      RenderingReducers::ReduceTextureCatalog(Settings.TextureCatalog);
+  State.Rendering.AssetPaths =
+      RenderingReducers::ReduceRenderingAssetPaths(Settings.RenderingAssets);
+  State.Rendering.TownspersonPresentation =
+      RenderingReducers::ReduceTownspersonPresentation(
+          {Settings.TownspersonPresentation, Settings.LevelGeometry});
+  State.Rendering.HorsePresentation =
+      RenderingReducers::ReduceHorsePresentation(
+          {Settings.HorsePresentation, Settings.LevelGeometry});
+  State.Interaction.TownspersonMaxDistance =
+      InteractionReducers::ReduceTownspersonInteractionDistance(
+          {Settings.Interaction, Settings.LevelGeometry});
+  State.Interaction.NoTownspersonMessage =
+      InteractionReducers::ReduceNoTownspersonMessage(Settings.Interaction);
+  State.Interaction.SelectedCandidate =
+      InteractionReducers::ReduceEmptySelection(
+          State.Interaction.NoTownspersonMessage);
+  State.Townspeople.LastViewDefaults =
+      TownspersonReducers::ReduceViewDefaults(Settings.TownspersonDefaults);
   return RuntimeReducers::ReduceRuntimeEcsProjected(State);
 }
 

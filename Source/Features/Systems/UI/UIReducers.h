@@ -34,18 +34,9 @@ inline FLinearColor ReduceRuntimeReplyColor() {
 }
 
 inline FLinearColor ReduceChatColorForRole(const FString &Role) {
-  return func::or_else(
-      func::multi_match<FString, FLinearColor>(
-          Role,
-          {
-              func::when<FString, FLinearColor>(
-                  func::equals<FString>(TEXT("Player")),
-                  [](const FString &) { return ReducePlayerColor(); }),
-              func::when<FString, FLinearColor>(
-                  func::equals<FString>(TEXT("System")),
-                  [](const FString &) { return ReduceSystemColor(); }),
-          }),
-      ReduceNpcColor());
+  return Role == TEXT("Player") ? ReducePlayerColor()
+                                : Role == TEXT("System") ? ReduceSystemColor()
+                                                         : ReduceNpcColor();
 }
 
 inline ForbocAI::Demo::UI::FChatMessageViewModel

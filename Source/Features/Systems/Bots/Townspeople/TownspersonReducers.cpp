@@ -8,13 +8,18 @@ namespace Level {
 namespace TownspersonReducers {
 namespace {
 
-FString ReduceInteractionPrompt(const FString &Prompt) {
-  return Prompt.IsEmpty() ? FString(TEXT("Press E to talk")) : Prompt;
+FString ReduceInteractionPrompt(
+    const FTownspersonViewDefaultsReduceRequest &Request) {
+  return Request.Request.InteractionPrompt.IsEmpty()
+             ? Request.Defaults.InteractionPrompt
+             : Request.Request.InteractionPrompt;
 }
 
-FString ReduceDefaultPlayerLine(const FString &PlayerLine) {
-  return PlayerLine.IsEmpty() ? FString(TEXT("What should I know here?"))
-                              : PlayerLine;
+FString ReduceDefaultPlayerLine(
+    const FTownspersonViewDefaultsReduceRequest &Request) {
+  return Request.Request.DefaultPlayerLine.IsEmpty()
+             ? Request.Defaults.DefaultPlayerLine
+             : Request.Request.DefaultPlayerLine;
 }
 
 bool ReduceOverlapMatches(
@@ -70,7 +75,9 @@ FTownspersonState ReduceViewDefaultsRequested(
     const rtk::PayloadAction<FTownspersonViewDefaultsRequest> &Action) {
   return (func::pipe(State) |
           [&Action](FTownspersonState Next) -> FTownspersonState {
-            Next.LastViewDefaults = ReduceViewDefaults(Action.PayloadValue);
+            Next.LastViewDefaults =
+                ReduceViewDefaults(
+                    {Action.PayloadValue, Next.LastViewDefaults});
             return Next;
           })
       .val;
@@ -89,9 +96,19 @@ FTownspersonState ReduceInteractionOverlapObserved(
 }
 
 FTownspersonViewDefaults ReduceViewDefaults(
-    const FTownspersonViewDefaultsRequest &Request) {
-  return {ReduceInteractionPrompt(Request.InteractionPrompt),
-          ReduceDefaultPlayerLine(Request.DefaultPlayerLine)};
+    const ForbocAI::Demo::Data::FTownspersonDefaultsSettings &Settings) {
+  return {Settings.Id, Settings.Name, Settings.Role, Settings.Persona,
+          Settings.InteractionPrompt, Settings.DefaultPlayerLine};
+}
+
+FTownspersonViewDefaults ReduceViewDefaults(
+    const FTownspersonViewDefaultsReduceRequest &Request) {
+  return {Request.Defaults.Id,
+          Request.Defaults.Name,
+          Request.Defaults.Role,
+          Request.Defaults.Persona,
+          ReduceInteractionPrompt(Request),
+          ReduceDefaultPlayerLine(Request)};
 }
 
 FTownspersonInteractionOverlapViewModel ReduceInteractionOverlap(

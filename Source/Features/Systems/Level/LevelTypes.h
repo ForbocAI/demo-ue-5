@@ -5,6 +5,7 @@
 #include "Features/Components/Level/LevelTypes.h"
 #include "Features/Components/Rendering/RenderingTypes.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
+#include "Features/Systems/Landmarks/LandmarkTypes.h"
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
@@ -14,8 +15,7 @@ namespace Level {
 enum class ELevelRuntimeScaleMode {
   Building,
   LongFeature,
-  Pad,
-  FallbackTerrain
+  Pad
 };
 
 enum class ELevelRuntimeAnchorMode {
@@ -71,7 +71,6 @@ struct FLevelRuntimeSectionSeed {
 };
 
 struct FLevelRuntimeLayoutSeed {
-  FLevelRuntimeBlockSeed FallbackTerrainBlock;
   FLevelRuntimeSectionSeed Terrain;
   FLevelRuntimeSectionSeed Town;
   FLevelRuntimeSectionSeed Mine;
@@ -99,26 +98,36 @@ struct FLevelRuntimeSectionSpawn {
 struct FLevelRuntimeBlockSpawnRequest {
   FLevelRuntimeBlockSeed Seed;
   FLevelTerrainData TerrainData;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelRuntimeLabelSpawnRequest {
   FLevelRuntimeLabelSeed Seed;
   FLevelTerrainData TerrainData;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelRuntimeSectionSpawnRequest {
   FLevelRuntimeSectionSeed Seed;
   FLevelTerrainData TerrainData;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelOverlaySectionSpawnRequest {
   FLevelRuntimeLayoutSeed Seed;
   FLevelTerrainData TerrainData;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelNatureSectionSpawnRequest {
   TArray<FNatureFeatureSeed> Features;
   FLevelTerrainData TerrainData;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+struct FLevelLandmarkSectionSpawnRequest {
+  TArray<FLandmark> Landmarks;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelWorldRouteRequest {
@@ -132,6 +141,8 @@ struct FLevelSystemPayload {
 
 struct FLevelSystemState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
+  ForbocAI::Demo::Data::FLevelTerrainSourceSettings TerrainSources;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
   bool bReady = false;
 };
 
@@ -148,6 +159,8 @@ inline bool operator!=(const FLevelSystemPayload &Left,
 inline bool operator==(const FLevelSystemState &Left,
                        const FLevelSystemState &Right) {
   return Left.bReady == Right.bReady &&
+         Left.TerrainSources == Right.TerrainSources &&
+         Left.Geometry == Right.Geometry &&
          Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
          (!Left.LastActionId.hasValue ||
           Left.LastActionId.value == Right.LastActionId.value);
@@ -217,8 +230,7 @@ inline bool operator!=(const FLevelRuntimeSectionSeed &Left,
 
 inline bool operator==(const FLevelRuntimeLayoutSeed &Left,
                        const FLevelRuntimeLayoutSeed &Right) {
-  return Left.FallbackTerrainBlock == Right.FallbackTerrainBlock &&
-         Left.Terrain == Right.Terrain && Left.Town == Right.Town &&
+  return Left.Terrain == Right.Terrain && Left.Town == Right.Town &&
          Left.Mine == Right.Mine && Left.OverlayLabels == Right.OverlayLabels;
 }
 

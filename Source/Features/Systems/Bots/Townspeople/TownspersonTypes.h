@@ -37,8 +37,17 @@ struct FTownspersonIntentProjectionRequest {
 };
 
 struct FTownspersonViewDefaults {
+  FString Id;
+  FString Name;
+  FString Role;
+  FString Persona;
   FString InteractionPrompt;
   FString DefaultPlayerLine;
+};
+
+struct FTownspersonViewDefaultsReduceRequest {
+  FTownspersonViewDefaultsRequest Request;
+  FTownspersonViewDefaults Defaults;
 };
 
 struct FTownspersonInteractionOverlapRequest {
@@ -103,6 +112,10 @@ inline bool operator==(const FTownspersonState &Left,
              Right.LastViewDefaults.InteractionPrompt &&
          Left.LastViewDefaults.DefaultPlayerLine ==
              Right.LastViewDefaults.DefaultPlayerLine &&
+         Left.LastViewDefaults.Id == Right.LastViewDefaults.Id &&
+         Left.LastViewDefaults.Name == Right.LastViewDefaults.Name &&
+         Left.LastViewDefaults.Role == Right.LastViewDefaults.Role &&
+         Left.LastViewDefaults.Persona == Right.LastViewDefaults.Persona &&
          Left.LastInteractionOverlap.bShouldApply ==
              Right.LastInteractionOverlap.bShouldApply &&
          Left.LastInteractionOverlap.bPlayerNearby ==
@@ -129,12 +142,24 @@ inline bool operator!=(const FTownspersonViewDefaultsRequest &Left,
 
 inline bool operator==(const FTownspersonViewDefaults &Left,
                        const FTownspersonViewDefaults &Right) {
-  return Left.InteractionPrompt == Right.InteractionPrompt &&
+  return Left.Id == Right.Id && Left.Name == Right.Name &&
+         Left.Role == Right.Role && Left.Persona == Right.Persona &&
+         Left.InteractionPrompt == Right.InteractionPrompt &&
          Left.DefaultPlayerLine == Right.DefaultPlayerLine;
 }
 
 inline bool operator!=(const FTownspersonViewDefaults &Left,
                        const FTownspersonViewDefaults &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FTownspersonViewDefaultsReduceRequest &Left,
+                       const FTownspersonViewDefaultsReduceRequest &Right) {
+  return Left.Request == Right.Request && Left.Defaults == Right.Defaults;
+}
+
+inline bool operator!=(const FTownspersonViewDefaultsReduceRequest &Left,
+                       const FTownspersonViewDefaultsReduceRequest &Right) {
   return !(Left == Right);
 }
 

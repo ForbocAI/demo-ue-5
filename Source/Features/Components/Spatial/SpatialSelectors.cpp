@@ -7,12 +7,13 @@ namespace Demo {
 namespace Level {
 namespace SpatialSelectors {
 
-float SelectTownLotWorldUnits() {
-  return LevelLayoutSlice::TownLotWorldUnits();
+float SelectTownLotWorldUnits(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return LevelLayoutSlice::TownLotWorldUnits(Geometry);
 }
 
-float SelectActorWorldUnitsFromFeet(float Feet) {
-  return LevelLayoutSlice::ActorWorldUnitsFromFeet(Feet);
+float SelectActorWorldUnitsFromFeet(const FLevelActorFeetRequest &Request) {
+  return LevelLayoutSlice::ActorWorldUnitsFromFeet(Request);
 }
 
 } // namespace SpatialSelectors

@@ -10,7 +10,7 @@
 #include "Features/Systems/Dialogue/DialogueReducers.h"
 #include "Features/Systems/Dialogue/DialogueThunks.h"
 #include "Features/Systems/Landmarks/LandmarkActions.h"
-#include "Features/Systems/Level/LevelRuntimeSession.h"
+#include "Features/Systems/Level/LevelAdapters.h"
 #include "Features/Systems/Nature/NatureActions.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
 #include "Features/Systems/Runtime/RuntimeReducers.h"
@@ -27,34 +27,49 @@ namespace Level {
 namespace RuntimeThunks {
 namespace {
 
-void LoadRuntimeData(FLevelTerrainData &TerrainData,
-                     FLevelOrthoData &OrthoData) {
-  TerrainData.LoadFromContent();
-  OrthoData.LoadFromContent();
+struct FRuntimeDataLoadRequest {
+  FLevelTerrainData &TerrainData;
+  FLevelOrthoData &OrthoData;
+  ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+struct FRuntimeSeedDispatchRequest {
+  const std::function<rtk::AnyAction(const rtk::AnyAction &)> &Dispatch;
+  const FLevelTerrainData &TerrainData;
+  const FLevelOrthoData &OrthoData;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+void LoadRuntimeData(const FRuntimeDataLoadRequest &Request) {
+  Request.TerrainData.LoadFromContent({Request.Sources, Request.Geometry});
+  Request.OrthoData.LoadFromContent({Request.Sources});
 }
 
-void DispatchRuntimeSeeded(
-    const std::function<rtk::AnyAction(const rtk::AnyAction &)> &Dispatch,
-    const FLevelTerrainData &TerrainData, const FLevelOrthoData &OrthoData) {
-  Dispatch(TerrainActions::TerrainLoaded()(
+void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
+  Request.Dispatch(TerrainActions::TerrainLoaded()(
       TerrainFactories::LoadedPayload(
-          {TerrainData.GetSourcePath(), OrthoData.GetSourcePath(),
-           TerrainData.GetGridSize(), TerrainData.GetMinElevationMeters(),
-           TerrainData.GetMaxElevationMeters()})));
-  Dispatch(LandmarkActions::LandmarksSeeded()(
-      LandmarksAdapters::Build1899LandmarkSeed(TerrainData)));
-  Dispatch(SpawnActions::PlayerSpawnAnchored()(
+          {Request.TerrainData.GetSourcePath(), Request.OrthoData.GetSourcePath(),
+           Request.TerrainData.GetGridSize(),
+           Request.TerrainData.GetMinElevationMeters(),
+           Request.TerrainData.GetMaxElevationMeters()})));
+  Request.Dispatch(LandmarkActions::LandmarksSeeded()(
+      LandmarksAdapters::Build1899LandmarkSeed(
+          {Request.TerrainData, Request.Geometry})));
+  Request.Dispatch(SpawnActions::PlayerSpawnAnchored()(
       SpawnFactories::SpawnPointPayload(
-          {LevelLayoutSlice::ToWorld(TerrainData,
-                                     LevelLayoutSlice::PlayerSpawnPoint()),
-           LevelLayoutSlice::PlayerSpawnRotation(),
-           LevelLayoutSlice::PlayerSpawnAnchorLabel()})));
-  Dispatch(TownspersonActions::TownspeopleSeeded()(
-      BotsAdapters::Build1899TownspersonSeed()));
-  Dispatch(
-      HorseActions::HorsesSeeded()(BotsAdapters::Build1899HorseRouteSeed()));
-  Dispatch(NatureActions::NatureSeeded()(
-      NatureAdapters::BuildClearCreekNatureSeed()));
+          {LevelLayoutSlice::ToWorld(
+               {Request.TerrainData,
+                LevelLayoutSlice::PlayerSpawnPoint(Request.Geometry)}),
+           LevelLayoutSlice::PlayerSpawnRotation(Request.Geometry),
+           LevelLayoutSlice::PlayerSpawnAnchorLabel(Request.Geometry)})));
+  Request.Dispatch(TownspersonActions::TownspeopleSeeded()(
+      BotsAdapters::Build1899TownspersonSeed(Request.Geometry)));
+  Request.Dispatch(
+      HorseActions::HorsesSeeded()(
+          BotsAdapters::Build1899HorseRouteSeed(Request.Geometry)));
+  Request.Dispatch(NatureActions::NatureSeeded()(
+      NatureAdapters::BuildClearCreekNatureSeed(Request.Geometry)));
 }
 
 FDialogueReplyPayload ReduceLocalDialogueReplyPayload(
@@ -74,8 +89,13 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
           (void)Reject;
           FLevelTerrainData TerrainData;
           FLevelOrthoData OrthoData;
-          LoadRuntimeData(TerrainData, OrthoData);
-          DispatchRuntimeSeeded(Dispatch, TerrainData, OrthoData);
+          const FRuntimeState State = GetState();
+          const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
+              RuntimeSelectors::SelectLevelTerrainSources(State);
+          const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
+              RuntimeSelectors::SelectLevelGeometry(State);
+          LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
+          DispatchRuntimeSeeded({Dispatch, TerrainData, OrthoData, Geometry});
           Resolve(RuntimeSelectors::SelectPlayerSpawn(GetState()));
         });
   };
@@ -93,15 +113,25 @@ RequestLevelViewPayload() {
           (void)Reject;
           FLevelTerrainData TerrainData;
           FLevelOrthoData OrthoData;
-          LoadRuntimeData(TerrainData, OrthoData);
-          const FLevelRuntimeLayoutSeed RuntimeLayout =
-              LevelRuntimeSession::BuildFrenchGulchRuntimeLayoutSeed();
-          DispatchRuntimeSeeded(Dispatch, TerrainData, OrthoData);
+          const FRuntimeState State = GetState();
+          const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
+              RuntimeSelectors::SelectLevelTerrainSources(State);
+          const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
+              RuntimeSelectors::SelectLevelGeometry(State);
+          LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
+          const func::Maybe<FLevelRuntimeLayoutSeed> RuntimeLayout =
+              LevelAdapters::LoadFrenchGulchRuntimeLayoutSeed();
+          if (!RuntimeLayout.hasValue) {
+            Reject("French Gulch runtime layout JSON failed to load");
+            return;
+          }
+          DispatchRuntimeSeeded({Dispatch, TerrainData, OrthoData, Geometry});
           func::executeAsync(RenderingThunks::ObserveRuntimeProfile(
                                  TEXT("runtime/rendering/profileObserved"))(
               Dispatch, GetState));
           Resolve(RuntimeReducers::ReduceLevelViewPayload(
-              GetState(), {&TerrainData, &OrthoData, &RuntimeLayout}));
+              GetState(), {&TerrainData, &OrthoData, &RuntimeLayout.value,
+                           &Geometry}));
         });
   };
 }

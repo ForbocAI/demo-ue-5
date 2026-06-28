@@ -14,6 +14,68 @@ struct FLevelLocalPoint {
   float HeightOffset;
 };
 
+struct FLevelLayoutLotsRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  float EastLots = 0.0f;
+  float NorthLots = 0.0f;
+  float HeightOffset = 0.0f;
+};
+
+struct FLevelLayoutPointRequest {
+  float EastWest = 0.0f;
+  float NorthSouth = 0.0f;
+  float HeightOffset = 0.0f;
+};
+
+struct FLevelCenteredOnGroundRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  FLevelLocalPoint Point;
+  FVector Scale = FVector::OneVector;
+  float GroundClearance = 0.0f;
+};
+
+struct FLevelAboveBlockRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  FLevelLocalPoint Point;
+  FVector Scale = FVector::OneVector;
+};
+
+struct FLevelLabelHeightRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  FVector Scale = FVector::OneVector;
+};
+
+struct FLevelActorFeetRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  float Feet = 0.0f;
+};
+
+struct FLevelBuildingScaleRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  float FrontageFeet = 0.0f;
+  float DepthFeet = 0.0f;
+  float Stories = 0.0f;
+};
+
+struct FLevelLongFeatureScaleRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  float WidthFeet = 0.0f;
+  float LengthLots = 0.0f;
+  float HeightFeet = 0.0f;
+};
+
+struct FLevelPadScaleRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  float WidthFeet = 0.0f;
+  float DepthFeet = 0.0f;
+  float HeightFeet = 0.0f;
+};
+
+struct FLevelToWorldRequest {
+  FLevelTerrainData TerrainData;
+  FLevelLocalPoint Point;
+};
+
 inline bool operator==(const FLevelLocalPoint &Left,
                        const FLevelLocalPoint &Right) {
   return FMath::IsNearlyEqual(Left.EastWest, Right.EastWest) &&
@@ -27,35 +89,36 @@ inline bool operator!=(const FLevelLocalPoint &Left,
 }
 
 namespace LevelLayoutSlice {
-float TownLotWorldUnits();
-float CubeHalfExtent();
-float BuildingFoundationHeight();
-float RoadSurfaceClearance();
-float CharacterHeightOffset();
-float LabelHeightForScale(const FVector &Scale);
-float ActorWorldUnitsFromFeet(float Feet);
-float ActorMeshScaleFromFeet(float Feet);
+float TownLotWorldUnits(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+float CubeHalfExtent(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+float BuildingFoundationHeight(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+float RoadSurfaceClearance(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+float CharacterHeightOffset(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+float LabelHeightForScale(const FLevelLabelHeightRequest &Request);
+float ActorWorldUnitsFromFeet(const FLevelActorFeetRequest &Request);
+float ActorMeshScaleFromFeet(const FLevelActorFeetRequest &Request);
 
-FVector BuildingScaleFromFeet(float FrontageFeet, float DepthFeet,
-                              float Stories);
-FVector LongFeatureScale(float WidthFeet, float LengthLots, float HeightFeet);
-FVector PadScaleFromFeet(float WidthFeet, float DepthFeet, float HeightFeet);
+FVector BuildingScaleFromFeet(const FLevelBuildingScaleRequest &Request);
+FVector LongFeatureScale(const FLevelLongFeatureScaleRequest &Request);
+FVector PadScaleFromFeet(const FLevelPadScaleRequest &Request);
 
-FLevelLocalPoint Point(float EastWest, float NorthSouth,
-                             float HeightOffset = 0.0f);
-FLevelLocalPoint FromPostOfficeLots(float EastLots, float NorthLots,
-                                          float HeightOffset = 0.0f);
-FLevelLocalPoint CenteredOnGround(const FLevelLocalPoint &Point,
-                                        const FVector &Scale,
-                                        float GroundClearance = 0.0f);
-FLevelLocalPoint AboveBlock(const FLevelLocalPoint &Point,
-                                  const FVector &Scale);
-FVector ToWorld(const FLevelTerrainData &TerrainData,
-                const FLevelLocalPoint &Point);
+FLevelLocalPoint Point(const FLevelLayoutPointRequest &Request);
+FLevelLocalPoint FromPostOfficeLots(const FLevelLayoutLotsRequest &Request);
+FLevelLocalPoint CenteredOnGround(const FLevelCenteredOnGroundRequest &Request);
+FLevelLocalPoint AboveBlock(const FLevelAboveBlockRequest &Request);
+FVector ToWorld(const FLevelToWorldRequest &Request);
 
-FLevelLocalPoint PlayerSpawnPoint();
-FRotator PlayerSpawnRotation();
-FString PlayerSpawnAnchorLabel();
+FLevelLocalPoint PlayerSpawnPoint(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+FRotator PlayerSpawnRotation(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+FString PlayerSpawnAnchorLabel(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
 } // namespace LevelLayoutSlice
 
 } // namespace Level

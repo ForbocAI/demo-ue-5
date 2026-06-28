@@ -13,6 +13,10 @@ namespace RuntimeSelectors {
 const FPlayerState &SelectPlayerState(const FRuntimeState &State);
 const FSystemsState &SelectSystemsState(const FRuntimeState &State);
 const FLevelSystemState &SelectLevelState(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FLevelTerrainSourceSettings &
+SelectLevelTerrainSources(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FLevelGeometrySettings &
+SelectLevelGeometry(const FRuntimeState &State);
 const FRenderingState &SelectRenderingState(const FRuntimeState &State);
 const FDialogueState &SelectDialogueState(const FRuntimeState &State);
 const FInteractionState &SelectInteractionState(const FRuntimeState &State);
@@ -45,6 +49,12 @@ const FPlayerMovementInputViewModel &
 SelectPlayerMovementInput(const FRuntimeState &State);
 const FPlayerPresentationViewModel &
 SelectPlayerPresentation(const FRuntimeState &State);
+const FLevelRetroRenderProfile &
+SelectRuntimeProfile(const FRuntimeState &State);
+const TArray<FLevelRetroTextureSpec> &
+SelectTextureCatalog(const FRuntimeState &State);
+const FRenderingAssetPaths &
+SelectRenderingAssetPaths(const FRuntimeState &State);
 int32 SelectBotInitialPatrolIndex(const FRuntimeState &State);
 const FBotInitialPatrolLocationPayload &
 SelectBotInitialPatrolLocation(const FRuntimeState &State);

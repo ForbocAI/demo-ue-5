@@ -78,6 +78,14 @@ private:
 
   FVector MeshRelativeLocation;
   FRotator MeshRelativeRotation;
+  FString CharacterMeshPath;
+  FString CharacterAnimationBlueprintClassPath;
+  FString MoveActionPath;
+  FString LookActionPath;
+  FString MouseLookActionPath;
+  FString JumpActionPath;
+  FString DefaultMappingContextPath;
+  FString MouseMappingContextPath;
 
   void ConfigureTemplateCharacter();
   void ConfigureEnhancedInput();

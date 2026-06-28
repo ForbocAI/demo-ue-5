@@ -153,6 +153,8 @@ private:
   float PauseRemaining;
   float PatrolArrivalDistance;
   bool bPlayerNearby;
+  FString CharacterMeshPath;
+  FString CharacterAnimationBlueprintClassPath;
 
   void AdvancePatrol(float DeltaTime);
   void ConfigureSampleCharacterAsset();

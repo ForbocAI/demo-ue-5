@@ -26,7 +26,7 @@
         "intent": "dialogue",
         "prompt": "Press E to talk",
         "default_player_line": "How does conversation work here?",
-        "pinned_response": "Dialogue is routed through the runtime store and local fallback responder; the SDK path can take over when its feature gate is open."
+        "pinned_response": "Dialogue is routed through the runtime store and local rule responder; the SDK path can take over when its feature gate is open."
       },
       "patrol_route": [
         { "east_lots": 0.0, "north_lots": -0.175 },

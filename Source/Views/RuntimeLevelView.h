@@ -2,6 +2,7 @@
 
 #include "Core/functional_core.hpp"
 #include "CoreMinimal.h"
+#include "Features/Components/Rendering/RenderingTypes.h"
 #include "GameFramework/Actor.h"
 #include "RuntimeLevelView.generated.h"
 
@@ -30,8 +31,8 @@ struct FRuntimeTownspersonViewSpawn;
  *
  * Architecture: The actor requests FRuntimeLevelViewPayload through the
  * RuntimeSlice thunk and applies that payload to Unreal actors. Layout, spawn
- * data, terrain fallback choices, and ECS projection are prepared below the
- * view layer by reducers, thunks, selectors, and neutral ECS primitives.
+ * data and ECS projection are prepared below the view layer by reducers,
+ * thunks, selectors, and neutral ECS primitives.
  *
  * User story: As a game developer, I need one source-controlled view actor that
  * materializes the current store state into the playable French Gulch scene.
@@ -55,6 +56,7 @@ public:
 private:
   UStaticMesh *CubeMesh;
   UMaterialInterface *BlockBaseMaterial;
+  TArray<ForbocAI::Demo::Level::FLevelRetroTextureSpec> TextureCatalog;
 
   /**
    * @brief Dispatches the RuntimeSlice level-payload thunk and applies the
@@ -68,7 +70,6 @@ private:
    */
   void RenderLevelPayload(
       const ForbocAI::Demo::Level::FRuntimeLevelViewPayload &Payload);
-  void RenderTerrain();
   void RenderTerrain(
       const ForbocAI::Demo::Level::FRuntimeLevelViewPayload &Payload);
   void RenderTownspeople(

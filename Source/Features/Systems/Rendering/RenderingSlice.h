@@ -14,8 +14,8 @@ namespace RenderingSlice {
 
 FRenderingState CreateInitialState();
 const rtk::Slice<FRenderingState> &GetSlice();
-void ApplyRuntimeProfile();
-UMaterialInterface *LoadBlockoutMaterial();
+void ApplyRuntimeProfile(const FLevelRetroRenderProfile &Profile);
+UMaterialInterface *LoadBlockoutMaterial(const FString &Path);
 void ApplyTexture(const FLevelRetroTextureApply &Request);
 
 } // namespace RenderingSlice

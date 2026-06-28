@@ -7,11 +7,20 @@
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
-namespace LevelRuntimeSession {
+namespace LevelAdapters {
 
-FLevelRuntimeLayoutSeed BuildFrenchGulchRuntimeLayoutSeed();
+/**
+ * @brief Loads the authored French Gulch runtime layout from Content JSON.
+ *
+ * @signature func::Maybe<FLevelRuntimeLayoutSeed>
+ * LoadFrenchGulchRuntimeLayoutSeed()
+ *
+ * User story: As a level author, invalid or missing authored layout data is
+ * rejected at the adapter boundary instead of becoming reducer-owned state.
+ */
+func::Maybe<FLevelRuntimeLayoutSeed> LoadFrenchGulchRuntimeLayoutSeed();
 
-} // namespace LevelRuntimeSession
+} // namespace LevelAdapters
 } // namespace Level
 } // namespace Demo
 } // namespace ForbocAI

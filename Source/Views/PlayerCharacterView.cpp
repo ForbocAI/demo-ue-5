@@ -15,9 +15,6 @@
 #include "InputAction.h"
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
-#include "InputModifiers.h"
-#include "InputTriggers.h"
-#include "InputCoreTypes.h"
 #include "Store.h"
 
 namespace FG = ForbocAI::Demo::Level;
@@ -31,60 +28,8 @@ FG::FPlayerPresentationViewModel ObservePlayerPresentation() {
       FG::Store::GetStore().getState());
 }
 
-UInputAction *InputAction(const TCHAR *AssetPath, UObject *Outer,
-                          const FName Name, EInputActionValueType Type) {
-  if (UInputAction *Loaded = LoadObject<UInputAction>(nullptr, AssetPath)) {
-    return Loaded;
-  }
-  UInputAction *Created = NewObject<UInputAction>(Outer, Name);
-  Created->ValueType = Type;
-  return Created;
-}
-
-UInputModifierNegate *NegateY(UObject *Outer) {
-  UInputModifierNegate *Modifier = NewObject<UInputModifierNegate>(Outer);
-  Modifier->bX = false;
-  Modifier->bY = true;
-  Modifier->bZ = false;
-  return Modifier;
-}
-
-UInputModifierNegate *NegateX(UObject *Outer) {
-  UInputModifierNegate *Modifier = NewObject<UInputModifierNegate>(Outer);
-  Modifier->bX = true;
-  Modifier->bY = false;
-  Modifier->bZ = false;
-  return Modifier;
-}
-
-UInputModifierSwizzleAxis *SwizzleYXZ(UObject *Outer) {
-  UInputModifierSwizzleAxis *Modifier =
-      NewObject<UInputModifierSwizzleAxis>(Outer);
-  Modifier->Order = EInputAxisSwizzle::YXZ;
-  return Modifier;
-}
-
-struct FInputKeyMap {
-  UInputMappingContext *Context;
-  const UInputAction *Action;
-  FKey Key;
-};
-
-struct FInputKeyMapWithModifiers {
-  FInputKeyMap Map;
-  TArray<UInputModifier *> Modifiers;
-};
-
-void MapKey(const FInputKeyMap &Map) {
-  Map.Context->MapKey(Map.Action, Map.Key);
-}
-
-void MapKeyWithModifiers(const FInputKeyMapWithModifiers &Map) {
-  FEnhancedActionKeyMapping &Mapping =
-      Map.Map.Context->MapKey(Map.Map.Action, Map.Map.Key);
-  for (UInputModifier *Modifier : Map.Modifiers) {
-    Mapping.Modifiers.Add(Modifier);
-  }
+UInputAction *LoadInputAction(const FString &AssetPath) {
+  return LoadObject<UInputAction>(nullptr, *AssetPath);
 }
 } // namespace
 
@@ -97,6 +42,15 @@ APlayerCharacterView::APlayerCharacterView()
       ObservePlayerPresentation();
   MeshRelativeLocation = Presentation.MeshRelativeLocation;
   MeshRelativeRotation = Presentation.MeshRelativeRotation;
+  CharacterMeshPath = Presentation.MeshPath;
+  CharacterAnimationBlueprintClassPath =
+      Presentation.AnimationBlueprintClassPath;
+  MoveActionPath = Presentation.MoveActionPath;
+  LookActionPath = Presentation.LookActionPath;
+  MouseLookActionPath = Presentation.MouseLookActionPath;
+  JumpActionPath = Presentation.JumpActionPath;
+  DefaultMappingContextPath = Presentation.DefaultMappingContextPath;
+  MouseMappingContextPath = Presentation.MouseMappingContextPath;
   GetCapsuleComponent()->InitCapsuleSize(Presentation.CapsuleRadius,
                                          Presentation.CapsuleHalfHeight);
 
@@ -153,16 +107,29 @@ void APlayerCharacterView::SetupPlayerInputComponent(
     UInputComponent *PlayerInputComponent) {
   if (UEnhancedInputComponent *EnhancedInput =
           Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-    EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this,
-                              &APlayerCharacterView::DoJumpStart);
-    EnhancedInput->BindAction(JumpAction, ETriggerEvent::Completed, this,
-                              &APlayerCharacterView::DoJumpEnd);
-    EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this,
-                              &APlayerCharacterView::Move);
-    EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this,
-                              &APlayerCharacterView::Look);
-    EnhancedInput->BindAction(MouseLookAction, ETriggerEvent::Triggered, this,
-                              &APlayerCharacterView::Look);
+    JumpAction ? (EnhancedInput->BindAction(
+                      JumpAction, ETriggerEvent::Started, this,
+                      &APlayerCharacterView::DoJumpStart),
+                  EnhancedInput->BindAction(
+                      JumpAction, ETriggerEvent::Completed, this,
+                      &APlayerCharacterView::DoJumpEnd),
+                  void())
+               : void();
+    MoveAction ? (EnhancedInput->BindAction(
+                      MoveAction, ETriggerEvent::Triggered, this,
+                      &APlayerCharacterView::Move),
+                  void())
+               : void();
+    LookAction ? (EnhancedInput->BindAction(
+                      LookAction, ETriggerEvent::Triggered, this,
+                      &APlayerCharacterView::Look),
+                  void())
+               : void();
+    MouseLookAction ? (EnhancedInput->BindAction(
+                           MouseLookAction, ETriggerEvent::Triggered, this,
+                           &APlayerCharacterView::Look),
+                       void())
+                    : void();
   }
 }
 
@@ -192,9 +159,8 @@ void APlayerCharacterView::DoJumpStart() { Jump(); }
 void APlayerCharacterView::DoJumpEnd() { StopJumping(); }
 
 void APlayerCharacterView::ConfigureTemplateCharacter() {
-  if (USkeletalMesh *CharacterMesh = LoadObject<USkeletalMesh>(
-          nullptr,
-          TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"))) {
+  if (USkeletalMesh *CharacterMesh =
+          LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath)) {
     GetMesh()->SetSkeletalMesh(CharacterMesh);
     GetMesh()->SetRelativeLocation(MeshRelativeLocation);
     GetMesh()->SetRelativeRotation(MeshRelativeRotation);
@@ -204,8 +170,7 @@ void APlayerCharacterView::ConfigureTemplateCharacter() {
   }
 
   if (UClass *AnimClass = LoadClass<UAnimInstance>(
-          nullptr,
-          TEXT("/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C"))) {
+          nullptr, *CharacterAnimationBlueprintClassPath)) {
     GetMesh()->SetAnimInstanceClass(AnimClass);
   } else {
     UE_LOG(LogTemp, Error,
@@ -215,39 +180,20 @@ void APlayerCharacterView::ConfigureTemplateCharacter() {
 }
 
 void APlayerCharacterView::ConfigureEnhancedInput() {
-  MoveAction = InputAction(TEXT("/Game/Input/Actions/IA_Move.IA_Move"), this,
-                           TEXT("IA_Move"), EInputActionValueType::Axis2D);
-  LookAction = InputAction(TEXT("/Game/Input/Actions/IA_Look.IA_Look"), this,
-                           TEXT("IA_Look"), EInputActionValueType::Axis2D);
-  MouseLookAction =
-      InputAction(TEXT("/Game/Input/Actions/IA_MouseLook.IA_MouseLook"), this,
-                  TEXT("IA_MouseLook"), EInputActionValueType::Axis2D);
-  JumpAction = InputAction(TEXT("/Game/Input/Actions/IA_Jump.IA_Jump"), this,
-                           TEXT("IA_Jump"), EInputActionValueType::Boolean);
+  MoveAction = LoadInputAction(MoveActionPath);
+  LookAction = LoadInputAction(LookActionPath);
+  MouseLookAction = LoadInputAction(MouseLookActionPath);
+  JumpAction = LoadInputAction(JumpActionPath);
 
   MappingContext = LoadObject<UInputMappingContext>(
-      nullptr, TEXT("/Game/Input/IMC_Default.IMC_Default"));
+      nullptr, *DefaultMappingContextPath);
   MouseMappingContext = LoadObject<UInputMappingContext>(
-      nullptr, TEXT("/Game/Input/IMC_MouseLook.IMC_MouseLook"));
-  if (MappingContext && MouseMappingContext) {
-    return;
+      nullptr, *MouseMappingContextPath);
+  if (!MoveAction || !LookAction || !MouseLookAction || !JumpAction ||
+      !MappingContext || !MouseMappingContext) {
+    UE_LOG(LogTemp, Error,
+           TEXT("ThirdPerson: input assets missing from JSON-authored paths."));
   }
-
-  MappingContext = NewObject<UInputMappingContext>(this, TEXT("IMC_RuntimeTP"));
-  MapKeyWithModifiers(
-      {{MappingContext, MoveAction, EKeys::W}, {SwizzleYXZ(MappingContext)}});
-  MapKeyWithModifiers({{MappingContext, MoveAction, EKeys::S},
-                       {SwizzleYXZ(MappingContext), NegateY(MappingContext)}});
-  MapKey({MappingContext, MoveAction, EKeys::D});
-  MapKeyWithModifiers(
-      {{MappingContext, MoveAction, EKeys::A}, {NegateX(MappingContext)}});
-  MapKey({MappingContext, MoveAction, EKeys::Gamepad_Left2D});
-  MapKey({MappingContext, LookAction, EKeys::Mouse2D});
-  MapKey({MappingContext, LookAction, EKeys::Gamepad_Right2D});
-  MapKey({MappingContext, MouseLookAction, EKeys::Mouse2D});
-  MapKey({MappingContext, JumpAction, EKeys::SpaceBar});
-  MapKey({MappingContext, JumpAction, EKeys::Gamepad_FaceButton_Bottom});
-  MouseMappingContext = nullptr;
 }
 
 void APlayerCharacterView::Move(const FInputActionValue &Value) {

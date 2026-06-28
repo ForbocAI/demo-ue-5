@@ -21,6 +21,16 @@ SelectLastActionId(const FLevelSystemState &State) {
   return State.LastActionId;
 }
 
+inline const ForbocAI::Demo::Data::FLevelTerrainSourceSettings &
+SelectTerrainSources(const FLevelSystemState &State) {
+  return State.TerrainSources;
+}
+
+inline const ForbocAI::Demo::Data::FLevelGeometrySettings &
+SelectGeometry(const FLevelSystemState &State) {
+  return State.Geometry;
+}
+
 } // namespace LevelSystemSelectors
 } // namespace Level
 } // namespace Demo

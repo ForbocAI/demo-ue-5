@@ -30,8 +30,7 @@ FTerrainMeshPayload ReserveTerrainMeshPayload(int32 GridSize) {
 
 FColor TerrainVertexColor(const FTerrainMeshBuildContext &Context, int32 Row,
                           int32 Column) {
-  return Context.OrthoData.IsLoaded() ? Context.OrthoData.GetColorAt(Row, Column)
-                                      : FColor(94, 111, 78);
+  return Context.OrthoData.GetColorAt(Row, Column);
 }
 
 FTerrainMeshPayload AddTerrainVertex(const FTerrainMeshBuildContext &Context,
@@ -110,8 +109,9 @@ FTerrainMeshPayload BuildLoadedTerrainMeshPayload(
     const FLevelTerrainData &TerrainData, const FLevelOrthoData &OrthoData) {
   const int32 GridSize = TerrainData.GetGridSize();
   const FTerrainMeshBuildContext Context{
-      TerrainData, OrthoData, GridSize, FLevelTerrainData::TerrainWorldSize * 0.5f,
-      FLevelTerrainData::TerrainWorldSize /
+      TerrainData, OrthoData, GridSize,
+      TerrainData.GetTerrainWorldSize() * 0.5f,
+      TerrainData.GetTerrainWorldSize() /
           static_cast<float>(GridSize - 1)};
   return BuildTerrainTriangleRows(
       Context, 0,
@@ -150,7 +150,9 @@ FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
                         const FLevelOrthoData &OrthoData) {
   return TerrainData.IsLoaded()
-             ? BuildLoadedTerrainMeshPayload(TerrainData, OrthoData)
+             ? (OrthoData.IsLoaded()
+                    ? BuildLoadedTerrainMeshPayload(TerrainData, OrthoData)
+                    : FTerrainMeshPayload{})
              : FTerrainMeshPayload{};
 }
 

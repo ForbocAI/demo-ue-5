@@ -18,38 +18,44 @@ constexpr const TCHAR *LandmarkDataPath =
 
 struct FLandmarkFromJsonRequest {
   const FLevelTerrainData *TerrainData = nullptr;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
   TSharedPtr<FJsonObject> LandmarkObject;
 };
 
 FLandmark LandmarkFromJson(const FLandmarkFromJsonRequest &Request) {
   const FVector Scale = LevelLayoutSlice::BuildingScaleFromFeet(
-      DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("frontage_feet")}),
-      DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("depth_feet")}),
-      DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("stories")}));
+      {Request.Geometry,
+       DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("frontage_feet")}),
+       DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("depth_feet")}),
+       DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("stories")})});
   const FLevelLocalPoint Local = LevelLayoutSlice::CenteredOnGround(
-      LevelLayoutSlice::FromPostOfficeLots(
-          DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("east_lots")}),
-          DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("north_lots")})),
-      Scale, LevelLayoutSlice::BuildingFoundationHeight());
+      {Request.Geometry,
+       LevelLayoutSlice::FromPostOfficeLots(
+           {Request.Geometry,
+            DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("east_lots")}),
+            DataAdapters::ReadFloat({Request.LandmarkObject, TEXT("north_lots")}),
+            0.0f}),
+       Scale, LevelLayoutSlice::BuildingFoundationHeight(Request.Geometry)});
 
   return LandmarkFactories::Landmark(
       {DataAdapters::ReadString({Request.LandmarkObject, TEXT("id")}),
        DataAdapters::ReadString({Request.LandmarkObject, TEXT("label")}),
        ELandmarkKind::Building,
-       LevelLayoutSlice::ToWorld(*Request.TerrainData, Local), Scale});
+       LevelLayoutSlice::ToWorld({*Request.TerrainData, Local}), Scale});
 }
 
 } // namespace
 
 TArray<FLandmark>
-Build1899LandmarkSeed(const FLevelTerrainData &TerrainData) {
+Build1899LandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
   return func::match(
       DataAdapters::LoadObjectFromContent({LandmarkDataPath}),
-      [&TerrainData](const TSharedPtr<FJsonObject> &Root) {
+      [&Request](const TSharedPtr<FJsonObject> &Root) {
         return DataAdapters::MapJsonValues<FLandmark>(
             {DataAdapters::ReadArray({Root, TEXT("landmarks")}),
-             [&TerrainData](const TSharedPtr<FJsonObject> &LandmarkObject) {
-               return LandmarkFromJson({&TerrainData, LandmarkObject});
+             [&Request](const TSharedPtr<FJsonObject> &LandmarkObject) {
+               return LandmarkFromJson(
+                   {&Request.TerrainData, Request.Geometry, LandmarkObject});
              }});
       },
       []() { return TArray<FLandmark>(); });

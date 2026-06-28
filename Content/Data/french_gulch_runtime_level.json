@@ -1,0 +1,149 @@
+{
+  "terrain": {
+    "blocks": [
+      {
+        "id": "main-street-road",
+        "name": "Main Street dust road",
+        "anchor": "feature_lots",
+        "east_lots": 2.6,
+        "north_lots": -0.28,
+        "scale": {
+          "mode": "long_feature",
+          "width_feet": 22.0,
+          "length_lots": 9.8,
+          "height_feet": 0.6
+        },
+        "texture": "road_dust"
+      },
+      {
+        "id": "french-gulch-road-bend",
+        "name": "French Gulch Road bend",
+        "anchor": "feature_lots",
+        "east_lots": 0.6,
+        "north_lots": 3.85,
+        "scale": {
+          "mode": "long_feature",
+          "width_feet": 16.0,
+          "length_lots": 6.6,
+          "height_feet": 0.5
+        },
+        "texture": "road_dust"
+      }
+    ],
+    "labels": []
+  },
+  "town": {
+    "blocks": [
+      {
+        "id": "post-office-boardwalk",
+        "name": "Post office boardwalk",
+        "anchor": "building_lots",
+        "east_lots": 0.0,
+        "north_lots": -0.34,
+        "scale": {
+          "mode": "pad",
+          "width_feet": 42.0,
+          "depth_feet": 6.0,
+          "height_feet": 0.8
+        },
+        "texture": "building_timber"
+      },
+      {
+        "id": "livery-wagon-yard",
+        "name": "Livery wagon yard",
+        "anchor": "feature_lots",
+        "east_lots": 4.95,
+        "north_lots": -1.65,
+        "scale": {
+          "mode": "pad",
+          "width_feet": 58.0,
+          "depth_feet": 36.0,
+          "height_feet": 0.5
+        },
+        "texture": "road_dust"
+      }
+    ],
+    "labels": [
+      {
+        "id": "main-street-label",
+        "text": "Main Street",
+        "anchor": "post_office_lots",
+        "height_mode": "explicit",
+        "east_lots": 2.9,
+        "north_lots": -0.95,
+        "height_offset": 220.0,
+        "world_size_scale": 0.42
+      }
+    ]
+  },
+  "mine": {
+    "blocks": [
+      {
+        "id": "mine-portal",
+        "name": "Mine portal timber",
+        "anchor": "building_lots",
+        "east_lots": -2.85,
+        "north_lots": 5.8,
+        "scale": {
+          "mode": "building",
+          "frontage_feet": 24.0,
+          "depth_feet": 16.0,
+          "stories": 1.1
+        },
+        "texture": "mine_timber"
+      },
+      {
+        "id": "waste-rock-edge",
+        "name": "Waste rock edge",
+        "anchor": "feature_lots",
+        "east_lots": -1.65,
+        "north_lots": 6.45,
+        "scale": {
+          "mode": "pad",
+          "width_feet": 46.0,
+          "depth_feet": 22.0,
+          "height_feet": 2.2
+        },
+        "texture": "rock_granite"
+      },
+      {
+        "id": "ore-cart-track",
+        "name": "Ore cart track",
+        "anchor": "feature_lots",
+        "east_lots": -0.8,
+        "north_lots": 4.85,
+        "scale": {
+          "mode": "long_feature",
+          "width_feet": 5.0,
+          "length_lots": 4.2,
+          "height_feet": 0.4
+        },
+        "texture": "mine_timber"
+      }
+    ],
+    "labels": [
+      {
+        "id": "mine-road-label",
+        "text": "Mine road",
+        "anchor": "post_office_lots",
+        "height_mode": "explicit",
+        "east_lots": -1.35,
+        "north_lots": 4.8,
+        "height_offset": 240.0,
+        "world_size_scale": 0.38
+      }
+    ]
+  },
+  "overlay_labels": [
+    {
+      "id": "french-gulch-label",
+      "text": "French Gulch 1899 runtime layout",
+      "anchor": "post_office_lots",
+      "height_mode": "explicit",
+      "east_lots": 1.15,
+      "north_lots": 2.4,
+      "height_offset": 320.0,
+      "world_size_scale": 0.5
+    }
+  ]
+}

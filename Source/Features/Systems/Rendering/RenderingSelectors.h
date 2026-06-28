@@ -14,6 +14,8 @@ const FLevelRetroRenderProfile &
 SelectRuntimeProfile(const FRenderingState &State);
 const TArray<FLevelRetroTextureSpec> &
 SelectTextureCatalog(const FRenderingState &State);
+const FRenderingAssetPaths &SelectRenderingAssetPaths(
+    const FRenderingState &State);
 const FTownspersonPresentationViewModel &
 SelectTownspersonPresentation(const FRenderingState &State);
 const FHorsePresentationViewModel &
