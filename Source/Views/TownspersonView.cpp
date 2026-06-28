@@ -33,7 +33,8 @@ FG::FTownspersonPresentationViewModel ObserveTownspersonPresentation() {
 }
 
 FG::FBotInitialPatrolLocationPayload
-ObserveInitialPatrol(const TArray<FVector> &PatrolRoute, int32 &PatrolIndex) {
+ObserveTownspersonInitialPatrol(const TArray<FVector> &PatrolRoute,
+                                int32 &PatrolIndex) {
   FG::Store::GetStore().dispatch(
       FG::BotPositionActions::InitialPatrolObserved()({PatrolRoute}));
   PatrolIndex = FG::RuntimeSelectors::SelectBotInitialPatrolIndex(
@@ -43,7 +44,7 @@ ObserveInitialPatrol(const TArray<FVector> &PatrolRoute, int32 &PatrolIndex) {
 }
 
 FG::FBotPatrolAdvancePayload
-ObservePatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
+ObserveTownspersonPatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
   FG::Store::GetStore().dispatch(
       FG::BotPositionActions::PatrolAdvanceObserved()(Request));
   return FG::RuntimeSelectors::SelectBotPatrolAdvance(
@@ -155,7 +156,7 @@ void ATownspersonView::ConfigureTownsperson(
   PauseRemaining = 0.0f;
 
   const ForbocAI::Demo::Level::FBotInitialPatrolLocationPayload Initial =
-      ObserveInitialPatrol(PatrolRoute, PatrolIndex);
+      ObserveTownspersonInitialPatrol(PatrolRoute, PatrolIndex);
   if (Initial.bShouldMove) {
     SetActorLocation(Initial.Location);
   }
@@ -189,7 +190,7 @@ FString ATownspersonView::GetPinnedResponse() const { return PinnedResponse; }
 
 void ATownspersonView::AdvancePatrol(float DeltaTime) {
   const ForbocAI::Demo::Level::FBotPatrolAdvancePayload Advance =
-      ObservePatrolAdvance(
+      ObserveTownspersonPatrolAdvance(
           {PatrolRoute, PatrolIndex, PauseRemaining, PauseDuration, WalkSpeed,
            DeltaTime, GetActorLocation(), PatrolArrivalDistance});
   PatrolIndex = Advance.PatrolIndex;

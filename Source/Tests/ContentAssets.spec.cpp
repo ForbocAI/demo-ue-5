@@ -1,15 +1,32 @@
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
+#include "Misc/ConfigCacheIni.h"
 #include "Misc/PackageName.h"
 #include "UObject/SoftObjectPath.h"
 
 namespace {
+constexpr const TCHAR *RuntimeMapPackage = TEXT("/Game/Map/Maps/Runtime");
+constexpr const TCHAR *RuntimeGameModeClass =
+    TEXT("/Script/DemoProject.LevelGameModeView");
+constexpr const TCHAR *GameMapsSettingsSection =
+    TEXT("/Script/EngineSettings.GameMapsSettings");
+
 bool PackageExists(const TCHAR *PackageName) {
   return FPackageName::DoesPackageExist(PackageName);
 }
 
 bool AssetLoads(const TCHAR *ObjectPath) {
   return FSoftObjectPath(ObjectPath).TryLoad() != nullptr;
+}
+
+bool ClassLoads(const TCHAR *ClassPath) {
+  return FSoftClassPath(ClassPath).TryLoadClass<UObject>() != nullptr;
+}
+
+FString ConfigValue(const TCHAR *Section, const TCHAR *Key) {
+  FString Value;
+  GConfig->GetString(Section, Key, Value, GEngineIni);
+  return Value;
 }
 } // namespace
 
@@ -21,7 +38,22 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FContentAssetsProjectOwnedRuntimeSurface::RunTest(
     const FString &Parameters) {
   TestTrue(TEXT("Default French Gulch runtime map is tracked"),
-           PackageExists(TEXT("/Game/Map/Maps/Runtime")));
+           PackageExists(RuntimeMapPackage));
+  TestTrue(TEXT("Default runtime game mode class loads"),
+           ClassLoads(RuntimeGameModeClass));
+  TestEqual(TEXT("Game default map opens the tracked runtime map"),
+            ConfigValue(GameMapsSettingsSection, TEXT("GameDefaultMap")),
+            FString(RuntimeMapPackage));
+  TestEqual(TEXT("Editor startup map opens the tracked runtime map"),
+            ConfigValue(GameMapsSettingsSection, TEXT("EditorStartupMap")),
+            FString(RuntimeMapPackage));
+  TestEqual(TEXT("Server default map opens the tracked runtime map"),
+            ConfigValue(GameMapsSettingsSection, TEXT("ServerDefaultMap")),
+            FString(RuntimeMapPackage));
+  TestEqual(TEXT("Runtime map uses source-controlled game mode"),
+            ConfigValue(GameMapsSettingsSection,
+                        TEXT("GlobalDefaultGameMode")),
+            FString(RuntimeGameModeClass));
 
   TestTrue(TEXT("Manny mesh asset loads"),
            AssetLoads(TEXT("/Game/Characters/Mannequins/Meshes/"
