@@ -25,6 +25,17 @@ struct FRuntimeTownspersonViewSpawn;
 } // namespace Demo
 } // namespace ForbocAI
 
+/**
+ * @brief Runtime level presentation actor for store-derived ECS/RTK payloads.
+ *
+ * Architecture: The actor requests FRuntimeLevelViewPayload through the
+ * RuntimeSlice thunk and applies that payload to Unreal actors. Layout, spawn
+ * data, terrain fallback choices, and ECS projection are prepared below the
+ * view layer by reducers, thunks, selectors, and neutral ECS primitives.
+ *
+ * User story: As a game developer, I need one source-controlled view actor that
+ * materializes the current store state into the playable French Gulch scene.
+ */
 UCLASS(Blueprintable)
 class DEMOPROJECT_API ARuntimeLevelView : public AActor {
   GENERATED_BODY()
@@ -34,6 +45,10 @@ public:
 
   virtual void BeginPlay() override;
 
+  /**
+   * @brief Controls whether BeginPlay asks the runtime store for a level view
+   * payload and renders it.
+   */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|View")
   bool bSpawnOnBeginPlay;
 
@@ -41,7 +56,16 @@ private:
   UStaticMesh *CubeMesh;
   UMaterialInterface *BlockBaseMaterial;
 
+  /**
+   * @brief Dispatches the RuntimeSlice level-payload thunk and applies the
+   * resolved payload to Unreal actors.
+   */
   void RenderLevel();
+
+  /**
+   * @brief Applies a reducer/thunk-owned payload without deriving gameplay
+   * state in the view.
+   */
   void RenderLevelPayload(
       const ForbocAI::Demo::Level::FRuntimeLevelViewPayload &Payload);
   void RenderTerrain();

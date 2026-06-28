@@ -410,6 +410,13 @@ struct FDomainRegistry {
   TMap<EventType, FEventSpec> EventSpecs;
 };
 
+/**
+ * @brief Creates a neutral ECS domain path from ordered path segments.
+ * @signature inline FDomainPath createDomainPath(const TArray<FString> &Segments)
+ *
+ * User Story: As a feature author, I need stable domain paths so higher
+ * gameplay domains can import downward into shared ECS primitives.
+ */
 inline FDomainPath createDomainPath(const TArray<FString> &Segments) {
   FDomainPath Path;
   Path.Segments = Segments;
@@ -424,10 +431,17 @@ inline bool operator!=(const FDomainPath &Left, const FDomainPath &Right) {
   return !(Left == Right);
 }
 
+/**
+ * @brief Converts a domain path into its registry key.
+ * @signature inline DomainPathKey domainPathKey(const FDomainPath &Path)
+ */
 inline DomainPathKey domainPathKey(const FDomainPath &Path) {
   return FString::Join(Path.Segments, TEXT("/"));
 }
 
+/**
+ * @brief Creates a registry node describing a domain/subdomain boundary.
+ */
 inline FDomainNode createDomainNode(const FDomainPath &Path, EDomainKind Kind) {
   FDomainNode Node;
   Node.Path = Path;
@@ -435,6 +449,9 @@ inline FDomainNode createDomainNode(const FDomainPath &Path, EDomainKind Kind) {
   return Node;
 }
 
+/**
+ * @brief Creates a field schema for component/resource/event contracts.
+ */
 inline FFieldSchema createFieldSchema(const FString &Name, const FString &Kind,
                                       bool bRequired,
                                       const FString &Description) {
@@ -446,6 +463,9 @@ inline FFieldSchema createFieldSchema(const FString &Name, const FString &Kind,
   return Schema;
 }
 
+/**
+ * @brief Creates an ECS component schema owned by one domain path.
+ */
 inline FComponentSchema
 createComponentSchema(const ComponentType &Type, const DomainPathKey &Domain,
                       const TArray<FFieldSchema> &Fields,
@@ -459,6 +479,9 @@ createComponentSchema(const ComponentType &Type, const DomainPathKey &Domain,
   return Schema;
 }
 
+/**
+ * @brief Creates a capability contract describing component/resource access.
+ */
 inline FCapabilitySpec
 createCapabilitySpec(const FString &Name, const DomainPathKey &Domain,
                      const TArray<ComponentType> &Reads,
@@ -475,6 +498,9 @@ createCapabilitySpec(const FString &Name, const DomainPathKey &Domain,
   return Spec;
 }
 
+/**
+ * @brief Creates a system contract for registry inspection and validation.
+ */
 inline FSystemSpec createSystemSpec(const SystemName &Name,
                                     const DomainPathKey &Domain,
                                     const TArray<ComponentType> &Components,
@@ -491,6 +517,9 @@ inline FSystemSpec createSystemSpec(const SystemName &Name,
   return Spec;
 }
 
+/**
+ * @brief Creates a named ECS resource contract owned by one domain.
+ */
 inline FResourceSpec createResourceSpec(const ResourceName &Name,
                                         const DomainPathKey &Domain,
                                         const FString &Kind,
@@ -503,6 +532,9 @@ inline FResourceSpec createResourceSpec(const ResourceName &Name,
   return Spec;
 }
 
+/**
+ * @brief Creates a typed event contract owned by one domain.
+ */
 inline FEventSpec createEventSpec(const EventType &Type,
                                   const DomainPathKey &Domain,
                                   const TArray<FFieldSchema> &Fields,
@@ -609,12 +641,21 @@ inline bool operator!=(const FDomainRegistry &Left,
   return !(Left == Right);
 }
 
+/**
+ * @brief Creates an empty ECS domain registry.
+ */
 inline FDomainRegistry createDomainRegistry() { return FDomainRegistry(); }
 
 inline void pushUnique(TArray<FString> &Values, const FString &Value) {
   Values.AddUnique(Value);
 }
 
+/**
+ * @brief Registers one domain node and wires it to its parent when present.
+ *
+ * Architecture: This keeps neutral domain topology below feature slices so
+ * feature code can import downward without borrowing sibling-domain helpers.
+ */
 inline FDomainRegistry registerDomain(FDomainRegistry Registry,
                                       const FDomainNode &Node) {
   const DomainPathKey Key = domainPathKey(Node.Path);
@@ -631,12 +672,18 @@ inline FDomainRegistry registerDomain(FDomainRegistry Registry,
   return Registry;
 }
 
+/**
+ * @brief Unary helper for registering a domain from path segments and kind.
+ */
 inline FDomainRegistry registerDomainPath(FDomainRegistry Registry,
                                           const TArray<FString> &Segments,
                                           EDomainKind Kind) {
   return registerDomain(Registry, createDomainNode(createDomainPath(Segments), Kind));
 }
 
+/**
+ * @brief Registers one component schema and indexes it under its owning domain.
+ */
 inline FDomainRegistry registerComponentSchema(FDomainRegistry Registry,
                                                const FComponentSchema &Schema) {
   Registry.ComponentSchemas.Add(Schema.Type, Schema);
@@ -647,6 +694,9 @@ inline FDomainRegistry registerComponentSchema(FDomainRegistry Registry,
   return Registry;
 }
 
+/**
+ * @brief Registers one capability spec and indexes it under its owning domain.
+ */
 inline FDomainRegistry registerCapabilitySpec(FDomainRegistry Registry,
                                               const FCapabilitySpec &Spec) {
   Registry.Capabilities.Add(Spec.Name, Spec);
@@ -657,6 +707,9 @@ inline FDomainRegistry registerCapabilitySpec(FDomainRegistry Registry,
   return Registry;
 }
 
+/**
+ * @brief Registers one system spec and indexes it under its owning domain.
+ */
 inline FDomainRegistry registerSystemSpec(FDomainRegistry Registry,
                                           const FSystemSpec &Spec) {
   Registry.Systems.Add(Spec.Name, Spec);
@@ -667,6 +720,9 @@ inline FDomainRegistry registerSystemSpec(FDomainRegistry Registry,
   return Registry;
 }
 
+/**
+ * @brief Registers one resource spec and indexes it under its owning domain.
+ */
 inline FDomainRegistry registerResourceSpec(FDomainRegistry Registry,
                                             const FResourceSpec &Spec) {
   Registry.ResourceSpecs.Add(Spec.Name, Spec);
@@ -677,11 +733,17 @@ inline FDomainRegistry registerResourceSpec(FDomainRegistry Registry,
   return Registry;
 }
 
+/**
+ * @brief Alias for resource-spec registration used by feature code.
+ */
 inline FDomainRegistry registerResource(FDomainRegistry Registry,
                                         const FResourceSpec &Spec) {
   return registerResourceSpec(Registry, Spec);
 }
 
+/**
+ * @brief Registers one event spec and indexes it under its owning domain.
+ */
 inline FDomainRegistry registerEventSpec(FDomainRegistry Registry,
                                          const FEventSpec &Spec) {
   Registry.EventSpecs.Add(Spec.Type, Spec);
@@ -692,6 +754,9 @@ inline FDomainRegistry registerEventSpec(FDomainRegistry Registry,
   return Registry;
 }
 
+/**
+ * @brief Alias for event-spec registration used by feature code.
+ */
 inline FDomainRegistry registerEventType(FDomainRegistry Registry,
                                          const FEventSpec &Spec) {
   return registerEventSpec(Registry, Spec);
@@ -774,6 +839,9 @@ struct FRelationship {
   TArray<EntityKey> Children;
 };
 
+/**
+ * @brief Creates an empty parent/children relationship record.
+ */
 inline FRelationship createRelationship() {
   FRelationship Relationship;
   Relationship.Parent = func::nothing<EntityKey>();
@@ -845,6 +913,12 @@ struct FSetEntityDomainRequest {
 inline FWorld setEntityDomain(FWorld World, const EntityKey &Entity,
                               const DomainPathKey &Domain);
 
+/**
+ * @brief Creates a fresh ECS world with allocator and cross-domain registry.
+ *
+ * Architecture: The world is plain value state. RTK reducers may store and
+ * replace it, but ECS never owns the runtime store or dispatch semantics.
+ */
 inline FWorld createWorld() {
   FWorld World;
   World.Allocator = createAllocator();
@@ -942,12 +1016,20 @@ inline bool operator!=(const FWorld &Left, const FWorld &Right) {
   return !(Left == Right);
 }
 
+/**
+ * @brief Marks an entity dirty and increments the world generation.
+ */
 inline FWorld markDirty(FWorld World, const EntityKey &Entity) {
   World.DirtyEntities.AddUnique(Entity);
   World.Generation += 1;
   return World;
 }
 
+/**
+ * @brief Allocates and marks one entity in the supplied world.
+ *
+ * @return FSpawnedEntity carrying the next world, id, and entity key.
+ */
 inline FSpawnedEntity spawnEntity(FWorld World) {
   const FAllocatedEntity Allocated = allocateEntity(World.Allocator);
   World.Allocator = Allocated.Allocator;
@@ -959,6 +1041,9 @@ inline FSpawnedEntity spawnEntity(FWorld World) {
   return Spawned;
 }
 
+/**
+ * @brief Allocates one entity and associates it with an ECS domain.
+ */
 inline FSpawnedEntity spawnEntityInDomain(FWorld World,
                                           const DomainPathKey &Domain) {
   const FSpawnedEntity Spawned = spawnEntity(World);
@@ -967,6 +1052,9 @@ inline FSpawnedEntity spawnEntityInDomain(FWorld World,
   return WithDomain;
 }
 
+/**
+ * @brief Removes an entity's component, tag, domain, and relationship data.
+ */
 inline FWorld removeEntity(FWorld World, const EntityKey &Entity) {
   for (TPair<ComponentType, ComponentTable> &Entry : World.Components) {
     Entry.Value.Remove(Entity);
@@ -981,11 +1069,17 @@ inline FWorld removeEntity(FWorld World, const EntityKey &Entity) {
   return markDirty(World, Entity);
 }
 
+/**
+ * @brief Frees an id and removes the matching entity data from the world.
+ */
 inline FWorld despawnEntity(FWorld World, const FEntityId &Id) {
   World.Allocator = freeEntity(World.Allocator, Id);
   return removeEntity(World, entityKey(Id));
 }
 
+/**
+ * @brief Sets a parent relationship using immutable world-in/world-out data.
+ */
 inline FWorld setParent(FWorld World, const EntityKey &Child,
                         const EntityKey &Parent) {
   FRelationship ChildRelationship =
@@ -1002,11 +1096,17 @@ inline FWorld setParent(FWorld World, const EntityKey &Child,
   return markDirty(markDirty(World, Child), Parent);
 }
 
+/**
+ * @brief Adds one child to a parent relationship.
+ */
 inline FWorld addChild(FWorld World, const EntityKey &Parent,
                        const EntityKey &Child) {
   return setParent(World, Child, Parent);
 }
 
+/**
+ * @brief Removes one child from a parent relationship.
+ */
 inline FWorld removeChild(FWorld World, const EntityKey &Parent,
                           const EntityKey &Child) {
   FRelationship ParentRelationship =
@@ -1029,6 +1129,9 @@ inline TArray<EntityKey> appendUniqueEntity(TArray<EntityKey> Entities,
   return Entities;
 }
 
+/**
+ * @brief Returns all known entities across domains, tags, and components.
+ */
 inline TArray<EntityKey> allEntities(const FWorld &World) {
   TArray<EntityKey> Entities;
   TArray<EntityKey> DomainEntities;
@@ -1068,6 +1171,9 @@ inline FWorld setComponent(FWorld World, const EntityKey &Entity,
   return setComponent({World, Entity, Type, Value});
 }
 
+/**
+ * @brief Reads one component value from an entity.
+ */
 inline func::Maybe<FComponentValue> getComponent(const FWorld &World,
                                                  const EntityKey &Entity,
                                                  const ComponentType &Type) {
@@ -1076,11 +1182,17 @@ inline func::Maybe<FComponentValue> getComponent(const FWorld &World,
   return Value ? func::just(*Value) : func::nothing<FComponentValue>();
 }
 
+/**
+ * @brief Checks whether an entity currently has a component type.
+ */
 inline bool hasComponent(const FWorld &World, const EntityKey &Entity,
                          const ComponentType &Type) {
   return getComponent(World, Entity, Type).hasValue;
 }
 
+/**
+ * @brief Removes one component value from an entity and marks it dirty.
+ */
 inline FWorld removeComponent(FWorld World, const EntityKey &Entity,
                               const ComponentType &Type) {
   ComponentTable *Table = World.Components.Find(Type);
@@ -1090,6 +1202,9 @@ inline FWorld removeComponent(FWorld World, const EntityKey &Entity,
   return markDirty(World, Entity);
 }
 
+/**
+ * @brief Adds one tag to one entity using a request payload.
+ */
 inline FWorld setTag(const FSetTagRequest &Request) {
   FWorld World = Request.World;
   World.Tags.FindOrAdd(Request.Entity).AddUnique(Request.TagValue);
@@ -1101,11 +1216,17 @@ inline FWorld setTag(FWorld World, const EntityKey &Entity,
   return setTag({World, Entity, TagValue});
 }
 
+/**
+ * @brief Checks whether an entity currently has a tag.
+ */
 inline bool hasTag(const FWorld &World, const EntityKey &Entity, const Tag &TagValue) {
   const TArray<Tag> *Tags = World.Tags.Find(Entity);
   return Tags && Tags->Contains(TagValue);
 }
 
+/**
+ * @brief Sets one world resource using a request payload.
+ */
 inline FWorld setResource(const FSetResourceRequest &Request) {
   FWorld World = Request.World;
   World.Resources.Add(Request.Name, Request.Value);
@@ -1118,12 +1239,18 @@ inline FWorld setResource(FWorld World, const ResourceName &Name,
   return setResource({World, Name, Value});
 }
 
+/**
+ * @brief Reads one resource value from the world.
+ */
 inline func::Maybe<FComponentValue> getResource(const FWorld &World,
                                                 const ResourceName &Name) {
   const FComponentValue *Value = World.Resources.Find(Name);
   return Value ? func::just(*Value) : func::nothing<FComponentValue>();
 }
 
+/**
+ * @brief Appends one ECS event payload to its event queue.
+ */
 inline FWorld pushEvent(const FPushEventRequest &Request) {
   FWorld World = Request.World;
   World.Events.FindOrAdd(Request.Type).Add(Request.Payload);
@@ -1135,17 +1262,26 @@ inline FWorld pushEvent(FWorld World, const EventType &Type,
   return pushEvent({World, Type, Payload});
 }
 
+/**
+ * @brief Reads queued event payloads for one event type.
+ */
 inline TArray<FComponentValue> readEvents(const FWorld &World,
                                           const EventType &Type) {
   const TArray<FComponentValue> *Queue = World.Events.Find(Type);
   return Queue ? *Queue : TArray<FComponentValue>();
 }
 
+/**
+ * @brief Clears all queued ECS events.
+ */
 inline FWorld clearEvents(FWorld World) {
   World.Events.Empty();
   return World;
 }
 
+/**
+ * @brief Associates one entity with one ECS domain via request payload.
+ */
 inline FWorld setEntityDomain(const FSetEntityDomainRequest &Request) {
   FWorld World = Request.World;
   World.EntityDomains.FindOrAdd(Request.Entity).AddUnique(Request.Domain);
@@ -1157,12 +1293,18 @@ inline FWorld setEntityDomain(FWorld World, const EntityKey &Entity,
   return setEntityDomain({World, Entity, Domain});
 }
 
+/**
+ * @brief Checks whether an entity belongs to a domain path.
+ */
 inline bool entityInDomain(const FWorld &World, const EntityKey &Entity,
                            const DomainPathKey &Domain) {
   const TArray<DomainPathKey> *Domains = World.EntityDomains.Find(Entity);
   return Domains && Domains->Contains(Domain);
 }
 
+/**
+ * @brief Filters entities that contain every requested component type.
+ */
 inline TArray<EntityKey> queryComponents(const FWorld &World,
                                          const TArray<ComponentType> &Types,
                                          const TArray<EntityKey> &Entities) {
@@ -1173,12 +1315,18 @@ inline TArray<EntityKey> queryComponents(const FWorld &World,
   });
 }
 
+/**
+ * @brief Queries all world entities by required components.
+ */
 inline TArray<EntityKey>
 queryEntitiesByComponents(const FWorld &World,
                           const TArray<ComponentType> &Types) {
   return queryComponents(World, Types, allEntities(World));
 }
 
+/**
+ * @brief Queries all world entities by tag.
+ */
 inline TArray<EntityKey> queryEntitiesByTag(const FWorld &World,
                                             const Tag &TagValue) {
   return allEntities(World).FilterByPredicate(
@@ -1187,6 +1335,9 @@ inline TArray<EntityKey> queryEntitiesByTag(const FWorld &World,
       });
 }
 
+/**
+ * @brief Queries all world entities by domain path.
+ */
 inline TArray<EntityKey> queryEntitiesByDomain(const FWorld &World,
                                                const DomainPathKey &Domain) {
   return allEntities(World).FilterByPredicate(
@@ -1195,16 +1346,25 @@ inline TArray<EntityKey> queryEntitiesByDomain(const FWorld &World,
       });
 }
 
+/**
+ * @brief Returns entities dirtied by recent ECS world transforms.
+ */
 inline TArray<EntityKey> queryDirtyEntities(const FWorld &World) {
   return World.DirtyEntities;
 }
 
+/**
+ * @brief Returns child entity keys for a parent.
+ */
 inline TArray<EntityKey> queryChildren(const FWorld &World,
                                        const EntityKey &Parent) {
   const FRelationship *Relationship = World.Relationships.Find(Parent);
   return Relationship ? Relationship->Children : TArray<EntityKey>();
 }
 
+/**
+ * @brief Gathers available component values for a system input entity.
+ */
 inline TMap<ComponentType, FComponentValue>
 gatherUnwrap(const FWorld &World, const EntityKey &Entity,
              const TArray<ComponentType> &Types) {
@@ -1228,6 +1388,9 @@ struct FSystemDescriptor {
   SystemFn System;
 };
 
+/**
+ * @brief Creates a system descriptor for pure ECS system execution.
+ */
 inline FSystemDescriptor createSystemDescriptor(const TArray<ComponentType> &Components,
                                                 const TArray<Tag> &Tags,
                                                 func::Maybe<DomainPathKey> Domain,
@@ -1240,6 +1403,9 @@ inline FSystemDescriptor createSystemDescriptor(const TArray<ComponentType> &Com
   return Descriptor;
 }
 
+/**
+ * @brief Checks that an entity has all required tags for a system.
+ */
 inline bool matchesRequiredTags(const FWorld &World, const EntityKey &Entity,
                                 const TArray<Tag> &Tags) {
   return !Tags.ContainsByPredicate([&World, &Entity](const Tag &TagValue) {
@@ -1247,11 +1413,17 @@ inline bool matchesRequiredTags(const FWorld &World, const EntityKey &Entity,
   });
 }
 
+/**
+ * @brief Checks the optional domain guard for a system descriptor.
+ */
 inline bool matchesSystemDomain(const FWorld &World, const EntityKey &Entity,
                                 const func::Maybe<DomainPathKey> &Domain) {
   return !Domain.hasValue || entityInDomain(World, Entity, Domain.value);
 }
 
+/**
+ * @brief Runs one pure ECS system over matching entities.
+ */
 inline FWorld runSystem(FWorld World, const TArray<ComponentType> &Components,
                         const TArray<EntityKey> &Entities, SystemFn System) {
   const TArray<EntityKey> Matching = queryComponents(World, Components, Entities);
@@ -1262,6 +1434,10 @@ inline FWorld runSystem(FWorld World, const TArray<ComponentType> &Components,
   return Next;
 }
 
+/**
+ * @brief Runs a system descriptor over entities matching components, tags, and
+ * optional domain.
+ */
 inline FWorld runSystemDescriptor(FWorld World,
                                   const TArray<EntityKey> &Entities,
                                   const FSystemDescriptor &Descriptor) {
@@ -1280,26 +1456,41 @@ inline FWorld runSystemDescriptor(FWorld World,
   return Next;
 }
 
+/**
+ * @brief Checks whether the registry contains a domain.
+ */
 inline bool domainExists(const FDomainRegistry &Registry,
                          const DomainPathKey &Domain) {
   return Registry.Nodes.Contains(Domain);
 }
 
+/**
+ * @brief Checks whether the registry contains a component schema.
+ */
 inline bool componentSchemaExists(const FDomainRegistry &Registry,
                                   const ComponentType &Type) {
   return Registry.ComponentSchemas.Contains(Type);
 }
 
+/**
+ * @brief Checks whether the registry contains a resource spec.
+ */
 inline bool resourceSpecExists(const FDomainRegistry &Registry,
                                const ResourceName &Name) {
   return Registry.ResourceSpecs.Contains(Name);
 }
 
+/**
+ * @brief Checks whether the registry contains an event spec.
+ */
 inline bool eventSpecExists(const FDomainRegistry &Registry,
                             const EventType &Type) {
   return Registry.EventSpecs.Contains(Type);
 }
 
+/**
+ * @brief Validates that a domain exists and returns Either error data.
+ */
 inline func::Either<FString, bool>
 validateDomainExists(const FDomainRegistry &Registry,
                      const DomainPathKey &Domain) {
@@ -1309,6 +1500,9 @@ validateDomainExists(const FDomainRegistry &Registry,
                    FString::Printf(TEXT("Missing ECS domain: %s"), *Domain));
 }
 
+/**
+ * @brief Validates that a component schema exists and returns Either error data.
+ */
 inline func::Either<FString, bool>
 validateComponentSchemaExists(const FDomainRegistry &Registry,
                               const ComponentType &Type) {
@@ -1318,6 +1512,9 @@ validateComponentSchemaExists(const FDomainRegistry &Registry,
                    TEXT("Missing ECS component schema: %s"), *Type));
 }
 
+/**
+ * @brief Validates entity membership in a domain.
+ */
 inline func::Either<FString, bool>
 validateEntityDomain(const FWorld &World, const EntityKey &Entity,
                      const DomainPathKey &Domain) {
@@ -1328,6 +1525,9 @@ validateEntityDomain(const FWorld &World, const EntityKey &Entity,
                    *Domain));
 }
 
+/**
+ * @brief Validates a system spec against registered domain/component contracts.
+ */
 inline func::Either<FString, bool>
 validateSystemSpec(const FDomainRegistry &Registry, const FSystemSpec &Spec) {
   func::Either<FString, bool> DomainResult =
@@ -1345,6 +1545,9 @@ validateSystemSpec(const FDomainRegistry &Registry, const FSystemSpec &Spec) {
   return func::make_right<FString, bool>(true);
 }
 
+/**
+ * @brief Formats a component value for ECS inspection output.
+ */
 inline FString componentValueToString(const FComponentValue &Value) {
   return Value.Kind == EComponentValueKind::Bool
              ? (Value.BoolValue ? TEXT("true") : TEXT("false"))
@@ -1382,6 +1585,9 @@ struct FWorldInspection {
   int64 Generation;
 };
 
+/**
+ * @brief Compares aggregate ECS world inspection counters.
+ */
 inline bool operator==(const FWorldInspection &Left,
                        const FWorldInspection &Right) {
   return Left.EntityCount == Right.EntityCount &&
@@ -1398,6 +1604,9 @@ inline bool operator!=(const FWorldInspection &Left,
   return !(Left == Right);
 }
 
+/**
+ * @brief Inspects aggregate world counters without exposing mutable state.
+ */
 inline FWorldInspection inspectWorld(const FWorld &World) {
   FWorldInspection Inspection;
   Inspection.EntityCount = allEntities(World).Num();
@@ -1410,6 +1619,9 @@ inline FWorldInspection inspectWorld(const FWorld &World) {
   return Inspection;
 }
 
+/**
+ * @brief Formats aggregate ECS world inspection data for debugging.
+ */
 inline FString debugWorldSummary(const FWorld &World) {
   const FWorldInspection Inspection = inspectWorld(World);
   return FString::Printf(
@@ -1439,6 +1651,9 @@ inline bool operator!=(const FEntityInspection &Left,
   return !(Left == Right);
 }
 
+/**
+ * @brief Inspects one entity's tags, domains, and component values.
+ */
 inline FEntityInspection inspect(const FWorld &World, const EntityKey &Entity) {
   FEntityInspection Inspection;
   Inspection.Entity = Entity;

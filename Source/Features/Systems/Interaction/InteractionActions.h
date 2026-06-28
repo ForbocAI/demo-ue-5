@@ -9,6 +9,9 @@ namespace Demo {
 namespace Level {
 namespace InteractionActions {
 
+/**
+ * @brief RTK action creator for observed townsperson interaction candidates.
+ */
 inline const rtk::ActionCreator<FInteractionCandidatesObserved> &
 TownspersonCandidatesObserved() {
   static const func::Lazy<rtk::ActionCreator<FInteractionCandidatesObserved>>

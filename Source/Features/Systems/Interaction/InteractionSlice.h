@@ -11,6 +11,9 @@ namespace Demo {
 namespace Level {
 namespace InteractionSlice {
 
+/**
+ * @brief Creates initial state for the interaction RTK slice.
+ */
 inline FInteractionState CreateInitialState() {
   return (func::pipe(FInteractionState{}) |
           [](FInteractionState State) -> FInteractionState {
@@ -24,6 +27,9 @@ inline FInteractionState CreateInitialState() {
       .val;
 }
 
+/**
+ * @brief Returns the interaction slice binding actions to case reducers.
+ */
 inline const rtk::Slice<FInteractionState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FInteractionState>> Slice =
       func::lazy([]() -> rtk::Slice<FInteractionState> {

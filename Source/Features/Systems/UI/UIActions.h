@@ -8,6 +8,15 @@ namespace Demo {
 namespace Level {
 namespace UIActions {
 
+/**
+ * @brief RTK action creator for presenting a runtime conversation.
+ *
+ * @return Lazy ActionCreator<FUIPayload> with the
+ * `systems/ui/conversationPresented` event type.
+ *
+ * Architecture: This is an event-style action creator. Reducers decide how the
+ * payload changes UI state; widgets never dispatch local state mutations.
+ */
 inline const rtk::ActionCreator<FUIPayload> &ConversationPresented() {
   static const func::Lazy<rtk::ActionCreator<FUIPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FUIPayload> {
@@ -17,6 +26,9 @@ inline const rtk::ActionCreator<FUIPayload> &ConversationPresented() {
   return func::eval(Creator);
 }
 
+/**
+ * @brief RTK action creator for committing rendered chat history to UI state.
+ */
 inline const rtk::ActionCreator<FUIPayload> &ChatHistoryRendered() {
   static const func::Lazy<rtk::ActionCreator<FUIPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FUIPayload> {

@@ -6,6 +6,9 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 
+/**
+ * @brief View-observed candidate lowered into store-owned interaction data.
+ */
 struct FInteractionCandidate {
   int32 Index = INDEX_NONE;
   FString EntityId;
@@ -13,6 +16,12 @@ struct FInteractionCandidate {
   bool bCanInteract = false;
 };
 
+/**
+ * @brief RTK payload for one candidate-observation event.
+ *
+ * Architecture: UE boundary code can observe locations, but the reducer owns
+ * nearest-candidate selection and missing-interaction messaging.
+ */
 struct FInteractionCandidatesObserved {
   FString Id;
   FVector Origin = FVector::ZeroVector;
@@ -20,6 +29,9 @@ struct FInteractionCandidatesObserved {
   TArray<FInteractionCandidate> Candidates;
 };
 
+/**
+ * @brief Reducer-owned result of selecting an interaction target.
+ */
 struct FInteractionSelection {
   bool bFound = false;
   int32 CandidateIndex = INDEX_NONE;
@@ -28,6 +40,9 @@ struct FInteractionSelection {
   FString MissingMessage;
 };
 
+/**
+ * @brief Interaction slice state in the single runtime store.
+ */
 struct FInteractionState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
   FVector LastOrigin = FVector::ZeroVector;

@@ -31,10 +31,19 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 
+/**
+ * @brief ECS projection owned by the runtime root state.
+ *
+ * Architecture: RTK owns the store, ECS owns neutral entity/component
+ * projection, and functional-core helpers remain pure composition utilities.
+ */
 struct FRuntimeEcsState {
   ecs::FWorld World = ecs::createWorld();
 };
 
+/**
+ * @brief Store-derived townsperson spawn data consumed by runtime views.
+ */
 struct FRuntimeTownspersonViewSpawn {
   FString Id;
   FString Name;
@@ -46,28 +55,43 @@ struct FRuntimeTownspersonViewSpawn {
   TArray<FVector> PatrolRoute;
 };
 
+/**
+ * @brief Store-derived mounted-horse spawn data consumed by runtime views.
+ */
 struct FRuntimeHorseViewSpawn {
   FString Name;
   TArray<FVector> PatrolRoute;
   bool bMountedRider = false;
 };
 
+/**
+ * @brief Request object for reducing one townsperson seed into view spawn data.
+ */
 struct FRuntimeTownspersonViewSpawnRequest {
   FTownspersonSeed Seed;
   const FLevelTerrainData *TerrainData = nullptr;
 };
 
+/**
+ * @brief Request object for reducing one horse seed into view spawn data.
+ */
 struct FRuntimeHorseViewSpawnRequest {
   FHorseRouteSeed Seed;
   const FLevelTerrainData *TerrainData = nullptr;
 };
 
+/**
+ * @brief Request object for reducing full runtime level presentation payloads.
+ */
 struct FRuntimeLevelViewPayloadRequest {
   const FLevelTerrainData *TerrainData = nullptr;
   const FLevelOrthoData *OrthoData = nullptr;
   const FLevelRuntimeLayoutSeed *RuntimeLayout = nullptr;
 };
 
+/**
+ * @brief Reducer-owned dialogue request selected from a townsperson source.
+ */
 struct FRuntimeTownspersonInteractionRequest {
   FString Name;
   FString Role;
@@ -76,6 +100,9 @@ struct FRuntimeTownspersonInteractionRequest {
   FString PinnedResponse;
 };
 
+/**
+ * @brief UE-observed interaction source lowered into RTK payload data.
+ */
 struct FRuntimeTownspersonInteractionSource {
   FString Name;
   FString Role;
@@ -84,11 +111,17 @@ struct FRuntimeTownspersonInteractionSource {
   FString PinnedResponse;
 };
 
+/**
+ * @brief Thunk result that carries dialogue and UI payloads together.
+ */
 struct FRuntimeTownspersonInteractionPayload {
   FDialogueReplyPayload DialogueReply;
   FUIPayload UI;
 };
 
+/**
+ * @brief Store-derived level payload used by ARuntimeLevelView.
+ */
 struct FRuntimeLevelViewPayload {
   bool bTerrainMeshLoaded = false;
   FTerrainMeshPayload TerrainMesh;
@@ -183,6 +216,13 @@ inline bool operator!=(const FRuntimeLevelViewPayload &Left,
   return !(Left == Right);
 }
 
+/**
+ * @brief Root state for the single UE demo store.
+ *
+ * Architecture: RuntimeSlice composes every feature slice into this state.
+ * Views dispatch actions/thunks and read selectors; reducers own mutations and
+ * ECS projection keeps entity/component data inspectable without replacing RTK.
+ */
 struct FRuntimeState {
   FRuntimeEcsState Ecs;
   FRuntimeTownspersonInteractionRequest LastTownspersonInteractionRequest;

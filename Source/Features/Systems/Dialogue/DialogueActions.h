@@ -9,6 +9,9 @@ namespace Demo {
 namespace Level {
 namespace DialogueActions {
 
+/**
+ * @brief RTK action creator for a dialogue system observation event.
+ */
 inline const rtk::ActionCreator<FDialoguePayload> &DialogueObserved() {
   static const func::Lazy<rtk::ActionCreator<FDialoguePayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FDialoguePayload> {

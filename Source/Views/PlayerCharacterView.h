@@ -10,6 +10,17 @@ class UInputMappingContext;
 class USpringArmComponent;
 struct FInputActionValue;
 
+/**
+ * @brief Player pawn display/input boundary for store-derived presentation.
+ *
+ * Architecture: The pawn applies selector output for mesh, camera, and
+ * movement presentation, then dispatches input observations through action
+ * creators. Movement-vector decisions are selected from reducer-owned state;
+ * direct Unreal calls only apply the selected result to the Character API.
+ *
+ * User story: As a player, movement and camera input should feel immediate
+ * while the reusable movement semantics stay in RTK reducers/selectors.
+ */
 UCLASS()
 class DEMOPROJECT_API APlayerCharacterView : public ACharacter {
   GENERATED_BODY()
@@ -21,9 +32,16 @@ public:
   virtual void SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
       override;
 
+  /**
+   * @brief Dispatches observed movement input and applies selector output to
+   * Unreal movement.
+   */
   UFUNCTION(BlueprintCallable, Category = "Level|Input")
   void DoMove(float Right, float Forward);
 
+  /**
+   * @brief Applies raw look input to the Unreal controller.
+   */
   UFUNCTION(BlueprintCallable, Category = "Level|Input")
   void DoLook(float Yaw, float Pitch);
 

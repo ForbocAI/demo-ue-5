@@ -9,6 +9,9 @@ namespace Demo {
 namespace Level {
 namespace RuntimeActions {
 
+/**
+ * @brief RTK action creator for replacing the runtime root state.
+ */
 inline const rtk::ActionCreator<FRuntimeState> &RuntimeHydrated() {
   static const func::Lazy<rtk::ActionCreator<FRuntimeState>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FRuntimeState> {
@@ -17,6 +20,9 @@ inline const rtk::ActionCreator<FRuntimeState> &RuntimeHydrated() {
   return func::eval(Creator);
 }
 
+/**
+ * @brief RTK action creator for observed townsperson dialogue source data.
+ */
 inline const rtk::ActionCreator<FRuntimeTownspersonInteractionSource> &
 TownspersonInteractionSourceObserved() {
   static const func::Lazy<

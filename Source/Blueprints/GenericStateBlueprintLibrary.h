@@ -17,6 +17,10 @@
  * All functions are pure (stateless) — they return new strings
  * rather than mutating inputs.
  *
+ * Architecture: These helpers are neutral Blueprint primitives below gameplay
+ * feature domains. They are pure JSON transforms, not RTK actions, reducers,
+ * selectors, thunks, adapters, or stores.
+ *
  * User Story: As a Blueprint developer, I need JSON state helpers
  * so I can read and write NPC state fields without C++ knowledge.
  */

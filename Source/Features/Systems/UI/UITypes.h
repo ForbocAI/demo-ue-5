@@ -7,6 +7,12 @@ namespace ForbocAI {
 namespace Demo {
 namespace UI {
 
+/**
+ * @brief Selector/reducer-owned display data for one chat row.
+ *
+ * Architecture: Widgets consume this value as inert presentation data. They do
+ * not infer roles or colors; reducers build those choices before render.
+ */
 struct FChatMessageViewModel {
   FString Text;
   FLinearColor Color;
@@ -22,6 +28,12 @@ inline bool operator!=(const FChatMessageViewModel &Left,
   return !(Left == Right);
 }
 
+/**
+ * @brief Store-derived runtime conversation model consumed by WBP_Chat.
+ *
+ * User story: As a player, I see the selected townsperson reply without the
+ * widget owning dialogue rules or reaching into gameplay state.
+ */
 struct FRuntimeConversationViewModel {
   FString Title;
   FString PlayerLine;
@@ -43,15 +55,25 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 
+/**
+ * @brief Unary request for the UI reducer that builds one chat message model.
+ */
 struct FUIChatMessageViewModelRequest {
   FString Role;
   FString Text;
 };
 
+/**
+ * @brief Request object for reducing persisted dialogue history into view
+ * models.
+ */
 struct FUIChatHistoryViewModelsRequest {
   TArray<FString> History;
 };
 
+/**
+ * @brief Request object for composing the runtime conversation UI model.
+ */
 struct FUIRuntimeConversationViewModelRequest {
   FString NpcName;
   FString Role;
@@ -95,12 +117,24 @@ struct FUIDialogueResponseViewModel {
   ForbocAI::Demo::UI::FChatMessageViewModel Message;
 };
 
+/**
+ * @brief RTK action payload for UI reducers.
+ *
+ * Architecture: UI actions carry already-decided presentation state. Views only
+ * render these fields; gameplay decisions remain in dialogue/runtime reducers.
+ */
 struct FUIPayload {
   FString Id;
   ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation;
   TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Messages;
 };
 
+/**
+ * @brief Slice state owned by the UI system.
+ *
+ * Architecture: This is durable UI state in the single store, not widget-local
+ * state. Selectors read it and views apply it.
+ */
 struct FUIState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
   ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation;

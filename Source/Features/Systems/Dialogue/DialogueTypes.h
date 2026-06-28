@@ -6,8 +6,17 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 
+/**
+ * @brief Minimal event payload for dialogue observations.
+ */
 struct FDialoguePayload { FString Id; };
 
+/**
+ * @brief Request object for a local dialogue reply thunk.
+ *
+ * Architecture: The thunk receives one payload object instead of scalar
+ * parameters so the reducer contract mirrors RTK payload-action usage.
+ */
 struct FLocalDialogueReplyRequest {
   FString Name;
   FString Role;
@@ -16,12 +25,21 @@ struct FLocalDialogueReplyRequest {
   FString PinnedResponse;
 };
 
+/**
+ * @brief Fulfilled payload for the local dialogue reply async thunk.
+ */
 struct FDialogueReplyPayload {
   FString Id;
   FLocalDialogueReplyRequest Request;
   FString Reply;
 };
 
+/**
+ * @brief Dialogue slice state owned by the RTK root store.
+ *
+ * Architecture: Pending/ready/error fields are reducer-owned facts. Views read
+ * selectors and render; they do not infer dialogue lifecycle state.
+ */
 struct FDialogueState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
   func::Maybe<FString> LastReply = func::nothing<FString>();

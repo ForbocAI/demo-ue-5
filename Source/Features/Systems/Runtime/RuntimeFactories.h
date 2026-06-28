@@ -7,6 +7,9 @@ namespace Demo {
 namespace Level {
 namespace RuntimeFactories {
 
+/**
+ * @brief Creates the initial root state by composing feature initial states.
+ */
 FRuntimeState CreateInitialState();
 
 } // namespace RuntimeFactories

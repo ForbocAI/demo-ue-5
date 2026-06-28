@@ -8,11 +8,17 @@ namespace Demo {
 namespace Level {
 namespace Store {
 
+/**
+ * @brief Creates the configured root store from RuntimeSlice.
+ */
 rtk::EnhancedStore<FRuntimeState> ConfigureStore() {
   return rtk::configureStore<FRuntimeState>(
       RuntimeSlice::GetSlice().Reducer, RuntimeFactories::CreateInitialState());
 }
 
+/**
+ * @brief Provides the single store instance used by runtime systems and views.
+ */
 rtk::EnhancedStore<FRuntimeState> &GetStore() {
   static rtk::EnhancedStore<FRuntimeState> SingletonStore = ConfigureStore();
   return SingletonStore;

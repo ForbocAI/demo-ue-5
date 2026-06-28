@@ -10,10 +10,17 @@ namespace Demo {
 namespace Level {
 namespace InteractionReducers {
 
+/**
+ * @brief Pure reducer helper for the no-target player message.
+ */
 inline FString ReduceNoTownspersonMessage() {
   return TEXT("No talkable townsperson nearby.");
 }
 
+/**
+ * @brief Pure reducer helper that derives the interaction radius from spatial
+ * selectors.
+ */
 inline float ReduceTownspersonInteractionDistance() {
   return SpatialSelectors::SelectTownLotWorldUnits() * 2.1f;
 }
@@ -79,6 +86,9 @@ inline FInteractionSelection ReduceNearestCandidate(
   return ReduceNearestCandidateRecursive(Request, 0, ReduceEmptySelection());
 }
 
+/**
+ * @brief Case reducer for InteractionActions::TownspersonCandidatesObserved.
+ */
 inline FInteractionState ReduceTownspersonCandidatesObserved(
     const FInteractionState &State,
     const rtk::PayloadAction<FInteractionCandidatesObserved> &Action) {

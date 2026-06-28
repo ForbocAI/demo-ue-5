@@ -9,6 +9,15 @@ namespace Demo {
 namespace Level {
 namespace DialogueReducers {
 
+/**
+ * @brief Pure reducer helper that creates a local, deterministic NPC reply.
+ *
+ * @param Request Single request payload describing speaker and player line.
+ * @return Reply text used by the gate-closed demo.
+ *
+ * User story: As a player, I can interact with townspeople offline while the
+ * SDK/API path is feature-gated.
+ */
 inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request) {
   if (!Request.PinnedResponse.IsEmpty()) {
     return Request.PinnedResponse;
@@ -22,6 +31,9 @@ inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request) {
       *Request.Name, *Request.Role, *Topic, *Request.Persona);
 }
 
+/**
+ * @brief Pure reducer helper that wraps local reply text in an RTK payload.
+ */
 inline FDialogueReplyPayload
 ReduceLocalReplyPayload(const FLocalDialogueReplyRequest &Request) {
   FDialogueReplyPayload Payload;
@@ -32,6 +44,9 @@ ReduceLocalReplyPayload(const FLocalDialogueReplyRequest &Request) {
   return Payload;
 }
 
+/**
+ * @brief Case reducer for DialogueActions::DialogueObserved.
+ */
 inline FDialogueState ReduceDialogueObserved(
     const FDialogueState &State,
     const rtk::PayloadAction<FDialoguePayload> &Action) {
@@ -44,6 +59,9 @@ inline FDialogueState ReduceDialogueObserved(
       .val;
 }
 
+/**
+ * @brief Async-thunk pending reducer for local dialogue replies.
+ */
 inline FDialogueState ReduceLocalReplyPending(
     const FDialogueState &State,
     const rtk::PayloadAction<FLocalDialogueReplyRequest> &Action) {
@@ -59,6 +77,9 @@ inline FDialogueState ReduceLocalReplyPending(
       .val;
 }
 
+/**
+ * @brief Async-thunk fulfilled reducer for local dialogue replies.
+ */
 inline FDialogueState ReduceLocalReplyFulfilled(
     const FDialogueState &State,
     const rtk::PayloadAction<FDialogueReplyPayload> &Action) {
@@ -76,6 +97,9 @@ inline FDialogueState ReduceLocalReplyFulfilled(
       .val;
 }
 
+/**
+ * @brief Async-thunk rejected reducer for local dialogue replies.
+ */
 inline FDialogueState ReduceLocalReplyRejected(
     const FDialogueState &State,
     const rtk::PayloadAction<FString> &Action) {
@@ -90,6 +114,9 @@ inline FDialogueState ReduceLocalReplyRejected(
       .val;
 }
 
+/**
+ * @brief Registers pending/fulfilled/rejected case reducers for the RTK thunk.
+ */
 inline rtk::AsyncThunkReducers<FDialogueState, FLocalDialogueReplyRequest,
                                FDialogueReplyPayload>
 LocalReplyAsyncReducers() {

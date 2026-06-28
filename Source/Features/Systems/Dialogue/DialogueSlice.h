@@ -13,6 +13,9 @@ namespace Demo {
 namespace Level {
 namespace DialogueSlice {
 
+/**
+ * @brief Creates initial Dialogue slice state for the root store.
+ */
 inline FDialogueState CreateInitialState() {
   return (func::pipe(FDialogueState{}) |
           [](FDialogueState State) -> FDialogueState {
@@ -23,6 +26,10 @@ inline FDialogueState CreateInitialState() {
       .val;
 }
 
+/**
+ * @brief Returns the RTK slice that binds dialogue actions, reducers, and
+ * thunks.
+ */
 inline const rtk::Slice<FDialogueState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FDialogueState>> Slice =
       func::lazy([]() -> rtk::Slice<FDialogueState> {

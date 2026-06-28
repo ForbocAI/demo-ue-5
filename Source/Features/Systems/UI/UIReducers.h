@@ -99,6 +99,17 @@ ReduceRuntimeConversationViewModel(const FString &Title,
 
 } // namespace detail
 
+/**
+ * @brief Case reducer for UIActions::ConversationPresented.
+ *
+ * @param State Previous UI slice state.
+ * @param Action Payload action carrying reducer-owned presentation data.
+ * @return Next immutable UI state.
+ *
+ * Architecture: This reducer owns visibility and conversation replacement. It
+ * uses functional-core piping as composition only; RTK action/reducer semantics
+ * remain the state model.
+ */
 inline FUIState ReduceConversationPresented(
     const FUIState &State,
     const rtk::PayloadAction<FUIPayload> &Action) {
@@ -112,6 +123,9 @@ inline FUIState ReduceConversationPresented(
       .val;
 }
 
+/**
+ * @brief Case reducer for UIActions::ChatHistoryRendered.
+ */
 inline FUIState ReduceChatHistoryRendered(
     const FUIState &State,
     const rtk::PayloadAction<FUIPayload> &Action) {
@@ -124,11 +138,17 @@ inline FUIState ReduceChatHistoryRendered(
       .val;
 }
 
+/**
+ * @brief Pure reducer helper for turning role/text into one view model.
+ */
 inline ForbocAI::Demo::UI::FChatMessageViewModel ReduceChatMessageViewModel(
     const FUIChatMessageViewModelRequest &Request) {
   return detail::ReduceChatMessageViewModel(Request);
 }
 
+/**
+ * @brief Pure reducer helper for converting history entries into view models.
+ */
 inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel>
 ReduceChatHistoryViewModels(const FUIChatHistoryViewModelsRequest &Request) {
   TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Acc;
@@ -137,11 +157,18 @@ ReduceChatHistoryViewModels(const FUIChatHistoryViewModelsRequest &Request) {
                                                       MoveTemp(Acc));
 }
 
+/**
+ * @brief Pure reducer helper that normalizes committed chat input text.
+ */
 inline FString ReduceNormalizedSubmittedChatText(
     const FUIChatInputViewModelRequest &Request) {
   return detail::ReduceSubmittedChatText(Request.Text);
 }
 
+/**
+ * @brief Pure reducer helper that returns the default hidden conversation
+ * model.
+ */
 inline ForbocAI::Demo::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationPlaceholder() {
   return detail::ReduceRuntimeConversationViewModel(
@@ -149,6 +176,9 @@ ReduceRuntimeConversationPlaceholder() {
       TEXT("NPC: ..."));
 }
 
+/**
+ * @brief Pure reducer helper that composes the runtime conversation model.
+ */
 inline ForbocAI::Demo::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationViewModel(
     const FUIRuntimeConversationViewModelRequest &Request) {
