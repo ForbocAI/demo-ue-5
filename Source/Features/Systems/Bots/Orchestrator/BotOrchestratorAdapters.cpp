@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.h"
 
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/BotActions.h"
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorActions.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineActions.h"
@@ -25,37 +26,27 @@ void ABotOrchestratorAdapter::Tick(float DeltaTime) {
   TArray<AActor *> Keys;
   BotBindings.GetKeys(Keys);
 
-  const auto TickBotsRecursive =
-      [this, DeltaTime, CurrentTime](const TArray<AActor *> &BotKeys, int32 Idx,
-                                     const auto &Self) -> void {
-    return Idx >= BotKeys.Num()
-               ? void()
-               : ([&]() {
-                    FBotRuntimeBinding *Binding =
-                        BotBindings.Find(BotKeys[Idx]);
-                    Binding
-                        ? (Store::GetStore().dispatch(
-                               BotPipelineActions::PipelineObserved()(
-                                   FBotPipelinePayload{Binding->Id})),
-                           Store::GetStore().dispatch(
-                               BotPositionActions::BotPositionMoved()(
-                                   FBotPositionMoved{
-                                       Binding->Id,
-                                       FLevelLocalPoint{0.0f, 0.0f, 0.0f},
-                                       Binding->BotActor->GetActorLocation(),
-                                       true,
-                                       true})),
-                           (CurrentTime - Binding->LastObservationTime >=
-                            ObservationInterval)
-                               ? (Binding->LastObservationTime = CurrentTime,
-                                  RequestNextAction(*Binding), void())
-                               : void(),
-                           void())
-                        : void();
-                  }(),
-                  Self(BotKeys, Idx + 1, Self));
-  };
-  TickBotsRecursive(Keys, 0, TickBotsRecursive);
+  ecs::forEachArray<AActor *>(
+      Keys, [this, DeltaTime, CurrentTime](AActor *const &BotKey) {
+        FBotRuntimeBinding *Binding = BotBindings.Find(BotKey);
+        Binding
+            ? (Store::GetStore().dispatch(
+                   BotPipelineActions::PipelineObserved()(
+                       FBotPipelinePayload{Binding->Id})),
+               Store::GetStore().dispatch(
+                   BotPositionActions::BotPositionMoved()(
+                       FBotPositionMoved{
+                           Binding->Id, FLevelLocalPoint{0.0f, 0.0f, 0.0f},
+                           Binding->BotActor->GetActorLocation(), true,
+                           true})),
+               (CurrentTime - Binding->LastObservationTime >=
+                ObservationInterval)
+                   ? (Binding->LastObservationTime = CurrentTime,
+                      RequestNextAction(*Binding), void())
+                   : void(),
+               void())
+            : void();
+      });
 }
 
 void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {

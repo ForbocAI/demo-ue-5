@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/Stats/BotStatsFactories.h"
 
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/Stats/BotStatsAdapters.h"
 
 namespace ForbocAI {
@@ -26,23 +27,19 @@ FBotStatsComponent Component(const FBotStatsSource &Source) {
 
 TArray<FBotStatsComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  TArray<FBotStatsComponent> Stats;
-  Stats.Reserve(Seeds.Num());
-  for (const FTownspersonSeed &Seed : Seeds) {
-    Stats.Add(Component({Seed.Id, 120.0f, 650.0f, 100.0f, true, false}));
-  }
-  return Stats;
+  return ecs::mapArray<FTownspersonSeed, FBotStatsComponent>(
+      Seeds, [](const FTownspersonSeed &Seed) {
+        return Component({Seed.Id, 120.0f, 650.0f, 100.0f, true, false});
+      });
 }
 
 TArray<FBotStatsComponent> FromHorses(
     const TArray<FHorseRouteSeed> &Seeds) {
-  TArray<FBotStatsComponent> Stats;
-  Stats.Reserve(Seeds.Num());
-  for (const FHorseRouteSeed &Seed : Seeds) {
-    Stats.Add(Component({Seed.Id, 260.0f, 700.0f, 100.0f, false,
-                         Seed.bMountedRider}));
-  }
-  return Stats;
+  return ecs::mapArray<FHorseRouteSeed, FBotStatsComponent>(
+      Seeds, [](const FHorseRouteSeed &Seed) {
+        return Component({Seed.Id, 260.0f, 700.0f, 100.0f, false,
+                          Seed.bMountedRider});
+      });
 }
 
 } // namespace BotStatsFactories

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 
 #include "Features/Components/Data/DataTypes.h"
@@ -86,22 +87,15 @@ inline FInteractionSelection ReduceCloserCandidate(
   return Current;
 }
 
-inline FInteractionSelection ReduceNearestCandidateRecursive(
-    const FInteractionNearestCandidateRequest &Request, int32 Index,
-    FInteractionSelection Current) {
-  return Index >= Request.Observation.Candidates.Num()
-             ? Current
-             : ReduceNearestCandidateRecursive(
-                   Request, Index + 1,
-                   ReduceCloserCandidate(
-                       Request, Request.Observation.Candidates[Index],
-                       Current));
-}
-
 inline FInteractionSelection ReduceNearestCandidate(
     const FInteractionNearestCandidateRequest &Request) {
-  return ReduceNearestCandidateRecursive(
-      Request, 0, ReduceEmptySelection(Request.MissingMessage));
+  return ecs::foldArray<FInteractionCandidate, FInteractionSelection>(
+      ReduceEmptySelection(Request.MissingMessage),
+      Request.Observation.Candidates,
+      [&Request](const FInteractionSelection &Current,
+                 const FInteractionCandidate &Candidate) {
+        return ReduceCloserCandidate(Request, Candidate, Current);
+      });
 }
 
 /**

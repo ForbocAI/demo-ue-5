@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonReducers.h"
 
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/Townspeople/TownspersonAdapters.h"
 
 namespace ForbocAI {
@@ -26,17 +27,6 @@ bool ReduceOverlapMatches(
     const FTownspersonInteractionOverlapRequest &Request) {
   return Request.bOtherActorPresent && !Request.bOtherActorIsSelf &&
          Request.bOtherActorIsPawn;
-}
-
-TArray<FTownspersonSeed> ReduceByInteractionIntentAtIndex(
-    const FTownspersonIntentProjectionRequest &Request, int32 Index,
-    TArray<FTownspersonSeed> Acc) {
-  return Index >= Request.Townspeople.Num()
-             ? Acc
-             : (Request.Townspeople[Index].InteractionIntent == Request.Intent
-                    ? Acc.Add(Request.Townspeople[Index])
-                    : 0,
-                ReduceByInteractionIntentAtIndex(Request, Index + 1, Acc));
 }
 
 FTownspersonState ReduceInteractionIntentProjections(
@@ -124,7 +114,10 @@ FTownspersonInteractionOverlapViewModel ReduceInteractionOverlap(
 
 TArray<FTownspersonSeed> ReduceByInteractionIntent(
     const FTownspersonIntentProjectionRequest &Request) {
-  return ReduceByInteractionIntentAtIndex(Request, 0, {});
+  return ecs::filterArray<FTownspersonSeed>(
+      Request.Townspeople, [&Request](const FTownspersonSeed &Townsperson) {
+        return Townsperson.InteractionIntent == Request.Intent;
+      });
 }
 
 } // namespace TownspersonReducers

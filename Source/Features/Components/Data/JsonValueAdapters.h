@@ -82,41 +82,6 @@ ReadRequiredArray(const FJsonFieldRequest &Request);
 func::Maybe<TSharedPtr<FJsonObject>>
 ReadArrayObject(const FJsonArrayValueObjectRequest &Request);
 
-namespace detail {
-
-/**
- * @brief Recursively maps required JSON object values into typed outputs.
- *
- * @signature template <typename Output> func::Maybe<TArray<Output>> MapRequiredJsonValuesRecursive(const TArray<TSharedPtr<FJsonValue>> &Values, const FString &FieldName, TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue, int32 Index, TArray<Output> Acc)
- *
- * User story: As a shared data primitive, array mapping can stay lazy-looking
- * and unary while higher feature domains import downward into it.
- */
-template <typename Output>
-func::Maybe<TArray<Output>>
-MapRequiredJsonValuesRecursive(
-    const TArray<TSharedPtr<FJsonValue>> &Values, const FString &FieldName,
-    TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue,
-    int32 Index, TArray<Output> Acc) {
-  return Index >= Values.Num()
-             ? func::just(Acc)
-             : func::mbind(
-                   ReadArrayObject({Values[Index], FieldName, Index}),
-                   [&Values, FieldName, MapValue, Index, Acc](
-                       const TSharedPtr<FJsonObject> &Object) mutable {
-                     return func::mbind(
-                         MapValue(Object),
-                         [&Values, FieldName, MapValue, Index,
-                          Acc](const Output &Parsed) mutable {
-                           return MapRequiredJsonValuesRecursive<Output>(
-                               Values, FieldName, MapValue, Index + 1,
-                               ecs::appendValue<Output>(Acc, Parsed));
-                         });
-                   });
-}
-
-} // namespace detail
-
 /**
  * @brief Creates a unary mapper for required JSON object arrays.
  *
@@ -132,10 +97,16 @@ MapRequiredJsonValuesWith(
     const FString &FieldName,
     TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue) {
   return [FieldName, MapValue](const TArray<TSharedPtr<FJsonValue>> &Values) {
-    TArray<Output> Acc;
-    Acc.Reserve(Values.Num());
-    return detail::MapRequiredJsonValuesRecursive<Output>(
-        Values, FieldName, MapValue, 0, MoveTemp(Acc));
+    return ecs::traverseMaybeArrayWithIndex<TSharedPtr<FJsonValue>, Output>(
+        Values,
+        [FieldName, MapValue](const TSharedPtr<FJsonValue> &Value,
+                              int32 Index) {
+          return func::mbind(
+              ReadArrayObject({Value, FieldName, Index}),
+              [MapValue](const TSharedPtr<FJsonObject> &Object) {
+                return MapValue(Object);
+              });
+        });
   };
 }
 

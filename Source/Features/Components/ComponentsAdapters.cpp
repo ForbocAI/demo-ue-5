@@ -9,6 +9,42 @@ ecs::DomainPathKey DomainKey(const TArray<FString> &Segments) {
   return ecs::domainPathKey(ecs::createDomainPath(Segments));
 }
 
+FEcsDomainProjectionStep DomainStep(const ecs::EntityKey &Entity,
+                                    const TArray<FString> &Segments) {
+  return {Entity, Segments};
+}
+
+TArray<FEcsDomainProjectionStep>
+DomainSteps(const ecs::EntityKey &Entity,
+            const TArray<TArray<FString>> &SegmentGroups) {
+  return ecs::mapArray<TArray<FString>, FEcsDomainProjectionStep>(
+      SegmentGroups, [&Entity](const TArray<FString> &Segments) {
+        return DomainStep(Entity, Segments);
+      });
+}
+
+FEcsComponentProjectionBinding
+ComponentBinding(const ecs::ComponentType &Type,
+                 const ecs::FComponentValue &Value) {
+  return {Type, Value};
+}
+
+FEcsComponentProjectionStep ComponentStep(const ecs::EntityKey &Entity,
+                                          const ecs::ComponentType &Type,
+                                          const ecs::FComponentValue &Value) {
+  return {Entity, Type, Value};
+}
+
+TArray<FEcsComponentProjectionStep>
+ComponentSteps(const ecs::EntityKey &Entity,
+               const TArray<FEcsComponentProjectionBinding> &Bindings) {
+  return ecs::mapArray<FEcsComponentProjectionBinding,
+                       FEcsComponentProjectionStep>(
+      Bindings, [&Entity](const FEcsComponentProjectionBinding &Binding) {
+        return ComponentStep(Entity, Binding.Type, Binding.Value);
+      });
+}
+
 ecs::FWorld WithDomain(const FEcsDomainProjectionRequest &Request) {
   return ecs::setEntityDomain(ecs::createSetEntityDomainRequest(
       Request.World, Request.Entity, DomainKey(Request.Segments)));
@@ -100,6 +136,38 @@ WithComponentSteps(const FEcsComponentStepsProjectionPayload &Payload) {
       [](const ecs::FWorld &Acc, const FEcsComponentProjectionStep &Step) {
         return ProjectComponentStep(Acc, Step);
       });
+}
+
+/**
+ * @brief Applies domain and component projection steps through one ECS world transition.
+ * @signature ecs::FWorld ApplyProjectionSteps(const FEcsProjectionStepsPayload &Payload)
+ *
+ * User Story: As projection features, domain and component batches should use
+ * one neutral application primitive instead of each feature owning the same
+ * pipe shape.
+ */
+ecs::FWorld ApplyProjectionSteps(const FEcsProjectionStepsPayload &Payload) {
+  return (func::pipe(Payload.World) |
+          [&Payload](ecs::FWorld Next) {
+            return WithDomainSteps({Next, Payload.Domains});
+          } |
+          [&Payload](ecs::FWorld Next) {
+            return WithComponentSteps({Next, Payload.Components});
+          })
+      .val;
+}
+
+/**
+ * @brief Projects one entity from domain path data and component bindings.
+ * @signature ecs::FWorld ProjectEntity(const FEcsEntityProjectionPayload &Payload)
+ *
+ * User Story: As feature projection code, I need the repeated entity/domain/
+ * component projection idiom to live in one ECS-facing adapter boundary.
+ */
+ecs::FWorld ProjectEntity(const FEcsEntityProjectionPayload &Payload) {
+  return ApplyProjectionSteps(
+      {Payload.World, DomainSteps(Payload.Entity, Payload.Domains),
+       ComponentSteps(Payload.Entity, Payload.Components)});
 }
 
 ecs::FComponentValue LocalPointValue(const FLevelLocalPoint &Point) {

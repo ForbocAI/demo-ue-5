@@ -3,6 +3,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Components/AudioComponent.h"
+#include "Core/ecs.hpp"
 #include "Sound/SoundWave.h"
 #include "SpeechAdapters.generated.h"
 
@@ -205,16 +206,37 @@ inline FVisemeMapping LookupViseme(
 inline FVisemeMapping ActiveVisemeAtTime(
     const TArray<FPhonemeEvent> &Phonemes,
     float CurrentTime,
-    const TMap<FString, FVisemeMapping> &VisemeMap,
-    int32 Idx = 0) {
-  return Idx >= Phonemes.Num()
-             ? FVisemeMapping{TEXT("viseme_sil"), 0.0f}
-             : (CurrentTime >= Phonemes[Idx].StartTime &&
-                CurrentTime <
-                    Phonemes[Idx].StartTime + Phonemes[Idx].Duration)
-                   ? LookupViseme(Phonemes[Idx].Phoneme, VisemeMap)
-                   : ActiveVisemeAtTime(Phonemes, CurrentTime, VisemeMap,
-                                        Idx + 1);
+    const TMap<FString, FVisemeMapping> &VisemeMap) {
+  return func::match(
+      ecs::findArray<FPhonemeEvent>(
+          Phonemes, [CurrentTime](const FPhonemeEvent &Phoneme) {
+            return CurrentTime >= Phoneme.StartTime &&
+                   CurrentTime < Phoneme.StartTime + Phoneme.Duration;
+          }),
+      [&VisemeMap](const FPhonemeEvent &Phoneme) {
+        return LookupViseme(Phoneme.Phoneme, VisemeMap);
+      },
+      []() { return FVisemeMapping{TEXT("viseme_sil"), 0.0f}; });
+}
+
+struct FPhonemeEstimateState {
+  TArray<FPhonemeEvent> Phonemes;
+  float CurrentTime = 0.0f;
+};
+
+inline FString EstimatePhonemeForChar(TCHAR Ch) {
+  const TCHAR Upper = FChar::ToUpper(Ch);
+  return (Upper == 'A' || Upper == 'E' || Upper == 'I' || Upper == 'O' ||
+          Upper == 'U')
+             ? FString::Printf(TEXT("%c%c"), Upper, Upper)
+             : (Upper == ' ' || Upper == '.' || Upper == ',')
+                   ? TEXT("SIL")
+                   : FChar::IsAlpha(Upper) ? FString(1, &Upper) : TEXT("");
+}
+
+inline float EstimatePhonemeDuration(const FString &Phoneme,
+                                     float SpeechRate) {
+  return Phoneme == TEXT("SIL") ? SpeechRate * 0.5f : SpeechRate;
 }
 
 /**
@@ -226,44 +248,23 @@ inline FVisemeMapping ActiveVisemeAtTime(
  */
 inline TArray<FPhonemeEvent> EstimatePhonemesFromText(
     const FString &Text, float SpeechRate = 0.08f) {
-  TArray<FPhonemeEvent> Phonemes;
-  float CurrentTime = 0.0f;
+  return ecs::foldIndexRange<FPhonemeEstimateState>(
+             Text.Len(), FPhonemeEstimateState{},
+             [&Text, SpeechRate](const FPhonemeEstimateState &State,
+                                 int32 Index) {
+               const FString Phoneme = EstimatePhonemeForChar(Text[Index]);
+               if (Phoneme.IsEmpty()) {
+                 return State;
+               }
 
-  const auto ProcessCharRecursive =
-      [&Phonemes, &CurrentTime, &Text, SpeechRate](
-          int32 Idx, const auto &Self) -> void {
-    return Idx >= Text.Len()
-               ? void()
-               : ([&]() {
-                    const TCHAR Ch = FChar::ToUpper(Text[Idx]);
-                    const FString PhonemeStr =
-                        (Ch == 'A' || Ch == 'E' || Ch == 'I' ||
-                         Ch == 'O' || Ch == 'U')
-                            ? FString::Printf(TEXT("%c%c"), Ch, Ch)
-                            : (Ch == ' ' || Ch == '.' || Ch == ',')
-                                  ? TEXT("SIL")
-                                  : (FChar::IsAlpha(Ch))
-                                        ? FString(1, &Ch)
-                                        : TEXT("");
-
-                    PhonemeStr.Len() > 0
-                        ? (Phonemes.Add(
-                               {PhonemeStr, CurrentTime,
-                                (PhonemeStr == TEXT("SIL"))
-                                    ? SpeechRate * 0.5f
-                                    : SpeechRate}),
-                           CurrentTime +=
-                               (PhonemeStr == TEXT("SIL"))
-                                   ? SpeechRate * 0.5f
-                                   : SpeechRate,
-                           void())
-                        : void();
-                  }(),
-                  Self(Idx + 1, Self));
-  };
-  ProcessCharRecursive(0, ProcessCharRecursive);
-
-  return Phonemes;
+               const float Duration =
+                   EstimatePhonemeDuration(Phoneme, SpeechRate);
+               FPhonemeEstimateState Next = State;
+               Next.Phonemes.Add({Phoneme, State.CurrentTime, Duration});
+               Next.CurrentTime = State.CurrentTime + Duration;
+               return Next;
+             })
+      .Phonemes;
 }
 
 } // namespace SpeechOps

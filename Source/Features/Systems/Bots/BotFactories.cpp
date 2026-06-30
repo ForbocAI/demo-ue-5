@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/BotFactories.h"
 
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/BotAdapters.h"
 
 namespace ForbocAI {
@@ -24,23 +25,19 @@ FBotEntity Bot(const FBotEntitySource &Source) {
 }
 
 TArray<FBotEntity> FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  TArray<FBotEntity> Bots;
-  Bots.Reserve(Seeds.Num());
-  for (const FTownspersonSeed &Seed : Seeds) {
-    Bots.Add(Bot({Seed.Id, Seed.Name, EBotEntityKind::Townsperson,
-                  EBotAlignment::Friendly, true}));
-  }
-  return Bots;
+  return ecs::mapArray<FTownspersonSeed, FBotEntity>(
+      Seeds, [](const FTownspersonSeed &Seed) {
+        return Bot({Seed.Id, Seed.Name, EBotEntityKind::Townsperson,
+                    EBotAlignment::Friendly, true});
+      });
 }
 
 TArray<FBotEntity> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  TArray<FBotEntity> Bots;
-  Bots.Reserve(Seeds.Num());
-  for (const FHorseRouteSeed &Seed : Seeds) {
-    Bots.Add(Bot({Seed.Id, Seed.Name, EBotEntityKind::Horse,
-                  EBotAlignment::Neutral, true}));
-  }
-  return Bots;
+  return ecs::mapArray<FHorseRouteSeed, FBotEntity>(
+      Seeds, [](const FHorseRouteSeed &Seed) {
+        return Bot({Seed.Id, Seed.Name, EBotEntityKind::Horse,
+                    EBotAlignment::Neutral, true});
+      });
 }
 
 } // namespace BotFactories

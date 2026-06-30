@@ -1,7 +1,166 @@
 #include "Features/Components/Level/LevelDataAdapters.h"
 
+#include "Core/ecs.hpp"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
+
+namespace {
+
+struct FOrthoCsvParseState {
+  bool bValid = true;
+  bool bWidthMismatch = false;
+  bool bBadCell = false;
+  FString BadCell;
+  int32 GridSize = 0;
+  TArray<FColor> Colors;
+};
+
+struct FTerrainCsvParseState {
+  bool bValid = true;
+  bool bWidthMismatch = false;
+  int32 GridSize = 0;
+  TArray<float> Elevations;
+  float MinElevationMeters = TNumericLimits<float>::Max();
+  float MaxElevationMeters = TNumericLimits<float>::Lowest();
+};
+
+FString NormalizeCsvLine(const FString &RawLine) {
+  return RawLine.TrimStartAndEnd();
+}
+
+bool IsCsvDataLine(const FString &Line) {
+  return !Line.IsEmpty() && !Line.StartsWith(TEXT("#"));
+}
+
+TArray<FString> CsvCells(const FString &Line) {
+  TArray<FString> Cells;
+  Line.ParseIntoArray(Cells, TEXT(","), true);
+  return Cells;
+}
+
+func::Maybe<FColor> ParseOrthoColor(const FString &Cell) {
+  TArray<FString> Channels;
+  Cell.ParseIntoArray(Channels, TEXT(":"), true);
+  return Channels.Num() == 3
+             ? func::just(FColor(static_cast<uint8>(FCString::Atoi(*Channels[0])),
+                                  static_cast<uint8>(FCString::Atoi(*Channels[1])),
+                                  static_cast<uint8>(FCString::Atoi(*Channels[2])),
+                                  255))
+             : func::nothing<FColor>();
+}
+
+FOrthoCsvParseState ReduceOrthoCell(const FOrthoCsvParseState &State,
+                                    const FString &Cell) {
+  return !State.bValid
+             ? State
+             : func::match(
+                   ParseOrthoColor(Cell),
+                   [&State](const FColor &Color) {
+                     FOrthoCsvParseState Next = State;
+                     Next.Colors.Add(Color);
+                     return Next;
+                   },
+                   [&State, &Cell]() {
+                     FOrthoCsvParseState Next = State;
+                     Next.bValid = false;
+                     Next.bBadCell = true;
+                     Next.BadCell = Cell;
+                     return Next;
+                   });
+}
+
+FOrthoCsvParseState ReduceOrthoLine(const FOrthoCsvParseState &State,
+                                    const FString &RawLine) {
+  const FString Line = NormalizeCsvLine(RawLine);
+  if (!State.bValid || !IsCsvDataLine(Line)) {
+    return State;
+  }
+
+  const TArray<FString> Cells = CsvCells(Line);
+  if (Cells.Num() == 0) {
+    return State;
+  }
+
+  if (State.GridSize > 0 && Cells.Num() != State.GridSize) {
+    FOrthoCsvParseState Next = State;
+    Next.bValid = false;
+    Next.bWidthMismatch = true;
+    return Next;
+  }
+
+  FOrthoCsvParseState SizedState = State;
+  SizedState.GridSize = State.GridSize == 0 ? Cells.Num() : State.GridSize;
+  return ecs::foldArray<FString, FOrthoCsvParseState>(
+      SizedState, Cells, ReduceOrthoCell);
+}
+
+FString OrthoCsvParseErrorMessage(const FOrthoCsvParseState &State,
+                                  const FString &SourcePath) {
+  return func::multi_match<FOrthoCsvParseState, FString>(
+      State,
+      std::vector<func::MatchCase<FOrthoCsvParseState, FString>>{
+          func::when<FOrthoCsvParseState, FString>(
+              [](const FOrthoCsvParseState &Candidate) {
+                return Candidate.bWidthMismatch;
+              },
+              [&SourcePath](const FOrthoCsvParseState &) {
+                return FString::Printf(
+                    TEXT("Level: Ortho row width mismatch in %s"),
+                    *SourcePath);
+              }),
+          func::when<FOrthoCsvParseState, FString>(
+              [](const FOrthoCsvParseState &Candidate) {
+                return Candidate.bBadCell;
+              },
+              [&SourcePath](const FOrthoCsvParseState &Candidate) {
+                return FString::Printf(
+                    TEXT("Level: Bad ortho color cell '%s' in %s"),
+                    *Candidate.BadCell, *SourcePath);
+              })},
+      [&SourcePath](const FOrthoCsvParseState &) {
+        return FString::Printf(TEXT("Level: Invalid ortho CSV in %s"),
+                               *SourcePath);
+      });
+}
+
+FTerrainCsvParseState
+ReduceTerrainCell(const FTerrainCsvParseState &State,
+                  const FString &Cell) {
+  const float Elevation = FCString::Atof(*Cell);
+  FTerrainCsvParseState Next = State;
+  Next.Elevations.Add(Elevation);
+  Next.MinElevationMeters = FMath::Min(Next.MinElevationMeters, Elevation);
+  Next.MaxElevationMeters = FMath::Max(Next.MaxElevationMeters, Elevation);
+  return Next;
+}
+
+FTerrainCsvParseState
+ReduceTerrainLine(const FTerrainCsvParseState &State,
+                  const FString &RawLine) {
+  const FString Line = NormalizeCsvLine(RawLine);
+  if (!State.bValid || !IsCsvDataLine(Line)) {
+    return State;
+  }
+
+  const TArray<FString> Cells = CsvCells(Line);
+  if (Cells.Num() == 0) {
+    return State;
+  }
+
+  if (State.GridSize > 0 && Cells.Num() != State.GridSize) {
+    FTerrainCsvParseState Next = State;
+    Next.bValid = false;
+    Next.bWidthMismatch = true;
+    return Next;
+  }
+
+  FTerrainCsvParseState SizedState = State;
+  SizedState.GridSize = State.GridSize == 0 ? Cells.Num() : State.GridSize;
+  return ecs::foldArray<FString, FTerrainCsvParseState>(
+      SizedState, Cells, ReduceTerrainCell);
+}
+
+} // namespace
 
 bool FLevelOrthoData::LoadFromContent(
     const FLevelOrthoDataLoadRequest &Request) {
@@ -14,55 +173,25 @@ bool FLevelOrthoData::LoadFromContent(
     return false;
   }
 
-  TArray<FColor> ParsedColors;
-  int32 ParsedGridSize = 0;
+  const FOrthoCsvParseState Parsed =
+      ecs::foldArray<FString, FOrthoCsvParseState>(
+          FOrthoCsvParseState{}, Lines, ReduceOrthoLine);
 
-  for (const FString &RawLine : Lines) {
-    const FString Line = RawLine.TrimStartAndEnd();
-    if (Line.IsEmpty() || Line.StartsWith(TEXT("#"))) {
-      continue;
-    }
-
-    TArray<FString> Cells;
-    Line.ParseIntoArray(Cells, TEXT(","), true);
-    if (Cells.Num() == 0) {
-      continue;
-    }
-
-    if (ParsedGridSize == 0) {
-      ParsedGridSize = Cells.Num();
-    } else if (Cells.Num() != ParsedGridSize) {
-      UE_LOG(LogTemp, Warning,
-             TEXT("Level: Ortho row width mismatch in %s"), *SourcePath);
-      return false;
-    }
-
-    for (const FString &Cell : Cells) {
-      TArray<FString> Channels;
-      Cell.ParseIntoArray(Channels, TEXT(":"), true);
-      if (Channels.Num() != 3) {
-        UE_LOG(LogTemp, Warning,
-               TEXT("Level: Bad ortho color cell '%s' in %s"), *Cell,
-               *SourcePath);
-        return false;
-      }
-
-      ParsedColors.Add(FColor(static_cast<uint8>(FCString::Atoi(*Channels[0])),
-                              static_cast<uint8>(FCString::Atoi(*Channels[1])),
-                              static_cast<uint8>(FCString::Atoi(*Channels[2])),
-                              255));
-    }
+  if (!Parsed.bValid) {
+    const FString Message = OrthoCsvParseErrorMessage(Parsed, SourcePath);
+    UE_LOG(LogTemp, Warning, TEXT("%s"), *Message);
+    return false;
   }
 
-  if (ParsedGridSize <= 1 ||
-      ParsedColors.Num() != ParsedGridSize * ParsedGridSize) {
+  if (Parsed.GridSize <= 1 ||
+      Parsed.Colors.Num() != Parsed.GridSize * Parsed.GridSize) {
     UE_LOG(LogTemp, Warning, TEXT("Level: Invalid ortho CSV grid: %s"),
            *SourcePath);
     return false;
   }
 
-  GridSize = ParsedGridSize;
-  Colors = MoveTemp(ParsedColors);
+  GridSize = Parsed.GridSize;
+  Colors = Parsed.Colors;
   UE_LOG(LogTemp, Display,
          TEXT("Level: Loaded %dx%d USGS ortho color CSV from %s"), GridSize,
          GridSize, *SourcePath);
@@ -100,48 +229,30 @@ bool FLevelTerrainData::LoadFromContent(
     return false;
   }
 
-  TArray<float> ParsedElevations;
-  int32 ParsedGridSize = 0;
   MinElevationMeters = TNumericLimits<float>::Max();
   MaxElevationMeters = TNumericLimits<float>::Lowest();
 
-  for (const FString &RawLine : Lines) {
-    const FString Line = RawLine.TrimStartAndEnd();
-    if (Line.IsEmpty() || Line.StartsWith(TEXT("#"))) {
-      continue;
-    }
+  const FTerrainCsvParseState Parsed =
+      ecs::foldArray<FString, FTerrainCsvParseState>(
+          FTerrainCsvParseState{}, Lines, ReduceTerrainLine);
 
-    TArray<FString> Cells;
-    Line.ParseIntoArray(Cells, TEXT(","), true);
-    if (Cells.Num() == 0) {
-      continue;
-    }
-
-    if (ParsedGridSize == 0) {
-      ParsedGridSize = Cells.Num();
-    } else if (Cells.Num() != ParsedGridSize) {
-      UE_LOG(LogTemp, Warning,
-             TEXT("Level: Terrain row width mismatch in %s"), *SourcePath);
-      return false;
-    }
-
-    for (const FString &Cell : Cells) {
-      const float Elevation = FCString::Atof(*Cell);
-      ParsedElevations.Add(Elevation);
-      MinElevationMeters = FMath::Min(MinElevationMeters, Elevation);
-      MaxElevationMeters = FMath::Max(MaxElevationMeters, Elevation);
-    }
+  if (!Parsed.bValid) {
+    UE_LOG(LogTemp, Warning,
+           TEXT("Level: Terrain row width mismatch in %s"), *SourcePath);
+    return false;
   }
 
-  if (ParsedGridSize <= 1 ||
-      ParsedElevations.Num() != ParsedGridSize * ParsedGridSize) {
+  if (Parsed.GridSize <= 1 ||
+      Parsed.Elevations.Num() != Parsed.GridSize * Parsed.GridSize) {
     UE_LOG(LogTemp, Warning, TEXT("Level: Invalid terrain CSV grid: %s"),
            *SourcePath);
     return false;
   }
 
-  GridSize = ParsedGridSize;
-  ElevationsMeters = MoveTemp(ParsedElevations);
+  GridSize = Parsed.GridSize;
+  ElevationsMeters = Parsed.Elevations;
+  MinElevationMeters = Parsed.MinElevationMeters;
+  MaxElevationMeters = Parsed.MaxElevationMeters;
   UE_LOG(LogTemp, Display,
          TEXT("Level: Loaded %dx%d terrain CSV from %s (%.1fm..%.1fm)"),
          GridSize, GridSize, *SourcePath, MinElevationMeters,

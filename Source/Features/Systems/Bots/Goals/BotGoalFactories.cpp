@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/Goals/BotGoalFactories.h"
 
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/Goals/BotGoalAdapters.h"
 
 namespace ForbocAI {
@@ -51,23 +52,19 @@ FBotGoalComponent Component(const FBotGoalComponent &Source) { return Source; }
 
 TArray<FBotGoalComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  TArray<FBotGoalComponent> Goals;
-  Goals.Reserve(Seeds.Num());
-  for (const FTownspersonSeed &Seed : Seeds) {
-    Goals.Add(ActiveGoalComponent(Seed.Id, PatrolGoal(Seed.Id,
-                                                      Seed.PatrolRoute)));
-  }
-  return Goals;
+  return ecs::mapArray<FTownspersonSeed, FBotGoalComponent>(
+      Seeds, [](const FTownspersonSeed &Seed) {
+        return ActiveGoalComponent(Seed.Id,
+                                   PatrolGoal(Seed.Id, Seed.PatrolRoute));
+      });
 }
 
 TArray<FBotGoalComponent> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  TArray<FBotGoalComponent> Goals;
-  Goals.Reserve(Seeds.Num());
-  for (const FHorseRouteSeed &Seed : Seeds) {
-    Goals.Add(ActiveGoalComponent(Seed.Id, PatrolGoal(Seed.Id,
-                                                      Seed.PatrolRoute)));
-  }
-  return Goals;
+  return ecs::mapArray<FHorseRouteSeed, FBotGoalComponent>(
+      Seeds, [](const FHorseRouteSeed &Seed) {
+        return ActiveGoalComponent(Seed.Id,
+                                   PatrolGoal(Seed.Id, Seed.PatrolRoute));
+      });
 }
 
 } // namespace BotGoalFactories

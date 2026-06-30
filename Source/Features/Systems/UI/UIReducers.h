@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 #include "Features/Systems/UI/UITypes.h"
 
@@ -52,20 +53,6 @@ ReduceHistoryEntryViewModel(const FString &Entry) {
              ? ReduceChatMessageViewModel(
                    {Entry.Left(ColonIdx), Entry.Mid(ColonIdx + 2)})
              : ReduceChatMessageViewModel({TEXT("Unknown"), Entry});
-}
-
-inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel>
-ReduceChatHistoryViewModelsRecursive(
-    const TArray<FString> &History, int32 Index,
-    TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Acc) {
-  return Index >= History.Num()
-             ? Acc
-             : ([&History, Index](
-                    TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Next) {
-                 Next.Add(ReduceHistoryEntryViewModel(History[Index]));
-                 return ReduceChatHistoryViewModelsRecursive(
-                     History, Index + 1, MoveTemp(Next));
-               })(MoveTemp(Acc));
 }
 
 inline FString ReduceSubmittedChatText(const FText &Text) {
@@ -142,10 +129,9 @@ inline ForbocAI::Demo::UI::FChatMessageViewModel ReduceChatMessageViewModel(
  */
 inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel>
 ReduceChatHistoryViewModels(const FUIChatHistoryViewModelsRequest &Request) {
-  TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Acc;
-  Acc.Reserve(Request.History.Num());
-  return detail::ReduceChatHistoryViewModelsRecursive(Request.History, 0,
-                                                      MoveTemp(Acc));
+  return ecs::mapArray<FString,
+                       ForbocAI::Demo::UI::FChatMessageViewModel>(
+      Request.History, detail::ReduceHistoryEntryViewModel);
 }
 
 /**

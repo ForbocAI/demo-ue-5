@@ -51,48 +51,15 @@ ecs::FWorld applyProjection(const FRuntimeState &State,
       });
 }
 
-template <typename... Values> struct TProjectionCatalog {
-  std::tuple<Values...> ValuesTuple;
+struct FApplyRuntimeProjection {
+  const FRuntimeState &State;
+
+  template <typename Select, typename Project>
+  ecs::FWorld operator()(const ecs::FWorld &World, Select SelectValue,
+                         Project ProjectValue) const {
+    return applyProjection(State, World, SelectValue, ProjectValue);
+  }
 };
-
-template <typename... Values>
-TProjectionCatalog<Values...> projectionCatalog(Values... ValuesList) {
-  return {std::make_tuple(ValuesList...)};
-}
-
-template <typename Head, typename... Tail>
-std::tuple<Tail...> tailTuple(const std::tuple<Head, Tail...> &Values);
-
-ecs::FWorld runProjectionCatalog(const FRuntimeState &State,
-                                 const ecs::FWorld &World,
-                                 std::tuple<> Selectors,
-                                 std::tuple<> Projectors) {
-  return World;
-}
-
-template <typename Select, typename Project, typename... SelectRest,
-          typename... ProjectRest>
-ecs::FWorld runProjectionCatalog(
-    const FRuntimeState &State, const ecs::FWorld &World,
-    std::tuple<Select, SelectRest...> Selectors,
-    std::tuple<Project, ProjectRest...> Projectors) {
-  const Select SelectValue = std::get<0>(Selectors);
-  const Project ProjectValue = std::get<0>(Projectors);
-  return runProjectionCatalog(
-      State, applyProjection(State, World, SelectValue, ProjectValue),
-      tailTuple(Selectors), tailTuple(Projectors));
-}
-
-template <typename Tuple, size_t... Indices>
-auto tailTupleImpl(const Tuple &Values, func::seq<Indices...>)
-    -> decltype(std::make_tuple(std::get<Indices + 1>(Values)...)) {
-  return std::make_tuple(std::get<Indices + 1>(Values)...);
-}
-
-template <typename Head, typename... Tail>
-std::tuple<Tail...> tailTuple(const std::tuple<Head, Tail...> &Values) {
-  return tailTupleImpl(Values, func::gen_seq<sizeof...(Tail)>());
-}
 
 ecs::FWorld applyResourceProjection(const ecs::FWorld &World,
                                     const FResourceProjectionBinding &Binding) {
@@ -108,21 +75,19 @@ ecs::FWorld RuntimeProjectionWorld(const FRuntimeState &State) {
   using namespace SystemsProjectionSpawnAdapters;
   using namespace SystemsProjectionTerrainAdapters;
 
-  const ecs::FWorld Projected = runProjectionCatalog(
-      State, ecs::createWorld(),
-      projectionCatalog(SelectPlayerState, SelectTerrainState,
-                        SelectSpawnState, SelectInteractionState,
-                        SelectLandmarks, SelectNatureFeatures,
-                        SelectTownspeople, SelectHorses, SelectBots,
-                        SelectBotStats, SelectBotPositions, SelectBotAI,
-                        SelectBotGoals)
-          .ValuesTuple,
-      projectionCatalog(ProjectPlayer, ProjectTerrain, ProjectSpawn,
-                        ProjectInteraction, ProjectLandmark,
-                        ProjectNatureFeature, ProjectTownsperson,
-                        ProjectHorse, ProjectBot, ProjectBotStats,
-                        ProjectBotPosition, ProjectBotAI, ProjectBotGoal)
-          .ValuesTuple);
+  const ecs::FWorld Projected = ecs::foldWorldCatalogPairs(
+      ecs::createWorld(),
+      func::catalog(SelectPlayerState, SelectTerrainState, SelectSpawnState,
+                    SelectInteractionState, SelectLandmarks,
+                    SelectNatureFeatures, SelectTownspeople, SelectHorses,
+                    SelectBots, SelectBotStats, SelectBotPositions,
+                    SelectBotAI, SelectBotGoals),
+      func::catalog(ProjectPlayer, ProjectTerrain, ProjectSpawn,
+                    ProjectInteraction, ProjectLandmark, ProjectNatureFeature,
+                    ProjectTownsperson, ProjectHorse, ProjectBot,
+                    ProjectBotStats, ProjectBotPosition, ProjectBotAI,
+                    ProjectBotGoal),
+      FApplyRuntimeProjection{State});
   return applyResourceProjection(
       Projected, resourceProjection(TEXT("Systems/Runtime/Projected"),
                                     ecs::boolValue(true)));

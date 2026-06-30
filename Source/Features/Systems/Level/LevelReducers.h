@@ -196,19 +196,6 @@ inline bool NatureFeatureNeedsLabel(ENatureFeatureKind Kind) {
          Kind == ENatureFeatureKind::WaterSystemMarker;
 }
 
-inline TArray<FVector> BuildWorldRouteRecursive(
-    const TArray<FLevelLocalPoint> &Route, const FLevelTerrainData &TerrainData,
-    int32 Index, TArray<FVector> Acc) {
-  return Index >= Route.Num()
-             ? Acc
-             : ([&Route, &TerrainData, Index](TArray<FVector> Next) {
-                 Next.Add(LevelLayoutSlice::ToWorld(
-                     {TerrainData, Route[Index]}));
-                 return BuildWorldRouteRecursive(Route, TerrainData, Index + 1,
-                                                 MoveTemp(Next));
-               })(MoveTemp(Acc));
-}
-
 } // namespace detail
 
 inline FLevelBlockSpawn
@@ -314,10 +301,10 @@ BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
 
 inline TArray<FVector>
 BuildWorldRoute(const FLevelWorldRouteRequest &Request) {
-  TArray<FVector> Acc;
-  Acc.Reserve(Request.Route.Num());
-  return detail::BuildWorldRouteRecursive(
-      Request.Route, Request.TerrainData, 0, MoveTemp(Acc));
+  return ecs::mapArray<FLevelLocalPoint, FVector>(
+      Request.Route, [&Request](const FLevelLocalPoint &Point) {
+        return LevelLayoutSlice::ToWorld({Request.TerrainData, Point});
+      });
 }
 
 inline FLevelSystemState

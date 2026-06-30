@@ -162,9 +162,9 @@ void USpeechComponent::ApplyVisemeToMesh(const FString &VisemeName,
       TEXT("viseme_RR"),  TEXT("viseme_aa"), TEXT("viseme_E"),
       TEXT("viseme_I"),   TEXT("viseme_O"),  TEXT("viseme_U")};
 
-  for (const FString &Name : VisemeNames) {
+  ecs::forEachArray<FString>(VisemeNames, [Mesh](const FString &Name) {
     Mesh->SetMorphTarget(FName(*Name), 0.0f);
-  }
+  });
 
   Mesh->SetMorphTarget(FName(*VisemeName), Weight);
 }

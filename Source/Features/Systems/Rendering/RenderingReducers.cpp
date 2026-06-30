@@ -66,15 +66,6 @@ FLevelRetroTextureSpec ReduceTextureCatalogItem(
           FIntPoint(Settings.Size, Settings.Size)};
 }
 
-FLevelRetroTextureSpec ReduceTextureSpecAtIndex(
-    const FRenderingTextureSpecRequest &Request, int32 Index) {
-  return Index >= Request.Catalog.Num()
-             ? Request.Catalog[0]
-             : (Request.Catalog[Index].Texture == Request.Texture
-                    ? Request.Catalog[Index]
-                    : ReduceTextureSpecAtIndex(Request, Index + 1));
-}
-
 } // namespace
 
 FLevelRetroTextureApply
@@ -120,7 +111,13 @@ FLevelRetroTextureSpec
 ReduceTextureSpec(const FRenderingTextureSpecRequest &Request) {
   return Request.Catalog.IsEmpty()
              ? FLevelRetroTextureSpec()
-             : ReduceTextureSpecAtIndex(Request, 0);
+             : func::or_else(
+                   ecs::findArray<FLevelRetroTextureSpec>(
+                       Request.Catalog,
+                       [&Request](const FLevelRetroTextureSpec &Spec) {
+                         return Spec.Texture == Request.Texture;
+                       }),
+                   Request.Catalog[0]);
 }
 
 FRenderingState ReduceRenderingProfileObserved(

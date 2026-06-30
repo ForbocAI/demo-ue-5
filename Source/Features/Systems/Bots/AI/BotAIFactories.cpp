@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/AI/BotAIFactories.h"
 
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/AI/BotAIAdapters.h"
 
 namespace ForbocAI {
@@ -34,25 +35,21 @@ FBotAIComponent Component(const FBotAISource &Source) {
 
 TArray<FBotAIComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  TArray<FBotAIComponent> Components;
-  Components.Reserve(Seeds.Num());
-  for (const FTownspersonSeed &Seed : Seeds) {
-    Components.Add(Component({Seed.Id, EBotBehaviorState::Patrol, FString(),
-                              FirstRoutePoint(Seed.PatrolRoute), true, 0,
-                              Seed.PatrolRoute}));
-  }
-  return Components;
+  return ecs::mapArray<FTownspersonSeed, FBotAIComponent>(
+      Seeds, [](const FTownspersonSeed &Seed) {
+        return Component({Seed.Id, EBotBehaviorState::Patrol, FString(),
+                          FirstRoutePoint(Seed.PatrolRoute), true, 0,
+                          Seed.PatrolRoute});
+      });
 }
 
 TArray<FBotAIComponent> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  TArray<FBotAIComponent> Components;
-  Components.Reserve(Seeds.Num());
-  for (const FHorseRouteSeed &Seed : Seeds) {
-    Components.Add(Component({Seed.Id, EBotBehaviorState::Patrol, FString(),
-                              FirstRoutePoint(Seed.PatrolRoute), true, 0,
-                              Seed.PatrolRoute}));
-  }
-  return Components;
+  return ecs::mapArray<FHorseRouteSeed, FBotAIComponent>(
+      Seeds, [](const FHorseRouteSeed &Seed) {
+        return Component({Seed.Id, EBotBehaviorState::Patrol, FString(),
+                          FirstRoutePoint(Seed.PatrolRoute), true, 0,
+                          Seed.PatrolRoute});
+      });
 }
 
 } // namespace BotAIFactories

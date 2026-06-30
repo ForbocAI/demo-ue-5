@@ -8,12 +8,6 @@ namespace Level {
 namespace EntitiesAdapters {
 namespace {
 
-struct FApplyEntityProjectionPayload {
-  ecs::FWorld World;
-  TArray<ComponentsAdapters::FEcsDomainProjectionStep> Domains;
-  TArray<ComponentsAdapters::FEcsComponentProjectionStep> Components;
-};
-
 /**
  * @brief Converts landmark enum state into stable ECS text.
  * @signature FString LandmarkKindText(ELandmarkKind Kind)
@@ -126,25 +120,111 @@ FString BotAlignmentText(EBotAlignment Alignment) {
   return FString();
 }
 
-/**
- * @brief Applies entity domain and component batches to a world.
- * @signature ecs::FWorld ApplyEntityProjection(const FApplyEntityProjectionPayload &Payload)
- *
- * User Story: As entity adapters, repeated domain/component projection should
- * use neutral component primitives rather than per-entity scalar helper calls.
- */
-ecs::FWorld
-ApplyEntityProjection(const FApplyEntityProjectionPayload &Payload) {
-  return (func::pipe(Payload.World) |
-          [&Payload](ecs::FWorld Next) {
-            return ComponentsAdapters::WithDomainSteps({Next,
-                                                        Payload.Domains});
-          } |
-          [&Payload](ecs::FWorld Next) {
-            return ComponentsAdapters::WithComponentSteps(
-                {Next, Payload.Components});
-          })
-      .val;
+TArray<TArray<FString>> LandmarkDomains() {
+  return {{TEXT("Entities"), TEXT("Environments"), TEXT("Landmarks")},
+          {TEXT("Systems"), TEXT("Landmarks")}};
+}
+
+TArray<TArray<FString>> NatureDomains() {
+  return {{TEXT("Entities"), TEXT("Environments"), TEXT("Nature")},
+          {TEXT("Systems"), TEXT("Nature")}};
+}
+
+TArray<TArray<FString>> TownspersonDomains() {
+  return {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
+           TEXT("Townspeople")},
+          {TEXT("Systems"), TEXT("Bots"), TEXT("Townspeople")}};
+}
+
+TArray<TArray<FString>> HorseDomains() {
+  return {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
+           TEXT("Horses")},
+          {TEXT("Systems"), TEXT("Bots"), TEXT("Horses")}};
+}
+
+TArray<TArray<FString>> BotDomains() {
+  return {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots")},
+          {TEXT("Systems"), TEXT("Bots")}};
+}
+
+TArray<TArray<FString>> PlayerDomains() {
+  return {{TEXT("Entities"), TEXT("Characters"), TEXT("Player")}};
+}
+
+TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
+LandmarkComponents(const FLandmark &Landmark) {
+  return {{TEXT("Components/Data/Id"), ecs::textValue(Landmark.Id)},
+          {TEXT("Components/Data/Label"), ecs::textValue(Landmark.Label)},
+          {TEXT("Components/Data/Kind"),
+           ecs::textValue(LandmarkKindText(Landmark.Kind))},
+          {TEXT("Components/Spatial/Location"),
+           ecs::vec3Value(Landmark.Location)},
+          {TEXT("Components/Spatial/Scale"), ecs::vec3Value(Landmark.Scale)}};
+}
+
+TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
+NatureComponents(const FNatureFeatureSeed &Feature) {
+  return {{TEXT("Components/Data/Id"), ecs::textValue(Feature.Id)},
+          {TEXT("Components/Data/Name"), ecs::textValue(Feature.Name)},
+          {TEXT("Components/Data/Kind"),
+           ecs::textValue(NatureKindText(Feature.Kind))},
+          {TEXT("Components/Spatial/LocalLocation"),
+           ComponentsAdapters::LocalPointValue(Feature.Location)},
+          {TEXT("Components/Spatial/Scale"), ecs::vec3Value(Feature.Scale)}};
+}
+
+TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
+TownspersonComponents(const FTownspersonSeed &Townsperson) {
+  return {{TEXT("Components/Data/Id"), ecs::textValue(Townsperson.Id)},
+          {TEXT("Components/Data/Name"), ecs::textValue(Townsperson.Name)},
+          {TEXT("Components/Bots/Role"), ecs::textValue(Townsperson.Role)},
+          {TEXT("Components/Bots/Persona"),
+           ecs::textValue(Townsperson.Persona)},
+          {TEXT("Components/Bots/InteractionPrompt"),
+           ecs::textValue(Townsperson.InteractionPrompt)},
+          {TEXT("Components/Bots/DefaultPlayerLine"),
+           ecs::textValue(Townsperson.DefaultPlayerLine)},
+          {TEXT("Components/Bots/PinnedResponse"),
+           ecs::textValue(Townsperson.PinnedResponse)},
+          {TEXT("Components/Bots/InteractionIntent"),
+           ecs::textValue(
+               InteractionIntentText(Townsperson.InteractionIntent))},
+          {TEXT("Components/Spatial/PatrolRoute"),
+           ecs::listValue(
+               ComponentsAdapters::LocalPointList(Townsperson.PatrolRoute))}};
+}
+
+TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
+HorseComponents(const FHorseRouteSeed &Horse) {
+  return {{TEXT("Components/Data/Id"), ecs::textValue(Horse.Id)},
+          {TEXT("Components/Data/Name"), ecs::textValue(Horse.Name)},
+          {TEXT("Components/Bots/MountedRider"),
+           ecs::boolValue(Horse.bMountedRider)},
+          {TEXT("Components/Spatial/PatrolRoute"),
+           ecs::listValue(ComponentsAdapters::LocalPointList(Horse.PatrolRoute))}};
+}
+
+TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
+BotComponents(const FBotEntity &Bot) {
+  return {{TEXT("Components/Data/Id"), ecs::textValue(Bot.Id)},
+          {TEXT("Components/Data/DisplayName"),
+           ecs::textValue(Bot.DisplayName)},
+          {TEXT("Components/Data/Kind"), ecs::textValue(BotKindText(Bot.Kind))},
+          {TEXT("Components/Bots/Alignment"),
+           ecs::textValue(BotAlignmentText(Bot.Alignment))},
+          {TEXT("Components/Bots/Active"), ecs::boolValue(Bot.bActive)}};
+}
+
+TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
+PlayerComponents(const FPlayerState &Player) {
+  return {{TEXT("Components/Lifecycle/Ready"),
+           ecs::boolValue(Player.bReady)},
+          {TEXT("Components/Data/HasLastActionId"),
+           ecs::boolValue(Player.LastActionId.hasValue)},
+          {TEXT("Components/Data/LastActionId"),
+           ecs::textValue(Player.LastActionId.hasValue
+                              ? Player.LastActionId.value
+                              : FString())}};
 }
 
 } // namespace
@@ -164,144 +244,77 @@ ecs::EntityKey NatureEntityKey(const FString &Id) {
 }
 
 ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) {
-  const ecs::EntityKey Entity = LandmarkEntityKey(Payload.Landmark.Id);
-  TArray<ComponentsAdapters::FEcsDomainProjectionStep> Domains;
-  Domains.Add(
-      {Entity, {TEXT("Entities"), TEXT("Environments"), TEXT("Landmarks")}});
-  Domains.Add({Entity, {TEXT("Systems"), TEXT("Landmarks")}});
-
-  TArray<ComponentsAdapters::FEcsComponentProjectionStep> Components;
-  Components.Add({Entity, TEXT("Components/Data/Id"),
-                  ecs::textValue(Payload.Landmark.Id)});
-  Components.Add({Entity, TEXT("Components/Data/Label"),
-                  ecs::textValue(Payload.Landmark.Label)});
-  Components.Add({Entity, TEXT("Components/Data/Kind"),
-                  ecs::textValue(LandmarkKindText(Payload.Landmark.Kind))});
-  Components.Add({Entity, TEXT("Components/Spatial/Location"),
-                  ecs::vec3Value(Payload.Landmark.Location)});
-  Components.Add({Entity, TEXT("Components/Spatial/Scale"),
-                  ecs::vec3Value(Payload.Landmark.Scale)});
-  return ApplyEntityProjection({Payload.World, Domains, Components});
+  return ComponentsAdapters::ProjectPayloadEntityWith(
+      Payload,
+      [](const FProjectLandmarkEntityPayload &PayloadValue) {
+        return LandmarkEntityKey(PayloadValue.Landmark.Id);
+      },
+      [](const FProjectLandmarkEntityPayload &) { return LandmarkDomains(); },
+      [](const FProjectLandmarkEntityPayload &PayloadValue) {
+        return LandmarkComponents(PayloadValue.Landmark);
+      });
 }
 
 ecs::FWorld
 ProjectNatureFeature(const FProjectNatureFeatureEntityPayload &Payload) {
-  const ecs::EntityKey Entity = NatureEntityKey(Payload.Feature.Id);
-  TArray<ComponentsAdapters::FEcsDomainProjectionStep> Domains;
-  Domains.Add(
-      {Entity, {TEXT("Entities"), TEXT("Environments"), TEXT("Nature")}});
-  Domains.Add({Entity, {TEXT("Systems"), TEXT("Nature")}});
-
-  TArray<ComponentsAdapters::FEcsComponentProjectionStep> Components;
-  Components.Add({Entity, TEXT("Components/Data/Id"),
-                  ecs::textValue(Payload.Feature.Id)});
-  Components.Add({Entity, TEXT("Components/Data/Name"),
-                  ecs::textValue(Payload.Feature.Name)});
-  Components.Add({Entity, TEXT("Components/Data/Kind"),
-                  ecs::textValue(NatureKindText(Payload.Feature.Kind))});
-  Components.Add({Entity, TEXT("Components/Spatial/LocalLocation"),
-                  ComponentsAdapters::LocalPointValue(
-                      Payload.Feature.Location)});
-  Components.Add({Entity, TEXT("Components/Spatial/Scale"),
-                  ecs::vec3Value(Payload.Feature.Scale)});
-  return ApplyEntityProjection({Payload.World, Domains, Components});
+  return ComponentsAdapters::ProjectPayloadEntityWith(
+      Payload,
+      [](const FProjectNatureFeatureEntityPayload &PayloadValue) {
+        return NatureEntityKey(PayloadValue.Feature.Id);
+      },
+      [](const FProjectNatureFeatureEntityPayload &) { return NatureDomains(); },
+      [](const FProjectNatureFeatureEntityPayload &PayloadValue) {
+        return NatureComponents(PayloadValue.Feature);
+      });
 }
 
 ecs::FWorld
 ProjectTownsperson(const FProjectTownspersonEntityPayload &Payload) {
-  const ecs::EntityKey Entity = BotEntityKey(Payload.Townsperson.Id);
-  TArray<ComponentsAdapters::FEcsDomainProjectionStep> Domains;
-  Domains.Add({Entity,
-               {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
-                TEXT("Townspeople")}});
-  Domains.Add({Entity,
-               {TEXT("Systems"), TEXT("Bots"), TEXT("Townspeople")}});
-
-  TArray<ComponentsAdapters::FEcsComponentProjectionStep> Components;
-  Components.Add({Entity, TEXT("Components/Data/Id"),
-                  ecs::textValue(Payload.Townsperson.Id)});
-  Components.Add({Entity, TEXT("Components/Data/Name"),
-                  ecs::textValue(Payload.Townsperson.Name)});
-  Components.Add({Entity, TEXT("Components/Bots/Role"),
-                  ecs::textValue(Payload.Townsperson.Role)});
-  Components.Add({Entity, TEXT("Components/Bots/Persona"),
-                  ecs::textValue(Payload.Townsperson.Persona)});
-  Components.Add({Entity, TEXT("Components/Bots/InteractionPrompt"),
-                  ecs::textValue(Payload.Townsperson.InteractionPrompt)});
-  Components.Add({Entity, TEXT("Components/Bots/DefaultPlayerLine"),
-                  ecs::textValue(Payload.Townsperson.DefaultPlayerLine)});
-  Components.Add({Entity, TEXT("Components/Bots/PinnedResponse"),
-                  ecs::textValue(Payload.Townsperson.PinnedResponse)});
-  Components.Add(
-      {Entity, TEXT("Components/Bots/InteractionIntent"),
-       ecs::textValue(
-           InteractionIntentText(Payload.Townsperson.InteractionIntent))});
-  Components.Add(
-      {Entity, TEXT("Components/Spatial/PatrolRoute"),
-       ecs::listValue(
-           ComponentsAdapters::LocalPointList(Payload.Townsperson.PatrolRoute))});
-  return ApplyEntityProjection({Payload.World, Domains, Components});
+  return ComponentsAdapters::ProjectPayloadEntityWith(
+      Payload,
+      [](const FProjectTownspersonEntityPayload &PayloadValue) {
+        return BotEntityKey(PayloadValue.Townsperson.Id);
+      },
+      [](const FProjectTownspersonEntityPayload &) {
+        return TownspersonDomains();
+      },
+      [](const FProjectTownspersonEntityPayload &PayloadValue) {
+        return TownspersonComponents(PayloadValue.Townsperson);
+      });
 }
 
 ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) {
-  const ecs::EntityKey Entity = BotEntityKey(Payload.Horse.Id);
-  TArray<ComponentsAdapters::FEcsDomainProjectionStep> Domains;
-  Domains.Add({Entity,
-               {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
-                TEXT("Horses")}});
-  Domains.Add({Entity, {TEXT("Systems"), TEXT("Bots"), TEXT("Horses")}});
-
-  TArray<ComponentsAdapters::FEcsComponentProjectionStep> Components;
-  Components.Add({Entity, TEXT("Components/Data/Id"),
-                  ecs::textValue(Payload.Horse.Id)});
-  Components.Add({Entity, TEXT("Components/Data/Name"),
-                  ecs::textValue(Payload.Horse.Name)});
-  Components.Add({Entity, TEXT("Components/Bots/MountedRider"),
-                  ecs::boolValue(Payload.Horse.bMountedRider)});
-  Components.Add(
-      {Entity, TEXT("Components/Spatial/PatrolRoute"),
-       ecs::listValue(
-           ComponentsAdapters::LocalPointList(Payload.Horse.PatrolRoute))});
-  return ApplyEntityProjection({Payload.World, Domains, Components});
+  return ComponentsAdapters::ProjectPayloadEntityWith(
+      Payload,
+      [](const FProjectHorseEntityPayload &PayloadValue) {
+        return BotEntityKey(PayloadValue.Horse.Id);
+      },
+      [](const FProjectHorseEntityPayload &) { return HorseDomains(); },
+      [](const FProjectHorseEntityPayload &PayloadValue) {
+        return HorseComponents(PayloadValue.Horse);
+      });
 }
 
 ecs::FWorld ProjectBot(const FProjectBotEntityPayload &Payload) {
-  const ecs::EntityKey Entity = BotEntityKey(Payload.Bot.Id);
-  TArray<ComponentsAdapters::FEcsDomainProjectionStep> Domains;
-  Domains.Add(
-      {Entity, {TEXT("Entities"), TEXT("Characters"), TEXT("Bots")}});
-  Domains.Add({Entity, {TEXT("Systems"), TEXT("Bots")}});
-
-  TArray<ComponentsAdapters::FEcsComponentProjectionStep> Components;
-  Components.Add({Entity, TEXT("Components/Data/Id"),
-                  ecs::textValue(Payload.Bot.Id)});
-  Components.Add({Entity, TEXT("Components/Data/DisplayName"),
-                  ecs::textValue(Payload.Bot.DisplayName)});
-  Components.Add({Entity, TEXT("Components/Data/Kind"),
-                  ecs::textValue(BotKindText(Payload.Bot.Kind))});
-  Components.Add({Entity, TEXT("Components/Bots/Alignment"),
-                  ecs::textValue(BotAlignmentText(Payload.Bot.Alignment))});
-  Components.Add({Entity, TEXT("Components/Bots/Active"),
-                  ecs::boolValue(Payload.Bot.bActive)});
-  return ApplyEntityProjection({Payload.World, Domains, Components});
+  return ComponentsAdapters::ProjectPayloadEntityWith(
+      Payload,
+      [](const FProjectBotEntityPayload &PayloadValue) {
+        return BotEntityKey(PayloadValue.Bot.Id);
+      },
+      [](const FProjectBotEntityPayload &) { return BotDomains(); },
+      [](const FProjectBotEntityPayload &PayloadValue) {
+        return BotComponents(PayloadValue.Bot);
+      });
 }
 
 ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload) {
-  const ecs::EntityKey Entity = PlayerEntityKey();
-  TArray<ComponentsAdapters::FEcsDomainProjectionStep> Domains;
-  Domains.Add({Entity,
-               {TEXT("Entities"), TEXT("Characters"), TEXT("Player")}});
-
-  TArray<ComponentsAdapters::FEcsComponentProjectionStep> Components;
-  Components.Add({Entity, TEXT("Components/Lifecycle/Ready"),
-                  ecs::boolValue(Payload.Player.bReady)});
-  Components.Add({Entity, TEXT("Components/Data/HasLastActionId"),
-                  ecs::boolValue(Payload.Player.LastActionId.hasValue)});
-  Components.Add({Entity, TEXT("Components/Data/LastActionId"),
-                  ecs::textValue(Payload.Player.LastActionId.hasValue
-                                     ? Payload.Player.LastActionId.value
-                                     : FString())});
-  return ApplyEntityProjection({Payload.World, Domains, Components});
+  return ComponentsAdapters::ProjectPayloadEntityWith(
+      Payload,
+      [](const FProjectPlayerEntityPayload &) { return PlayerEntityKey(); },
+      [](const FProjectPlayerEntityPayload &) { return PlayerDomains(); },
+      [](const FProjectPlayerEntityPayload &PayloadValue) {
+        return PlayerComponents(PayloadValue.Player);
+      });
 }
 
 } // namespace EntitiesAdapters

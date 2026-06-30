@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/Position/BotPositionFactories.h"
 
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/Position/BotPositionAdapters.h"
 
 namespace ForbocAI {
@@ -32,24 +33,20 @@ FBotPositionComponent Component(const FBotPositionSource &Source) {
 
 TArray<FBotPositionComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  TArray<FBotPositionComponent> Positions;
-  Positions.Reserve(Seeds.Num());
-  for (const FTownspersonSeed &Seed : Seeds) {
-    Positions.Add(Component({Seed.Id, FirstRoutePoint(Seed.PatrolRoute),
-                             FVector::ZeroVector, false, true}));
-  }
-  return Positions;
+  return ecs::mapArray<FTownspersonSeed, FBotPositionComponent>(
+      Seeds, [](const FTownspersonSeed &Seed) {
+        return Component({Seed.Id, FirstRoutePoint(Seed.PatrolRoute),
+                          FVector::ZeroVector, false, true});
+      });
 }
 
 TArray<FBotPositionComponent>
 FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  TArray<FBotPositionComponent> Positions;
-  Positions.Reserve(Seeds.Num());
-  for (const FHorseRouteSeed &Seed : Seeds) {
-    Positions.Add(Component({Seed.Id, FirstRoutePoint(Seed.PatrolRoute),
-                             FVector::ZeroVector, false, true}));
-  }
-  return Positions;
+  return ecs::mapArray<FHorseRouteSeed, FBotPositionComponent>(
+      Seeds, [](const FHorseRouteSeed &Seed) {
+        return Component({Seed.Id, FirstRoutePoint(Seed.PatrolRoute),
+                          FVector::ZeroVector, false, true});
+      });
 }
 
 } // namespace BotPositionFactories

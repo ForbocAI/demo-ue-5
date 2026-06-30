@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/Goals/BotGoalReducers.h"
 
+#include "Core/ecs.hpp"
 #include "Features/Systems/Bots/Goals/BotGoalAdapters.h"
 #include "Features/Systems/Bots/Goals/BotGoalFactories.h"
 
@@ -47,16 +48,6 @@ TMap<FString, FBotStrategicGoal> ReduceActiveGoalByIdAppend(
     const FBotGoalComponent &Goal, TMap<FString, FBotStrategicGoal> Acc) {
   Goal.bHasActiveGoal ? (Acc.Add(Goal.Id, Goal.ActiveGoal), void()) : void();
   return Acc;
-}
-
-TMap<FString, FBotStrategicGoal> ReduceActiveGoalsByIdAtIndex(
-    const TArray<FBotGoalComponent> &Goals, int32 Index,
-    TMap<FString, FBotStrategicGoal> Acc) {
-  return Index >= Goals.Num()
-             ? Acc
-             : ReduceActiveGoalsByIdAtIndex(
-                   Goals, Index + 1,
-                   ReduceActiveGoalByIdAppend(Goals[Index], Acc));
 }
 
 FBotGoalState ReduceActiveGoalIndex(const FBotGoalState &State) {
@@ -112,7 +103,12 @@ FBotGoalState ReduceBotGoalCompleted(
 
 TMap<FString, FBotStrategicGoal> ReduceActiveGoalsById(
     const TArray<FBotGoalComponent> &Goals) {
-  return ReduceActiveGoalsByIdAtIndex(Goals, 0, {});
+  return ecs::foldArray<FBotGoalComponent, TMap<FString, FBotStrategicGoal>>(
+      TMap<FString, FBotStrategicGoal>(), Goals,
+      [](const TMap<FString, FBotStrategicGoal> &Acc,
+         const FBotGoalComponent &Goal) {
+        return ReduceActiveGoalByIdAppend(Goal, Acc);
+      });
 }
 
 FBotGoalState ReduceTownspeopleSeeded(

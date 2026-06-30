@@ -24,6 +24,14 @@
  *   flow.
  * - functional_core.hpp is used for composition, Maybe/Either, and lazy values;
  *   it must not model a replacement action, reducer, selector, or store layer.
+ * - When only nouns change, keep the nouns in catalogs and fold through one
+ *   ECS transform. Paired catalogs cover selector/projector and descriptor/run
+ *   relationships without feature-local recursive families.
+ * - Do not replace every `if` with ternary chains. Domain alternatives should
+ *   use `func::match` for Maybe/Either/result values, dispatcher or
+ *   `multi_match` case tables for enum/string routing, and ECS
+ *   map/filter/fold/find/traverse helpers for collection decisions. Explicit
+ *   guards are reserved for UE/effect boundaries.
  */
 namespace ecs {
 
@@ -52,6 +60,24 @@ inline Accumulator foldArray(
              ? Acc
              : foldArray<Item, Accumulator>(
                    Step(Acc, Items[Index]), Items, Step, Index + 1);
+}
+
+/**
+ * @brief Runs one effect for each array item through the shared fold shape.
+ * @signature template <typename Item> inline void forEachArray(const TArray<Item> &Items, std::function<void(const Item &)> Effect)
+ *
+ * User Story: As adapter code at IO boundaries, side-effect iteration should
+ * still use one neutral traversal primitive instead of local loops.
+ */
+template <typename Item>
+inline void forEachArray(const TArray<Item> &Items,
+                         std::function<void(const Item &)> Effect) {
+  foldArray<Item, int32>(
+      0, Items,
+      [Effect](const int32 &Count, const Item &ItemValue) {
+        Effect(ItemValue);
+        return Count + 1;
+      });
 }
 
 /**
@@ -99,6 +125,24 @@ template <typename Item>
 inline bool containsValue(const TArray<Item> &Values, const Item &Value) {
   return anyArray<Item>(
       Values, [&Value](const Item &Candidate) { return Candidate == Value; });
+}
+
+/**
+ * @brief Finds the first item that satisfies a predicate.
+ * @signature template <typename Item> inline func::Maybe<Item> findArray(const TArray<Item> &Items, std::function<bool(const Item &)> Predicate, int32 Index = 0)
+ *
+ * User Story: As reducers and selectors, optional array lookups should share
+ * one Maybe-producing primitive instead of local recursive scan families.
+ */
+template <typename Item>
+inline func::Maybe<Item> findArray(const TArray<Item> &Items,
+                                   std::function<bool(const Item &)> Predicate,
+                                   int32 Index = 0) {
+  return Index >= Items.Num()
+             ? func::nothing<Item>()
+             : Predicate(Items[Index])
+                   ? func::just<Item>(Items[Index])
+                   : findArray<Item>(Items, Predicate, Index + 1);
 }
 
 /**
@@ -186,6 +230,37 @@ filterMapArray(const TArray<Source> &Items,
 }
 
 /**
+ * @brief Maps a TArray through a Maybe-producing transform and fails as one unit.
+ * @signature template <typename Source, typename Output> inline func::Maybe<TArray<Output>> traverseMaybeArray(const TArray<Source> &Items, std::function<func::Maybe<Output>(const Source &)> MapValue)
+ *
+ * User Story: As data adapters, validated arrays should use one all-or-nothing
+ * traversal instead of feature-local recursive parsing families.
+ */
+template <typename Source, typename Output>
+inline func::Maybe<TArray<Output>>
+traverseMaybeArray(const TArray<Source> &Items,
+                   std::function<func::Maybe<Output>(const Source &)>
+                       MapValue) {
+  return foldArray<Source, func::Maybe<TArray<Output>>>(
+      func::just<TArray<Output>>(TArray<Output>()), Items,
+      [MapValue](const func::Maybe<TArray<Output>> &Acc,
+                 const Source &Item) {
+        return func::match(
+            Acc,
+            [&Item, MapValue](const TArray<Output> &Values) {
+              return func::match(
+                  MapValue(Item),
+                  [&Values](const Output &Value) {
+                    return func::just<TArray<Output>>(
+                        appendValue<Output>(Values, Value));
+                  },
+                  []() { return func::nothing<TArray<Output>>(); });
+            },
+            []() { return func::nothing<TArray<Output>>(); });
+      });
+}
+
+/**
  * @brief Appends every item from one array to another.
  * @signature template <typename Item> inline TArray<Item> appendValues(TArray<Item> Values, const TArray<Item> &AdditionalValues)
  *
@@ -243,6 +318,117 @@ inline TArray<int32> indexRange(int32 Count, int32 Index = 0,
   return Index >= Count
              ? Acc
              : indexRange(Count, Index + 1, appendValue<int32>(Acc, Index));
+}
+
+/**
+ * @brief Folds integer indexes from zero to Count - 1.
+ * @signature template <typename Accumulator> inline Accumulator foldIndexRange(int32 Count, Accumulator Acc, std::function<Accumulator(const Accumulator &, int32)> Step, int32 Index = 0)
+ *
+ * User Story: As grid and generated-data code, index traversal should be one
+ * ECS primitive instead of local row/column recursion or loops.
+ */
+template <typename Accumulator>
+inline Accumulator foldIndexRange(
+    int32 Count, Accumulator Acc,
+    std::function<Accumulator(const Accumulator &, int32)> Step,
+    int32 Index = 0) {
+  return Index >= Count
+             ? Acc
+             : foldIndexRange<Accumulator>(
+                   Count, Step(Acc, Index), Step, Index + 1);
+}
+
+/**
+ * @brief Maps integer indexes from zero to Count - 1.
+ * @signature template <typename Output> inline TArray<Output> mapIndexRange(int32 Count, std::function<Output(int32)> MapValue)
+ *
+ * User Story: As generated feature data, index-based outputs should use the
+ * same map shape as authored arrays.
+ */
+template <typename Output>
+inline TArray<Output> mapIndexRange(int32 Count,
+                                    std::function<Output(int32)> MapValue) {
+  return foldIndexRange<TArray<Output>>(
+      Count, TArray<Output>(),
+      [MapValue](const TArray<Output> &Acc, int32 Index) {
+        return appendValue<Output>(Acc, MapValue(Index));
+      });
+}
+
+/**
+ * @brief Maps a TArray through an indexed Maybe-producing transform.
+ * @signature template <typename Source, typename Output> inline func::Maybe<TArray<Output>> traverseMaybeArrayWithIndex(const TArray<Source> &Items, std::function<func::Maybe<Output>(const Source &, int32)> MapValue)
+ *
+ * User Story: As data adapters, indexed validation should share one traversal
+ * shape while still reporting the authored array position that failed.
+ */
+template <typename Source, typename Output>
+inline func::Maybe<TArray<Output>>
+traverseMaybeArrayWithIndex(
+    const TArray<Source> &Items,
+    std::function<func::Maybe<Output>(const Source &, int32)> MapValue) {
+  return foldIndexRange<func::Maybe<TArray<Output>>>(
+      Items.Num(), func::just<TArray<Output>>(TArray<Output>()),
+      [&Items, MapValue](const func::Maybe<TArray<Output>> &Acc,
+                         int32 Index) {
+        return func::match(
+            Acc,
+            [&Items, MapValue, Index](const TArray<Output> &Values) {
+              return func::match(
+                  MapValue(Items[Index], Index),
+                  [&Values](const Output &Value) {
+                    return func::just<TArray<Output>>(
+                        appendValue<Output>(Values, Value));
+                  },
+                  []() { return func::nothing<TArray<Output>>(); });
+            },
+            []() { return func::nothing<TArray<Output>>(); });
+      });
+}
+
+struct FGridIndex {
+  int32 Row;
+  int32 Column;
+};
+
+/**
+ * @brief Folds a two-dimensional row/column range.
+ * @signature template <typename Accumulator> inline Accumulator foldGridRange(int32 Rows, int32 Columns, Accumulator Acc, std::function<Accumulator(const Accumulator &, const FGridIndex &)> Step)
+ *
+ * User Story: As terrain and texture code, grid traversal should be one ECS
+ * primitive instead of separate row and column families per feature.
+ */
+template <typename Accumulator>
+inline Accumulator foldGridRange(
+    int32 Rows, int32 Columns, Accumulator Acc,
+    std::function<Accumulator(const Accumulator &, const FGridIndex &)> Step) {
+  return foldIndexRange<Accumulator>(
+      Rows, Acc,
+      [Columns, Step](const Accumulator &RowAcc, int32 Row) {
+        return foldIndexRange<Accumulator>(
+            Columns, RowAcc,
+            [Row, Step](const Accumulator &ColumnAcc, int32 Column) {
+              return Step(ColumnAcc, FGridIndex{Row, Column});
+            });
+      });
+}
+
+/**
+ * @brief Maps a two-dimensional row/column range.
+ * @signature template <typename Output> inline TArray<Output> mapGridRange(int32 Rows, int32 Columns, std::function<Output(const FGridIndex &)> MapValue)
+ *
+ * User Story: As generated grid features, per-cell values should use one
+ * neutral map shape across terrain, rendering, and authored data.
+ */
+template <typename Output>
+inline TArray<Output>
+mapGridRange(int32 Rows, int32 Columns,
+             std::function<Output(const FGridIndex &)> MapValue) {
+  return foldGridRange<TArray<Output>>(
+      Rows, Columns, TArray<Output>(),
+      [MapValue](const TArray<Output> &Acc, const FGridIndex &Index) {
+        return appendValue<Output>(Acc, MapValue(Index));
+      });
 }
 
 /**
@@ -348,6 +534,34 @@ inline bool mapValuesEqual(const TMap<Key, Value> &Left,
                    },
                    []() { return false; });
              });
+}
+
+/**
+ * @brief Folds a functional-core catalog through one ECS-visible primitive.
+ * @signature template <typename Catalog, typename Accumulator, typename Step> inline Accumulator foldCatalog(const Catalog &Values, Accumulator Seed, Step FoldStep)
+ *
+ * User Story: As ECS feature code, noun-changing lists should recurse through
+ * one neutral catalog fold instead of per-domain wrapper families.
+ */
+template <typename Catalog, typename Accumulator, typename Step>
+inline Accumulator foldCatalog(const Catalog &Values, Accumulator Seed,
+                               Step FoldStep) {
+  return func::fold_catalog(Values, Seed, FoldStep);
+}
+
+/**
+ * @brief Folds paired functional-core catalogs in lockstep.
+ * @signature template <typename LeftCatalog, typename RightCatalog, typename Accumulator, typename Step> inline Accumulator foldCatalogPairs(const LeftCatalog &Left, const RightCatalog &Right, Accumulator Seed, Step FoldStep)
+ *
+ * User Story: As ECS projection and system code, selector/projector or
+ * descriptor/runner pairs should be data registration plus one fold.
+ */
+template <typename LeftCatalog, typename RightCatalog, typename Accumulator,
+          typename Step>
+inline Accumulator foldCatalogPairs(const LeftCatalog &Left,
+                                    const RightCatalog &Right,
+                                    Accumulator Seed, Step FoldStep) {
+  return func::zip_catalog_fold(Left, Right, Seed, FoldStep);
 }
 
 struct FEntityId {
@@ -1226,27 +1440,22 @@ registerDomainPath(const FRegisterDomainPathRequest &Request) {
 }
 
 /**
- * @brief Recursively registers a list of domain path declarations.
+ * @brief Registers domain path declarations through the shared array fold.
  * @signature inline FDomainRegistry registerDomainPaths(FRegisterDomainPathsRequest Request)
  *
  * User Story: As a maintainer, I can extend the ECS taxonomy by appending data
- * declarations without spreading imperative registration statements through
- * the registry factory.
+ * declarations while one fold owns the traversal shape.
  */
 inline FDomainRegistry
 registerDomainPaths(FRegisterDomainPathsRequest Request) {
-  return Request.Index >= Request.Registrations.Num()
-             ? Request.Registry
-             : ([Request]() mutable {
-                 const FDomainPathRegistration Registration =
-                     Request.Registrations[Request.Index];
-                 Request.Registry =
-                     registerDomainPath({Request.Registry,
-                                         Registration.Segments,
-                                         Registration.Kind});
-                 Request.Index = Request.Index + 1;
-                 return registerDomainPaths(MoveTemp(Request));
-               })();
+  return foldArray<FDomainPathRegistration, FDomainRegistry>(
+      Request.Registry, Request.Registrations,
+      [](const FDomainRegistry &Registry,
+         const FDomainPathRegistration &Registration) {
+        return registerDomainPath(
+            {Registry, Registration.Segments, Registration.Kind});
+      },
+      Request.Index);
 }
 
 /**
@@ -1649,6 +1858,38 @@ inline FWorld projectRows(const FWorld &World, const TArray<Item> &Items,
   return foldArray<Item, FWorld>(
       World, Items, [Project](const FWorld &Acc, const Item &ItemValue) {
         return Project(Acc, ItemValue);
+      });
+}
+
+/**
+ * @brief Folds paired catalogs into a world through one projection step.
+ * @signature template <typename LeftCatalog, typename RightCatalog, typename Step> inline FWorld foldWorldCatalogPairs(const FWorld &World, const LeftCatalog &Left, const RightCatalog &Right, Step FoldStep)
+ *
+ * User Story: As RTK selector projection code, changing domain nouns should be
+ * registered as selector/projector catalogs and executed by one ECS fold.
+ */
+template <typename LeftCatalog, typename RightCatalog, typename Step>
+inline FWorld foldWorldCatalogPairs(const FWorld &World,
+                                    const LeftCatalog &Left,
+                                    const RightCatalog &Right,
+                                    Step FoldStep) {
+  return foldCatalogPairs(Left, Right, World, FoldStep);
+}
+
+/**
+ * @brief Folds a catalog of world transforms into one next world.
+ * @signature template <typename TransformCatalog> inline FWorld foldWorldTransformCatalog(const FWorld &World, const TransformCatalog &Transforms)
+ *
+ * User Story: As lifecycle ECS code, named world transforms should be
+ * registered as a catalog when only the cleanup noun changes.
+ */
+template <typename TransformCatalog>
+inline FWorld foldWorldTransformCatalog(const FWorld &World,
+                                        const TransformCatalog &Transforms) {
+  return foldCatalog(
+      Transforms, World,
+      [](const FWorld &Acc, const FWorldTransform &Transform) {
+        return Transform(Acc);
       });
 }
 
@@ -2479,12 +2720,11 @@ removeEntityRelationshipChildIndexes(const EntityKey &Entity) {
  * through one world-in/world-out request.
  */
 inline FWorld removeEntity(const FRemoveEntityRequest &Request) {
-  const FWorld World =
-      (func::pipe(Request.World) |
-       removeEntityComponentIndexes(Request.Entity) |
-       removeEntityDirectIndexes(Request.Entity) |
-       removeEntityRelationshipChildIndexes(Request.Entity))
-          .val;
+  const FWorld World = foldWorldTransformCatalog(
+      Request.World,
+      func::catalog(removeEntityComponentIndexes(Request.Entity),
+                    removeEntityDirectIndexes(Request.Entity),
+                    removeEntityRelationshipChildIndexes(Request.Entity)));
   return markDirty(createMarkDirtyRequest(World, Request.Entity));
 }
 

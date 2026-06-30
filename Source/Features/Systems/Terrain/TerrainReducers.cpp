@@ -1,5 +1,7 @@
 #include "Features/Systems/Terrain/TerrainReducers.h"
 
+#include "Core/ecs.hpp"
+
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -46,27 +48,6 @@ FTerrainMeshPayload AddTerrainVertex(const FTerrainMeshBuildContext &Context,
   return Payload;
 }
 
-FTerrainMeshPayload BuildTerrainVertexColumns(
-    const FTerrainMeshBuildContext &Context, int32 Row, int32 Column,
-    FTerrainMeshPayload Payload) {
-  return Column >= Context.GridSize
-             ? Payload
-             : BuildTerrainVertexColumns(
-                   Context, Row, Column + 1,
-                   AddTerrainVertex(Context, Row, Column, MoveTemp(Payload)));
-}
-
-FTerrainMeshPayload BuildTerrainVertexRows(
-    const FTerrainMeshBuildContext &Context, int32 Row,
-    FTerrainMeshPayload Payload) {
-  return Row >= Context.GridSize
-             ? Payload
-             : BuildTerrainVertexRows(
-                   Context, Row + 1,
-                   BuildTerrainVertexColumns(Context, Row, 0,
-                                             MoveTemp(Payload)));
-}
-
 FTerrainMeshPayload AddTerrainQuadTriangles(
     const FTerrainMeshBuildContext &Context, int32 Row, int32 Column,
     FTerrainMeshPayload Payload) {
@@ -83,28 +64,6 @@ FTerrainMeshPayload AddTerrainQuadTriangles(
   return Payload;
 }
 
-FTerrainMeshPayload BuildTerrainTriangleColumns(
-    const FTerrainMeshBuildContext &Context, int32 Row, int32 Column,
-    FTerrainMeshPayload Payload) {
-  return Column >= Context.GridSize - 1
-             ? Payload
-             : BuildTerrainTriangleColumns(
-                   Context, Row, Column + 1,
-                   AddTerrainQuadTriangles(Context, Row, Column,
-                                           MoveTemp(Payload)));
-}
-
-FTerrainMeshPayload BuildTerrainTriangleRows(
-    const FTerrainMeshBuildContext &Context, int32 Row,
-    FTerrainMeshPayload Payload) {
-  return Row >= Context.GridSize - 1
-             ? Payload
-             : BuildTerrainTriangleRows(
-                   Context, Row + 1,
-                   BuildTerrainTriangleColumns(Context, Row, 0,
-                                               MoveTemp(Payload)));
-}
-
 FTerrainMeshPayload BuildLoadedTerrainMeshPayload(
     const FLevelTerrainData &TerrainData, const FLevelOrthoData &OrthoData) {
   const int32 GridSize = TerrainData.GetGridSize();
@@ -113,9 +72,20 @@ FTerrainMeshPayload BuildLoadedTerrainMeshPayload(
       TerrainData.GetTerrainWorldSize() * 0.5f,
       TerrainData.GetTerrainWorldSize() /
           static_cast<float>(GridSize - 1)};
-  return BuildTerrainTriangleRows(
-      Context, 0,
-      BuildTerrainVertexRows(Context, 0, ReserveTerrainMeshPayload(GridSize)));
+  const FTerrainMeshPayload WithVertices =
+      ecs::foldGridRange<FTerrainMeshPayload>(
+          GridSize, GridSize, ReserveTerrainMeshPayload(GridSize),
+          [&Context](const FTerrainMeshPayload &Payload,
+                     const ecs::FGridIndex &Index) {
+            return AddTerrainVertex(Context, Index.Row, Index.Column, Payload);
+          });
+  return ecs::foldGridRange<FTerrainMeshPayload>(
+      GridSize - 1, GridSize - 1, WithVertices,
+      [&Context](const FTerrainMeshPayload &Payload,
+                 const ecs::FGridIndex &Index) {
+        return AddTerrainQuadTriangles(Context, Index.Row, Index.Column,
+                                       Payload);
+      });
 }
 
 } // namespace

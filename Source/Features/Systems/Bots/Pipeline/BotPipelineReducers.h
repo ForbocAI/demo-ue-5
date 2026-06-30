@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Bots/Core/BotCoreReducers.h"
@@ -140,34 +141,23 @@ ReduceActionList(const FBotPipelineActionListRequest &Request) {
 inline FBotPipelineLogicResult ReduceLogic(
     const FBotCoreRuntimeState &State,
     const FBotPipelineWorldSnapshot &World) {
-  TArray<rtk::AnyAction> Actions;
-  Actions.Add(BotCoreActions::BotTicked()(
-      FBotTickPayload{World.DeltaTime}));
-
-  const TArray<rtk::AnyAction> SelectedActions =
-      ReduceActionList({State, World});
-
-  const auto AppendRecursive =
-      [&Actions, &SelectedActions](int32 Index, const auto &Self) -> void {
-    return Index >= SelectedActions.Num()
-               ? void()
-               : (Actions.Add(SelectedActions[Index]),
-                  Self(Index + 1, Self));
-  };
-  AppendRecursive(0, AppendRecursive);
-
-  return FBotPipelineLogicResult{Actions};
+  return FBotPipelineLogicResult{
+      ecs::appendValues<rtk::AnyAction>(
+          ecs::appendValue<rtk::AnyAction>(
+              TArray<rtk::AnyAction>(),
+              BotCoreActions::BotTicked()(FBotTickPayload{World.DeltaTime})),
+          ReduceActionList({State, World}))};
 }
 
 inline FBotCoreRuntimeState ReduceActions(
     const FBotCoreRuntimeState &State,
-    const TArray<rtk::AnyAction> &Actions, int32 Index = 0) {
-  return Index >= Actions.Num()
-             ? State
-             : ReduceActions(
-                   BotCoreReducers::ReduceBotCoreRuntime(State,
-                                                         Actions[Index]),
-                   Actions, Index + 1);
+    const TArray<rtk::AnyAction> &Actions) {
+  return ecs::foldArray<rtk::AnyAction, FBotCoreRuntimeState>(
+      State, Actions,
+      [](const FBotCoreRuntimeState &Current,
+         const rtk::AnyAction &Action) {
+        return BotCoreReducers::ReduceBotCoreRuntime(Current, Action);
+      });
 }
 
 inline FBotPipelineOutputResult ReduceOutput(
@@ -191,13 +181,11 @@ inline FBotPipelineOutputResult ReduceIdlePipeline(
 }
 
 inline TArray<FBotPipelineOutputResult> ReduceMultiBotPipeline(
-    const TArray<FBotPipelineTickInput> &Inputs, int32 Index = 0,
-    TArray<FBotPipelineOutputResult> Acc = {}) {
-  return Index >= Inputs.Num()
-             ? Acc
-             : (Acc.Add(ReducePipeline(Inputs[Index].State,
-                                       Inputs[Index].World)),
-                ReduceMultiBotPipeline(Inputs, Index + 1, Acc));
+    const TArray<FBotPipelineTickInput> &Inputs) {
+  return ecs::mapArray<FBotPipelineTickInput, FBotPipelineOutputResult>(
+      Inputs, [](const FBotPipelineTickInput &Input) {
+        return ReducePipeline(Input.State, Input.World);
+      });
 }
 
 } // namespace BotPipelineReducers

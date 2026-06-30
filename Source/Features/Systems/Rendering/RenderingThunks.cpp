@@ -1,6 +1,7 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Core/ecs.hpp"
 #include "Engine/Texture2D.h"
 #include "Features/Systems/Rendering/RenderingActions.h"
 #include "Features/Systems/Rendering/RenderingReducers.h"
@@ -179,13 +180,10 @@ UTexture2D *CreateRetroTexture(const FLevelRetroTextureSpec &Spec) {
     return nullptr;
   }
 
-  TArray<FColor> Pixels;
-  Pixels.Reserve(Spec.Size.X * Spec.Size.Y);
-  for (int32 Y = 0; Y < Spec.Size.Y; ++Y) {
-    for (int32 X = 0; X < Spec.Size.X; ++X) {
-      Pixels.Add(PaletteColor({Spec.Texture, X, Y}));
-    }
-  }
+  const TArray<FColor> Pixels = ecs::mapGridRange<FColor>(
+      Spec.Size.Y, Spec.Size.X, [&Spec](const ecs::FGridIndex &Index) {
+        return PaletteColor({Spec.Texture, Index.Column, Index.Row});
+      });
   FMemory::Memcpy(Data, Pixels.GetData(),
                   Pixels.Num() * TextureChannels * sizeof(uint8));
   Mip.BulkData.Unlock();

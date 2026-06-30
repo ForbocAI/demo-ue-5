@@ -81,6 +81,11 @@ struct FEcsComponentProjectionStep {
   ecs::FComponentValue Value;
 };
 
+struct FEcsComponentProjectionBinding {
+  ecs::ComponentType Type;
+  ecs::FComponentValue Value;
+};
+
 struct FEcsDomainStepsProjectionPayload {
   ecs::FWorld World;
   TArray<FEcsDomainProjectionStep> Steps;
@@ -91,7 +96,35 @@ struct FEcsComponentStepsProjectionPayload {
   TArray<FEcsComponentProjectionStep> Steps;
 };
 
+struct FEcsProjectionStepsPayload {
+  ecs::FWorld World;
+  TArray<FEcsDomainProjectionStep> Domains;
+  TArray<FEcsComponentProjectionStep> Components;
+};
+
+struct FEcsEntityProjectionPayload {
+  ecs::FWorld World;
+  ecs::EntityKey Entity;
+  TArray<TArray<FString>> Domains;
+  TArray<FEcsComponentProjectionBinding> Components;
+};
+
 ecs::DomainPathKey DomainKey(const TArray<FString> &Segments);
+
+FEcsDomainProjectionStep DomainStep(const ecs::EntityKey &Entity,
+                                    const TArray<FString> &Segments);
+TArray<FEcsDomainProjectionStep>
+DomainSteps(const ecs::EntityKey &Entity,
+            const TArray<TArray<FString>> &SegmentGroups);
+FEcsComponentProjectionBinding
+ComponentBinding(const ecs::ComponentType &Type,
+                 const ecs::FComponentValue &Value);
+FEcsComponentProjectionStep ComponentStep(const ecs::EntityKey &Entity,
+                                          const ecs::ComponentType &Type,
+                                          const ecs::FComponentValue &Value);
+TArray<FEcsComponentProjectionStep>
+ComponentSteps(const ecs::EntityKey &Entity,
+               const TArray<FEcsComponentProjectionBinding> &Bindings);
 
 ecs::FWorld WithDomain(const FEcsDomainProjectionRequest &Request);
 ecs::FWorld WithComponent(const FEcsComponentProjectionRequest &Request);
@@ -105,6 +138,21 @@ ecs::FWorld WithResource(const FEcsResourceProjectionRequest &Request);
 ecs::FWorld WithDomainSteps(const FEcsDomainStepsProjectionPayload &Payload);
 ecs::FWorld
 WithComponentSteps(const FEcsComponentStepsProjectionPayload &Payload);
+ecs::FWorld ApplyProjectionSteps(const FEcsProjectionStepsPayload &Payload);
+ecs::FWorld ProjectEntity(const FEcsEntityProjectionPayload &Payload);
+
+template <typename Payload, typename SelectEntity, typename SelectDomains,
+          typename SelectComponents>
+ecs::FWorld
+ProjectPayloadEntityWith(const Payload &PayloadValue,
+                         SelectEntity SelectEntityValue,
+                         SelectDomains SelectDomainValues,
+                         SelectComponents SelectComponentValues) {
+  const ecs::EntityKey Entity = SelectEntityValue(PayloadValue);
+  return ProjectEntity({PayloadValue.World, Entity,
+                        SelectDomainValues(PayloadValue),
+                        SelectComponentValues(PayloadValue)});
+}
 
 ecs::FComponentValue LocalPointValue(const FLevelLocalPoint &Point);
 ecs::FComponentValue RotationValue(const FRotator &Rotation);
