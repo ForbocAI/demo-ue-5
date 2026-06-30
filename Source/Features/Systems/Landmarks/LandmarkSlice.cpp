@@ -12,6 +12,7 @@ namespace LandmarkSlice {
 const rtk::Slice<FLandmarkState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FLandmarkState>> Slice =
       func::lazy([]() -> rtk::Slice<FLandmarkState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FLandmarkState>(
           TEXT("landmarks"), LandmarkFactories::CreateInitialState(),
           [](rtk::ActionReducerMapBuilder<FLandmarkState> &Builder) {

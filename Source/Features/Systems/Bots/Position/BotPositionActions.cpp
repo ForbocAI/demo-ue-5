@@ -9,6 +9,7 @@ const rtk::ActionCreator<TArray<FBotPositionComponent>> &
 BotPositionsSeeded() {
   static const func::Lazy<rtk::ActionCreator<TArray<FBotPositionComponent>>> Creator =
       func::lazy([]() -> rtk::ActionCreator<TArray<FBotPositionComponent>> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<TArray<FBotPositionComponent>>(
           TEXT("botPosition/seeded"));
       });
@@ -18,6 +19,7 @@ BotPositionsSeeded() {
 const rtk::ActionCreator<FBotPositionComponent> &BotPositionUpserted() {
   static const func::Lazy<rtk::ActionCreator<FBotPositionComponent>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotPositionComponent> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FBotPositionComponent>(
             TEXT("botPosition/upserted"));
       });
@@ -27,6 +29,7 @@ const rtk::ActionCreator<FBotPositionComponent> &BotPositionUpserted() {
 const rtk::ActionCreator<FBotPositionMoved> &BotPositionMoved() {
   static const func::Lazy<rtk::ActionCreator<FBotPositionMoved>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotPositionMoved> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FBotPositionMoved>(TEXT("botPosition/moved"));
       });
   return func::eval(Creator);
@@ -38,6 +41,7 @@ InitialPatrolObserved() {
       Creator =
           func::lazy(
               []() -> rtk::ActionCreator<FBotInitialPatrolLocationRequest> {
+                // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
                 return rtk::createAction<FBotInitialPatrolLocationRequest>(
                     TEXT("botPosition/initialPatrolObserved"));
               });
@@ -49,6 +53,7 @@ PatrolAdvanceObserved() {
   static const func::Lazy<rtk::ActionCreator<FBotPatrolAdvanceRequest>>
       Creator =
           func::lazy([]() -> rtk::ActionCreator<FBotPatrolAdvanceRequest> {
+            // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FBotPatrolAdvanceRequest>(
                 TEXT("botPosition/patrolAdvanceObserved"));
           });

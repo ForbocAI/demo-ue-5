@@ -17,6 +17,7 @@ struct FSpeechState {
   func::Maybe<FString> LastSpokenText = func::nothing<FString>();
   TArray<FPhonemeEvent> ActivePhonemes;
   FVisemeMapping CurrentViseme;
+  ForbocAI::Demo::Data::FSpeechRuntimeSettings RuntimeSettings;
   bool bSpeaking = false;
 };
 
@@ -30,6 +31,7 @@ inline bool operator==(const FSpeechState &Left,
           Left.LastSpokenText.value == Right.LastSpokenText.value) &&
          Left.ActivePhonemes == Right.ActivePhonemes &&
          Left.CurrentViseme == Right.CurrentViseme &&
+         Left.RuntimeSettings == Right.RuntimeSettings &&
          Left.bSpeaking == Right.bSpeaking;
 }
 

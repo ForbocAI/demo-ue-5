@@ -19,7 +19,8 @@ inline FBotCoreRuntimeState ReduceBotTicked(
             Next.TickCount++;
             Next.Memory.TimeSinceLastSeenPlayer += Action.PayloadValue.DeltaTime;
             Next.Memory.bHasAggro =
-                Next.Memory.TimeSinceLastSeenPlayer > 10.0f
+                Next.Memory.TimeSinceLastSeenPlayer >
+                        Next.RuntimeSettings.AggroTimeoutSeconds
                     ? false
                     : Next.Memory.bHasAggro;
             return Next;
@@ -44,11 +45,14 @@ inline FBotCoreRuntimeState ReduceBotDamageTaken(
   return (func::pipe(State) |
           [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.Stats.Health =
-                FMath::Max(0.0f,
+                FMath::Max(Next.RuntimeSettings.MinimumHealth,
                            Next.Stats.Health - Action.PayloadValue.Amount);
-            Next.Phase = Next.Stats.Health < Next.Stats.MaxHealth * 0.3f
-                             ? EBotCorePhase::Flee
-                             : EBotCorePhase::Combat;
+            Next.Phase =
+                Next.Stats.Health <
+                        Next.Stats.MaxHealth *
+                            Next.RuntimeSettings.DamageFleeHealthRatio
+                    ? EBotCorePhase::Flee
+                    : EBotCorePhase::Combat;
             return Next;
           })
       .val;
@@ -60,7 +64,8 @@ inline FBotCoreRuntimeState ReduceBotEnemySpotted(
   return (func::pipe(State) |
           [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.Memory.LastKnownPlayerPos = Action.PayloadValue.EnemyLocation;
-            Next.Memory.TimeSinceLastSeenPlayer = 0.0f;
+            Next.Memory.TimeSinceLastSeenPlayer =
+                Next.RuntimeSettings.EnemySpottedTimeSinceLastSeenPlayer;
             Next.Memory.bHasAggro = true;
             Next.Phase = Next.Phase != EBotCorePhase::Flee
                              ? EBotCorePhase::Combat
@@ -93,7 +98,7 @@ inline const rtk::CaseReducer<FBotCoreRuntimeState> &BotReducer() {
   static const func::Lazy<rtk::CaseReducer<FBotCoreRuntimeState>> Reducer =
       func::lazy([]() -> rtk::CaseReducer<FBotCoreRuntimeState> {
         return rtk::createReducer<FBotCoreRuntimeState>(
-            CreateBotCoreRuntimeInitialState(TEXT("Bot")),
+            FBotCoreRuntimeState{},
             [](rtk::ActionReducerMapBuilder<FBotCoreRuntimeState> &Builder) {
               Builder.addCase(BotCoreActions::BotTicked(), ReduceBotTicked)
                   .addCase(BotCoreActions::BotMoved(), ReduceBotMoved)

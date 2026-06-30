@@ -7,8 +7,6 @@
 #include "Features/Entities/Environments/Nature/NatureSeedAdapters.h"
 #include "Features/Systems/Bots/Horses/HorseActions.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
-#include "Features/Systems/Dialogue/DialogueReducers.h"
-#include "Features/Systems/Dialogue/DialogueThunks.h"
 #include "Features/Systems/Landmarks/LandmarkActions.h"
 #include "Features/Systems/Level/LevelAdapters.h"
 #include "Features/Systems/Nature/NatureActions.h"
@@ -19,7 +17,6 @@
 #include "Features/Systems/Spawn/SpawnFactories.h"
 #include "Features/Systems/Terrain/TerrainActions.h"
 #include "Features/Systems/Terrain/TerrainFactories.h"
-#include "Features/Systems/UI/UIActions.h"
 
 namespace ForbocAI {
 namespace Demo {
@@ -75,11 +72,6 @@ void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
   Request.Dispatch(NatureActions::NatureSeeded()(
       NatureAdapters::BuildNatureSeed(
           {Request.DataSources.NatureJsonPath, Request.Geometry})));
-}
-
-FDialogueReplyPayload ReduceLocalDialogueReplyPayload(
-    const FLocalDialogueReplyRequest &Request) {
-  return DialogueReducers::ReduceLocalReplyPayload(Request);
 }
 
 } // namespace
@@ -140,57 +132,6 @@ RequestLevelViewPayload() {
           Resolve(RuntimeReducers::ReduceLevelViewPayload(
               GetState(), {&TerrainData, &OrthoData, &RuntimeLayout,
                            &Geometry}));
-        });
-  };
-}
-
-rtk::ThunkAction<FDialogueReplyPayload, FRuntimeState>
-RequestLocalDialogueReply(const FLocalDialogueReplyRequest &Request) {
-  return [Request](std::function<rtk::AnyAction(const rtk::AnyAction &)>
-                       Dispatch,
-                   std::function<FRuntimeState()> GetState)
-             -> func::AsyncResult<FDialogueReplyPayload> {
-    (void)GetState;
-    return func::createAsyncResult<FDialogueReplyPayload>(
-        [Dispatch, Request](
-            std::function<void(FDialogueReplyPayload)> Resolve,
-            std::function<void(std::string)> Reject) {
-          (void)Reject;
-          Dispatch(DialogueThunks::RequestLocalReply().pending(Request));
-          const FDialogueReplyPayload Payload =
-              ReduceLocalDialogueReplyPayload(Request);
-          Dispatch(DialogueThunks::RequestLocalReply().fulfilled(Payload));
-          Resolve(Payload);
-        });
-  };
-}
-
-rtk::ThunkAction<FRuntimeTownspersonInteractionPayload, FRuntimeState>
-RequestTownspersonInteraction(
-    const FRuntimeTownspersonInteractionRequest &Request) {
-  return [Request](std::function<rtk::AnyAction(const rtk::AnyAction &)>
-                       Dispatch,
-                   std::function<FRuntimeState()> GetState)
-             -> func::AsyncResult<FRuntimeTownspersonInteractionPayload> {
-    (void)GetState;
-    return func::createAsyncResult<FRuntimeTownspersonInteractionPayload>(
-        [Dispatch, Request](
-            std::function<void(FRuntimeTownspersonInteractionPayload)> Resolve,
-            std::function<void(std::string)> Reject) {
-          (void)Reject;
-          const FLocalDialogueReplyRequest DialogueRequest =
-              RuntimeReducers::ReduceLocalDialogueReplyRequest(Request);
-          Dispatch(
-              DialogueThunks::RequestLocalReply().pending(DialogueRequest));
-          const FDialogueReplyPayload DialogueReply =
-              ReduceLocalDialogueReplyPayload(DialogueRequest);
-          Dispatch(DialogueThunks::RequestLocalReply().fulfilled(
-              DialogueReply));
-          const FRuntimeTownspersonInteractionPayload Payload =
-              RuntimeReducers::ReduceTownspersonInteractionPayload(
-                  DialogueReply);
-          Dispatch(UIActions::ConversationPresented()(Payload.UI));
-          Resolve(Payload);
         });
   };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Data/DataTypes.h"
 #include "Types/SlateEnums.h"
 
 namespace ForbocAI {
@@ -137,6 +138,7 @@ struct FUIPayload {
  */
 struct FUIState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
+  ForbocAI::Demo::Data::FUIRuntimeSettings RuntimeSettings;
   ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation;
   TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Messages;
   bool bConversationVisible = false;
@@ -167,6 +169,7 @@ inline bool operator==(const FUIState &Left,
   return Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
          (!Left.LastActionId.hasValue ||
           Left.LastActionId.value == Right.LastActionId.value) &&
+         Left.RuntimeSettings == Right.RuntimeSettings &&
          Left.Conversation == Right.Conversation &&
          Left.Messages == Right.Messages &&
          Left.bConversationVisible == Right.bConversationVisible;

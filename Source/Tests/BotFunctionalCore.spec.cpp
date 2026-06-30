@@ -1,4 +1,5 @@
 #include "Misc/AutomationTest.h"
+#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Systems/Bots/Core/BotCoreRuntimeTypes.h"
 #include "Features/Systems/Bots/Core/BotCoreActions.h"
 #include "Features/Systems/Bots/Core/BotCoreReducers.h"
@@ -6,11 +7,17 @@
 using namespace ForbocAI::Demo::Level;
 
 namespace {
+const ForbocAI::Demo::Data::FBotRuntimeSettings &BotRuntimeSettings() {
+  static const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
+      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
+  return Settings.BotRuntime;
+}
+
 rtk::EnhancedStore<FBotCoreRuntimeState> ConfigureStore(
     const FString &BotName) {
   return rtk::configureStore<FBotCoreRuntimeState>(
       BotCoreReducers::BotReducer(),
-      CreateBotCoreRuntimeInitialState(BotName));
+      CreateBotCoreRuntimeInitialState({BotName, BotRuntimeSettings()}));
 }
 } // namespace
 
@@ -26,7 +33,7 @@ void FBotFunctionalCoreSpec::Define()
             FBotCoreRuntimeState State = Store.getState();
 
             TestEqual("Name", State.Name, TEXT("TestBot"));
-            TestTrue("Health", FMath::IsNearlyEqual(State.Stats.Health, 100.0f));
+            TestTrue("Health", FMath::IsNearlyEqual(State.Stats.Health, BotRuntimeSettings().InitialHealth));
             TestTrue("Phase", State.Phase == EBotCorePhase::Idle);
             TestTrue("ID is valid", State.Id.IsValid());
         });

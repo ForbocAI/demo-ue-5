@@ -240,7 +240,7 @@ MapJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values,
       Values, [MapValue](const TSharedPtr<FJsonValue> &Value) {
         const TSharedPtr<FJsonObject> Object =
             Value.IsValid() ? Value->AsObject() : TSharedPtr<FJsonObject>();
-        checkf(Object.IsValid(), TEXT("Required JSON array object missing"));
+        check(Object.IsValid());
         return MapValue(Object);
       });
 }

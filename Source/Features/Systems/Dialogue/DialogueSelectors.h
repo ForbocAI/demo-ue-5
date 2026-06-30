@@ -34,13 +34,6 @@ inline func::Maybe<FString> SelectLastReply(const FDialogueState &State) {
   return State.LastReply;
 }
 
-/**
- * @brief Selector for the async-thunk pending flag.
- */
-inline bool SelectPending(const FDialogueState &State) {
-  return State.bPending;
-}
-
 } // namespace DialogueSelectors
 } // namespace Level
 } // namespace Demo

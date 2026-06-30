@@ -1,0 +1,32 @@
+{
+  "player_presentation": {
+    "capsule_radius": 42.0,
+    "capsule_half_height": 96.0,
+    "follow_camera_arm_length": 400.0,
+    "rotation_rate_yaw": 500.0,
+    "jump_z_velocity": 500.0,
+    "air_control": 0.35,
+    "max_walk_speed": 500.0,
+    "min_analog_walk_speed": 20.0,
+    "braking_deceleration_walking": 2000.0,
+    "braking_deceleration_falling": 1500.0,
+    "mesh_relative_location": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": -96.0
+    },
+    "mesh_relative_rotation": {
+      "pitch": 0.0,
+      "yaw": -90.0,
+      "roll": 0.0
+    },
+    "mesh_path": "/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple",
+    "animation_blueprint_class_path": "/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C",
+    "move_action_path": "/Game/Input/Actions/IA_Move.IA_Move",
+    "look_action_path": "/Game/Input/Actions/IA_Look.IA_Look",
+    "mouse_look_action_path": "/Game/Input/Actions/IA_MouseLook.IA_MouseLook",
+    "jump_action_path": "/Game/Input/Actions/IA_Jump.IA_Jump",
+    "default_mapping_context_path": "/Game/Input/IMC_Default.IMC_Default",
+    "mouse_mapping_context_path": "/Game/Input/IMC_MouseLook.IMC_MouseLook"
+  }
+}

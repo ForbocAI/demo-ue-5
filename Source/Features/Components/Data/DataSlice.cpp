@@ -14,6 +14,7 @@ FDataState CreateInitialState() { return FDataState{}; }
 const rtk::Slice<FDataState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FDataState>> Slice =
       func::lazy([]() -> rtk::Slice<FDataState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FDataState>(
             TEXT("data"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FDataState> &Builder) {

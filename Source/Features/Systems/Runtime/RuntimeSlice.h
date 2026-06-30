@@ -25,19 +25,6 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn();
 rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
 RequestLevelViewPayload();
 
-/**
- * @brief Public thunk re-export for deterministic local dialogue replies.
- */
-rtk::ThunkAction<FDialogueReplyPayload, FRuntimeState>
-RequestLocalDialogueReply(const FLocalDialogueReplyRequest &Request);
-
-/**
- * @brief Public thunk re-export for the townsperson interaction workflow.
- */
-rtk::ThunkAction<FRuntimeTownspersonInteractionPayload, FRuntimeState>
-RequestTownspersonInteraction(
-    const FRuntimeTownspersonInteractionRequest &Request);
-
 } // namespace RuntimeSlice
 } // namespace Level
 } // namespace Demo

@@ -10,26 +10,6 @@ namespace Data {
 namespace JsonValueAdapters {
 
 /**
- * @brief Logs one invalid required JSON field.
- *
- * @signature void LogInvalidField(const FJsonFieldRequest &Request)
- *
- * User story: As a feature adapter author, I can share required-field logging
- * without importing helpers from a sibling feature domain.
- */
-void LogInvalidField(const FJsonFieldRequest &Request);
-
-/**
- * @brief Logs one invalid JSON array object value.
- *
- * @signature void LogInvalidArrayValue(const FJsonArrayValueObjectRequest &Request)
- *
- * User story: As a data author, invalid authored array entries report the
- * field and index from the neutral data layer before reducers receive payloads.
- */
-void LogInvalidArrayValue(const FJsonArrayValueObjectRequest &Request);
-
-/**
  * @brief Reads a required string field as a Maybe value.
  *
  * @signature func::Maybe<FString> ReadRequiredString(const FJsonFieldRequest &Request)

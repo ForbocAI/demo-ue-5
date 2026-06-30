@@ -7,8 +7,6 @@
  * open.
  */
 
-#if WITH_FORBOC_AI_SDK_DEMO && __has_include("TestGame/TestGameContract.h") && __has_include("TestGame/TestGameTypes.h")
-
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
 #include "TestGame/TestGameContract.h"
@@ -25,5 +23,3 @@ bool FContractParityHeadersPresent::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Contract scenario headers are available"), Steps.Num() > 0);
   return true;
 }
-
-#endif

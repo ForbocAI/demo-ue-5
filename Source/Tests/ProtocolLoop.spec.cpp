@@ -13,8 +13,6 @@
  * verdict, memory store delta, and state delta in a single response.
  */
 
-#if WITH_FORBOC_AI_SDK_DEMO
-
 #include "NPC/NPCModule.h"
 #include "Bridge/BridgeModule.h"
 #include "Misc/AutomationTest.h"
@@ -123,5 +121,3 @@ void FProtocolLoopSpec::Define() {
     });
   });
 }
-
-#endif

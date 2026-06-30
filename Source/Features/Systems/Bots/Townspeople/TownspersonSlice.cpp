@@ -12,6 +12,7 @@ namespace TownspersonSlice {
 const rtk::Slice<FTownspersonState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FTownspersonState>> Slice =
       func::lazy([]() -> rtk::Slice<FTownspersonState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FTownspersonState>(
           TEXT("townspeople"), TownspersonFactories::CreateInitialState(),
           [](rtk::ActionReducerMapBuilder<FTownspersonState> &Builder) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/ecs.hpp"
+#include "Core/functional_core.hpp"
 #include "Core/rtk.hpp"
 #include "Features/Systems/UI/UITypes.h"
 
@@ -10,49 +10,64 @@ namespace Level {
 namespace UIReducers {
 namespace detail {
 
-constexpr float PanelPadding = 16.0f;
-constexpr float TitleSize = 22.0f;
-constexpr float BodySize = 18.0f;
+struct FUIRuntimeConversationText {
+  FString Title;
+  FString PlayerLine;
+  FString NpcReply;
+};
 
-inline FLinearColor ReducePanelColor() {
-  return FLinearColor(0.02f, 0.02f, 0.025f, 0.78f);
-}
-
-inline FLinearColor ReducePlayerColor() {
-  return FLinearColor(0.0f, 0.85f, 0.95f);
-}
-
-inline FLinearColor ReduceSystemColor() {
-  return FLinearColor(0.5f, 0.5f, 0.5f);
-}
-
-inline FLinearColor ReduceNpcColor() {
-  return FLinearColor(1.0f, 0.75f, 0.2f);
-}
-
-inline FLinearColor ReduceRuntimeReplyColor() {
-  return FLinearColor(1.0f, 0.72f, 0.25f);
-}
-
-inline FLinearColor ReduceChatColorForRole(const FString &Role) {
-  return Role == TEXT("Player") ? ReducePlayerColor()
-                                : Role == TEXT("System") ? ReduceSystemColor()
-                                                         : ReduceNpcColor();
+inline FLinearColor ReduceChatColorForRole(
+    const FString &Role,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+  const func::Maybe<FLinearColor> Color =
+      func::multi_match<FString, FLinearColor>(
+          Role,
+          {
+              func::when<FString, FLinearColor>(
+                  func::equals<FString>(Settings.PlayerRoleLabel),
+                  [&Settings](const FString &) {
+                    return Settings.PlayerColor;
+                  }),
+              func::when<FString, FLinearColor>(
+                  func::equals<FString>(Settings.SystemRoleLabel),
+                  [&Settings](const FString &) {
+                    return Settings.SystemColor;
+                  }),
+              func::when<FString, FLinearColor>(
+                  func::equals<FString>(Settings.NpcRoleLabel),
+                  [&Settings](const FString &) { return Settings.NpcColor; }),
+              func::when<FString, FLinearColor>(
+                  func::equals<FString>(Settings.UnknownRoleLabel),
+                  [&Settings](const FString &) {
+                    return Settings.UnknownColor;
+                  }),
+          });
+  check(Color.hasValue);
+  return Color.value;
 }
 
 inline ForbocAI::Demo::UI::FChatMessageViewModel
-ReduceChatMessageViewModel(const FUIChatMessageViewModelRequest &Request) {
-  return {FString::Printf(TEXT("[%s] %s"), *Request.Role, *Request.Text),
-          ReduceChatColorForRole(Request.Role)};
+ReduceChatMessageViewModel(
+    const FUIChatMessageViewModelRequest &Request,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+  return {FString::Printf(*Settings.ChatMessageFormat, *Request.Role,
+                          *Request.Text),
+          ReduceChatColorForRole(Request.Role, Settings)};
 }
 
 inline ForbocAI::Demo::UI::FChatMessageViewModel
-ReduceHistoryEntryViewModel(const FString &Entry) {
-  int32 ColonIdx = INDEX_NONE;
-  return Entry.FindChar(TEXT(':'), ColonIdx) && ColonIdx > 0
+ReduceHistoryEntryViewModel(
+    const FString &Entry,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+  const int32 SeparatorIndex = Entry.Find(Settings.HistoryRoleSeparator);
+  return SeparatorIndex > Settings.HistoryMinimumRoleIndex
              ? ReduceChatMessageViewModel(
-                   {Entry.Left(ColonIdx), Entry.Mid(ColonIdx + 2)})
-             : ReduceChatMessageViewModel({TEXT("Unknown"), Entry});
+                   {Entry.Left(SeparatorIndex),
+                    Entry.Mid(SeparatorIndex +
+                              Settings.HistoryTextStartOffset)},
+                   Settings)
+             : ReduceChatMessageViewModel({Settings.UnknownRoleLabel, Entry},
+                                          Settings);
 }
 
 inline FString ReduceSubmittedChatText(const FText &Text) {
@@ -60,19 +75,19 @@ inline FString ReduceSubmittedChatText(const FText &Text) {
 }
 
 inline ForbocAI::Demo::UI::FRuntimeConversationViewModel
-ReduceRuntimeConversationViewModel(const FString &Title,
-                                   const FString &PlayerLine,
-                                   const FString &NpcReply) {
-  return {Title,
-          PlayerLine,
-          NpcReply,
-          ReducePanelColor(),
-          FLinearColor::Yellow,
-          ReducePlayerColor(),
-          ReduceRuntimeReplyColor(),
-          PanelPadding,
-          TitleSize,
-          BodySize};
+ReduceRuntimeConversationViewModel(
+    const FUIRuntimeConversationText &Text,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+  return {Text.Title,
+          Text.PlayerLine,
+          Text.NpcReply,
+          Settings.PanelColor,
+          Settings.TitleColor,
+          Settings.PlayerColor,
+          Settings.RuntimeReplyColor,
+          Settings.PanelPadding,
+          Settings.TitleSize,
+          Settings.BodySize};
 }
 
 } // namespace detail
@@ -120,18 +135,28 @@ inline FUIState ReduceChatHistoryRendered(
  * @brief Pure reducer helper for turning role/text into one view model.
  */
 inline ForbocAI::Demo::UI::FChatMessageViewModel ReduceChatMessageViewModel(
-    const FUIChatMessageViewModelRequest &Request) {
-  return detail::ReduceChatMessageViewModel(Request);
+    const FUIChatMessageViewModelRequest &Request,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+  return detail::ReduceChatMessageViewModel(Request, Settings);
 }
 
 /**
  * @brief Pure reducer helper for converting history entries into view models.
  */
 inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel>
-ReduceChatHistoryViewModels(const FUIChatHistoryViewModelsRequest &Request) {
-  return ecs::mapArray<FString,
-                       ForbocAI::Demo::UI::FChatMessageViewModel>(
-      Request.History, detail::ReduceHistoryEntryViewModel);
+ReduceChatHistoryViewModels(
+    const FUIChatHistoryViewModelsRequest &Request,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+  return func::fold_indexed(
+      Request.History, static_cast<size_t>(Request.History.Num()),
+      TArray<ForbocAI::Demo::UI::FChatMessageViewModel>(),
+      [&Settings](
+          const TArray<ForbocAI::Demo::UI::FChatMessageViewModel> &Acc,
+          const FString &Entry) {
+        TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Next = Acc;
+        Next.Add(detail::ReduceHistoryEntryViewModel(Entry, Settings));
+        return Next;
+      });
 }
 
 /**
@@ -147,10 +172,12 @@ inline FString ReduceNormalizedSubmittedChatText(
  * model.
  */
 inline ForbocAI::Demo::UI::FRuntimeConversationViewModel
-ReduceRuntimeConversationPlaceholder() {
+ReduceRuntimeConversationPlaceholder(
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
   return detail::ReduceRuntimeConversationViewModel(
-      TEXT("French Gulch Conversation"), TEXT("Player: ..."),
-      TEXT("NPC: ..."));
+      {Settings.PlaceholderTitle, Settings.PlaceholderPlayerLine,
+       Settings.PlaceholderNpcReply},
+      Settings);
 }
 
 /**
@@ -158,46 +185,55 @@ ReduceRuntimeConversationPlaceholder() {
  */
 inline ForbocAI::Demo::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationViewModel(
-    const FUIRuntimeConversationViewModelRequest &Request) {
+    const FUIRuntimeConversationViewModelRequest &Request,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
   return detail::ReduceRuntimeConversationViewModel(
-      FString::Printf(TEXT("%s - %s"), *Request.NpcName, *Request.Role),
-      FString::Printf(TEXT("Player: %s"), *Request.PlayerLine),
-      FString::Printf(TEXT("NPC: %s"), *Request.NpcReply));
+      {FString::Printf(*Settings.ConversationTitleFormat, *Request.NpcName,
+                       *Request.Role),
+       FString::Printf(*Settings.PlayerLineFormat, *Request.PlayerLine),
+       FString::Printf(*Settings.NpcReplyFormat, *Request.NpcReply)},
+      Settings);
 }
 
 inline FUIBindDialogueViewModel ReduceBindDialogueViewModel(
-    const FUIBindDialogueViewModelRequest &Request) {
+    const FUIBindDialogueViewModelRequest &Request,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
   FUIBindDialogueViewModel Model;
   Model.bBound = Request.bBound;
   Model.Persona = Request.Persona;
   Model.ConnectionMessage = ReduceChatMessageViewModel(
-      {TEXT("System"),
-       FString::Printf(TEXT("Connected to %s"), *Request.Persona)});
-  Model.HistoryMessages = ReduceChatHistoryViewModels({Request.History});
+      {Settings.SystemRoleLabel,
+       FString::Printf(*Settings.ConnectionMessageFormat, *Request.Persona)},
+      Settings);
+  Model.HistoryMessages = ReduceChatHistoryViewModels({Request.History},
+                                                      Settings);
   return Model;
 }
 
 inline FUIChatInputViewModel ReduceChatInputViewModel(
-    const FUIChatInputViewModelRequest &Request) {
+    const FUIChatInputViewModelRequest &Request,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
   const FString InputText = ReduceNormalizedSubmittedChatText(Request);
   FUIChatInputViewModel Model;
   Model.bShouldSend =
       Request.CommitMethod == ETextCommit::OnEnter && !InputText.IsEmpty();
   Model.InputText = InputText;
   Model.PlayerMessage =
-      ReduceChatMessageViewModel({TEXT("Player"), InputText});
+      ReduceChatMessageViewModel({Settings.PlayerRoleLabel, InputText},
+                                 Settings);
   Model.ErrorMessage =
-      ReduceChatMessageViewModel({TEXT("System"),
-                                  TEXT("Error: No dialogue component bound")});
+      ReduceChatMessageViewModel({Settings.SystemRoleLabel,
+                                  Settings.UnboundDialogueError},
+                                 Settings);
   return Model;
 }
 
 inline FUIDialogueResponseViewModel ReduceDialogueResponseViewModel(
-    const FUIDialogueResponseViewModelRequest &Request) {
+    const FUIDialogueResponseViewModelRequest &Request,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
   FUIDialogueResponseViewModel Model;
   Model.Message = ReduceChatMessageViewModel(
-      {Request.bBound ? Request.Persona : FString(TEXT("NPC")),
-       Request.NPCText});
+      {Settings.NpcRoleLabel, Request.NPCText}, Settings);
   return Model;
 }
 

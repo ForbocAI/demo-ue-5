@@ -26,6 +26,8 @@ ARuntimeLevelView::ARuntimeLevelView()
   BlockBaseMaterial =
       FG::RenderingSlice::LoadBlockoutMaterial(AssetPaths.BlockoutMaterialPath);
   TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(State);
+  RenderingRuntimeSettings =
+      FG::RuntimeSelectors::SelectRenderingRuntimeSettings(State);
 }
 
 void ARuntimeLevelView::BeginPlay() {
@@ -36,6 +38,8 @@ void ARuntimeLevelView::BeginPlay() {
 void ARuntimeLevelView::RenderLevel() {
   FG::RenderingSlice::ApplyRuntimeProfile(
       FG::RuntimeSelectors::SelectRuntimeProfile(
+          FG::Store::GetStore().getState()),
+      FG::RuntimeSelectors::SelectRenderingRuntimeSettings(
           FG::Store::GetStore().getState()));
   auto Payload = FG::FRuntimeLevelViewPayload();
   const auto Result = FG::Store::GetStore().dispatch(
@@ -46,6 +50,9 @@ void ARuntimeLevelView::RenderLevel() {
   func::executeAsync(Result);
   TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(
       FG::Store::GetStore().getState());
+  RenderingRuntimeSettings =
+      FG::RuntimeSelectors::SelectRenderingRuntimeSettings(
+          FG::Store::GetStore().getState());
   RenderLevelPayload(Payload);
 }
 
@@ -138,7 +145,8 @@ AStaticMeshActor *ARuntimeLevelView::RenderBlock(
                       Block->GetStaticMeshComponent()->SetStaticMesh(CubeMesh),
                       FG::RenderingSlice::ApplyTexture(
                           {Block->GetStaticMeshComponent(), BlockBaseMaterial,
-                           BlockSpawn.Texture, TextureCatalog}),
+                           BlockSpawn.Texture, TextureCatalog,
+                           RenderingRuntimeSettings}),
                       Block->GetStaticMeshComponent()->SetMobility(
                           EComponentMobility::Static),
                       Block)

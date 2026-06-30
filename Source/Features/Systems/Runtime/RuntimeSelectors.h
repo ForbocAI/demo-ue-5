@@ -57,6 +57,8 @@ const FLevelRetroRenderProfile &
 SelectRuntimeProfile(const FRuntimeState &State);
 const TArray<FLevelRetroTextureSpec> &
 SelectTextureCatalog(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FRenderingRuntimeSettings &
+SelectRenderingRuntimeSettings(const FRuntimeState &State);
 const FRenderingAssetPaths &
 SelectRenderingAssetPaths(const FRuntimeState &State);
 int32 SelectBotInitialPatrolIndex(const FRuntimeState &State);
@@ -74,6 +76,16 @@ const FTownspersonPresentationViewModel &
 SelectTownspersonPresentation(const FRuntimeState &State);
 const FHorsePresentationViewModel &
 SelectHorsePresentation(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &
+SelectRuntimeObservationIds(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FRuntimeDebugMessageSettings &
+SelectRuntimeDebugMessages(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FRuntimeViewNameSettings &
+SelectRuntimeViewNames(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FRuntimeTextSettings &
+SelectRuntimeText(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FBotRuntimeSettings &
+SelectBotRuntimeSettings(const FRuntimeState &State);
 TArray<FBotEntity> SelectBots(const FRuntimeState &State);
 func::Maybe<FBotEntity> SelectBotById(const FRuntimeState &State,
                                       const FString &Id);

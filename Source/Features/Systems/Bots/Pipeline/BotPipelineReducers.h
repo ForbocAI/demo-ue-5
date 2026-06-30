@@ -25,8 +25,14 @@ ReduceInputSnapshot(const FBotPipelineInputRequest &Request) {
 inline FBotPipelineInputResult
 ReduceDefaultInputSnapshot(const FBotPipelineDefaultInputRequest &Request) {
   return ReduceInputSnapshot(
-      {Request.DeltaTime, FBotPipelineOverlapSnapshot{},
-       FBotPipelineVisibilitySnapshot{}, FBotPipelineMovementSnapshot{}});
+      {Request.DeltaTime,
+       {Request.State.RuntimeSettings.bDefaultHazardOverlapping,
+        Request.State.RuntimeSettings.MinimumHealth, nullptr},
+       {Request.State.RuntimeSettings.bDefaultVisibilityCanSeeEnemy,
+        Request.State.RuntimeSettings.InitialLastKnownPlayerPosition,
+        Request.State.RuntimeSettings.MinimumHealth},
+       {Request.State.Position, Request.DeltaTime,
+        Request.State.RuntimeSettings.DefaultMovementInterpSpeed}});
 }
 
 inline FBotPipelineState ReducePipelineObserved(
@@ -44,7 +50,8 @@ inline FBotPipelineState ReducePipelineObserved(
 
 inline func::Maybe<rtk::AnyAction> ReduceHazardAction(
     const FBotPipelineHazardActionRequest &Request) {
-  return (!Request.Overlap.bOverlapping || Request.State.Stats.Health <= 0.0f)
+  return (!Request.Overlap.bOverlapping ||
+          Request.State.Stats.Health <= Request.State.RuntimeSettings.MinimumHealth)
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
                    BotCoreActions::BotDamageTaken()(
@@ -58,7 +65,8 @@ inline func::Maybe<rtk::AnyAction> ReduceMovementAction(
     const FBotPipelineMovementActionRequest &Request) {
   const float DistSq = FVector::DistSquared(Request.State.Position,
                                             Request.Movement.TargetPosition);
-  return (DistSq < 1.0f || Request.State.Stats.Health <= 0.0f)
+  return (DistSq < Request.State.RuntimeSettings.MovementArrivalDistanceSquared ||
+          Request.State.Stats.Health <= Request.State.RuntimeSettings.MinimumHealth)
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
                    BotCoreActions::BotMoved()(
@@ -75,13 +83,14 @@ inline bool ReduceAlreadyHasAggro(
     const FBotPipelineAwarenessActionRequest &Request) {
   return Request.State.Memory.bHasAggro &&
          FVector::DistSquared(Request.State.Memory.LastKnownPlayerPos,
-                              Request.Visibility.EnemyPosition) < 100.0f;
+                              Request.Visibility.EnemyPosition) <
+             Request.State.RuntimeSettings.AggroPositionToleranceSquared;
 }
 
 inline func::Maybe<rtk::AnyAction> ReduceAwarenessAction(
     const FBotPipelineAwarenessActionRequest &Request) {
   return (!Request.Visibility.bCanSeeEnemy ||
-          Request.State.Stats.Health <= 0.0f ||
+          Request.State.Stats.Health <= Request.State.RuntimeSettings.MinimumHealth ||
           ReduceAlreadyHasAggro(Request))
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
@@ -93,7 +102,9 @@ inline func::Maybe<rtk::AnyAction> ReduceAwarenessAction(
 inline func::Maybe<rtk::AnyAction> ReducePhaseAction(
     const FBotPipelinePhaseActionRequest &Request) {
   return (Request.State.Phase == EBotCorePhase::Combat &&
-          Request.State.Stats.Health < Request.State.Stats.MaxHealth * 0.2f &&
+          Request.State.Stats.Health <
+              Request.State.Stats.MaxHealth *
+                  Request.State.RuntimeSettings.PhaseFleeHealthRatio &&
           Request.State.Memory.bHasAggro)
              ? func::just<rtk::AnyAction>(
                    BotCoreActions::BotFleeRequested()(
@@ -152,8 +163,8 @@ inline FBotPipelineLogicResult ReduceLogic(
 inline FBotCoreRuntimeState ReduceActions(
     const FBotCoreRuntimeState &State,
     const TArray<rtk::AnyAction> &Actions) {
-  return ecs::foldArray<rtk::AnyAction, FBotCoreRuntimeState>(
-      State, Actions,
+  return func::fold_indexed(
+      Actions, static_cast<size_t>(Actions.Num()), State,
       [](const FBotCoreRuntimeState &Current,
          const rtk::AnyAction &Action) {
         return BotCoreReducers::ReduceBotCoreRuntime(Current, Action);
@@ -176,7 +187,7 @@ inline FBotPipelineOutputResult ReducePipeline(
 inline FBotPipelineOutputResult ReduceIdlePipeline(
     const FBotCoreRuntimeState &CurrentState, float DeltaTime) {
   const FBotPipelineInputResult Input =
-      ReduceDefaultInputSnapshot({DeltaTime});
+      ReduceDefaultInputSnapshot({CurrentState, DeltaTime});
   return ReducePipeline(CurrentState, Input.WorldSnapshot);
 }
 

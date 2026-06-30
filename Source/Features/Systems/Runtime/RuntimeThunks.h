@@ -21,19 +21,6 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn();
 rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
 RequestLevelViewPayload();
 
-/**
- * @brief RTK thunk that resolves a local dialogue reply.
- */
-rtk::ThunkAction<FDialogueReplyPayload, FRuntimeState>
-RequestLocalDialogueReply(const FLocalDialogueReplyRequest &Request);
-
-/**
- * @brief RTK thunk that composes dialogue and UI effects for interaction.
- */
-rtk::ThunkAction<FRuntimeTownspersonInteractionPayload, FRuntimeState>
-RequestTownspersonInteraction(
-    const FRuntimeTownspersonInteractionRequest &Request);
-
 } // namespace RuntimeThunks
 } // namespace Level
 } // namespace Demo

@@ -1,0 +1,66 @@
+{
+  "runtime_ui": {
+    "player_role_label": "Player",
+    "system_role_label": "System",
+    "npc_role_label": "NPC",
+    "unknown_role_label": "Unknown",
+    "chat_message_format": "[%s] %s",
+    "history_role_separator": ":",
+    "history_text_start_offset": 2,
+    "history_minimum_role_index": 0,
+    "placeholder_title": "French Gulch Conversation",
+    "placeholder_player_line": "Player: ...",
+    "placeholder_npc_reply": "NPC: ...",
+    "conversation_title_format": "%s - %s",
+    "player_line_format": "Player: %s",
+    "npc_reply_format": "NPC: %s",
+    "connection_message_format": "Connected to %s",
+    "unbound_dialogue_error": "Error: No dialogue component bound",
+    "payload_id_format": "systems/ui/conversation/%s",
+    "panel_color": {
+      "r": 0.02,
+      "g": 0.02,
+      "b": 0.025,
+      "a": 0.78
+    },
+    "title_color": {
+      "r": 1.0,
+      "g": 1.0,
+      "b": 0.0,
+      "a": 1.0
+    },
+    "player_color": {
+      "r": 0.0,
+      "g": 0.85,
+      "b": 0.95,
+      "a": 1.0
+    },
+    "system_color": {
+      "r": 0.5,
+      "g": 0.5,
+      "b": 0.5,
+      "a": 1.0
+    },
+    "npc_color": {
+      "r": 1.0,
+      "g": 0.75,
+      "b": 0.2,
+      "a": 1.0
+    },
+    "unknown_color": {
+      "r": 0.5,
+      "g": 0.5,
+      "b": 0.5,
+      "a": 1.0
+    },
+    "runtime_reply_color": {
+      "r": 1.0,
+      "g": 0.72,
+      "b": 0.25,
+      "a": 1.0
+    },
+    "panel_padding": 16.0,
+    "title_size": 22.0,
+    "body_size": 18.0
+  }
+}

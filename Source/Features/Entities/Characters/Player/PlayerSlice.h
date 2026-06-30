@@ -25,6 +25,7 @@ inline FPlayerState CreateInitialState() {
 inline const rtk::Slice<FPlayerState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FPlayerState>> Slice =
       func::lazy([]() -> rtk::Slice<FPlayerState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FPlayerState>(
             TEXT("entities/player"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FPlayerState> &Builder) {

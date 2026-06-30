@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Data/DataTypes.h"
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
 #include "Features/Systems/Bots/Horses/HorseTypes.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
@@ -9,6 +10,18 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace BotGoalReducers {
+
+struct FBotGoalsTownspeopleSeededRequest {
+  FBotGoalState State;
+  TArray<FTownspersonSeed> Seeds;
+  ForbocAI::Demo::Data::FBotRuntimeSettings RuntimeSettings;
+};
+
+struct FBotGoalsHorsesSeededRequest {
+  FBotGoalState State;
+  TArray<FHorseRouteSeed> Seeds;
+  ForbocAI::Demo::Data::FBotRuntimeSettings RuntimeSettings;
+};
 
 FBotGoalState ReduceBotGoalsSeeded(
     const FBotGoalState &State,
@@ -22,11 +35,9 @@ FBotGoalState ReduceBotGoalCompleted(
 TMap<FString, FBotStrategicGoal> ReduceActiveGoalsById(
     const TArray<FBotGoalComponent> &Goals);
 FBotGoalState ReduceTownspeopleSeeded(
-    const FBotGoalState &State,
-    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action);
+    const FBotGoalsTownspeopleSeededRequest &Request);
 FBotGoalState ReduceHorsesSeeded(
-    const FBotGoalState &State,
-    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action);
+    const FBotGoalsHorsesSeededRequest &Request);
 
 } // namespace BotGoalReducers
 } // namespace Level

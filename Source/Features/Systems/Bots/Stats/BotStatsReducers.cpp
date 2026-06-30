@@ -37,21 +37,23 @@ FBotStatsState ReduceBotStatsUpdated(
 }
 
 FBotStatsState ReduceTownspeopleSeeded(
-    const FBotStatsState &State,
-    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
-  return (func::pipe(State) | [&](FBotStatsState Next) -> FBotStatsState {
+    const FBotStatsTownspeopleSeededRequest &Request) {
+  return (func::pipe(Request.State) | [&](FBotStatsState Next) -> FBotStatsState {
   Next.Items = BotStatsAdapters::BotStatsAdapter().upsertMany(
-      State.Items, BotStatsFactories::FromTownspeople(Action.PayloadValue));
+      Request.State.Items,
+      BotStatsFactories::FromTownspeople(
+          {Request.Seeds, Request.RuntimeSettings}));
   return Next;
   }).val;
 }
 
 FBotStatsState ReduceHorsesSeeded(
-    const FBotStatsState &State,
-    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
-  return (func::pipe(State) | [&](FBotStatsState Next) -> FBotStatsState {
+    const FBotStatsHorsesSeededRequest &Request) {
+  return (func::pipe(Request.State) | [&](FBotStatsState Next) -> FBotStatsState {
   Next.Items = BotStatsAdapters::BotStatsAdapter().upsertMany(
-      State.Items, BotStatsFactories::FromHorses(Action.PayloadValue));
+      Request.State.Items,
+      BotStatsFactories::FromHorses({Request.Seeds,
+                                     Request.RuntimeSettings}));
   return Next;
   }).val;
 }

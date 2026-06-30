@@ -5,7 +5,6 @@
 #include "Features/Systems/Dialogue/DialogueActions.h"
 #include "Features/Systems/Dialogue/DialogueReducers.h"
 #include "Features/Systems/Dialogue/DialogueSelectors.h"
-#include "Features/Systems/Dialogue/DialogueThunks.h"
 #include "Features/Systems/Dialogue/DialogueTypes.h"
 
 namespace ForbocAI {
@@ -27,19 +26,17 @@ inline FDialogueState CreateInitialState() {
 }
 
 /**
- * @brief Returns the RTK slice that binds dialogue actions, reducers, and
- * thunks.
+ * @brief Returns the RTK slice that binds dialogue actions and reducers.
  */
 inline const rtk::Slice<FDialogueState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FDialogueState>> Slice =
       func::lazy([]() -> rtk::Slice<FDialogueState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FDialogueState>(
             TEXT("systems/dialogue"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FDialogueState> &Builder) {
               Builder.addCase(DialogueActions::DialogueObserved(),
-                              DialogueReducers::ReduceDialogueObserved)
-                  .addAsyncThunk(DialogueThunks::RequestLocalReply(),
-                                 DialogueReducers::LocalReplyAsyncReducers());
+                              DialogueReducers::ReduceDialogueObserved);
             });
       });
   return func::eval(Slice);

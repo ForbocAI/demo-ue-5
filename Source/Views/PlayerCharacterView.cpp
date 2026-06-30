@@ -21,9 +21,12 @@ namespace FG = ForbocAI::Demo::Level;
 
 namespace {
 FG::FPlayerPresentationViewModel ObservePlayerPresentation() {
+  const FG::FRuntimeState State = FG::Store::GetStore().getState();
+  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+      FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
   FG::Store::GetStore().dispatch(
       FG::PlayerActions::PlayerPresentationRequested()(
-          {TEXT("entities/player/presentationRequested")}));
+          {Ids.PlayerPresentationRequested}));
   return FG::RuntimeSelectors::SelectPlayerPresentation(
       FG::Store::GetStore().getState());
 }
@@ -40,6 +43,9 @@ APlayerCharacterView::APlayerCharacterView()
       MeshRelativeRotation(FRotator::ZeroRotator) {
   const FG::FPlayerPresentationViewModel Presentation =
       ObservePlayerPresentation();
+  const ForbocAI::Demo::Data::FRuntimeViewNameSettings &ViewNames =
+      FG::RuntimeSelectors::SelectRuntimeViewNames(
+          FG::Store::GetStore().getState());
   MeshRelativeLocation = Presentation.MeshRelativeLocation;
   MeshRelativeRotation = Presentation.MeshRelativeRotation;
   CharacterMeshPath = Presentation.MeshPath;
@@ -70,13 +76,16 @@ APlayerCharacterView::APlayerCharacterView()
   Movement->BrakingDecelerationFalling =
       Presentation.BrakingDecelerationFalling;
 
-  CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+  CameraBoom =
+      CreateDefaultSubobject<USpringArmComponent>(
+          FName(*ViewNames.PlayerCameraBoom));
   CameraBoom->SetupAttachment(RootComponent);
   CameraBoom->TargetArmLength = Presentation.FollowCameraArmLength;
   CameraBoom->bUsePawnControlRotation = true;
 
   FollowCamera =
-      CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+      CreateDefaultSubobject<UCameraComponent>(
+          FName(*ViewNames.PlayerFollowCamera));
   FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
   FollowCamera->bUsePawnControlRotation = false;
 
@@ -87,60 +96,51 @@ APlayerCharacterView::APlayerCharacterView()
 void APlayerCharacterView::BeginPlay() {
   Super::BeginPlay();
 
-  if (APlayerController *PlayerController = Cast<APlayerController>(Controller)) {
-    if (ULocalPlayer *LocalPlayer = PlayerController->GetLocalPlayer()) {
-      if (UEnhancedInputLocalPlayerSubsystem *Subsystem =
-              ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-                  LocalPlayer)) {
-        if (MappingContext) {
-          Subsystem->AddMappingContext(MappingContext, 0);
-        }
-        if (MouseMappingContext) {
-          Subsystem->AddMappingContext(MouseMappingContext, 0);
-        }
-      }
-    }
-  }
+  APlayerController *PlayerController = Cast<APlayerController>(Controller);
+  check(PlayerController);
+  ULocalPlayer *LocalPlayer = PlayerController->GetLocalPlayer();
+  check(LocalPlayer);
+  UEnhancedInputLocalPlayerSubsystem *Subsystem =
+      ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+          LocalPlayer);
+  check(Subsystem);
+  check(MappingContext);
+  check(MouseMappingContext);
+  Subsystem->AddMappingContext(MappingContext, 0);
+  Subsystem->AddMappingContext(MouseMappingContext, 0);
 }
 
 void APlayerCharacterView::SetupPlayerInputComponent(
     UInputComponent *PlayerInputComponent) {
-  if (UEnhancedInputComponent *EnhancedInput =
-          Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-    JumpAction ? (EnhancedInput->BindAction(
-                      JumpAction, ETriggerEvent::Started, this,
-                      &APlayerCharacterView::DoJumpStart),
-                  EnhancedInput->BindAction(
-                      JumpAction, ETriggerEvent::Completed, this,
-                      &APlayerCharacterView::DoJumpEnd),
-                  void())
-               : void();
-    MoveAction ? (EnhancedInput->BindAction(
-                      MoveAction, ETriggerEvent::Triggered, this,
-                      &APlayerCharacterView::Move),
-                  void())
-               : void();
-    LookAction ? (EnhancedInput->BindAction(
-                      LookAction, ETriggerEvent::Triggered, this,
-                      &APlayerCharacterView::Look),
-                  void())
-               : void();
-    MouseLookAction ? (EnhancedInput->BindAction(
-                           MouseLookAction, ETriggerEvent::Triggered, this,
-                           &APlayerCharacterView::Look),
-                       void())
-                    : void();
-  }
+  UEnhancedInputComponent *EnhancedInput =
+      Cast<UEnhancedInputComponent>(PlayerInputComponent);
+  check(EnhancedInput);
+  check(JumpAction);
+  check(MoveAction);
+  check(LookAction);
+  check(MouseLookAction);
+  EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this,
+                            &APlayerCharacterView::DoJumpStart);
+  EnhancedInput->BindAction(JumpAction, ETriggerEvent::Completed, this,
+                            &APlayerCharacterView::DoJumpEnd);
+  EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this,
+                            &APlayerCharacterView::Move);
+  EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this,
+                            &APlayerCharacterView::Look);
+  EnhancedInput->BindAction(MouseLookAction, ETriggerEvent::Triggered, this,
+                            &APlayerCharacterView::Look);
 }
 
 void APlayerCharacterView::DoMove(float Right, float Forward) {
+  check(Controller);
+  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+      FG::RuntimeSelectors::SelectRuntimeObservationIds(
+          FG::Store::GetStore().getState());
   const ForbocAI::Demo::Level::FPlayerMovementInputViewModel Model =
       (FG::Store::GetStore().dispatch(
            FG::PlayerActions::PlayerMovementInputObserved()(
-               {TEXT("entities/player/movementInputObserved"),
-                Controller ? Controller->GetControlRotation()
-                           : FRotator::ZeroRotator,
-                Right, Forward, Controller != nullptr})),
+               {Ids.PlayerMovementInputObserved,
+                Controller->GetControlRotation(), Right, Forward, true})),
        FG::RuntimeSelectors::SelectPlayerMovementInput(
            FG::Store::GetStore().getState()));
   Model.bShouldMove
@@ -159,24 +159,16 @@ void APlayerCharacterView::DoJumpStart() { Jump(); }
 void APlayerCharacterView::DoJumpEnd() { StopJumping(); }
 
 void APlayerCharacterView::ConfigureTemplateCharacter() {
-  if (USkeletalMesh *CharacterMesh =
-          LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath)) {
-    GetMesh()->SetSkeletalMesh(CharacterMesh);
-    GetMesh()->SetRelativeLocation(MeshRelativeLocation);
-    GetMesh()->SetRelativeRotation(MeshRelativeRotation);
-  } else {
-    UE_LOG(LogTemp, Error,
-           TEXT("ThirdPerson: required Manny skeletal mesh is missing."));
-  }
-
-  if (UClass *AnimClass = LoadClass<UAnimInstance>(
-          nullptr, *CharacterAnimationBlueprintClassPath)) {
-    GetMesh()->SetAnimInstanceClass(AnimClass);
-  } else {
-    UE_LOG(LogTemp, Error,
-           TEXT("ThirdPerson: required ABP_Unarmed animation blueprint is "
-                "missing."));
-  }
+  USkeletalMesh *CharacterMesh =
+      LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath);
+  UClass *AnimClass =
+      LoadClass<UAnimInstance>(nullptr, *CharacterAnimationBlueprintClassPath);
+  check(CharacterMesh);
+  check(AnimClass);
+  GetMesh()->SetSkeletalMesh(CharacterMesh);
+  GetMesh()->SetRelativeLocation(MeshRelativeLocation);
+  GetMesh()->SetRelativeRotation(MeshRelativeRotation);
+  GetMesh()->SetAnimInstanceClass(AnimClass);
 }
 
 void APlayerCharacterView::ConfigureEnhancedInput() {
@@ -189,11 +181,12 @@ void APlayerCharacterView::ConfigureEnhancedInput() {
       nullptr, *DefaultMappingContextPath);
   MouseMappingContext = LoadObject<UInputMappingContext>(
       nullptr, *MouseMappingContextPath);
-  if (!MoveAction || !LookAction || !MouseLookAction || !JumpAction ||
-      !MappingContext || !MouseMappingContext) {
-    UE_LOG(LogTemp, Error,
-           TEXT("ThirdPerson: input assets missing from JSON-authored paths."));
-  }
+  check(MoveAction);
+  check(LookAction);
+  check(MouseLookAction);
+  check(JumpAction);
+  check(MappingContext);
+  check(MouseMappingContext);
 }
 
 void APlayerCharacterView::Move(const FInputActionValue &Value) {

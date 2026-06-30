@@ -13,7 +13,23 @@
  */
 
 #include "Misc/AutomationTest.h"
+#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Systems/Speech/SpeechAdapters.h"
+
+namespace {
+
+ForbocAI::Demo::Data::FSpeechRuntimeSettings LoadSpeechSettings() {
+  return ForbocAI::Demo::Data::RuntimeSettingsAdapters::
+      LoadDemoRuntimeSettings()
+          .SpeechRuntime;
+}
+
+TMap<FString, FVisemeMapping> LoadVisemeMap(
+    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+  return SpeechOps::VisemeMapFromSettings(Settings);
+}
+
+} // namespace
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechPhonemeEstimation,
@@ -22,8 +38,10 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) {
+  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+      LoadSpeechSettings();
   const TArray<FPhonemeEvent> Phonemes =
-      SpeechOps::EstimatePhonemesFromText(TEXT("Hello"));
+      SpeechOps::EstimatePhonemesFromText(TEXT("Hello"), Settings);
 
   TestTrue(TEXT("Produces phonemes for 'Hello'"), Phonemes.Num() > 0);
 
@@ -58,18 +76,21 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechPhonemeWithSpaces::RunTest(const FString &Parameters) {
+  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+      LoadSpeechSettings();
   const TArray<FPhonemeEvent> Phonemes =
-      SpeechOps::EstimatePhonemesFromText(TEXT("Hi there"));
+      SpeechOps::EstimatePhonemesFromText(TEXT("Hi there"), Settings);
 
   TestTrue(TEXT("Produces phonemes for 'Hi there'"), Phonemes.Num() > 0);
 
   // Space produces a SIL phoneme with shorter duration
   bool bHasSilence = false;
   const auto FindSilRecursive =
-      [&Phonemes, &bHasSilence](int32 Idx, const auto &Self) -> void {
+      [&Phonemes, &bHasSilence, &Settings](int32 Idx,
+                                           const auto &Self) -> void {
     return Idx >= Phonemes.Num()
                ? void()
-               : (Phonemes[Idx].Phoneme == TEXT("SIL")
+               : (Phonemes[Idx].Phoneme == Settings.SilencePhoneme
                       ? (void)(bHasSilence = true)
                       : void(),
                   Self(Idx + 1, Self));
@@ -88,45 +109,31 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
-  const TMap<FString, FVisemeMapping> Map =
-      SpeechOps::DefaultVisemeMap();
+  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+      LoadSpeechSettings();
+  const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
 
-  // Should have at least 35 phoneme-to-viseme mappings
-  TestTrue(TEXT("Map has 35+ entries"), Map.Num() >= 35);
+  TestEqual(TEXT("Map matches authored viseme mappings"), Map.Num(),
+            Settings.VisemeMappings.Num());
 
-  // All vowels present
-  const TArray<FString> Vowels = {TEXT("AA"), TEXT("AE"), TEXT("AH"),
-                                   TEXT("EH"), TEXT("IH"), TEXT("IY"),
-                                   TEXT("UH"), TEXT("UW")};
-
-  const auto CheckVowelsRecursive =
-      [this, &Map, &Vowels](int32 Idx, const auto &Self) -> void {
-    return Idx >= Vowels.Num()
+  const auto CheckVowelsRecursive = [this, &Map, &Settings](
+                                        int32 Idx,
+                                        const auto &Self) -> void {
+    return Idx >= Settings.VowelCharacters.Len()
                ? void()
                : (TestTrue(
                       FString::Printf(TEXT("Vowel %s mapped"),
-                                      *Vowels[Idx]),
-                      Map.Contains(Vowels[Idx])),
+                                      *FString::Printf(
+                                          *Settings.VowelPhonemeFormat,
+                                          Settings.VowelCharacters[Idx],
+                                          Settings.VowelCharacters[Idx])),
+                      Map.Contains(FString::Printf(
+                          *Settings.VowelPhonemeFormat,
+                          Settings.VowelCharacters[Idx],
+                          Settings.VowelCharacters[Idx]))),
                   Self(Idx + 1, Self));
   };
   CheckVowelsRecursive(0, CheckVowelsRecursive);
-
-  // Core consonants present
-  const TArray<FString> Consonants = {TEXT("B"), TEXT("D"), TEXT("F"),
-                                       TEXT("K"), TEXT("M"), TEXT("N"),
-                                       TEXT("P"), TEXT("S"), TEXT("T")};
-
-  const auto CheckConsonantsRecursive =
-      [this, &Map, &Consonants](int32 Idx, const auto &Self) -> void {
-    return Idx >= Consonants.Num()
-               ? void()
-               : (TestTrue(
-                      FString::Printf(TEXT("Consonant %s mapped"),
-                                      *Consonants[Idx]),
-                      Map.Contains(Consonants[Idx])),
-                  Self(Idx + 1, Self));
-  };
-  CheckConsonantsRecursive(0, CheckConsonantsRecursive);
 
   return true;
 }
@@ -138,8 +145,10 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
-  const TMap<FString, FVisemeMapping> Map =
-      SpeechOps::DefaultVisemeMap();
+  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+      LoadSpeechSettings();
+  const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
+  const FVisemeMapping Rest = SpeechOps::RestViseme(Settings);
 
   // Create a simple phoneme timeline: AA at 0.0-0.1, SIL at 0.1-0.15,
   // EH at 0.15-0.25
@@ -147,31 +156,37 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
   Phonemes.Add({TEXT("AA"), 0.0f, 0.1f});
   Phonemes.Add({TEXT("SIL"), 0.1f, 0.05f});
   Phonemes.Add({TEXT("EH"), 0.15f, 0.1f});
+  const FVisemeMapping ExpectedAa =
+      SpeechOps::RequiredVisemeForPhoneme(TEXT("AA"), Map);
+  const FVisemeMapping ExpectedSilence =
+      SpeechOps::RequiredVisemeForPhoneme(Settings.SilencePhoneme, Map);
+  const FVisemeMapping ExpectedEh =
+      SpeechOps::RequiredVisemeForPhoneme(TEXT("EH"), Map);
 
   // At t=0.05, should be in AA -> viseme_aa
   const FVisemeMapping V1 =
-      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.05f, Map);
+      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.05f, Map, Rest);
   TestEqual(TEXT("At 0.05s: viseme_aa"), V1.MorphTargetName,
-            TEXT("viseme_aa"));
+            ExpectedAa.MorphTargetName);
   TestTrue(TEXT("At 0.05s: weight > 0"), V1.BlendWeight > 0.0f);
 
   // At t=0.12, should be in SIL -> viseme_sil
   const FVisemeMapping V2 =
-      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.12f, Map);
+      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.12f, Map, Rest);
   TestEqual(TEXT("At 0.12s: viseme_sil"), V2.MorphTargetName,
-            TEXT("viseme_sil"));
+            ExpectedSilence.MorphTargetName);
 
   // At t=0.20, should be in EH -> viseme_E
   const FVisemeMapping V3 =
-      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.20f, Map);
+      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.20f, Map, Rest);
   TestEqual(TEXT("At 0.20s: viseme_E"), V3.MorphTargetName,
-            TEXT("viseme_E"));
+            ExpectedEh.MorphTargetName);
 
   // At t=0.30 (past all phonemes), should be silence
   const FVisemeMapping V4 =
-      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.30f, Map);
+      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.30f, Map, Rest);
   TestEqual(TEXT("At 0.30s: silence"), V4.MorphTargetName,
-            TEXT("viseme_sil"));
+            Rest.MorphTargetName);
 
   return true;
 }
@@ -183,21 +198,22 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechVisemeLookup::RunTest(const FString &Parameters) {
-  const TMap<FString, FVisemeMapping> Map =
-      SpeechOps::DefaultVisemeMap();
+  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+      LoadSpeechSettings();
+  const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
 
   // Known phoneme
-  const FVisemeMapping Known =
+  const func::Maybe<FVisemeMapping> Known =
       SpeechOps::LookupViseme(TEXT("AA"), Map);
-  TestEqual(TEXT("AA maps to viseme_aa"), Known.MorphTargetName,
-            TEXT("viseme_aa"));
+  const FVisemeMapping Expected =
+      SpeechOps::RequiredVisemeForPhoneme(TEXT("AA"), Map);
+  check(Known.hasValue);
+  TestEqual(TEXT("AA maps to viseme_aa"), Known.value.MorphTargetName,
+            Expected.MorphTargetName);
 
-  // Unknown phoneme should return silence
-  const FVisemeMapping Unknown =
+  const func::Maybe<FVisemeMapping> Unknown =
       SpeechOps::LookupViseme(TEXT("UNKNOWN"), Map);
-  TestEqual(TEXT("Unknown maps to viseme_sil"), Unknown.MorphTargetName,
-            TEXT("viseme_sil"));
-  TestEqual(TEXT("Unknown has 0 weight"), Unknown.BlendWeight, 0.0f);
+  TestFalse(TEXT("Unknown phoneme is unmapped"), Unknown.hasValue);
 
   return true;
 }

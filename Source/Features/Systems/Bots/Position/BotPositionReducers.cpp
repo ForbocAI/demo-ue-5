@@ -150,20 +150,20 @@ FBotInitialPatrolLocationPayload ReduceInitialPatrolLocation(
 
 FBotPatrolAdvancePayload
 ReducePatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
-  if (Request.PatrolRoute.Num() < 2) {
-    return ReduceIdlePatrolAdvance(Request);
-  }
-
-  if (Request.PauseRemaining > 0.0f) {
-    return ReducePauseCountdownPatrolAdvance(Request);
-  }
-
-  const FVector Target = Request.PatrolRoute[Request.PatrolIndex];
-  const FVector Delta = Target - Request.CurrentLocation;
-  const float Distance = Delta.Size();
-  return Distance < Request.ArrivalDistance
-             ? ReduceArrivedPatrolAdvance(Request)
-             : ReduceMovingPatrolAdvance(Request, Delta, Distance);
+  return Request.PatrolRoute.Num() < 2
+             ? ReduceIdlePatrolAdvance(Request)
+             : Request.PauseRemaining > 0.0f
+                   ? ReducePauseCountdownPatrolAdvance(Request)
+                   : [&]() {
+                       const FVector Target =
+                           Request.PatrolRoute[Request.PatrolIndex];
+                       const FVector Delta = Target - Request.CurrentLocation;
+                       const float Distance = Delta.Size();
+                       return Distance < Request.ArrivalDistance
+                                  ? ReduceArrivedPatrolAdvance(Request)
+                                  : ReduceMovingPatrolAdvance(Request, Delta,
+                                                              Distance);
+                     }();
 }
 
 } // namespace BotPositionReducers

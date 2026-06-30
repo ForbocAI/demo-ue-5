@@ -23,6 +23,7 @@ inline FBotCoreState CreateInitialState() {
 inline const rtk::Slice<FBotCoreState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FBotCoreState>> Slice =
       func::lazy([]() -> rtk::Slice<FBotCoreState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FBotCoreState>(
             TEXT("systems/bots/core"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FBotCoreState> &Builder) {

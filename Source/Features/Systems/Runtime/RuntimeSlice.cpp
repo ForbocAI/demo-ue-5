@@ -84,6 +84,7 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
 const rtk::Slice<FRuntimeState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FRuntimeState>> Slice =
       func::lazy([]() -> rtk::Slice<FRuntimeState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FRuntimeState>(
             TEXT("runtime"), RuntimeFactories::CreateInitialState(),
             RootReducer());
@@ -98,17 +99,6 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
 rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
 RequestLevelViewPayload() {
   return RuntimeThunks::RequestLevelViewPayload();
-}
-
-rtk::ThunkAction<FDialogueReplyPayload, FRuntimeState>
-RequestLocalDialogueReply(const FLocalDialogueReplyRequest &Request) {
-  return RuntimeThunks::RequestLocalDialogueReply(Request);
-}
-
-rtk::ThunkAction<FRuntimeTownspersonInteractionPayload, FRuntimeState>
-RequestTownspersonInteraction(
-    const FRuntimeTownspersonInteractionRequest &Request) {
-  return RuntimeThunks::RequestTownspersonInteraction(Request);
 }
 
 } // namespace RuntimeSlice

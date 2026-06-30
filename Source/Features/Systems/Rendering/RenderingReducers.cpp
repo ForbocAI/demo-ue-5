@@ -21,43 +21,52 @@ FVector ReduceWorldFeetVector(
                  WorldFeet(Geometry, Feet.Z));
 }
 
-ELevelRetroTexture ReduceTextureKind(const FString &Texture) {
-  return Texture == TEXT("terrain_ortho")
-             ? ELevelRetroTexture::TerrainOrtho
-             : Texture == TEXT("building_timber")
-                   ? ELevelRetroTexture::BuildingTimber
-                   : Texture == TEXT("road_dust")
-                         ? ELevelRetroTexture::RoadDust
-                         : Texture == TEXT("water_creek")
-                               ? ELevelRetroTexture::WaterCreek
-                               : Texture == TEXT("foliage_riparian")
-                                     ? ELevelRetroTexture::FoliageRiparian
-                                     : Texture == TEXT("rock_granite")
-                                           ? ELevelRetroTexture::RockGranite
-                                           : Texture == TEXT("mine_timber")
-                                                 ? ELevelRetroTexture::MineTimber
-                                                 : Texture ==
-                                                           TEXT("marker_paint")
-                                                       ? ELevelRetroTexture::
-                                                             MarkerPaint
-                                                       : Texture ==
-                                                                 TEXT("npc_body")
-                                                             ? ELevelRetroTexture::
-                                                                   NpcBody
-                                                             : Texture ==
-                                                                       TEXT("npc_hat")
-                                                                   ? ELevelRetroTexture::
-                                                                         NpcHat
-                                                                   : Texture ==
-                                                                             TEXT("horse_coat")
-                                                                         ? ELevelRetroTexture::
-                                                                               HorseCoat
-                                                                         : Texture ==
-                                                                                   TEXT("horse_leg")
-                                                                               ? ELevelRetroTexture::
-                                                                                     HorseLeg
-                                                                               : ELevelRetroTexture::
-                                                                                     HorseTack;
+func::Maybe<ELevelRetroTexture> ResolveTextureKind(const FString &Texture) {
+  return func::multi_match<FString, ELevelRetroTexture>(
+      Texture,
+      {
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("terrain_ortho")),
+              [](const FString &) { return ELevelRetroTexture::TerrainOrtho; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("building_timber")),
+              [](const FString &) { return ELevelRetroTexture::BuildingTimber; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("road_dust")),
+              [](const FString &) { return ELevelRetroTexture::RoadDust; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("water_creek")),
+              [](const FString &) { return ELevelRetroTexture::WaterCreek; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("foliage_riparian")),
+              [](const FString &) {
+                return ELevelRetroTexture::FoliageRiparian;
+              }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("rock_granite")),
+              [](const FString &) { return ELevelRetroTexture::RockGranite; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("mine_timber")),
+              [](const FString &) { return ELevelRetroTexture::MineTimber; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("marker_paint")),
+              [](const FString &) { return ELevelRetroTexture::MarkerPaint; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("npc_body")),
+              [](const FString &) { return ELevelRetroTexture::NpcBody; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("npc_hat")),
+              [](const FString &) { return ELevelRetroTexture::NpcHat; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("horse_coat")),
+              [](const FString &) { return ELevelRetroTexture::HorseCoat; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("horse_leg")),
+              [](const FString &) { return ELevelRetroTexture::HorseLeg; }),
+          func::when<FString, ELevelRetroTexture>(
+              func::equals<FString>(TEXT("horse_tack")),
+              [](const FString &) { return ELevelRetroTexture::HorseTack; }),
+      });
 }
 
 FLevelRetroTextureSpec ReduceTextureCatalogItem(
@@ -75,6 +84,12 @@ NormalizeTextureApply(const FLevelRetroTextureApply &Input) {
     return Value;
   })
       .val;
+}
+
+ELevelRetroTexture ReduceTextureKind(const FString &Texture) {
+  const func::Maybe<ELevelRetroTexture> Resolved = ResolveTextureKind(Texture);
+  check(Resolved.hasValue);
+  return Resolved.value;
 }
 
 FLevelRetroRenderProfile ReduceRuntimeProfile(
@@ -97,9 +112,15 @@ FLevelRetroRenderProfile ReduceRuntimeProfile(
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
     const TArray<ForbocAI::Demo::Data::FRenderingTextureSpecSettings>
         &Settings) {
-  return ecs::mapArray<
-      ForbocAI::Demo::Data::FRenderingTextureSpecSettings,
-      FLevelRetroTextureSpec>(Settings, ReduceTextureCatalogItem);
+  return func::fold_indexed(
+      Settings, static_cast<size_t>(Settings.Num()),
+      TArray<FLevelRetroTextureSpec>(),
+      [](const TArray<FLevelRetroTextureSpec> &Acc,
+         const ForbocAI::Demo::Data::FRenderingTextureSpecSettings &Item) {
+        TArray<FLevelRetroTextureSpec> Next = Acc;
+        Next.Add(ReduceTextureCatalogItem(Item));
+        return Next;
+      });
 }
 
 FRenderingAssetPaths ReduceRenderingAssetPaths(
@@ -109,15 +130,20 @@ FRenderingAssetPaths ReduceRenderingAssetPaths(
 
 FLevelRetroTextureSpec
 ReduceTextureSpec(const FRenderingTextureSpecRequest &Request) {
-  return Request.Catalog.IsEmpty()
-             ? FLevelRetroTextureSpec()
-             : func::or_else(
-                   ecs::findArray<FLevelRetroTextureSpec>(
-                       Request.Catalog,
-                       [&Request](const FLevelRetroTextureSpec &Spec) {
-                         return Spec.Texture == Request.Texture;
-                       }),
-                   Request.Catalog[0]);
+  check(!Request.Catalog.IsEmpty());
+  const func::Maybe<FLevelRetroTextureSpec> Found = func::find_indexed(
+      Request.Catalog, static_cast<size_t>(Request.Catalog.Num()),
+      [&Request](const FLevelRetroTextureSpec &Spec) {
+        return Spec.Texture == Request.Texture;
+      });
+  check(Found.hasValue);
+  return Found.value;
+}
+
+FRenderingPayload ReduceRenderingPayload(
+    const FRenderingPayloadRequest &Request) {
+  return {Request.Id, Request.RuntimeProfile, Request.TextureCatalog,
+          Request.RuntimeSettings};
 }
 
 FRenderingState ReduceRenderingProfileObserved(
@@ -128,6 +154,7 @@ FRenderingState ReduceRenderingProfileObserved(
             Next.LastActionId = func::just(Action.PayloadValue.Id);
             Next.RuntimeProfile = Action.PayloadValue.RuntimeProfile;
             Next.TextureCatalog = Action.PayloadValue.TextureCatalog;
+            Next.RuntimeSettings = Action.PayloadValue.RuntimeSettings;
             Next.bReady = true;
             return Next;
           })

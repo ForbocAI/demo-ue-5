@@ -1,5 +1,6 @@
 #include "Features/Entities/EntitiesAdapters.h"
 
+#include "Core/functional_core.hpp"
 #include "Features/Components/ComponentsAdapters.h"
 
 namespace ForbocAI {
@@ -16,24 +17,33 @@ namespace {
  * explicit and fail on impossible values instead of falling back silently.
  */
 FString LandmarkKindText(ELandmarkKind Kind) {
-  switch (Kind) {
-  case ELandmarkKind::Building:
-    return TEXT("Building");
-  case ELandmarkKind::Road:
-    return TEXT("Road");
-  case ELandmarkKind::Creek:
-    return TEXT("Creek");
-  case ELandmarkKind::TerrainMarker:
-    return TEXT("TerrainMarker");
-  case ELandmarkKind::Mine:
-    return TEXT("Mine");
-  case ELandmarkKind::Cemetery:
-    return TEXT("Cemetery");
-  case ELandmarkKind::Park:
-    return TEXT("Park");
-  }
-  checkNoEntry();
-  return FString();
+  const func::Maybe<FString> Text =
+      func::multi_match<ELandmarkKind, FString>(
+          Kind, {func::when<ELandmarkKind, FString>(
+                     func::equals(ELandmarkKind::Building),
+                     [](const ELandmarkKind &) { return FString(TEXT("Building")); }),
+                 func::when<ELandmarkKind, FString>(
+                     func::equals(ELandmarkKind::Road),
+                     [](const ELandmarkKind &) { return FString(TEXT("Road")); }),
+                 func::when<ELandmarkKind, FString>(
+                     func::equals(ELandmarkKind::Creek),
+                     [](const ELandmarkKind &) { return FString(TEXT("Creek")); }),
+                 func::when<ELandmarkKind, FString>(
+                     func::equals(ELandmarkKind::TerrainMarker),
+                     [](const ELandmarkKind &) {
+                       return FString(TEXT("TerrainMarker"));
+                     }),
+                 func::when<ELandmarkKind, FString>(
+                     func::equals(ELandmarkKind::Mine),
+                     [](const ELandmarkKind &) { return FString(TEXT("Mine")); }),
+                 func::when<ELandmarkKind, FString>(
+                     func::equals(ELandmarkKind::Cemetery),
+                     [](const ELandmarkKind &) { return FString(TEXT("Cemetery")); }),
+                 func::when<ELandmarkKind, FString>(
+                     func::equals(ELandmarkKind::Park),
+                     [](const ELandmarkKind &) { return FString(TEXT("Park")); })});
+  check(Text.hasValue);
+  return Text.value;
 }
 
 /**
@@ -44,22 +54,34 @@ FString LandmarkKindText(ELandmarkKind Kind) {
  * and fail on impossible values instead of falling back silently.
  */
 FString NatureKindText(ENatureFeatureKind Kind) {
-  switch (Kind) {
-  case ENatureFeatureKind::Water:
-    return TEXT("Water");
-  case ENatureFeatureKind::Rock:
-    return TEXT("Rock");
-  case ENatureFeatureKind::TreeGrove:
-    return TEXT("TreeGrove");
-  case ENatureFeatureKind::Shrub:
-    return TEXT("Shrub");
-  case ENatureFeatureKind::PCGMarker:
-    return TEXT("PCGMarker");
-  case ENatureFeatureKind::WaterSystemMarker:
-    return TEXT("WaterSystemMarker");
-  }
-  checkNoEntry();
-  return FString();
+  const func::Maybe<FString> Text =
+      func::multi_match<ENatureFeatureKind, FString>(
+          Kind, {func::when<ENatureFeatureKind, FString>(
+                     func::equals(ENatureFeatureKind::Water),
+                     [](const ENatureFeatureKind &) { return FString(TEXT("Water")); }),
+                 func::when<ENatureFeatureKind, FString>(
+                     func::equals(ENatureFeatureKind::Rock),
+                     [](const ENatureFeatureKind &) { return FString(TEXT("Rock")); }),
+                 func::when<ENatureFeatureKind, FString>(
+                     func::equals(ENatureFeatureKind::TreeGrove),
+                     [](const ENatureFeatureKind &) {
+                       return FString(TEXT("TreeGrove"));
+                     }),
+                 func::when<ENatureFeatureKind, FString>(
+                     func::equals(ENatureFeatureKind::Shrub),
+                     [](const ENatureFeatureKind &) { return FString(TEXT("Shrub")); }),
+                 func::when<ENatureFeatureKind, FString>(
+                     func::equals(ENatureFeatureKind::PCGMarker),
+                     [](const ENatureFeatureKind &) {
+                       return FString(TEXT("PCGMarker"));
+                     }),
+                 func::when<ENatureFeatureKind, FString>(
+                     func::equals(ENatureFeatureKind::WaterSystemMarker),
+                     [](const ENatureFeatureKind &) {
+                       return FString(TEXT("WaterSystemMarker"));
+                     })});
+  check(Text.hasValue);
+  return Text.value;
 }
 
 /**
@@ -70,18 +92,31 @@ FString NatureKindText(ENatureFeatureKind Kind) {
  * be explicit and fail on impossible values instead of falling back silently.
  */
 FString InteractionIntentText(ETownspersonInteractionIntent Intent) {
-  switch (Intent) {
-  case ETownspersonInteractionIntent::General:
-    return TEXT("General");
-  case ETownspersonInteractionIntent::Dialogue:
-    return TEXT("Dialogue");
-  case ETownspersonInteractionIntent::Memory:
-    return TEXT("Memory");
-  case ETownspersonInteractionIntent::CombatValidation:
-    return TEXT("CombatValidation");
-  }
-  checkNoEntry();
-  return FString();
+  const func::Maybe<FString> Text =
+      func::multi_match<ETownspersonInteractionIntent, FString>(
+          Intent, {func::when<ETownspersonInteractionIntent, FString>(
+                       func::equals(ETownspersonInteractionIntent::General),
+                       [](const ETownspersonInteractionIntent &) {
+                         return FString(TEXT("General"));
+                       }),
+                   func::when<ETownspersonInteractionIntent, FString>(
+                       func::equals(ETownspersonInteractionIntent::Dialogue),
+                       [](const ETownspersonInteractionIntent &) {
+                         return FString(TEXT("Dialogue"));
+                       }),
+                   func::when<ETownspersonInteractionIntent, FString>(
+                       func::equals(ETownspersonInteractionIntent::Memory),
+                       [](const ETownspersonInteractionIntent &) {
+                         return FString(TEXT("Memory"));
+                       }),
+                   func::when<ETownspersonInteractionIntent, FString>(
+                       func::equals(
+                           ETownspersonInteractionIntent::CombatValidation),
+                       [](const ETownspersonInteractionIntent &) {
+                         return FString(TEXT("CombatValidation"));
+                       })});
+  check(Text.hasValue);
+  return Text.value;
 }
 
 /**
@@ -92,14 +127,18 @@ FString InteractionIntentText(ETownspersonInteractionIntent Intent) {
  * explicit and fail on impossible values instead of falling back silently.
  */
 FString BotKindText(EBotEntityKind Kind) {
-  switch (Kind) {
-  case EBotEntityKind::Townsperson:
-    return TEXT("Townsperson");
-  case EBotEntityKind::Horse:
-    return TEXT("Horse");
-  }
-  checkNoEntry();
-  return FString();
+  const func::Maybe<FString> Text =
+      func::multi_match<EBotEntityKind, FString>(
+          Kind, {func::when<EBotEntityKind, FString>(
+                     func::equals(EBotEntityKind::Townsperson),
+                     [](const EBotEntityKind &) {
+                       return FString(TEXT("Townsperson"));
+                     }),
+                 func::when<EBotEntityKind, FString>(
+                     func::equals(EBotEntityKind::Horse),
+                     [](const EBotEntityKind &) { return FString(TEXT("Horse")); })});
+  check(Text.hasValue);
+  return Text.value;
 }
 
 /**
@@ -110,14 +149,20 @@ FString BotKindText(EBotEntityKind Kind) {
  * be explicit and fail on impossible values instead of falling back silently.
  */
 FString BotAlignmentText(EBotAlignment Alignment) {
-  switch (Alignment) {
-  case EBotAlignment::Friendly:
-    return TEXT("Friendly");
-  case EBotAlignment::Neutral:
-    return TEXT("Neutral");
-  }
-  checkNoEntry();
-  return FString();
+  const func::Maybe<FString> Text =
+      func::multi_match<EBotAlignment, FString>(
+          Alignment, {func::when<EBotAlignment, FString>(
+                          func::equals(EBotAlignment::Friendly),
+                          [](const EBotAlignment &) {
+                            return FString(TEXT("Friendly"));
+                          }),
+                      func::when<EBotAlignment, FString>(
+                          func::equals(EBotAlignment::Neutral),
+                          [](const EBotAlignment &) {
+                            return FString(TEXT("Neutral"));
+                          })});
+  check(Text.hasValue);
+  return Text.value;
 }
 
 TArray<TArray<FString>> LandmarkDomains() {

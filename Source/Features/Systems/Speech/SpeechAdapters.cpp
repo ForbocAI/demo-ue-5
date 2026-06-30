@@ -1,76 +1,81 @@
 
 #include "Features/Systems/Speech/SpeechAdapters.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
 USpeechComponent::USpeechComponent() {
-  PrimaryComponentTick.bCanEverTick = true;
-  PrimaryComponentTick.bStartWithTickEnabled = false;
+  RuntimeSettings =
+      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings()
+          .SpeechRuntime;
+  PrimaryComponentTick.bCanEverTick = RuntimeSettings.bCanEverTick;
+  PrimaryComponentTick.bStartWithTickEnabled =
+      RuntimeSettings.bStartTickEnabled;
+  TTSEndpoint = RuntimeSettings.TtsEndpoint;
+  SpeechRate = RuntimeSettings.SpeechRate;
+  Volume = RuntimeSettings.Volume;
+  bEnableLipSync = RuntimeSettings.bEnableLipSync;
+  PlaybackTime = RuntimeSettings.InitialPlaybackTime;
+  bSpeechActive = RuntimeSettings.bInitialSpeechActive;
+  CurrentVisemeName = RuntimeSettings.RestViseme;
+  CurrentVisemeWeight = RuntimeSettings.RestWeight;
 }
 
 void USpeechComponent::EnsureVisemeMap() {
-  if (VisemeMap.Num() == 0) {
-    VisemeMap = SpeechOps::DefaultVisemeMap();
-  }
+  VisemeMap.Num() == 0
+      ? (VisemeMap = SpeechOps::VisemeMapFromSettings(RuntimeSettings), void())
+      : void();
 }
 
 void USpeechComponent::SpeakText(const FString &Text) {
-  // Stop any current speech
-  if (bSpeechActive) {
-    StopSpeaking();
-  }
+  bSpeechActive ? (StopSpeaking(), void()) : void();
 
   EnsureVisemeMap();
 
-  // Generate estimated phonemes from text (always available)
-  ActivePhonemes = SpeechOps::EstimatePhonemesFromText(
-      Text, 0.08f / SpeechRate);
-  PlaybackTime = 0.0f;
+  ForbocAI::Demo::Data::FSpeechRuntimeSettings EffectiveSettings =
+      RuntimeSettings;
+  EffectiveSettings.EstimatedBasePhonemeSeconds =
+      RuntimeSettings.EstimatedBasePhonemeSeconds / SpeechRate;
+  ActivePhonemes =
+      SpeechOps::EstimatePhonemesFromText(Text, EffectiveSettings);
+  PlaybackTime = RuntimeSettings.InitialPlaybackTime;
   bSpeechActive = true;
 
   PrimaryComponentTick.SetTickFunctionEnable(true);
   OnSpeechStarted(Text);
 
-  UE_LOG(LogTemp, Display,
-         TEXT("Speech: Starting speech with %d phonemes for: %s"),
-         ActivePhonemes.Num(), *Text);
+  const FString StartLog = FString::Printf(
+      *RuntimeSettings.SpeechStartLogFormat, ActivePhonemes.Num(), *Text);
+  UE_LOG(LogTemp, Display, TEXT("%s"), *StartLog);
 
-  // If TTS endpoint is configured, fire async TTS request
-  if (TTSEndpoint.IsEmpty()) {
-    UE_LOG(LogTemp, Display,
-           TEXT("Speech: No TTS endpoint - using estimated phonemes only (lip sync without audio)"));
-    return;
-  }
+  check(!TTSEndpoint.IsEmpty());
 
   FHttpModule &Http = FHttpModule::Get();
   TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =
       Http.CreateRequest();
   Request->SetURL(TTSEndpoint);
-  Request->SetVerb(TEXT("POST"));
-  Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+  Request->SetVerb(RuntimeSettings.TtsVerb);
+  Request->SetHeader(RuntimeSettings.TtsContentTypeHeader,
+                     RuntimeSettings.TtsContentType);
   Request->SetContentAsString(FString::Printf(
-      TEXT("{\"text\":\"%s\",\"voice\":\"default\",\"speed\":%f}"),
+      *RuntimeSettings.TtsRequestFormat,
       *Text.ReplaceCharWithEscapedChar(), SpeechRate));
 
   Request->OnProcessRequestComplete().BindLambda(
       [this](FHttpRequestPtr Req, FHttpResponsePtr Resp, bool bSuccess) {
-        if (!bSuccess || !Resp.IsValid() || Resp->GetResponseCode() != 200) {
-          OnSpeechError(
-              TEXT("TTS request failed - continuing with lip sync only"));
-          return;
-        }
+        const bool bValidResponse =
+            bSuccess && Resp.IsValid() &&
+            Resp->GetResponseCode() ==
+                RuntimeSettings.TtsSuccessResponseCode;
+        check(bValidResponse);
 
         const TArray<uint8> &AudioData = Resp->GetContent();
-        if (AudioData.Num() > 0) {
-          UE_LOG(LogTemp, Display,
-                 TEXT("Speech: Received %d bytes of TTS audio"),
-                 AudioData.Num());
-          return;
-        }
-
-        UE_LOG(LogTemp, Warning, TEXT("Speech: TTS returned empty audio"));
+        check(AudioData.Num() > RuntimeSettings.MinimumAudioBytes);
+        const FString AudioLog = FString::Printf(
+            *RuntimeSettings.SpeechAudioReceivedLogFormat, AudioData.Num());
+        UE_LOG(LogTemp, Display, TEXT("%s"), *AudioLog);
       });
 
   Request->ProcessRequest();
@@ -78,19 +83,17 @@ void USpeechComponent::SpeakText(const FString &Text) {
 
 void USpeechComponent::StopSpeaking() {
   bSpeechActive = false;
-  PlaybackTime = 0.0f;
+  PlaybackTime = RuntimeSettings.InitialPlaybackTime;
   ActivePhonemes.Empty();
-  CurrentVisemeName = TEXT("viseme_sil");
-  CurrentVisemeWeight = 0.0f;
+  const FVisemeMapping Rest = SpeechOps::RestViseme(RuntimeSettings);
+  CurrentVisemeName = Rest.MorphTargetName;
+  CurrentVisemeWeight = Rest.BlendWeight;
 
   PrimaryComponentTick.SetTickFunctionEnable(false);
 
-  // Reset all morph targets to silence
-  ApplyVisemeToMesh(TEXT("viseme_sil"), 0.0f);
+  ApplyVisemeToMesh(Rest.MorphTargetName, Rest.BlendWeight);
 
-  if (AudioComp && AudioComp->IsPlaying()) {
-    AudioComp->Stop();
-  }
+  AudioComp && AudioComp->IsPlaying() ? (AudioComp->Stop(), void()) : void();
 
   OnSpeechFinished();
 }
@@ -110,61 +113,55 @@ void USpeechComponent::TickComponent(
     FActorComponentTickFunction *ThisTickFunction) {
   Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-  if (!bSpeechActive) {
-    return;
-  }
+  bSpeechActive ? ([this, DeltaTime]() {
+    PlaybackTime += DeltaTime;
 
-  PlaybackTime += DeltaTime;
+    const float TotalDuration =
+        ActivePhonemes.Num() > 0
+            ? ActivePhonemes.Last().StartTime + ActivePhonemes.Last().Duration
+            : RuntimeSettings.InitialPlaybackTime;
 
-  const float TotalDuration =
-      ActivePhonemes.Num() > 0
-          ? ActivePhonemes.Last().StartTime + ActivePhonemes.Last().Duration
-          : 0.0f;
-
-  if (PlaybackTime >= TotalDuration) {
-    StopSpeaking();
-    return;
-  }
-
-  EnsureVisemeMap();
-  const FVisemeMapping Viseme =
-      SpeechOps::ActiveVisemeAtTime(ActivePhonemes, PlaybackTime, VisemeMap);
-
-  if (Viseme.MorphTargetName != CurrentVisemeName ||
-      FMath::Abs(Viseme.BlendWeight - CurrentVisemeWeight) > 0.01f) {
-    CurrentVisemeName = Viseme.MorphTargetName;
-    CurrentVisemeWeight = Viseme.BlendWeight;
-    if (bEnableLipSync) {
-      ApplyVisemeToMesh(CurrentVisemeName, CurrentVisemeWeight);
-    }
-    OnVisemeChanged(CurrentVisemeName, CurrentVisemeWeight);
-  }
+    PlaybackTime >= TotalDuration
+        ? (StopSpeaking(), void())
+        : ([this]() {
+            EnsureVisemeMap();
+            const FVisemeMapping Viseme = SpeechOps::ActiveVisemeAtTime(
+                ActivePhonemes, PlaybackTime, VisemeMap,
+                SpeechOps::RestViseme(RuntimeSettings));
+            const bool bChanged =
+                Viseme.MorphTargetName != CurrentVisemeName ||
+                FMath::Abs(Viseme.BlendWeight - CurrentVisemeWeight) >
+                    RuntimeSettings.VisemeChangeTolerance;
+            bChanged ? ([this, Viseme]() {
+              CurrentVisemeName = Viseme.MorphTargetName;
+              CurrentVisemeWeight = Viseme.BlendWeight;
+              bEnableLipSync
+                  ? (ApplyVisemeToMesh(CurrentVisemeName, CurrentVisemeWeight),
+                     void())
+                  : void();
+              OnVisemeChanged(CurrentVisemeName, CurrentVisemeWeight);
+            }(), void())
+                     : void();
+          }(), void());
+  }(), void())
+                : void();
 }
 
 void USpeechComponent::ApplyVisemeToMesh(const FString &VisemeName,
                                           float Weight) {
-  // Find the skeletal mesh on our owner
   AActor *Owner = GetOwner();
-  if (!Owner) {
-    return;
-  }
+  check(Owner);
 
   USkeletalMeshComponent *Mesh =
       Owner->FindComponentByClass<USkeletalMeshComponent>();
-  if (!Mesh) {
-    return;
-  }
+  check(Mesh);
 
-  const TArray<FString> VisemeNames = {
-      TEXT("viseme_sil"), TEXT("viseme_PP"), TEXT("viseme_FF"),
-      TEXT("viseme_TH"),  TEXT("viseme_DD"), TEXT("viseme_kk"),
-      TEXT("viseme_CH"),  TEXT("viseme_SS"), TEXT("viseme_nn"),
-      TEXT("viseme_RR"),  TEXT("viseme_aa"), TEXT("viseme_E"),
-      TEXT("viseme_I"),   TEXT("viseme_O"),  TEXT("viseme_U")};
-
-  ecs::forEachArray<FString>(VisemeNames, [Mesh](const FString &Name) {
-    Mesh->SetMorphTarget(FName(*Name), 0.0f);
-  });
+  func::for_each_indexed(
+      RuntimeSettings.ResetMorphTargets,
+      static_cast<size_t>(RuntimeSettings.ResetMorphTargets.Num()),
+      [Mesh, this](const FString &Name) {
+        Mesh->SetMorphTarget(FName(*Name), RuntimeSettings.RestWeight);
+      });
 
   Mesh->SetMorphTarget(FName(*VisemeName), Weight);
 }

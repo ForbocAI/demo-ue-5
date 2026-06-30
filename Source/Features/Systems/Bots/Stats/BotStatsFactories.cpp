@@ -26,18 +26,25 @@ FBotStatsComponent Component(const FBotStatsSource &Source) {
 }
 
 TArray<FBotStatsComponent>
-FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
+FromTownspeople(const FBotStatsFromTownspeopleRequest &Request) {
   return ecs::mapArray<FTownspersonSeed, FBotStatsComponent>(
-      Seeds, [](const FTownspersonSeed &Seed) {
-        return Component({Seed.Id, 120.0f, 650.0f, 100.0f, true, false});
+      Request.Seeds, [&Request](const FTownspersonSeed &Seed) {
+        return Component({Seed.Id, Request.RuntimeSettings.TownspersonStats.MoveSpeed,
+                          Request.RuntimeSettings.TownspersonStats.AwarenessRange,
+                          Request.RuntimeSettings.TownspersonStats.Resolve,
+                          Request.RuntimeSettings.TownspersonStats.bCanTalk,
+                          false});
       });
 }
 
 TArray<FBotStatsComponent> FromHorses(
-    const TArray<FHorseRouteSeed> &Seeds) {
+    const FBotStatsFromHorsesRequest &Request) {
   return ecs::mapArray<FHorseRouteSeed, FBotStatsComponent>(
-      Seeds, [](const FHorseRouteSeed &Seed) {
-        return Component({Seed.Id, 260.0f, 700.0f, 100.0f, false,
+      Request.Seeds, [&Request](const FHorseRouteSeed &Seed) {
+        return Component({Seed.Id, Request.RuntimeSettings.HorseStats.MoveSpeed,
+                          Request.RuntimeSettings.HorseStats.AwarenessRange,
+                          Request.RuntimeSettings.HorseStats.Resolve,
+                          Request.RuntimeSettings.HorseStats.bCanTalk,
                           Seed.bMountedRider});
       });
 }

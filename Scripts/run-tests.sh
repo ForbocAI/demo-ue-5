@@ -71,8 +71,20 @@ bash "$PROJECT_ROOT/Scripts/check_sdk_submodule_guard.sh"
 echo "Checking feature C++ parameter discipline..."
 python3 "$PROJECT_ROOT/Scripts/check_param_count.py" --strict
 
+echo "Checking branchless FP source discipline..."
+python3 "$PROJECT_ROOT/Scripts/check_branchless_source.py" --self-test
+python3 "$PROJECT_ROOT/Scripts/check_branchless_source.py" "$PROJECT_ROOT/Source"
+
+echo "Validating runtime settings JSON..."
+for JSON_FILE in "$PROJECT_ROOT/Content/Data/runtime_demo_settings.json" "$PROJECT_ROOT"/Content/Data/runtime_settings_*.json; do
+  python3 -m json.tool "$JSON_FILE" >/dev/null
+done
+
 echo "Updating file line count documentation..."
 python3 "$PROJECT_ROOT/Scripts/DOCS/count_project_lines.py"
+
+echo "Checking diff whitespace..."
+git -C "$PROJECT_ROOT" diff --check
 
 if [ -n "$UNREAL_BUILD" ]; then
   echo "Ensuring DemoProjectEditor is built..."

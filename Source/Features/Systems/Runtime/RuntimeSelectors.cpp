@@ -167,6 +167,11 @@ SelectTextureCatalog(const FRuntimeState &State) {
   return RenderingSelectors::SelectTextureCatalog(State.Rendering);
 }
 
+const ForbocAI::Demo::Data::FRenderingRuntimeSettings &
+SelectRenderingRuntimeSettings(const FRuntimeState &State) {
+  return RenderingSelectors::SelectRenderingRuntimeSettings(State.Rendering);
+}
+
 const FRenderingAssetPaths &
 SelectRenderingAssetPaths(const FRuntimeState &State) {
   return RenderingSelectors::SelectRenderingAssetPaths(State.Rendering);
@@ -210,6 +215,31 @@ SelectTownspersonPresentation(const FRuntimeState &State) {
 const FHorsePresentationViewModel &
 SelectHorsePresentation(const FRuntimeState &State) {
   return RenderingSelectors::SelectHorsePresentation(State.Rendering);
+}
+
+const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &
+SelectRuntimeObservationIds(const FRuntimeState &State) {
+  return State.RuntimeObservationIds;
+}
+
+const ForbocAI::Demo::Data::FRuntimeDebugMessageSettings &
+SelectRuntimeDebugMessages(const FRuntimeState &State) {
+  return State.RuntimeDebugMessages;
+}
+
+const ForbocAI::Demo::Data::FRuntimeViewNameSettings &
+SelectRuntimeViewNames(const FRuntimeState &State) {
+  return State.RuntimeViewNames;
+}
+
+const ForbocAI::Demo::Data::FRuntimeTextSettings &
+SelectRuntimeText(const FRuntimeState &State) {
+  return State.RuntimeText;
+}
+
+const ForbocAI::Demo::Data::FBotRuntimeSettings &
+SelectBotRuntimeSettings(const FRuntimeState &State) {
+  return State.BotRuntime;
 }
 
 TArray<FBotEntity> SelectBots(const FRuntimeState &State) {

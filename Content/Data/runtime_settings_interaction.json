@@ -1,0 +1,6 @@
+{
+  "interaction": {
+    "townsperson_max_distance_lots": 2.1,
+    "no_townsperson_message": "No talkable townsperson nearby."
+  }
+}

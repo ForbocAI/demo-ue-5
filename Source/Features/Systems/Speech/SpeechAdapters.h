@@ -3,7 +3,8 @@
 
 #include "Components/ActorComponent.h"
 #include "Components/AudioComponent.h"
-#include "Core/ecs.hpp"
+#include "Core/functional_core.hpp"
+#include "Features/Components/Data/DataTypes.h"
 #include "Sound/SoundWave.h"
 #include "SpeechAdapters.generated.h"
 
@@ -65,7 +66,7 @@ struct FVisemeMapping {
 
   /** Blend weight for this viseme (0.0 - 1.0). */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Speech")
-  float BlendWeight = 1.0f;
+  float BlendWeight = 0.0f;
 };
 
 inline bool operator==(const FPhonemeEvent &Left,
@@ -124,99 +125,68 @@ struct FSpeechResult {
 
 namespace SpeechOps {
 
-/**
- * Default phoneme-to-viseme mapping table.
- * Pure function — returns a new map each call, no global state.
- *
- * Maps ARPABET phonemes to morph target names following the
- * standard 15-viseme Oculus/Microsoft mapping.
- */
-inline TMap<FString, FVisemeMapping> DefaultVisemeMap() {
-  TMap<FString, FVisemeMapping> Map;
+inline FVisemeMapping RestViseme(
+    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+  return {Settings.RestViseme, Settings.RestWeight};
+}
 
-  // Silence / rest
-  Map.Add(TEXT("SIL"), {TEXT("viseme_sil"), 0.0f});
-
-  // Vowels
-  Map.Add(TEXT("AA"), {TEXT("viseme_aa"), 1.0f});
-  Map.Add(TEXT("AE"), {TEXT("viseme_aa"), 0.8f});
-  Map.Add(TEXT("AH"), {TEXT("viseme_aa"), 0.7f});
-  Map.Add(TEXT("AO"), {TEXT("viseme_O"), 1.0f});
-  Map.Add(TEXT("AW"), {TEXT("viseme_O"), 0.9f});
-  Map.Add(TEXT("AY"), {TEXT("viseme_aa"), 0.6f});
-  Map.Add(TEXT("EH"), {TEXT("viseme_E"), 1.0f});
-  Map.Add(TEXT("ER"), {TEXT("viseme_E"), 0.7f});
-  Map.Add(TEXT("EY"), {TEXT("viseme_E"), 0.8f});
-  Map.Add(TEXT("IH"), {TEXT("viseme_I"), 0.8f});
-  Map.Add(TEXT("IY"), {TEXT("viseme_I"), 1.0f});
-  Map.Add(TEXT("OW"), {TEXT("viseme_O"), 0.9f});
-  Map.Add(TEXT("OY"), {TEXT("viseme_O"), 0.8f});
-  Map.Add(TEXT("UH"), {TEXT("viseme_U"), 0.8f});
-  Map.Add(TEXT("UW"), {TEXT("viseme_U"), 1.0f});
-
-  // Consonants
-  Map.Add(TEXT("B"), {TEXT("viseme_PP"), 1.0f});
-  Map.Add(TEXT("CH"), {TEXT("viseme_CH"), 1.0f});
-  Map.Add(TEXT("D"), {TEXT("viseme_DD"), 1.0f});
-  Map.Add(TEXT("DH"), {TEXT("viseme_TH"), 1.0f});
-  Map.Add(TEXT("F"), {TEXT("viseme_FF"), 1.0f});
-  Map.Add(TEXT("G"), {TEXT("viseme_kk"), 1.0f});
-  Map.Add(TEXT("HH"), {TEXT("viseme_sil"), 0.3f});
-  Map.Add(TEXT("JH"), {TEXT("viseme_CH"), 0.9f});
-  Map.Add(TEXT("K"), {TEXT("viseme_kk"), 1.0f});
-  Map.Add(TEXT("L"), {TEXT("viseme_DD"), 0.7f});
-  Map.Add(TEXT("M"), {TEXT("viseme_PP"), 1.0f});
-  Map.Add(TEXT("N"), {TEXT("viseme_nn"), 1.0f});
-  Map.Add(TEXT("NG"), {TEXT("viseme_nn"), 0.8f});
-  Map.Add(TEXT("P"), {TEXT("viseme_PP"), 1.0f});
-  Map.Add(TEXT("R"), {TEXT("viseme_RR"), 1.0f});
-  Map.Add(TEXT("S"), {TEXT("viseme_SS"), 1.0f});
-  Map.Add(TEXT("SH"), {TEXT("viseme_CH"), 0.8f});
-  Map.Add(TEXT("T"), {TEXT("viseme_DD"), 0.9f});
-  Map.Add(TEXT("TH"), {TEXT("viseme_TH"), 1.0f});
-  Map.Add(TEXT("V"), {TEXT("viseme_FF"), 0.9f});
-  Map.Add(TEXT("W"), {TEXT("viseme_U"), 0.6f});
-  Map.Add(TEXT("Y"), {TEXT("viseme_I"), 0.5f});
-  Map.Add(TEXT("Z"), {TEXT("viseme_SS"), 0.9f});
-  Map.Add(TEXT("ZH"), {TEXT("viseme_CH"), 0.7f});
-
-  return Map;
+inline TMap<FString, FVisemeMapping> VisemeMapFromSettings(
+    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+  return func::fold_indexed(
+      Settings.VisemeMappings,
+      static_cast<size_t>(Settings.VisemeMappings.Num()),
+      TMap<FString, FVisemeMapping>(),
+      [](const TMap<FString, FVisemeMapping> &Acc,
+         const ForbocAI::Demo::Data::FSpeechVisemeMappingSettings &Mapping) {
+        TMap<FString, FVisemeMapping> Next = Acc;
+        Next.Add(Mapping.Phoneme,
+                 {Mapping.MorphTargetName, Mapping.BlendWeight});
+        return Next;
+      });
 }
 
 /**
  * Look up the viseme for a given phoneme.
  * Pure function — no side effects.
- *
- * Returns the mapped viseme or a silence viseme if not found.
  */
-inline FVisemeMapping LookupViseme(
+inline func::Maybe<FVisemeMapping> LookupViseme(
     const FString &Phoneme,
     const TMap<FString, FVisemeMapping> &Map) {
   const FVisemeMapping *Found = Map.Find(Phoneme);
-  return Found ? *Found : FVisemeMapping{TEXT("viseme_sil"), 0.0f};
+  return func::from_nullable(Found);
+}
+
+inline FVisemeMapping RequiredVisemeForPhoneme(
+    const FString &Phoneme,
+    const TMap<FString, FVisemeMapping> &Map) {
+  const func::Maybe<FVisemeMapping> Found = LookupViseme(Phoneme, Map);
+  check(Found.hasValue);
+  return Found.value;
 }
 
 /**
  * Compute the active viseme at a given time in the phoneme timeline.
  * Pure function — scans the timeline recursively.
  *
- * Returns the viseme mapping active at the given time,
- * or a silence viseme if no phoneme is active.
+ * Returns the viseme mapping active at the given time, or the authored rest
+ * viseme when the timeline has no active phoneme.
  */
 inline FVisemeMapping ActiveVisemeAtTime(
     const TArray<FPhonemeEvent> &Phonemes,
     float CurrentTime,
-    const TMap<FString, FVisemeMapping> &VisemeMap) {
+    const TMap<FString, FVisemeMapping> &VisemeMap,
+    const FVisemeMapping &Rest) {
   return func::match(
-      ecs::findArray<FPhonemeEvent>(
-          Phonemes, [CurrentTime](const FPhonemeEvent &Phoneme) {
+      func::find_indexed(
+          Phonemes, static_cast<size_t>(Phonemes.Num()),
+          [CurrentTime](const FPhonemeEvent &Phoneme) {
             return CurrentTime >= Phoneme.StartTime &&
                    CurrentTime < Phoneme.StartTime + Phoneme.Duration;
           }),
       [&VisemeMap](const FPhonemeEvent &Phoneme) {
-        return LookupViseme(Phoneme.Phoneme, VisemeMap);
+        return RequiredVisemeForPhoneme(Phoneme.Phoneme, VisemeMap);
       },
-      []() { return FVisemeMapping{TEXT("viseme_sil"), 0.0f}; });
+      [&Rest]() { return Rest; });
 }
 
 struct FPhonemeEstimateState {
@@ -224,19 +194,69 @@ struct FPhonemeEstimateState {
   float CurrentTime = 0.0f;
 };
 
-inline FString EstimatePhonemeForChar(TCHAR Ch) {
+inline FString UpperString(TCHAR Upper) {
+  return FString(1, &Upper);
+}
+
+inline bool ContainsCharacter(const FString &Characters, TCHAR Character) {
+  return Characters.Contains(UpperString(Character));
+}
+
+inline func::Maybe<FString> EstimatePhonemeForChar(
+    TCHAR Ch,
+    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
   const TCHAR Upper = FChar::ToUpper(Ch);
-  return (Upper == 'A' || Upper == 'E' || Upper == 'I' || Upper == 'O' ||
-          Upper == 'U')
-             ? FString::Printf(TEXT("%c%c"), Upper, Upper)
-             : (Upper == ' ' || Upper == '.' || Upper == ',')
-                   ? TEXT("SIL")
-                   : FChar::IsAlpha(Upper) ? FString(1, &Upper) : TEXT("");
+  return func::multi_match<TCHAR, FString>(
+      Upper,
+      {
+          func::when<TCHAR, FString>(
+              [&Settings](TCHAR Candidate) {
+                return ContainsCharacter(Settings.VowelCharacters,
+                                         Candidate);
+              },
+              [&Settings](TCHAR Candidate) {
+                return FString::Printf(*Settings.VowelPhonemeFormat,
+                                       Candidate, Candidate);
+              }),
+          func::when<TCHAR, FString>(
+              [&Settings](TCHAR Candidate) {
+                return ContainsCharacter(Settings.SilenceCharacters,
+                                         Candidate);
+              },
+              [&Settings](TCHAR) { return Settings.SilencePhoneme; }),
+          func::when<TCHAR, FString>(
+              [](TCHAR Candidate) { return FChar::IsAlpha(Candidate); },
+              [](TCHAR Candidate) { return UpperString(Candidate); }),
+      });
 }
 
 inline float EstimatePhonemeDuration(const FString &Phoneme,
-                                     float SpeechRate) {
-  return Phoneme == TEXT("SIL") ? SpeechRate * 0.5f : SpeechRate;
+                                     const ForbocAI::Demo::Data::
+                                         FSpeechRuntimeSettings &Settings) {
+  const func::Maybe<ForbocAI::Demo::Data::FSpeechPhonemeDurationRuleSettings>
+      Rule = func::find_indexed(
+          Settings.DurationRules,
+          static_cast<size_t>(Settings.DurationRules.Num()),
+          [&Phoneme](
+              const ForbocAI::Demo::Data::FSpeechPhonemeDurationRuleSettings
+                  &Candidate) {
+            const func::Maybe<bool> Matches = func::multi_match<FString, bool>(
+                Candidate.Kind,
+                {
+                    func::when<FString, bool>(
+                        func::equals<FString>(TEXT("phoneme_equals")),
+                        [&Candidate, &Phoneme](const FString &) {
+                          return Candidate.Phoneme == Phoneme;
+                        }),
+                    func::when<FString, bool>(
+                        func::equals<FString>(TEXT("always")),
+                        [](const FString &) { return true; }),
+                });
+            check(Matches.hasValue);
+            return Matches.value;
+          });
+  check(Rule.hasValue);
+  return Settings.EstimatedBasePhonemeSeconds * Rule.value.Multiplier;
 }
 
 /**
@@ -247,22 +267,27 @@ inline float EstimatePhonemeDuration(const FString &Phoneme,
  * Real phoneme data should come from the TTS engine.
  */
 inline TArray<FPhonemeEvent> EstimatePhonemesFromText(
-    const FString &Text, float SpeechRate = 0.08f) {
-  return ecs::foldIndexRange<FPhonemeEstimateState>(
-             Text.Len(), FPhonemeEstimateState{},
-             [&Text, SpeechRate](const FPhonemeEstimateState &State,
-                                 int32 Index) {
-               const FString Phoneme = EstimatePhonemeForChar(Text[Index]);
-               if (Phoneme.IsEmpty()) {
-                 return State;
-               }
-
-               const float Duration =
-                   EstimatePhonemeDuration(Phoneme, SpeechRate);
-               FPhonemeEstimateState Next = State;
-               Next.Phonemes.Add({Phoneme, State.CurrentTime, Duration});
-               Next.CurrentTime = State.CurrentTime + Duration;
-               return Next;
+    const FString &Text,
+    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+  return func::fold_indexed(
+             Text, static_cast<size_t>(Text.Len()), FPhonemeEstimateState{},
+             [&Settings](const FPhonemeEstimateState &State,
+                         const TCHAR &Character) {
+               const func::Maybe<FString> Phoneme =
+                   EstimatePhonemeForChar(Character, Settings);
+               return !Phoneme.hasValue
+                          ? State
+                          : [&]() {
+                              const float Duration =
+                                  EstimatePhonemeDuration(Phoneme.value,
+                                                          Settings);
+                              FPhonemeEstimateState Next = State;
+                              Next.Phonemes.Add(
+                                  {Phoneme.value, State.CurrentTime,
+                                   Duration});
+                              Next.CurrentTime = State.CurrentTime + Duration;
+                              return Next;
+                            }();
              })
       .Phonemes;
 }
@@ -280,28 +305,28 @@ public:
 
   // --- Configuration ---
 
-  /** The TTS backend URL. Empty = use estimated phonemes only (no audio). */
+  /** The required TTS backend URL from runtime JSON. */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI|Speech")
   FString TTSEndpoint;
 
   /** Speech rate multiplier (1.0 = normal). */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI|Speech")
-  float SpeechRate = 1.0f;
+  float SpeechRate;
 
   /** Volume multiplier for generated speech. */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI|Speech")
-  float Volume = 1.0f;
+  float Volume;
 
   /** Whether to drive morph targets for lip sync. */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI|Speech")
-  bool bEnableLipSync = true;
+  bool bEnableLipSync;
 
   // --- Blueprint Callable ---
 
   /**
    * Speak the given text.
-   * If a TTS endpoint is configured, generates audio and plays it.
-   * If no TTS endpoint, generates estimated phonemes for lip sync only.
+   * Generates estimated phonemes for lip sync and posts the TTS request to the
+   * configured runtime endpoint.
    */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI|Speech")
   void SpeakText(const FString &Text);
@@ -357,14 +382,17 @@ private:
   UAudioComponent *AudioComp = nullptr;
 
   /** Current playback time in the speech timeline. */
-  float PlaybackTime = 0.0f;
+  float PlaybackTime;
 
   /** Whether speech is currently active. */
-  bool bSpeechActive = false;
+  bool bSpeechActive;
 
   /** Current viseme state. */
   FString CurrentVisemeName;
-  float CurrentVisemeWeight = 0.0f;
+  float CurrentVisemeWeight;
+
+  /** Authored runtime speech settings loaded from project JSON. */
+  ForbocAI::Demo::Data::FSpeechRuntimeSettings RuntimeSettings;
 
   /** Ensure the viseme map is populated. */
   void EnsureVisemeMap();

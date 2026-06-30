@@ -15,6 +15,7 @@ FactoriesObserved() {
       rtk::ActionCreator<FBotOrchestratorFactoriesPayload>>
       Creator = func::lazy(
           []() -> rtk::ActionCreator<FBotOrchestratorFactoriesPayload> {
+            // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FBotOrchestratorFactoriesPayload>(
                 TEXT("systems/bots/orchestrator/factories/observed"));
           });

@@ -27,6 +27,7 @@ inline const rtk::Slice<FBotOrchestratorFactoriesState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FBotOrchestratorFactoriesState>>
       Slice =
           func::lazy([]() -> rtk::Slice<FBotOrchestratorFactoriesState> {
+            // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createSlice<FBotOrchestratorFactoriesState>(
                 TEXT("systems/bots/orchestrator/factories"),
                 CreateInitialState(),

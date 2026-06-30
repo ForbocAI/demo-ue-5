@@ -12,6 +12,7 @@ namespace PlayerActions {
 inline const rtk::ActionCreator<FPlayerPayload> &PlayerObserved() {
   static const func::Lazy<rtk::ActionCreator<FPlayerPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FPlayerPayload> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FPlayerPayload>(
             TEXT("entities/player/observed"));
       });
@@ -23,6 +24,7 @@ PlayerMovementInputObserved() {
   static const func::Lazy<rtk::ActionCreator<FPlayerMovementInputRequest>>
       Creator =
           func::lazy([]() -> rtk::ActionCreator<FPlayerMovementInputRequest> {
+            // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FPlayerMovementInputRequest>(
                 TEXT("entities/player/movementInputObserved"));
           });
@@ -34,6 +36,7 @@ PlayerPresentationRequested() {
   static const func::Lazy<rtk::ActionCreator<FPlayerPresentationRequest>>
       Creator =
           func::lazy([]() -> rtk::ActionCreator<FPlayerPresentationRequest> {
+            // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FPlayerPresentationRequest>(
                 TEXT("entities/player/presentationRequested"));
           });

@@ -33,8 +33,7 @@ public:
   // ── Read Operations ──
 
   /**
-   * Get a string field from JSON state data.
-   * Returns empty string if field doesn't exist.
+   * Get a required string field from JSON state data.
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -43,8 +42,7 @@ public:
                                  const FString &FieldName);
 
   /**
-   * Get a float field from JSON state data.
-   * Returns 0.0 if field doesn't exist.
+   * Get a required float field from JSON state data.
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -53,8 +51,7 @@ public:
                               const FString &FieldName);
 
   /**
-   * Get an integer field from JSON state data.
-   * Returns 0 if field doesn't exist.
+   * Get a required integer field from JSON state data.
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -63,8 +60,7 @@ public:
                             const FString &FieldName);
 
   /**
-   * Get a boolean field from JSON state data.
-   * Returns false if field doesn't exist.
+   * Get a required boolean field from JSON state data.
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -135,14 +131,6 @@ public:
             meta = (DisplayName = "Merge State"))
   static FString MergeState(const FString &BaseJson,
                              const FString &OverrideJson);
-
-  /**
-   * Create an empty JSON state object: "{}".
-   */
-  UFUNCTION(BlueprintCallable, BlueprintPure,
-            Category = "ForbocAI|GenericState",
-            meta = (DisplayName = "Empty State"))
-  static FString EmptyState();
 
 private:
   /** Parse JSON string into object. Returns nullptr on failure. */

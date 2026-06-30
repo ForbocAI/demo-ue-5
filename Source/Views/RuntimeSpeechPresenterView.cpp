@@ -9,19 +9,26 @@
 namespace FG = ForbocAI::Demo::Level;
 
 ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
-    : SceneRoot(CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"))),
+    : SceneRoot(CreateDefaultSubobject<USceneComponent>(
+          FName(*FG::RuntimeSelectors::SelectRuntimeViewNames(
+                     FG::Store::GetStore().getState())
+                     .SceneRoot))),
       PresentationMesh(CreateDefaultSubobject<USkeletalMeshComponent>(
-          TEXT("PresentationMesh"))),
-      SpeechComponent(
-          CreateDefaultSubobject<USpeechComponent>(TEXT("SpeechComponent"))) {
+          FName(*FG::RuntimeSelectors::SelectRuntimeViewNames(
+                     FG::Store::GetStore().getState())
+                     .SpeechPresentationMesh))),
+      SpeechComponent(CreateDefaultSubobject<USpeechComponent>(
+          FName(*FG::RuntimeSelectors::SelectRuntimeViewNames(
+                     FG::Store::GetStore().getState())
+                     .SpeechComponent))) {
   RootComponent = SceneRoot;
   PresentationMesh->SetupAttachment(SceneRoot);
 
   const FG::FRuntimeState State = FG::Store::GetStore().getState();
   const FG::FPlayerPresentationViewModel Presentation =
       FG::RuntimeSelectors::SelectPlayerPresentation(State);
-  if (USkeletalMesh *Mesh =
-          LoadObject<USkeletalMesh>(nullptr, *Presentation.MeshPath)) {
-    PresentationMesh->SetSkeletalMesh(Mesh);
-  }
+  USkeletalMesh *Mesh =
+      LoadObject<USkeletalMesh>(nullptr, *Presentation.MeshPath);
+  check(Mesh);
+  PresentationMesh->SetSkeletalMesh(Mesh);
 }

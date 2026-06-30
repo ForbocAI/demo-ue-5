@@ -20,6 +20,7 @@ namespace UIActions {
 inline const rtk::ActionCreator<FUIPayload> &ConversationPresented() {
   static const func::Lazy<rtk::ActionCreator<FUIPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FUIPayload> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FUIPayload>(
             TEXT("systems/ui/conversationPresented"));
       });
@@ -32,6 +33,7 @@ inline const rtk::ActionCreator<FUIPayload> &ConversationPresented() {
 inline const rtk::ActionCreator<FUIPayload> &ChatHistoryRendered() {
   static const func::Lazy<rtk::ActionCreator<FUIPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FUIPayload> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FUIPayload>(
             TEXT("systems/ui/chatHistoryRendered"));
       });

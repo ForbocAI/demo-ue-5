@@ -25,6 +25,7 @@ inline FBotPipelineState CreateInitialState() {
 inline const rtk::Slice<FBotPipelineState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FBotPipelineState>> Slice =
       func::lazy([]() -> rtk::Slice<FBotPipelineState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FBotPipelineState>(
             TEXT("systems/bots/pipeline"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FBotPipelineState>

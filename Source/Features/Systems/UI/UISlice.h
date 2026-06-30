@@ -15,8 +15,6 @@ inline FUIState CreateInitialState() {
   return (func::pipe(FUIState{}) |
           [](FUIState State) -> FUIState {
             State.LastActionId = func::nothing<FString>();
-            State.Conversation =
-                UIReducers::ReduceRuntimeConversationPlaceholder();
             State.bConversationVisible = false;
             return State;
           })
@@ -26,6 +24,7 @@ inline FUIState CreateInitialState() {
 inline const rtk::Slice<FUIState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FUIState>> Slice =
       func::lazy([]() -> rtk::Slice<FUIState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FUIState>(
             TEXT("systems/ui"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FUIState> &Builder) {

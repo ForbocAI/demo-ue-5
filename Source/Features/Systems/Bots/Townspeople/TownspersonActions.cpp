@@ -8,6 +8,7 @@ namespace TownspersonActions {
 const rtk::ActionCreator<TArray<FTownspersonSeed>> &TownspeopleSeeded() {
   static const func::Lazy<rtk::ActionCreator<TArray<FTownspersonSeed>>> Creator =
       func::lazy([]() -> rtk::ActionCreator<TArray<FTownspersonSeed>> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<TArray<FTownspersonSeed>>(
           TEXT("townspeople/seeded"));
       });
@@ -20,6 +21,7 @@ ViewDefaultsRequested() {
       Creator =
           func::lazy(
               []() -> rtk::ActionCreator<FTownspersonViewDefaultsRequest> {
+                // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
                 return rtk::createAction<FTownspersonViewDefaultsRequest>(
                     TEXT("townspeople/viewDefaultsRequested"));
               });
@@ -34,6 +36,7 @@ InteractionOverlapObserved() {
           func::lazy([]()
                          -> rtk::ActionCreator<
                              FTownspersonInteractionOverlapRequest> {
+            // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FTownspersonInteractionOverlapRequest>(
                 TEXT("townspeople/interactionOverlapObserved"));
           });

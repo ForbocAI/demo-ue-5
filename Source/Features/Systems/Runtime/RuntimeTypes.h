@@ -113,11 +113,17 @@ struct FRuntimeTownspersonInteractionSource {
 };
 
 /**
- * @brief Thunk result that carries dialogue and UI payloads together.
+ * @brief Reducer result that carries dialogue and UI payloads together.
  */
 struct FRuntimeTownspersonInteractionPayload {
   FDialogueReplyPayload DialogueReply;
   FUIPayload UI;
+};
+
+struct FRuntimeTownspersonInteractionPayloadRequest {
+  FRuntimeTownspersonInteractionRequest Request;
+  ForbocAI::Demo::Data::FDialogueRuntimeSettings DialogueSettings;
+  ForbocAI::Demo::Data::FUIRuntimeSettings UISettings;
 };
 
 /**
@@ -202,6 +208,20 @@ inline bool operator!=(const FRuntimeTownspersonInteractionPayload &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(
+    const FRuntimeTownspersonInteractionPayloadRequest &Left,
+    const FRuntimeTownspersonInteractionPayloadRequest &Right) {
+  return Left.Request == Right.Request &&
+         Left.DialogueSettings == Right.DialogueSettings &&
+         Left.UISettings == Right.UISettings;
+}
+
+inline bool operator!=(
+    const FRuntimeTownspersonInteractionPayloadRequest &Left,
+    const FRuntimeTownspersonInteractionPayloadRequest &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FRuntimeLevelViewPayload &Left,
                        const FRuntimeLevelViewPayload &Right) {
   return Left.bTerrainMeshLoaded == Right.bTerrainMeshLoaded &&
@@ -223,6 +243,11 @@ inline bool operator!=(const FRuntimeLevelViewPayload &Left,
  * ECS projection keeps entity/component data inspectable without replacing RTK.
  */
 struct FRuntimeState {
+  ForbocAI::Demo::Data::FRuntimeObservationIdSettings RuntimeObservationIds;
+  ForbocAI::Demo::Data::FRuntimeDebugMessageSettings RuntimeDebugMessages;
+  ForbocAI::Demo::Data::FRuntimeViewNameSettings RuntimeViewNames;
+  ForbocAI::Demo::Data::FRuntimeTextSettings RuntimeText;
+  ForbocAI::Demo::Data::FBotRuntimeSettings BotRuntime;
   FRuntimeEcsState Ecs;
   FRuntimeTownspersonInteractionRequest LastTownspersonInteractionRequest;
   FPlayerState Player;
@@ -252,7 +277,12 @@ struct FRuntimeState {
 
 inline bool operator==(const FRuntimeState &Left,
                        const FRuntimeState &Right) {
-  return Left.Ecs == Right.Ecs &&
+  return Left.RuntimeObservationIds == Right.RuntimeObservationIds &&
+         Left.RuntimeDebugMessages == Right.RuntimeDebugMessages &&
+         Left.RuntimeViewNames == Right.RuntimeViewNames &&
+         Left.RuntimeText == Right.RuntimeText &&
+         Left.BotRuntime == Right.BotRuntime &&
+         Left.Ecs == Right.Ecs &&
          Left.LastTownspersonInteractionRequest ==
              Right.LastTownspersonInteractionRequest &&
          Left.Player == Right.Player &&

@@ -2,6 +2,7 @@
 
 #include "Core/functional_core.hpp"
 #include "CoreMinimal.h"
+#include "Features/Components/Data/DataTypes.h"
 #include "Features/Components/Rendering/RenderingTypes.h"
 #include "GameFramework/Actor.h"
 #include "RuntimeLevelView.generated.h"
@@ -57,6 +58,7 @@ private:
   UStaticMesh *CubeMesh;
   UMaterialInterface *BlockBaseMaterial;
   TArray<ForbocAI::Demo::Level::FLevelRetroTextureSpec> TextureCatalog;
+  ForbocAI::Demo::Data::FRenderingRuntimeSettings RenderingRuntimeSettings;
 
   /**
    * @brief Dispatches the RuntimeSlice level-payload thunk and applies the

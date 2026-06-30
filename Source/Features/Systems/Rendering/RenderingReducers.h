@@ -50,8 +50,13 @@ TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
 FRenderingAssetPaths ReduceRenderingAssetPaths(
     const ForbocAI::Demo::Data::FRenderingAssetPathSettings &Settings);
 
+ELevelRetroTexture ReduceTextureKind(const FString &Texture);
+
 FLevelRetroTextureSpec
 ReduceTextureSpec(const FRenderingTextureSpecRequest &Request);
+
+FRenderingPayload ReduceRenderingPayload(
+    const FRenderingPayloadRequest &Request);
 
 FRenderingState
 ReduceRenderingProfileObserved(const FRenderingState &State,

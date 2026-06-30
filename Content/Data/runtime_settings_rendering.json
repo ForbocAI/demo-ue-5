@@ -1,0 +1,1151 @@
+{
+  "rendering_assets": {
+    "level_cube_mesh_path": "/Engine/BasicShapes/Cube.Cube",
+    "blockout_material_path": "/Engine/EngineMaterials/EmissiveTexturedMaterial.EmissiveTexturedMaterial"
+  },
+  "rendering_profile": {
+    "time_of_day_hour": 15.0,
+    "anti_aliasing_method": 0,
+    "post_process_aa_quality": 0,
+    "screen_percentage": 55.0,
+    "view_distance_scale": 1.65,
+    "foliage_density_scale": 0.85,
+    "grass_density_scale": 0.85,
+    "sun_pitch_degrees": -56.0,
+    "sun_yaw_degrees": -64.0,
+    "directional_light_intensity": 8.5,
+    "directional_light_source_angle": 0.08,
+    "shadow_cascades": 1,
+    "shadow_max_resolution": 512
+  },
+  "rendering_runtime": {
+    "texture_channels": 4,
+    "texture_alpha": 255,
+    "texture_cache_key_format": "%d:%d:%d",
+    "material_texture_parameter": "Texture",
+    "texture_hash": {
+      "x_multiplier": 73856093,
+      "y_multiplier": 19349663,
+      "salt_multiplier": 83492791,
+      "xor_shift": 13
+    },
+    "console_variables": [
+      {
+        "name": "r.AntiAliasingMethod",
+        "value_kind": "profile_int",
+        "profile_field": "anti_aliasing_method",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.PostProcessAAQuality",
+        "value_kind": "profile_int",
+        "profile_field": "post_process_aa_quality",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.TemporalAA.Upsampling",
+        "value_kind": "fixed_int",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.ScreenPercentage",
+        "value_kind": "profile_float",
+        "profile_field": "screen_percentage",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.ViewDistanceScale",
+        "value_kind": "profile_float",
+        "profile_field": "view_distance_scale",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "foliage.DensityScale",
+        "value_kind": "profile_float",
+        "profile_field": "foliage_density_scale",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "grass.DensityScale",
+        "value_kind": "profile_float",
+        "profile_field": "grass_density_scale",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.MotionBlurQuality",
+        "value_kind": "fixed_int",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.BloomQuality",
+        "value_kind": "fixed_int",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.DepthOfFieldQuality",
+        "value_kind": "fixed_int",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.AmbientOcclusionLevels",
+        "value_kind": "fixed_int",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.SSR.Quality",
+        "value_kind": "fixed_int",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.Shadow.CSM.MaxCascades",
+        "value_kind": "profile_int",
+        "profile_field": "shadow_cascades",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.Shadow.MaxResolution",
+        "value_kind": "profile_int",
+        "profile_field": "shadow_max_resolution",
+        "int_value": 0,
+        "float_value": 0.0
+      },
+      {
+        "name": "r.Shadow.RadiusThreshold",
+        "value_kind": "fixed_float",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 0.02
+      },
+      {
+        "name": "r.MipMapLODBias",
+        "value_kind": "fixed_float",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 2.0
+      },
+      {
+        "name": "r.Streaming.MipBias",
+        "value_kind": "fixed_float",
+        "profile_field": "",
+        "int_value": 0,
+        "float_value": 2.0
+      }
+    ],
+    "texture_palettes": [
+      {
+        "texture": "terrain_ortho",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "mix",
+              "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_a": {
+                "r": 111,
+                "g": 103,
+                "b": 78
+              },
+              "color_b": {
+                "r": 72,
+                "g": 96,
+                "b": 55
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 5,
+              "denominator": 8
+            }
+          }
+        ]
+      },
+      {
+        "texture": "building_timber",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 1,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 4,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 74,
+                "g": 47,
+                "b": 27
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 0,
+              "y_multiplier": 1,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 7,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 74,
+                "g": 47,
+                "b": 27
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "mix",
+              "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_a": {
+                "r": 128,
+                "g": 82,
+                "b": 43
+              },
+              "color_b": {
+                "r": 171,
+                "g": 119,
+                "b": 66
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 4,
+              "denominator": 7
+            }
+          }
+        ]
+      },
+      {
+        "texture": "road_dust",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 1,
+              "y_multiplier": 1,
+              "noise_multiplier": 1,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 11,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 86,
+                "g": 75,
+                "b": 59
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "mix",
+              "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_a": {
+                "r": 128,
+                "g": 104,
+                "b": 73
+              },
+              "color_b": {
+                "r": 176,
+                "g": 145,
+                "b": 96
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 5,
+              "denominator": 9
+            }
+          }
+        ]
+      },
+      {
+        "texture": "water_creek",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 2,
+              "y_multiplier": 1,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 13,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 152,
+                "g": 189,
+                "b": 177
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 0,
+              "y_multiplier": 1,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 2,
+              "modulus": 2,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 38,
+                "g": 92,
+                "b": 118
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 28,
+                "g": 64,
+                "b": 94
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          }
+        ]
+      },
+      {
+        "texture": "foliage_riparian",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_less_than",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 1,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 9,
+              "equals": 0,
+              "less_than": 2
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 36,
+                "g": 77,
+                "b": 39
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "mix",
+              "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_a": {
+                "r": 74,
+                "g": 112,
+                "b": 48
+              },
+              "color_b": {
+                "r": 122,
+                "g": 143,
+                "b": 66
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 4,
+              "denominator": 6
+            }
+          }
+        ]
+      },
+      {
+        "texture": "rock_granite",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 1,
+              "y_multiplier": 1,
+              "noise_multiplier": 1,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 7,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 74,
+                "g": 71,
+                "b": 66
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "mix",
+              "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_a": {
+                "r": 126,
+                "g": 121,
+                "b": 107
+              },
+              "color_b": {
+                "r": 171,
+                "g": 160,
+                "b": 138
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 5,
+              "denominator": 8
+            }
+          }
+        ]
+      },
+      {
+        "texture": "mine_timber",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 1,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 3,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 45,
+                "g": 35,
+                "b": 27
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "mix",
+              "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_a": {
+                "r": 78,
+                "g": 58,
+                "b": 39
+              },
+              "color_b": {
+                "r": 111,
+                "g": 82,
+                "b": 50
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 4,
+              "denominator": 7
+            }
+          }
+        ]
+      },
+      {
+        "texture": "marker_paint",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 1,
+              "y_multiplier": 1,
+              "noise_multiplier": 0,
+              "x_divisor": 2,
+              "y_divisor": 2,
+              "modulus": 2,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 171,
+                "g": 124,
+                "b": 28
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 40,
+                "g": 33,
+                "b": 24
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          }
+        ]
+      },
+      {
+        "texture": "npc_body",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 1,
+              "y_multiplier": 1,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 5,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 36,
+                "g": 45,
+                "b": 52
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 58,
+                "g": 73,
+                "b": 80
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          }
+        ]
+      },
+      {
+        "texture": "npc_hat",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 1,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 5,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 60,
+                "g": 39,
+                "b": 20
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 93,
+                "g": 63,
+                "b": 31
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          }
+        ]
+      },
+      {
+        "texture": "horse_coat",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "mix",
+              "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_a": {
+                "r": 94,
+                "g": 47,
+                "b": 22
+              },
+              "color_b": {
+                "r": 139,
+                "g": 75,
+                "b": 33
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 4,
+              "denominator": 7
+            }
+          }
+        ]
+      },
+      {
+        "texture": "horse_leg",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "mix",
+              "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_a": {
+                "r": 38,
+                "g": 25,
+                "b": 15
+              },
+              "color_b": {
+                "r": 75,
+                "g": 44,
+                "b": 22
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 3,
+              "denominator": 6
+            }
+          }
+        ]
+      },
+      {
+        "texture": "horse_tack",
+        "rules": [
+          {
+            "predicate": {
+              "kind": "mod_equals",
+              "x_multiplier": 1,
+              "y_multiplier": 1,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 6,
+              "equals": 0,
+              "less_than": 0
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 45,
+                "g": 28,
+                "b": 16
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          },
+          {
+            "predicate": {
+              "kind": "always",
+              "x_multiplier": 0,
+              "y_multiplier": 0,
+              "noise_multiplier": 0,
+              "x_divisor": 1,
+              "y_divisor": 1,
+              "modulus": 1,
+              "equals": 0,
+              "less_than": 1
+            },
+            "result": {
+              "kind": "solid",
+              "color": {
+                "r": 77,
+                "g": 48,
+                "b": 26
+              },
+              "color_a": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "color_b": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+              },
+              "numerator_base": 0,
+              "numerator_noise_modulus": 1,
+              "denominator": 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "texture_catalog": [
+    {
+      "texture": "terrain_ortho",
+      "name": "terrain-ortho-dither",
+      "use": "dithered terrain color from the French Gulch ortho sample",
+      "size": 16
+    },
+    {
+      "texture": "building_timber",
+      "name": "building-timber",
+      "use": "false-front buildings, cabins, porch boards, and hotel/store silhouettes",
+      "size": 16
+    },
+    {
+      "texture": "road_dust",
+      "name": "road-dust",
+      "use": "Main Street, French Gulch Road, wagon yard, and mine road",
+      "size": 16
+    },
+    {
+      "texture": "water_creek",
+      "name": "clear-creek-water",
+      "use": "Clear Creek ribbon, shallow bends, and future Water System guide surfaces",
+      "size": 16
+    },
+    {
+      "texture": "foliage_riparian",
+      "name": "riparian-foliage",
+      "use": "cottonwoods, willow shrubs, chaparral, and PCG foliage markers",
+      "size": 16
+    },
+    {
+      "texture": "rock_granite",
+      "name": "creek-granite-rock",
+      "use": "boulders, creek stone shelves, cemetery terrace, and hillside rock scatter",
+      "size": 16
+    },
+    {
+      "texture": "mine_timber",
+      "name": "mine-dark-timber",
+      "use": "mine entrance, timber supports, and waste-rock edge pieces",
+      "size": 16
+    },
+    {
+      "texture": "marker_paint",
+      "name": "prototype-marker-paint",
+      "use": "PCG/Water staging markers and remaining non-final blockout markers",
+      "size": 16
+    },
+    {
+      "texture": "npc_body",
+      "name": "npc-work-cloth",
+      "use": "primitive townspeople clothing",
+      "size": 16
+    },
+    {
+      "texture": "npc_hat",
+      "name": "npc-worn-hat",
+      "use": "primitive townspeople hats",
+      "size": 16
+    },
+    {
+      "texture": "horse_coat",
+      "name": "horse-coat",
+      "use": "walking horse body, neck, and head primitives",
+      "size": 16
+    },
+    {
+      "texture": "horse_leg",
+      "name": "horse-leg-dark",
+      "use": "walking horse legs and tail primitives",
+      "size": 16
+    },
+    {
+      "texture": "horse_tack",
+      "name": "horse-tack-saddle",
+      "use": "walking horse saddle and tack primitives",
+      "size": 16
+    }
+  ]
+}

@@ -10,7 +10,10 @@
 void URuntimeChatWidget::NativeConstruct() {
   Super::NativeConstruct();
 
-  if (WidgetTree && !WidgetTree->RootWidget) {
+  check(WidgetTree);
+  WidgetTree->RootWidget
+      ? void()
+      : [&]() {
     UBorder *PanelElement =
         WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
     UVerticalBox *StackElement =
@@ -37,7 +40,7 @@ void URuntimeChatWidget::NativeConstruct() {
     StackElement->AddChildToVerticalBox(PlayerTextElement);
     StackElement->AddChildToVerticalBox(ReplyTextElement);
     WidgetTree->RootWidget = PanelElement;
-  }
+  }();
 }
 
 void URuntimeChatWidget::ShowConversationViewModel(
@@ -48,29 +51,25 @@ void URuntimeChatWidget::ShowConversationViewModel(
 
 void URuntimeChatWidget::ApplyConversationViewModel(
     const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation) {
-  if (TitleTextElement) {
-    TitleTextElement->SetText(FText::FromString(Conversation.Title));
-  }
-  if (PlayerTextElement) {
-    PlayerTextElement->SetText(FText::FromString(Conversation.PlayerLine));
-  }
-  if (ReplyTextElement) {
-    ReplyTextElement->SetText(FText::FromString(Conversation.NpcReply));
-  }
+  check(TitleTextElement);
+  check(PlayerTextElement);
+  check(ReplyTextElement);
+  TitleTextElement->SetText(FText::FromString(Conversation.Title));
+  PlayerTextElement->SetText(FText::FromString(Conversation.PlayerLine));
+  ReplyTextElement->SetText(FText::FromString(Conversation.NpcReply));
 }
 
 UTextBlock *URuntimeChatWidget::BuildTextElement(
     const FString &Text, const FLinearColor &Color, float Size) {
+  check(WidgetTree);
   UTextBlock *Element =
-      WidgetTree ? WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass())
-                 : nullptr;
-  if (Element) {
-    Element->SetText(FText::FromString(Text));
-    Element->SetColorAndOpacity(FSlateColor(Color));
-    Element->SetAutoWrapText(true);
-    FSlateFontInfo Font = Element->GetFont();
-    Font.Size = Size;
-    Element->SetFont(Font);
-  }
+      WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
+  check(Element);
+  Element->SetText(FText::FromString(Text));
+  Element->SetColorAndOpacity(FSlateColor(Color));
+  Element->SetAutoWrapText(true);
+  FSlateFontInfo Font = Element->GetFont();
+  Font.Size = Size;
+  Element->SetFont(Font);
   return Element;
 }

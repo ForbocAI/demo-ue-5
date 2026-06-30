@@ -25,6 +25,7 @@ inline FLevelSystemState CreateInitialState() {
 inline const rtk::Slice<FLevelSystemState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FLevelSystemState>> Slice =
       func::lazy([]() -> rtk::Slice<FLevelSystemState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FLevelSystemState>(
             TEXT("systems/level"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FLevelSystemState>

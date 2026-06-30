@@ -1,6 +1,6 @@
 #include "Features/Systems/Bots/Goals/BotGoalReducers.h"
 
-#include "Core/ecs.hpp"
+#include "Core/functional_core.hpp"
 #include "Features/Systems/Bots/Goals/BotGoalAdapters.h"
 #include "Features/Systems/Bots/Goals/BotGoalFactories.h"
 
@@ -12,36 +12,43 @@ namespace {
 
 FBotGoalComponent AssignGoal(const FBotGoalComponent &Current,
                              const FBotStrategicGoal &Goal) {
-  FBotGoalComponent Updated = Current;
-  if (!Updated.bHasActiveGoal ||
-      Goal.Priority > Updated.ActiveGoal.Priority) {
-    if (Updated.bHasActiveGoal) {
-      Updated.GoalQueue.Add(Updated.ActiveGoal);
-    }
-    Updated.ActiveGoal = Goal;
-    Updated.bHasActiveGoal = true;
-    return Updated;
-  }
-
-  Updated.GoalQueue.Add(Goal);
-  Updated.GoalQueue.Sort([](const FBotStrategicGoal &Left,
-                            const FBotStrategicGoal &Right) {
-    return Left.Priority > Right.Priority;
-  });
-  return Updated;
+  return !Current.bHasActiveGoal || Goal.Priority > Current.ActiveGoal.Priority
+             ? [&]() {
+                 FBotGoalComponent Updated = Current;
+                 Updated.bHasActiveGoal
+                     ? (Updated.GoalQueue.Add(Updated.ActiveGoal), void())
+                     : void();
+                 Updated.ActiveGoal = Goal;
+                 Updated.bHasActiveGoal = true;
+                 return Updated;
+               }()
+             : [&]() {
+                 FBotGoalComponent Updated = Current;
+                 Updated.GoalQueue.Add(Goal);
+                 Updated.GoalQueue.Sort(
+                     [](const FBotStrategicGoal &Left,
+                        const FBotStrategicGoal &Right) {
+                       return Left.Priority > Right.Priority;
+                     });
+                 return Updated;
+               }();
 }
 
 FBotGoalComponent CompleteGoal(const FBotGoalComponent &Current) {
-  FBotGoalComponent Updated = Current;
-  if (Updated.GoalQueue.Num() > 0) {
-    Updated.ActiveGoal = Updated.GoalQueue[0];
-    Updated.GoalQueue.RemoveAt(0);
-    Updated.bHasActiveGoal = true;
-  } else {
-    Updated.ActiveGoal.bCompleted = true;
-    Updated.bHasActiveGoal = false;
-  }
-  return Updated;
+  return Current.GoalQueue.Num() > 0
+             ? [&]() {
+                 FBotGoalComponent Updated = Current;
+                 Updated.ActiveGoal = Updated.GoalQueue[0];
+                 Updated.GoalQueue.RemoveAt(0);
+                 Updated.bHasActiveGoal = true;
+                 return Updated;
+               }()
+             : [&]() {
+                 FBotGoalComponent Updated = Current;
+                 Updated.ActiveGoal.bCompleted = true;
+                 Updated.bHasActiveGoal = false;
+                 return Updated;
+               }();
 }
 
 TMap<FString, FBotStrategicGoal> ReduceActiveGoalByIdAppend(
@@ -103,8 +110,9 @@ FBotGoalState ReduceBotGoalCompleted(
 
 TMap<FString, FBotStrategicGoal> ReduceActiveGoalsById(
     const TArray<FBotGoalComponent> &Goals) {
-  return ecs::foldArray<FBotGoalComponent, TMap<FString, FBotStrategicGoal>>(
-      TMap<FString, FBotStrategicGoal>(), Goals,
+  return func::fold_indexed(
+      Goals, static_cast<size_t>(Goals.Num()),
+      TMap<FString, FBotStrategicGoal>(),
       [](const TMap<FString, FBotStrategicGoal> &Acc,
          const FBotGoalComponent &Goal) {
         return ReduceActiveGoalByIdAppend(Goal, Acc);
@@ -112,21 +120,23 @@ TMap<FString, FBotStrategicGoal> ReduceActiveGoalsById(
 }
 
 FBotGoalState ReduceTownspeopleSeeded(
-    const FBotGoalState &State,
-    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
-  return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
+    const FBotGoalsTownspeopleSeededRequest &Request) {
+  return (func::pipe(Request.State) | [&](FBotGoalState Next) -> FBotGoalState {
   Next.Items = BotGoalAdapters::BotGoalAdapter().upsertMany(
-      State.Items, BotGoalFactories::FromTownspeople(Action.PayloadValue));
+      Request.State.Items,
+      BotGoalFactories::FromTownspeople({Request.Seeds,
+                                         Request.RuntimeSettings}));
   return ReduceActiveGoalIndex(Next);
   }).val;
 }
 
 FBotGoalState ReduceHorsesSeeded(
-    const FBotGoalState &State,
-    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
-  return (func::pipe(State) | [&](FBotGoalState Next) -> FBotGoalState {
+    const FBotGoalsHorsesSeededRequest &Request) {
+  return (func::pipe(Request.State) | [&](FBotGoalState Next) -> FBotGoalState {
   Next.Items = BotGoalAdapters::BotGoalAdapter().upsertMany(
-      State.Items, BotGoalFactories::FromHorses(Action.PayloadValue));
+      Request.State.Items,
+      BotGoalFactories::FromHorses({Request.Seeds,
+                                    Request.RuntimeSettings}));
   return ReduceActiveGoalIndex(Next);
   }).val;
 }

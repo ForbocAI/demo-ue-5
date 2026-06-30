@@ -12,7 +12,7 @@ struct FBotOrchestratorFactoriesPayload {
 
 struct FBotOrchestratorFactoriesState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
-  bool bReady = false;
+  bool bReady;
 };
 
 inline bool operator==(const FBotOrchestratorFactoriesState &Left,

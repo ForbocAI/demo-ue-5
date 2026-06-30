@@ -16,7 +16,9 @@ namespace RenderingThunks {
 rtk::ThunkAction<FRenderingPayload, FRuntimeState>
 ObserveRuntimeProfile(const FString &Id);
 
-void ApplyRuntimeProfile(const FLevelRetroRenderProfile &Profile);
+void ApplyRuntimeProfile(
+    const FLevelRetroRenderProfile &Profile,
+    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings);
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path);
 void ApplyTexture(const FLevelRetroTextureApply &Request);
 

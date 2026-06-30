@@ -1,10 +1,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-
-#if WITH_FORBOC_AI_SDK_DEMO
 #include "NPC/NPCModule.h"
-#endif
 
 #include "BotOrchestratorAdapters.generated.h"
 
@@ -33,7 +30,7 @@ protected:
 public:
   /** Configuration: How often (in seconds) bots observe the world. */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI")
-  float ObservationInterval = 5.0f;
+  float ObservationInterval;
 
   /** Register a physical actor as a managed bot. */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI")
@@ -42,11 +39,9 @@ public:
 private:
   struct FBotRuntimeBinding {
     FString Id;
-    AActor *BotActor = nullptr;
-#if WITH_FORBOC_AI_SDK_DEMO
+    AActor *BotActor;
     TSharedPtr<const FAgent> Agent;
-#endif
-    float LastObservationTime = 0.0f;
+    float LastObservationTime;
   };
 
   TMap<AActor *, FBotRuntimeBinding> BotBindings;

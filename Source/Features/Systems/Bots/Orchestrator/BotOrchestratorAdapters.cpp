@@ -1,33 +1,59 @@
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.h"
 
-#include "Core/ecs.hpp"
+#include "Core/functional_core.hpp"
 #include "Features/Systems/Bots/BotActions.h"
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorActions.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineActions.h"
 #include "Features/Systems/Bots/Position/BotPositionActions.h"
+#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Store.h"
 
 using namespace ForbocAI::Demo::Level;
 
+namespace {
+
+ForbocAI::Demo::Data::FBotRuntimeSettings BotRuntimeSettings() {
+  return RuntimeSelectors::SelectBotRuntimeSettings(
+      Store::GetStore().getState());
+}
+
+FLevelLocalPoint BotInitialLocalPoint(
+    const ForbocAI::Demo::Data::FBotRuntimeSettings &Settings) {
+  return {Settings.InitialPosition.X, Settings.InitialPosition.Y,
+          Settings.InitialPosition.Z};
+}
+
+} // namespace
+
 ABotOrchestratorAdapter::ABotOrchestratorAdapter() {
-  PrimaryActorTick.bCanEverTick = true;
+  PrimaryActorTick.bCanEverTick =
+      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings()
+          .BotRuntime.bOrchestratorCanEverTick;
 }
 
 void ABotOrchestratorAdapter::BeginPlay() {
   Super::BeginPlay();
-  UE_LOG(LogTemp, Display, TEXT("BotOrchestrator: Brain Online."));
+  const ForbocAI::Demo::Data::FBotRuntimeSettings Settings =
+      BotRuntimeSettings();
+  ObservationInterval = Settings.ObservationIntervalSeconds;
+  UE_LOG(LogTemp, Display, TEXT("%s"), *Settings.StartLog);
 }
 
 void ABotOrchestratorAdapter::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
 
+  const ForbocAI::Demo::Data::FBotRuntimeSettings Settings =
+      BotRuntimeSettings();
+  const FLevelLocalPoint InitialLocalPoint = BotInitialLocalPoint(Settings);
   const float CurrentTime = GetWorld()->GetTimeSeconds();
   TArray<AActor *> Keys;
   BotBindings.GetKeys(Keys);
 
-  ecs::forEachArray<AActor *>(
-      Keys, [this, DeltaTime, CurrentTime](AActor *const &BotKey) {
+  func::for_each_indexed(
+      Keys, static_cast<size_t>(Keys.Num()),
+      [this, CurrentTime, InitialLocalPoint,
+       Settings](AActor *const &BotKey) {
         FBotRuntimeBinding *Binding = BotBindings.Find(BotKey);
         Binding
             ? (Store::GetStore().dispatch(
@@ -36,11 +62,12 @@ void ABotOrchestratorAdapter::Tick(float DeltaTime) {
                Store::GetStore().dispatch(
                    BotPositionActions::BotPositionMoved()(
                        FBotPositionMoved{
-                           Binding->Id, FLevelLocalPoint{0.0f, 0.0f, 0.0f},
-                           Binding->BotActor->GetActorLocation(), true,
-                           true})),
+                           Binding->Id, InitialLocalPoint,
+                           Binding->BotActor->GetActorLocation(),
+                           Settings.bPositionPayloadHasLocalLocation,
+                           Settings.bPositionPayloadHasWorldLocation})),
                (CurrentTime - Binding->LastObservationTime >=
-                ObservationInterval)
+                Settings.ObservationIntervalSeconds)
                    ? (Binding->LastObservationTime = CurrentTime,
                       RequestNextAction(*Binding), void())
                    : void(),
@@ -53,44 +80,45 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
   return !Actor
              ? void()
              : [&]() {
+    const ForbocAI::Demo::Data::FBotRuntimeSettings Settings =
+        BotRuntimeSettings();
+    const FLevelLocalPoint InitialLocalPoint = BotInitialLocalPoint(Settings);
     const FString BotId = Actor->GetName();
     FBotRuntimeBinding Binding;
     Binding.Id = BotId;
     Binding.BotActor = Actor;
+    Binding.LastObservationTime = Settings.InitialObservationTimeSeconds;
 
-#if WITH_FORBOC_AI_SDK_DEMO
     FAgentConfig Config;
     Config.Persona = Persona;
     Binding.Agent = MakeShared<const FAgent>(AgentFactory::Create(Config));
-#else
-    UE_LOG(LogTemp, Display,
-           TEXT("BotOrchestrator: SDK gate closed; registering '%s' with local state only"),
-           *Persona);
-#endif
 
     BotBindings.Add(Actor, Binding);
     Store::GetStore().dispatch(BotActions::BotUpserted()(
         FBotEntity{BotId, Persona.IsEmpty() ? BotId : Persona,
                    EBotEntityKind::Townsperson, EBotAlignment::Friendly,
-                   true}));
+                   Settings.bRegisteredBotActive}));
     Store::GetStore().dispatch(BotPositionActions::BotPositionUpserted()(
-        FBotPositionComponent{BotId, FLevelLocalPoint{0.0f, 0.0f, 0.0f},
-                              Actor->GetActorLocation(), true, true}));
+        FBotPositionComponent{BotId, InitialLocalPoint,
+                              Actor->GetActorLocation(),
+                              Settings.bPositionPayloadHasLocalLocation,
+                              Settings.bPositionPayloadHasWorldLocation}));
     Store::GetStore().dispatch(BotOrchestratorActions::OrchestratorObserved()(
         FBotOrchestratorPayload{BotId}));
 
-    UE_LOG(LogTemp, Display,
-           TEXT("BotOrchestrator: Registered Bot '%s'"),
-           *Actor->GetName());
+    const FString RegisteredLog =
+        FString::Printf(*Settings.RegisteredLogFormat, *Actor->GetName());
+    UE_LOG(LogTemp, Display, TEXT("%s"), *RegisteredLog);
   }();
 }
 
 void ABotOrchestratorAdapter::RequestNextAction(
     const FBotRuntimeBinding &Binding) {
-#if WITH_FORBOC_AI_SDK_DEMO
   return !Binding.Agent.IsValid()
              ? void()
              : [&]() {
+    const ForbocAI::Demo::Data::FBotRuntimeSettings Settings =
+        BotRuntimeSettings();
     const FString Observation = GetStateObservation(Binding.Id);
 
     AActor *BotActor = Binding.BotActor;
@@ -99,28 +127,16 @@ void ABotOrchestratorAdapter::RequestNextAction(
         .then([this, BotActor](FAgentResponse Response) {
           ExecuteAction(BotActor, Response.Action.Type);
         })
-        .catch_([BotActor](std::string Error) {
-          UE_LOG(LogTemp, Warning,
-                 TEXT("BotOrchestrator: Process failed for %s: %s"),
-                 BotActor ? *BotActor->GetName() : TEXT("<null>"),
-                 *FString(UTF8_TO_TCHAR(Error.c_str())));
+        .catch_([BotActor, Settings](std::string Error) {
+          const FString ActorName =
+              BotActor ? BotActor->GetName() : Settings.NullActorLabel;
+          const FString ProcessFailedLog = FString::Printf(
+              *Settings.ProcessFailedLogFormat, *ActorName,
+              *FString(UTF8_TO_TCHAR(Error.c_str())));
+          UE_LOG(LogTemp, Warning, TEXT("%s"), *ProcessFailedLog);
         })
         .execute();
   }();
-#else
-  const FString ActionType =
-      RuntimeSelectors::SelectBotAIById(Store::GetStore().getState(),
-                                        Binding.Id)
-              .hasValue
-          ? TEXT("MOVE")
-          : TEXT("MOVE");
-
-  UE_LOG(LogTemp, Display,
-         TEXT("BotOrchestrator: SDK gate closed; local observation '%s' -> %s"),
-         *GetStateObservation(Binding.Id), *ActionType);
-
-  ExecuteAction(Binding.BotActor, ActionType);
-#endif
 }
 
 void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
@@ -130,21 +146,26 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
   return !Binding
              ? void()
              : [&]() {
-    UE_LOG(LogTemp, Display, TEXT("BotOrchestrator: Executing '%s' for %s"),
-           *ActionType, *BotActor->GetName());
+    const ForbocAI::Demo::Data::FBotRuntimeSettings Settings =
+        BotRuntimeSettings();
+    const FLevelLocalPoint InitialLocalPoint = BotInitialLocalPoint(Settings);
+    const FString ExecuteLog =
+        FString::Printf(*Settings.ExecuteLogFormat, *ActionType,
+                        *BotActor->GetName());
+    UE_LOG(LogTemp, Display, TEXT("%s"), *ExecuteLog);
 
-    (ActionType == TEXT("MOVE"))
+    (ActionType == Settings.MoveActionType)
         ? ([&]() {
             Store::GetStore().dispatch(BotPositionActions::BotPositionMoved()(
                 FBotPositionMoved{Binding->Id,
-                                  FLevelLocalPoint{0.0f, 0.0f, 0.0f},
+                                  InitialLocalPoint,
                                   BotActor->GetActorLocation() +
-                                      FVector(500, 0, 0),
-                                  true,
-                                  true}));
+                                      Settings.MoveActionOffset,
+                                  Settings.bPositionPayloadHasLocalLocation,
+                                  Settings.bPositionPayloadHasWorldLocation}));
           }(),
           void())
-    : (ActionType == TEXT("ATTACK"))
+    : (ActionType == Settings.AttackActionType)
         ? ([&]() {
             Store::GetStore().dispatch(
                 BotOrchestratorActions::OrchestratorObserved()(
@@ -158,6 +179,8 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
 FString ABotOrchestratorAdapter::GetStateObservation(
     const FString &BotId) const {
   const FRuntimeState &State = Store::GetStore().getState();
+  const ForbocAI::Demo::Data::FBotRuntimeSettings Settings =
+      RuntimeSelectors::SelectBotRuntimeSettings(State);
   const func::Maybe<FBotEntity> Bot = RuntimeSelectors::SelectBotById(State, BotId);
   const func::Maybe<FBotPositionComponent> Position =
       RuntimeSelectors::SelectBotPositionById(State, BotId);
@@ -167,10 +190,11 @@ FString ABotOrchestratorAdapter::GetStateObservation(
   const FVector WorldLocation =
       Position.hasValue && Position.value.bHasWorldLocation
           ? Position.value.WorldLocation
-          : FVector::ZeroVector;
+          : Settings.InitialPosition;
   const int32 BehaviorState =
-      AI.hasValue ? static_cast<int32>(AI.value.BehaviorState) : 0;
+      AI.hasValue ? static_cast<int32>(AI.value.BehaviorState)
+                  : Settings.DefaultBehaviorState;
   return FString::Printf(
-      TEXT("Id: %s, Name: %s, Position: %s, BehaviorState: %d"), *BotId,
+      *Settings.StateObservationFormat, *BotId,
       *DisplayName, *WorldLocation.ToString(), BehaviorState);
 }

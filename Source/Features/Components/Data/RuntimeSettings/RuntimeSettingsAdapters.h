@@ -8,11 +8,11 @@ namespace Data {
 namespace RuntimeSettingsAdapters {
 
 /**
- * @brief Reads all runtime settings from the root JSON object.
+ * @brief Reads all runtime settings from a root manifest JSON object.
  * @signature FDemoRuntimeSettings ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object)
  *
- * User story: As a runtime factory author, one typed settings payload should be
- * composed below RTK reducers before state initialization begins.
+ * User story: As a runtime factory author, split subdomain JSON files should
+ * compose into one typed settings payload before state initialization begins.
  */
 FDemoRuntimeSettings
 ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object);

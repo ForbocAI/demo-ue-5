@@ -26,6 +26,7 @@ inline FSystemsState CreateInitialState() {
 inline const rtk::Slice<FSystemsState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FSystemsState>> Slice =
       func::lazy([]() -> rtk::Slice<FSystemsState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FSystemsState>(
             TEXT("systems"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FSystemsState> &Builder) {

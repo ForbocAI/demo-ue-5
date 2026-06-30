@@ -12,6 +12,7 @@ namespace BotAISlice {
 const rtk::Slice<FBotAIState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FBotAIState>> Slice =
       func::lazy([]() -> rtk::Slice<FBotAIState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FBotAIState>(
       TEXT("botAI"), BotAIFactories::CreateInitialState(),
       [](rtk::ActionReducerMapBuilder<FBotAIState> &Builder) {

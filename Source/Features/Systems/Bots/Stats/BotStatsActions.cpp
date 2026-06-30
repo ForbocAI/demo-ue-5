@@ -8,6 +8,7 @@ namespace BotStatsActions {
 const rtk::ActionCreator<TArray<FBotStatsComponent>> &BotStatsSeeded() {
   static const func::Lazy<rtk::ActionCreator<TArray<FBotStatsComponent>>> Creator =
       func::lazy([]() -> rtk::ActionCreator<TArray<FBotStatsComponent>> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<TArray<FBotStatsComponent>>(
           TEXT("botStats/seeded"));
       });
@@ -17,6 +18,7 @@ const rtk::ActionCreator<TArray<FBotStatsComponent>> &BotStatsSeeded() {
 const rtk::ActionCreator<FBotStatsUpdate> &BotStatsUpdated() {
   static const func::Lazy<rtk::ActionCreator<FBotStatsUpdate>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotStatsUpdate> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FBotStatsUpdate>(TEXT("botStats/updated"));
       });
   return func::eval(Creator);

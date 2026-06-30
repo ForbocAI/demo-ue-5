@@ -30,18 +30,19 @@ FRuntimeHorseViewSpawn
 ReduceHorseViewSpawn(const FRuntimeHorseViewSpawnRequest &Request);
 
 /**
- * @brief Reduces runtime interaction data into dialogue thunk input.
+ * @brief Reduces runtime interaction data into dialogue reply input.
  */
 FLocalDialogueReplyRequest ReduceLocalDialogueReplyRequest(
     const FRuntimeTownspersonInteractionRequest &Request);
 FUIPayload ReduceConversationPresentedPayload(
-    const FDialogueReplyPayload &DialogueReply);
+    const FDialogueReplyPayload &DialogueReply,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &UISettings);
 
 /**
- * @brief Reduces a dialogue reply into the combined runtime interaction payload.
+ * @brief Reduces an interaction request into dialogue and UI payloads.
  */
 FRuntimeTownspersonInteractionPayload ReduceTownspersonInteractionPayload(
-    const FDialogueReplyPayload &DialogueReply);
+    const FRuntimeTownspersonInteractionPayloadRequest &Request);
 FRuntimeLevelViewPayload ReduceLevelViewPayload(
     const FRuntimeState &State, const FRuntimeLevelViewPayloadRequest &Request);
 

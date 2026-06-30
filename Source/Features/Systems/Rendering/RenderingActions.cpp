@@ -8,6 +8,7 @@ namespace RenderingActions {
 const rtk::ActionCreator<FRenderingPayload> &RenderingProfileObserved() {
   static const func::Lazy<rtk::ActionCreator<FRenderingPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FRenderingPayload> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FRenderingPayload>(
             TEXT("systems/rendering/profileObserved"));
       });
@@ -20,6 +21,7 @@ TownspersonPresentationRequested() {
       Creator =
           func::lazy(
               []() -> rtk::ActionCreator<FRenderingPresentationRequest> {
+                // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
                 return rtk::createAction<FRenderingPresentationRequest>(
                     TEXT("systems/rendering/townspersonPresentationRequested"));
               });
@@ -32,6 +34,7 @@ HorsePresentationRequested() {
       Creator =
           func::lazy(
               []() -> rtk::ActionCreator<FRenderingPresentationRequest> {
+                // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
                 return rtk::createAction<FRenderingPresentationRequest>(
                     TEXT("systems/rendering/horsePresentationRequested"));
               });

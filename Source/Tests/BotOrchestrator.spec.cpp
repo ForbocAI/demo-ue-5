@@ -11,8 +11,7 @@ void FBotOrchestratorSpec::Define() {
       // Note: In a real UE environment, we spawn an actor in the test world.
       // Uses a real UWorld from the engine context — no stand-ins.
       UWorld *World = GEngine->GetWorldContexts()[0].World();
-      if (!World)
-        return;
+      check(World);
 
       AActor *TestActor = World->SpawnActor<AActor>();
       ABotOrchestratorAdapter *Orchestrator = World->SpawnActor<ABotOrchestratorAdapter>();

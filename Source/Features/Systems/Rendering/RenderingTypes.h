@@ -17,12 +17,21 @@ struct FLevelRetroTextureApply {
   UMaterialInterface *BaseMaterial;
   ELevelRetroTexture Texture;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
+  ForbocAI::Demo::Data::FRenderingRuntimeSettings RuntimeSettings;
 };
 
 struct FRenderingPayload {
   FString Id;
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
+  ForbocAI::Demo::Data::FRenderingRuntimeSettings RuntimeSettings;
+};
+
+struct FRenderingPayloadRequest {
+  FString Id;
+  FLevelRetroRenderProfile RuntimeProfile;
+  TArray<FLevelRetroTextureSpec> TextureCatalog;
+  ForbocAI::Demo::Data::FRenderingRuntimeSettings RuntimeSettings;
 };
 
 struct FRenderingPresentationRequest {
@@ -88,6 +97,7 @@ struct FRenderingState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
+  ForbocAI::Demo::Data::FRenderingRuntimeSettings RuntimeSettings;
   FRenderingAssetPaths AssetPaths;
   FTownspersonPresentationViewModel TownspersonPresentation;
   FHorsePresentationViewModel HorsePresentation;
@@ -97,11 +107,24 @@ struct FRenderingState {
 inline bool operator==(const FRenderingPayload &Left,
                        const FRenderingPayload &Right) {
   return Left.Id == Right.Id && Left.RuntimeProfile == Right.RuntimeProfile &&
-         Left.TextureCatalog == Right.TextureCatalog;
+         Left.TextureCatalog == Right.TextureCatalog &&
+         Left.RuntimeSettings == Right.RuntimeSettings;
 }
 
 inline bool operator!=(const FRenderingPayload &Left,
                        const FRenderingPayload &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FRenderingPayloadRequest &Left,
+                       const FRenderingPayloadRequest &Right) {
+  return Left.Id == Right.Id && Left.RuntimeProfile == Right.RuntimeProfile &&
+         Left.TextureCatalog == Right.TextureCatalog &&
+         Left.RuntimeSettings == Right.RuntimeSettings;
+}
+
+inline bool operator!=(const FRenderingPayloadRequest &Left,
+                       const FRenderingPayloadRequest &Right) {
   return !(Left == Right);
 }
 
@@ -198,6 +221,7 @@ inline bool operator==(const FRenderingState &Left,
           Left.LastActionId.value == Right.LastActionId.value) &&
          Left.RuntimeProfile == Right.RuntimeProfile &&
          Left.TextureCatalog == Right.TextureCatalog &&
+         Left.RuntimeSettings == Right.RuntimeSettings &&
          Left.AssetPaths == Right.AssetPaths &&
          Left.TownspersonPresentation == Right.TownspersonPresentation &&
          Left.HorsePresentation == Right.HorsePresentation &&

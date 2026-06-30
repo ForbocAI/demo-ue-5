@@ -14,6 +14,8 @@ const FLevelRetroRenderProfile &
 SelectRuntimeProfile(const FRenderingState &State);
 const TArray<FLevelRetroTextureSpec> &
 SelectTextureCatalog(const FRenderingState &State);
+const ForbocAI::Demo::Data::FRenderingRuntimeSettings &
+SelectRenderingRuntimeSettings(const FRenderingState &State);
 const FRenderingAssetPaths &SelectRenderingAssetPaths(
     const FRenderingState &State);
 const FTownspersonPresentationViewModel &

@@ -5,9 +5,9 @@
 #include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Runtime/RuntimeActions.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
-#include "Features/Systems/Runtime/RuntimeSlice.h"
 #include "GameFramework/Pawn.h"
 #include "InputCoreTypes.h"
+#include "Kismet/GameplayStatics.h"
 #include "Store.h"
 #include "Views/RuntimeChatWidget.h"
 #include "Views/TownspersonView.h"
@@ -20,23 +20,31 @@ FG::FInteractionCandidatesObserved ObserveTownspersonCandidates(
     const APlayerRuntimeControllerView &Controller, float InteractionDistance,
     TArray<ATownspersonView *> &ObservedTownspeople) {
   FG::FInteractionCandidatesObserved Observation;
-  Observation.Id = TEXT("systems/interaction/townspersonCandidatesObserved");
+  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+      FG::RuntimeSelectors::SelectRuntimeObservationIds(
+          FG::Store::GetStore().getState());
+  Observation.Id = Ids.TownspersonCandidatesObserved;
   Observation.MaxDistance = InteractionDistance;
 
   const APawn *ControlledPawn = Controller.GetPawn();
   UWorld *World = Controller.GetWorld();
-  if (!ControlledPawn || !World) {
-    return Observation;
-  }
+  check(ControlledPawn);
+  check(World);
 
   Observation.Origin = ControlledPawn->GetActorLocation();
-  for (TActorIterator<ATownspersonView> It(World); It; ++It) {
-    ATownspersonView *Candidate = *It;
-    const int32 Index = ObservedTownspeople.Add(Candidate);
-    Observation.Candidates.Add({Index, Candidate->GetTownspersonId(),
-                                Candidate->GetActorLocation(),
-                                Candidate->IsPlayerNearby()});
-  }
+  TArray<AActor *> Actors;
+  UGameplayStatics::GetAllActorsOfClass(
+      World, ATownspersonView::StaticClass(), Actors);
+  func::for_each_indexed(
+      Actors, static_cast<size_t>(Actors.Num()),
+      [&ObservedTownspeople, &Observation](AActor *const &Actor) {
+        ATownspersonView *Candidate = Cast<ATownspersonView>(Actor);
+        check(Candidate);
+        const int32 Index = ObservedTownspeople.Add(Candidate);
+        Observation.Candidates.Add({Index, Candidate->GetTownspersonId(),
+                                    Candidate->GetActorLocation(),
+                                    Candidate->IsPlayerNearby()});
+      });
   return Observation;
 }
 
@@ -48,8 +56,12 @@ FG::FRuntimeTownspersonInteractionSource ObserveTownspersonInteractionSource(
 }
 
 void PresentMissingInteraction(const FString &Message) {
-  GEngine ? GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Cyan, Message)
-          : void();
+  check(GEngine);
+  const ForbocAI::Demo::Data::FRuntimeDebugMessageSettings &Debug =
+      FG::RuntimeSelectors::SelectRuntimeDebugMessages(
+          FG::Store::GetStore().getState());
+  GEngine->AddOnScreenDebugMessage(Debug.OnScreenKey, Debug.DurationSeconds,
+                                   Debug.Color, Message);
 }
 
 } // namespace
@@ -63,11 +75,10 @@ APlayerRuntimeControllerView::APlayerRuntimeControllerView()
 
 void APlayerRuntimeControllerView::SetupInputComponent() {
   Super::SetupInputComponent();
-  if (InputComponent) {
-    InputComponent->BindKey(EKeys::E, IE_Pressed, this,
-                            &APlayerRuntimeControllerView::
-                                InteractWithNearestTownsperson);
-  }
+  check(InputComponent);
+  InputComponent->BindKey(
+      EKeys::E, IE_Pressed, this,
+      &APlayerRuntimeControllerView::InteractWithNearestTownsperson);
 }
 
 void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
@@ -80,46 +91,35 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
       FG::RuntimeSelectors::SelectInteractionSelection(
           FG::Store::GetStore().getState());
 
-  if (!Selection.bFound ||
-      !Townspeople.IsValidIndex(Selection.CandidateIndex)) {
-    PresentMissingInteraction(Selection.MissingMessage);
-    return;
-  }
-
-  ATownspersonView *Townsperson = Townspeople[Selection.CandidateIndex];
-  FG::Store::GetStore().dispatch(
-      FG::RuntimeActions::TownspersonInteractionSourceObserved()(
-          ObserveTownspersonInteractionSource(*Townsperson)));
-  const FG::FRuntimeTownspersonInteractionRequest Request =
-      FG::RuntimeSelectors::SelectTownspersonInteractionRequest(
-          FG::Store::GetStore().getState());
-  auto InteractionPayload = FG::FRuntimeTownspersonInteractionPayload();
-  const auto Result = FG::Store::GetStore().dispatch(
-      FG::RuntimeSlice::RequestTownspersonInteraction(Request));
-  func::thenAsync(Result, [&InteractionPayload](auto Resolved) {
-    InteractionPayload = Resolved;
-  });
-  func::executeAsync(Result);
-  const FString Reply = InteractionPayload.DialogueReply.Reply;
-  Townsperson->ShowDialogueReply(Reply);
-  PresentConversationViewModel(InteractionPayload.UI.Conversation);
-
-  if (GEngine) {
-    GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Cyan, Reply);
-  }
+  const bool bCanInteract =
+      Selection.bFound && Townspeople.IsValidIndex(Selection.CandidateIndex);
+  bCanInteract
+      ? ([this, &Townspeople, &Selection]() {
+          ATownspersonView *Townsperson =
+              Townspeople[Selection.CandidateIndex];
+          FG::Store::GetStore().dispatch(
+              FG::RuntimeActions::TownspersonInteractionSourceObserved()(
+                  ObserveTownspersonInteractionSource(*Townsperson)));
+          const ForbocAI::Demo::UI::FRuntimeConversationViewModel
+              Conversation = FG::RuntimeSelectors::SelectRuntimeConversation(
+                  FG::Store::GetStore().getState());
+          const FString Reply = Conversation.NpcReply;
+          Townsperson->ShowDialogueReply(Reply);
+          PresentConversationViewModel(Conversation);
+          PresentMissingInteraction(Reply);
+        }(), void())
+      : (PresentMissingInteraction(Selection.MissingMessage), void());
 }
 
 void APlayerRuntimeControllerView::PresentConversationViewModel(
     const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation) {
-  if (!RuntimeConversationWidget) {
-    RuntimeConversationWidget = CreateWidget<URuntimeChatWidget>(
-        this, RuntimeConversationWidgetClass);
-    if (RuntimeConversationWidget) {
-      RuntimeConversationWidget->AddToViewport();
-    }
-  }
-
-  if (RuntimeConversationWidget) {
-    RuntimeConversationWidget->ShowConversationViewModel(Conversation);
-  }
+  RuntimeConversationWidget
+      ? void()
+      : ([this]() {
+          RuntimeConversationWidget = CreateWidget<URuntimeChatWidget>(
+              this, RuntimeConversationWidgetClass);
+          check(RuntimeConversationWidget);
+          RuntimeConversationWidget->AddToViewport();
+        }(), void());
+  RuntimeConversationWidget->ShowConversationViewModel(Conversation);
 }

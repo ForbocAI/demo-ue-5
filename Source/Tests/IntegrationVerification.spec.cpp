@@ -7,8 +7,6 @@
  * ready for normal validation.
  */
 
-#if WITH_FORBOC_AI_SDK_DEMO
-
 #include "Misc/AutomationTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -20,5 +18,3 @@ bool FIntegrationVerificationQuarantined::RunTest(const FString &Parameters) {
   AddWarning(TEXT("Integration verification is quarantined until the UE SDK is synced with the API and TS SDK contracts."));
   return true;
 }
-
-#endif

@@ -15,6 +15,7 @@ namespace RuntimeActions {
 inline const rtk::ActionCreator<FRuntimeState> &RuntimeHydrated() {
   static const func::Lazy<rtk::ActionCreator<FRuntimeState>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FRuntimeState> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FRuntimeState>(TEXT("runtime/hydrated"));
       });
   return func::eval(Creator);
@@ -31,6 +32,7 @@ TownspersonInteractionSourceObserved() {
           func::lazy([]()
                          -> rtk::ActionCreator<
                              FRuntimeTownspersonInteractionSource> {
+            // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FRuntimeTownspersonInteractionSource>(
                 TEXT("runtime/townspersonInteractionSourceObserved"));
           });

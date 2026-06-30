@@ -15,6 +15,7 @@ namespace DialogueActions {
 inline const rtk::ActionCreator<FDialoguePayload> &DialogueObserved() {
   static const func::Lazy<rtk::ActionCreator<FDialoguePayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FDialoguePayload> {
+        // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FDialoguePayload>(
             TEXT("systems/dialogue/observed"));
       });

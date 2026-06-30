@@ -3,10 +3,30 @@
 #include "Misc/AutomationTest.h"
 #include "Features/Systems/Bots/Core/BotCoreActions.h"
 #include "Features/Systems/Bots/Core/BotCoreRuntimeTypes.h"
+#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineReducers.h"
 
 using namespace ForbocAI::Demo::Level;
 using namespace ForbocAI::Demo::Level::BotPipelineReducers;
+
+namespace {
+
+const ForbocAI::Demo::Data::FBotRuntimeSettings &BotRuntimeSettings() {
+  static const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
+      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
+  return Settings.BotRuntime;
+}
+
+FBotCoreRuntimeState CreateTestBotState(const FString &Name) {
+  return CreateBotCoreRuntimeInitialState({Name, BotRuntimeSettings()});
+}
+
+FBotPipelineWorldSnapshot DefaultWorld(const FBotCoreRuntimeState &State,
+                                       float DeltaTime) {
+  return ReduceDefaultInputSnapshot({State, DeltaTime}).WorldSnapshot;
+}
+
+} // namespace
 
 /**
  * Pipeline Tests — validates the deterministic tick pipeline.
@@ -28,7 +48,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineIdleTick::RunTest(const FString &Parameters) {
   const FBotCoreRuntimeState Initial =
-      CreateBotCoreRuntimeInitialState(TEXT("IdleBot"));
+      CreateTestBotState(TEXT("IdleBot"));
   const FBotPipelineOutputResult Result = ReduceIdlePipeline(Initial, 0.016f);
 
   TestEqual(TEXT("Tick count advanced"), Result.NewState.TickCount,
@@ -48,10 +68,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
   const FBotCoreRuntimeState Initial =
-      CreateBotCoreRuntimeInitialState(TEXT("HazardBot"));
+      CreateTestBotState(TEXT("HazardBot"));
 
-  FBotPipelineWorldSnapshot World;
-  World.DeltaTime = 1.0f;
+  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, 1.0f);
   World.HazardOverlap.bOverlapping = true;
   World.HazardOverlap.DamagePerSecond = 25.0f;
 
@@ -73,10 +92,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineAwareness::RunTest(const FString &Parameters) {
   const FBotCoreRuntimeState Initial =
-      CreateBotCoreRuntimeInitialState(TEXT("AwareBot"));
+      CreateTestBotState(TEXT("AwareBot"));
 
-  FBotPipelineWorldSnapshot World;
-  World.DeltaTime = 0.016f;
+  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, 0.016f);
   World.Visibility.bCanSeeEnemy = true;
   World.Visibility.EnemyPosition = FVector(500.0f, 200.0f, 0.0f);
   World.Visibility.Distance = 540.0f;
@@ -101,14 +119,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
   FBotCoreRuntimeState LowHealth =
-      CreateBotCoreRuntimeInitialState(TEXT("FleeBot"));
+      CreateTestBotState(TEXT("FleeBot"));
   LowHealth.Stats.Health = 15.0f; // 15% health
   LowHealth.Phase = EBotCorePhase::Combat;
   LowHealth.Memory.bHasAggro = true;
   LowHealth.Memory.LastKnownPlayerPos = FVector(300.0f, 0.0f, 0.0f);
 
-  FBotPipelineWorldSnapshot World;
-  World.DeltaTime = 0.016f;
+  FBotPipelineWorldSnapshot World = DefaultWorld(LowHealth, 0.016f);
 
   const FBotPipelineOutputResult Result = ReducePipeline(LowHealth, World);
 
@@ -129,22 +146,22 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
 
   // Bot 1: Idle
   FBotPipelineTickInput Idle;
-  Idle.State = CreateBotCoreRuntimeInitialState(TEXT("Bot-Idle"));
-  Idle.World.DeltaTime = 0.016f;
+  Idle.State = CreateTestBotState(TEXT("Bot-Idle"));
+  Idle.World = DefaultWorld(Idle.State, 0.016f);
   Inputs.Add(Idle);
 
   // Bot 2: In hazard
   FBotPipelineTickInput Hazard;
-  Hazard.State = CreateBotCoreRuntimeInitialState(TEXT("Bot-Hazard"));
-  Hazard.World.DeltaTime = 1.0f;
+  Hazard.State = CreateTestBotState(TEXT("Bot-Hazard"));
+  Hazard.World = DefaultWorld(Hazard.State, 1.0f);
   Hazard.World.HazardOverlap.bOverlapping = true;
   Hazard.World.HazardOverlap.DamagePerSecond = 50.0f;
   Inputs.Add(Hazard);
 
   // Bot 3: Sees enemy
   FBotPipelineTickInput Aware;
-  Aware.State = CreateBotCoreRuntimeInitialState(TEXT("Bot-Aware"));
-  Aware.World.DeltaTime = 0.016f;
+  Aware.State = CreateTestBotState(TEXT("Bot-Aware"));
+  Aware.World = DefaultWorld(Aware.State, 0.016f);
   Aware.World.Visibility.bCanSeeEnemy = true;
   Aware.World.Visibility.EnemyPosition = FVector(100.0f, 0.0f, 0.0f);
   Inputs.Add(Aware);
@@ -177,10 +194,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FPipelineDeterministic::RunTest(const FString &Parameters) {
   // Run the same pipeline twice — results must be identical
   const FBotCoreRuntimeState Initial =
-      CreateBotCoreRuntimeInitialState(TEXT("DetBot"));
+      CreateTestBotState(TEXT("DetBot"));
 
-  FBotPipelineWorldSnapshot World;
-  World.DeltaTime = 0.5f;
+  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, 0.5f);
   World.HazardOverlap.bOverlapping = true;
   World.HazardOverlap.DamagePerSecond = 10.0f;
   World.Visibility.bCanSeeEnemy = true;

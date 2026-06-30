@@ -89,9 +89,10 @@ inline FInteractionSelection ReduceCloserCandidate(
 
 inline FInteractionSelection ReduceNearestCandidate(
     const FInteractionNearestCandidateRequest &Request) {
-  return ecs::foldArray<FInteractionCandidate, FInteractionSelection>(
-      ReduceEmptySelection(Request.MissingMessage),
+  return func::fold_indexed(
       Request.Observation.Candidates,
+      static_cast<size_t>(Request.Observation.Candidates.Num()),
+      ReduceEmptySelection(Request.MissingMessage),
       [&Request](const FInteractionSelection &Current,
                  const FInteractionCandidate &Candidate) {
         return ReduceCloserCandidate(Request, Candidate, Current);

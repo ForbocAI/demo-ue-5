@@ -1,7 +1,7 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
 #include "Components/StaticMeshComponent.h"
-#include "Core/ecs.hpp"
+#include "Core/functional_core.hpp"
 #include "Engine/Texture2D.h"
 #include "Features/Systems/Rendering/RenderingActions.h"
 #include "Features/Systems/Rendering/RenderingReducers.h"
@@ -15,156 +15,294 @@ namespace Demo {
 namespace Level {
 namespace RenderingThunks {
 namespace {
-constexpr int32 TextureChannels = 4;
-
-struct FRetroCVarFloat {
-  const TCHAR *Name;
-  float Value;
-};
-
-struct FRetroCVarInt {
-  const TCHAR *Name;
-  int32 Value;
-};
-
-struct FRetroColorMix {
-  FColor A;
-  FColor B;
-  int32 Numerator;
-  int32 Denominator;
-};
 
 struct FRetroTextureCell {
   ELevelRetroTexture Texture;
   int32 X;
   int32 Y;
-};
-
-struct FRetroRgb {
-  uint8 R;
-  uint8 G;
-  uint8 B;
+  const ForbocAI::Demo::Data::FRenderingRuntimeSettings *RuntimeSettings;
 };
 
 struct FRetroHashCell {
   int32 X;
   int32 Y;
   int32 Salt;
+  const ForbocAI::Demo::Data::FRenderingTextureHashSettings *Hash;
 };
 
-void SetCVarFloat(const FRetroCVarFloat &CVarValue) {
+struct FRetroPredicateEval {
+  ForbocAI::Demo::Data::FRenderingTexturePredicateSettings Predicate;
+  int32 X;
+  int32 Y;
+  int32 Noise;
+};
+
+struct FRetroResultEval {
+  ForbocAI::Demo::Data::FRenderingTextureColorResultSettings Result;
+  int32 Noise;
+  int32 Alpha;
+};
+
+struct FRetroCVarEval {
+  ForbocAI::Demo::Data::FRenderingConsoleVariableSettings Setting;
+  FLevelRetroRenderProfile Profile;
+};
+
+void SetCVarFloat(const FString &Name, float Value) {
   IConsoleVariable *Found =
-      IConsoleManager::Get().FindConsoleVariable(CVarValue.Name);
-  const func::Maybe<IConsoleVariable *> CVar =
-      func::from_nullable_value(Found, Found != nullptr);
-  CVar.hasValue && (CVar.value->Set(CVarValue.Value, ECVF_SetByGameSetting),
-                    true);
+      IConsoleManager::Get().FindConsoleVariable(*Name);
+  check(Found);
+  Found->Set(Value, ECVF_SetByGameSetting);
 }
 
-void SetCVarInt(const FRetroCVarInt &CVarValue) {
+void SetCVarInt(const FString &Name, int32 Value) {
   IConsoleVariable *Found =
-      IConsoleManager::Get().FindConsoleVariable(CVarValue.Name);
-  const func::Maybe<IConsoleVariable *> CVar =
-      func::from_nullable_value(Found, Found != nullptr);
-  CVar.hasValue && (CVar.value->Set(CVarValue.Value, ECVF_SetByGameSetting),
-                    true);
+      IConsoleManager::Get().FindConsoleVariable(*Name);
+  check(Found);
+  Found->Set(Value, ECVF_SetByGameSetting);
 }
 
-FColor Color(FRetroRgb Rgb) { return FColor(Rgb.R, Rgb.G, Rgb.B, 255); }
+func::Maybe<int32> SelectProfileInt(const FLevelRetroRenderProfile &Profile,
+                                    const FString &Field) {
+  return func::multi_match<FString, int32>(
+      Field,
+      {
+          func::when<FString, int32>(
+              func::equals<FString>(TEXT("anti_aliasing_method")),
+              [&Profile](const FString &) {
+                return Profile.AntiAliasingMethod;
+              }),
+          func::when<FString, int32>(
+              func::equals<FString>(TEXT("post_process_aa_quality")),
+              [&Profile](const FString &) {
+                return Profile.PostProcessAAQuality;
+              }),
+          func::when<FString, int32>(
+              func::equals<FString>(TEXT("shadow_cascades")),
+              [&Profile](const FString &) { return Profile.ShadowCascades; }),
+          func::when<FString, int32>(
+              func::equals<FString>(TEXT("shadow_max_resolution")),
+              [&Profile](const FString &) {
+                return Profile.ShadowMaxResolution;
+              }),
+      });
+}
 
-FColor Mix(const FRetroColorMix &MixValue) {
-  const int32 Inverse = MixValue.Denominator - MixValue.Numerator;
+func::Maybe<float> SelectProfileFloat(const FLevelRetroRenderProfile &Profile,
+                                      const FString &Field) {
+  return func::multi_match<FString, float>(
+      Field,
+      {
+          func::when<FString, float>(
+              func::equals<FString>(TEXT("screen_percentage")),
+              [&Profile](const FString &) { return Profile.ScreenPercentage; }),
+          func::when<FString, float>(
+              func::equals<FString>(TEXT("view_distance_scale")),
+              [&Profile](const FString &) {
+                return Profile.ViewDistanceScale;
+              }),
+          func::when<FString, float>(
+              func::equals<FString>(TEXT("foliage_density_scale")),
+              [&Profile](const FString &) {
+                return Profile.FoliageDensityScale;
+              }),
+          func::when<FString, float>(
+              func::equals<FString>(TEXT("grass_density_scale")),
+              [&Profile](const FString &) {
+                return Profile.GrassDensityScale;
+              }),
+      });
+}
+
+int32 RequiredProfileInt(const FRetroCVarEval &Eval) {
+  const func::Maybe<int32> Value =
+      SelectProfileInt(Eval.Profile, Eval.Setting.ProfileField);
+  check(Value.hasValue);
+  return Value.value;
+}
+
+float RequiredProfileFloat(const FRetroCVarEval &Eval) {
+  const func::Maybe<float> Value =
+      SelectProfileFloat(Eval.Profile, Eval.Setting.ProfileField);
+  check(Value.hasValue);
+  return Value.value;
+}
+
+void ApplyConsoleVariable(const FRetroCVarEval &Eval) {
+  const func::Maybe<bool> Applied = func::multi_match<FString, bool>(
+      Eval.Setting.ValueKind,
+      {
+          func::when<FString, bool>(
+              func::equals<FString>(TEXT("fixed_int")),
+              [&Eval](const FString &) {
+                SetCVarInt(Eval.Setting.Name, Eval.Setting.IntValue);
+                return true;
+              }),
+          func::when<FString, bool>(
+              func::equals<FString>(TEXT("profile_int")),
+              [&Eval](const FString &) {
+                SetCVarInt(Eval.Setting.Name, RequiredProfileInt(Eval));
+                return true;
+              }),
+          func::when<FString, bool>(
+              func::equals<FString>(TEXT("fixed_float")),
+              [&Eval](const FString &) {
+                SetCVarFloat(Eval.Setting.Name, Eval.Setting.FloatValue);
+                return true;
+              }),
+          func::when<FString, bool>(
+              func::equals<FString>(TEXT("profile_float")),
+              [&Eval](const FString &) {
+                SetCVarFloat(Eval.Setting.Name, RequiredProfileFloat(Eval));
+                return true;
+              }),
+      });
+  check(Applied.hasValue);
+}
+
+FColor Color(const ForbocAI::Demo::Data::FRenderingRgbSettings &Rgb,
+             int32 Alpha) {
+  return FColor(static_cast<uint8>(Rgb.R), static_cast<uint8>(Rgb.G),
+                static_cast<uint8>(Rgb.B), static_cast<uint8>(Alpha));
+}
+
+FColor Mix(const FRetroResultEval &Eval) {
+  check(Eval.Result.Denominator > 0);
+  check(Eval.Result.NumeratorNoiseModulus > 0);
+  const int32 Numerator =
+      Eval.Result.NumeratorBase + Eval.Noise % Eval.Result.NumeratorNoiseModulus;
+  const int32 Inverse = Eval.Result.Denominator - Numerator;
   return FColor(
-      static_cast<uint8>((MixValue.A.R * Inverse +
-                          MixValue.B.R * MixValue.Numerator) /
-                         MixValue.Denominator),
-      static_cast<uint8>((MixValue.A.G * Inverse +
-                          MixValue.B.G * MixValue.Numerator) /
-                         MixValue.Denominator),
-      static_cast<uint8>((MixValue.A.B * Inverse +
-                          MixValue.B.B * MixValue.Numerator) /
-                         MixValue.Denominator),
-      255);
+      static_cast<uint8>((Eval.Result.ColorA.R * Inverse +
+                          Eval.Result.ColorB.R * Numerator) /
+                         Eval.Result.Denominator),
+      static_cast<uint8>((Eval.Result.ColorA.G * Inverse +
+                          Eval.Result.ColorB.G * Numerator) /
+                         Eval.Result.Denominator),
+      static_cast<uint8>((Eval.Result.ColorA.B * Inverse +
+                          Eval.Result.ColorB.B * Numerator) /
+                         Eval.Result.Denominator),
+      static_cast<uint8>(Eval.Alpha));
 }
 
 int32 HashCell(FRetroHashCell Cell) {
-  int32 Value = Cell.X * 73856093 ^ Cell.Y * 19349663 ^ Cell.Salt * 83492791;
-  Value ^= Value >> 13;
+  check(Cell.Hash);
+  int32 Value = Cell.X * Cell.Hash->XMultiplier ^
+                Cell.Y * Cell.Hash->YMultiplier ^
+                Cell.Salt * Cell.Hash->SaltMultiplier;
+  Value ^= Value >> Cell.Hash->XorShift;
   return FMath::Abs(Value);
 }
 
+int32 PredicateTerm(const FRetroPredicateEval &Eval) {
+  check(Eval.Predicate.XDivisor > 0);
+  check(Eval.Predicate.YDivisor > 0);
+  return Eval.Predicate.XMultiplier * (Eval.X / Eval.Predicate.XDivisor) +
+         Eval.Predicate.YMultiplier * (Eval.Y / Eval.Predicate.YDivisor) +
+         Eval.Predicate.NoiseMultiplier * Eval.Noise;
+}
+
+bool PredicateMatches(const FRetroPredicateEval &Eval) {
+  const int32 Term = PredicateTerm(Eval);
+  const func::Maybe<bool> Matched = func::multi_match<FString, bool>(
+      Eval.Predicate.Kind,
+      {
+          func::when<FString, bool>(
+              func::equals<FString>(TEXT("always")),
+              [](const FString &) { return true; }),
+          func::when<FString, bool>(
+              func::equals<FString>(TEXT("mod_equals")),
+              [&Eval, Term](const FString &) {
+                check(Eval.Predicate.Modulus > 0);
+                return Term % Eval.Predicate.Modulus ==
+                       Eval.Predicate.Equals;
+              }),
+          func::when<FString, bool>(
+              func::equals<FString>(TEXT("mod_less_than")),
+              [&Eval, Term](const FString &) {
+                check(Eval.Predicate.Modulus > 0);
+                return Term % Eval.Predicate.Modulus <
+                       Eval.Predicate.LessThan;
+              }),
+      });
+  check(Matched.hasValue);
+  return Matched.value;
+}
+
+FColor ResolveColor(const FRetroResultEval &Eval) {
+  const func::Maybe<FColor> Resolved = func::multi_match<FString, FColor>(
+      Eval.Result.Kind,
+      {
+          func::when<FString, FColor>(
+              func::equals<FString>(TEXT("solid")),
+              [&Eval](const FString &) {
+                return Color(Eval.Result.Color, Eval.Alpha);
+              }),
+          func::when<FString, FColor>(
+              func::equals<FString>(TEXT("mix")),
+              [&Eval](const FString &) { return Mix(Eval); }),
+      });
+  check(Resolved.hasValue);
+  return Resolved.value;
+}
+
+ForbocAI::Demo::Data::FRenderingTexturePaletteSettings
+RequiredPalette(const FRetroTextureCell &Cell) {
+  check(Cell.RuntimeSettings);
+  const func::Maybe<ForbocAI::Demo::Data::FRenderingTexturePaletteSettings>
+      Palette = func::find_indexed(
+          Cell.RuntimeSettings->TexturePalettes,
+          static_cast<size_t>(Cell.RuntimeSettings->TexturePalettes.Num()),
+          [&Cell](
+              const ForbocAI::Demo::Data::FRenderingTexturePaletteSettings
+                  &Candidate) {
+            return RenderingReducers::ReduceTextureKind(Candidate.Texture) ==
+                   Cell.Texture;
+          });
+  check(Palette.hasValue);
+  return Palette.value;
+}
+
 FColor PaletteColor(const FRetroTextureCell &Cell) {
+  check(Cell.RuntimeSettings);
   const int32 Noise =
-      HashCell({Cell.X, Cell.Y, static_cast<int32>(Cell.Texture)});
-  switch (Cell.Texture) {
-  case ELevelRetroTexture::TerrainOrtho:
-    return Mix({Color({111, 103, 78}), Color({72, 96, 55}), Noise % 5, 8});
-  case ELevelRetroTexture::BuildingTimber:
-    if (Cell.X % 4 == 0 || Cell.Y % 7 == 0) {
-      return Color({74, 47, 27});
-    }
-    return Mix({Color({128, 82, 43}), Color({171, 119, 66}), Noise % 4, 7});
-  case ELevelRetroTexture::RoadDust:
-    if ((Cell.X + Cell.Y + Noise) % 11 == 0) {
-      return Color({86, 75, 59});
-    }
-    return Mix({Color({128, 104, 73}), Color({176, 145, 96}), Noise % 5, 9});
-  case ELevelRetroTexture::WaterCreek:
-    if ((Cell.X * 2 + Cell.Y) % 13 == 0) {
-      return Color({152, 189, 177});
-    }
-    return (Cell.Y / 2) % 2 == 0 ? Color({38, 92, 118})
-                                  : Color({28, 64, 94});
-  case ELevelRetroTexture::FoliageRiparian:
-    if (Noise % 9 < 2) {
-      return Color({36, 77, 39});
-    }
-    return Mix({Color({74, 112, 48}), Color({122, 143, 66}), Noise % 4, 6});
-  case ELevelRetroTexture::RockGranite:
-    if ((Cell.X + Cell.Y + Noise) % 7 == 0) {
-      return Color({74, 71, 66});
-    }
-    return Mix({Color({126, 121, 107}), Color({171, 160, 138}), Noise % 5, 8});
-  case ELevelRetroTexture::MineTimber:
-    if (Cell.X % 3 == 0) {
-      return Color({45, 35, 27});
-    }
-    return Mix({Color({78, 58, 39}), Color({111, 82, 50}), Noise % 4, 7});
-  case ELevelRetroTexture::MarkerPaint:
-    return ((Cell.X / 2 + Cell.Y / 2) % 2 == 0) ? Color({171, 124, 28})
-                                                : Color({40, 33, 24});
-  case ELevelRetroTexture::NpcBody:
-    return ((Cell.X + Cell.Y) % 5 == 0) ? Color({36, 45, 52})
-                                        : Color({58, 73, 80});
-  case ELevelRetroTexture::NpcHat:
-    return (Cell.X % 5 == 0) ? Color({60, 39, 20}) : Color({93, 63, 31});
-  case ELevelRetroTexture::HorseCoat:
-    return Mix({Color({94, 47, 22}), Color({139, 75, 33}), Noise % 4, 7});
-  case ELevelRetroTexture::HorseLeg:
-    return Mix({Color({38, 25, 15}), Color({75, 44, 22}), Noise % 3, 6});
-  case ELevelRetroTexture::HorseTack:
-    return ((Cell.X + Cell.Y) % 6 == 0) ? Color({45, 28, 16})
-                                        : Color({77, 48, 26});
-  }
-  return Color({255, 0, 255});
+      HashCell({Cell.X, Cell.Y, static_cast<int32>(Cell.Texture),
+                &Cell.RuntimeSettings->TextureHash});
+  const ForbocAI::Demo::Data::FRenderingTexturePaletteSettings Palette =
+      RequiredPalette(Cell);
+  const func::Maybe<ForbocAI::Demo::Data::FRenderingTextureRuleSettings> Rule =
+      func::find_indexed(
+          Palette.Rules, static_cast<size_t>(Palette.Rules.Num()),
+          [&Cell, Noise](
+              const ForbocAI::Demo::Data::FRenderingTextureRuleSettings
+                  &Candidate) {
+            return PredicateMatches(
+                {Candidate.Predicate, Cell.X, Cell.Y, Noise});
+          });
+  check(Rule.hasValue);
+  return ResolveColor({Rule.value.Result, Noise,
+                       Cell.RuntimeSettings->TextureAlpha});
 }
 
-FString TextureCacheKey(const FLevelRetroTextureSpec &Spec) {
-  return FString::Printf(TEXT("%d:%d:%d"), static_cast<int32>(Spec.Texture),
-                         Spec.Size.X, Spec.Size.Y);
+FString TextureCacheKey(
+    const FLevelRetroTextureSpec &Spec,
+    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+  return FString::Printf(*RuntimeSettings.TextureCacheKeyFormat,
+                         static_cast<int32>(Spec.Texture), Spec.Size.X,
+                         Spec.Size.Y);
 }
 
-UTexture2D *CreateRetroTexture(const FLevelRetroTextureSpec &Spec) {
-  if (Spec.Size.X <= 0 || Spec.Size.Y <= 0) {
-    return nullptr;
-  }
+UTexture2D *CreateRetroTexture(
+    const FLevelRetroTextureSpec &Spec,
+    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+  check(Spec.Size.X > 0);
+  check(Spec.Size.Y > 0);
 
   UTexture2D *Result =
       UTexture2D::CreateTransient(Spec.Size.X, Spec.Size.Y, PF_B8G8R8A8);
-  if (!Result || !Result->GetPlatformData() ||
-      Result->GetPlatformData()->Mips.Num() == 0) {
-    return nullptr;
-  }
+  check(Result);
+  check(Result->GetPlatformData());
+  check(Result->GetPlatformData()->Mips.Num() > 0);
 
   Result->Filter = TF_Nearest;
   Result->AddressX = TA_Wrap;
@@ -175,17 +313,18 @@ UTexture2D *CreateRetroTexture(const FLevelRetroTextureSpec &Spec) {
 
   FTexture2DMipMap &Mip = Result->GetPlatformData()->Mips[0];
   void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
-  if (!Data) {
-    Mip.BulkData.Unlock();
-    return nullptr;
-  }
+  check(Data);
 
-  const TArray<FColor> Pixels = ecs::mapGridRange<FColor>(
-      Spec.Size.Y, Spec.Size.X, [&Spec](const ecs::FGridIndex &Index) {
-        return PaletteColor({Spec.Texture, Index.Column, Index.Row});
+  const std::vector<FColor> Pixels = func::map_grid<FColor>(
+      static_cast<size_t>(Spec.Size.Y), static_cast<size_t>(Spec.Size.X),
+      [&Spec, &RuntimeSettings](const func::GridIndex &Index) {
+        return PaletteColor({Spec.Texture, static_cast<int32>(Index.Column),
+                             static_cast<int32>(Index.Row),
+                             &RuntimeSettings});
       });
-  FMemory::Memcpy(Data, Pixels.GetData(),
-                  Pixels.Num() * TextureChannels * sizeof(uint8));
+  FMemory::Memcpy(Data, Pixels.data(),
+                  Pixels.size() * RuntimeSettings.TextureChannels *
+                      sizeof(uint8));
   Mip.BulkData.Unlock();
 
   Result->UpdateResource();
@@ -193,16 +332,19 @@ UTexture2D *CreateRetroTexture(const FLevelRetroTextureSpec &Spec) {
   return Result;
 }
 
-UTexture2D *TextureFor(const FLevelRetroTextureSpec &Spec) {
+UTexture2D *TextureFor(
+    const FLevelRetroTextureSpec &Spec,
+    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
   static TMap<FString, UTexture2D *> TextureCache;
-  const FString Key = TextureCacheKey(Spec);
-  if (UTexture2D **Cached = TextureCache.Find(Key)) {
-    return *Cached;
-  }
-
-  UTexture2D *Created = CreateRetroTexture(Spec);
-  TextureCache.Add(Key, Created);
-  return Created;
+  const FString Key = TextureCacheKey(Spec, RuntimeSettings);
+  UTexture2D **Cached = TextureCache.Find(Key);
+  return Cached ? *Cached
+                : [&]() {
+                    UTexture2D *Created =
+                        CreateRetroTexture(Spec, RuntimeSettings);
+                    TextureCache.Add(Key, Created);
+                    return Created;
+                  }();
 }
 } // namespace
 
@@ -212,9 +354,11 @@ ObserveRuntimeProfile(const FString &Id) {
               std::function<FRuntimeState()> GetState)
              -> func::AsyncResult<FRenderingPayload> {
     const FRuntimeState State = GetState();
-    const FRenderingPayload Payload{
-        Id, RuntimeSelectors::SelectRuntimeProfile(State),
-        RuntimeSelectors::SelectTextureCatalog(State)};
+    const FRenderingPayload Payload =
+        RenderingReducers::ReduceRenderingPayload(
+            {Id, RuntimeSelectors::SelectRuntimeProfile(State),
+             RuntimeSelectors::SelectTextureCatalog(State),
+             RuntimeSelectors::SelectRenderingRuntimeSettings(State)});
     return func::createAsyncResult<FRenderingPayload>(
         [Dispatch, Payload](std::function<void(FRenderingPayload)> Resolve,
                             std::function<void(std::string)> Reject) {
@@ -224,24 +368,15 @@ ObserveRuntimeProfile(const FString &Id) {
   };
 }
 
-void ApplyRuntimeProfile(const FLevelRetroRenderProfile &Profile) {
-  SetCVarInt({TEXT("r.AntiAliasingMethod"), Profile.AntiAliasingMethod});
-  SetCVarInt({TEXT("r.PostProcessAAQuality"), Profile.PostProcessAAQuality});
-  SetCVarInt({TEXT("r.TemporalAA.Upsampling"), 0});
-  SetCVarFloat({TEXT("r.ScreenPercentage"), Profile.ScreenPercentage});
-  SetCVarFloat({TEXT("r.ViewDistanceScale"), Profile.ViewDistanceScale});
-  SetCVarFloat({TEXT("foliage.DensityScale"), Profile.FoliageDensityScale});
-  SetCVarFloat({TEXT("grass.DensityScale"), Profile.GrassDensityScale});
-  SetCVarInt({TEXT("r.MotionBlurQuality"), 0});
-  SetCVarInt({TEXT("r.BloomQuality"), 0});
-  SetCVarInt({TEXT("r.DepthOfFieldQuality"), 0});
-  SetCVarInt({TEXT("r.AmbientOcclusionLevels"), 0});
-  SetCVarInt({TEXT("r.SSR.Quality"), 0});
-  SetCVarInt({TEXT("r.Shadow.CSM.MaxCascades"), Profile.ShadowCascades});
-  SetCVarInt({TEXT("r.Shadow.MaxResolution"), Profile.ShadowMaxResolution});
-  SetCVarFloat({TEXT("r.Shadow.RadiusThreshold"), 0.02f});
-  SetCVarFloat({TEXT("r.MipMapLODBias"), 2.0f});
-  SetCVarFloat({TEXT("r.Streaming.MipBias"), 2.0f});
+void ApplyRuntimeProfile(
+    const FLevelRetroRenderProfile &Profile,
+    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+  func::for_each_indexed(
+      RuntimeSettings.ConsoleVariables,
+      static_cast<size_t>(RuntimeSettings.ConsoleVariables.Num()),
+      [&Profile](
+          const ForbocAI::Demo::Data::FRenderingConsoleVariableSettings
+              &Setting) { ApplyConsoleVariable({Setting, Profile}); });
 }
 
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path) {
@@ -249,24 +384,20 @@ UMaterialInterface *LoadBlockoutMaterial(const FString &Path) {
 }
 
 void ApplyTexture(const FLevelRetroTextureApply &Request) {
-  if (!Request.Part || !Request.BaseMaterial) {
-    return;
-  }
+  check(Request.Part);
+  check(Request.BaseMaterial);
 
   const FLevelRetroTextureSpec Spec = RenderingReducers::ReduceTextureSpec(
       {Request.Texture, Request.TextureCatalog});
-  UTexture2D *RetroTexture = TextureFor(Spec);
-  if (!RetroTexture) {
-    return;
-  }
+  UTexture2D *RetroTexture = TextureFor(Spec, Request.RuntimeSettings);
+  check(RetroTexture);
 
   UMaterialInstanceDynamic *Material =
       UMaterialInstanceDynamic::Create(Request.BaseMaterial, Request.Part);
-  if (!Material) {
-    return;
-  }
+  check(Material);
 
-  Material->SetTextureParameterValue(TEXT("Texture"), RetroTexture);
+  Material->SetTextureParameterValue(
+      FName(*Request.RuntimeSettings.MaterialTextureParameter), RetroTexture);
   Request.Part->SetMaterial(0, Material);
 }
 

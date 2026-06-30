@@ -12,6 +12,7 @@ namespace HorseSlice {
 const rtk::Slice<FHorseState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FHorseState>> Slice =
       func::lazy([]() -> rtk::Slice<FHorseState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FHorseState>(
       TEXT("horses"), HorseFactories::CreateInitialState(),
       [](rtk::ActionReducerMapBuilder<FHorseState> &Builder) {

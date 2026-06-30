@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
 namespace Demo {
@@ -12,10 +13,10 @@ namespace Level {
 struct FDialoguePayload { FString Id; };
 
 /**
- * @brief Request object for a local dialogue reply thunk.
+ * @brief Request object for a local dialogue reply.
  *
- * Architecture: The thunk receives one payload object instead of scalar
- * parameters so the reducer contract mirrors RTK payload-action usage.
+ * Architecture: The reducer receives one payload object instead of scalar
+ * parameters so reply construction stays a pure domain decision.
  */
 struct FLocalDialogueReplyRequest {
   FString Name;
@@ -26,7 +27,7 @@ struct FLocalDialogueReplyRequest {
 };
 
 /**
- * @brief Fulfilled payload for the local dialogue reply async thunk.
+ * @brief Payload for a resolved local dialogue reply.
  */
 struct FDialogueReplyPayload {
   FString Id;
@@ -37,7 +38,7 @@ struct FDialogueReplyPayload {
 /**
  * @brief Dialogue slice state owned by the RTK root store.
  *
- * Architecture: Pending/ready/error fields are reducer-owned facts. Views read
+ * Architecture: Ready/error fields are reducer-owned facts. Views read
  * selectors and render; they do not infer dialogue lifecycle state.
  */
 struct FDialogueState {
@@ -45,7 +46,7 @@ struct FDialogueState {
   func::Maybe<FString> LastReply = func::nothing<FString>();
   func::Maybe<FString> LastSpeakerName = func::nothing<FString>();
   func::Maybe<FString> LastError = func::nothing<FString>();
-  bool bPending = false;
+  ForbocAI::Demo::Data::FDialogueRuntimeSettings RuntimeSettings;
   bool bReady = false;
 };
 
@@ -71,7 +72,8 @@ inline bool operator==(const FDialogueState &Left,
          MaybeStringEquals(Left.LastReply, Right.LastReply) &&
          MaybeStringEquals(Left.LastSpeakerName, Right.LastSpeakerName) &&
          MaybeStringEquals(Left.LastError, Right.LastError) &&
-         Left.bPending == Right.bPending && Left.bReady == Right.bReady;
+         Left.RuntimeSettings == Right.RuntimeSettings &&
+         Left.bReady == Right.bReady;
 }
 
 inline bool operator!=(const FDialogueState &Left,

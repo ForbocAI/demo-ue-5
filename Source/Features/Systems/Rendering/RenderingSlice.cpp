@@ -21,6 +21,7 @@ FRenderingState CreateInitialState() {
 const rtk::Slice<FRenderingState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FRenderingState>> Slice =
       func::lazy([]() -> rtk::Slice<FRenderingState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FRenderingState>(
             TEXT("systems/rendering"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FRenderingState> &Builder) {
@@ -38,8 +39,10 @@ const rtk::Slice<FRenderingState> &GetSlice() {
   return func::eval(Slice);
 }
 
-void ApplyRuntimeProfile(const FLevelRetroRenderProfile &Profile) {
-  RenderingThunks::ApplyRuntimeProfile(Profile);
+void ApplyRuntimeProfile(
+    const FLevelRetroRenderProfile &Profile,
+    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+  RenderingThunks::ApplyRuntimeProfile(Profile, RuntimeSettings);
 }
 
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path) {

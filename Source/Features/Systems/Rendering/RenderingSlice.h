@@ -14,7 +14,9 @@ namespace RenderingSlice {
 
 FRenderingState CreateInitialState();
 const rtk::Slice<FRenderingState> &GetSlice();
-void ApplyRuntimeProfile(const FLevelRetroRenderProfile &Profile);
+void ApplyRuntimeProfile(
+    const FLevelRetroRenderProfile &Profile,
+    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings);
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path);
 void ApplyTexture(const FLevelRetroTextureApply &Request);
 

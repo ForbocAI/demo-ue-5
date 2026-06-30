@@ -12,6 +12,7 @@ namespace NatureSlice {
 const rtk::Slice<FNatureState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FNatureState>> Slice =
       func::lazy([]() -> rtk::Slice<FNatureState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FNatureState>(
       TEXT("nature"), NatureFactories::CreateInitialState(),
       [](rtk::ActionReducerMapBuilder<FNatureState> &Builder) {

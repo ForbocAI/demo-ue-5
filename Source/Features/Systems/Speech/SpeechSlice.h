@@ -17,7 +17,7 @@ inline FSpeechState CreateInitialState() {
           [](FSpeechState State) -> FSpeechState {
             State.LastActionId = func::nothing<FString>();
             State.LastSpokenText = func::nothing<FString>();
-            State.CurrentViseme = FVisemeMapping{TEXT("viseme_sil"), 0.0f};
+            State.CurrentViseme = FVisemeMapping{};
             State.bSpeaking = false;
             return State;
           })
@@ -27,6 +27,7 @@ inline FSpeechState CreateInitialState() {
 inline const rtk::Slice<FSpeechState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FSpeechState>> Slice =
       func::lazy([]() -> rtk::Slice<FSpeechState> {
+        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FSpeechState>(
             TEXT("systems/speech"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FSpeechState> &Builder) {

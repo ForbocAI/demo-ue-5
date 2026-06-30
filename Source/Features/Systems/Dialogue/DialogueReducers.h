@@ -9,6 +9,17 @@ namespace Demo {
 namespace Level {
 namespace DialogueReducers {
 
+inline FDialogueState ReduceRuntimeSettings(
+    const FDialogueState &State,
+    const ForbocAI::Demo::Data::FDialogueRuntimeSettings &Settings) {
+  return (func::pipe(State) |
+          [&Settings](FDialogueState Next) -> FDialogueState {
+            Next.RuntimeSettings = Settings;
+            return Next;
+          })
+      .val;
+}
+
 /**
  * @brief Pure reducer helper that creates a local, deterministic NPC reply.
  *
@@ -19,25 +30,19 @@ namespace DialogueReducers {
  * SDK/API path is feature-gated.
  */
 inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request) {
-  if (!Request.PinnedResponse.IsEmpty()) {
-    return Request.PinnedResponse;
-  }
-  const FString Topic = Request.PlayerLine.IsEmpty()
-                            ? FString(TEXT("the gulch"))
-                            : Request.PlayerLine.Left(64);
-  return FString::Printf(
-      TEXT("%s (%s): %s. Around here in 1899, every claim, road, and rumor ")
-      TEXT("runs through French Gulch. %s"),
-      *Request.Name, *Request.Role, *Topic, *Request.Persona);
+  check(!Request.PinnedResponse.IsEmpty());
+  return Request.PinnedResponse;
 }
 
 /**
  * @brief Pure reducer helper that wraps local reply text in an RTK payload.
  */
 inline FDialogueReplyPayload
-ReduceLocalReplyPayload(const FLocalDialogueReplyRequest &Request) {
+ReduceLocalReplyPayload(
+    const FLocalDialogueReplyRequest &Request,
+    const ForbocAI::Demo::Data::FDialogueRuntimeSettings &Settings) {
   FDialogueReplyPayload Payload;
-  Payload.Id = FString::Printf(TEXT("systems/dialogue/localReply/%s"),
+  Payload.Id = FString::Printf(*Settings.ReplyPayloadIdFormat,
                                *Request.Name);
   Payload.Request = Request;
   Payload.Reply = ReduceLocalReply(Request);
@@ -60,27 +65,9 @@ inline FDialogueState ReduceDialogueObserved(
 }
 
 /**
- * @brief Async-thunk pending reducer for local dialogue replies.
+ * @brief Case reducer for reducer-resolved local dialogue replies.
  */
-inline FDialogueState ReduceLocalReplyPending(
-    const FDialogueState &State,
-    const rtk::PayloadAction<FLocalDialogueReplyRequest> &Action) {
-  return (func::pipe(State) |
-          [&Action](FDialogueState Next) -> FDialogueState {
-            Next.LastActionId = func::just(Action.Type);
-            Next.LastSpeakerName = func::just(Action.PayloadValue.Name);
-            Next.LastError = func::nothing<FString>();
-            Next.bPending = true;
-            Next.bReady = false;
-            return Next;
-          })
-      .val;
-}
-
-/**
- * @brief Async-thunk fulfilled reducer for local dialogue replies.
- */
-inline FDialogueState ReduceLocalReplyFulfilled(
+inline FDialogueState ReduceLocalReplyResolved(
     const FDialogueState &State,
     const rtk::PayloadAction<FDialogueReplyPayload> &Action) {
   return (func::pipe(State) |
@@ -90,46 +77,10 @@ inline FDialogueState ReduceLocalReplyFulfilled(
             Next.LastSpeakerName =
                 func::just(Action.PayloadValue.Request.Name);
             Next.LastError = func::nothing<FString>();
-            Next.bPending = false;
             Next.bReady = true;
             return Next;
           })
       .val;
-}
-
-/**
- * @brief Async-thunk rejected reducer for local dialogue replies.
- */
-inline FDialogueState ReduceLocalReplyRejected(
-    const FDialogueState &State,
-    const rtk::PayloadAction<FString> &Action) {
-  return (func::pipe(State) |
-          [&Action](FDialogueState Next) -> FDialogueState {
-            Next.LastActionId = func::just(Action.Type);
-            Next.LastError = func::just(Action.PayloadValue);
-            Next.bPending = false;
-            Next.bReady = false;
-            return Next;
-          })
-      .val;
-}
-
-/**
- * @brief Registers pending/fulfilled/rejected case reducers for the RTK thunk.
- */
-inline rtk::AsyncThunkReducers<FDialogueState, FLocalDialogueReplyRequest,
-                               FDialogueReplyPayload>
-LocalReplyAsyncReducers() {
-  rtk::AsyncThunkReducers<FDialogueState, FLocalDialogueReplyRequest,
-                          FDialogueReplyPayload>
-      Reducers;
-  Reducers.bHasPending = true;
-  Reducers.bHasFulfilled = true;
-  Reducers.bHasRejected = true;
-  Reducers.Pending = ReduceLocalReplyPending;
-  Reducers.Fulfilled = ReduceLocalReplyFulfilled;
-  Reducers.Rejected = ReduceLocalReplyRejected;
-  return Reducers;
 }
 
 } // namespace DialogueReducers

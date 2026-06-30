@@ -1,8 +1,13 @@
 #include "Features/Systems/Runtime/RuntimeReducers.h"
 
 #include "Core/ecs.hpp"
+#include "Features/Systems/Bots/Goals/BotGoalReducers.h"
 #include "Features/Systems/Bots/Horses/HorseSelectors.h"
+#include "Features/Systems/Bots/Horses/HorseActions.h"
+#include "Features/Systems/Bots/Stats/BotStatsReducers.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonSelectors.h"
+#include "Features/Systems/Dialogue/DialogueReducers.h"
 #include "Features/Systems/Landmarks/LandmarkSelectors.h"
 #include "Features/Systems/Level/LevelReducers.h"
 #include "Features/Systems/Nature/NatureSelectors.h"
@@ -78,28 +83,36 @@ FLocalDialogueReplyRequest ReduceLocalDialogueReplyRequest(
 }
 
 FUIPayload ReduceConversationPresentedPayload(
-    const FDialogueReplyPayload &DialogueReply) {
+    const FDialogueReplyPayload &DialogueReply,
+    const ForbocAI::Demo::Data::FUIRuntimeSettings &UISettings) {
   FUIPayload Payload;
-  Payload.Id = FString::Printf(TEXT("systems/ui/conversation/%s"),
+  Payload.Id = FString::Printf(*UISettings.PayloadIdFormat,
                                *DialogueReply.Request.Name);
   Payload.Conversation = UIReducers::ReduceRuntimeConversationViewModel(
       {DialogueReply.Request.Name, DialogueReply.Request.Role,
-       DialogueReply.Request.PlayerLine, DialogueReply.Reply});
+       DialogueReply.Request.PlayerLine, DialogueReply.Reply},
+      UISettings);
   return Payload;
 }
 
 FRuntimeTownspersonInteractionPayload ReduceTownspersonInteractionPayload(
-    const FDialogueReplyPayload &DialogueReply) {
-  return {DialogueReply, ReduceConversationPresentedPayload(DialogueReply)};
+    const FRuntimeTownspersonInteractionPayloadRequest &Request) {
+  const FDialogueReplyPayload DialogueReply =
+      DialogueReducers::ReduceLocalReplyPayload(
+          ReduceLocalDialogueReplyRequest(Request.Request),
+          Request.DialogueSettings);
+  return {DialogueReply,
+          ReduceConversationPresentedPayload(DialogueReply,
+                                             Request.UISettings)};
 }
 
 FRuntimeLevelViewPayload ReduceLevelViewPayload(
     const FRuntimeState &State,
     const FRuntimeLevelViewPayloadRequest &Request) {
-  if (!Request.TerrainData || !Request.OrthoData || !Request.RuntimeLayout ||
-      !Request.Geometry) {
-    return ReduceEmptyLevelViewPayload();
-  }
+  check(Request.TerrainData);
+  check(Request.OrthoData);
+  check(Request.RuntimeLayout);
+  check(Request.Geometry);
 
   FRuntimeLevelViewPayload Payload;
   Payload.TerrainMesh = TerrainReducers::BuildTerrainMeshPayload(
@@ -153,6 +166,43 @@ FRuntimeState ReduceTownspersonInteractionSourceObserved(
           [&Action](FRuntimeState Next) -> FRuntimeState {
             Next.LastTownspersonInteractionRequest =
                 ReduceTownspersonInteractionRequest(Action.PayloadValue);
+            const FRuntimeTownspersonInteractionPayload Payload =
+                ReduceTownspersonInteractionPayload(
+                    {Next.LastTownspersonInteractionRequest,
+                     Next.Dialogue.RuntimeSettings, Next.UI.RuntimeSettings});
+            Next.Dialogue = DialogueReducers::ReduceLocalReplyResolved(
+                Next.Dialogue, {Payload.DialogueReply.Id,
+                                Payload.DialogueReply});
+            Next.UI = UIReducers::ReduceConversationPresented(
+                Next.UI, {Payload.UI.Id, Payload.UI});
+            return Next;
+          })
+      .val;
+}
+
+FRuntimeState ReduceRuntimeTownspeopleSeeded(
+    const FRuntimeState &State,
+    const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
+  return (func::pipe(State) |
+          [&Action](FRuntimeState Next) -> FRuntimeState {
+            Next.BotStats = BotStatsReducers::ReduceTownspeopleSeeded(
+                {Next.BotStats, Action.PayloadValue, Next.BotRuntime});
+            Next.BotGoals = BotGoalReducers::ReduceTownspeopleSeeded(
+                {Next.BotGoals, Action.PayloadValue, Next.BotRuntime});
+            return Next;
+          })
+      .val;
+}
+
+FRuntimeState ReduceRuntimeHorsesSeeded(
+    const FRuntimeState &State,
+    const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
+  return (func::pipe(State) |
+          [&Action](FRuntimeState Next) -> FRuntimeState {
+            Next.BotStats = BotStatsReducers::ReduceHorsesSeeded(
+                {Next.BotStats, Action.PayloadValue, Next.BotRuntime});
+            Next.BotGoals = BotGoalReducers::ReduceHorsesSeeded(
+                {Next.BotGoals, Action.PayloadValue, Next.BotRuntime});
             return Next;
           })
       .val;
@@ -162,9 +212,18 @@ FRuntimeState ReduceRuntimeAction(const FRuntimeState &State,
                                   const rtk::AnyAction &Action) {
   const func::Maybe<FRuntimeTownspersonInteractionSource> Source =
       RuntimeActions::TownspersonInteractionSourceObserved().extract(Action);
+  const func::Maybe<TArray<FTownspersonSeed>> Townspeople =
+      TownspersonActions::TownspeopleSeeded().extract(Action);
+  const func::Maybe<TArray<FHorseRouteSeed>> Horses =
+      HorseActions::HorsesSeeded().extract(Action);
   return Source.hasValue
              ? ReduceTownspersonInteractionSourceObserved(
                    State, {Action.Type, Source.value})
+         : Townspeople.hasValue
+             ? ReduceRuntimeTownspeopleSeeded(
+                   State, {Action.Type, Townspeople.value})
+         : Horses.hasValue
+             ? ReduceRuntimeHorsesSeeded(State, {Action.Type, Horses.value})
              : State;
 }
 

@@ -25,9 +25,12 @@ FG::FTownspersonViewDefaults ObserveTownspersonViewDefaults(
 }
 
 FG::FTownspersonPresentationViewModel ObserveTownspersonPresentation() {
+  const FG::FRuntimeState State = FG::Store::GetStore().getState();
+  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+      FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
   FG::Store::GetStore().dispatch(
       FG::RenderingActions::TownspersonPresentationRequested()(
-          {TEXT("systems/rendering/townspersonPresentationRequested")}));
+          {Ids.TownspersonPresentationRequested}));
   return FG::RuntimeSelectors::SelectTownspersonPresentation(
       FG::Store::GetStore().getState());
 }
@@ -68,6 +71,9 @@ ATownspersonView::ATownspersonView()
   PrimaryActorTick.bCanEverTick = true;
   const FG::FTownspersonPresentationViewModel Presentation =
       ObserveTownspersonPresentation();
+  const ForbocAI::Demo::Data::FRuntimeViewNameSettings &ViewNames =
+      FG::RuntimeSelectors::SelectRuntimeViewNames(
+          FG::Store::GetStore().getState());
   WalkSpeed = Presentation.WalkSpeed;
   PauseDuration = Presentation.PauseDuration;
   PatrolArrivalDistance = Presentation.PatrolArrivalDistance;
@@ -75,11 +81,13 @@ ATownspersonView::ATownspersonView()
   CharacterAnimationBlueprintClassPath =
       Presentation.AnimationBlueprintClassPath;
 
-  SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
+  SceneRoot =
+      CreateDefaultSubobject<USceneComponent>(FName(*ViewNames.SceneRoot));
   RootComponent = SceneRoot;
 
   CharacterMesh =
-      CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh"));
+      CreateDefaultSubobject<USkeletalMeshComponent>(
+          FName(*ViewNames.TownspersonCharacterMesh));
   CharacterMesh->SetupAttachment(SceneRoot);
   CharacterMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   CharacterMesh->SetRelativeLocation(Presentation.MannequinOffset);
@@ -87,18 +95,24 @@ ATownspersonView::ATownspersonView()
   CharacterMesh->SetRelativeScale3D(Presentation.MannequinScale);
 
   InteractionSphere =
-      CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
+      CreateDefaultSubobject<USphereComponent>(
+          FName(*ViewNames.TownspersonInteractionSphere));
   InteractionSphere->SetupAttachment(SceneRoot);
   InteractionSphere->SetSphereRadius(Presentation.InteractionRadius);
-  InteractionSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+  InteractionSphere->SetCollisionProfileName(
+      FName(*ViewNames.TownspersonOverlapProfile));
 
-  NameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NameText"));
+  NameText =
+      CreateDefaultSubobject<UTextRenderComponent>(
+          FName(*ViewNames.TownspersonNameText));
   NameText->SetupAttachment(SceneRoot);
   NameText->SetRelativeLocation(Presentation.NameTextLocation);
   NameText->SetHorizontalAlignment(EHTA_Center);
   NameText->SetWorldSize(Presentation.NameTextWorldSize);
 
-  PromptText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("PromptText"));
+  PromptText =
+      CreateDefaultSubobject<UTextRenderComponent>(
+          FName(*ViewNames.TownspersonPromptText));
   PromptText->SetupAttachment(SceneRoot);
   PromptText->SetRelativeLocation(Presentation.PromptTextLocation);
   PromptText->SetHorizontalAlignment(EHTA_Center);
@@ -107,7 +121,8 @@ ATownspersonView::ATownspersonView()
   PromptText->SetVisibility(false);
 
   DialogueText =
-      CreateDefaultSubobject<UTextRenderComponent>(TEXT("DialogueText"));
+      CreateDefaultSubobject<UTextRenderComponent>(
+          FName(*ViewNames.TownspersonDialogueText));
   DialogueText->SetupAttachment(SceneRoot);
   DialogueText->SetRelativeLocation(Presentation.DialogueTextLocation);
   DialogueText->SetHorizontalAlignment(EHTA_Center);
@@ -160,16 +175,18 @@ void ATownspersonView::ConfigureTownsperson(
 
   const ForbocAI::Demo::Level::FBotInitialPatrolLocationPayload Initial =
       ObserveTownspersonInitialPatrol(PatrolRoute, PatrolIndex);
-  if (Initial.bShouldMove) {
-    SetActorLocation(Initial.Location);
-  }
+  Initial.bShouldMove ? (SetActorLocation(Initial.Location), void()) : void();
   RefreshText();
 }
 
 void ATownspersonView::ShowDialogueReply(const FString &Reply) {
   DialogueText->SetText(FText::FromString(Reply));
   DialogueText->SetVisibility(true);
-  UE_LOG(LogTemp, Display, TEXT("Level NPC reply: %s"), *Reply);
+  const ForbocAI::Demo::Data::FRuntimeTextSettings &Text =
+      FG::RuntimeSelectors::SelectRuntimeText(
+          FG::Store::GetStore().getState());
+  UE_LOG(LogTemp, Display, TEXT("%s"),
+         *FString::Printf(*Text.NpcReplyLog, *Reply));
 }
 
 bool ATownspersonView::IsPlayerNearby() const { return bPlayerNearby; }
@@ -204,29 +221,22 @@ void ATownspersonView::AdvancePatrol(float DeltaTime) {
 }
 
 void ATownspersonView::ConfigureSampleCharacterAsset() {
-  if (USkeletalMesh *Mesh =
-          LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath)) {
-    CharacterMesh->SetSkeletalMesh(Mesh);
-  } else {
-    UE_LOG(LogTemp, Error,
-           TEXT("Level: required Manny skeletal mesh is missing; townsperson "
-                "will not render."));
-  }
-
-  if (UClass *AnimClass = LoadClass<UAnimInstance>(
-          nullptr, *CharacterAnimationBlueprintClassPath)) {
-    CharacterMesh->SetAnimInstanceClass(AnimClass);
-    return;
-  }
-
-  UE_LOG(LogTemp, Error,
-         TEXT("Level: required ABP_Unarmed animation blueprint is missing; "
-              "townsperson animation is unavailable."));
+  USkeletalMesh *Mesh = LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath);
+  UClass *AnimClass =
+      LoadClass<UAnimInstance>(nullptr, *CharacterAnimationBlueprintClassPath);
+  check(Mesh);
+  check(AnimClass);
+  CharacterMesh->SetSkeletalMesh(Mesh);
+  CharacterMesh->SetAnimInstanceClass(AnimClass);
 }
 
 void ATownspersonView::RefreshText() {
+  const ForbocAI::Demo::Data::FRuntimeTextSettings &Text =
+      FG::RuntimeSelectors::SelectRuntimeText(
+          FG::Store::GetStore().getState());
   NameText->SetText(FText::FromString(
-      FString::Printf(TEXT("%s\n%s"), *TownspersonName, *TownspersonRole)));
+      FString::Printf(*Text.TownspersonNameRoleFormat, *TownspersonName,
+                      *TownspersonRole)));
   PromptText->SetText(FText::FromString(
       ObserveTownspersonViewDefaults({InteractionPrompt, DefaultPlayerLine})
           .InteractionPrompt));
@@ -240,10 +250,10 @@ void ATownspersonView::HandleInteractionBegin(
       ObserveInteractionOverlap(
           {OtherActor != nullptr, OtherActor == this,
            OtherActor && OtherActor->IsA<APawn>(), true, bPlayerNearby});
-  if (Model.bShouldApply) {
-    bPlayerNearby = Model.bPlayerNearby;
-    PromptText->SetVisibility(Model.bPromptVisible);
-  }
+  Model.bShouldApply
+      ? (bPlayerNearby = Model.bPlayerNearby,
+         PromptText->SetVisibility(Model.bPromptVisible), void())
+      : void();
 }
 
 void ATownspersonView::HandleInteractionEnd(
@@ -253,8 +263,8 @@ void ATownspersonView::HandleInteractionEnd(
       ObserveInteractionOverlap(
           {OtherActor != nullptr, OtherActor == this,
            OtherActor && OtherActor->IsA<APawn>(), false, bPlayerNearby});
-  if (Model.bShouldApply) {
-    bPlayerNearby = Model.bPlayerNearby;
-    PromptText->SetVisibility(Model.bPromptVisible);
-  }
+  Model.bShouldApply
+      ? (bPlayerNearby = Model.bPlayerNearby,
+         PromptText->SetVisibility(Model.bPromptVisible), void())
+      : void();
 }

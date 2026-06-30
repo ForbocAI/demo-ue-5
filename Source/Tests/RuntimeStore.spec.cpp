@@ -210,10 +210,9 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   const func::Maybe<FLandmark> PostOffice =
       RuntimeSelectors::SelectLandmarkById(State, TEXT("post-office"));
   TestTrue(TEXT("Post office landmark is selectable"), PostOffice.hasValue);
-  if (PostOffice.hasValue) {
-    TestEqual(TEXT("Post office label"), PostOffice.value.Label,
-              FString(TEXT("U.S. Post Office false-front")));
-  }
+  check(PostOffice.hasValue);
+  TestEqual(TEXT("Post office label"), PostOffice.value.Label,
+            FString(TEXT("U.S. Post Office false-front")));
 
   const FSpawnPointPayload Spawn =
       RuntimeSelectors::SelectPlayerSpawn(State);
@@ -229,10 +228,12 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestEqual(TEXT("RTK entity adapter stores seeded horses"),
             RuntimeSelectors::SelectHorses(State).Num(),
             HorseRouteSeeds.Num());
-  for (const FHorseRouteSeed &HorseRoute : HorseRouteSeeds) {
-    TestTrue(FString::Printf(TEXT("%s has a patrol loop"), *HorseRoute.Name),
-             HorseRoute.PatrolRoute.Num() >= 3);
-  }
+  func::for_each_indexed(
+      HorseRouteSeeds, static_cast<size_t>(HorseRouteSeeds.Num()),
+      [this](const FHorseRouteSeed &HorseRoute) {
+        TestTrue(FString::Printf(TEXT("%s has a patrol loop"), *HorseRoute.Name),
+                 HorseRoute.PatrolRoute.Num() >= 3);
+      });
 
   TestEqual(TEXT("RTK entity adapter stores seeded townspeople"),
             RuntimeSelectors::SelectTownspeople(State).Num(),
@@ -264,12 +265,11 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   const func::Maybe<FBotEntity> Clara =
       RuntimeSelectors::SelectBotById(State, TEXT("clara-bell"));
   TestTrue(TEXT("Townsperson bot entity is selectable"), Clara.hasValue);
-  if (Clara.hasValue) {
-    TestTrue(TEXT("Clara is a townsperson bot"),
-             Clara.value.Kind == EBotEntityKind::Townsperson);
-    TestTrue(TEXT("Clara is friendly"),
-             Clara.value.Alignment == EBotAlignment::Friendly);
-  }
+  check(Clara.hasValue);
+  TestTrue(TEXT("Clara is a townsperson bot"),
+           Clara.value.Kind == EBotEntityKind::Townsperson);
+  TestTrue(TEXT("Clara is friendly"),
+           Clara.value.Alignment == EBotAlignment::Friendly);
   TestTrue(TEXT("Clara is projected into the ECS townspeople domain"),
            RuntimeSelectors::SelectEcsEntityInDomain(
                State, TEXT("bot:clara-bell"),
@@ -281,20 +281,18 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
           State, TEXT("bot:clara-bell"), TEXT("Components/Bots/Role"));
   TestTrue(TEXT("Clara role is projected as an ECS component"),
            ClaraRole.hasValue);
-  if (ClaraRole.hasValue) {
-    TestEqual(TEXT("Clara ECS role"), ClaraRole.value.TextValue,
-              FString(TEXT("Postmaster")));
-  }
+  check(ClaraRole.hasValue);
+  TestEqual(TEXT("Clara ECS role"), ClaraRole.value.TextValue,
+            FString(TEXT("Postmaster")));
 
   const func::Maybe<FBotStatsComponent> SorrelStats =
       RuntimeSelectors::SelectBotStatsById(State, TEXT("sorrel-at-livery"));
   TestTrue(TEXT("Horse bot stats are selectable"), SorrelStats.hasValue);
-  if (SorrelStats.hasValue) {
-    TestTrue(TEXT("Sorrel is not a mounted rider"),
-             !SorrelStats.value.bMountedRider);
-    TestTrue(TEXT("Sorrel has route movement speed"),
-             SorrelStats.value.MoveSpeed > 0.0f);
-  }
+  check(SorrelStats.hasValue);
+  TestTrue(TEXT("Sorrel is not a mounted rider"),
+           !SorrelStats.value.bMountedRider);
+  TestTrue(TEXT("Sorrel has route movement speed"),
+           SorrelStats.value.MoveSpeed > 0.0f);
   TestTrue(TEXT("Sorrel is projected into the ECS horse domain"),
            RuntimeSelectors::SelectEcsEntityInDomain(
                State, TEXT("bot:sorrel-at-livery"),
@@ -307,22 +305,20 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
           TEXT("Components/Stats/MoveSpeed"));
   TestTrue(TEXT("Sorrel move speed is projected as an ECS component"),
            SorrelMoveSpeed.hasValue);
-  if (SorrelMoveSpeed.hasValue) {
-    TestTrue(TEXT("Sorrel ECS move speed is positive"),
-             SorrelMoveSpeed.value.FloatValue > 0.0f);
-  }
+  check(SorrelMoveSpeed.hasValue);
+  TestTrue(TEXT("Sorrel ECS move speed is positive"),
+           SorrelMoveSpeed.value.FloatValue > 0.0f);
 
   const FBotStrategicGoal *PostRoadGoal =
       RuntimeSelectors::SelectBotActiveGoalsById(State).Find(
           TEXT("post-road-rider"));
   TestTrue(TEXT("Horse bot active goal is selectable"),
            PostRoadGoal != nullptr);
-  if (PostRoadGoal) {
-    TestTrue(TEXT("Post road rider has a patrol goal"),
-             PostRoadGoal->Type == EBotGoalType::Patrol);
-    TestTrue(TEXT("Post road rider goal targets a route location"),
-             PostRoadGoal->bHasTargetLocation);
-  }
+  check(PostRoadGoal);
+  TestTrue(TEXT("Post road rider has a patrol goal"),
+           PostRoadGoal->Type == EBotGoalType::Patrol);
+  TestTrue(TEXT("Post road rider goal targets a route location"),
+           PostRoadGoal->bHasTargetLocation);
 
   TestTrue(TEXT("Clear Creek natural environment features are seeded"),
            NatureFeatureSeeds.Num() >= 12);
@@ -330,26 +326,37 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
             RuntimeSelectors::SelectNatureFeatures(State).Num(),
             NatureFeatureSeeds.Num());
 
-  bool bHasWater = false;
-  bool bHasRocks = false;
-  bool bHasVegetation = false;
-  bool bHasPCGMarker = false;
-  bool bHasWaterMarker = false;
-  for (const FNatureFeatureSeed &Feature : NatureFeatureSeeds) {
-    bHasWater |= Feature.Kind == ENatureFeatureKind::Water;
-    bHasRocks |= Feature.Kind == ENatureFeatureKind::Rock;
-    bHasVegetation |=
-        Feature.Kind == ENatureFeatureKind::TreeGrove ||
-        Feature.Kind == ENatureFeatureKind::Shrub;
-    bHasPCGMarker |= Feature.Kind == ENatureFeatureKind::PCGMarker;
-    bHasWaterMarker |=
-        Feature.Kind == ENatureFeatureKind::WaterSystemMarker;
-  }
-  TestTrue(TEXT("Nature seed includes water"), bHasWater);
-  TestTrue(TEXT("Nature seed includes rocks"), bHasRocks);
-  TestTrue(TEXT("Nature seed includes vegetation"), bHasVegetation);
-  TestTrue(TEXT("Nature seed includes PCG marker"), bHasPCGMarker);
-  TestTrue(TEXT("Nature seed includes Water System marker"), bHasWaterMarker);
+  TestTrue(TEXT("Nature seed includes water"),
+           func::any_indexed(
+               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
+               [](const FNatureFeatureSeed &Feature) {
+                 return Feature.Kind == ENatureFeatureKind::Water;
+               }));
+  TestTrue(TEXT("Nature seed includes rocks"),
+           func::any_indexed(
+               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
+               [](const FNatureFeatureSeed &Feature) {
+                 return Feature.Kind == ENatureFeatureKind::Rock;
+               }));
+  TestTrue(TEXT("Nature seed includes vegetation"),
+           func::any_indexed(
+               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
+               [](const FNatureFeatureSeed &Feature) {
+                 return Feature.Kind == ENatureFeatureKind::TreeGrove ||
+                        Feature.Kind == ENatureFeatureKind::Shrub;
+               }));
+  TestTrue(TEXT("Nature seed includes PCG marker"),
+           func::any_indexed(
+               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
+               [](const FNatureFeatureSeed &Feature) {
+                 return Feature.Kind == ENatureFeatureKind::PCGMarker;
+               }));
+  TestTrue(TEXT("Nature seed includes Water System marker"),
+           func::any_indexed(
+               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
+               [](const FNatureFeatureSeed &Feature) {
+                 return Feature.Kind == ENatureFeatureKind::WaterSystemMarker;
+               }));
 
   const FLevelRetroRenderProfile &RetroProfile =
       RenderingSelectors::SelectRuntimeProfile(

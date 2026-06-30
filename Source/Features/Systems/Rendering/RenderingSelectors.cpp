@@ -15,6 +15,11 @@ SelectTextureCatalog(const FRenderingState &State) {
   return State.TextureCatalog;
 }
 
+const ForbocAI::Demo::Data::FRenderingRuntimeSettings &
+SelectRenderingRuntimeSettings(const FRenderingState &State) {
+  return State.RuntimeSettings;
+}
+
 const FRenderingAssetPaths &SelectRenderingAssetPaths(
     const FRenderingState &State) {
   return State.AssetPaths;

@@ -13,6 +13,7 @@
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorSlice.h"
 #include "Features/Systems/Bots/Orchestrator/Factories/BotOrchestratorFactoriesSlice.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineSlice.h"
+#include "Features/Systems/Dialogue/DialogueReducers.h"
 #include "Features/Systems/Dialogue/DialogueSlice.h"
 #include "Features/Systems/Level/LevelSlice.h"
 #include "Features/Systems/Landmarks/LandmarkFactories.h"
@@ -21,11 +22,13 @@
 #include "Features/Systems/Rendering/RenderingReducers.h"
 #include "Features/Systems/Runtime/RuntimeReducers.h"
 #include "Features/Systems/Spawn/SpawnFactories.h"
+#include "Features/Systems/Speech/SpeechReducers.h"
 #include "Features/Systems/Speech/SpeechSlice.h"
 #include "Features/Systems/SystemsSlice.h"
 #include "Features/Systems/Terrain/TerrainFactories.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonFactories.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonReducers.h"
+#include "Features/Systems/UI/UIReducers.h"
 #include "Features/Systems/UI/UISlice.h"
 #include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Interaction/InteractionReducers.h"
@@ -44,9 +47,18 @@ FRuntimeState CreateInitialState() {
   State.Level = LevelSystemSlice::CreateInitialState();
   State.Rendering = RenderingSlice::CreateInitialState();
   State.Dialogue = DialogueSlice::CreateInitialState();
+  State.Dialogue =
+      DialogueReducers::ReduceRuntimeSettings(State.Dialogue,
+                                              Settings.DialogueRuntime);
   State.Interaction = InteractionSlice::CreateInitialState();
   State.Speech = SpeechSlice::CreateInitialState();
+  State.Speech =
+      SpeechReducers::ReduceRuntimeSettings(State.Speech,
+                                            Settings.SpeechRuntime);
   State.UI = UISlice::CreateInitialState();
+  State.UI.RuntimeSettings = Settings.UIRuntime;
+  State.UI.Conversation =
+      UIReducers::ReduceRuntimeConversationPlaceholder(Settings.UIRuntime);
   State.Terrain = TerrainFactories::CreateInitialState();
   State.Spawn = SpawnFactories::CreateInitialState();
   State.Landmarks = LandmarkFactories::CreateInitialState();
@@ -63,6 +75,11 @@ FRuntimeState CreateInitialState() {
   State.BotOrchestratorFactories =
       BotOrchestratorFactoriesSlice::CreateInitialState();
   State.BotPipeline = BotPipelineSlice::CreateInitialState();
+  State.RuntimeObservationIds = Settings.RuntimeObservationIds;
+  State.RuntimeDebugMessages = Settings.RuntimeDebugMessages;
+  State.RuntimeViewNames = Settings.RuntimeViewNames;
+  State.RuntimeText = Settings.RuntimeText;
+  State.BotRuntime = Settings.BotRuntime;
   State.Level.TerrainSources = Settings.LevelTerrainSources;
   State.Level.DataSources = Settings.LevelDataSources;
   State.Level.Geometry = Settings.LevelGeometry;
@@ -72,6 +89,7 @@ FRuntimeState CreateInitialState() {
       RenderingReducers::ReduceRuntimeProfile(Settings.RenderingProfile);
   State.Rendering.TextureCatalog =
       RenderingReducers::ReduceTextureCatalog(Settings.TextureCatalog);
+  State.Rendering.RuntimeSettings = Settings.RenderingRuntime;
   State.Rendering.AssetPaths =
       RenderingReducers::ReduceRenderingAssetPaths(Settings.RenderingAssets);
   State.Rendering.TownspersonPresentation =

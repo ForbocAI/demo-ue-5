@@ -1,5 +1,6 @@
 #include "Features/Systems/Projection/SystemsProjectionBotAdapters.h"
 
+#include "Core/functional_core.hpp"
 #include "Features/Components/ComponentsAdapters.h"
 #include "Features/Entities/EntitiesAdapters.h"
 
@@ -17,18 +18,22 @@ namespace {
  * explicitly so unknown values fail instead of becoming silent fallbacks.
  */
 FString BotGoalTypeText(EBotGoalType Type) {
-  switch (Type) {
-  case EBotGoalType::Patrol:
-    return TEXT("Patrol");
-  case EBotGoalType::Converse:
-    return TEXT("Converse");
-  case EBotGoalType::Travel:
-    return TEXT("Travel");
-  case EBotGoalType::Idle:
-    return TEXT("Idle");
-  }
-  checkNoEntry();
-  return FString();
+  const func::Maybe<FString> Text =
+      func::multi_match<EBotGoalType, FString>(
+          Type, {func::when<EBotGoalType, FString>(
+                     func::equals(EBotGoalType::Patrol),
+                     [](const EBotGoalType &) { return FString(TEXT("Patrol")); }),
+                 func::when<EBotGoalType, FString>(
+                     func::equals(EBotGoalType::Converse),
+                     [](const EBotGoalType &) { return FString(TEXT("Converse")); }),
+                 func::when<EBotGoalType, FString>(
+                     func::equals(EBotGoalType::Travel),
+                     [](const EBotGoalType &) { return FString(TEXT("Travel")); }),
+                 func::when<EBotGoalType, FString>(
+                     func::equals(EBotGoalType::Idle),
+                     [](const EBotGoalType &) { return FString(TEXT("Idle")); })});
+  check(Text.hasValue);
+  return Text.value;
 }
 
 /**
@@ -86,18 +91,30 @@ StrategicGoalList(const TArray<FBotStrategicGoal> &Goals) {
  * explicitly so invalid values do not masquerade as Idle.
  */
 FString BotBehaviorText(EBotBehaviorState State) {
-  switch (State) {
-  case EBotBehaviorState::Idle:
-    return TEXT("Idle");
-  case EBotBehaviorState::Patrol:
-    return TEXT("Patrol");
-  case EBotBehaviorState::Moving:
-    return TEXT("Moving");
-  case EBotBehaviorState::Acting:
-    return TEXT("Acting");
-  }
-  checkNoEntry();
-  return FString();
+  const func::Maybe<FString> Text =
+      func::multi_match<EBotBehaviorState, FString>(
+          State, {func::when<EBotBehaviorState, FString>(
+                      func::equals(EBotBehaviorState::Idle),
+                      [](const EBotBehaviorState &) {
+                        return FString(TEXT("Idle"));
+                      }),
+                  func::when<EBotBehaviorState, FString>(
+                      func::equals(EBotBehaviorState::Patrol),
+                      [](const EBotBehaviorState &) {
+                        return FString(TEXT("Patrol"));
+                      }),
+                  func::when<EBotBehaviorState, FString>(
+                      func::equals(EBotBehaviorState::Moving),
+                      [](const EBotBehaviorState &) {
+                        return FString(TEXT("Moving"));
+                      }),
+                  func::when<EBotBehaviorState, FString>(
+                      func::equals(EBotBehaviorState::Acting),
+                      [](const EBotBehaviorState &) {
+                        return FString(TEXT("Acting"));
+                      })});
+  check(Text.hasValue);
+  return Text.value;
 }
 
 /**

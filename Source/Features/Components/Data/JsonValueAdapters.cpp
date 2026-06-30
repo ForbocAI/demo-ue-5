@@ -7,23 +7,12 @@ namespace Demo {
 namespace Data {
 namespace JsonValueAdapters {
 
-void LogInvalidField(const FJsonFieldRequest &Request) {
-  UE_LOG(LogTemp, Error, TEXT("Runtime JSON invalid required field: %s"),
-         *Request.FieldName);
-}
-
-void LogInvalidArrayValue(const FJsonArrayValueObjectRequest &Request) {
-  UE_LOG(LogTemp, Error,
-         TEXT("Runtime JSON array item invalid: %s[%d]"),
-         *Request.FieldName, Request.Index);
-}
-
 func::Maybe<FString> ReadRequiredString(const FJsonFieldRequest &Request) {
   FString Value;
   return Request.Object.IsValid() &&
                  Request.Object->TryGetStringField(Request.FieldName, Value)
              ? func::just(Value)
-             : (LogInvalidField(Request), func::nothing<FString>());
+             : func::nothing<FString>();
 }
 
 func::Maybe<float> ReadRequiredFloat(const FJsonFieldRequest &Request) {
@@ -31,17 +20,14 @@ func::Maybe<float> ReadRequiredFloat(const FJsonFieldRequest &Request) {
   return Request.Object.IsValid() &&
                  Request.Object->TryGetNumberField(Request.FieldName, Value)
              ? func::just(static_cast<float>(Value))
-             : (LogInvalidField(Request), func::nothing<float>());
+             : func::nothing<float>();
 }
 
 func::Maybe<TSharedPtr<FJsonObject>>
 ReadRequiredObject(const FJsonFieldRequest &Request) {
   const func::Maybe<TSharedPtr<FJsonObject>> Value =
       JsonAdapters::ReadObject(Request);
-  return Value.hasValue
-             ? Value
-             : (LogInvalidField(Request),
-                func::nothing<TSharedPtr<FJsonObject>>());
+  return Value.hasValue ? Value : func::nothing<TSharedPtr<FJsonObject>>();
 }
 
 func::Maybe<TArray<TSharedPtr<FJsonValue>>>
@@ -51,8 +37,7 @@ ReadRequiredArray(const FJsonFieldRequest &Request) {
                  Request.Object->TryGetArrayField(Request.FieldName, Values) &&
                  Values != nullptr
              ? func::just(*Values)
-             : (LogInvalidField(Request),
-                func::nothing<TArray<TSharedPtr<FJsonValue>>>());
+             : func::nothing<TArray<TSharedPtr<FJsonValue>>>();
 }
 
 func::Maybe<TSharedPtr<FJsonObject>>
@@ -62,8 +47,7 @@ ReadArrayObject(const FJsonArrayValueObjectRequest &Request) {
                               : TSharedPtr<FJsonObject>();
   return Object.IsValid()
              ? func::just(Object)
-             : (LogInvalidArrayValue(Request),
-                func::nothing<TSharedPtr<FJsonObject>>());
+             : func::nothing<TSharedPtr<FJsonObject>>();
 }
 
 } // namespace JsonValueAdapters

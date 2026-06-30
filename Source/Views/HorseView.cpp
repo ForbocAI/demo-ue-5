@@ -33,9 +33,12 @@ ObserveHorsePatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
 }
 
 FG::FHorsePresentationViewModel ObserveHorsePresentation() {
+  const FG::FRuntimeState State = FG::Store::GetStore().getState();
+  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+      FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
   FG::Store::GetStore().dispatch(
       FG::RenderingActions::HorsePresentationRequested()(
-          {TEXT("systems/rendering/horsePresentationRequested")}));
+          {Ids.HorsePresentationRequested}));
   return FG::RuntimeSelectors::SelectHorsePresentation(
       FG::Store::GetStore().getState());
 }
@@ -48,6 +51,9 @@ AHorseView::AHorseView()
   PrimaryActorTick.bCanEverTick = true;
   const FG::FHorsePresentationViewModel Presentation =
       ObserveHorsePresentation();
+  const ForbocAI::Demo::Data::FRuntimeViewNameSettings &ViewNames =
+      FG::RuntimeSelectors::SelectRuntimeViewNames(
+          FG::Store::GetStore().getState());
   HorseName = Presentation.DefaultName;
   WalkSpeed = Presentation.WalkSpeed;
   PauseDuration = Presentation.PauseDuration;
@@ -57,25 +63,30 @@ AHorseView::AHorseView()
   RiderMeshPath = Presentation.RiderMeshPath;
   RiderWalkAnimationPath = Presentation.RiderWalkAnimationPath;
 
-  SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
+  SceneRoot =
+      CreateDefaultSubobject<USceneComponent>(FName(*ViewNames.SceneRoot));
   RootComponent = SceneRoot;
 
   ImportedHorseMesh =
-      CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ImportedHorseMesh"));
+      CreateDefaultSubobject<USkeletalMeshComponent>(
+          FName(*ViewNames.HorseImportedMesh));
   ImportedHorseMesh->SetupAttachment(SceneRoot);
   ImportedHorseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   ImportedHorseMesh->SetRelativeScale3D(Presentation.ImportedHorseScale);
   ImportedHorseMesh->SetVisibility(false);
 
   MountedRiderMesh =
-      CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MountedRiderMesh"));
+      CreateDefaultSubobject<USkeletalMeshComponent>(
+          FName(*ViewNames.HorseMountedRiderMesh));
   MountedRiderMesh->SetupAttachment(SceneRoot);
   MountedRiderMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   MountedRiderMesh->SetRelativeLocation(Presentation.MountedRiderLocation);
   MountedRiderMesh->SetRelativeScale3D(Presentation.MountedRiderScale);
   MountedRiderMesh->SetVisibility(false);
 
-  NameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NameText"));
+  NameText =
+      CreateDefaultSubobject<UTextRenderComponent>(
+          FName(*ViewNames.HorseNameText));
   NameText->SetupAttachment(SceneRoot);
   NameText->SetRelativeLocation(Presentation.NameTextLocation);
   NameText->SetHorizontalAlignment(EHTA_Center);
@@ -96,9 +107,7 @@ void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   PauseRemaining = 0.0f;
   const ForbocAI::Demo::Level::FBotInitialPatrolLocationPayload Initial =
       ObserveHorseInitialPatrol(PatrolRoute, PatrolIndex);
-  if (Initial.bShouldMove) {
-    SetActorLocation(Initial.Location);
-  }
+  Initial.bShouldMove ? (SetActorLocation(Initial.Location), void()) : void();
   ConfigureImportedHorseAsset();
   RefreshText();
 }
@@ -116,57 +125,33 @@ void AHorseView::AdvancePatrol(float DeltaTime) {
 }
 
 void AHorseView::ConfigureImportedHorseAsset() {
-  if (!ImportedHorseMesh) {
-    return;
-  }
+  check(ImportedHorseMesh);
+  check(MountedRiderMesh);
 
   USkeletalMesh *ImportedMesh = LoadObject<USkeletalMesh>(
       nullptr, *HorseMeshPath);
   UAnimSequence *WalkAnimation = LoadObject<UAnimSequence>(
       nullptr, *HorseWalkAnimationPath);
-  if (!ImportedMesh) {
-    UE_LOG(LogTemp, Error,
-           TEXT("Level: required imported horse mesh is missing; horse actor %s "
-                "cannot render."),
-           *HorseName);
-    return;
-  }
+  check(ImportedMesh);
+  check(WalkAnimation);
 
   ImportedHorseMesh->SetSkeletalMesh(ImportedMesh);
   ImportedHorseMesh->SetVisibility(true);
-  if (WalkAnimation) {
-    ImportedHorseMesh->PlayAnimation(WalkAnimation, true);
-  } else {
-    UE_LOG(LogTemp, Error,
-           TEXT("Level: required horse walk animation is missing for %s."),
-           *HorseName);
-  }
+  ImportedHorseMesh->PlayAnimation(WalkAnimation, true);
 
-  if (!bMountedRider) {
-    MountedRiderMesh->SetVisibility(false);
-    return;
-  }
-
-  USkeletalMesh *RiderMesh = LoadObject<USkeletalMesh>(
-      nullptr, *RiderMeshPath);
-  UAnimSequence *RiderWalkAnimation = LoadObject<UAnimSequence>(
-      nullptr, *RiderWalkAnimationPath);
-  if (bMountedRider && RiderMesh) {
-    MountedRiderMesh->SetSkeletalMesh(RiderMesh);
-    MountedRiderMesh->SetVisibility(true);
-    if (RiderWalkAnimation) {
-      MountedRiderMesh->PlayAnimation(RiderWalkAnimation, true);
-    } else {
-      UE_LOG(LogTemp, Error,
-             TEXT("Level: required mounted rider walk animation is missing for "
-                  "%s."),
-             *HorseName);
-    }
-  } else {
-    UE_LOG(LogTemp, Error,
-           TEXT("Level: required mounted rider mesh is missing for %s."),
-           *HorseName);
-  }
+  bMountedRider
+      ? ([this]() {
+          USkeletalMesh *RiderMesh =
+              LoadObject<USkeletalMesh>(nullptr, *RiderMeshPath);
+          UAnimSequence *RiderWalkAnimation =
+              LoadObject<UAnimSequence>(nullptr, *RiderWalkAnimationPath);
+          check(RiderMesh);
+          check(RiderWalkAnimation);
+          MountedRiderMesh->SetSkeletalMesh(RiderMesh);
+          MountedRiderMesh->SetVisibility(true);
+          MountedRiderMesh->PlayAnimation(RiderWalkAnimation, true);
+        }(), void())
+      : (MountedRiderMesh->SetVisibility(false), void());
 }
 
 void AHorseView::RefreshText() {

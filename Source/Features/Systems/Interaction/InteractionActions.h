@@ -17,6 +17,7 @@ TownspersonCandidatesObserved() {
   static const func::Lazy<rtk::ActionCreator<FInteractionCandidatesObserved>>
       Creator = func::lazy(
           []() -> rtk::ActionCreator<FInteractionCandidatesObserved> {
+            // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FInteractionCandidatesObserved>(
                 TEXT("systems/interaction/townspersonCandidatesObserved"));
           });

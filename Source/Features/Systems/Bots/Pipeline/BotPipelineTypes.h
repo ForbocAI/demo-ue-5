@@ -16,43 +16,44 @@ struct FBotPipelinePayload {
 
 struct FBotPipelineState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
-  bool bReady = false;
+  bool bReady;
 };
 
 struct FBotPipelineOverlapSnapshot {
-  bool bOverlapping = false;
-  float DamagePerSecond = 0.0f;
-  AActor *HazardSource = nullptr;
+  bool bOverlapping;
+  float DamagePerSecond;
+  AActor *HazardSource;
 };
 
 struct FBotPipelineVisibilitySnapshot {
-  bool bCanSeeEnemy = false;
-  FVector EnemyPosition = FVector::ZeroVector;
-  float Distance = 0.0f;
+  bool bCanSeeEnemy;
+  FVector EnemyPosition;
+  float Distance;
 };
 
 struct FBotPipelineMovementSnapshot {
-  FVector TargetPosition = FVector::ZeroVector;
-  float DeltaTime = 0.0f;
-  float InterpSpeed = 300.0f;
+  FVector TargetPosition;
+  float DeltaTime;
+  float InterpSpeed;
 };
 
 struct FBotPipelineWorldSnapshot {
   FBotPipelineOverlapSnapshot HazardOverlap;
   FBotPipelineVisibilitySnapshot Visibility;
   FBotPipelineMovementSnapshot Movement;
-  float DeltaTime = 0.0f;
+  float DeltaTime;
 };
 
 struct FBotPipelineInputRequest {
-  float DeltaTime = 0.0f;
+  float DeltaTime;
   FBotPipelineOverlapSnapshot Hazard;
   FBotPipelineVisibilitySnapshot Visibility;
   FBotPipelineMovementSnapshot Movement;
 };
 
 struct FBotPipelineDefaultInputRequest {
-  float DeltaTime = 0.0f;
+  FBotCoreRuntimeState State;
+  float DeltaTime;
 };
 
 struct FBotPipelineInputResult {
@@ -62,7 +63,7 @@ struct FBotPipelineInputResult {
 struct FBotPipelineHazardActionRequest {
   FBotCoreRuntimeState State;
   FBotPipelineOverlapSnapshot Overlap;
-  float DeltaTime = 0.0f;
+  float DeltaTime;
 };
 
 struct FBotPipelineMovementActionRequest {
@@ -95,7 +96,7 @@ struct FBotPipelineLogicResult {
 
 struct FBotPipelineOutputResult {
   FBotCoreRuntimeState NewState;
-  int32 ActionsDispatched = 0;
+  int32 ActionsDispatched;
 };
 
 struct FBotPipelineTickInput {
