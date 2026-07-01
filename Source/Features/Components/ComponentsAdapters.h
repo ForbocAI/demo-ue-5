@@ -261,19 +261,6 @@ ecs::FWorld ProjectResource(const FProjectResourcePayload &Payload);
 ecs::FWorld ProjectEntity(const FProjectEntityPayload &Payload);
 
 template <typename Payload, typename SelectEntity, typename SelectDomains,
-          typename SelectComponents>
-ecs::FWorld
-ProjectPayloadEntityWith(const Payload &PayloadValue,
-                         SelectEntity SelectEntityValue,
-                         SelectDomains SelectDomainValues,
-                         SelectComponents SelectComponentValues) {
-  const ecs::EntityKey Entity = SelectEntityValue(PayloadValue);
-  return ProjectEntity({PayloadValue.World, Entity,
-                        SelectDomainValues(PayloadValue),
-                        SelectComponentValues(PayloadValue)});
-}
-
-template <typename Payload, typename SelectEntity, typename SelectDomains,
           typename SelectSource, typename ComponentCatalog>
 ecs::FWorld ProjectPayloadEntityCatalogWith(
     const Payload &PayloadValue, SelectEntity SelectEntityValue,
