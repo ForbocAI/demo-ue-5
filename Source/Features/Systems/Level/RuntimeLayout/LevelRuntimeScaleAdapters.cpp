@@ -11,75 +11,41 @@ namespace {
 
 namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
 
-struct FBuildingScaleSeedPayload {
-  float FrontageFeet = 0.0f;
-  float DepthFeet = 0.0f;
-  float Stories = 0.0f;
+struct FWorldLocationFields {
+  float X = 0.0f;
+  float Y = 0.0f;
+  float Z = 0.0f;
 };
 
-struct FLongFeatureScaleSeedPayload {
-  float WidthFeet = 0.0f;
-  float LengthLots = 0.0f;
-  float HeightFeet = 0.0f;
-};
-
-struct FPadScaleSeedPayload {
-  float WidthFeet = 0.0f;
-  float DepthFeet = 0.0f;
-  float HeightFeet = 0.0f;
+struct FLevelRuntimeScaleModeSeedRequest {
+  TSharedPtr<FJsonObject> Object;
+  ELevelRuntimeScaleMode Mode = ELevelRuntimeScaleMode::Pad;
 };
 
 /**
- * @brief Builds a building scale seed from validated fields.
+ * @brief Creates an empty scale seed for a validated scale mode.
  *
- * @signature FLevelRuntimeScaleSeed CreateBuildingScaleSeed(const FBuildingScaleSeedPayload &Payload)
+ * @signature FLevelRuntimeScaleSeed ScaleSeedWithMode(ELevelRuntimeScaleMode Mode)
  *
- * User story: As a Level adapter maintainer, field aggregation stays in one
- * unary payload before the seed reaches reducer-owned geometry composition.
+ * User story: As a Level adapter maintainer, mode selection stays as one
+ * initial declaration value before field declarations populate dimensions.
  */
-FLevelRuntimeScaleSeed
-CreateBuildingScaleSeed(const FBuildingScaleSeedPayload &Payload) {
+FLevelRuntimeScaleSeed ScaleSeedWithMode(ELevelRuntimeScaleMode Mode) {
   FLevelRuntimeScaleSeed Seed;
-  Seed.Mode = ELevelRuntimeScaleMode::Building;
-  Seed.FrontageFeet = Payload.FrontageFeet;
-  Seed.DepthFeet = Payload.DepthFeet;
-  Seed.Stories = Payload.Stories;
+  Seed.Mode = Mode;
   return Seed;
 }
 
 /**
- * @brief Builds a long-feature scale seed from validated fields.
+ * @brief Builds a vector from validated world-location fields.
  *
- * @signature FLevelRuntimeScaleSeed CreateLongFeatureScaleSeed(const FLongFeatureScaleSeedPayload &Payload)
+ * @signature FVector WorldLocationFromFields(const FWorldLocationFields &Fields)
  *
- * User story: As a Level adapter maintainer, long-feature dimensions are
- * grouped as data before reducers derive world scale.
+ * User story: As an ECS seed author, JSON vector fields are grouped before
+ * entering typed spawn state.
  */
-FLevelRuntimeScaleSeed
-CreateLongFeatureScaleSeed(const FLongFeatureScaleSeedPayload &Payload) {
-  FLevelRuntimeScaleSeed Seed;
-  Seed.Mode = ELevelRuntimeScaleMode::LongFeature;
-  Seed.WidthFeet = Payload.WidthFeet;
-  Seed.LengthLots = Payload.LengthLots;
-  Seed.HeightFeet = Payload.HeightFeet;
-  return Seed;
-}
-
-/**
- * @brief Builds a pad scale seed from validated fields.
- *
- * @signature FLevelRuntimeScaleSeed CreatePadScaleSeed(const FPadScaleSeedPayload &Payload)
- *
- * User story: As a Level adapter maintainer, pad dimensions are grouped as a
- * typed payload before reducers derive world scale.
- */
-FLevelRuntimeScaleSeed CreatePadScaleSeed(const FPadScaleSeedPayload &Payload) {
-  FLevelRuntimeScaleSeed Seed;
-  Seed.Mode = ELevelRuntimeScaleMode::Pad;
-  Seed.WidthFeet = Payload.WidthFeet;
-  Seed.DepthFeet = Payload.DepthFeet;
-  Seed.HeightFeet = Payload.HeightFeet;
-  return Seed;
+FVector WorldLocationFromFields(const FWorldLocationFields &Fields) {
+  return FVector(Fields.X, Fields.Y, Fields.Z);
 }
 
 /**
@@ -92,16 +58,11 @@ FLevelRuntimeScaleSeed CreatePadScaleSeed(const FPadScaleSeedPayload &Payload) {
  */
 func::Maybe<FLevelRuntimeScaleSeed>
 ReadBuildingScaleSeed(const FLevelRuntimeJsonObjectRequest &Request) {
-  const func::Maybe<float> FrontageFeet =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("frontage_feet")});
-  const func::Maybe<float> DepthFeet =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("depth_feet")});
-  const func::Maybe<float> Stories =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("stories")});
-  return FrontageFeet.hasValue && DepthFeet.hasValue && Stories.hasValue
-             ? func::just(CreateBuildingScaleSeed(
-                   {FrontageFeet.value, DepthFeet.value, Stories.value}))
-             : func::nothing<FLevelRuntimeScaleSeed>();
+  return JsonValues::ReadRequiredFields<FLevelRuntimeScaleSeed>(
+      Request.Object,
+      {JSON_REQUIRED_FIELDS(FLevelRuntimeScaleSeed, FrontageFeet, DepthFeet,
+                            Stories)},
+      ScaleSeedWithMode(ELevelRuntimeScaleMode::Building));
 }
 
 /**
@@ -114,16 +75,11 @@ ReadBuildingScaleSeed(const FLevelRuntimeJsonObjectRequest &Request) {
  */
 func::Maybe<FLevelRuntimeScaleSeed>
 ReadLongFeatureScaleSeed(const FLevelRuntimeJsonObjectRequest &Request) {
-  const func::Maybe<float> WidthFeet =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("width_feet")});
-  const func::Maybe<float> LengthLots =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("length_lots")});
-  const func::Maybe<float> HeightFeet =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("height_feet")});
-  return WidthFeet.hasValue && LengthLots.hasValue && HeightFeet.hasValue
-             ? func::just(CreateLongFeatureScaleSeed(
-                   {WidthFeet.value, LengthLots.value, HeightFeet.value}))
-             : func::nothing<FLevelRuntimeScaleSeed>();
+  return JsonValues::ReadRequiredFields<FLevelRuntimeScaleSeed>(
+      Request.Object,
+      {JSON_REQUIRED_FIELDS(FLevelRuntimeScaleSeed, WidthFeet, LengthLots,
+                            HeightFeet)},
+      ScaleSeedWithMode(ELevelRuntimeScaleMode::LongFeature));
 }
 
 /**
@@ -136,16 +92,11 @@ ReadLongFeatureScaleSeed(const FLevelRuntimeJsonObjectRequest &Request) {
  */
 func::Maybe<FLevelRuntimeScaleSeed>
 ReadPadScaleSeed(const FLevelRuntimeJsonObjectRequest &Request) {
-  const func::Maybe<float> WidthFeet =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("width_feet")});
-  const func::Maybe<float> DepthFeet =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("depth_feet")});
-  const func::Maybe<float> HeightFeet =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("height_feet")});
-  return WidthFeet.hasValue && DepthFeet.hasValue && HeightFeet.hasValue
-             ? func::just(CreatePadScaleSeed(
-                   {WidthFeet.value, DepthFeet.value, HeightFeet.value}))
-             : func::nothing<FLevelRuntimeScaleSeed>();
+  return JsonValues::ReadRequiredFields<FLevelRuntimeScaleSeed>(
+      Request.Object,
+      {JSON_REQUIRED_FIELDS(FLevelRuntimeScaleSeed, WidthFeet, DepthFeet,
+                            HeightFeet)},
+      ScaleSeedWithMode(ELevelRuntimeScaleMode::Pad));
 }
 
 /**
@@ -195,24 +146,20 @@ ReadScaleSeedForMode(const FLevelRuntimeScaleModeSeedRequest &Request) {
 
 func::Maybe<FVector>
 WorldLocationFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
-  const func::Maybe<float> X =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("x")});
-  const func::Maybe<float> Y =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("y")});
-  const func::Maybe<float> Z =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("z")});
-  return X.hasValue && Y.hasValue && Z.hasValue
-             ? func::just(FVector(X.value, Y.value, Z.value))
-             : func::nothing<FVector>();
+  return func::fmap(
+      JsonValues::ReadRequiredFields<FWorldLocationFields>(
+          Request.Object,
+          {JSON_REQUIRED_FIELDS(FWorldLocationFields, X, Y, Z)}),
+      WorldLocationFromFields);
 }
 
 func::Maybe<FLevelRuntimeScaleSeed>
 ScaleFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
   return func::mbind(
-      JsonValues::ReadRequiredString({Request.Object, TEXT("mode")}),
+      JsonValues::ReadRequiredField<FString>(Request.Object, "Mode"),
       [Request](const FString &ModeText) {
-        const FLevelRuntimeEnumTextRequest ModeRequest{ModeText,
-                                                       TEXT("mode")};
+        const FLevelRuntimeEnumTextRequest ModeRequest{
+            ModeText, JsonValues::RequiredFieldName("Mode")};
         const func::Maybe<ELevelRuntimeScaleMode> Mode =
             ParseScaleMode(ModeRequest);
         return func::mbind(Mode, [Request](ELevelRuntimeScaleMode ParsedMode) {

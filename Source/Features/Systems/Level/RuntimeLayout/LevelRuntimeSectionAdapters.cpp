@@ -12,56 +12,32 @@ namespace {
 
 namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
 
-struct FLevelRuntimeSectionArrayRequest {
-  TArray<TSharedPtr<FJsonValue>> Blocks;
-  TArray<TSharedPtr<FJsonValue>> Labels;
-};
+func::Maybe<FLevelRuntimeBlockSeed>
+ReadBlockObject(const TSharedPtr<FJsonObject> &Object) {
+  return BlockFromJson({Object});
+}
 
-/**
- * @brief Maps section block and label arrays into typed seed arrays.
- *
- * @signature func::Maybe<FLevelRuntimeSectionSeed> BuildSectionFromArrays(const FLevelRuntimeSectionArrayRequest &Request)
- *
- * User story: As a Level adapter maintainer, repeated authored objects are
- * mapped through neutral Data primitives before reducers receive section data.
- */
-func::Maybe<FLevelRuntimeSectionSeed>
-BuildSectionFromArrays(const FLevelRuntimeSectionArrayRequest &Request) {
-  const func::Maybe<TArray<FLevelRuntimeBlockSeed>> ParsedBlocks =
-      JsonValues::MapRequiredJsonValuesWith<FLevelRuntimeBlockSeed>(
-          TEXT("blocks"),
-          [](const TSharedPtr<FJsonObject> &BlockObject) {
-            return BlockFromJson({BlockObject});
-          })(Request.Blocks);
-  const func::Maybe<TArray<FLevelRuntimeLabelSeed>> ParsedLabels =
-      JsonValues::MapRequiredJsonValuesWith<FLevelRuntimeLabelSeed>(
-          TEXT("labels"),
-          [](const TSharedPtr<FJsonObject> &LabelObject) {
-            return LabelFromJson({LabelObject});
-          })(Request.Labels);
-  return ParsedBlocks.hasValue && ParsedLabels.hasValue
-             ? func::just(FLevelRuntimeSectionSeed{ParsedBlocks.value,
-                                                   ParsedLabels.value})
-             : func::nothing<FLevelRuntimeSectionSeed>();
+func::Maybe<FLevelRuntimeLabelSeed>
+ReadLabelObject(const TSharedPtr<FJsonObject> &Object) {
+  return LabelFromJson({Object});
 }
 
 } // namespace
 
 func::Maybe<FLevelRuntimeSectionSeed>
 SectionFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
-  const func::Maybe<TArray<TSharedPtr<FJsonValue>>> Blocks =
-      JsonValues::ReadRequiredArray({Request.Object, TEXT("blocks")});
-  const func::Maybe<TArray<TSharedPtr<FJsonValue>>> Labels =
-      JsonValues::ReadRequiredArray({Request.Object, TEXT("labels")});
-  return Blocks.hasValue && Labels.hasValue
-             ? BuildSectionFromArrays({Blocks.value, Labels.value})
-             : func::nothing<FLevelRuntimeSectionSeed>();
+  return JsonValues::ReadRequiredFields<FLevelRuntimeSectionSeed>(
+      Request.Object,
+      {JSON_REQUIRED_FIELD_READER(FLevelRuntimeSectionSeed, ReadBlockObject,
+                                  Blocks),
+       JSON_REQUIRED_FIELD_READER(FLevelRuntimeSectionSeed, ReadLabelObject,
+                                  Labels)});
 }
 
 func::Maybe<FLevelRuntimeSectionSeed>
 ReadSection(const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
   return func::mbind(
-      JsonValues::ReadRequiredObject(Request),
+      JsonValues::ReadRequiredValue<TSharedPtr<FJsonObject>>(Request),
       [](const TSharedPtr<FJsonObject> &SectionObject) {
         return SectionFromJson({SectionObject});
       });

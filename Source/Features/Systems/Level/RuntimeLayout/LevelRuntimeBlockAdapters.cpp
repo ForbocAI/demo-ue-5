@@ -11,31 +11,48 @@ namespace RuntimeLayout {
 namespace {
 
 namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
+using FJsonFieldRequest = ForbocAI::Demo::Data::FJsonFieldRequest;
 
-struct FLevelRuntimeBlockSeedPayload {
-  FString Id;
-  FString Name;
-  ELevelRuntimeAnchorMode Anchor = ELevelRuntimeAnchorMode::FeatureLots;
-  FLevelRuntimeScaleSeed Scale;
-  ELevelRetroTexture Texture = ELevelRetroTexture::MarkerPaint;
+struct FLevelRuntimeLotLocationFields {
+  float EastLots = 0.0f;
+  float NorthLots = 0.0f;
 };
 
-/**
- * @brief Creates a block seed before location-specific fields are applied.
- *
- * @signature FLevelRuntimeBlockSeed CreateBlockSeed(const FLevelRuntimeBlockSeedPayload &Payload)
- *
- * User story: As a Level adapter maintainer, validated block identity,
- * texture, anchor, and scale are grouped before location parsing.
- */
-FLevelRuntimeBlockSeed
-CreateBlockSeed(const FLevelRuntimeBlockSeedPayload &Payload) {
+struct FLevelRuntimeBlockLocationRequest {
+  TSharedPtr<FJsonObject> Object;
   FLevelRuntimeBlockSeed Seed;
-  Seed.Id = Payload.Id;
-  Seed.Name = Payload.Name;
-  Seed.Anchor = Payload.Anchor;
-  Seed.Scale = Payload.Scale;
-  Seed.Texture = Payload.Texture;
+};
+
+func::Maybe<ELevelRuntimeAnchorMode>
+ReadAnchorModeField(const FJsonFieldRequest &Request) {
+  return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
+                     [Request](const FString &Text) {
+                       return ParseAnchorMode({Text, Request.FieldName});
+                     });
+}
+
+func::Maybe<ELevelRetroTexture>
+ReadTextureField(const FJsonFieldRequest &Request) {
+  return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
+                     [Request](const FString &Text) {
+                       return ParseTexture({Text, Request.FieldName});
+                     });
+}
+
+FLevelRuntimeBlockSeed
+ApplyWorldBlockLocation(const FLevelRuntimeBlockLocationRequest &Request,
+                        const FVector &Location) {
+  FLevelRuntimeBlockSeed Seed = Request.Seed;
+  Seed.WorldLocation = Location;
+  return Seed;
+}
+
+FLevelRuntimeBlockSeed
+ApplyLotBlockLocation(const FLevelRuntimeBlockLocationRequest &Request,
+                      const FLevelRuntimeLotLocationFields &Fields) {
+  FLevelRuntimeBlockSeed Seed = Request.Seed;
+  Seed.EastLots = Fields.EastLots;
+  Seed.NorthLots = Fields.NorthLots;
   return Seed;
 }
 
@@ -50,17 +67,14 @@ CreateBlockSeed(const FLevelRuntimeBlockSeedPayload &Payload) {
 func::Maybe<FLevelRuntimeBlockSeed>
 ReadWorldBlockSeed(const FLevelRuntimeBlockLocationRequest &Request) {
   return func::mbind(
-      JsonValues::ReadRequiredObject(
-          {Request.Object, TEXT("world_location")}),
+      JsonValues::ReadRequiredField<TSharedPtr<FJsonObject>>(
+          Request.Object, "WorldLocation"),
       [Request](const TSharedPtr<FJsonObject> &WorldObject) {
-        const FLevelRuntimeJsonObjectRequest LocationRequest{WorldObject};
-        const func::Maybe<FVector> Location =
-            WorldLocationFromJson(LocationRequest);
-        return func::mbind(Location, [Request](const FVector &ParsedLocation) {
-          FLevelRuntimeBlockSeed Seed = Request.Seed;
-          Seed.WorldLocation = ParsedLocation;
-          return func::just(Seed);
-        });
+        return func::fmap(
+            WorldLocationFromJson({WorldObject}),
+            [Request](const FVector &Location) {
+              return ApplyWorldBlockLocation(Request, Location);
+            });
       });
 }
 
@@ -74,18 +88,14 @@ ReadWorldBlockSeed(const FLevelRuntimeBlockLocationRequest &Request) {
  */
 func::Maybe<FLevelRuntimeBlockSeed>
 ReadLotBlockSeed(const FLevelRuntimeBlockLocationRequest &Request) {
-  const func::Maybe<float> EastLots =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("east_lots")});
-  const func::Maybe<float> NorthLots =
-      JsonValues::ReadRequiredFloat({Request.Object, TEXT("north_lots")});
-  return EastLots.hasValue && NorthLots.hasValue
-             ? ([Request, EastLots, NorthLots]() {
-                 FLevelRuntimeBlockSeed Seed = Request.Seed;
-                 Seed.EastLots = EastLots.value;
-                 Seed.NorthLots = NorthLots.value;
-                 return func::just(Seed);
-               })()
-             : func::nothing<FLevelRuntimeBlockSeed>();
+  return func::fmap(
+      JsonValues::ReadRequiredFields<FLevelRuntimeLotLocationFields>(
+          Request.Object,
+          {JSON_REQUIRED_FIELDS(FLevelRuntimeLotLocationFields, EastLots,
+                                NorthLots)}),
+      [Request](const FLevelRuntimeLotLocationFields &Fields) {
+        return ApplyLotBlockLocation(Request, Fields);
+      });
 }
 
 /**
@@ -138,58 +148,27 @@ CompleteBlockLocation(const FLevelRuntimeBlockLocationRequest &Request) {
       []() { return func::nothing<FLevelRuntimeBlockSeed>(); });
 }
 
-/**
- * @brief Validates required block fields and applies anchor-specific location.
- *
- * @signature func::Maybe<FLevelRuntimeBlockSeed> BuildBlockFromFields(const FLevelRuntimeBlockFieldsRequest &Request)
- *
- * User story: As a Level adapter maintainer, all block fields flow through one
- * request struct before they become reducer input.
- */
 func::Maybe<FLevelRuntimeBlockSeed>
-BuildBlockFromFields(const FLevelRuntimeBlockFieldsRequest &Request) {
-  return Request.Id.hasValue && Request.Name.hasValue &&
-                 Request.AnchorText.hasValue && Request.Scale.hasValue &&
-                 Request.TextureText.hasValue
-             ? ([Request]() {
-                 const FLevelRuntimeEnumTextRequest AnchorRequest{
-                     Request.AnchorText.value, TEXT("anchor")};
-                 const func::Maybe<ELevelRuntimeAnchorMode> Anchor =
-                     ParseAnchorMode(AnchorRequest);
-                 return func::mbind(
-                     Anchor, [Request](ELevelRuntimeAnchorMode ParsedAnchor) {
-                       const FLevelRuntimeEnumTextRequest TextureRequest{
-                           Request.TextureText.value, TEXT("texture")};
-                       const func::Maybe<ELevelRetroTexture> Texture =
-                           ParseTexture(TextureRequest);
-                       return func::mbind(
-                           Texture,
-                           [Request, ParsedAnchor](
-                               ELevelRetroTexture ParsedTexture) {
-                             return CompleteBlockLocation(
-                                 {Request.Object,
-                                  CreateBlockSeed({Request.Id.value,
-                                                   Request.Name.value,
-                                                   ParsedAnchor,
-                                                   Request.Scale.value,
-                                                   ParsedTexture})});
-                           });
-                     });
-               })()
-             : func::nothing<FLevelRuntimeBlockSeed>();
+ReadBlockSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
+  return JsonValues::ReadRequiredFields<FLevelRuntimeBlockSeed>(
+      Request.Object,
+      {JSON_REQUIRED_FIELDS(FLevelRuntimeBlockSeed, Id, Name),
+       JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed, ReadAnchorModeField,
+                                  Anchor),
+       JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed, ReadScaleSeed, Scale),
+       JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed, ReadTextureField,
+                                  Texture)});
 }
 
 } // namespace
 
 func::Maybe<FLevelRuntimeBlockSeed>
 BlockFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
-  return BuildBlockFromFields(
-      {Request.Object,
-       JsonValues::ReadRequiredString({Request.Object, TEXT("id")}),
-       JsonValues::ReadRequiredString({Request.Object, TEXT("name")}),
-       JsonValues::ReadRequiredString({Request.Object, TEXT("anchor")}),
-       ReadScaleSeed({Request.Object, TEXT("scale")}),
-       JsonValues::ReadRequiredString({Request.Object, TEXT("texture")})});
+  return func::mbind(
+      ReadBlockSeedFields(Request),
+      [Request](const FLevelRuntimeBlockSeed &Seed) {
+        return CompleteBlockLocation({Request.Object, Seed});
+      });
 }
 
 } // namespace RuntimeLayout
