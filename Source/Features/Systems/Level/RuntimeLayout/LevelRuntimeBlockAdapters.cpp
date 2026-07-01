@@ -24,7 +24,7 @@ struct FLevelRuntimeBlockLocationRequest {
 };
 
 func::Maybe<ELevelRuntimeAnchorMode>
-ReadAnchorModeField(const FJsonFieldRequest &Request) {
+ReadBlockAnchorModeField(const FJsonFieldRequest &Request) {
   return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
                      [Request](const FString &Text) {
                        return ParseAnchorMode({Text, Request.FieldName});
@@ -153,8 +153,8 @@ ReadBlockSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
   return JsonValues::ReadRequiredFields<FLevelRuntimeBlockSeed>(
       Request.Object,
       {JSON_REQUIRED_FIELDS(FLevelRuntimeBlockSeed, Id, Name),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed, ReadAnchorModeField,
-                                  Anchor),
+       JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed,
+                                  ReadBlockAnchorModeField, Anchor),
        JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed, ReadScaleSeed, Scale),
        JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed, ReadTextureField,
                                   Texture)});

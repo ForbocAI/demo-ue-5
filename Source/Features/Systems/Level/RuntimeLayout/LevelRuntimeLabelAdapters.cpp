@@ -19,7 +19,7 @@ struct FLevelRuntimeLabelHeightRequest {
 };
 
 func::Maybe<ELevelRuntimeAnchorMode>
-ReadAnchorModeField(const FJsonFieldRequest &Request) {
+ReadLabelAnchorModeField(const FJsonFieldRequest &Request) {
   return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
                      [Request](const FString &Text) {
                        return ParseAnchorMode({Text, Request.FieldName});
@@ -122,8 +122,8 @@ ReadLabelSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
       Request.Object,
       {JSON_REQUIRED_FIELDS(FLevelRuntimeLabelSeed, Id, Text, EastLots,
                             NorthLots, WorldSizeScale),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeLabelSeed, ReadAnchorModeField,
-                                  Anchor),
+       JSON_REQUIRED_FIELD_READER(FLevelRuntimeLabelSeed,
+                                  ReadLabelAnchorModeField, Anchor),
        JSON_REQUIRED_FIELD_READER(FLevelRuntimeLabelSeed,
                                   ReadLabelHeightModeField, Height)});
 }

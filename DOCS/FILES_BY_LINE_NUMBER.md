@@ -50,7 +50,6 @@
 | 172 | `Source/Features/Systems/Bots/Position/BotPositionReducers.cpp` |
 | 171 | `Source/Features/Systems/Speech/SpeechAdapters.cpp` |
 | 163 | `Source/Features/Entities/Characters/Player/PlayerTypes.h` |
-| 162 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.cpp` |
 | 160 | `Source/Features/Entities/Environments/Nature/NatureSeedAdapters.cpp` |
 | 160 | `Source/Tests/ProtocolLoop.spec.cpp` |
 | 159 | `Source/Views/HorseView.cpp` |
@@ -90,6 +89,7 @@
 | 117 | `Source/Features/Systems/Runtime/RuntimeFactories.cpp` |
 | 116 | `Content/Data/french_gulch_nature.json` |
 | 110 | `Source/Features/Systems/Dialogue/DialogueTypes.h` |
+| 108 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.cpp` |
 | 107 | `Source/Features/Systems/Runtime/RuntimeSlice.cpp` |
 | 106 | `Source/Features/Systems/Projection/SystemsProjectionRuntimeAdapters.cpp` |
 | 105 | `Source/Features/Entities/Characters/Player/PlayerReducers.h` |

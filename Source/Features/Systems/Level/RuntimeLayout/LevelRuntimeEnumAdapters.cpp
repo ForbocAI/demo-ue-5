@@ -2,11 +2,23 @@
 
 #include "Features/Components/Data/JsonValueAdapters.h"
 
+#include <initializer_list>
+
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace RuntimeLayout {
 namespace {
+
+template <typename Output> struct TEnumTextDeclaration {
+  FString Text;
+  Output Value;
+
+  TEnumTextDeclaration() : Text(), Value() {}
+
+  TEnumTextDeclaration(const char *InText, Output InValue)
+      : Text(FString(UTF8_TO_TCHAR(InText))), Value(InValue) {}
+};
 
 /**
  * @brief Logs one invalid runtime-layout enum field.
@@ -24,136 +36,70 @@ func::Maybe<Output> LogInvalidEnum(
   return func::nothing<Output>();
 }
 
+/**
+ * @brief Parses lower-case authored enum text through declaration data.
+ *
+ * @signature template <typename Output> func::Maybe<Output> ParseEnumText(const FLevelRuntimeEnumTextRequest &Request, std::initializer_list<TEnumTextDeclaration<Output>> Declarations)
+ *
+ * User story: As a runtime-layout adapter maintainer, enum parsers should list
+ * authored tokens as data while one reusable runner owns lookup and failure.
+ */
+template <typename Output>
+func::Maybe<Output> ParseEnumText(
+    const FLevelRuntimeEnumTextRequest &Request,
+    std::initializer_list<TEnumTextDeclaration<Output>> Declarations) {
+  const FString Text = Request.Text.ToLower();
+  return func::match(
+      func::find_array<TEnumTextDeclaration<Output>>(
+          TArray<TEnumTextDeclaration<Output>>(Declarations),
+          [Text](const TEnumTextDeclaration<Output> &Declaration) {
+            return Declaration.Text == Text;
+          }),
+      [](const TEnumTextDeclaration<Output> &Declaration) {
+        return func::just(Declaration.Value);
+      },
+      [Request]() { return LogInvalidEnum<Output>(Request); });
+}
+
 } // namespace
 
 func::Maybe<ELevelRuntimeScaleMode>
 ParseScaleMode(const FLevelRuntimeEnumTextRequest &Request) {
-  const func::Maybe<ELevelRuntimeScaleMode> Parsed =
-      func::multi_match<FString, ELevelRuntimeScaleMode>(
-          Request.Text.ToLower(),
-          {
-              func::when<FString, ELevelRuntimeScaleMode>(
-                  func::equals<FString>(TEXT("building")),
-                  [](const FString &) {
-                    return ELevelRuntimeScaleMode::Building;
-                  }),
-              func::when<FString, ELevelRuntimeScaleMode>(
-                  func::equals<FString>(TEXT("long_feature")),
-                  [](const FString &) {
-                    return ELevelRuntimeScaleMode::LongFeature;
-                  }),
-              func::when<FString, ELevelRuntimeScaleMode>(
-                  func::equals<FString>(TEXT("pad")),
-                  [](const FString &) { return ELevelRuntimeScaleMode::Pad; }),
-          });
-  return Parsed.hasValue ? Parsed
-                         : LogInvalidEnum<ELevelRuntimeScaleMode>(Request);
+  return ParseEnumText<ELevelRuntimeScaleMode>(
+      Request, {{"building", ELevelRuntimeScaleMode::Building},
+                {"long_feature", ELevelRuntimeScaleMode::LongFeature},
+                {"pad", ELevelRuntimeScaleMode::Pad}});
 }
 
 func::Maybe<ELevelRuntimeAnchorMode>
 ParseAnchorMode(const FLevelRuntimeEnumTextRequest &Request) {
-  const func::Maybe<ELevelRuntimeAnchorMode> Parsed =
-      func::multi_match<FString, ELevelRuntimeAnchorMode>(
-          Request.Text.ToLower(),
-          {
-              func::when<FString, ELevelRuntimeAnchorMode>(
-                  func::equals<FString>(TEXT("building_lots")),
-                  [](const FString &) {
-                    return ELevelRuntimeAnchorMode::BuildingLots;
-                  }),
-              func::when<FString, ELevelRuntimeAnchorMode>(
-                  func::equals<FString>(TEXT("feature_lots")),
-                  [](const FString &) {
-                    return ELevelRuntimeAnchorMode::FeatureLots;
-                  }),
-              func::when<FString, ELevelRuntimeAnchorMode>(
-                  func::equals<FString>(TEXT("post_office_lots")),
-                  [](const FString &) {
-                    return ELevelRuntimeAnchorMode::PostOfficeLots;
-                  }),
-              func::when<FString, ELevelRuntimeAnchorMode>(
-                  func::equals<FString>(TEXT("world")),
-                  [](const FString &) {
-                    return ELevelRuntimeAnchorMode::World;
-                  }),
-          });
-  return Parsed.hasValue ? Parsed
-                         : LogInvalidEnum<ELevelRuntimeAnchorMode>(Request);
+  return ParseEnumText<ELevelRuntimeAnchorMode>(
+      Request, {{"building_lots", ELevelRuntimeAnchorMode::BuildingLots},
+                {"feature_lots", ELevelRuntimeAnchorMode::FeatureLots},
+                {"post_office_lots", ELevelRuntimeAnchorMode::PostOfficeLots},
+                {"world", ELevelRuntimeAnchorMode::World}});
 }
 
 func::Maybe<ELevelRuntimeLabelHeightMode>
 ParseLabelHeightMode(const FLevelRuntimeEnumTextRequest &Request) {
-  const func::Maybe<ELevelRuntimeLabelHeightMode> Parsed =
-      func::multi_match<FString, ELevelRuntimeLabelHeightMode>(
-          Request.Text.ToLower(),
-          {
-              func::when<FString, ELevelRuntimeLabelHeightMode>(
-                  func::equals<FString>(TEXT("explicit")),
-                  [](const FString &) {
-                    return ELevelRuntimeLabelHeightMode::Explicit;
-                  }),
-              func::when<FString, ELevelRuntimeLabelHeightMode>(
-                  func::equals<FString>(TEXT("label_for_scale")),
-                  [](const FString &) {
-                    return ELevelRuntimeLabelHeightMode::LabelForScale;
-                  }),
-              func::when<FString, ELevelRuntimeLabelHeightMode>(
-                  func::equals<FString>(TEXT("above_block")),
-                  [](const FString &) {
-                    return ELevelRuntimeLabelHeightMode::AboveBlock;
-                  }),
-          });
-  return Parsed.hasValue
-             ? Parsed
-             : LogInvalidEnum<ELevelRuntimeLabelHeightMode>(Request);
+  return ParseEnumText<ELevelRuntimeLabelHeightMode>(
+      Request, {{"explicit", ELevelRuntimeLabelHeightMode::Explicit},
+                {"label_for_scale",
+                 ELevelRuntimeLabelHeightMode::LabelForScale},
+                {"above_block", ELevelRuntimeLabelHeightMode::AboveBlock}});
 }
 
 func::Maybe<ELevelRetroTexture>
 ParseTexture(const FLevelRuntimeEnumTextRequest &Request) {
-  const func::Maybe<ELevelRetroTexture> Parsed =
-      func::multi_match<FString, ELevelRetroTexture>(
-          Request.Text.ToLower(),
-          {
-              func::when<FString, ELevelRetroTexture>(
-                  func::equals<FString>(TEXT("terrain_ortho")),
-                  [](const FString &) {
-                    return ELevelRetroTexture::TerrainOrtho;
-                  }),
-              func::when<FString, ELevelRetroTexture>(
-                  func::equals<FString>(TEXT("building_timber")),
-                  [](const FString &) {
-                    return ELevelRetroTexture::BuildingTimber;
-                  }),
-              func::when<FString, ELevelRetroTexture>(
-                  func::equals<FString>(TEXT("road_dust")),
-                  [](const FString &) { return ELevelRetroTexture::RoadDust; }),
-              func::when<FString, ELevelRetroTexture>(
-                  func::equals<FString>(TEXT("water_creek")),
-                  [](const FString &) {
-                    return ELevelRetroTexture::WaterCreek;
-                  }),
-              func::when<FString, ELevelRetroTexture>(
-                  func::equals<FString>(TEXT("foliage_riparian")),
-                  [](const FString &) {
-                    return ELevelRetroTexture::FoliageRiparian;
-                  }),
-              func::when<FString, ELevelRetroTexture>(
-                  func::equals<FString>(TEXT("rock_granite")),
-                  [](const FString &) {
-                    return ELevelRetroTexture::RockGranite;
-                  }),
-              func::when<FString, ELevelRetroTexture>(
-                  func::equals<FString>(TEXT("mine_timber")),
-                  [](const FString &) {
-                    return ELevelRetroTexture::MineTimber;
-                  }),
-              func::when<FString, ELevelRetroTexture>(
-                  func::equals<FString>(TEXT("marker_paint")),
-                  [](const FString &) {
-                    return ELevelRetroTexture::MarkerPaint;
-                  }),
-          });
-  return Parsed.hasValue ? Parsed : LogInvalidEnum<ELevelRetroTexture>(Request);
+  return ParseEnumText<ELevelRetroTexture>(
+      Request, {{"terrain_ortho", ELevelRetroTexture::TerrainOrtho},
+                {"building_timber", ELevelRetroTexture::BuildingTimber},
+                {"road_dust", ELevelRetroTexture::RoadDust},
+                {"water_creek", ELevelRetroTexture::WaterCreek},
+                {"foliage_riparian", ELevelRetroTexture::FoliageRiparian},
+                {"rock_granite", ELevelRetroTexture::RockGranite},
+                {"mine_timber", ELevelRetroTexture::MineTimber},
+                {"marker_paint", ELevelRetroTexture::MarkerPaint}});
 }
 
 } // namespace RuntimeLayout
