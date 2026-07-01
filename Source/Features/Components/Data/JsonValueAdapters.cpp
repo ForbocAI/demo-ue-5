@@ -7,6 +7,11 @@ namespace Demo {
 namespace Data {
 namespace JsonValueAdapters {
 
+void LogInvalidField(const FJsonFieldRequest &Request) {
+  UE_LOG(LogTemp, Warning, TEXT("Invalid JSON field: %s"),
+         *Request.FieldName);
+}
+
 func::Maybe<FString> ReadRequiredString(const FJsonFieldRequest &Request) {
   FString Value;
   return Request.Object.IsValid() &&

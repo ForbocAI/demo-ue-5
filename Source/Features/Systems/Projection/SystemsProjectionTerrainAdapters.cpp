@@ -5,8 +5,27 @@
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
+namespace ComponentsAdapters {
+
+template <>
+struct TComponentSourceProjector<FTerrainState> {
+  ecs::FComponentValue operator()(const FTerrainState &Terrain) const {
+    return ComponentValueMap(
+        {{"TerrainLoaded", Terrain.bTerrainLoaded},
+         {"TerrainSource", Terrain.TerrainSource},
+         {"OrthoSource", Terrain.OrthoSource},
+         {"GridSize", Terrain.GridSize},
+         {"MinElevationMeters", Terrain.MinElevationMeters},
+         {"MaxElevationMeters", Terrain.MaxElevationMeters}});
+  }
+};
+
+} // namespace ComponentsAdapters
+
 namespace SystemsProjectionTerrainAdapters {
 namespace {
+
+using ComponentsAdapters::RegisteredComponentGroups;
 
 /**
  * @brief Returns the stable ECS entity key for terrain projection.
@@ -30,38 +49,21 @@ TArray<TArray<FString>> BuildTerrainDomains() {
           {TEXT("Systems"), TEXT("Projection"), TEXT("Terrain")}};
 }
 
-/**
- * @brief Builds ECS component steps from terrain slice state.
- * @signature TArray<ComponentsAdapters::FEcsComponentProjectionBinding> BuildTerrainComponentBindings(const FTerrainState &Terrain)
- *
- * User Story: As the runtime reducer, terrain slice fields should become
- * normalized ECS components through a declarative component-step list.
- */
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-BuildTerrainComponentBindings(const FTerrainState &Terrain) {
-  return {{TEXT("Components/Level/TerrainLoaded"),
-           ecs::boolValue(Terrain.bTerrainLoaded)},
-          {TEXT("Components/Data/TerrainSource"),
-           ecs::textValue(Terrain.TerrainSource)},
-          {TEXT("Components/Data/OrthoSource"),
-           ecs::textValue(Terrain.OrthoSource)},
-          {TEXT("Components/Level/GridSize"), ecs::intValue(Terrain.GridSize)},
-          {TEXT("Components/Level/MinElevationMeters"),
-           ecs::floatValue(Terrain.MinElevationMeters)},
-          {TEXT("Components/Level/MaxElevationMeters"),
-           ecs::floatValue(Terrain.MaxElevationMeters)}};
-}
-
 } // namespace
 
-ecs::FWorld ProjectTerrain(const FProjectTerrainEcsPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+ecs::FWorld ProjectTerrain(const FProjectTerrainPayload &Payload) {
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
-      [](const FProjectTerrainEcsPayload &) { return TerrainEntityKey(); },
-      [](const FProjectTerrainEcsPayload &) { return BuildTerrainDomains(); },
-      [](const FProjectTerrainEcsPayload &PayloadValue) {
-        return BuildTerrainComponentBindings(PayloadValue.Terrain);
-      });
+      func::constant<ecs::EntityKey>(TerrainEntityKey()),
+      func::constant<TArray<TArray<FString>>>(BuildTerrainDomains()),
+      [](const FProjectTerrainPayload &PayloadValue) -> const FTerrainState & {
+        return PayloadValue.Terrain;
+      },
+      RegisteredComponentGroups<FTerrainState>(
+          {{"Components/Level",
+            {"TerrainLoaded", "GridSize", "MinElevationMeters",
+             "MaxElevationMeters"}},
+           {"Components/Data", {"TerrainSource", "OrthoSource"}}}));
 }
 
 } // namespace SystemsProjectionTerrainAdapters

@@ -1,0 +1,14 @@
+{
+  "texture_settings": {
+    "texture_channels": 4,
+    "texture_alpha": 255,
+    "texture_cache_key_format": "%d:%d:%d",
+    "material_texture_parameter": "Texture",
+    "texture_hash": {
+      "x_multiplier": 73856093,
+      "y_multiplier": 19349663,
+      "salt_multiplier": 83492791,
+      "xor_shift": 13
+    }
+  }
+}

@@ -224,13 +224,13 @@ BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSpawnRequest &Request) {
 
 inline FLevelRuntimeSectionSpawn
 BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSpawnRequest &Request) {
-  return {ecs::mapArray<FLevelRuntimeBlockSeed, FLevelBlockSpawn>(
+  return {func::map_array<FLevelRuntimeBlockSeed, FLevelBlockSpawn>(
               Request.Seed.Blocks,
               [&Request](const FLevelRuntimeBlockSeed &BlockSeed) {
                 return BuildRuntimeBlockSpawn(
                     {BlockSeed, Request.TerrainData, Request.Geometry});
               }),
-          ecs::mapArray<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
+          func::map_array<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
               Request.Seed.Labels,
               [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
                 return BuildRuntimeLabelSpawn(
@@ -241,7 +241,7 @@ BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSpawnRequest &Request) {
 inline FLevelRuntimeSectionSpawn
 BuildOverlaySectionSpawn(const FLevelOverlaySectionSpawnRequest &Request) {
   return {TArray<FLevelBlockSpawn>(),
-          ecs::mapArray<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
+          func::map_array<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
               Request.Seed.OverlayLabels,
               [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
                 return BuildRuntimeLabelSpawn(
@@ -251,14 +251,14 @@ BuildOverlaySectionSpawn(const FLevelOverlaySectionSpawnRequest &Request) {
 
 inline FLevelRuntimeSectionSpawn
 BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
-  return {ecs::mapArray<FLandmark, FLevelBlockSpawn>(
+  return {func::map_array<FLandmark, FLevelBlockSpawn>(
               Request.Landmarks,
               [](const FLandmark &Landmark) {
                 return FLevelBlockSpawn{Landmark.Label, Landmark.Location,
                                         Landmark.Scale,
                                         ELevelRetroTexture::BuildingTimber};
               }),
-          ecs::mapArray<FLandmark, FLevelLabelSpawn>(
+          func::map_array<FLandmark, FLevelLabelSpawn>(
               Request.Landmarks,
               [&Request](const FLandmark &Landmark) {
                 return FLevelLabelSpawn{
@@ -272,7 +272,7 @@ BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
 
 inline FLevelRuntimeSectionSpawn
 BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
-  return {ecs::mapArray<FNatureFeatureSeed, FLevelBlockSpawn>(
+  return {func::map_array<FNatureFeatureSeed, FLevelBlockSpawn>(
               Request.Features,
               [&Request](const FNatureFeatureSeed &Feature) {
                 return FLevelBlockSpawn{
@@ -281,7 +281,7 @@ BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
                         {Request.TerrainData, Feature.Location}),
                     Feature.Scale, detail::TextureForNatureKind(Feature.Kind)};
               }),
-          ecs::filterMapArray<FNatureFeatureSeed, FLevelLabelSpawn>(
+          func::filter_map_array<FNatureFeatureSeed, FLevelLabelSpawn>(
               Request.Features,
               [](const FNatureFeatureSeed &Feature) {
                 return detail::NatureFeatureNeedsLabel(Feature.Kind);
@@ -301,7 +301,7 @@ BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
 
 inline TArray<FVector>
 BuildWorldRoute(const FLevelWorldRouteRequest &Request) {
-  return ecs::mapArray<FLevelLocalPoint, FVector>(
+  return func::map_array<FLevelLocalPoint, FVector>(
       Request.Route, [&Request](const FLevelLocalPoint &Point) {
         return LevelLayoutSlice::ToWorld({Request.TerrainData, Point});
       });

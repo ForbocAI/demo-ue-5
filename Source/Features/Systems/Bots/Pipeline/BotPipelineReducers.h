@@ -153,8 +153,8 @@ inline FBotPipelineLogicResult ReduceLogic(
     const FBotCoreRuntimeState &State,
     const FBotPipelineWorldSnapshot &World) {
   return FBotPipelineLogicResult{
-      ecs::appendValues<rtk::AnyAction>(
-          ecs::appendValue<rtk::AnyAction>(
+      func::append_values<rtk::AnyAction>(
+          func::append_value<rtk::AnyAction>(
               TArray<rtk::AnyAction>(),
               BotCoreActions::BotTicked()(FBotTickPayload{World.DeltaTime})),
           ReduceActionList({State, World}))};
@@ -193,7 +193,7 @@ inline FBotPipelineOutputResult ReduceIdlePipeline(
 
 inline TArray<FBotPipelineOutputResult> ReduceMultiBotPipeline(
     const TArray<FBotPipelineTickInput> &Inputs) {
-  return ecs::mapArray<FBotPipelineTickInput, FBotPipelineOutputResult>(
+  return func::map_array<FBotPipelineTickInput, FBotPipelineOutputResult>(
       Inputs, [](const FBotPipelineTickInput &Input) {
         return ReducePipeline(Input.State, Input.World);
       });

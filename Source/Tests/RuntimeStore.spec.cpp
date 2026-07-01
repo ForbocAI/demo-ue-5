@@ -184,24 +184,24 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FRuntimeState &State = EnhancedStoreValue.getState();
   TestTrue(TEXT("RTK slice records terrain load"),
            RuntimeSelectors::SelectTerrainLoaded(State));
-  const ecs::FWorld &EcsWorld = RuntimeSelectors::SelectEcsWorld(State);
+  const ecs::FWorld &EcsWorld = RuntimeSelectors::SelectWorld(State);
   TestTrue(TEXT("Runtime store owns a projected ECS world"),
            EcsWorld.Generation > 0);
   TestTrue(TEXT("ECS registry includes Systems/Bots domain"),
-           EcsWorld.Domains.Nodes.Contains(ecs::domainPathKey(
+           EcsWorld.Domains.Nodes.Contains(ecs::createDomainPathKey(
                ecs::createDomainPath({TEXT("Systems"), TEXT("Bots")}))));
   TestTrue(TEXT("ECS registry includes Systems/Projection/Bots/Stats domain"),
-           EcsWorld.Domains.Nodes.Contains(ecs::domainPathKey(
+           EcsWorld.Domains.Nodes.Contains(ecs::createDomainPathKey(
                ecs::createDomainPath({TEXT("Systems"), TEXT("Projection"),
                                       TEXT("Bots"), TEXT("Stats")}))));
   TestTrue(TEXT("ECS registry includes Entities/Characters/Bots domain"),
-           EcsWorld.Domains.Nodes.Contains(ecs::domainPathKey(
+           EcsWorld.Domains.Nodes.Contains(ecs::createDomainPathKey(
                ecs::createDomainPath({TEXT("Entities"), TEXT("Characters"),
                                       TEXT("Bots")}))));
   TestTrue(TEXT("Terrain entity is projected through Systems/Projection/Terrain"),
-           RuntimeSelectors::SelectEcsEntityInDomain(
+           RuntimeSelectors::SelectEntityInDomain(
                State, TEXT("level:terrain"),
-               ecs::domainPathKey(ecs::createDomainPath(
+               ecs::createDomainPathKey(ecs::createDomainPath(
                    {TEXT("Systems"), TEXT("Projection"), TEXT("Terrain")}))));
   TestEqual(TEXT("RTK entity adapter stores seeded landmarks"),
             RuntimeSelectors::SelectLandmarks(State).Num(),
@@ -271,13 +271,13 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Clara is friendly"),
            Clara.value.Alignment == EBotAlignment::Friendly);
   TestTrue(TEXT("Clara is projected into the ECS townspeople domain"),
-           RuntimeSelectors::SelectEcsEntityInDomain(
+           RuntimeSelectors::SelectEntityInDomain(
                State, TEXT("bot:clara-bell"),
-               ecs::domainPathKey(ecs::createDomainPath(
+               ecs::createDomainPathKey(ecs::createDomainPath(
                    {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
                     TEXT("Townspeople")}))));
   const func::Maybe<ecs::FComponentValue> ClaraRole =
-      RuntimeSelectors::SelectEcsComponent(
+      RuntimeSelectors::SelectComponent(
           State, TEXT("bot:clara-bell"), TEXT("Components/Bots/Role"));
   TestTrue(TEXT("Clara role is projected as an ECS component"),
            ClaraRole.hasValue);
@@ -294,13 +294,13 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Sorrel has route movement speed"),
            SorrelStats.value.MoveSpeed > 0.0f);
   TestTrue(TEXT("Sorrel is projected into the ECS horse domain"),
-           RuntimeSelectors::SelectEcsEntityInDomain(
+           RuntimeSelectors::SelectEntityInDomain(
                State, TEXT("bot:sorrel-at-livery"),
-               ecs::domainPathKey(ecs::createDomainPath(
+               ecs::createDomainPathKey(ecs::createDomainPath(
                    {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
                     TEXT("Horses")}))));
   const func::Maybe<ecs::FComponentValue> SorrelMoveSpeed =
-      RuntimeSelectors::SelectEcsComponent(
+      RuntimeSelectors::SelectComponent(
           State, TEXT("bot:sorrel-at-livery"),
           TEXT("Components/Stats/MoveSpeed"));
   TestTrue(TEXT("Sorrel move speed is projected as an ECS component"),

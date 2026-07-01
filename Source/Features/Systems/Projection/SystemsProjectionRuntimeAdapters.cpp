@@ -44,7 +44,7 @@ ecs::FWorld applyProjection(const FRuntimeState &State,
                             const ecs::FWorld &World,
                             TArray<Row> (*SelectRows)(const FRuntimeState &),
                             ecs::FWorld (*Project)(const Payload &)) {
-  return ecs::projectRows<Row>(
+  return ecs::projectRowsIntoWorld<Row>(
       World, SelectRows(State),
       [Project](const ecs::FWorld &Acc, const Row &SelectedRow) {
         return projectPayload<Row, Payload>(Project, Acc, SelectedRow);
@@ -63,7 +63,7 @@ struct FApplyRuntimeProjection {
 
 ecs::FWorld applyResourceProjection(const ecs::FWorld &World,
                                     const FResourceProjectionBinding &Binding) {
-  return ComponentsAdapters::WithResource(
+  return ComponentsAdapters::ProjectResource(
       {World, Binding.Name, Binding.Value});
 }
 
@@ -75,7 +75,7 @@ ecs::FWorld RuntimeProjectionWorld(const FRuntimeState &State) {
   using namespace SystemsProjectionSpawnAdapters;
   using namespace SystemsProjectionTerrainAdapters;
 
-  const ecs::FWorld Projected = ecs::foldWorldCatalogPairs(
+  const ecs::FWorld Projected = ecs::projectWorldCatalogPairs(
       ecs::createWorld(),
       func::catalog(SelectPlayerState, SelectTerrainState, SelectSpawnState,
                     SelectInteractionState, SelectLandmarks,
@@ -90,13 +90,13 @@ ecs::FWorld RuntimeProjectionWorld(const FRuntimeState &State) {
       FApplyRuntimeProjection{State});
   return applyResourceProjection(
       Projected, resourceProjection(TEXT("Systems/Runtime/Projected"),
-                                    ecs::boolValue(true)));
+                                    ecs::createBoolComponentValue(true)));
 }
 
 } // namespace
 
 ecs::FWorld
-ProjectRuntimeEcsWorld(const FProjectRuntimeEcsPayload &Payload) {
+ProjectRuntimeWorld(const FProjectRuntimePayload &Payload) {
   return RuntimeProjectionWorld(Payload.State);
 }
 

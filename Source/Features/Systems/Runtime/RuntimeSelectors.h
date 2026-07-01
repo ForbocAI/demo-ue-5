@@ -104,15 +104,15 @@ func::Maybe<FBotGoalComponent> SelectBotGoalById(
     const FRuntimeState &State, const FString &Id);
 const TMap<FString, FBotStrategicGoal> &
 SelectBotActiveGoalsById(const FRuntimeState &State);
-const ecs::FWorld &SelectEcsWorld(const FRuntimeState &State);
+const ecs::FWorld &SelectWorld(const FRuntimeState &State);
 func::Maybe<ecs::FComponentValue>
-SelectEcsComponent(const FRuntimeState &State, const ecs::EntityKey &Entity,
+SelectComponent(const FRuntimeState &State, const ecs::EntityKey &Entity,
                    const ecs::ComponentType &Type);
-bool SelectEcsEntityInDomain(const FRuntimeState &State,
+bool SelectEntityInDomain(const FRuntimeState &State,
                              const ecs::EntityKey &Entity,
                              const ecs::DomainPathKey &Domain);
 ecs::FEntityInspection
-SelectEcsEntityInspection(const FRuntimeState &State,
+SelectEntityInspection(const FRuntimeState &State,
                           const ecs::EntityKey &Entity);
 
 } // namespace RuntimeSelectors

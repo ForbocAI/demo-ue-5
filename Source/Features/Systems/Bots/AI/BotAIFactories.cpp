@@ -35,7 +35,7 @@ FBotAIComponent Component(const FBotAISource &Source) {
 
 TArray<FBotAIComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return ecs::mapArray<FTownspersonSeed, FBotAIComponent>(
+  return func::map_array<FTownspersonSeed, FBotAIComponent>(
       Seeds, [](const FTownspersonSeed &Seed) {
         return Component({Seed.Id, EBotBehaviorState::Patrol, FString(),
                           FirstRoutePoint(Seed.PatrolRoute), true, 0,
@@ -44,7 +44,7 @@ FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
 }
 
 TArray<FBotAIComponent> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return ecs::mapArray<FHorseRouteSeed, FBotAIComponent>(
+  return func::map_array<FHorseRouteSeed, FBotAIComponent>(
       Seeds, [](const FHorseRouteSeed &Seed) {
         return Component({Seed.Id, EBotBehaviorState::Patrol, FString(),
                           FirstRoutePoint(Seed.PatrolRoute), true, 0,

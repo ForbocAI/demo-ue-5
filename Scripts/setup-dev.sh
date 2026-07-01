@@ -5,10 +5,26 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+sdk_source_path() {
+  if [ -n "${FORBOC_SDK_SOURCE_PATH:-}" ]; then
+    printf '%s\n' "$FORBOC_SDK_SOURCE_PATH"
+  else
+    printf '%s\n' "$(cd "$PROJECT_ROOT/.." && pwd)/sdk-ue-5.7"
+  fi
+}
+
+sdk_source_windows_path() {
+  local SourcePath
+  SourcePath="$(sdk_source_path)"
+  command -v wslpath >/dev/null 2>&1 || return 0
+  wslpath -w "$SourcePath" 2>/dev/null || true
+}
+
 echo "=== ForbocAI UE demo setup ==="
 if [ -d "$PROJECT_ROOT/Plugins/ForbocAI_SDK" ]; then
   echo "Unlocking SDK submodule for setup sync..."
-  bash "$PROJECT_ROOT/Scripts/lock_sdk_submodule.sh" --unlock || true
+  FORBOC_ALLOW_SDK_SUBMODULE_UNLOCK=setup-dev \
+    bash "$PROJECT_ROOT/Scripts/lock_sdk_submodule.sh" --unlock || true
 fi
 
 echo "Initializing SDK submodule..."
@@ -29,16 +45,26 @@ chmod +x "$PROJECT_ROOT/.githooks/sdk-submodule/pre-commit"
 echo "Locking SDK submodule read-only..."
 bash "$PROJECT_ROOT/Scripts/lock_sdk_submodule.sh" --lock
 
-cat <<'MSG'
+SDK_SOURCE_PATH="$(sdk_source_path)"
+SDK_SOURCE_WINDOWS_PATH="$(sdk_source_windows_path)"
+
+cat <<MSG
 
 Setup complete.
 
 SDK rule:
-  Plugins/ForbocAI_SDK is read-only in this demo checkout.
+  Plugins/ForbocAI_SDK is OFF LIMITS and read-only in this demo checkout.
 
 To change SDK code:
-  1. Edit and commit in ../sdk-ue-5.7
+  1. Edit and commit in $SDK_SOURCE_PATH
+MSG
+if [ -n "$SDK_SOURCE_WINDOWS_PATH" ] && [ "$SDK_SOURCE_WINDOWS_PATH" != "$SDK_SOURCE_PATH" ]; then
+  printf '     Windows path: %s\n' "$SDK_SOURCE_WINDOWS_PATH"
+fi
+cat <<'MSG'
   2. Return here and run bash Scripts/update-sdk.sh
+
+For a nonstandard layout, set FORBOC_SDK_SOURCE_PATH to the real SDK source checkout.
 
 To work on demo code:
   Edit Source/, Content/, Config/, or Scripts/ as usual.

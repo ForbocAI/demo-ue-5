@@ -1,5 +1,6 @@
 #include "Features/Systems/Bots/Goals/BotGoalFactories.h"
 
+#include "Core/frmt.hpp"
 #include "Core/ecs.hpp"
 #include "Features/Systems/Bots/Goals/BotGoalAdapters.h"
 
@@ -14,18 +15,21 @@ FirstRoutePoint(const TArray<FLevelLocalPoint> &Route,
                 const ForbocAI::Demo::Data::FBotRuntimeSettings
                     &RuntimeSettings) {
   return !Route.IsEmpty()
-             ? Route[0]
-             : FLevelLocalPoint{RuntimeSettings.InitialPosition.X,
-                                RuntimeSettings.InitialPosition.Y,
-                                RuntimeSettings.InitialPosition.Z};
+	             ? Route[0]
+	             : FLevelLocalPoint{
+	                   static_cast<float>(RuntimeSettings.InitialPosition.X),
+	                   static_cast<float>(RuntimeSettings.InitialPosition.Y),
+	                   static_cast<float>(RuntimeSettings.InitialPosition.Z)};
 }
 
 FBotStrategicGoal PatrolGoal(const FString &BotId,
                              const TArray<FLevelLocalPoint> &Route,
                              const ForbocAI::Demo::Data::FBotRuntimeSettings
                                  &RuntimeSettings) {
-  FBotStrategicGoal Result;
-  Result.Id = FString::Printf(*RuntimeSettings.PatrolGoalIdFormat, *BotId);
+	  FBotStrategicGoal Result;
+	  Result.Id = frmt::RuntimeString(
+	      RuntimeSettings.PatrolGoalIdFormat,
+	      frmt::Args({frmt::Arg(BotId)}));
   Result.Type = EBotGoalType::Patrol;
   Result.Priority = RuntimeSettings.PatrolGoalPriority;
   Result.TargetEntityId = FString();
@@ -64,7 +68,7 @@ FBotGoalComponent Component(const FBotGoalComponent &Source) { return Source; }
 
 TArray<FBotGoalComponent>
 FromTownspeople(const FBotGoalsFromTownspeopleRequest &Request) {
-  return ecs::mapArray<FTownspersonSeed, FBotGoalComponent>(
+  return func::map_array<FTownspersonSeed, FBotGoalComponent>(
       Request.Seeds, [&Request](const FTownspersonSeed &Seed) {
         return ActiveGoalComponent(Seed.Id,
                                    PatrolGoal(Seed.Id, Seed.PatrolRoute,
@@ -75,7 +79,7 @@ FromTownspeople(const FBotGoalsFromTownspeopleRequest &Request) {
 
 TArray<FBotGoalComponent>
 FromHorses(const FBotGoalsFromHorsesRequest &Request) {
-  return ecs::mapArray<FHorseRouteSeed, FBotGoalComponent>(
+  return func::map_array<FHorseRouteSeed, FBotGoalComponent>(
       Request.Seeds, [&Request](const FHorseRouteSeed &Seed) {
         return ActiveGoalComponent(Seed.Id,
                                    PatrolGoal(Seed.Id, Seed.PatrolRoute,

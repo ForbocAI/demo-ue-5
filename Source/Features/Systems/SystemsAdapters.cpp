@@ -12,41 +12,41 @@ namespace Demo {
 namespace Level {
 namespace SystemsAdapters {
 
-ecs::FWorld ProjectPlayer(const FProjectPlayerEcsPayload &Payload) {
+ecs::FWorld ProjectPlayer(const FProjectPlayerPayload &Payload) {
   return EntitiesAdapters::ProjectPlayer({Payload.World, Payload.Player});
 }
 
-ecs::FWorld ProjectTerrain(const FProjectTerrainEcsPayload &Payload) {
+ecs::FWorld ProjectTerrain(const FProjectTerrainPayload &Payload) {
   return SystemsProjectionTerrainAdapters::ProjectTerrain(Payload);
 }
 
-ecs::FWorld ProjectSpawn(const FProjectSpawnEcsPayload &Payload) {
+ecs::FWorld ProjectSpawn(const FProjectSpawnPayload &Payload) {
   return SystemsProjectionSpawnAdapters::ProjectSpawn(Payload);
 }
 
-ecs::FWorld ProjectBotStats(const FProjectBotStatsEcsPayload &Payload) {
+ecs::FWorld ProjectBotStats(const FProjectBotStatsPayload &Payload) {
   return SystemsProjectionBotAdapters::ProjectBotStats(Payload);
 }
 
-ecs::FWorld ProjectBotPosition(const FProjectBotPositionEcsPayload &Payload) {
+ecs::FWorld ProjectBotPosition(const FProjectBotPositionPayload &Payload) {
   return SystemsProjectionBotAdapters::ProjectBotPosition(Payload);
 }
 
-ecs::FWorld ProjectBotAI(const FProjectBotAIEcsPayload &Payload) {
+ecs::FWorld ProjectBotAI(const FProjectBotAIPayload &Payload) {
   return SystemsProjectionBotAdapters::ProjectBotAI(Payload);
 }
 
-ecs::FWorld ProjectBotGoal(const FProjectBotGoalEcsPayload &Payload) {
+ecs::FWorld ProjectBotGoal(const FProjectBotGoalPayload &Payload) {
   return SystemsProjectionBotAdapters::ProjectBotGoal(Payload);
 }
 
-ecs::FWorld ProjectInteraction(const FProjectInteractionEcsPayload &Payload) {
+ecs::FWorld ProjectInteraction(const FProjectInteractionPayload &Payload) {
   return SystemsProjectionInteractionAdapters::ProjectInteraction(Payload);
 }
 
 ecs::FWorld
-ProjectRuntimeEcsWorld(const FProjectRuntimeEcsPayload &Payload) {
-  return SystemsProjectionRuntimeAdapters::ProjectRuntimeEcsWorld(Payload);
+ProjectRuntimeWorld(const FProjectRuntimePayload &Payload) {
+  return SystemsProjectionRuntimeAdapters::ProjectRuntimeWorld(Payload);
 }
 
 } // namespace SystemsAdapters

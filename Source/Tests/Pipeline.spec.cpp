@@ -11,14 +11,15 @@ using namespace ForbocAI::Demo::Level::BotPipelineReducers;
 
 namespace {
 
-const ForbocAI::Demo::Data::FBotRuntimeSettings &BotRuntimeSettings() {
+const ForbocAI::Demo::Data::FBotRuntimeSettings &
+PipelineBotRuntimeSettings() {
   static const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
       ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
   return Settings.BotRuntime;
 }
 
 FBotCoreRuntimeState CreateTestBotState(const FString &Name) {
-  return CreateBotCoreRuntimeInitialState({Name, BotRuntimeSettings()});
+  return CreateBotCoreRuntimeInitialState({Name, PipelineBotRuntimeSettings()});
 }
 
 FBotPipelineWorldSnapshot DefaultWorld(const FBotCoreRuntimeState &State,

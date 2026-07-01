@@ -153,11 +153,15 @@ ReadTextureCatalogSettings(const TSharedPtr<FJsonObject> &Object) {
 }
 
 FRenderingRuntimeSettings
-ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
-  const Json::FJsonIntReader Int = Json::IntIn(Object);
-  const Json::FJsonStringReader String = Json::StringIn(Object);
-  const Json::FJsonArrayReader Array = Json::ArrayIn(Object);
-  const Json::FJsonObjectValueReader ObjectValue = Json::ObjectValueIn(Object);
+ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &TextureSettings,
+                             const TSharedPtr<FJsonObject> &ConsoleVariables,
+                             const TSharedPtr<FJsonObject> &TexturePalettes) {
+  const Json::FJsonIntReader Int = Json::IntIn(TextureSettings);
+  const Json::FJsonStringReader String = Json::StringIn(TextureSettings);
+  const Json::FJsonArrayReader ConsoleArray = Json::ArrayIn(ConsoleVariables);
+  const Json::FJsonArrayReader PaletteArray = Json::ArrayIn(TexturePalettes);
+  const Json::FJsonObjectValueReader ObjectValue =
+      Json::ObjectValueIn(TextureSettings);
   FRenderingRuntimeSettings Settings;
   Settings.TextureChannels = Int(TEXT("texture_channels"));
   Settings.TextureAlpha = Int(TEXT("texture_alpha"));
@@ -168,11 +172,11 @@ ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
       ReadRenderingTextureHashSettings(ObjectValue(TEXT("texture_hash")));
   Settings.ConsoleVariables =
       Json::MapJsonValues<FRenderingConsoleVariableSettings>(
-          Array(TEXT("console_variables")),
+          ConsoleArray(TEXT("console_variables")),
           ReadRenderingConsoleVariableSettings);
   Settings.TexturePalettes =
       Json::MapJsonValues<FRenderingTexturePaletteSettings>(
-          Array(TEXT("texture_palettes")),
+          PaletteArray(TEXT("texture_palettes")),
           ReadRenderingTexturePaletteSettings);
   return Settings;
 }

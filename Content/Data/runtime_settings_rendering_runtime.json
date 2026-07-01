@@ -1,0 +1,5 @@
+{
+  "texture_settings": "Data/runtime_settings_rendering_runtime_texture_settings.json",
+  "console_variables": "Data/runtime_settings_rendering_runtime_console_variables.json",
+  "texture_palettes": "Data/runtime_settings_rendering_runtime_texture_palettes.json"
+}

@@ -3,7 +3,9 @@
 #define DEMO_PROJECT_CORE_ECS_HPP
 
 #include "CoreMinimal.h"
-#include "Core/functional_core.hpp"
+#include "Core/ue_fp.hpp"
+
+#include <initializer_list>
 
 /**
  * @file ecs.hpp
@@ -22,14 +24,18 @@
  * - ECS helpers are pure value transforms over request structs.
  * - RTK slices/actions/selectors own store semantics and unidirectional data
  *   flow.
- * - functional_core.hpp is used for composition, Maybe/Either, and lazy values;
+ * - ue_fp.hpp is used for composition, Maybe/Either, and lazy values;
  *   it must not model a replacement action, reducer, selector, or store layer.
+ * - Neutral FP helpers for arrays, maps, predicates, traversal, lookup,
+ *   validation, and catalogs belong in ue_fp.hpp. Do not re-declare those
+ *   generic combinators in ecs.hpp; ECS should import them and only add
+ *   world/entity/component/system semantics.
  * - When only nouns change, keep the nouns in catalogs and fold through one
  *   ECS transform. Paired catalogs cover selector/projector and descriptor/run
  *   relationships without feature-local recursive families.
  * - Do not replace every `if` with ternary chains. Domain alternatives should
  *   use `func::match` for Maybe/Either/result values, dispatcher or
- *   `multi_match` case tables for enum/string routing, and ECS
+ *   `multi_match` case tables for enum/string routing, and FP-core
  *   map/filter/fold/find/traverse helpers for collection decisions. Explicit
  *   guards are reserved for UE/effect boundaries.
  */
@@ -42,527 +48,6 @@ typedef FString ResourceName;
 typedef FString EventType;
 typedef FString DomainPathKey;
 typedef FString SystemName;
-
-/**
- * @brief Folds a TArray with a unary request payload and recursive functional step.
- * @signature template <typename Item, typename Accumulator> inline Accumulator foldArray(Accumulator Acc, const TArray<Item> &Items, std::function<Accumulator(const Accumulator &, const Item &)> Step, int32 Index = 0)
- *
- * User Story: As ECS core code, I need reusable value folding so world,
- * registry, and inspection transforms compound through functional_core
- * composition instead of bespoke loops.
- */
-template <typename Item, typename Accumulator>
-inline Accumulator foldArray(
-    Accumulator Acc, const TArray<Item> &Items,
-    std::function<Accumulator(const Accumulator &, const Item &)> Step,
-    int32 Index = 0) {
-  return Index >= Items.Num()
-             ? Acc
-             : foldArray<Item, Accumulator>(
-                   Step(Acc, Items[Index]), Items, Step, Index + 1);
-}
-
-/**
- * @brief Runs one effect for each array item through the shared fold shape.
- * @signature template <typename Item> inline void forEachArray(const TArray<Item> &Items, std::function<void(const Item &)> Effect)
- *
- * User Story: As adapter code at IO boundaries, side-effect iteration should
- * still use one neutral traversal primitive instead of local loops.
- */
-template <typename Item>
-inline void forEachArray(const TArray<Item> &Items,
-                         std::function<void(const Item &)> Effect) {
-  foldArray<Item, int32>(
-      0, Items,
-      [Effect](const int32 &Count, const Item &ItemValue) {
-        Effect(ItemValue);
-        return Count + 1;
-      });
-}
-
-/**
- * @brief Returns true when every item satisfies a predicate.
- * @signature template <typename Item> inline bool allArray(const TArray<Item> &Items, std::function<bool(const Item &)> Predicate, int32 Index = 0)
- *
- * User Story: As ECS validation code, I need reusable universal checks that
- * compose with Maybe/Either flows instead of hand-written loops.
- */
-template <typename Item>
-inline bool allArray(const TArray<Item> &Items,
-                     std::function<bool(const Item &)> Predicate,
-                     int32 Index = 0) {
-  return Index >= Items.Num()
-             ? true
-             : Predicate(Items[Index]) &&
-                   allArray<Item>(Items, Predicate, Index + 1);
-}
-
-/**
- * @brief Returns true when any item satisfies a predicate.
- * @signature template <typename Item> inline bool anyArray(const TArray<Item> &Items, std::function<bool(const Item &)> Predicate, int32 Index = 0)
- *
- * User Story: As ECS query code, I need reusable existential checks for tags,
- * domains, and component membership without repeated imperative branches.
- */
-template <typename Item>
-inline bool anyArray(const TArray<Item> &Items,
-                     std::function<bool(const Item &)> Predicate,
-                     int32 Index = 0) {
-  return Index >= Items.Num()
-             ? false
-             : Predicate(Items[Index]) ||
-                   anyArray<Item>(Items, Predicate, Index + 1);
-}
-
-/**
- * @brief Returns true when an array contains one value.
- * @signature template <typename Item> inline bool containsValue(const TArray<Item> &Values, const Item &Value)
- *
- * User Story: As ECS predicates, tag/domain/component checks should share one
- * membership primitive instead of repeating equivalent lambdas.
- */
-template <typename Item>
-inline bool containsValue(const TArray<Item> &Values, const Item &Value) {
-  return anyArray<Item>(
-      Values, [&Value](const Item &Candidate) { return Candidate == Value; });
-}
-
-/**
- * @brief Finds the first item that satisfies a predicate.
- * @signature template <typename Item> inline func::Maybe<Item> findArray(const TArray<Item> &Items, std::function<bool(const Item &)> Predicate, int32 Index = 0)
- *
- * User Story: As reducers and selectors, optional array lookups should share
- * one Maybe-producing primitive instead of local recursive scan families.
- */
-template <typename Item>
-inline func::Maybe<Item> findArray(const TArray<Item> &Items,
-                                   std::function<bool(const Item &)> Predicate,
-                                   int32 Index = 0) {
-  return Index >= Items.Num()
-             ? func::nothing<Item>()
-             : Predicate(Items[Index])
-                   ? func::just<Item>(Items[Index])
-                   : findArray<Item>(Items, Predicate, Index + 1);
-}
-
-/**
- * @brief Filters a TArray through a recursive value-returning request.
- * @signature template <typename Item> inline TArray<Item> filterArray(const TArray<Item> &Items, std::function<bool(const Item &)> Predicate, TArray<Item> Acc = TArray<Item>(), int32 Index = 0)
- *
- * User Story: As ECS query code, entity lists should narrow through reusable
- * functional composition rather than ad hoc view- or system-local loops.
- */
-template <typename Item>
-inline TArray<Item> filterArray(const TArray<Item> &Items,
-                                std::function<bool(const Item &)> Predicate,
-                                TArray<Item> Acc = TArray<Item>(),
-                                int32 Index = 0) {
-  return Index >= Items.Num()
-             ? Acc
-             : filterArray<Item>(
-                   Items, Predicate,
-                   Predicate(Items[Index]) ? appendValue<Item>(Acc, Items[Index])
-                                           : Acc,
-                   Index + 1);
-}
-
-/**
- * @brief Appends one item to a value array.
- * @signature template <typename Item> inline TArray<Item> appendValue(TArray<Item> Values, const Item &Value)
- *
- * User Story: As recursive ECS helpers, I need a small unary append primitive
- * so folds and filters can compound without mutable caller-owned arrays.
- */
-template <typename Item>
-inline TArray<Item> appendValue(TArray<Item> Values, const Item &Value) {
-  Values.Add(Value);
-  return Values;
-}
-
-/**
- * @brief Appends one item only if it is not already present.
- * @signature template <typename Item> inline TArray<Item> appendUniqueValue(TArray<Item> Values, const Item &Value)
- *
- * User Story: As ECS indexing code, I need set-like array updates that remain
- * value-returning and fold-friendly.
- */
-template <typename Item>
-inline TArray<Item> appendUniqueValue(TArray<Item> Values, const Item &Value) {
-  Values.AddUnique(Value);
-  return Values;
-}
-
-/**
- * @brief Maps a TArray through one reusable unary transform.
- * @signature template <typename Source, typename Output> inline TArray<Output> mapArray(const TArray<Source> &Items, std::function<Output(const Source &)> MapValue)
- *
- * User Story: As ECS projection code, repeated source-to-view transforms should
- * read as one neutral fold instead of request/factory boilerplate per domain.
- */
-template <typename Source, typename Output>
-inline TArray<Output>
-mapArray(const TArray<Source> &Items,
-         std::function<Output(const Source &)> MapValue) {
-  return foldArray<Source, TArray<Output>>(
-      TArray<Output>(), Items,
-      [MapValue](const TArray<Output> &Acc, const Source &Item) {
-        return appendValue<Output>(Acc, MapValue(Item));
-      });
-}
-
-/**
- * @brief Filters and maps a TArray through reusable unary predicates.
- * @signature template <typename Source, typename Output> inline TArray<Output> filterMapArray(const TArray<Source> &Items, std::function<bool(const Source &)> Keep, std::function<Output(const Source &)> MapValue)
- *
- * User Story: As ECS query code, selection and projection should compose
- * through one neutral fold instead of repeated sibling-domain helper code.
- */
-template <typename Source, typename Output>
-inline TArray<Output>
-filterMapArray(const TArray<Source> &Items,
-               std::function<bool(const Source &)> Keep,
-               std::function<Output(const Source &)> MapValue) {
-  return foldArray<Source, TArray<Output>>(
-      TArray<Output>(), Items,
-      [Keep, MapValue](const TArray<Output> &Acc, const Source &Item) {
-        return Keep(Item) ? appendValue<Output>(Acc, MapValue(Item)) : Acc;
-      });
-}
-
-/**
- * @brief Maps a TArray through a Maybe-producing transform and fails as one unit.
- * @signature template <typename Source, typename Output> inline func::Maybe<TArray<Output>> traverseMaybeArray(const TArray<Source> &Items, std::function<func::Maybe<Output>(const Source &)> MapValue)
- *
- * User Story: As data adapters, validated arrays should use one all-or-nothing
- * traversal instead of feature-local recursive parsing families.
- */
-template <typename Source, typename Output>
-inline func::Maybe<TArray<Output>>
-traverseMaybeArray(const TArray<Source> &Items,
-                   std::function<func::Maybe<Output>(const Source &)>
-                       MapValue) {
-  return foldArray<Source, func::Maybe<TArray<Output>>>(
-      func::just<TArray<Output>>(TArray<Output>()), Items,
-      [MapValue](const func::Maybe<TArray<Output>> &Acc,
-                 const Source &Item) {
-        return func::match(
-            Acc,
-            [&Item, MapValue](const TArray<Output> &Values) {
-              return func::match(
-                  MapValue(Item),
-                  [&Values](const Output &Value) {
-                    return func::just<TArray<Output>>(
-                        appendValue<Output>(Values, Value));
-                  },
-                  []() { return func::nothing<TArray<Output>>(); });
-            },
-            []() { return func::nothing<TArray<Output>>(); });
-      });
-}
-
-/**
- * @brief Appends every item from one array to another.
- * @signature template <typename Item> inline TArray<Item> appendValues(TArray<Item> Values, const TArray<Item> &AdditionalValues)
- *
- * User Story: As ECS query code, I need reusable array concatenation so entity
- * discovery can be expressed as folds.
- */
-template <typename Item>
-inline TArray<Item> appendValues(TArray<Item> Values,
-                                 const TArray<Item> &AdditionalValues) {
-  Values.Append(AdditionalValues);
-  return Values;
-}
-
-/**
- * @brief Concatenates arrays through the shared fold primitive.
- * @signature template <typename Item> inline TArray<Item> concatArrays(const TArray<TArray<Item>> &Arrays)
- *
- * User Story: As ECS entity discovery, repeated entity sources should combine
- * through one reusable fold instead of repeated append calls.
- */
-template <typename Item>
-inline TArray<Item> concatArrays(const TArray<TArray<Item>> &Arrays) {
-  return foldArray<TArray<Item>, TArray<Item>>(
-      TArray<Item>(), Arrays,
-      [](const TArray<Item> &Acc, const TArray<Item> &Values) {
-        return appendValues<Item>(Acc, Values);
-      });
-}
-
-/**
- * @brief Returns values with duplicates removed while preserving first-seen order.
- * @signature template <typename Item> inline TArray<Item> uniqueArray(const TArray<Item> &Values)
- *
- * User Story: As ECS indexing code, uniqueness passes should share one
- * reusable fold over AddUnique semantics.
- */
-template <typename Item>
-inline TArray<Item> uniqueArray(const TArray<Item> &Values) {
-  return foldArray<Item, TArray<Item>>(
-      TArray<Item>(), Values,
-      [](const TArray<Item> &Acc, const Item &Value) {
-        return appendUniqueValue<Item>(Acc, Value);
-      });
-}
-
-/**
- * @brief Builds an index array from zero to Count - 1 through recursion.
- * @signature inline TArray<int32> indexRange(int32 Count, int32 Index = 0, TArray<int32> Acc = TArray<int32>())
- *
- * User Story: As ECS list code, I need index-aware checks without imperative
- * counter loops.
- */
-inline TArray<int32> indexRange(int32 Count, int32 Index = 0,
-                                TArray<int32> Acc = TArray<int32>()) {
-  return Index >= Count
-             ? Acc
-             : indexRange(Count, Index + 1, appendValue<int32>(Acc, Index));
-}
-
-/**
- * @brief Folds integer indexes from zero to Count - 1.
- * @signature template <typename Accumulator> inline Accumulator foldIndexRange(int32 Count, Accumulator Acc, std::function<Accumulator(const Accumulator &, int32)> Step, int32 Index = 0)
- *
- * User Story: As grid and generated-data code, index traversal should be one
- * ECS primitive instead of local row/column recursion or loops.
- */
-template <typename Accumulator>
-inline Accumulator foldIndexRange(
-    int32 Count, Accumulator Acc,
-    std::function<Accumulator(const Accumulator &, int32)> Step,
-    int32 Index = 0) {
-  return Index >= Count
-             ? Acc
-             : foldIndexRange<Accumulator>(
-                   Count, Step(Acc, Index), Step, Index + 1);
-}
-
-/**
- * @brief Maps integer indexes from zero to Count - 1.
- * @signature template <typename Output> inline TArray<Output> mapIndexRange(int32 Count, std::function<Output(int32)> MapValue)
- *
- * User Story: As generated feature data, index-based outputs should use the
- * same map shape as authored arrays.
- */
-template <typename Output>
-inline TArray<Output> mapIndexRange(int32 Count,
-                                    std::function<Output(int32)> MapValue) {
-  return foldIndexRange<TArray<Output>>(
-      Count, TArray<Output>(),
-      [MapValue](const TArray<Output> &Acc, int32 Index) {
-        return appendValue<Output>(Acc, MapValue(Index));
-      });
-}
-
-/**
- * @brief Maps a TArray through an indexed Maybe-producing transform.
- * @signature template <typename Source, typename Output> inline func::Maybe<TArray<Output>> traverseMaybeArrayWithIndex(const TArray<Source> &Items, std::function<func::Maybe<Output>(const Source &, int32)> MapValue)
- *
- * User Story: As data adapters, indexed validation should share one traversal
- * shape while still reporting the authored array position that failed.
- */
-template <typename Source, typename Output>
-inline func::Maybe<TArray<Output>>
-traverseMaybeArrayWithIndex(
-    const TArray<Source> &Items,
-    std::function<func::Maybe<Output>(const Source &, int32)> MapValue) {
-  return foldIndexRange<func::Maybe<TArray<Output>>>(
-      Items.Num(), func::just<TArray<Output>>(TArray<Output>()),
-      [&Items, MapValue](const func::Maybe<TArray<Output>> &Acc,
-                         int32 Index) {
-        return func::match(
-            Acc,
-            [&Items, MapValue, Index](const TArray<Output> &Values) {
-              return func::match(
-                  MapValue(Items[Index], Index),
-                  [&Values](const Output &Value) {
-                    return func::just<TArray<Output>>(
-                        appendValue<Output>(Values, Value));
-                  },
-                  []() { return func::nothing<TArray<Output>>(); });
-            },
-            []() { return func::nothing<TArray<Output>>(); });
-      });
-}
-
-struct FGridIndex {
-  int32 Row;
-  int32 Column;
-};
-
-/**
- * @brief Folds a two-dimensional row/column range.
- * @signature template <typename Accumulator> inline Accumulator foldGridRange(int32 Rows, int32 Columns, Accumulator Acc, std::function<Accumulator(const Accumulator &, const FGridIndex &)> Step)
- *
- * User Story: As terrain and texture code, grid traversal should be one ECS
- * primitive instead of separate row and column families per feature.
- */
-template <typename Accumulator>
-inline Accumulator foldGridRange(
-    int32 Rows, int32 Columns, Accumulator Acc,
-    std::function<Accumulator(const Accumulator &, const FGridIndex &)> Step) {
-  return foldIndexRange<Accumulator>(
-      Rows, Acc,
-      [Columns, Step](const Accumulator &RowAcc, int32 Row) {
-        return foldIndexRange<Accumulator>(
-            Columns, RowAcc,
-            [Row, Step](const Accumulator &ColumnAcc, int32 Column) {
-              return Step(ColumnAcc, FGridIndex{Row, Column});
-            });
-      });
-}
-
-/**
- * @brief Maps a two-dimensional row/column range.
- * @signature template <typename Output> inline TArray<Output> mapGridRange(int32 Rows, int32 Columns, std::function<Output(const FGridIndex &)> MapValue)
- *
- * User Story: As generated grid features, per-cell values should use one
- * neutral map shape across terrain, rendering, and authored data.
- */
-template <typename Output>
-inline TArray<Output>
-mapGridRange(int32 Rows, int32 Columns,
-             std::function<Output(const FGridIndex &)> MapValue) {
-  return foldGridRange<TArray<Output>>(
-      Rows, Columns, TArray<Output>(),
-      [MapValue](const TArray<Output> &Acc, const FGridIndex &Index) {
-        return appendValue<Output>(Acc, MapValue(Index));
-      });
-}
-
-/**
- * @brief Extracts all keys from a TMap as a value array.
- * @signature template <typename Key, typename Value> inline TArray<Key> mapKeys(const TMap<Key, Value> &Values)
- *
- * User Story: As ECS inspection and equality code, I need map traversal to
- * start from value arrays so recursive array folds can do the work.
- */
-template <typename Key, typename Value>
-inline TArray<Key> mapKeys(const TMap<Key, Value> &Values) {
-  TArray<Key> Keys;
-  Values.GetKeys(Keys);
-  return Keys;
-}
-
-/**
- * @brief Appends all keys from a map to an existing array.
- * @signature template <typename Key, typename Value> inline TArray<Key> appendMapKeys(TArray<Key> Values, const TMap<Key, Value> &Map)
- *
- * User Story: As ECS entity discovery, component-table keys should append
- * through one composable primitive shared by all entity indexes.
- */
-template <typename Key, typename Value>
-inline TArray<Key> appendMapKeys(TArray<Key> Values,
-                                 const TMap<Key, Value> &Map) {
-  return appendValues<Key>(Values, mapKeys<Key, Value>(Map));
-}
-
-/**
- * @brief Lifts a TMap lookup into Maybe without copying the found value.
- * @signature template <typename Key, typename Value> inline func::Maybe<const Value *> findMapValuePtr(const TMap<Key, Value> &Values, const Key &KeyValue)
- *
- * User Story: As ECS lookup code, I need pointer-returning Maybe values so
- * nested lookups compose efficiently through mbind/fmap without duplicating
- * large component tables.
- */
-template <typename Key, typename Value>
-inline func::Maybe<const Value *>
-findMapValuePtr(const TMap<Key, Value> &Values, const Key &KeyValue) {
-  const Value *ValuePtr = Values.Find(KeyValue);
-  return ValuePtr ? func::just<const Value *>(ValuePtr)
-                  : func::nothing<const Value *>();
-}
-
-/**
- * @brief Lifts a TMap lookup into Maybe by copying the found value.
- * @signature template <typename Key, typename Value> inline func::Maybe<Value> findMapValue(const TMap<Key, Value> &Values, const Key &KeyValue)
- *
- * User Story: As ECS read boundaries, small value reads should share one
- * Maybe-producing copied lookup instead of repeating pointer matches.
- */
-template <typename Key, typename Value>
-inline func::Maybe<Value>
-findMapValue(const TMap<Key, Value> &Values, const Key &KeyValue) {
-  return func::match(
-      findMapValuePtr<Key, Value>(Values, KeyValue),
-      [](const Value *ValuePtr) { return func::just(*ValuePtr); },
-      []() { return func::nothing<Value>(); });
-}
-
-/**
- * @brief Checks whether a keyed array value contains an item.
- * @signature template <typename Key, typename Item> inline bool mapArrayContains(const TMap<Key, TArray<Item>> &Values, const Key &KeyValue, const Item &Value)
- *
- * User Story: As ECS tag/domain predicates, map-of-array membership should be
- * one reusable Maybe + contains composition.
- */
-template <typename Key, typename Item>
-inline bool
-mapArrayContains(const TMap<Key, TArray<Item>> &Values, const Key &KeyValue,
-                 const Item &Value) {
-  return func::match(
-      findMapValuePtr<Key, TArray<Item>>(Values, KeyValue),
-      [&Value](const TArray<Item> *FoundValues) {
-        return containsValue<Item>(*FoundValues, Value);
-      },
-      []() { return false; });
-}
-
-/**
- * @brief Compares two TMaps by key set and value comparator through reusable folds.
- * @signature template <typename Key, typename Value> inline bool mapValuesEqual(const TMap<Key, Value> &Left, const TMap<Key, Value> &Right, std::function<bool(const Value &, const Value &)> Equals)
- *
- * User Story: As ECS equality code, component stores, resources, events, and
- * relationships should share one composable map comparison primitive.
- */
-template <typename Key, typename Value>
-inline bool mapValuesEqual(const TMap<Key, Value> &Left,
-                           const TMap<Key, Value> &Right,
-                           std::function<bool(const Value &, const Value &)>
-                               Equals) {
-  const TArray<Key> Keys = mapKeys<Key, Value>(Left);
-  return Left.Num() == Right.Num() &&
-         allArray<Key>(
-             Keys,
-             [&Left, &Right, Equals](const Key &KeyValue) {
-               return func::match(
-                   findMapValuePtr<Key, Value>(Right, KeyValue),
-                   [&Left, &KeyValue, Equals](const Value *RightValue) {
-                     const Value *LeftValue = Left.Find(KeyValue);
-                     return LeftValue && Equals(*LeftValue, *RightValue);
-                   },
-                   []() { return false; });
-             });
-}
-
-/**
- * @brief Folds a functional-core catalog through one ECS-visible primitive.
- * @signature template <typename Catalog, typename Accumulator, typename Step> inline Accumulator foldCatalog(const Catalog &Values, Accumulator Seed, Step FoldStep)
- *
- * User Story: As ECS feature code, noun-changing lists should recurse through
- * one neutral catalog fold instead of per-domain wrapper families.
- */
-template <typename Catalog, typename Accumulator, typename Step>
-inline Accumulator foldCatalog(const Catalog &Values, Accumulator Seed,
-                               Step FoldStep) {
-  return func::fold_catalog(Values, Seed, FoldStep);
-}
-
-/**
- * @brief Folds paired functional-core catalogs in lockstep.
- * @signature template <typename LeftCatalog, typename RightCatalog, typename Accumulator, typename Step> inline Accumulator foldCatalogPairs(const LeftCatalog &Left, const RightCatalog &Right, Accumulator Seed, Step FoldStep)
- *
- * User Story: As ECS projection and system code, selector/projector or
- * descriptor/runner pairs should be data registration plus one fold.
- */
-template <typename LeftCatalog, typename RightCatalog, typename Accumulator,
-          typename Step>
-inline Accumulator foldCatalogPairs(const LeftCatalog &Left,
-                                    const RightCatalog &Right,
-                                    Accumulator Seed, Step FoldStep) {
-  return func::zip_catalog_fold(Left, Right, Seed, FoldStep);
-}
 
 struct FEntityId {
   int64 Index;
@@ -585,12 +70,12 @@ inline FEntityId createEntityId(int64 Index, int32 Generation) {
 
 /**
  * @brief Converts an entity id into the shared string key format.
- * @signature inline EntityKey entityKey(const FEntityId &Id)
+ * @signature inline EntityKey createEntityKey(const FEntityId &Id)
  *
  * User Story: As component storage, I need a deterministic key for TMap-based
  * component tables.
  */
-inline EntityKey entityKey(const FEntityId &Id) {
+inline EntityKey createEntityKey(const FEntityId &Id) {
   return FString::Printf(TEXT("%lld:%d"), Id.Index, Id.Generation);
 }
 
@@ -615,12 +100,12 @@ struct FAllocatedEntity {
 
 /**
  * @brief Creates an empty entity allocator.
- * @signature inline FAllocator createAllocator()
+ * @signature inline FAllocator createEntityAllocator()
  *
  * User Story: As a world author, I need isolated allocator state for each world
  * so tests, levels, and runtime sessions do not share entity id counters.
  */
-inline FAllocator createAllocator() {
+inline FAllocator createEntityAllocator() {
   FAllocator Allocator;
   Allocator.NextIndex = 0;
   return Allocator;
@@ -647,12 +132,12 @@ inline bool operator!=(const FAllocatedEntity &Left,
 
 /**
  * @brief Reads the last reusable entity id from the allocator.
- * @signature inline func::Maybe<FEntityId> lastFreedEntity(const FAllocator &Allocator)
+ * @signature inline func::Maybe<FEntityId> findReusableEntityId(const FAllocator &Allocator)
  *
  * User Story: As allocation code, I need the reusable-id branch represented as
  * Maybe so fresh allocation composes without imperative checks.
  */
-inline func::Maybe<FEntityId> lastFreedEntity(const FAllocator &Allocator) {
+inline func::Maybe<FEntityId> findReusableEntityId(const FAllocator &Allocator) {
   return Allocator.Freed.Num() > 0 ? func::just(Allocator.Freed.Last())
                                    : func::nothing<FEntityId>();
 }
@@ -698,7 +183,7 @@ inline FAllocatedEntity allocateFreshEntity(FAllocator Allocator) {
  */
 inline FAllocatedEntity allocateEntity(FAllocator Allocator) {
   return func::match(
-      lastFreedEntity(Allocator),
+      findReusableEntityId(Allocator),
       [&Allocator](const FEntityId &Entity) {
         return allocateRecycledEntity(Allocator, Entity);
       },
@@ -715,7 +200,7 @@ inline FAllocatedEntity allocateEntity(FAllocator Allocator) {
 inline bool entityGenerationMatches(const FAllocator &Allocator,
                                     const FEntityId &Id) {
   return func::match(
-      findMapValue<int64, int32>(Allocator.Generations, Id.Index),
+      func::find_map_value<int64, int32>(Allocator.Generations, Id.Index),
       [&Id](const int32 &Current) { return Current == Id.Generation; },
       []() { return false; });
 }
@@ -736,12 +221,12 @@ inline FAllocator freeMatchedEntity(FAllocator Allocator, const FEntityId &Id) {
 
 /**
  * @brief Frees an entity id and increments its generation for safe reuse.
- * @signature inline FAllocator freeEntity(FAllocator Allocator, const FEntityId &Id)
+ * @signature inline FAllocator freeEntityId(FAllocator Allocator, const FEntityId &Id)
  *
  * User Story: As a despawn mechanic, I need old handles to stop resolving after
  * their slot has been released.
  */
-inline FAllocator freeEntity(FAllocator Allocator, const FEntityId &Id) {
+inline FAllocator freeEntityId(FAllocator Allocator, const FEntityId &Id) {
   return entityGenerationMatches(Allocator, Id)
              ? freeMatchedEntity(Allocator, Id)
              : Allocator;
@@ -749,12 +234,12 @@ inline FAllocator freeEntity(FAllocator Allocator, const FEntityId &Id) {
 
 /**
  * @brief Checks whether an entity id is still alive in the allocator.
- * @signature inline bool isAlive(const FAllocator &Allocator, const FEntityId &Id)
+ * @signature inline bool isEntityAlive(const FAllocator &Allocator, const FEntityId &Id)
  *
  * User Story: As a query system, I need to reject stale handles before reading
  * component data.
  */
-inline bool isAlive(const FAllocator &Allocator, const FEntityId &Id) {
+inline bool isEntityAlive(const FAllocator &Allocator, const FEntityId &Id) {
   return entityGenerationMatches(Allocator, Id);
 }
 
@@ -782,7 +267,7 @@ struct FComponentValue {
   TArray<TSharedPtr<FComponentValue>> ListValue;
 };
 
-inline FComponentValue noneValue() {
+inline FComponentValue createNoneComponentValue() {
   FComponentValue Value;
   Value.Kind = EComponentValueKind::None;
   Value.BoolValue = false;
@@ -791,60 +276,60 @@ inline FComponentValue noneValue() {
   return Value;
 }
 
-inline FComponentValue boolValue(bool RawValue) {
-  FComponentValue Value = noneValue();
+inline FComponentValue createBoolComponentValue(bool RawValue) {
+  FComponentValue Value = createNoneComponentValue();
   Value.Kind = EComponentValueKind::Bool;
   Value.BoolValue = RawValue;
   return Value;
 }
 
-inline FComponentValue intValue(int64 RawValue) {
-  FComponentValue Value = noneValue();
+inline FComponentValue createIntComponentValue(int64 RawValue) {
+  FComponentValue Value = createNoneComponentValue();
   Value.Kind = EComponentValueKind::Int;
   Value.IntValue = RawValue;
   return Value;
 }
 
-inline FComponentValue floatValue(float RawValue) {
-  FComponentValue Value = noneValue();
+inline FComponentValue createFloatComponentValue(float RawValue) {
+  FComponentValue Value = createNoneComponentValue();
   Value.Kind = EComponentValueKind::Float;
   Value.FloatValue = RawValue;
   return Value;
 }
 
-inline FComponentValue textValue(const FString &RawValue) {
-  FComponentValue Value = noneValue();
+inline FComponentValue createTextComponentValue(const FString &RawValue) {
+  FComponentValue Value = createNoneComponentValue();
   Value.Kind = EComponentValueKind::Text;
   Value.TextValue = RawValue;
   return Value;
 }
 
-inline FComponentValue vec3Value(const FVector &RawValue) {
-  FComponentValue Value = noneValue();
+inline FComponentValue createVec3ComponentValue(const FVector &RawValue) {
+  FComponentValue Value = createNoneComponentValue();
   Value.Kind = EComponentValueKind::Vec3;
   Value.Vec3Value = RawValue;
   return Value;
 }
 
-inline FComponentValue vec2Value(const FVector2D &RawValue) {
-  FComponentValue Value = noneValue();
+inline FComponentValue createVec2ComponentValue(const FVector2D &RawValue) {
+  FComponentValue Value = createNoneComponentValue();
   Value.Kind = EComponentValueKind::Vec2;
   Value.Vec2Value = RawValue;
   return Value;
 }
 
 inline FComponentValue
-mapValue(const TMap<FString, FComponentValue> &RawValue) {
-  FComponentValue Value = noneValue();
+createMapComponentValue(const TMap<FString, FComponentValue> &RawValue) {
+  FComponentValue Value = createNoneComponentValue();
   Value.Kind = EComponentValueKind::Map;
-  const TArray<FString> Keys = mapKeys<FString, FComponentValue>(RawValue);
-  Value.MapValue = foldArray<FString,
-                             TMap<FString, TSharedPtr<FComponentValue>>>(
-      TMap<FString, TSharedPtr<FComponentValue>>(), Keys,
+  const TArray<FString> Keys = func::map_keys<FString, FComponentValue>(RawValue);
+  Value.MapValue =
+      func::fold_array<FString, TMap<FString, TSharedPtr<FComponentValue>>>(
+      Keys, TMap<FString, TSharedPtr<FComponentValue>>(),
       [&RawValue](const TMap<FString, TSharedPtr<FComponentValue>> &Acc,
                   const FString &Key) {
         return func::match(
-            findMapValuePtr<FString, FComponentValue>(RawValue, Key),
+            func::find_map_value_ptr<FString, FComponentValue>(RawValue, Key),
             [&Acc, &Key](const FComponentValue *Found) {
               TMap<FString, TSharedPtr<FComponentValue>> Next = Acc;
               Next.Add(Key, MakeShared<FComponentValue>(*Found));
@@ -855,12 +340,12 @@ mapValue(const TMap<FString, FComponentValue> &RawValue) {
   return Value;
 }
 
-inline FComponentValue listValue(const TArray<FComponentValue> &RawValue) {
-  FComponentValue Value = noneValue();
+inline FComponentValue createListComponentValue(const TArray<FComponentValue> &RawValue) {
+  FComponentValue Value = createNoneComponentValue();
   Value.Kind = EComponentValueKind::List;
-  Value.ListValue = foldArray<FComponentValue,
-                              TArray<TSharedPtr<FComponentValue>>>(
-      TArray<TSharedPtr<FComponentValue>>(), RawValue,
+  Value.ListValue =
+      func::fold_array<FComponentValue, TArray<TSharedPtr<FComponentValue>>>(
+      RawValue, TArray<TSharedPtr<FComponentValue>>(),
       [](const TArray<TSharedPtr<FComponentValue>> &Acc,
          const FComponentValue &Entry) {
         TArray<TSharedPtr<FComponentValue>> Next = Acc;
@@ -881,7 +366,7 @@ template <typename Source>
 inline TArray<FComponentValue>
 mapComponentValues(const TArray<Source> &Items,
                    std::function<FComponentValue(const Source &)> MapValue) {
-  return mapArray<Source, FComponentValue>(Items, MapValue);
+  return func::map_array<Source, FComponentValue>(Items, MapValue);
 }
 
 inline bool componentValuePtrEquals(const TSharedPtr<FComponentValue> &Left,
@@ -890,7 +375,7 @@ inline bool componentValuePtrEquals(const TSharedPtr<FComponentValue> &Left,
 inline bool componentMapEquals(
     const TMap<FString, TSharedPtr<FComponentValue>> &Left,
     const TMap<FString, TSharedPtr<FComponentValue>> &Right) {
-  return mapValuesEqual<FString, TSharedPtr<FComponentValue>>(
+  return func::map_values_equal<FString, TSharedPtr<FComponentValue>>(
       Left, Right,
       [](const TSharedPtr<FComponentValue> &LeftValue,
          const TSharedPtr<FComponentValue> &RightValue) {
@@ -901,9 +386,9 @@ inline bool componentMapEquals(
 inline bool componentListEquals(
     const TArray<TSharedPtr<FComponentValue>> &Left,
     const TArray<TSharedPtr<FComponentValue>> &Right) {
-  const TArray<int32> Indices = indexRange(Left.Num());
+  const TArray<int32> Indices = func::index_range(Left.Num());
   return Left.Num() == Right.Num() &&
-         allArray<int32>(
+         func::all_array<int32>(
              Indices,
              [&Left, &Right](const int32 &Index) {
                return componentValuePtrEquals(Left[Index], Right[Index]);
@@ -1080,11 +565,6 @@ struct FCreateEventSpecRequest {
   FString Description;
 };
 
-struct FPushUniqueStringRequest {
-  TArray<FString> Values;
-  FString Value;
-};
-
 struct FRegisterDomainRequest {
   FDomainRegistry Registry;
   FDomainNode Node;
@@ -1099,12 +579,23 @@ struct FRegisterDomainPathRequest {
 struct FDomainPathRegistration {
   TArray<FString> Segments;
   EDomainKind Kind = EDomainKind::Unknown;
+
+  FDomainPathRegistration() {}
+
+  FDomainPathRegistration(std::initializer_list<const char *> InSegments,
+                          EDomainKind InKind)
+      : Kind(InKind) {
+    const TArray<const char *> SegmentAtoms(InSegments);
+    Segments = func::map_array<const char *, FString>(
+        SegmentAtoms, [](const char *Segment) {
+          return FString(UTF8_TO_TCHAR(Segment));
+        });
+  }
 };
 
 struct FRegisterDomainPathsRequest {
   FDomainRegistry Registry;
   TArray<FDomainPathRegistration> Registrations;
-  int32 Index = 0;
 };
 
 struct FRegisterComponentSchemaRequest {
@@ -1155,9 +646,9 @@ inline bool operator!=(const FDomainPath &Left, const FDomainPath &Right) {
 
 /**
  * @brief Converts a domain path into its registry key.
- * @signature inline DomainPathKey domainPathKey(const FDomainPath &Path)
+ * @signature inline DomainPathKey createDomainPathKey(const FDomainPath &Path)
  */
-inline DomainPathKey domainPathKey(const FDomainPath &Path) {
+inline DomainPathKey createDomainPathKey(const FDomainPath &Path) {
   return FString::Join(Path.Segments, TEXT("/"));
 }
 
@@ -1382,19 +873,75 @@ inline bool operator!=(const FDomainRegistry &Left,
  */
 inline FDomainRegistry createDomainRegistry() { return FDomainRegistry(); }
 
-/**
- * @brief Returns an array with one value present at most once.
- * @signature inline TArray<FString> pushUniqueString(const FPushUniqueStringRequest &Request)
- *
- * User Story: As a registry maintainer, I need set-like index updates to stay
- * value-returning so ECS helpers remain composable with functional-core
- * pipelines.
- */
-inline TArray<FString>
-pushUniqueString(const FPushUniqueStringRequest &Request) {
-  TArray<FString> Values = Request.Values;
-  Values.AddUnique(Request.Value);
-  return Values;
+typedef std::function<FDomainNode(const FDomainNode &)> FDomainNodeTransform;
+
+inline func::Maybe<DomainPathKey> findParentDomainKey(const FDomainPath &Path) {
+  return func::fmap(
+      func::maybe_filter(
+          func::just<FDomainPath>(Path),
+          [](const FDomainPath &Candidate) {
+            return Candidate.Segments.Num() > 1;
+          }),
+      [](const FDomainPath &Candidate) {
+        FDomainPath ParentPath = Candidate;
+        ParentPath.Segments.RemoveAt(ParentPath.Segments.Num() - 1);
+        return createDomainPathKey(ParentPath);
+      });
+}
+
+inline FDomainRegistry updateDomainNode(FDomainRegistry Registry,
+                                        const DomainPathKey &Key,
+                                        FDomainNodeTransform Transform) {
+  Registry.Nodes =
+      func::update_map_value_when_present<DomainPathKey, FDomainNode>(
+          Registry.Nodes, Key, Transform);
+  return Registry;
+}
+
+inline FDomainNode appendDomainChild(const DomainPathKey &Child,
+                                     const FDomainNode &Node) {
+  FDomainNode Next = Node;
+  Next.Children =
+      func::append_unique_value<DomainPathKey>(Next.Children, Child);
+  return Next;
+}
+
+inline FDomainNode appendDomainComponentSchema(const ComponentType &Type,
+                                               const FDomainNode &Node) {
+  FDomainNode Next = Node;
+  Next.ComponentSchemas =
+      func::append_unique_value<ComponentType>(Next.ComponentSchemas, Type);
+  return Next;
+}
+
+inline FDomainNode appendDomainCapability(const FString &Name,
+                                          const FDomainNode &Node) {
+  FDomainNode Next = Node;
+  Next.Capabilities =
+      func::append_unique_value<FString>(Next.Capabilities, Name);
+  return Next;
+}
+
+inline FDomainNode appendDomainSystem(const SystemName &Name,
+                                      const FDomainNode &Node) {
+  FDomainNode Next = Node;
+  Next.Systems = func::append_unique_value<SystemName>(Next.Systems, Name);
+  return Next;
+}
+
+inline FDomainNode appendDomainResource(const ResourceName &Name,
+                                        const FDomainNode &Node) {
+  FDomainNode Next = Node;
+  Next.Resources =
+      func::append_unique_value<ResourceName>(Next.Resources, Name);
+  return Next;
+}
+
+inline FDomainNode appendDomainEvent(const EventType &Type,
+                                     const FDomainNode &Node) {
+  FDomainNode Next = Node;
+  Next.Events = func::append_unique_value<EventType>(Next.Events, Type);
+  return Next;
 }
 
 /**
@@ -1407,22 +954,18 @@ pushUniqueString(const FPushUniqueStringRequest &Request) {
 inline FDomainRegistry registerDomain(const FRegisterDomainRequest &Request) {
   FDomainRegistry Registry = Request.Registry;
   const FDomainNode Node = Request.Node;
-  const DomainPathKey Key = domainPathKey(Node.Path);
+  const DomainPathKey Key = createDomainPathKey(Node.Path);
   Registry.Nodes.Add(Key, Node);
-  return Node.Path.Segments.Num() > 1
-             ? ([Registry, Node, Key]() mutable {
-                 FDomainPath ParentPath = Node.Path;
-                 ParentPath.Segments.RemoveAt(ParentPath.Segments.Num() - 1);
-                 const DomainPathKey ParentKey = domainPathKey(ParentPath);
-                 FDomainNode *Parent = Registry.Nodes.Find(ParentKey);
-                 Parent != nullptr
-                     ? (Parent->Children =
-                            pushUniqueString({Parent->Children, Key}),
-                        void())
-                     : void();
-                 return Registry;
-               })()
-             : Registry;
+  return func::match(
+      findParentDomainKey(Node.Path),
+      [Registry, Key](const DomainPathKey &ParentKey) mutable {
+        return updateDomainNode(
+            Registry, ParentKey,
+            [Key](const FDomainNode &Parent) {
+              return appendDomainChild(Key, Parent);
+            });
+      },
+      [Registry]() { return Registry; });
 }
 
 /**
@@ -1448,14 +991,28 @@ registerDomainPath(const FRegisterDomainPathRequest &Request) {
  */
 inline FDomainRegistry
 registerDomainPaths(FRegisterDomainPathsRequest Request) {
-  return foldArray<FDomainPathRegistration, FDomainRegistry>(
-      Request.Registry, Request.Registrations,
+  return func::fold_array<FDomainPathRegistration, FDomainRegistry>(
+      Request.Registrations, Request.Registry,
       [](const FDomainRegistry &Registry,
          const FDomainPathRegistration &Registration) {
         return registerDomainPath(
             {Registry, Registration.Segments, Registration.Kind});
-      },
-      Request.Index);
+      });
+}
+
+/**
+ * @brief Registers ECS domain path declarations through one boundary function.
+ * @signature inline FDomainRegistry registerDomainPathDeclarations(FDomainRegistry Registry, std::initializer_list<FDomainPathRegistration> Declarations)
+ *
+ * User Story: As taxonomy code, path declarations should be plain atoms while
+ * this ECS helper owns platform string conversion, request construction, and
+ * fold execution.
+ */
+inline FDomainRegistry registerDomainPathDeclarations(
+    FDomainRegistry Registry,
+    std::initializer_list<FDomainPathRegistration> Declarations) {
+  const TArray<FDomainPathRegistration> Registrations(Declarations);
+  return registerDomainPaths({Registry, Registrations});
 }
 
 /**
@@ -1470,13 +1027,10 @@ registerComponentSchema(const FRegisterComponentSchemaRequest &Request) {
   FDomainRegistry Registry = Request.Registry;
   const FComponentSchema Schema = Request.Schema;
   Registry.ComponentSchemas.Add(Schema.Type, Schema);
-  FDomainNode *Domain = Registry.Nodes.Find(Schema.Domain);
-  Domain != nullptr
-      ? (Domain->ComponentSchemas =
-             pushUniqueString({Domain->ComponentSchemas, Schema.Type}),
-         void())
-      : void();
-  return Registry;
+  return updateDomainNode(
+      Registry, Schema.Domain, [Schema](const FDomainNode &Domain) {
+        return appendDomainComponentSchema(Schema.Type, Domain);
+      });
 }
 
 /**
@@ -1491,13 +1045,10 @@ registerCapabilitySpec(const FRegisterCapabilitySpecRequest &Request) {
   FDomainRegistry Registry = Request.Registry;
   const FCapabilitySpec Spec = Request.Spec;
   Registry.Capabilities.Add(Spec.Name, Spec);
-  FDomainNode *Domain = Registry.Nodes.Find(Spec.Domain);
-  Domain != nullptr
-      ? (Domain->Capabilities =
-             pushUniqueString({Domain->Capabilities, Spec.Name}),
-         void())
-      : void();
-  return Registry;
+  return updateDomainNode(
+      Registry, Spec.Domain, [Spec](const FDomainNode &Domain) {
+        return appendDomainCapability(Spec.Name, Domain);
+      });
 }
 
 /**
@@ -1512,12 +1063,10 @@ registerSystemSpec(const FRegisterSystemSpecRequest &Request) {
   FDomainRegistry Registry = Request.Registry;
   const FSystemSpec Spec = Request.Spec;
   Registry.Systems.Add(Spec.Name, Spec);
-  FDomainNode *Domain = Registry.Nodes.Find(Spec.Domain);
-  Domain != nullptr
-      ? (Domain->Systems = pushUniqueString({Domain->Systems, Spec.Name}),
-         void())
-      : void();
-  return Registry;
+  return updateDomainNode(
+      Registry, Spec.Domain, [Spec](const FDomainNode &Domain) {
+        return appendDomainSystem(Spec.Name, Domain);
+      });
 }
 
 /**
@@ -1532,12 +1081,10 @@ registerResourceSpec(const FRegisterResourceSpecRequest &Request) {
   FDomainRegistry Registry = Request.Registry;
   const FResourceSpec Spec = Request.Spec;
   Registry.ResourceSpecs.Add(Spec.Name, Spec);
-  FDomainNode *Domain = Registry.Nodes.Find(Spec.Domain);
-  Domain != nullptr
-      ? (Domain->Resources = pushUniqueString({Domain->Resources, Spec.Name}),
-         void())
-      : void();
-  return Registry;
+  return updateDomainNode(
+      Registry, Spec.Domain, [Spec](const FDomainNode &Domain) {
+        return appendDomainResource(Spec.Name, Domain);
+      });
 }
 
 /**
@@ -1564,12 +1111,10 @@ registerEventSpec(const FRegisterEventSpecRequest &Request) {
   FDomainRegistry Registry = Request.Registry;
   const FEventSpec Spec = Request.Spec;
   Registry.EventSpecs.Add(Spec.Type, Spec);
-  FDomainNode *Domain = Registry.Nodes.Find(Spec.Domain);
-  Domain != nullptr
-      ? (Domain->Events = pushUniqueString({Domain->Events, Spec.Type}),
-         void())
-      : void();
-  return Registry;
+  return updateDomainNode(
+      Registry, Spec.Domain, [Spec](const FDomainNode &Domain) {
+        return appendDomainEvent(Spec.Type, Domain);
+      });
 }
 
 /**
@@ -1589,153 +1134,152 @@ registerEventType(const FRegisterEventSpecRequest &Request) {
  * @signature inline FDomainRegistry buildCrossDomainRegistry()
  *
  * User Story: As a feature author, I need Components / Entities / Systems /
- * Ui domains with stable subdomains so project systems can query and inspect
+ * Ui domains with stable subdomains so project systems can query and inspectEntity
  * data without importing presentational view layers.
  */
 inline FDomainRegistry buildCrossDomainRegistry() {
-  return registerDomainPaths(
-      {createDomainRegistry(),
-       {
-           {{TEXT("Components")}, EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Attributes")},
+  return registerDomainPathDeclarations(
+      createDomainRegistry(),
+      {
+           {{"Components"}, EDomainKind::Component},
+           {{"Components", "Attributes"},
             EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Bots")}, EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Data")}, EDomainKind::Data},
-           {{TEXT("Components"), TEXT("Data"), TEXT("Json")},
+           {{"Components", "Bots"}, EDomainKind::Component},
+           {{"Components", "Data"}, EDomainKind::Data},
+           {{"Components", "Data", "Json"},
             EDomainKind::Data},
-           {{TEXT("Components"), TEXT("Data"), TEXT("Json"),
-             TEXT("Values")},
+           {{"Components", "Data", "Json",
+             "Values"},
             EDomainKind::Data},
-           {{TEXT("Components"), TEXT("Frame")}, EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Framebuffer")},
+           {{"Components", "Frame"}, EDomainKind::Component},
+           {{"Components", "Framebuffer"},
             EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Geometry")},
+           {{"Components", "Geometry"},
             EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Glyphs")}, EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Health")}, EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Input")}, EDomainKind::Input},
-           {{TEXT("Components"), TEXT("Interaction")},
+           {{"Components", "Glyphs"}, EDomainKind::Component},
+           {{"Components", "Health"}, EDomainKind::Component},
+           {{"Components", "Input"}, EDomainKind::Input},
+           {{"Components", "Interaction"},
             EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Level")}, EDomainKind::Data},
-           {{TEXT("Components"), TEXT("Level"), TEXT("TerrainGeometry")},
+           {{"Components", "Level"}, EDomainKind::Data},
+           {{"Components", "Level", "TerrainGeometry"},
             EDomainKind::Data},
-           {{TEXT("Components"), TEXT("Lifecycle")},
+           {{"Components", "Lifecycle"},
             EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Narrative")},
+           {{"Components", "Narrative"},
             EDomainKind::Narrative},
-           {{TEXT("Components"), TEXT("Position")},
+           {{"Components", "Position"},
             EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Random")}, EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Rendering")},
+           {{"Components", "Random"}, EDomainKind::Component},
+           {{"Components", "Rendering"},
             EDomainKind::Rendering},
-           {{TEXT("Components"), TEXT("Spatial")}, EDomainKind::Component},
-           {{TEXT("Components"), TEXT("Stats")}, EDomainKind::Component},
-           {{TEXT("Components"), TEXT("UI")}, EDomainKind::Ui},
-           {{TEXT("Entities")}, EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Characters")}, EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots")},
+           {{"Components", "Spatial"}, EDomainKind::Component},
+           {{"Components", "Stats"}, EDomainKind::Component},
+           {{"Components", "UI"}, EDomainKind::Ui},
+           {{"Entities"}, EDomainKind::Entity},
+           {{"Entities", "Characters"}, EDomainKind::Entity},
+           {{"Entities", "Characters", "Bots"},
             EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
-             TEXT("Horses")},
+           {{"Entities", "Characters", "Bots",
+             "Horses"},
             EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
-             TEXT("Townspeople")},
+           {{"Entities", "Characters", "Bots",
+             "Townspeople"},
             EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Characters"), TEXT("Player")},
+           {{"Entities", "Characters", "Player"},
             EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Environments")}, EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Environments"), TEXT("Landmarks")},
+           {{"Entities", "Environments"}, EDomainKind::Entity},
+           {{"Entities", "Environments", "Landmarks"},
             EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Environments"), TEXT("Nature")},
+           {{"Entities", "Environments", "Nature"},
             EDomainKind::Entity},
-           {{TEXT("Entities"), TEXT("Session")}, EDomainKind::Session},
-           {{TEXT("Systems")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("AI")}, EDomainKind::Ai},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Core")},
+           {{"Entities", "Session"}, EDomainKind::Session},
+           {{"Systems"}, EDomainKind::System},
+           {{"Systems", "Bots"}, EDomainKind::System},
+           {{"Systems", "Bots", "AI"}, EDomainKind::Ai},
+           {{"Systems", "Bots", "Core"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Goals")},
+           {{"Systems", "Bots", "Goals"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Horses")},
+           {{"Systems", "Bots", "Horses"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Orchestrator")},
+           {{"Systems", "Bots", "Orchestrator"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Orchestrator"),
-             TEXT("Factories")},
+           {{"Systems", "Bots", "Orchestrator",
+             "Factories"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Pipeline")},
+           {{"Systems", "Bots", "Pipeline"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Position")},
+           {{"Systems", "Bots", "Position"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Stats")},
+           {{"Systems", "Bots", "Stats"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Bots"), TEXT("Townspeople")},
+           {{"Systems", "Bots", "Townspeople"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Capabilities")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Dialogue")}, EDomainKind::Narrative},
-           {{TEXT("Systems"), TEXT("Factories")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Input")}, EDomainKind::Input},
-           {{TEXT("Systems"), TEXT("Interaction")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Landmarks")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout")},
+           {{"Systems", "Capabilities"}, EDomainKind::System},
+           {{"Systems", "Dialogue"}, EDomainKind::Narrative},
+           {{"Systems", "Factories"}, EDomainKind::System},
+           {{"Systems", "Input"}, EDomainKind::Input},
+           {{"Systems", "Interaction"}, EDomainKind::System},
+           {{"Systems", "Landmarks"}, EDomainKind::System},
+           {{"Systems", "Level"}, EDomainKind::System},
+           {{"Systems", "Level", "RuntimeLayout"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
-             TEXT("Enums")},
+           {{"Systems", "Level", "RuntimeLayout",
+             "Enums"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
-             TEXT("Scales")},
+           {{"Systems", "Level", "RuntimeLayout",
+             "Scales"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
-             TEXT("Blocks")},
+           {{"Systems", "Level", "RuntimeLayout",
+             "Blocks"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
-             TEXT("Labels")},
+           {{"Systems", "Level", "RuntimeLayout",
+             "Labels"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
-             TEXT("Sections")},
+           {{"Systems", "Level", "RuntimeLayout",
+             "Sections"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level"), TEXT("RuntimeLayout"),
-             TEXT("Layout")},
+           {{"Systems", "Level", "RuntimeLayout",
+             "Layout"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Level"), TEXT("TerrainGeometry")},
+           {{"Systems", "Level", "TerrainGeometry"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Nature")}, EDomainKind::Procgen},
-           {{TEXT("Systems"), TEXT("Projection")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots")},
+           {{"Systems", "Nature"}, EDomainKind::Procgen},
+           {{"Systems", "Projection"}, EDomainKind::System},
+           {{"Systems", "Projection", "Bots"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
-             TEXT("AI")},
+           {{"Systems", "Projection", "Bots",
+             "AI"},
             EDomainKind::Ai},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
-             TEXT("Goals")},
+           {{"Systems", "Projection", "Bots",
+             "Goals"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
-             TEXT("Position")},
+           {{"Systems", "Projection", "Bots",
+             "Position"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
-             TEXT("Stats")},
+           {{"Systems", "Projection", "Bots",
+             "Stats"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Interaction")},
+           {{"Systems", "Projection", "Interaction"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Runtime")},
+           {{"Systems", "Projection", "Runtime"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Spawn")},
+           {{"Systems", "Projection", "Spawn"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Projection"), TEXT("Terrain")},
+           {{"Systems", "Projection", "Terrain"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Rendering")}, EDomainKind::Rendering},
-           {{TEXT("Systems"), TEXT("Runtime")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Services")}, EDomainKind::Service},
-           {{TEXT("Systems"), TEXT("Spawn")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Speech")}, EDomainKind::Narrative},
-           {{TEXT("Systems"), TEXT("Terrain")}, EDomainKind::System},
-           {{TEXT("Systems"), TEXT("Transformations")},
+           {{"Systems", "Rendering"}, EDomainKind::Rendering},
+           {{"Systems", "Runtime"}, EDomainKind::System},
+           {{"Systems", "Services"}, EDomainKind::Service},
+           {{"Systems", "Spawn"}, EDomainKind::System},
+           {{"Systems", "Speech"}, EDomainKind::Narrative},
+           {{"Systems", "Terrain"}, EDomainKind::System},
+           {{"Systems", "Transformations"},
             EDomainKind::System},
-           {{TEXT("Systems"), TEXT("UI")}, EDomainKind::Ui},
-           {{TEXT("Systems"), TEXT("Utils")}, EDomainKind::Service},
-       },
-       0});
+           {{"Systems", "UI"}, EDomainKind::Ui},
+           {{"Systems", "Utils"}, EDomainKind::Service},
+      });
 }
 
 /**
@@ -1743,7 +1287,7 @@ inline FDomainRegistry buildCrossDomainRegistry() {
  * @signature inline const FDomainRegistry &crossDomainRegistryCache()
  *
  * User Story: As every new world initializes, I need the static taxonomy to be
- * computed once through functional_core lazy evaluation instead of rebuilt for
+ * computed once through ue_fp lazy evaluation instead of rebuilt for
  * each world value.
  */
 inline const FDomainRegistry &crossDomainRegistryCache() {
@@ -1817,7 +1361,7 @@ createGetRelationshipRequest(const TMap<EntityKey, FRelationship> &Relationships
 inline FRelationship
 getRelationshipOrDefault(const FGetRelationshipRequest &Request) {
   return func::or_else(
-      findMapValue<EntityKey, FRelationship>(Request.Relationships,
+      func::find_map_value<EntityKey, FRelationship>(Request.Relationships,
                                              Request.Entity),
       createRelationship());
 }
@@ -1847,46 +1391,46 @@ using TWorldRowProjector =
 
 /**
  * @brief Projects selected rows into a world through one row projector.
- * @signature template <typename Item> inline FWorld projectRows(const FWorld &World, const TArray<Item> &Items, TWorldRowProjector<Item> Project)
+ * @signature template <typename Item> inline FWorld projectRowsIntoWorld(const FWorld &World, const TArray<Item> &Items, TWorldRowProjector<Item> Project)
  *
  * User Story: As RTK selector projection code, selected entity-adapter rows
  * should fold into ECS through one reusable world transform shape.
  */
 template <typename Item>
-inline FWorld projectRows(const FWorld &World, const TArray<Item> &Items,
+inline FWorld projectRowsIntoWorld(const FWorld &World, const TArray<Item> &Items,
                           TWorldRowProjector<Item> Project) {
-  return foldArray<Item, FWorld>(
-      World, Items, [Project](const FWorld &Acc, const Item &ItemValue) {
+  return func::fold_array<Item, FWorld>(
+      Items, World, [Project](const FWorld &Acc, const Item &ItemValue) {
         return Project(Acc, ItemValue);
       });
 }
 
 /**
- * @brief Folds paired catalogs into a world through one projection step.
- * @signature template <typename LeftCatalog, typename RightCatalog, typename Step> inline FWorld foldWorldCatalogPairs(const FWorld &World, const LeftCatalog &Left, const RightCatalog &Right, Step FoldStep)
+ * @brief Projects paired catalogs into a world through one projection step.
+ * @signature template <typename LeftCatalog, typename RightCatalog, typename Step> inline FWorld projectWorldCatalogPairs(const FWorld &World, const LeftCatalog &Left, const RightCatalog &Right, Step ProjectStep)
  *
  * User Story: As RTK selector projection code, changing domain nouns should be
  * registered as selector/projector catalogs and executed by one ECS fold.
  */
 template <typename LeftCatalog, typename RightCatalog, typename Step>
-inline FWorld foldWorldCatalogPairs(const FWorld &World,
-                                    const LeftCatalog &Left,
-                                    const RightCatalog &Right,
-                                    Step FoldStep) {
-  return foldCatalogPairs(Left, Right, World, FoldStep);
+inline FWorld projectWorldCatalogPairs(const FWorld &World,
+                                       const LeftCatalog &Left,
+                                       const RightCatalog &Right,
+                                       Step ProjectStep) {
+  return func::zip_catalog_fold(Left, Right, World, ProjectStep);
 }
 
 /**
- * @brief Folds a catalog of world transforms into one next world.
- * @signature template <typename TransformCatalog> inline FWorld foldWorldTransformCatalog(const FWorld &World, const TransformCatalog &Transforms)
+ * @brief Applies a catalog of world transforms into one next world.
+ * @signature template <typename TransformCatalog> inline FWorld applyWorldTransformCatalog(const FWorld &World, const TransformCatalog &Transforms)
  *
  * User Story: As lifecycle ECS code, named world transforms should be
  * registered as a catalog when only the cleanup noun changes.
  */
 template <typename TransformCatalog>
-inline FWorld foldWorldTransformCatalog(const FWorld &World,
-                                        const TransformCatalog &Transforms) {
-  return foldCatalog(
+inline FWorld applyWorldTransformCatalog(const FWorld &World,
+                                         const TransformCatalog &Transforms) {
+  return func::fold_catalog(
       Transforms, World,
       [](const FWorld &Acc, const FWorldTransform &Transform) {
         return Transform(Acc);
@@ -1894,16 +1438,16 @@ inline FWorld foldWorldTransformCatalog(const FWorld &World,
 }
 
 /**
- * @brief Runs a list of world transforms through the shared fold shape.
- * @signature inline FWorld foldWorldTransforms(const FWorld &World, const TArray<FWorldTransform> &Transforms)
+ * @brief Applies a list of world transforms to one next world.
+ * @signature inline FWorld applyWorldTransforms(const FWorld &World, const TArray<FWorldTransform> &Transforms)
  *
  * User Story: As reducer-owned ECS projection, system execution should read as
  * a fold over named world transforms instead of hand-composed nested calls.
  */
-inline FWorld foldWorldTransforms(const FWorld &World,
-                                  const TArray<FWorldTransform> &Transforms) {
-  return foldArray<FWorldTransform, FWorld>(
-      World, Transforms,
+inline FWorld applyWorldTransforms(const FWorld &World,
+                                   const TArray<FWorldTransform> &Transforms) {
+  return func::fold_array<FWorldTransform, FWorld>(
+      Transforms, World,
       [](const FWorld &Acc, const FWorldTransform &Transform) {
         return Transform(Acc);
       });
@@ -1946,12 +1490,12 @@ struct FSetEntityDomainRequest {
   DomainPathKey Domain;
 };
 
-struct FMarkDirtyRequest {
+struct FRecordEntityDirtyRequest {
   FWorld World;
   EntityKey Entity;
 };
 
-struct FMarkManyDirtyRequest {
+struct FRecordEntitiesDirtyRequest {
   FWorld World;
   TArray<EntityKey> Entities;
 };
@@ -1971,19 +1515,19 @@ struct FDespawnEntityRequest {
   FEntityId Id;
 };
 
-struct FSetParentRequest {
+struct FSetRelationshipParentRequest {
   FWorld World;
   EntityKey Child;
   EntityKey Parent;
 };
 
-struct FAddChildRequest {
+struct FAddRelationshipChildRequest {
   FWorld World;
   EntityKey Parent;
   EntityKey Child;
 };
 
-struct FRemoveChildRequest {
+struct FRemoveRelationshipChildRequest {
   FWorld World;
   EntityKey Parent;
   EntityKey Child;
@@ -2055,33 +1599,34 @@ struct FQueryChildrenRequest {
   EntityKey Parent;
 };
 
-struct FGatherUnwrapRequest {
+struct FGatherComponentsRequest {
   const FWorld &World;
   EntityKey Entity;
   TArray<ComponentType> Types;
 };
 
 /**
- * @brief Builds the dirty-marking request payload.
- * @signature inline FMarkDirtyRequest createMarkDirtyRequest(FWorld World, const EntityKey &Entity)
+ * @brief Builds the dirty entity recording request payload.
+ * @signature inline FRecordEntityDirtyRequest createRecordEntityDirtyRequest(FWorld World, const EntityKey &Entity)
  *
  * User Story: As ECS reducer code, I need one reusable factory for dirty
  * marking payloads instead of scattered aggregate construction.
  */
-inline FMarkDirtyRequest createMarkDirtyRequest(FWorld World,
+inline FRecordEntityDirtyRequest createRecordEntityDirtyRequest(FWorld World,
                                                 const EntityKey &Entity) {
   return {World, Entity};
 }
 
 /**
- * @brief Builds the multi-entity dirty-marking request payload.
- * @signature inline FMarkManyDirtyRequest createMarkManyDirtyRequest(FWorld World, const TArray<EntityKey> &Entities)
+ * @brief Builds the dirty entity batch recording request payload.
+ * @signature inline FRecordEntitiesDirtyRequest createRecordEntitiesDirtyRequest(FWorld World, const TArray<EntityKey> &Entities)
  *
  * User Story: As relationship reducers, I need repeated dirty marking to use a
  * foldable payload rather than nested calls.
  */
-inline FMarkManyDirtyRequest
-createMarkManyDirtyRequest(FWorld World, const TArray<EntityKey> &Entities) {
+inline FRecordEntitiesDirtyRequest
+createRecordEntitiesDirtyRequest(FWorld World,
+                                 const TArray<EntityKey> &Entities) {
   return {World, Entities};
 }
 
@@ -2123,12 +1668,12 @@ inline FDespawnEntityRequest createDespawnEntityRequest(FWorld World,
 
 /**
  * @brief Builds the parent-setting request payload.
- * @signature inline FSetParentRequest createSetParentRequest(FWorld World, const EntityKey &Child, const EntityKey &Parent)
+ * @signature inline FSetRelationshipParentRequest createSetRelationshipParentRequest(FWorld World, const EntityKey &Child, const EntityKey &Parent)
  *
  * User Story: As relationship code, I need parent writes to use a reusable
  * payload factory.
  */
-inline FSetParentRequest createSetParentRequest(FWorld World,
+inline FSetRelationshipParentRequest createSetRelationshipParentRequest(FWorld World,
                                                 const EntityKey &Child,
                                                 const EntityKey &Parent) {
   return {World, Child, Parent};
@@ -2136,12 +1681,12 @@ inline FSetParentRequest createSetParentRequest(FWorld World,
 
 /**
  * @brief Builds the child-adding request payload.
- * @signature inline FAddChildRequest createAddChildRequest(FWorld World, const EntityKey &Parent, const EntityKey &Child)
+ * @signature inline FAddRelationshipChildRequest createAddRelationshipChildRequest(FWorld World, const EntityKey &Parent, const EntityKey &Child)
  *
  * User Story: As hierarchy code, I need child-add payloads constructed
  * consistently before delegating to relationship reducers.
  */
-inline FAddChildRequest createAddChildRequest(FWorld World,
+inline FAddRelationshipChildRequest createAddRelationshipChildRequest(FWorld World,
                                               const EntityKey &Parent,
                                               const EntityKey &Child) {
   return {World, Parent, Child};
@@ -2149,12 +1694,12 @@ inline FAddChildRequest createAddChildRequest(FWorld World,
 
 /**
  * @brief Builds the child-removal request payload.
- * @signature inline FRemoveChildRequest createRemoveChildRequest(FWorld World, const EntityKey &Parent, const EntityKey &Child)
+ * @signature inline FRemoveRelationshipChildRequest createRemoveRelationshipChildRequest(FWorld World, const EntityKey &Parent, const EntityKey &Child)
  *
  * User Story: As hierarchy code, I need child-removal payloads constructed
  * consistently before applying relationship reducers.
  */
-inline FRemoveChildRequest createRemoveChildRequest(FWorld World,
+inline FRemoveRelationshipChildRequest createRemoveRelationshipChildRequest(FWorld World,
                                                     const EntityKey &Parent,
                                                     const EntityKey &Child) {
   return {World, Parent, Child};
@@ -2379,13 +1924,13 @@ inline FQueryChildrenRequest createQueryChildrenRequest(const FWorld &World,
 
 /**
  * @brief Builds the component-gathering request payload.
- * @signature inline FGatherUnwrapRequest createGatherUnwrapRequest(const FWorld &World, const EntityKey &Entity, const TArray<ComponentType> &Types)
+ * @signature inline FGatherComponentsRequest createGatherComponentsRequest(const FWorld &World, const EntityKey &Entity, const TArray<ComponentType> &Types)
  *
  * User Story: As ECS system execution, I need component gathering to share one
  * request factory before fold-based lookup.
  */
-inline FGatherUnwrapRequest
-createGatherUnwrapRequest(const FWorld &World, const EntityKey &Entity,
+inline FGatherComponentsRequest
+createGatherComponentsRequest(const FWorld &World, const EntityKey &Entity,
                           const TArray<ComponentType> &Types) {
   return {World, Entity, Types};
 }
@@ -2400,7 +1945,7 @@ inline FWorld setEntityDomain(const FSetEntityDomainRequest &Request);
  */
 inline FWorld createWorld() {
   FWorld World;
-  World.Allocator = createAllocator();
+  World.Allocator = createEntityAllocator();
   World.Domains = createCrossDomainRegistry();
   World.Generation = 0;
   return World;
@@ -2408,7 +1953,7 @@ inline FWorld createWorld() {
 
 inline bool componentTableEquals(const ComponentTable &Left,
                                  const ComponentTable &Right) {
-  return mapValuesEqual<EntityKey, FComponentValue>(
+  return func::map_values_equal<EntityKey, FComponentValue>(
       Left, Right,
       [](const FComponentValue &LeftValue,
          const FComponentValue &RightValue) { return LeftValue == RightValue; });
@@ -2416,26 +1961,24 @@ inline bool componentTableEquals(const ComponentTable &Left,
 
 inline bool componentStoreEquals(const ComponentStore &Left,
                                  const ComponentStore &Right) {
-  return mapValuesEqual<ComponentType, ComponentTable>(
+  return func::map_values_equal<ComponentType, ComponentTable>(
       Left, Right,
       [](const ComponentTable &LeftValue, const ComponentTable &RightValue) {
         return componentTableEquals(LeftValue, RightValue);
       });
 }
 
-template <typename Value>
-inline bool arrayMapEquals(const TMap<FString, TArray<Value>> &Left,
-                           const TMap<FString, TArray<Value>> &Right) {
-  return mapValuesEqual<FString, TArray<Value>>(
+inline bool tagStoreEquals(const TagStore &Left, const TagStore &Right) {
+  return func::map_values_equal<EntityKey, TArray<Tag>>(
       Left, Right,
-      [](const TArray<Value> &LeftValue, const TArray<Value> &RightValue) {
+      [](const TArray<Tag> &LeftValue, const TArray<Tag> &RightValue) {
         return LeftValue == RightValue;
       });
 }
 
 inline bool resourceStoreEquals(const ResourceStore &Left,
                                 const ResourceStore &Right) {
-  return mapValuesEqual<ResourceName, FComponentValue>(
+  return func::map_values_equal<ResourceName, FComponentValue>(
       Left, Right,
       [](const FComponentValue &LeftValue,
          const FComponentValue &RightValue) { return LeftValue == RightValue; });
@@ -2444,9 +1987,29 @@ inline bool resourceStoreEquals(const ResourceStore &Left,
 inline bool relationshipStoreEquals(
     const TMap<EntityKey, FRelationship> &Left,
     const TMap<EntityKey, FRelationship> &Right) {
-  return mapValuesEqual<EntityKey, FRelationship>(
+  return func::map_values_equal<EntityKey, FRelationship>(
       Left, Right,
       [](const FRelationship &LeftValue, const FRelationship &RightValue) {
+        return LeftValue == RightValue;
+      });
+}
+
+inline bool eventQueueEquals(const EventQueue &Left, const EventQueue &Right) {
+  return func::map_values_equal<EventType, TArray<FComponentValue>>(
+      Left, Right,
+      [](const TArray<FComponentValue> &LeftValue,
+         const TArray<FComponentValue> &RightValue) {
+        return LeftValue == RightValue;
+      });
+}
+
+inline bool entityDomainStoreEquals(
+    const TMap<EntityKey, TArray<DomainPathKey>> &Left,
+    const TMap<EntityKey, TArray<DomainPathKey>> &Right) {
+  return func::map_values_equal<EntityKey, TArray<DomainPathKey>>(
+      Left, Right,
+      [](const TArray<DomainPathKey> &LeftValue,
+         const TArray<DomainPathKey> &RightValue) {
         return LeftValue == RightValue;
       });
 }
@@ -2454,10 +2017,10 @@ inline bool relationshipStoreEquals(
 inline bool operator==(const FWorld &Left, const FWorld &Right) {
   return Left.Allocator == Right.Allocator &&
          componentStoreEquals(Left.Components, Right.Components) &&
-         arrayMapEquals(Left.Tags, Right.Tags) &&
+         tagStoreEquals(Left.Tags, Right.Tags) &&
          resourceStoreEquals(Left.Resources, Right.Resources) &&
-         arrayMapEquals(Left.Events, Right.Events) &&
-         arrayMapEquals(Left.EntityDomains, Right.EntityDomains) &&
+         eventQueueEquals(Left.Events, Right.Events) &&
+         entityDomainStoreEquals(Left.EntityDomains, Right.EntityDomains) &&
          relationshipStoreEquals(Left.Relationships, Right.Relationships) &&
          Left.Domains == Right.Domains &&
          Left.DirtyEntities == Right.DirtyEntities &&
@@ -2469,13 +2032,13 @@ inline bool operator!=(const FWorld &Left, const FWorld &Right) {
 }
 
 /**
- * @brief Marks an entity dirty and increments the world generation.
- * @signature inline FWorld markDirty(const FMarkDirtyRequest &Request)
+ * @brief Records one dirty entity and increments the world generation.
+ * @signature inline FWorld recordEntityDirty(const FRecordEntityDirtyRequest &Request)
  *
  * User Story: As a reducer-owned ECS transition, dirty tracking should be a
  * unary world transform that can be composed without hidden side effects.
  */
-inline FWorld markDirty(const FMarkDirtyRequest &Request) {
+inline FWorld recordEntityDirty(const FRecordEntityDirtyRequest &Request) {
   FWorld World = Request.World;
   World.DirtyEntities.AddUnique(Request.Entity);
   World.Generation += 1;
@@ -2483,17 +2046,17 @@ inline FWorld markDirty(const FMarkDirtyRequest &Request) {
 }
 
 /**
- * @brief Marks multiple entities dirty through a fold.
- * @signature inline FWorld markManyDirty(const FMarkManyDirtyRequest &Request)
+ * @brief Records multiple dirty entities through a world update fold.
+ * @signature inline FWorld recordEntitiesDirty(const FRecordEntitiesDirtyRequest &Request)
  *
  * User Story: As relationship reducers, I need multi-entity dirty updates to
  * compose from the single-entity reducer rather than repeating nested calls.
  */
-inline FWorld markManyDirty(const FMarkManyDirtyRequest &Request) {
-  return foldArray<EntityKey, FWorld>(
-      Request.World, Request.Entities,
+inline FWorld recordEntitiesDirty(const FRecordEntitiesDirtyRequest &Request) {
+  return func::fold_array<EntityKey, FWorld>(
+      Request.Entities, Request.World,
       [](const FWorld &World, const EntityKey &Entity) {
-        return markDirty(createMarkDirtyRequest(World, Entity));
+        return recordEntityDirty(createRecordEntityDirtyRequest(World, Entity));
       });
 }
 
@@ -2503,6 +2066,19 @@ typedef std::function<FRelationship(const FRelationship &)>
 struct FRelationshipWrite {
   EntityKey Entity;
   FRelationshipTransform Transform;
+};
+
+enum class ERelationshipWriteKind {
+  AssignParent,
+  ClearParent,
+  AppendChild,
+  RemoveChild
+};
+
+struct FRelationshipWriteDeclaration {
+  EntityKey Entity;
+  ERelationshipWriteKind Kind;
+  EntityKey RelatedEntity;
 };
 
 /**
@@ -2537,11 +2113,77 @@ inline FRelationship appendRelationshipChild(const EntityKey &Child,
 /**
  * @brief Removes a child from one relationship value.
  */
-inline FRelationship eraseRelationshipChild(const EntityKey &Child,
+inline FRelationship removeRelationshipChildKey(const EntityKey &Child,
                                             const FRelationship &Value) {
   FRelationship Next = Value;
   Next.Children.Remove(Child);
   return Next;
+}
+
+/**
+ * @brief Expands one relationship write declaration into an ECS transform.
+ */
+inline FRelationshipTransform createRelationshipWriteTransform(
+    const FRelationshipWriteDeclaration &Declaration) {
+  const EntityKey RelatedEntity = Declaration.RelatedEntity;
+  const func::Maybe<FRelationshipTransform> Transform =
+      func::multi_match<ERelationshipWriteKind, FRelationshipTransform>(
+          Declaration.Kind,
+          {func::when<ERelationshipWriteKind, FRelationshipTransform>(
+               func::equals(ERelationshipWriteKind::AssignParent),
+               [RelatedEntity](const ERelationshipWriteKind &) {
+                 return FRelationshipTransform(
+                     [RelatedEntity](const FRelationship &Relationship) {
+                       return assignRelationshipParent(RelatedEntity,
+                                                       Relationship);
+                     });
+               }),
+           func::when<ERelationshipWriteKind, FRelationshipTransform>(
+               func::equals(ERelationshipWriteKind::ClearParent),
+               [](const ERelationshipWriteKind &) {
+                 return FRelationshipTransform(
+                     [](const FRelationship &Relationship) {
+                       return clearRelationshipParent(Relationship);
+                     });
+               }),
+           func::when<ERelationshipWriteKind, FRelationshipTransform>(
+               func::equals(ERelationshipWriteKind::AppendChild),
+               [RelatedEntity](const ERelationshipWriteKind &) {
+                 return FRelationshipTransform(
+                     [RelatedEntity](const FRelationship &Relationship) {
+                       return appendRelationshipChild(RelatedEntity,
+                                                      Relationship);
+                     });
+               }),
+           func::when<ERelationshipWriteKind, FRelationshipTransform>(
+               func::equals(ERelationshipWriteKind::RemoveChild),
+               [RelatedEntity](const ERelationshipWriteKind &) {
+                 return FRelationshipTransform(
+                     [RelatedEntity](const FRelationship &Relationship) {
+                       return removeRelationshipChildKey(RelatedEntity,
+                                                         Relationship);
+                     });
+               })});
+  check(Transform.hasValue);
+  return Transform.value;
+}
+
+/**
+ * @brief Expands one relationship write declaration into the fold payload.
+ */
+inline FRelationshipWrite createRelationshipWrite(
+    const FRelationshipWriteDeclaration &Declaration) {
+  return {Declaration.Entity, createRelationshipWriteTransform(Declaration)};
+}
+
+/**
+ * @brief Expands relationship write declarations through one composer.
+ */
+inline TArray<FRelationshipWrite> createRelationshipWrites(
+    std::initializer_list<FRelationshipWriteDeclaration> Declarations) {
+  const TArray<FRelationshipWriteDeclaration> DeclarationList(Declarations);
+  return func::map_array<FRelationshipWriteDeclaration, FRelationshipWrite>(
+      DeclarationList, createRelationshipWrite);
 }
 
 /**
@@ -2558,12 +2200,12 @@ inline FWorld applyRelationshipWrite(const FWorld &World,
 }
 
 /**
- * @brief Applies relationship writes through one fold.
+ * @brief Applies relationship writes through one world update fold.
  */
-inline FWorld foldRelationshipWrites(const FWorld &World,
-                                     const TArray<FRelationshipWrite> &Writes) {
-  return foldArray<FRelationshipWrite, FWorld>(
-      World, Writes, [](const FWorld &Acc, const FRelationshipWrite &Write) {
+inline FWorld applyRelationshipWrites(const FWorld &World,
+                                      const TArray<FRelationshipWrite> &Writes) {
+  return func::fold_array<FRelationshipWrite, FWorld>(
+      Writes, World, [](const FWorld &Acc, const FRelationshipWrite &Write) {
         return applyRelationshipWrite(Acc, Write);
       });
 }
@@ -2573,14 +2215,26 @@ inline EntityKey relationshipWriteEntity(const FRelationshipWrite &Write) {
 }
 
 /**
- * @brief Marks every entity touched by relationship writes through dirty fold.
+ * @brief Records every dirty entity touched by relationship writes.
  */
 inline FWorld
-markRelationshipWritesDirty(const FWorld &World,
+recordRelationshipWriteDirtyEntities(const FWorld &World,
                              const TArray<FRelationshipWrite> &Writes) {
-  return markManyDirty(createMarkManyDirtyRequest(
+  return recordEntitiesDirty(createRecordEntitiesDirtyRequest(
       World,
-      mapArray<FRelationshipWrite, EntityKey>(Writes, relationshipWriteEntity)));
+      func::map_array<FRelationshipWrite, EntityKey>(Writes, relationshipWriteEntity)));
+}
+
+/**
+ * @brief Applies declared relationship writes and marks touched entities dirty.
+ */
+inline FWorld applyRelationshipWriteDeclarations(
+    const FWorld &World,
+    std::initializer_list<FRelationshipWriteDeclaration> Declarations) {
+  const TArray<FRelationshipWrite> Writes =
+      createRelationshipWrites(Declarations);
+  return recordRelationshipWriteDirtyEntities(
+      applyRelationshipWrites(World, Writes), Writes);
 }
 
 /**
@@ -2591,9 +2245,10 @@ markRelationshipWritesDirty(const FWorld &World,
 inline FSpawnedEntity spawnEntity(FWorld World) {
   const FAllocatedEntity Allocated = allocateEntity(World.Allocator);
   World.Allocator = Allocated.Allocator;
-  const EntityKey Entity = entityKey(Allocated.Entity);
+  const EntityKey Entity = createEntityKey(Allocated.Entity);
   FSpawnedEntity Spawned;
-  Spawned.World = markDirty(createMarkDirtyRequest(World, Entity));
+  Spawned.World =
+      recordEntityDirty(createRecordEntityDirtyRequest(World, Entity));
   Spawned.Id = Allocated.Entity;
   Spawned.Entity = Entity;
   return Spawned;
@@ -2646,8 +2301,8 @@ inline FWorldTransform removeEntityComponentIndexes(const EntityKey &Entity) {
   return [Entity](const FWorld &World) {
     const FComponentTypeWorldTransformFactory RemoveFromType =
         removeEntityFromComponentType(Entity);
-    return foldArray<ComponentType, FWorld>(
-        World, mapKeys<ComponentType, ComponentTable>(World.Components),
+    return func::fold_array<ComponentType, FWorld>(
+        func::map_keys<ComponentType, ComponentTable>(World.Components), World,
         [RemoveFromType](const FWorld &Acc, const ComponentType &Type) {
           return RemoveFromType(Type)(Acc);
         });
@@ -2704,8 +2359,8 @@ removeEntityRelationshipChildIndexes(const EntityKey &Entity) {
   return [Entity](const FWorld &World) {
     const FEntityKeyWorldTransformFactory RemoveFromParent =
         removeEntityFromRelationshipParent(Entity);
-    return foldArray<EntityKey, FWorld>(
-        World, mapKeys<EntityKey, FRelationship>(World.Relationships),
+    return func::fold_array<EntityKey, FWorld>(
+        func::map_keys<EntityKey, FRelationship>(World.Relationships), World,
         [RemoveFromParent](const FWorld &Acc, const EntityKey &Parent) {
           return RemoveFromParent(Parent)(Acc);
         });
@@ -2720,12 +2375,13 @@ removeEntityRelationshipChildIndexes(const EntityKey &Entity) {
  * through one world-in/world-out request.
  */
 inline FWorld removeEntity(const FRemoveEntityRequest &Request) {
-  const FWorld World = foldWorldTransformCatalog(
+  const FWorld World = applyWorldTransformCatalog(
       Request.World,
       func::catalog(removeEntityComponentIndexes(Request.Entity),
                     removeEntityDirectIndexes(Request.Entity),
                     removeEntityRelationshipChildIndexes(Request.Entity)));
-  return markDirty(createMarkDirtyRequest(World, Request.Entity));
+  return recordEntityDirty(
+      createRecordEntityDirtyRequest(World, Request.Entity));
 }
 
 /**
@@ -2737,95 +2393,73 @@ inline FWorld removeEntity(const FRemoveEntityRequest &Request) {
  */
 inline FWorld despawnEntity(const FDespawnEntityRequest &Request) {
   FWorld World = Request.World;
-  World.Allocator = freeEntity(World.Allocator, Request.Id);
-  return removeEntity(createRemoveEntityRequest(World, entityKey(Request.Id)));
+  World.Allocator = freeEntityId(World.Allocator, Request.Id);
+  return removeEntity(createRemoveEntityRequest(World, createEntityKey(Request.Id)));
 }
 
 /**
  * @brief Sets a parent relationship using immutable world-in/world-out data.
- * @signature inline FWorld setParent(const FSetParentRequest &Request)
+ * @signature inline FWorld setRelationshipParent(const FSetRelationshipParentRequest &Request)
  *
  * User Story: As relationship ECS code, I need parent/child writes to stay a
  * pure request transform and mark both touched entities.
  */
-inline FWorld setParent(const FSetParentRequest &Request) {
-  TArray<FRelationshipWrite> Writes;
-  Writes.Add(
-      {Request.Child,
-       [Parent = Request.Parent](const FRelationship &Relationship) {
-         return assignRelationshipParent(Parent, Relationship);
-       }});
-  Writes.Add(
-      {Request.Parent,
-       [Child = Request.Child](const FRelationship &Relationship) {
-         return appendRelationshipChild(Child, Relationship);
-       }});
-  return markRelationshipWritesDirty(
-      foldRelationshipWrites(Request.World, Writes), Writes);
+inline FWorld setRelationshipParent(const FSetRelationshipParentRequest &Request) {
+  return applyRelationshipWriteDeclarations(
+      Request.World,
+      {{Request.Child, ERelationshipWriteKind::AssignParent, Request.Parent},
+       {Request.Parent, ERelationshipWriteKind::AppendChild, Request.Child}});
 }
 
 /**
  * @brief Adds one child to a parent relationship.
- * @signature inline FWorld addChild(const FAddChildRequest &Request)
+ * @signature inline FWorld addRelationshipChild(const FAddRelationshipChildRequest &Request)
  *
  * User Story: As ECS relationship code, adding children should compose through
  * the same parent-setting primitive instead of duplicating write logic.
  */
-inline FWorld addChild(const FAddChildRequest &Request) {
-  return setParent(createSetParentRequest(Request.World, Request.Child,
+inline FWorld addRelationshipChild(const FAddRelationshipChildRequest &Request) {
+  return setRelationshipParent(createSetRelationshipParentRequest(Request.World, Request.Child,
                                           Request.Parent));
 }
 
 /**
  * @brief Removes one child from a parent relationship.
- * @signature inline FWorld removeChild(const FRemoveChildRequest &Request)
+ * @signature inline FWorld removeRelationshipChild(const FRemoveRelationshipChildRequest &Request)
  *
  * User Story: As relationship ECS code, removing children should be a typed
  * unary transition over the world value.
  */
-inline FWorld removeChild(const FRemoveChildRequest &Request) {
-  TArray<FRelationshipWrite> Writes;
-  Writes.Add(
-      {Request.Parent,
-       [Child = Request.Child](const FRelationship &Relationship) {
-         return eraseRelationshipChild(Child, Relationship);
-       }});
-  Writes.Add({Request.Child, [](const FRelationship &Relationship) {
-               return clearRelationshipParent(Relationship);
-             }});
-  return markRelationshipWritesDirty(
-      foldRelationshipWrites(Request.World, Writes), Writes);
-}
-
-inline TArray<EntityKey> appendUniqueEntity(TArray<EntityKey> Entities,
-                                            const EntityKey &Entity) {
-  Entities.AddUnique(Entity);
-  return Entities;
+inline FWorld removeRelationshipChild(const FRemoveRelationshipChildRequest &Request) {
+  return applyRelationshipWriteDeclarations(
+      Request.World,
+      {{Request.Parent, ERelationshipWriteKind::RemoveChild, Request.Child},
+       {Request.Child, ERelationshipWriteKind::ClearParent, EntityKey()}});
 }
 
 /**
  * @brief Returns all known entities across domains, tags, and components.
  */
-inline TArray<EntityKey> allEntities(const FWorld &World) {
+inline TArray<EntityKey> collectEntityKeys(const FWorld &World) {
   const TArray<EntityKey> DomainEntities =
-      mapKeys<EntityKey, TArray<DomainPathKey>>(World.EntityDomains);
+      func::map_keys<EntityKey, TArray<DomainPathKey>>(World.EntityDomains);
   const TArray<EntityKey> TaggedEntities =
-      mapKeys<EntityKey, TArray<Tag>>(World.Tags);
+      func::map_keys<EntityKey, TArray<Tag>>(World.Tags);
   const TArray<ComponentType> ComponentTypes =
-      mapKeys<ComponentType, ComponentTable>(World.Components);
+      func::map_keys<ComponentType, ComponentTable>(World.Components);
   const TArray<EntityKey> ComponentEntities =
-      foldArray<ComponentType, TArray<EntityKey>>(
-      TArray<EntityKey>(), ComponentTypes,
+      func::fold_array<ComponentType, TArray<EntityKey>>(
+      ComponentTypes, TArray<EntityKey>(),
       [&World](const TArray<EntityKey> &Acc, const ComponentType &Type) {
         return func::match(
-            findMapValuePtr<ComponentType, ComponentTable>(World.Components,
+            func::find_map_value_ptr<ComponentType, ComponentTable>(World.Components,
                                                            Type),
             [&Acc](const ComponentTable *Table) {
-              return appendMapKeys<EntityKey, FComponentValue>(Acc, *Table);
+              return func::append_map_keys<EntityKey, FComponentValue>(Acc, *Table);
             },
             [&Acc]() { return Acc; });
       });
-  return uniqueArray<EntityKey>(concatArrays<EntityKey>(
+  return func::unique_array<EntityKey>(func::concat_arrays<EntityKey>(
       {DomainEntities, TaggedEntities, ComponentEntities}));
 }
 
@@ -2839,7 +2473,8 @@ inline TArray<EntityKey> allEntities(const FWorld &World) {
 inline FWorld setComponent(const FSetComponentRequest &Request) {
   FWorld World = Request.World;
   World.Components.FindOrAdd(Request.Type).Add(Request.Entity, Request.Value);
-  return markDirty(createMarkDirtyRequest(World, Request.Entity));
+  return recordEntityDirty(
+      createRecordEntityDirtyRequest(World, Request.Entity));
 }
 
 /**
@@ -2852,10 +2487,10 @@ inline FWorld setComponent(const FSetComponentRequest &Request) {
 inline func::Maybe<FComponentValue>
 getComponent(const FGetComponentRequest &Request) {
   return func::mbind(
-      findMapValuePtr<ComponentType, ComponentTable>(
+      func::find_map_value_ptr<ComponentType, ComponentTable>(
           Request.World.Components, Request.Type),
       [&Request](const ComponentTable *Table) {
-        return findMapValue<EntityKey, FComponentValue>(*Table,
+        return func::find_map_value<EntityKey, FComponentValue>(*Table,
                                                         Request.Entity);
       });
 }
@@ -2874,13 +2509,13 @@ inline bool hasComponent(const FHasComponentRequest &Request) {
 
 /**
  * @brief Builds a table-present branch for removing one component value.
- * @signature inline std::function<FWorld(const ComponentTable &)> removeComponentFromPresentTable(const FRemoveComponentRequest &Request)
+ * @signature inline std::function<FWorld(const ComponentTable &)> removeComponentFromTable(const FRemoveComponentRequest &Request)
  *
  * User Story: As ECS reducers, component removal should isolate the present
  * table branch so Maybe matching replaces imperative nullable checks.
  */
 inline std::function<FWorld(const ComponentTable &)>
-removeComponentFromPresentTable(const FRemoveComponentRequest &Request) {
+removeComponentFromTable(const FRemoveComponentRequest &Request) {
   return [&Request](const ComponentTable &Table) {
     FWorld Next = Request.World;
     ComponentTable UpdatedTable = Table;
@@ -2899,11 +2534,12 @@ removeComponentFromPresentTable(const FRemoveComponentRequest &Request) {
  */
 inline FWorld removeComponent(const FRemoveComponentRequest &Request) {
   const FWorld World = func::match(
-      findMapValue<ComponentType, ComponentTable>(Request.World.Components,
+      func::find_map_value<ComponentType, ComponentTable>(Request.World.Components,
                                                  Request.Type),
-      removeComponentFromPresentTable(Request),
+      removeComponentFromTable(Request),
       [&Request]() { return Request.World; });
-  return markDirty(createMarkDirtyRequest(World, Request.Entity));
+  return recordEntityDirty(
+      createRecordEntityDirtyRequest(World, Request.Entity));
 }
 
 /**
@@ -2912,7 +2548,8 @@ inline FWorld removeComponent(const FRemoveComponentRequest &Request) {
 inline FWorld setTag(const FSetTagRequest &Request) {
   FWorld World = Request.World;
   World.Tags.FindOrAdd(Request.Entity).AddUnique(Request.TagValue);
-  return markDirty(createMarkDirtyRequest(World, Request.Entity));
+  return recordEntityDirty(
+      createRecordEntityDirtyRequest(World, Request.Entity));
 }
 
 /**
@@ -2923,7 +2560,7 @@ inline FWorld setTag(const FSetTagRequest &Request) {
  * reusable array predicates.
  */
 inline bool hasTag(const FHasTagRequest &Request) {
-  return mapArrayContains<EntityKey, Tag>(Request.World.Tags, Request.Entity,
+  return func::map_array_contains<EntityKey, Tag>(Request.World.Tags, Request.Entity,
                                           Request.TagValue);
 }
 
@@ -2946,7 +2583,7 @@ inline FWorld setResource(const FSetResourceRequest &Request) {
  */
 inline func::Maybe<FComponentValue>
 getResource(const FGetResourceRequest &Request) {
-  return findMapValue<ResourceName, FComponentValue>(Request.World.Resources,
+  return func::find_map_value<ResourceName, FComponentValue>(Request.World.Resources,
                                                     Request.Name);
 }
 
@@ -2968,7 +2605,7 @@ inline FWorld pushEvent(const FPushEventRequest &Request) {
  */
 inline TArray<FComponentValue> readEvents(const FReadEventsRequest &Request) {
   return func::or_else(
-      findMapValue<EventType, TArray<FComponentValue>>(Request.World.Events,
+      func::find_map_value<EventType, TArray<FComponentValue>>(Request.World.Events,
                                                        Request.Type),
       TArray<FComponentValue>());
 }
@@ -2987,18 +2624,19 @@ inline FWorld clearEvents(FWorld World) {
 inline FWorld setEntityDomain(const FSetEntityDomainRequest &Request) {
   FWorld World = Request.World;
   World.EntityDomains.FindOrAdd(Request.Entity).AddUnique(Request.Domain);
-  return markDirty(createMarkDirtyRequest(World, Request.Entity));
+  return recordEntityDirty(
+      createRecordEntityDirtyRequest(World, Request.Entity));
 }
 
 /**
  * @brief Checks whether an entity belongs to a domain path.
- * @signature inline bool entityInDomain(const FEntityInDomainRequest &Request)
+ * @signature inline bool isEntityInDomain(const FEntityInDomainRequest &Request)
  *
  * User Story: As ECS domain queries, membership should be a Maybe lookup plus
  * an array predicate instead of borrowing sibling-domain logic.
  */
-inline bool entityInDomain(const FEntityInDomainRequest &Request) {
-  return mapArrayContains<EntityKey, DomainPathKey>(
+inline bool isEntityInDomain(const FEntityInDomainRequest &Request) {
+  return func::map_array_contains<EntityKey, DomainPathKey>(
       Request.World.EntityDomains, Request.Entity, Request.Domain);
 }
 
@@ -3010,10 +2648,10 @@ inline bool entityInDomain(const FEntityInDomainRequest &Request) {
  * reusable predicates and request-shaped readers.
  */
 inline TArray<EntityKey> queryComponents(const FQueryComponentsRequest &Request) {
-  return filterArray<EntityKey>(
+  return func::filter_array<EntityKey>(
       Request.Entities,
       [&Request](const EntityKey &Entity) {
-        return allArray<ComponentType>(
+        return func::all_array<ComponentType>(
             Request.Types,
             [&Request, &Entity](const ComponentType &Type) {
               return hasComponent(createHasComponentRequest(Request.World,
@@ -3032,7 +2670,7 @@ inline TArray<EntityKey> queryComponents(const FQueryComponentsRequest &Request)
 inline TArray<EntityKey>
 queryEntitiesByComponents(const FQueryEntitiesByComponentsRequest &Request) {
   return queryComponents(createQueryComponentsRequest(
-      Request.World, Request.Types, allEntities(Request.World)));
+      Request.World, Request.Types, collectEntityKeys(Request.World)));
 }
 
 /**
@@ -3044,8 +2682,8 @@ queryEntitiesByComponents(const FQueryEntitiesByComponentsRequest &Request) {
  */
 inline TArray<EntityKey>
 queryEntitiesByTag(const FQueryEntitiesByTagRequest &Request) {
-  const TArray<EntityKey> Entities = allEntities(Request.World);
-  return filterArray<EntityKey>(
+  const TArray<EntityKey> Entities = collectEntityKeys(Request.World);
+  return func::filter_array<EntityKey>(
       Entities,
       [&Request](const EntityKey &Entity) {
         return hasTag(createHasTagRequest(Request.World, Entity,
@@ -3062,19 +2700,19 @@ queryEntitiesByTag(const FQueryEntitiesByTagRequest &Request) {
  */
 inline TArray<EntityKey>
 queryEntitiesByDomain(const FQueryEntitiesByDomainRequest &Request) {
-  const TArray<EntityKey> Entities = allEntities(Request.World);
-  return filterArray<EntityKey>(
+  const TArray<EntityKey> Entities = collectEntityKeys(Request.World);
+  return func::filter_array<EntityKey>(
       Entities,
       [&Request](const EntityKey &Entity) {
-        return entityInDomain(createEntityInDomainRequest(
+        return isEntityInDomain(createEntityInDomainRequest(
             Request.World, Entity, Request.Domain));
       });
 }
 
 /**
- * @brief Returns entities dirtied by recent ECS world transforms.
+ * @brief Returns entities dirtied by recent world transforms.
  */
-inline TArray<EntityKey> queryDirtyEntities(const FWorld &World) {
+inline TArray<EntityKey> queryDirtyWorldEntities(const FWorld &World) {
   return World.DirtyEntities;
 }
 
@@ -3093,15 +2731,16 @@ inline TArray<EntityKey> queryChildren(const FQueryChildrenRequest &Request) {
 
 /**
  * @brief Gathers available component values for a system input entity.
- * @signature inline TMap<ComponentType, FComponentValue> gatherUnwrap(const FGatherUnwrapRequest &Request)
+ * @signature inline TMap<ComponentType, FComponentValue> gatherComponents(const FGatherComponentsRequest &Request)
  *
  * User Story: As ECS system execution, component gathering should fold over
  * requested types and let Maybe decide whether each component is present.
  */
 inline TMap<ComponentType, FComponentValue>
-gatherUnwrap(const FGatherUnwrapRequest &Request) {
-  return foldArray<ComponentType, TMap<ComponentType, FComponentValue>>(
-      TMap<ComponentType, FComponentValue>(), Request.Types,
+gatherComponents(const FGatherComponentsRequest &Request) {
+  return func::fold_array<ComponentType,
+                          TMap<ComponentType, FComponentValue>>(
+      Request.Types, TMap<ComponentType, FComponentValue>(),
       [&Request](const TMap<ComponentType, FComponentValue> &Acc,
                  const ComponentType &Type) {
         return func::match(
@@ -3185,15 +2824,15 @@ inline FRunSystemDescriptorRequest createRunSystemDescriptorRequest(
 
 /**
  * @brief Creates a reusable predicate that checks all required tags.
- * @signature inline std::function<bool(const EntityKey &)> requireTags(const FWorld &World, const TArray<Tag> &Tags)
+ * @signature inline std::function<bool(const EntityKey &)> requireEntityTags(const FWorld &World, const TArray<Tag> &Tags)
  *
  * User Story: As ECS system matching, tag requirements should be expressed as
  * a function factory returning a unary predicate over entities.
  */
 inline std::function<bool(const EntityKey &)>
-requireTags(const FWorld &World, const TArray<Tag> &Tags) {
+requireEntityTags(const FWorld &World, const TArray<Tag> &Tags) {
   return [&World, Tags](const EntityKey &Entity) {
-    return allArray<Tag>(
+    return func::all_array<Tag>(
         Tags,
         [&World, &Entity](const Tag &TagValue) {
           return hasTag(createHasTagRequest(World, Entity, TagValue));
@@ -3203,19 +2842,19 @@ requireTags(const FWorld &World, const TArray<Tag> &Tags) {
 
 /**
  * @brief Creates a reusable predicate that checks an optional domain guard.
- * @signature inline std::function<bool(const EntityKey &)> requireOptionalDomain(const FWorld &World, const func::Maybe<DomainPathKey> &Domain)
+ * @signature inline std::function<bool(const EntityKey &)> requireEntityOptionalDomain(const FWorld &World, const func::Maybe<DomainPathKey> &Domain)
  *
  * User Story: As ECS system matching, optional domain guards should be
  * first-class unary predicates that compose with tag predicates.
  */
 inline std::function<bool(const EntityKey &)>
-requireOptionalDomain(const FWorld &World,
+requireEntityOptionalDomain(const FWorld &World,
                       const func::Maybe<DomainPathKey> &Domain) {
   return [&World, Domain](const EntityKey &Entity) {
     return func::match(
         Domain,
         [&World, &Entity](const DomainPathKey &DomainValue) {
-          return entityInDomain(
+          return isEntityInDomain(
               createEntityInDomainRequest(World, Entity, DomainValue));
         },
         []() { return true; });
@@ -3233,8 +2872,8 @@ inline std::function<bool(const EntityKey &)>
 requireSystemDescriptor(const FWorld &World,
                         const FSystemDescriptor &Descriptor) {
   return func::all_pass<EntityKey>(
-      {requireTags(World, Descriptor.RequiredTags),
-       requireOptionalDomain(World, Descriptor.Domain)});
+      {requireEntityTags(World, Descriptor.RequiredTags),
+       requireEntityOptionalDomain(World, Descriptor.Domain)});
 }
 
 /**
@@ -3248,12 +2887,12 @@ inline FWorld runSystem(const FRunSystemRequest &Request) {
   const TArray<EntityKey> Matching = queryComponents(
       createQueryComponentsRequest(Request.World, Request.Components,
                                    Request.Entities));
-  return foldArray<EntityKey, FWorld>(
-      Request.World, Matching,
+  return func::fold_array<EntityKey, FWorld>(
+      Matching, Request.World,
       [&Request](const FWorld &World, const EntityKey &Entity) {
         return Request.System(createSystemExecutionPayload(
             World, Entity,
-            gatherUnwrap(createGatherUnwrapRequest(World, Entity,
+            gatherComponents(createGatherComponentsRequest(World, Entity,
                                                    Request.Components))));
       });
 }
@@ -3276,7 +2915,7 @@ runSystemDescriptor(const FRunSystemDescriptorRequest &Request) {
   const std::function<bool(const EntityKey &)> MatchesDescriptor =
       requireSystemDescriptor(Request.World, Request.Descriptor);
   const TArray<EntityKey> Matching =
-      filterArray<EntityKey>(ComponentMatches, MatchesDescriptor);
+      func::filter_array<EntityKey>(ComponentMatches, MatchesDescriptor);
   return runSystem(createRunSystemRequest(
       Request.World, Request.Descriptor.RequiredComponents, Matching,
       Request.Descriptor.System));
@@ -3294,59 +2933,6 @@ struct FValidateSystemSpecRequest {
 };
 
 /**
- * @brief Creates a reusable predicate that checks for a key in a map.
- * @signature template <typename Key, typename Value> inline std::function<bool(const Key &)> mapHasKey(const TMap<Key, Value> &Values)
- *
- * User Story: As registry validation, repeated existence checks should be one
- * map predicate factory rather than per-domain request/factory pairs.
- */
-template <typename Key, typename Value>
-inline std::function<bool(const Key &)>
-mapHasKey(const TMap<Key, Value> &Values) {
-  return [&Values](const Key &KeyValue) { return Values.Contains(KeyValue); };
-}
-
-/**
- * @brief Creates a reusable Either validator for required map keys.
- * @signature template <typename Key, typename Value> inline std::function<func::Either<FString, bool>(const Key &)> requireMapKey(const TMap<Key, Value> &Values, std::function<FString(const Key &)> ErrorMessage)
- *
- * User Story: As registry validation, missing-key failures should be a generic
- * validation function that composes with Either bind.
- */
-template <typename Key, typename Value>
-inline std::function<func::Either<FString, bool>(const Key &)> requireMapKey(
-    const TMap<Key, Value> &Values,
-    std::function<FString(const Key &)> ErrorMessage) {
-  const std::function<bool(const Key &)> Exists = mapHasKey<Key, Value>(Values);
-  return [Exists, ErrorMessage](const Key &KeyValue) {
-    return Exists(KeyValue) ? func::make_right<FString, bool>(true)
-                            : func::make_left<FString, bool>(
-                                  ErrorMessage(KeyValue));
-  };
-}
-
-/**
- * @brief Validates every item with an Either-returning unary validator.
- * @signature template <typename Item> inline func::Either<FString, bool> validateEach(const TArray<Item> &Items, std::function<func::Either<FString, bool>(const Item &)> Validate, int32 Index = 0)
- *
- * User Story: As ECS validation, list validation should reuse one recursive
- * Either pipeline rather than open-coded loops.
- */
-template <typename Item>
-inline func::Either<FString, bool> validateEach(
-    const TArray<Item> &Items,
-    std::function<func::Either<FString, bool>(const Item &)> Validate,
-    int32 Index = 0) {
-  return Index >= Items.Num()
-             ? func::make_right<FString, bool>(true)
-             : func::ebind(Validate(Items[Index]),
-                           [&Items, Validate, Index](const bool &) {
-                             return validateEach<Item>(Items, Validate,
-                                                       Index + 1);
-                           });
-}
-
-/**
  * @brief Creates a reusable domain-exists validator for a registry.
  * @signature inline std::function<func::Either<FString, bool>(const DomainPathKey &)> requireDomain(const FDomainRegistry &Registry)
  *
@@ -3355,7 +2941,7 @@ inline func::Either<FString, bool> validateEach(
  */
 inline std::function<func::Either<FString, bool>(const DomainPathKey &)>
 requireDomain(const FDomainRegistry &Registry) {
-  return requireMapKey<DomainPathKey, FDomainNode>(
+  return func::require_map_key<DomainPathKey, FDomainNode>(
       Registry.Nodes, [](const DomainPathKey &Domain) {
         return FString::Printf(TEXT("Missing ECS domain: %s"), *Domain);
       });
@@ -3370,7 +2956,7 @@ requireDomain(const FDomainRegistry &Registry) {
  */
 inline std::function<func::Either<FString, bool>(const ComponentType &)>
 requireComponentSchema(const FDomainRegistry &Registry) {
-  return requireMapKey<ComponentType, FComponentSchema>(
+  return func::require_map_key<ComponentType, FComponentSchema>(
       Registry.ComponentSchemas, [](const ComponentType &Type) {
         return FString::Printf(TEXT("Missing ECS component schema: %s"), *Type);
       });
@@ -3411,7 +2997,7 @@ createValidateSystemSpecRequest(const FDomainRegistry &Registry,
  */
 inline func::Either<FString, bool>
 validateEntityDomain(const FValidateEntityDomainRequest &Request) {
-  return entityInDomain(createEntityInDomainRequest(
+  return isEntityInDomain(createEntityInDomainRequest(
              Request.World, Request.Entity, Request.Domain))
              ? func::make_right<FString, bool>(true)
              : func::make_left<FString, bool>(FString::Printf(
@@ -3424,28 +3010,35 @@ validateEntityDomain(const FValidateEntityDomainRequest &Request) {
  * @signature inline func::Either<FString, bool> validateSystemSpec(const FValidateSystemSpecRequest &Request)
  *
  * User Story: As registry validation, system spec checks should compose domain
- * and component validation through functional_core Either semantics.
+ * and component validation through ue_fp Either semantics.
  */
 inline func::Either<FString, bool>
 validateSystemSpec(const FValidateSystemSpecRequest &Request) {
   return func::ebind(
       requireDomain(Request.Registry)(Request.Spec.Domain),
       [&Request](const bool &) {
-        return validateEach<ComponentType>(
-            Request.Spec.RequiredComponents,
-            requireComponentSchema(Request.Registry));
+        return func::fold_either_array<FString, ComponentType, bool>(
+            Request.Spec.RequiredComponents, true,
+            [&Request](const bool &, const ComponentType &Type) {
+              return requireComponentSchema(Request.Registry)(Type);
+            });
       });
 }
 
 typedef func::ArgDispatcher<int32, FComponentValue, FString>
     FComponentValueFormatter;
 
+struct FComponentValueFormatCase {
+  EComponentValueKind Kind;
+  std::function<FString(const FComponentValue &)> Format;
+};
+
 /**
  * @brief Converts a component value kind into a dispatcher key.
  * @signature inline int32 componentValueKindKey(EComponentValueKind Kind)
  *
  * User Story: As ECS inspection code, enum formatting should use a stable
- * dispatcher key that composes with functional_core dispatch helpers.
+ * dispatcher key that composes with ue_fp dispatch helpers.
  */
 inline int32 componentValueKindKey(EComponentValueKind Kind) {
   return static_cast<int32>(Kind);
@@ -3469,6 +3062,22 @@ registerComponentValueFormatter(
 }
 
 /**
+ * @brief Builds the formatter dispatcher from registered case declarations.
+ */
+inline FComponentValueFormatter createComponentValueFormatter(
+    std::initializer_list<FComponentValueFormatCase> Cases) {
+  const TArray<FComponentValueFormatCase> Declarations(Cases);
+  return func::fold_array<FComponentValueFormatCase, FComponentValueFormatter>(
+      Declarations,
+      func::create_arg_dispatcher<int32, FComponentValue, FString>(),
+      [](const FComponentValueFormatter &Dispatcher,
+         const FComponentValueFormatCase &Case) {
+        return registerComponentValueFormatter(Case.Kind,
+                                               Case.Format)(Dispatcher);
+      });
+}
+
+/**
  * @brief Builds the component value formatter through functional composition.
  * @signature inline FComponentValueFormatter createComponentValueFormatter()
  *
@@ -3476,53 +3085,41 @@ registerComponentValueFormatter(
  * dispatcher assembled from reusable registrations instead of a branch ladder.
  */
 inline FComponentValueFormatter createComponentValueFormatter() {
-  return (func::pipe(
-              func::create_arg_dispatcher<int32, FComponentValue, FString>())
-          | registerComponentValueFormatter(
-                EComponentValueKind::None,
-                [](const FComponentValue &) { return FString(TEXT("None")); })
-          | registerComponentValueFormatter(
-                EComponentValueKind::Bool,
-                [](const FComponentValue &Value) {
-                  return Value.BoolValue ? FString(TEXT("true"))
-                                         : FString(TEXT("false"));
-                })
-          | registerComponentValueFormatter(
-                EComponentValueKind::Int,
-                [](const FComponentValue &Value) {
-                  return FString::Printf(TEXT("%lld"), Value.IntValue);
-                })
-          | registerComponentValueFormatter(
-                EComponentValueKind::Float,
-                [](const FComponentValue &Value) {
-                  return FString::SanitizeFloat(Value.FloatValue);
-                })
-          | registerComponentValueFormatter(
-                EComponentValueKind::Text,
-                [](const FComponentValue &Value) { return Value.TextValue; })
-          | registerComponentValueFormatter(
-                EComponentValueKind::Vec2,
-                [](const FComponentValue &Value) {
-                  return Value.Vec2Value.ToString();
-                })
-          | registerComponentValueFormatter(
-                EComponentValueKind::Vec3,
-                [](const FComponentValue &Value) {
-                  return Value.Vec3Value.ToString();
-                })
-          | registerComponentValueFormatter(
-                EComponentValueKind::Map,
-                [](const FComponentValue &Value) {
-                  return FString::Printf(TEXT("Map(len=%d)"),
-                                         Value.MapValue.Num());
-                })
-          | registerComponentValueFormatter(
-                EComponentValueKind::List,
-                [](const FComponentValue &Value) {
-                  return FString::Printf(TEXT("List(len=%d)"),
-                                         Value.ListValue.Num());
-                }))
-      .val;
+  return createComponentValueFormatter(
+      {{EComponentValueKind::None,
+        [](const FComponentValue &) { return FString(TEXT("None")); }},
+       {EComponentValueKind::Bool,
+        [](const FComponentValue &Value) {
+          return Value.BoolValue ? FString(TEXT("true"))
+                                 : FString(TEXT("false"));
+        }},
+       {EComponentValueKind::Int,
+        [](const FComponentValue &Value) {
+          return FString::Printf(TEXT("%lld"), Value.IntValue);
+        }},
+       {EComponentValueKind::Float,
+        [](const FComponentValue &Value) {
+          return FString::SanitizeFloat(Value.FloatValue);
+        }},
+       {EComponentValueKind::Text,
+        [](const FComponentValue &Value) { return Value.TextValue; }},
+       {EComponentValueKind::Vec2,
+        [](const FComponentValue &Value) {
+          return Value.Vec2Value.ToString();
+        }},
+       {EComponentValueKind::Vec3,
+        [](const FComponentValue &Value) {
+          return Value.Vec3Value.ToString();
+        }},
+       {EComponentValueKind::Map,
+        [](const FComponentValue &Value) {
+          return FString::Printf(TEXT("Map(len=%d)"), Value.MapValue.Num());
+        }},
+       {EComponentValueKind::List,
+        [](const FComponentValue &Value) {
+          return FString::Printf(TEXT("List(len=%d)"),
+                                 Value.ListValue.Num());
+        }}});
 }
 
 /**
@@ -3590,7 +3187,7 @@ inline bool operator!=(const FWorldInspection &Left,
  */
 inline FWorldInspection inspectWorld(const FWorld &World) {
   FWorldInspection Inspection;
-  Inspection.EntityCount = allEntities(World).Num();
+  Inspection.EntityCount = collectEntityKeys(World).Num();
   Inspection.ComponentTypeCount = World.Components.Num();
   Inspection.ResourceCount = World.Resources.Num();
   Inspection.EventTypeCount = World.Events.Num();
@@ -3657,15 +3254,15 @@ inline FEntityInspection createEntityInspection(const EntityKey &Entity) {
 
 /**
  * @brief Builds a selector for entity tags used by inspection.
- * @signature inline FTagInspectionSelector inspectTagsInWorld(const FWorld &World)
+ * @signature inline FTagInspectionSelector selectEntityTagsForInspection(const FWorld &World)
  *
  * User Story: As display inspection code, tag lookup should be a unary selector
  * over entity keys instead of nullable pointer logic.
  */
-inline FTagInspectionSelector inspectTagsInWorld(const FWorld &World) {
+inline FTagInspectionSelector selectEntityTagsForInspection(const FWorld &World) {
   return [&World](const EntityKey &Entity) {
     return func::match(
-        findMapValue<EntityKey, TArray<Tag>>(World.Tags, Entity),
+        func::find_map_value<EntityKey, TArray<Tag>>(World.Tags, Entity),
         [](const TArray<Tag> &Tags) { return Tags; },
         []() { return TArray<Tag>(); });
   };
@@ -3673,15 +3270,15 @@ inline FTagInspectionSelector inspectTagsInWorld(const FWorld &World) {
 
 /**
  * @brief Builds a selector for entity domains used by inspection.
- * @signature inline FDomainInspectionSelector inspectDomainsInWorld(const FWorld &World)
+ * @signature inline FDomainInspectionSelector selectEntityDomainsForInspection(const FWorld &World)
  *
  * User Story: As display inspection code, domain lookup should be a unary
  * selector over entity keys instead of nullable pointer logic.
  */
-inline FDomainInspectionSelector inspectDomainsInWorld(const FWorld &World) {
+inline FDomainInspectionSelector selectEntityDomainsForInspection(const FWorld &World) {
   return [&World](const EntityKey &Entity) {
     return func::match(
-        findMapValue<EntityKey, TArray<DomainPathKey>>(World.EntityDomains,
+        func::find_map_value<EntityKey, TArray<DomainPathKey>>(World.EntityDomains,
                                                       Entity),
         [](const TArray<DomainPathKey> &Domains) { return Domains; },
         []() { return TArray<DomainPathKey>(); });
@@ -3690,13 +3287,13 @@ inline FDomainInspectionSelector inspectDomainsInWorld(const FWorld &World) {
 
 /**
  * @brief Builds curried component inspection transforms for one world.
- * @signature inline FEntityComponentInspectionFactory inspectComponentsInWorld(const FWorld &World)
+ * @signature inline FEntityComponentInspectionFactory selectEntityComponentsForInspection(const FWorld &World)
  *
  * User Story: As ECS inspection code, component display data should fold
  * through curried transforms instead of component table loops.
  */
 inline FEntityComponentInspectionFactory
-inspectComponentsInWorld(const FWorld &World) {
+selectEntityComponentsForInspection(const FWorld &World) {
   return [&World](const EntityKey &Entity) {
     return [&World, Entity](const ComponentType &Type) {
       return [&World, Entity, Type](const FEntityInspection &Inspection) {
@@ -3715,19 +3312,20 @@ inspectComponentsInWorld(const FWorld &World) {
 
 /**
  * @brief Inspects one entity's tags, domains, and component values.
- * @signature inline FEntityInspection inspect(const FWorld &World, const EntityKey &Entity)
+ * @signature inline FEntityInspection inspectEntity(const FWorld &World, const EntityKey &Entity)
  *
  * User Story: As display code, entity inspection should derive read-only
  * projection data from selectors and ECS lookups without owning logic.
  */
-inline FEntityInspection inspect(const FWorld &World, const EntityKey &Entity) {
+inline FEntityInspection inspectEntity(const FWorld &World, const EntityKey &Entity) {
   FEntityInspection Inspection = createEntityInspection(Entity);
-  Inspection.Tags = inspectTagsInWorld(World)(Entity);
-  Inspection.Domains = inspectDomainsInWorld(World)(Entity);
+  Inspection.Tags = selectEntityTagsForInspection(World)(Entity);
+  Inspection.Domains = selectEntityDomainsForInspection(World)(Entity);
   const FComponentInspectionTransformFactory AddComponent =
-      inspectComponentsInWorld(World)(Entity);
-  return foldArray<ComponentType, FEntityInspection>(
-      Inspection, mapKeys<ComponentType, ComponentTable>(World.Components),
+      selectEntityComponentsForInspection(World)(Entity);
+  return func::fold_array<ComponentType, FEntityInspection>(
+      func::map_keys<ComponentType, ComponentTable>(World.Components),
+      Inspection,
       [AddComponent](const FEntityInspection &Acc,
                      const ComponentType &Type) {
         return AddComponent(Type)(Acc);

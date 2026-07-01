@@ -114,7 +114,7 @@ FTownspersonInteractionOverlapViewModel ReduceInteractionOverlap(
 
 TArray<FTownspersonSeed> ReduceByInteractionIntent(
     const FTownspersonIntentProjectionRequest &Request) {
-  return ecs::filterArray<FTownspersonSeed>(
+  return func::filter_array<FTownspersonSeed>(
       Request.Townspeople, [&Request](const FTownspersonSeed &Townsperson) {
         return Townsperson.InteractionIntent == Request.Intent;
       });

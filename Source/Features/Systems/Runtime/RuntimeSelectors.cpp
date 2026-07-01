@@ -293,28 +293,28 @@ SelectBotActiveGoalsById(const FRuntimeState &State) {
   return BotGoalSelectors::SelectActiveGoalsById(State.BotGoals);
 }
 
-const ecs::FWorld &SelectEcsWorld(const FRuntimeState &State) {
+const ecs::FWorld &SelectWorld(const FRuntimeState &State) {
   return State.Ecs.World;
 }
 
 func::Maybe<ecs::FComponentValue>
-SelectEcsComponent(const FRuntimeState &State, const ecs::EntityKey &Entity,
+SelectComponent(const FRuntimeState &State, const ecs::EntityKey &Entity,
                    const ecs::ComponentType &Type) {
   return ecs::getComponent(
-      ecs::createGetComponentRequest(SelectEcsWorld(State), Entity, Type));
+      ecs::createGetComponentRequest(SelectWorld(State), Entity, Type));
 }
 
-bool SelectEcsEntityInDomain(const FRuntimeState &State,
+bool SelectEntityInDomain(const FRuntimeState &State,
                              const ecs::EntityKey &Entity,
                              const ecs::DomainPathKey &Domain) {
-  return ecs::entityInDomain(ecs::createEntityInDomainRequest(
-      SelectEcsWorld(State), Entity, Domain));
+  return ecs::isEntityInDomain(ecs::createEntityInDomainRequest(
+      SelectWorld(State), Entity, Domain));
 }
 
 ecs::FEntityInspection
-SelectEcsEntityInspection(const FRuntimeState &State,
+SelectEntityInspection(const FRuntimeState &State,
                           const ecs::EntityKey &Entity) {
-  return ecs::inspect(SelectEcsWorld(State), Entity);
+  return ecs::inspectEntity(SelectWorld(State), Entity);
 }
 
 } // namespace RuntimeSelectors

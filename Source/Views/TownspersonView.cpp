@@ -4,6 +4,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Core/frmt.hpp"
 #include "Engine/SkeletalMesh.h"
 #include "Features/Systems/Bots/Position/BotPositionActions.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
@@ -185,8 +186,9 @@ void ATownspersonView::ShowDialogueReply(const FString &Reply) {
   const ForbocAI::Demo::Data::FRuntimeTextSettings &Text =
       FG::RuntimeSelectors::SelectRuntimeText(
           FG::Store::GetStore().getState());
-  UE_LOG(LogTemp, Display, TEXT("%s"),
-         *FString::Printf(*Text.NpcReplyLog, *Reply));
+  const FString ReplyLog =
+      frmt::RuntimeString(Text.NpcReplyLog, frmt::Args({frmt::Arg(Reply)}));
+  UE_LOG(LogTemp, Display, TEXT("%s"), *ReplyLog);
 }
 
 bool ATownspersonView::IsPlayerNearby() const { return bPlayerNearby; }
@@ -234,9 +236,10 @@ void ATownspersonView::RefreshText() {
   const ForbocAI::Demo::Data::FRuntimeTextSettings &Text =
       FG::RuntimeSelectors::SelectRuntimeText(
           FG::Store::GetStore().getState());
-  NameText->SetText(FText::FromString(
-      FString::Printf(*Text.TownspersonNameRoleFormat, *TownspersonName,
-                      *TownspersonRole)));
+  NameText->SetText(FText::FromString(frmt::RuntimeString(
+      Text.TownspersonNameRoleFormat,
+      frmt::Args({frmt::Arg(TownspersonName),
+                  frmt::Arg(TownspersonRole)}))));
   PromptText->SetText(FText::FromString(
       ObserveTownspersonViewDefaults({InteractionPrompt, DefaultPlayerLine})
           .InteractionPrompt));

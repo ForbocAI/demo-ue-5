@@ -1,6 +1,7 @@
 
 #include "Features/Systems/Speech/SpeechAdapters.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Core/frmt.hpp"
 #include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
@@ -46,8 +47,9 @@ void USpeechComponent::SpeakText(const FString &Text) {
   PrimaryComponentTick.SetTickFunctionEnable(true);
   OnSpeechStarted(Text);
 
-  const FString StartLog = FString::Printf(
-      *RuntimeSettings.SpeechStartLogFormat, ActivePhonemes.Num(), *Text);
+  const FString StartLog = frmt::RuntimeString(
+      RuntimeSettings.SpeechStartLogFormat,
+      frmt::Args({frmt::Arg(ActivePhonemes.Num()), frmt::Arg(Text)}));
   UE_LOG(LogTemp, Display, TEXT("%s"), *StartLog);
 
   check(!TTSEndpoint.IsEmpty());
@@ -59,9 +61,10 @@ void USpeechComponent::SpeakText(const FString &Text) {
   Request->SetVerb(RuntimeSettings.TtsVerb);
   Request->SetHeader(RuntimeSettings.TtsContentTypeHeader,
                      RuntimeSettings.TtsContentType);
-  Request->SetContentAsString(FString::Printf(
-      *RuntimeSettings.TtsRequestFormat,
-      *Text.ReplaceCharWithEscapedChar(), SpeechRate));
+  Request->SetContentAsString(frmt::RuntimeString(
+      RuntimeSettings.TtsRequestFormat,
+      frmt::Args({frmt::Arg(Text.ReplaceCharWithEscapedChar()),
+                  frmt::Arg(SpeechRate)})));
 
   Request->OnProcessRequestComplete().BindLambda(
       [this](FHttpRequestPtr Req, FHttpResponsePtr Resp, bool bSuccess) {
@@ -73,8 +76,9 @@ void USpeechComponent::SpeakText(const FString &Text) {
 
         const TArray<uint8> &AudioData = Resp->GetContent();
         check(AudioData.Num() > RuntimeSettings.MinimumAudioBytes);
-        const FString AudioLog = FString::Printf(
-            *RuntimeSettings.SpeechAudioReceivedLogFormat, AudioData.Num());
+        const FString AudioLog = frmt::RuntimeString(
+            RuntimeSettings.SpeechAudioReceivedLogFormat,
+            frmt::Args({frmt::Arg(AudioData.Num())}));
         UE_LOG(LogTemp, Display, TEXT("%s"), *AudioLog);
       });
 

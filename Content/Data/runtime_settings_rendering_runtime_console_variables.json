@@ -1,0 +1,123 @@
+{
+  "console_variables": [
+    {
+      "name": "r.AntiAliasingMethod",
+      "value_kind": "profile_int",
+      "profile_field": "anti_aliasing_method",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.PostProcessAAQuality",
+      "value_kind": "profile_int",
+      "profile_field": "post_process_aa_quality",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.TemporalAA.Upsampling",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.ScreenPercentage",
+      "value_kind": "profile_float",
+      "profile_field": "screen_percentage",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.ViewDistanceScale",
+      "value_kind": "profile_float",
+      "profile_field": "view_distance_scale",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "foliage.DensityScale",
+      "value_kind": "profile_float",
+      "profile_field": "foliage_density_scale",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "grass.DensityScale",
+      "value_kind": "profile_float",
+      "profile_field": "grass_density_scale",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.MotionBlurQuality",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.BloomQuality",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.DepthOfFieldQuality",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.AmbientOcclusionLevels",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.SSR.Quality",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Shadow.CSM.MaxCascades",
+      "value_kind": "profile_int",
+      "profile_field": "shadow_cascades",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Shadow.MaxResolution",
+      "value_kind": "profile_int",
+      "profile_field": "shadow_max_resolution",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Shadow.RadiusThreshold",
+      "value_kind": "fixed_float",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.02
+    },
+    {
+      "name": "r.MipMapLODBias",
+      "value_kind": "fixed_float",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 2.0
+    },
+    {
+      "name": "r.Streaming.MipBias",
+      "value_kind": "fixed_float",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 2.0
+    }
+  ]
+}

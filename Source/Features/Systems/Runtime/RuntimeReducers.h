@@ -12,7 +12,7 @@ namespace RuntimeReducers {
 /**
  * @brief Projects reducer-owned root state into the neutral ECS world.
  */
-FRuntimeState ReduceRuntimeEcsProjected(const FRuntimeState &State);
+FRuntimeState ReduceRuntimeProjected(const FRuntimeState &State);
 
 /**
  * @brief Reduces a UE-observed interaction source into a dialogue request.
@@ -62,7 +62,7 @@ inline FRuntimeState ReduceRuntimeHydrated(
     const FRuntimeState &State, const rtk::PayloadAction<FRuntimeState> &Action) {
   return (func::pipe(State) |
           [&Action](FRuntimeState) -> FRuntimeState {
-            return ReduceRuntimeEcsProjected(Action.PayloadValue);
+            return ReduceRuntimeProjected(Action.PayloadValue);
           })
       .val;
 }

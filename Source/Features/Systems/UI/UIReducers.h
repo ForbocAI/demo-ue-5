@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core/functional_core.hpp"
+#include "Core/frmt.hpp"
+#include "Core/ue_fp.hpp"
 #include "Core/rtk.hpp"
 #include "Features/Systems/UI/UITypes.h"
 
@@ -50,8 +51,11 @@ inline ForbocAI::Demo::UI::FChatMessageViewModel
 ReduceChatMessageViewModel(
     const FUIChatMessageViewModelRequest &Request,
     const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
-  return {FString::Printf(*Settings.ChatMessageFormat, *Request.Role,
-                          *Request.Text),
+  return {frmt::RuntimeString(
+              Settings.ChatMessageFormat,
+              frmt::Args(
+                  {frmt::Arg(Request.Role),
+                   frmt::Arg(Request.Text)})),
           ReduceChatColorForRole(Request.Role, Settings)};
 }
 
@@ -188,10 +192,19 @@ ReduceRuntimeConversationViewModel(
     const FUIRuntimeConversationViewModelRequest &Request,
     const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
   return detail::ReduceRuntimeConversationViewModel(
-      {FString::Printf(*Settings.ConversationTitleFormat, *Request.NpcName,
-                       *Request.Role),
-       FString::Printf(*Settings.PlayerLineFormat, *Request.PlayerLine),
-       FString::Printf(*Settings.NpcReplyFormat, *Request.NpcReply)},
+      {frmt::RuntimeString(
+           Settings.ConversationTitleFormat,
+           frmt::Args(
+               {frmt::Arg(Request.NpcName),
+                frmt::Arg(Request.Role)})),
+       frmt::RuntimeString(
+           Settings.PlayerLineFormat,
+           frmt::Args(
+               {frmt::Arg(Request.PlayerLine)})),
+       frmt::RuntimeString(
+           Settings.NpcReplyFormat,
+           frmt::Args(
+               {frmt::Arg(Request.NpcReply)}))},
       Settings);
 }
 
@@ -203,7 +216,10 @@ inline FUIBindDialogueViewModel ReduceBindDialogueViewModel(
   Model.Persona = Request.Persona;
   Model.ConnectionMessage = ReduceChatMessageViewModel(
       {Settings.SystemRoleLabel,
-       FString::Printf(*Settings.ConnectionMessageFormat, *Request.Persona)},
+       frmt::RuntimeString(
+           Settings.ConnectionMessageFormat,
+           frmt::Args(
+               {frmt::Arg(Request.Persona)}))},
       Settings);
   Model.HistoryMessages = ReduceChatHistoryViewModels({Request.History},
                                                       Settings);

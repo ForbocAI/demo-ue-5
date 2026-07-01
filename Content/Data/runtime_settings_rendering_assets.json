@@ -1,0 +1,6 @@
+{
+  "rendering_assets": {
+    "level_cube_mesh_path": "/Engine/BasicShapes/Cube.Cube",
+    "blockout_material_path": "/Engine/EngineMaterials/EmissiveTexturedMaterial.EmissiveTexturedMaterial"
+  }
+}

@@ -3,7 +3,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Components/AudioComponent.h"
-#include "Core/functional_core.hpp"
+#include "Core/ue_fp.hpp"
 #include "Features/Components/Data/DataTypes.h"
 #include "Sound/SoundWave.h"
 #include "SpeechAdapters.generated.h"
@@ -202,31 +202,43 @@ inline bool ContainsCharacter(const FString &Characters, TCHAR Character) {
   return Characters.Contains(UpperString(Character));
 }
 
+inline func::Maybe<FString> LookupVowelPhoneme(
+    TCHAR Ch,
+    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+  const FString Character = UpperString(FChar::ToUpper(Ch));
+  return func::fmap(
+      func::find_indexed(
+          Settings.VowelPhonemes,
+          static_cast<size_t>(Settings.VowelPhonemes.Num()),
+          [Character](
+              const ForbocAI::Demo::Data::FSpeechVowelPhonemeSettings
+                  &Mapping) { return Mapping.Character == Character; }),
+      [](const ForbocAI::Demo::Data::FSpeechVowelPhonemeSettings &Mapping) {
+        return Mapping.Phoneme;
+      });
+}
+
 inline func::Maybe<FString> EstimatePhonemeForChar(
     TCHAR Ch,
     const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
   const TCHAR Upper = FChar::ToUpper(Ch);
-  return func::multi_match<TCHAR, FString>(
-      Upper,
-      {
-          func::when<TCHAR, FString>(
-              [&Settings](TCHAR Candidate) {
-                return ContainsCharacter(Settings.VowelCharacters,
-                                         Candidate);
-              },
-              [&Settings](TCHAR Candidate) {
-                return FString::Printf(*Settings.VowelPhonemeFormat,
-                                       Candidate, Candidate);
-              }),
-          func::when<TCHAR, FString>(
-              [&Settings](TCHAR Candidate) {
-                return ContainsCharacter(Settings.SilenceCharacters,
-                                         Candidate);
-              },
-              [&Settings](TCHAR) { return Settings.SilencePhoneme; }),
-          func::when<TCHAR, FString>(
-              [](TCHAR Candidate) { return FChar::IsAlpha(Candidate); },
-              [](TCHAR Candidate) { return UpperString(Candidate); }),
+  return func::match(
+      LookupVowelPhoneme(Upper, Settings),
+      [](const FString &Phoneme) { return func::just(Phoneme); },
+      [&Settings, Upper]() {
+        return func::multi_match<TCHAR, FString>(
+            Upper,
+            {
+                func::when<TCHAR, FString>(
+                    [&Settings](TCHAR Candidate) {
+                      return ContainsCharacter(Settings.SilenceCharacters,
+                                               Candidate);
+                    },
+                    [&Settings](TCHAR) { return Settings.SilencePhoneme; }),
+                func::when<TCHAR, FString>(
+                    [](TCHAR Candidate) { return FChar::IsAlpha(Candidate); },
+                    [](TCHAR Candidate) { return UpperString(Candidate); }),
+            });
       });
 }
 

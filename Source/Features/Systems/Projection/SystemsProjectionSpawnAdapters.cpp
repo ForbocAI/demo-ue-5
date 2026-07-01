@@ -5,8 +5,23 @@
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
+namespace ComponentsAdapters {
+
+template <>
+struct TComponentSourceProjector<FSpawnPointPayload> {
+  ecs::FComponentValue operator()(const FSpawnPointPayload &Spawn) const {
+    return ComponentValueMap({{"Location", Spawn.Location},
+                              {"Rotation", Spawn.Rotation},
+                              {"AnchorLabel", Spawn.AnchorLabel}});
+  }
+};
+
+} // namespace ComponentsAdapters
+
 namespace SystemsProjectionSpawnAdapters {
 namespace {
+
+using ComponentsAdapters::RegisteredComponentGroups;
 
 /**
  * @brief Returns the stable ECS entity key for player spawn projection.
@@ -30,33 +45,20 @@ TArray<TArray<FString>> BuildSpawnDomains() {
           {TEXT("Entities"), TEXT("Characters"), TEXT("Player")}};
 }
 
-/**
- * @brief Builds ECS component steps from spawn slice state.
- * @signature TArray<ComponentsAdapters::FEcsComponentProjectionBinding> BuildSpawnComponentBindings(const FSpawnState &Spawn)
- *
- * User Story: As the runtime reducer, spawn payload fields should be projected
- * into spatial ECS components with no view-side calculations.
- */
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-BuildSpawnComponentBindings(const FSpawnState &Spawn) {
-  return {{TEXT("Components/Spatial/Location"),
-           ecs::vec3Value(Spawn.PlayerSpawn.Location)},
-          {TEXT("Components/Spatial/Rotation"),
-           ComponentsAdapters::RotationValue(Spawn.PlayerSpawn.Rotation)},
-          {TEXT("Components/Level/AnchorLabel"),
-           ecs::textValue(Spawn.PlayerSpawn.AnchorLabel)}};
-}
-
 } // namespace
 
-ecs::FWorld ProjectSpawn(const FProjectSpawnEcsPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+ecs::FWorld ProjectSpawn(const FProjectSpawnPayload &Payload) {
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
-      [](const FProjectSpawnEcsPayload &) { return SpawnEntityKey(); },
-      [](const FProjectSpawnEcsPayload &) { return BuildSpawnDomains(); },
-      [](const FProjectSpawnEcsPayload &PayloadValue) {
-        return BuildSpawnComponentBindings(PayloadValue.Spawn);
-      });
+      func::constant<ecs::EntityKey>(SpawnEntityKey()),
+      func::constant<TArray<TArray<FString>>>(BuildSpawnDomains()),
+      [](const FProjectSpawnPayload &PayloadValue)
+          -> const FSpawnPointPayload & {
+        return PayloadValue.Spawn.PlayerSpawn;
+      },
+      RegisteredComponentGroups<FSpawnPointPayload>(
+          {{"Components/Spatial", {"Location", "Rotation"}},
+           {"Components/Level", {"AnchorLabel"}}}));
 }
 
 } // namespace SystemsProjectionSpawnAdapters

@@ -108,7 +108,7 @@ FRuntimeState CreateInitialState() {
           State.Interaction.NoTownspersonMessage);
   State.Townspeople.LastViewDefaults =
       TownspersonReducers::ReduceViewDefaults(Settings.TownspersonDefaults);
-  return RuntimeReducers::ReduceRuntimeEcsProjected(State);
+  return RuntimeReducers::ReduceRuntimeProjected(State);
 }
 
 } // namespace RuntimeFactories

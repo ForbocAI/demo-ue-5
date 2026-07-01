@@ -1,12 +1,11 @@
 #include "Features/Entities/EntitiesAdapters.h"
 
-#include "Core/functional_core.hpp"
+#include "Core/ue_fp.hpp"
 #include "Features/Components/ComponentsAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
-namespace EntitiesAdapters {
 namespace {
 
 /**
@@ -196,83 +195,91 @@ TArray<TArray<FString>> PlayerDomains() {
   return {{TEXT("Entities"), TEXT("Characters"), TEXT("Player")}};
 }
 
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-LandmarkComponents(const FLandmark &Landmark) {
-  return {{TEXT("Components/Data/Id"), ecs::textValue(Landmark.Id)},
-          {TEXT("Components/Data/Label"), ecs::textValue(Landmark.Label)},
-          {TEXT("Components/Data/Kind"),
-           ecs::textValue(LandmarkKindText(Landmark.Kind))},
-          {TEXT("Components/Spatial/Location"),
-           ecs::vec3Value(Landmark.Location)},
-          {TEXT("Components/Spatial/Scale"), ecs::vec3Value(Landmark.Scale)}};
-}
-
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-NatureComponents(const FNatureFeatureSeed &Feature) {
-  return {{TEXT("Components/Data/Id"), ecs::textValue(Feature.Id)},
-          {TEXT("Components/Data/Name"), ecs::textValue(Feature.Name)},
-          {TEXT("Components/Data/Kind"),
-           ecs::textValue(NatureKindText(Feature.Kind))},
-          {TEXT("Components/Spatial/LocalLocation"),
-           ComponentsAdapters::LocalPointValue(Feature.Location)},
-          {TEXT("Components/Spatial/Scale"), ecs::vec3Value(Feature.Scale)}};
-}
-
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-TownspersonComponents(const FTownspersonSeed &Townsperson) {
-  return {{TEXT("Components/Data/Id"), ecs::textValue(Townsperson.Id)},
-          {TEXT("Components/Data/Name"), ecs::textValue(Townsperson.Name)},
-          {TEXT("Components/Bots/Role"), ecs::textValue(Townsperson.Role)},
-          {TEXT("Components/Bots/Persona"),
-           ecs::textValue(Townsperson.Persona)},
-          {TEXT("Components/Bots/InteractionPrompt"),
-           ecs::textValue(Townsperson.InteractionPrompt)},
-          {TEXT("Components/Bots/DefaultPlayerLine"),
-           ecs::textValue(Townsperson.DefaultPlayerLine)},
-          {TEXT("Components/Bots/PinnedResponse"),
-           ecs::textValue(Townsperson.PinnedResponse)},
-          {TEXT("Components/Bots/InteractionIntent"),
-           ecs::textValue(
-               InteractionIntentText(Townsperson.InteractionIntent))},
-          {TEXT("Components/Spatial/PatrolRoute"),
-           ecs::listValue(
-               ComponentsAdapters::LocalPointList(Townsperson.PatrolRoute))}};
-}
-
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-HorseComponents(const FHorseRouteSeed &Horse) {
-  return {{TEXT("Components/Data/Id"), ecs::textValue(Horse.Id)},
-          {TEXT("Components/Data/Name"), ecs::textValue(Horse.Name)},
-          {TEXT("Components/Bots/MountedRider"),
-           ecs::boolValue(Horse.bMountedRider)},
-          {TEXT("Components/Spatial/PatrolRoute"),
-           ecs::listValue(ComponentsAdapters::LocalPointList(Horse.PatrolRoute))}};
-}
-
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-BotComponents(const FBotEntity &Bot) {
-  return {{TEXT("Components/Data/Id"), ecs::textValue(Bot.Id)},
-          {TEXT("Components/Data/DisplayName"),
-           ecs::textValue(Bot.DisplayName)},
-          {TEXT("Components/Data/Kind"), ecs::textValue(BotKindText(Bot.Kind))},
-          {TEXT("Components/Bots/Alignment"),
-           ecs::textValue(BotAlignmentText(Bot.Alignment))},
-          {TEXT("Components/Bots/Active"), ecs::boolValue(Bot.bActive)}};
-}
-
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-PlayerComponents(const FPlayerState &Player) {
-  return {{TEXT("Components/Lifecycle/Ready"),
-           ecs::boolValue(Player.bReady)},
-          {TEXT("Components/Data/HasLastActionId"),
-           ecs::boolValue(Player.LastActionId.hasValue)},
-          {TEXT("Components/Data/LastActionId"),
-           ecs::textValue(Player.LastActionId.hasValue
-                              ? Player.LastActionId.value
-                              : FString())}};
+FString LastActionIdText(const func::Maybe<FString> &LastActionId) {
+  return LastActionId.hasValue ? LastActionId.value : FString();
 }
 
 } // namespace
+
+namespace ComponentsAdapters {
+
+template <>
+struct TComponentSourceProjector<FLandmark> {
+  ecs::FComponentValue operator()(const FLandmark &Landmark) const {
+    return ComponentValueMap({{"Id", Landmark.Id},
+                              {"Label", Landmark.Label},
+                              {"Kind", LandmarkKindText(Landmark.Kind)},
+                              {"Location", Landmark.Location},
+                              {"Scale", Landmark.Scale}});
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FNatureFeatureSeed> {
+  ecs::FComponentValue
+  operator()(const FNatureFeatureSeed &NatureFeature) const {
+    return ComponentValueMap({{"Id", NatureFeature.Id},
+                              {"Name", NatureFeature.Name},
+                              {"Kind", NatureKindText(NatureFeature.Kind)},
+                              {"LocalLocation", NatureFeature.Location},
+                              {"Scale", NatureFeature.Scale}});
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FTownspersonSeed> {
+  ecs::FComponentValue
+  operator()(const FTownspersonSeed &Townsperson) const {
+    return ComponentValueMap(
+        {{"Id", Townsperson.Id},
+         {"Name", Townsperson.Name},
+         {"Role", Townsperson.Role},
+         {"Persona", Townsperson.Persona},
+         {"InteractionPrompt", Townsperson.InteractionPrompt},
+         {"DefaultPlayerLine", Townsperson.DefaultPlayerLine},
+         {"PinnedResponse", Townsperson.PinnedResponse},
+         {"InteractionIntent",
+          InteractionIntentText(Townsperson.InteractionIntent)},
+         {"PatrolRoute", Townsperson.PatrolRoute}});
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FHorseRouteSeed> {
+  ecs::FComponentValue operator()(const FHorseRouteSeed &Horse) const {
+    return ComponentValueMap({{"Id", Horse.Id},
+                              {"Name", Horse.Name},
+                              {"MountedRider", Horse.bMountedRider},
+                              {"PatrolRoute", Horse.PatrolRoute}});
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FBotEntity> {
+  ecs::FComponentValue operator()(const FBotEntity &Bot) const {
+    return ComponentValueMap({{"Id", Bot.Id},
+                              {"DisplayName", Bot.DisplayName},
+                              {"Kind", BotKindText(Bot.Kind)},
+                              {"Alignment", BotAlignmentText(Bot.Alignment)},
+                              {"Active", Bot.bActive}});
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FPlayerState> {
+  ecs::FComponentValue operator()(const FPlayerState &Player) const {
+    return ComponentValueMap(
+        {{"Ready", Player.bReady},
+         {"HasLastActionId", Player.LastActionId.hasValue},
+         {"LastActionId", LastActionIdText(Player.LastActionId)}});
+  }
+};
+
+} // namespace ComponentsAdapters
+
+namespace EntitiesAdapters {
+
+using ComponentsAdapters::RegisteredComponentGroups;
 
 ecs::EntityKey BotEntityKey(const FString &Id) {
   return FString::Printf(TEXT("bot:%s"), *Id);
@@ -289,77 +296,102 @@ ecs::EntityKey NatureEntityKey(const FString &Id) {
 }
 
 ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
       [](const FProjectLandmarkEntityPayload &PayloadValue) {
         return LandmarkEntityKey(PayloadValue.Landmark.Id);
       },
-      [](const FProjectLandmarkEntityPayload &) { return LandmarkDomains(); },
-      [](const FProjectLandmarkEntityPayload &PayloadValue) {
-        return LandmarkComponents(PayloadValue.Landmark);
-      });
+      func::constant<TArray<TArray<FString>>>(LandmarkDomains()),
+      [](const FProjectLandmarkEntityPayload &PayloadValue)
+          -> const FLandmark & {
+        return PayloadValue.Landmark;
+      },
+      RegisteredComponentGroups<FLandmark>(
+          {{"Components/Data", {"Id", "Label", "Kind"}},
+           {"Components/Spatial", {"Location", "Scale"}}}));
 }
 
 ecs::FWorld
 ProjectNatureFeature(const FProjectNatureFeatureEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
       [](const FProjectNatureFeatureEntityPayload &PayloadValue) {
         return NatureEntityKey(PayloadValue.Feature.Id);
       },
-      [](const FProjectNatureFeatureEntityPayload &) { return NatureDomains(); },
-      [](const FProjectNatureFeatureEntityPayload &PayloadValue) {
-        return NatureComponents(PayloadValue.Feature);
-      });
+      func::constant<TArray<TArray<FString>>>(NatureDomains()),
+      [](const FProjectNatureFeatureEntityPayload &PayloadValue)
+          -> const FNatureFeatureSeed & {
+        return PayloadValue.Feature;
+      },
+      RegisteredComponentGroups<FNatureFeatureSeed>(
+          {{"Components/Data", {"Id", "Name", "Kind"}},
+           {"Components/Spatial", {"LocalLocation", "Scale"}}}));
 }
 
 ecs::FWorld
 ProjectTownsperson(const FProjectTownspersonEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
       [](const FProjectTownspersonEntityPayload &PayloadValue) {
         return BotEntityKey(PayloadValue.Townsperson.Id);
       },
-      [](const FProjectTownspersonEntityPayload &) {
-        return TownspersonDomains();
+      func::constant<TArray<TArray<FString>>>(TownspersonDomains()),
+      [](const FProjectTownspersonEntityPayload &PayloadValue)
+          -> const FTownspersonSeed & {
+        return PayloadValue.Townsperson;
       },
-      [](const FProjectTownspersonEntityPayload &PayloadValue) {
-        return TownspersonComponents(PayloadValue.Townsperson);
-      });
+      RegisteredComponentGroups<FTownspersonSeed>(
+          {{"Components/Data", {"Id", "Name"}},
+           {"Components/Bots",
+            {"Role", "Persona", "InteractionPrompt", "DefaultPlayerLine",
+             "PinnedResponse", "InteractionIntent"}},
+           {"Components/Spatial", {"PatrolRoute"}}}));
 }
 
 ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
       [](const FProjectHorseEntityPayload &PayloadValue) {
         return BotEntityKey(PayloadValue.Horse.Id);
       },
-      [](const FProjectHorseEntityPayload &) { return HorseDomains(); },
-      [](const FProjectHorseEntityPayload &PayloadValue) {
-        return HorseComponents(PayloadValue.Horse);
-      });
+      func::constant<TArray<TArray<FString>>>(HorseDomains()),
+      [](const FProjectHorseEntityPayload &PayloadValue)
+          -> const FHorseRouteSeed & {
+        return PayloadValue.Horse;
+      },
+      RegisteredComponentGroups<FHorseRouteSeed>(
+          {{"Components/Data", {"Id", "Name"}},
+           {"Components/Bots", {"MountedRider"}},
+           {"Components/Spatial", {"PatrolRoute"}}}));
 }
 
 ecs::FWorld ProjectBot(const FProjectBotEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
       [](const FProjectBotEntityPayload &PayloadValue) {
         return BotEntityKey(PayloadValue.Bot.Id);
       },
-      [](const FProjectBotEntityPayload &) { return BotDomains(); },
-      [](const FProjectBotEntityPayload &PayloadValue) {
-        return BotComponents(PayloadValue.Bot);
-      });
+      func::constant<TArray<TArray<FString>>>(BotDomains()),
+      [](const FProjectBotEntityPayload &PayloadValue) -> const FBotEntity & {
+        return PayloadValue.Bot;
+      },
+      RegisteredComponentGroups<FBotEntity>(
+          {{"Components/Data", {"Id", "DisplayName", "Kind"}},
+           {"Components/Bots", {"Alignment", "Active"}}}));
 }
 
 ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
       [](const FProjectPlayerEntityPayload &) { return PlayerEntityKey(); },
-      [](const FProjectPlayerEntityPayload &) { return PlayerDomains(); },
-      [](const FProjectPlayerEntityPayload &PayloadValue) {
-        return PlayerComponents(PayloadValue.Player);
-      });
+      func::constant<TArray<TArray<FString>>>(PlayerDomains()),
+      [](const FProjectPlayerEntityPayload &PayloadValue)
+          -> const FPlayerState & {
+        return PayloadValue.Player;
+      },
+      RegisteredComponentGroups<FPlayerState>(
+          {{"Components/Lifecycle", {"Ready"}},
+           {"Components/Data", {"HasLastActionId", "LastActionId"}}}));
 }
 
 } // namespace EntitiesAdapters

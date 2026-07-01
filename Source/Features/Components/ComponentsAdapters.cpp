@@ -5,185 +5,241 @@ namespace Demo {
 namespace Level {
 namespace ComponentsAdapters {
 
-ecs::DomainPathKey DomainKey(const TArray<FString> &Segments) {
-  return ecs::domainPathKey(ecs::createDomainPath(Segments));
-}
-
-FEcsDomainProjectionStep DomainStep(const ecs::EntityKey &Entity,
-                                    const TArray<FString> &Segments) {
-  return {Entity, Segments};
-}
-
-TArray<FEcsDomainProjectionStep>
-DomainSteps(const ecs::EntityKey &Entity,
-            const TArray<TArray<FString>> &SegmentGroups) {
-  return ecs::mapArray<TArray<FString>, FEcsDomainProjectionStep>(
-      SegmentGroups, [&Entity](const TArray<FString> &Segments) {
-        return DomainStep(Entity, Segments);
-      });
-}
-
-FEcsComponentProjectionBinding
+FComponentProjectionBinding
 ComponentBinding(const ecs::ComponentType &Type,
                  const ecs::FComponentValue &Value) {
   return {Type, Value};
 }
 
-FEcsComponentProjectionStep ComponentStep(const ecs::EntityKey &Entity,
-                                          const ecs::ComponentType &Type,
-                                          const ecs::FComponentValue &Value) {
+ecs::FComponentValue ProjectComponentValue(const ecs::FComponentValue &Value) {
+  return Value;
+}
+
+ecs::FComponentValue ProjectComponentValue(const FString &Value) {
+  return ecs::createTextComponentValue(Value);
+}
+
+ecs::FComponentValue ProjectComponentValue(bool Value) {
+  return ecs::createBoolComponentValue(Value);
+}
+
+ecs::FComponentValue ProjectComponentValue(int32 Value) {
+  return ecs::createIntComponentValue(Value);
+}
+
+ecs::FComponentValue ProjectComponentValue(int64 Value) {
+  return ecs::createIntComponentValue(Value);
+}
+
+ecs::FComponentValue ProjectComponentValue(float Value) {
+  return ecs::createFloatComponentValue(Value);
+}
+
+ecs::FComponentValue ProjectComponentValue(double Value) {
+  return ecs::createFloatComponentValue(static_cast<float>(Value));
+}
+
+ecs::FComponentValue ProjectComponentValue(const FVector &Value) {
+  return ecs::createVec3ComponentValue(Value);
+}
+
+ecs::FComponentValue
+ProjectComponentValue(const TArray<ecs::FComponentValue> &Value) {
+  return ecs::createListComponentValue(Value);
+}
+
+ecs::FComponentValue ProjectComponentValue(const FLevelLocalPoint &Value) {
+  return LocalPointValue(Value);
+}
+
+ecs::FComponentValue ProjectComponentValue(const FRotator &Value) {
+  return RotationValue(Value);
+}
+
+ecs::FComponentValue ProjectComponentValue(const TArray<FLevelLocalPoint> &Value) {
+  return ecs::createListComponentValue(LocalPointList(Value));
+}
+
+ecs::FComponentValue ProjectComponentValue(const TArray<FString> &Value) {
+  return ecs::createListComponentValue(StringList(Value));
+}
+
+ecs::FWorld ProjectResource(const FProjectResourcePayload &Payload) {
+  return ecs::setResource(ecs::createSetResourceRequest(
+      Payload.World, Payload.Name, Payload.Value));
+}
+
+namespace {
+
+struct FProjectDomainPayload {
+  ecs::FWorld World;
+  ecs::EntityKey Entity;
+  TArray<FString> Segments;
+};
+
+struct FProjectComponentPayload {
+  ecs::FWorld World;
+  ecs::EntityKey Entity;
+  ecs::ComponentType Type;
+  ecs::FComponentValue Value;
+};
+
+struct FDomainProjectionStep {
+  ecs::EntityKey Entity;
+  TArray<FString> Segments;
+};
+
+struct FComponentProjectionStep {
+  ecs::EntityKey Entity;
+  ecs::ComponentType Type;
+  ecs::FComponentValue Value;
+};
+
+struct FProjectDomainStepsPayload {
+  ecs::FWorld World;
+  TArray<FDomainProjectionStep> Steps;
+};
+
+struct FProjectComponentStepsPayload {
+  ecs::FWorld World;
+  TArray<FComponentProjectionStep> Steps;
+};
+
+struct FProjectStepsPayload {
+  ecs::FWorld World;
+  TArray<FDomainProjectionStep> Domains;
+  TArray<FComponentProjectionStep> Components;
+};
+
+ecs::DomainPathKey DomainKey(const TArray<FString> &Segments) {
+  return ecs::createDomainPathKey(ecs::createDomainPath(Segments));
+}
+
+FDomainProjectionStep DomainStep(const ecs::EntityKey &Entity,
+                                 const TArray<FString> &Segments) {
+  return {Entity, Segments};
+}
+
+TArray<FDomainProjectionStep>
+DomainSteps(const ecs::EntityKey &Entity,
+            const TArray<TArray<FString>> &SegmentGroups) {
+  return func::map_array<TArray<FString>, FDomainProjectionStep>(
+      SegmentGroups, [&Entity](const TArray<FString> &Segments) {
+        return DomainStep(Entity, Segments);
+      });
+}
+
+FComponentProjectionStep ComponentStep(const ecs::EntityKey &Entity,
+                                       const ecs::ComponentType &Type,
+                                       const ecs::FComponentValue &Value) {
   return {Entity, Type, Value};
 }
 
-TArray<FEcsComponentProjectionStep>
+TArray<FComponentProjectionStep>
 ComponentSteps(const ecs::EntityKey &Entity,
-               const TArray<FEcsComponentProjectionBinding> &Bindings) {
-  return ecs::mapArray<FEcsComponentProjectionBinding,
-                       FEcsComponentProjectionStep>(
-      Bindings, [&Entity](const FEcsComponentProjectionBinding &Binding) {
+               const TArray<FComponentProjectionBinding> &Bindings) {
+  return func::map_array<FComponentProjectionBinding, FComponentProjectionStep>(
+      Bindings, [&Entity](const FComponentProjectionBinding &Binding) {
         return ComponentStep(Entity, Binding.Type, Binding.Value);
       });
 }
 
-ecs::FWorld WithDomain(const FEcsDomainProjectionRequest &Request) {
+ecs::FWorld ProjectDomain(const FProjectDomainPayload &Payload) {
   return ecs::setEntityDomain(ecs::createSetEntityDomainRequest(
-      Request.World, Request.Entity, DomainKey(Request.Segments)));
+      Payload.World, Payload.Entity, DomainKey(Payload.Segments)));
 }
 
-ecs::FWorld WithComponent(const FEcsComponentProjectionRequest &Request) {
+ecs::FWorld ProjectComponent(const FProjectComponentPayload &Payload) {
   return ecs::setComponent(ecs::createSetComponentRequest(
-      Request.World, Request.Entity, Request.Type, Request.Value));
-}
-
-ecs::FWorld WithText(const FEcsTextProjectionRequest &Request) {
-  return WithComponent(
-      {Request.World, Request.Entity, Request.Type,
-       ecs::textValue(Request.Value)});
-}
-
-ecs::FWorld WithBool(const FEcsBoolProjectionRequest &Request) {
-  return WithComponent(
-      {Request.World, Request.Entity, Request.Type,
-       ecs::boolValue(Request.Value)});
-}
-
-ecs::FWorld WithInt(const FEcsIntProjectionRequest &Request) {
-  return WithComponent(
-      {Request.World, Request.Entity, Request.Type,
-       ecs::intValue(Request.Value)});
-}
-
-ecs::FWorld WithFloat(const FEcsFloatProjectionRequest &Request) {
-  return WithComponent(
-      {Request.World, Request.Entity, Request.Type,
-       ecs::floatValue(Request.Value)});
-}
-
-ecs::FWorld WithVec3(const FEcsVec3ProjectionRequest &Request) {
-  return WithComponent(
-      {Request.World, Request.Entity, Request.Type,
-       ecs::vec3Value(Request.Value)});
-}
-
-ecs::FWorld WithList(const FEcsListProjectionRequest &Request) {
-  return WithComponent(
-      {Request.World, Request.Entity, Request.Type,
-       ecs::listValue(Request.Value)});
-}
-
-ecs::FWorld WithResource(const FEcsResourceProjectionRequest &Request) {
-  return ecs::setResource(ecs::createSetResourceRequest(
-      Request.World, Request.Name, Request.Value));
+      Payload.World, Payload.Entity, Payload.Type, Payload.Value));
 }
 
 ecs::FWorld ProjectDomainStep(const ecs::FWorld &World,
-                              const FEcsDomainProjectionStep &Step) {
-  return WithDomain({World, Step.Entity, Step.Segments});
+                              const FDomainProjectionStep &Step) {
+  return ProjectDomain({World, Step.Entity, Step.Segments});
 }
 
 /**
  * @brief Applies domain projection steps to a world through the ECS fold.
- * @signature ecs::FWorld WithDomainSteps(const FEcsDomainStepsProjectionPayload &Payload)
+ * @signature ecs::FWorld ProjectDomainSteps(const FProjectDomainStepsPayload &Payload)
  *
  * User Story: As a systems feature author, I need repeated ECS domain
  * projection to live in neutral component infrastructure instead of sibling
  * systems helpers.
  */
-ecs::FWorld WithDomainSteps(const FEcsDomainStepsProjectionPayload &Payload) {
-  return ecs::foldArray<FEcsDomainProjectionStep, ecs::FWorld>(
-      Payload.World, Payload.Steps,
-      [](const ecs::FWorld &Acc, const FEcsDomainProjectionStep &Step) {
+ecs::FWorld ProjectDomainSteps(const FProjectDomainStepsPayload &Payload) {
+  return func::fold_array<FDomainProjectionStep, ecs::FWorld>(
+      Payload.Steps, Payload.World,
+      [](const ecs::FWorld &Acc, const FDomainProjectionStep &Step) {
         return ProjectDomainStep(Acc, Step);
       });
 }
 
 ecs::FWorld ProjectComponentStep(const ecs::FWorld &World,
-                                 const FEcsComponentProjectionStep &Step) {
-  return WithComponent({World, Step.Entity, Step.Type, Step.Value});
+                                 const FComponentProjectionStep &Step) {
+  return ProjectComponent({World, Step.Entity, Step.Type, Step.Value});
 }
 
 /**
  * @brief Applies component projection steps to a world through the ECS fold.
- * @signature ecs::FWorld WithComponentSteps(const FEcsComponentStepsProjectionPayload &Payload)
+ * @signature ecs::FWorld ProjectComponentSteps(const FProjectComponentStepsPayload &Payload)
  *
  * User Story: As feature projection code, I need reusable component batch
  * application that keeps reducers and adapters small.
  */
 ecs::FWorld
-WithComponentSteps(const FEcsComponentStepsProjectionPayload &Payload) {
-  return ecs::foldArray<FEcsComponentProjectionStep, ecs::FWorld>(
-      Payload.World, Payload.Steps,
-      [](const ecs::FWorld &Acc, const FEcsComponentProjectionStep &Step) {
+ProjectComponentSteps(const FProjectComponentStepsPayload &Payload) {
+  return func::fold_array<FComponentProjectionStep, ecs::FWorld>(
+      Payload.Steps, Payload.World,
+      [](const ecs::FWorld &Acc, const FComponentProjectionStep &Step) {
         return ProjectComponentStep(Acc, Step);
       });
 }
 
 /**
  * @brief Applies domain and component projection steps through one ECS world transition.
- * @signature ecs::FWorld ApplyProjectionSteps(const FEcsProjectionStepsPayload &Payload)
+ * @signature ecs::FWorld ProjectSteps(const FProjectStepsPayload &Payload)
  *
  * User Story: As projection features, domain and component batches should use
  * one neutral application primitive instead of each feature owning the same
  * pipe shape.
  */
-ecs::FWorld ApplyProjectionSteps(const FEcsProjectionStepsPayload &Payload) {
+ecs::FWorld ProjectSteps(const FProjectStepsPayload &Payload) {
   return (func::pipe(Payload.World) |
           [&Payload](ecs::FWorld Next) {
-            return WithDomainSteps({Next, Payload.Domains});
+            return ProjectDomainSteps({Next, Payload.Domains});
           } |
           [&Payload](ecs::FWorld Next) {
-            return WithComponentSteps({Next, Payload.Components});
+            return ProjectComponentSteps({Next, Payload.Components});
           })
       .val;
 }
 
+} // namespace
+
 /**
  * @brief Projects one entity from domain path data and component bindings.
- * @signature ecs::FWorld ProjectEntity(const FEcsEntityProjectionPayload &Payload)
+ * @signature ecs::FWorld ProjectEntity(const FProjectEntityPayload &Payload)
  *
  * User Story: As feature projection code, I need the repeated entity/domain/
  * component projection idiom to live in one ECS-facing adapter boundary.
  */
-ecs::FWorld ProjectEntity(const FEcsEntityProjectionPayload &Payload) {
-  return ApplyProjectionSteps(
+ecs::FWorld ProjectEntity(const FProjectEntityPayload &Payload) {
+  return ProjectSteps(
       {Payload.World, DomainSteps(Payload.Entity, Payload.Domains),
        ComponentSteps(Payload.Entity, Payload.Components)});
 }
 
 ecs::FComponentValue LocalPointValue(const FLevelLocalPoint &Point) {
-  TMap<FString, ecs::FComponentValue> Fields;
-  Fields.Add(TEXT("eastWest"), ecs::floatValue(Point.EastWest));
-  Fields.Add(TEXT("northSouth"), ecs::floatValue(Point.NorthSouth));
-  Fields.Add(TEXT("heightOffset"), ecs::floatValue(Point.HeightOffset));
-  return ecs::mapValue(Fields);
+  return ComponentValueMap({{"eastWest", Point.EastWest},
+                            {"northSouth", Point.NorthSouth},
+                            {"heightOffset", Point.HeightOffset}});
 }
 
 ecs::FComponentValue RotationValue(const FRotator &Rotation) {
-  TMap<FString, ecs::FComponentValue> Fields;
-  Fields.Add(TEXT("pitch"), ecs::floatValue(Rotation.Pitch));
-  Fields.Add(TEXT("yaw"), ecs::floatValue(Rotation.Yaw));
-  Fields.Add(TEXT("roll"), ecs::floatValue(Rotation.Roll));
-  return ecs::mapValue(Fields);
+  return ComponentValueMap({{"pitch", Rotation.Pitch},
+                            {"yaw", Rotation.Yaw},
+                            {"roll", Rotation.Roll}});
 }
 
 TArray<ecs::FComponentValue>
@@ -196,7 +252,7 @@ LocalPointList(const TArray<FLevelLocalPoint> &Points) {
 
 TArray<ecs::FComponentValue> StringList(const TArray<FString> &Values) {
   return ecs::mapComponentValues<FString>(
-      Values, [](const FString &Value) { return ecs::textValue(Value); });
+      Values, [](const FString &Value) { return ecs::createTextComponentValue(Value); });
 }
 
 } // namespace ComponentsAdapters

@@ -10,8 +10,28 @@
     "initial_playback_time": 0.0,
     "initial_speech_active": false,
     "estimated_base_phoneme_seconds": 0.08,
-    "vowel_characters": "AEIOU",
-    "vowel_phoneme_format": "%c%c",
+    "vowel_phonemes": [
+      {
+        "character": "A",
+        "phoneme": "AA"
+      },
+      {
+        "character": "E",
+        "phoneme": "EH"
+      },
+      {
+        "character": "I",
+        "phoneme": "IH"
+      },
+      {
+        "character": "O",
+        "phoneme": "OW"
+      },
+      {
+        "character": "U",
+        "phoneme": "UW"
+      }
+    ],
     "silence_characters": " .,",
     "silence_phoneme": "SIL",
     "viseme_change_tolerance": 0.01,

@@ -3,7 +3,49 @@
 
 set -euo pipefail
 
-echo "Error: Do not modify or commit ForbocAI_SDK from demo-ue-5.7/Plugins."
-echo "Use ../sdk-ue-5.7 for SDK changes, then run demo-ue-5.7/update-sdk.sh."
-echo "First-time demo setup: demo-ue-5.7/setup-dev.sh"
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$HOOK_DIR/../.." && pwd)"
+
+sdk_source_path() {
+  if [ -n "${FORBOC_SDK_SOURCE_PATH:-}" ]; then
+    printf '%s\n' "$FORBOC_SDK_SOURCE_PATH"
+  else
+    printf '%s\n' "$(cd "$PROJECT_ROOT/.." && pwd)/sdk-ue-5.7"
+  fi
+}
+
+sdk_source_windows_path() {
+  local SourcePath
+  SourcePath="$(sdk_source_path)"
+  command -v wslpath >/dev/null 2>&1 || return 0
+  wslpath -w "$SourcePath" 2>/dev/null || true
+}
+
+SDK_SOURCE_PATH="$(sdk_source_path)"
+SDK_SOURCE_WINDOWS_PATH="$(sdk_source_windows_path)"
+
+cat <<MSG
+========================================================================
+SDK SUBMODULE OFF LIMITS IN THIS DEMO CHECKOUT
+
+Do not modify or commit ForbocAI_SDK source from:
+  $PROJECT_ROOT/Plugins/ForbocAI_SDK
+
+Unreal-generated build artifacts are allowed only under:
+  $PROJECT_ROOT/Plugins/ForbocAI_SDK/Binaries
+  $PROJECT_ROOT/Plugins/ForbocAI_SDK/Intermediate
+  $PROJECT_ROOT/Plugins/ForbocAI_SDK/Saved
+
+Only edit SDK source in:
+  $SDK_SOURCE_PATH
+MSG
+if [ -n "$SDK_SOURCE_WINDOWS_PATH" ] && [ "$SDK_SOURCE_WINDOWS_PATH" != "$SDK_SOURCE_PATH" ]; then
+  printf '  %s\n' "$SDK_SOURCE_WINDOWS_PATH"
+fi
+cat <<'MSG'
+
+Then commit there and update this demo from here with:
+  bash Scripts/update-sdk.sh
+========================================================================
+MSG
 exit 1

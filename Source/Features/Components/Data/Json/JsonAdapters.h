@@ -236,7 +236,7 @@ template <typename Output>
 TArray<Output>
 MapJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values,
               TFunction<Output(const TSharedPtr<FJsonObject> &)> MapValue) {
-  return ecs::mapArray<TSharedPtr<FJsonValue>, Output>(
+  return func::map_array<TSharedPtr<FJsonValue>, Output>(
       Values, [MapValue](const TSharedPtr<FJsonValue> &Value) {
         const TSharedPtr<FJsonObject> Object =
             Value.IsValid() ? Value->AsObject() : TSharedPtr<FJsonObject>();

@@ -1,6 +1,6 @@
 #include "Blueprints/GenericStateBlueprintLibrary.h"
 
-#include "Core/functional_core.hpp"
+#include "Core/ue_fp.hpp"
 
 TSharedPtr<FJsonObject>
 UGenericStateBlueprintLibrary::ParseJson(const FString &JsonData) {

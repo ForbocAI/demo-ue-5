@@ -155,7 +155,7 @@ entity adapters own normalized collections, and `Source/Store.*` owns the single
 configured store.
 
 `Source/Core/ecs.hpp` is the neutral ECS layer for entity IDs, component/tag
-projection, and request-object transforms. `Core/functional_core.hpp` is used
+projection, and request-object transforms. `Core/ue_fp.hpp` is used
 for pure composition, lazy values, and small unary transforms; it is not used as
 a substitute action/store model.
 

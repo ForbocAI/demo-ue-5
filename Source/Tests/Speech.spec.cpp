@@ -45,7 +45,7 @@ bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) {
 
   TestTrue(TEXT("Produces phonemes for 'Hello'"), Phonemes.Num() > 0);
 
-  // 'H', 'E' (vowel -> EE), 'L', 'L', 'O' (vowel -> OO) = 5 phonemes
+  // 'H', 'E' (vowel), 'L', 'L', 'O' (vowel) = 5 phonemes
   TestEqual(TEXT("Correct phoneme count for 'Hello'"), Phonemes.Num(), 5);
 
   // First phoneme starts at 0
@@ -119,19 +119,17 @@ bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
   const auto CheckVowelsRecursive = [this, &Map, &Settings](
                                         int32 Idx,
                                         const auto &Self) -> void {
-    return Idx >= Settings.VowelCharacters.Len()
+    return Idx >= Settings.VowelPhonemes.Num()
                ? void()
-               : (TestTrue(
-                      FString::Printf(TEXT("Vowel %s mapped"),
-                                      *FString::Printf(
-                                          *Settings.VowelPhonemeFormat,
-                                          Settings.VowelCharacters[Idx],
-                                          Settings.VowelCharacters[Idx])),
-                      Map.Contains(FString::Printf(
-                          *Settings.VowelPhonemeFormat,
-                          Settings.VowelCharacters[Idx],
-                          Settings.VowelCharacters[Idx]))),
-                  Self(Idx + 1, Self));
+               : [&]() {
+                   const ForbocAI::Demo::Data::FSpeechVowelPhonemeSettings
+                       Vowel = Settings.VowelPhonemes[Idx];
+                   TestTrue(
+                       FString::Printf(TEXT("Vowel %s mapped"),
+                                       *Vowel.Character),
+                       Map.Contains(Vowel.Phoneme));
+                   Self(Idx + 1, Self);
+                 }();
   };
   CheckVowelsRecursive(0, CheckVowelsRecursive);
 

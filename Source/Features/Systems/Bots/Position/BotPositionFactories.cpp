@@ -33,7 +33,7 @@ FBotPositionComponent Component(const FBotPositionSource &Source) {
 
 TArray<FBotPositionComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return ecs::mapArray<FTownspersonSeed, FBotPositionComponent>(
+  return func::map_array<FTownspersonSeed, FBotPositionComponent>(
       Seeds, [](const FTownspersonSeed &Seed) {
         return Component({Seed.Id, FirstRoutePoint(Seed.PatrolRoute),
                           FVector::ZeroVector, false, true});
@@ -42,7 +42,7 @@ FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
 
 TArray<FBotPositionComponent>
 FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return ecs::mapArray<FHorseRouteSeed, FBotPositionComponent>(
+  return func::map_array<FHorseRouteSeed, FBotPositionComponent>(
       Seeds, [](const FHorseRouteSeed &Seed) {
         return Component({Seed.Id, FirstRoutePoint(Seed.PatrolRoute),
                           FVector::ZeroVector, false, true});

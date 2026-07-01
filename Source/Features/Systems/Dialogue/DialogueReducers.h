@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/frmt.hpp"
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Dialogue/DialogueTypes.h"
@@ -42,8 +43,10 @@ ReduceLocalReplyPayload(
     const FLocalDialogueReplyRequest &Request,
     const ForbocAI::Demo::Data::FDialogueRuntimeSettings &Settings) {
   FDialogueReplyPayload Payload;
-  Payload.Id = FString::Printf(*Settings.ReplyPayloadIdFormat,
-                               *Request.Name);
+  Payload.Id = frmt::RuntimeString(
+      Settings.ReplyPayloadIdFormat,
+      frmt::Args(
+          {frmt::Arg(Request.Name)}));
   Payload.Request = Request;
   Payload.Reply = ReduceLocalReply(Request);
   return Payload;

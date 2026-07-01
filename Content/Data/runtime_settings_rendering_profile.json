@@ -1,0 +1,17 @@
+{
+  "rendering_profile": {
+    "time_of_day_hour": 15.0,
+    "anti_aliasing_method": 0,
+    "post_process_aa_quality": 0,
+    "screen_percentage": 55.0,
+    "view_distance_scale": 1.65,
+    "foliage_density_scale": 0.85,
+    "grass_density_scale": 0.85,
+    "sun_pitch_degrees": -56.0,
+    "sun_yaw_degrees": -64.0,
+    "directional_light_intensity": 8.5,
+    "directional_light_source_angle": 0.08,
+    "shadow_cascades": 1,
+    "shadow_max_resolution": 512
+  }
+}

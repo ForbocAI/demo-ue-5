@@ -21,12 +21,12 @@ struct FRuntimeState;
 /**
  * @brief RTK-style payload for projecting player slice state into ECS.
  *
- * @signature struct FProjectPlayerEcsPayload
+ * @signature struct FProjectPlayerPayload
  *
  * User Story: As the runtime reducer, I need selected player state and the
  * current ECS world to travel through one action-shaped payload.
  */
-struct FProjectPlayerEcsPayload {
+struct FProjectPlayerPayload {
   ecs::FWorld World;
   const FPlayerState &Player;
 };
@@ -34,12 +34,12 @@ struct FProjectPlayerEcsPayload {
 /**
  * @brief RTK-style payload for projecting terrain slice state into ECS.
  *
- * @signature struct FProjectTerrainEcsPayload
+ * @signature struct FProjectTerrainPayload
  *
  * User Story: As the runtime reducer, terrain data should be normalized into
  * component values by an adapter, not by a view.
  */
-struct FProjectTerrainEcsPayload {
+struct FProjectTerrainPayload {
   ecs::FWorld World;
   const FTerrainState &Terrain;
 };
@@ -47,12 +47,12 @@ struct FProjectTerrainEcsPayload {
 /**
  * @brief RTK-style payload for projecting spawn slice state into ECS.
  *
- * @signature struct FProjectSpawnEcsPayload
+ * @signature struct FProjectSpawnPayload
  *
  * User Story: As spawn state changes, the reducer-owned ECS projection should
  * receive one payload that contains the prior world and authoritative slice.
  */
-struct FProjectSpawnEcsPayload {
+struct FProjectSpawnPayload {
   ecs::FWorld World;
   const FSpawnState &Spawn;
 };
@@ -60,12 +60,12 @@ struct FProjectSpawnEcsPayload {
 /**
  * @brief RTK-style payload for projecting bot stats entity-adapter state.
  *
- * @signature struct FProjectBotStatsEcsPayload
+ * @signature struct FProjectBotStatsPayload
  *
  * User Story: As bot stats are selected from the store, their ECS projection
  * should stay in the systems/bots/stats adapter boundary.
  */
-struct FProjectBotStatsEcsPayload {
+struct FProjectBotStatsPayload {
   ecs::FWorld World;
   const FBotStatsComponent &Stats;
 };
@@ -73,12 +73,12 @@ struct FProjectBotStatsEcsPayload {
 /**
  * @brief RTK-style payload for projecting bot position entity-adapter state.
  *
- * @signature struct FProjectBotPositionEcsPayload
+ * @signature struct FProjectBotPositionPayload
  *
  * User Story: As bot positions change, ECS spatial components should be
  * written by reducer-called adapters through one payload object.
  */
-struct FProjectBotPositionEcsPayload {
+struct FProjectBotPositionPayload {
   ecs::FWorld World;
   const FBotPositionComponent &Position;
 };
@@ -86,12 +86,12 @@ struct FProjectBotPositionEcsPayload {
 /**
  * @brief RTK-style payload for projecting bot AI entity-adapter state.
  *
- * @signature struct FProjectBotAIEcsPayload
+ * @signature struct FProjectBotAIPayload
  *
  * User Story: As bot AI state is selected, behavior and patrol components
  * should be projected without borrowing logic from sibling domains.
  */
-struct FProjectBotAIEcsPayload {
+struct FProjectBotAIPayload {
   ecs::FWorld World;
   const FBotAIComponent &AI;
 };
@@ -99,12 +99,12 @@ struct FProjectBotAIEcsPayload {
 /**
  * @brief RTK-style payload for projecting bot goal entity-adapter state.
  *
- * @signature struct FProjectBotGoalEcsPayload
+ * @signature struct FProjectBotGoalPayload
  *
  * User Story: As goal queues are selected, strategic goal values should be
  * normalized through a bot-goals adapter payload.
  */
-struct FProjectBotGoalEcsPayload {
+struct FProjectBotGoalPayload {
   ecs::FWorld World;
   const FBotGoalComponent &Goal;
 };
@@ -112,12 +112,12 @@ struct FProjectBotGoalEcsPayload {
 /**
  * @brief RTK-style payload for projecting interaction slice state into ECS.
  *
- * @signature struct FProjectInteractionEcsPayload
+ * @signature struct FProjectInteractionPayload
  *
  * User Story: As interaction candidates change, the runtime reducer can
  * project them into ECS without moving interaction logic into views.
  */
-struct FProjectInteractionEcsPayload {
+struct FProjectInteractionPayload {
   ecs::FWorld World;
   const FInteractionState &Interaction;
 };
@@ -125,12 +125,12 @@ struct FProjectInteractionEcsPayload {
 /**
  * @brief RTK-style payload for projecting the root runtime state into ECS.
  *
- * @signature struct FProjectRuntimeEcsPayload
+ * @signature struct FProjectRuntimePayload
  *
  * User Story: As the root reducer, I need the full post-reducer store state to
  * feed selectors before replacing FRuntimeState::Ecs.World.
  */
-struct FProjectRuntimeEcsPayload {
+struct FProjectRuntimePayload {
   const FRuntimeState &State;
 };
 

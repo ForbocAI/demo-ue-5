@@ -109,7 +109,7 @@ inline bool operator!=(const FBotGoalCompleted &Left,
 inline bool ActiveGoalMapsEqual(
     const TMap<FString, FBotStrategicGoal> &Left,
     const TMap<FString, FBotStrategicGoal> &Right) {
-  return ecs::mapValuesEqual<FString, FBotStrategicGoal>(
+  return func::map_values_equal<FString, FBotStrategicGoal>(
       Left, Right, [](const FBotStrategicGoal &LeftGoal,
                       const FBotStrategicGoal &RightGoal) {
         return LeftGoal == RightGoal;

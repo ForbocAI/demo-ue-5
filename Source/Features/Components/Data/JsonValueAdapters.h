@@ -9,6 +9,8 @@ namespace Demo {
 namespace Data {
 namespace JsonValueAdapters {
 
+void LogInvalidField(const FJsonFieldRequest &Request);
+
 /**
  * @brief Reads a required string field as a Maybe value.
  *
@@ -77,7 +79,7 @@ MapRequiredJsonValuesWith(
     const FString &FieldName,
     TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue) {
   return [FieldName, MapValue](const TArray<TSharedPtr<FJsonValue>> &Values) {
-    return ecs::traverseMaybeArrayWithIndex<TSharedPtr<FJsonValue>, Output>(
+    return func::traverse_maybe_array_with_index<TSharedPtr<FJsonValue>, Output>(
         Values,
         [FieldName, MapValue](const TSharedPtr<FJsonValue> &Value,
                               int32 Index) {

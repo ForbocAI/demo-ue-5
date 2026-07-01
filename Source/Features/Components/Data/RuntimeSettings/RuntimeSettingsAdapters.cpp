@@ -167,6 +167,7 @@ ReadBotStatPresetSettings(const TSharedPtr<FJsonObject> &Object) {
 FBotRuntimeSettings
 ReadBotRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonStringReader String = Json::StringIn(Object);
+  const Json::FJsonBoolReader Bool = Json::BoolIn(Object);
   const Json::FJsonFloatReader Float = Json::FloatIn(Object);
   const Json::FJsonIntReader Int = Json::IntIn(Object);
   const Json::FJsonObjectValueReader ObjectValue = Json::ObjectValueIn(Object);
@@ -189,7 +190,7 @@ ReadBotRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
       Float(TEXT("initial_time_since_last_seen_player"));
   Settings.EnemySpottedTimeSinceLastSeenPlayer =
       Float(TEXT("enemy_spotted_time_since_last_seen_player"));
-  Settings.bInitialHasAggro = Json::BoolIn(Object)(TEXT("initial_has_aggro"));
+  Settings.bInitialHasAggro = Bool(TEXT("initial_has_aggro"));
   Settings.bDefaultHazardOverlapping =
       Bool(TEXT("default_hazard_overlapping"));
   Settings.bDefaultVisibilityCanSeeEnemy =
@@ -262,6 +263,15 @@ ReadSpeechVisemeMappingSettings(const TSharedPtr<FJsonObject> &Object) {
   return Settings;
 }
 
+FSpeechVowelPhonemeSettings
+ReadSpeechVowelPhonemeSettings(const TSharedPtr<FJsonObject> &Object) {
+  const Json::FJsonStringReader String = Json::StringIn(Object);
+  FSpeechVowelPhonemeSettings Settings;
+  Settings.Character = String(TEXT("character"));
+  Settings.Phoneme = String(TEXT("phoneme"));
+  return Settings;
+}
+
 FSpeechPhonemeDurationRuleSettings
 ReadSpeechPhonemeDurationRuleSettings(
     const TSharedPtr<FJsonObject> &Object) {
@@ -293,8 +303,8 @@ ReadSpeechRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
   Settings.bInitialSpeechActive = Bool(TEXT("initial_speech_active"));
   Settings.EstimatedBasePhonemeSeconds =
       Float(TEXT("estimated_base_phoneme_seconds"));
-  Settings.VowelCharacters = String(TEXT("vowel_characters"));
-  Settings.VowelPhonemeFormat = String(TEXT("vowel_phoneme_format"));
+  Settings.VowelPhonemes = Json::MapJsonValues<FSpeechVowelPhonemeSettings>(
+      Array(TEXT("vowel_phonemes")), ReadSpeechVowelPhonemeSettings);
   Settings.SilenceCharacters = String(TEXT("silence_characters"));
   Settings.SilencePhoneme = String(TEXT("silence_phoneme"));
   Settings.VisemeChangeTolerance = Float(TEXT("viseme_change_tolerance"));
@@ -338,6 +348,20 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
       LoadRuntimeSettingsSubdomain(Object, TEXT("level"));
   const TSharedPtr<FJsonObject> Rendering =
       LoadRuntimeSettingsSubdomain(Object, TEXT("rendering"));
+  const TSharedPtr<FJsonObject> RenderingAssets =
+      LoadRuntimeSettingsSubdomain(Rendering, TEXT("rendering_assets"));
+  const TSharedPtr<FJsonObject> RenderingProfile =
+      LoadRuntimeSettingsSubdomain(Rendering, TEXT("rendering_profile"));
+  const TSharedPtr<FJsonObject> RenderingRuntime =
+      LoadRuntimeSettingsSubdomain(Rendering, TEXT("rendering_runtime"));
+  const TSharedPtr<FJsonObject> RenderingRuntimeTextureSettings =
+      LoadRuntimeSettingsSubdomain(RenderingRuntime, TEXT("texture_settings"));
+  const TSharedPtr<FJsonObject> RenderingRuntimeConsoleVariables =
+      LoadRuntimeSettingsSubdomain(RenderingRuntime, TEXT("console_variables"));
+  const TSharedPtr<FJsonObject> RenderingRuntimeTexturePalettes =
+      LoadRuntimeSettingsSubdomain(RenderingRuntime, TEXT("texture_palettes"));
+  const TSharedPtr<FJsonObject> TextureCatalog =
+      LoadRuntimeSettingsSubdomain(Rendering, TEXT("texture_catalog"));
   const TSharedPtr<FJsonObject> Bots =
       LoadRuntimeSettingsSubdomain(Object, TEXT("bots"));
   const TSharedPtr<FJsonObject> Dialogue =
@@ -353,8 +377,12 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonObjectValueReader InteractionObject =
       Json::ObjectValueIn(Interaction);
   const Json::FJsonObjectValueReader LevelObject = Json::ObjectValueIn(Level);
-  const Json::FJsonObjectValueReader RenderingObject =
-      Json::ObjectValueIn(Rendering);
+  const Json::FJsonObjectValueReader RenderingAssetsObject =
+      Json::ObjectValueIn(RenderingAssets);
+  const Json::FJsonObjectValueReader RenderingProfileObject =
+      Json::ObjectValueIn(RenderingProfile);
+  const Json::FJsonObjectValueReader RenderingRuntimeTextureSettingsObject =
+      Json::ObjectValueIn(RenderingRuntimeTextureSettings);
   const Json::FJsonObjectValueReader BotsObject = Json::ObjectValueIn(Bots);
   const Json::FJsonObjectValueReader DialogueObject =
       Json::ObjectValueIn(Dialogue);
@@ -385,15 +413,17 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
       LevelObject(TEXT("level_geometry")));
   Settings.RenderingAssets =
       RenderingSettingsAdapters::ReadRenderingAssetPathSettings(
-          RenderingObject(TEXT("rendering_assets")));
+          RenderingAssetsObject(TEXT("rendering_assets")));
   Settings.RenderingProfile =
       RenderingSettingsAdapters::ReadRenderingProfileSettings(
-          RenderingObject(TEXT("rendering_profile")));
+          RenderingProfileObject(TEXT("rendering_profile")));
   Settings.TextureCatalog =
-      RenderingSettingsAdapters::ReadTextureCatalogSettings(Rendering);
+      RenderingSettingsAdapters::ReadTextureCatalogSettings(TextureCatalog);
   Settings.RenderingRuntime =
       RenderingSettingsAdapters::ReadRenderingRuntimeSettings(
-          RenderingObject(TEXT("rendering_runtime")));
+          RenderingRuntimeTextureSettingsObject(TEXT("texture_settings")),
+          RenderingRuntimeConsoleVariables,
+          RenderingRuntimeTexturePalettes);
   Settings.DialogueRuntime =
       ReadDialogueRuntimeSettings(DialogueObject(TEXT("runtime_dialogue")));
   Settings.BotRuntime =

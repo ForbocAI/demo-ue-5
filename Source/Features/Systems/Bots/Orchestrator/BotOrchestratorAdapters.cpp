@@ -1,6 +1,7 @@
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.h"
 
-#include "Core/functional_core.hpp"
+#include "Core/frmt.hpp"
+#include "Core/ue_fp.hpp"
 #include "Features/Systems/Bots/BotActions.h"
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorActions.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineActions.h"
@@ -20,8 +21,9 @@ ForbocAI::Demo::Data::FBotRuntimeSettings BotRuntimeSettings() {
 
 FLevelLocalPoint BotInitialLocalPoint(
     const ForbocAI::Demo::Data::FBotRuntimeSettings &Settings) {
-  return {Settings.InitialPosition.X, Settings.InitialPosition.Y,
-          Settings.InitialPosition.Z};
+  return {static_cast<float>(Settings.InitialPosition.X),
+          static_cast<float>(Settings.InitialPosition.Y),
+          static_cast<float>(Settings.InitialPosition.Z)};
 }
 
 } // namespace
@@ -107,7 +109,10 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
         FBotOrchestratorPayload{BotId}));
 
     const FString RegisteredLog =
-        FString::Printf(*Settings.RegisteredLogFormat, *Actor->GetName());
+        frmt::RuntimeString(
+            Settings.RegisteredLogFormat,
+            frmt::Args(
+                {frmt::Arg(Actor->GetName())}));
     UE_LOG(LogTemp, Display, TEXT("%s"), *RegisteredLog);
   }();
 }
@@ -130,9 +135,13 @@ void ABotOrchestratorAdapter::RequestNextAction(
         .catch_([BotActor, Settings](std::string Error) {
           const FString ActorName =
               BotActor ? BotActor->GetName() : Settings.NullActorLabel;
-          const FString ProcessFailedLog = FString::Printf(
-              *Settings.ProcessFailedLogFormat, *ActorName,
-              *FString(UTF8_TO_TCHAR(Error.c_str())));
+          const FString ProcessFailedLog =
+              frmt::RuntimeString(
+                  Settings.ProcessFailedLogFormat,
+                  frmt::Args(
+                      {frmt::Arg(ActorName),
+                       frmt::Arg(
+                           FString(UTF8_TO_TCHAR(Error.c_str())))}));
           UE_LOG(LogTemp, Warning, TEXT("%s"), *ProcessFailedLog);
         })
         .execute();
@@ -149,9 +158,11 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
     const ForbocAI::Demo::Data::FBotRuntimeSettings Settings =
         BotRuntimeSettings();
     const FLevelLocalPoint InitialLocalPoint = BotInitialLocalPoint(Settings);
-    const FString ExecuteLog =
-        FString::Printf(*Settings.ExecuteLogFormat, *ActionType,
-                        *BotActor->GetName());
+    const FString ExecuteLog = frmt::RuntimeString(
+        Settings.ExecuteLogFormat,
+        frmt::Args(
+            {frmt::Arg(ActionType),
+             frmt::Arg(BotActor->GetName())}));
     UE_LOG(LogTemp, Display, TEXT("%s"), *ExecuteLog);
 
     (ActionType == Settings.MoveActionType)
@@ -194,7 +205,11 @@ FString ABotOrchestratorAdapter::GetStateObservation(
   const int32 BehaviorState =
       AI.hasValue ? static_cast<int32>(AI.value.BehaviorState)
                   : Settings.DefaultBehaviorState;
-  return FString::Printf(
-      *Settings.StateObservationFormat, *BotId,
-      *DisplayName, *WorldLocation.ToString(), BehaviorState);
+  return frmt::RuntimeString(
+      Settings.StateObservationFormat,
+      frmt::Args(
+          {frmt::Arg(BotId),
+           frmt::Arg(DisplayName),
+           frmt::Arg(WorldLocation.ToString()),
+           frmt::Arg(BehaviorState)}));
 }

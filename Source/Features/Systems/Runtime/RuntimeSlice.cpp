@@ -71,7 +71,7 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
         rtk::combineReducers(Reducers);
     return [CombinedReducers](const FRuntimeState &State,
                               const rtk::AnyAction &Action) -> FRuntimeState {
-      return RuntimeReducers::ReduceRuntimeEcsProjected(
+      return RuntimeReducers::ReduceRuntimeProjected(
           RuntimeReducers::ReduceRuntimeAction(
               CombinedReducers(State, Action), Action));
     };

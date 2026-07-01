@@ -21,7 +21,7 @@ echo "Checking SDK submodule immutability guard..."
 bash "$GUARD_SCRIPT" --allow-gitlink-change
 
 echo "Unlocking SDK submodule for the predefined update flow..."
-bash "$LOCK_SCRIPT" --unlock
+FORBOC_ALLOW_SDK_SUBMODULE_UNLOCK=update-sdk bash "$LOCK_SCRIPT" --unlock
 trap 'bash "$LOCK_SCRIPT" --lock' EXIT
 
 echo "Fetching latest SDK submodule from origin/main..."

@@ -1,5 +1,6 @@
 #include "Features/Systems/Runtime/RuntimeReducers.h"
 
+#include "Core/frmt.hpp"
 #include "Core/ecs.hpp"
 #include "Features/Systems/Bots/Goals/BotGoalReducers.h"
 #include "Features/Systems/Bots/Horses/HorseSelectors.h"
@@ -40,11 +41,11 @@ void ReduceAppendSection(TArray<FLevelRuntimeSectionSpawn> &Sections,
 
 } // namespace
 
-FRuntimeState ReduceRuntimeEcsProjected(const FRuntimeState &State) {
+FRuntimeState ReduceRuntimeProjected(const FRuntimeState &State) {
   return (func::pipe(State) |
           [](FRuntimeState Next) -> FRuntimeState {
             Next.Ecs.World =
-                SystemsAdapters::ProjectRuntimeEcsWorld({Next});
+                SystemsAdapters::ProjectRuntimeWorld({Next});
             return Next;
           })
       .val;
@@ -86,8 +87,10 @@ FUIPayload ReduceConversationPresentedPayload(
     const FDialogueReplyPayload &DialogueReply,
     const ForbocAI::Demo::Data::FUIRuntimeSettings &UISettings) {
   FUIPayload Payload;
-  Payload.Id = FString::Printf(*UISettings.PayloadIdFormat,
-                               *DialogueReply.Request.Name);
+  Payload.Id = frmt::RuntimeString(
+      UISettings.PayloadIdFormat,
+      frmt::Args(
+          {frmt::Arg(DialogueReply.Request.Name)}));
   Payload.Conversation = UIReducers::ReduceRuntimeConversationViewModel(
       {DialogueReply.Request.Name, DialogueReply.Request.Role,
        DialogueReply.Request.PlayerLine, DialogueReply.Reply},
@@ -145,13 +148,13 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
                            *Request.Geometry}));
 
   Payload.Townspeople =
-      ecs::mapArray<FTownspersonSeed, FRuntimeTownspersonViewSpawn>(
+      func::map_array<FTownspersonSeed, FRuntimeTownspersonViewSpawn>(
           TownspersonSelectors::SelectAll(State.Townspeople),
           [&Request](const FTownspersonSeed &Seed) {
              return ReduceTownspersonViewSpawn({Seed, Request.TerrainData});
           });
   Payload.Horses =
-      ecs::mapArray<FHorseRouteSeed, FRuntimeHorseViewSpawn>(
+      func::map_array<FHorseRouteSeed, FRuntimeHorseViewSpawn>(
           HorseSelectors::SelectAll(State.Horses),
           [&Request](const FHorseRouteSeed &Seed) {
              return ReduceHorseViewSpawn({Seed, Request.TerrainData});

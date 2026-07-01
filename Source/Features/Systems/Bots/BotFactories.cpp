@@ -25,7 +25,7 @@ FBotEntity Bot(const FBotEntitySource &Source) {
 }
 
 TArray<FBotEntity> FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return ecs::mapArray<FTownspersonSeed, FBotEntity>(
+  return func::map_array<FTownspersonSeed, FBotEntity>(
       Seeds, [](const FTownspersonSeed &Seed) {
         return Bot({Seed.Id, Seed.Name, EBotEntityKind::Townsperson,
                     EBotAlignment::Friendly, true});
@@ -33,7 +33,7 @@ TArray<FBotEntity> FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
 }
 
 TArray<FBotEntity> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return ecs::mapArray<FHorseRouteSeed, FBotEntity>(
+  return func::map_array<FHorseRouteSeed, FBotEntity>(
       Seeds, [](const FHorseRouteSeed &Seed) {
         return Bot({Seed.Id, Seed.Name, EBotEntityKind::Horse,
                     EBotAlignment::Neutral, true});

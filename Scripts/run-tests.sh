@@ -117,15 +117,14 @@ set -e
 echo ""
 echo "=== Test Results Analysis ==="
 
-# Parse the log for actual errors vs skips
-# Skips typically appear as Warnings or LogAutomationCommandLine: Warning: Test ... skipped
-# Failures appear as Error: or Test Failed
+# Parse the log for actual test failures vs skips. Unreal startup logs can
+# contain benign Error: lines, and test names may contain words like "Failed".
+FAILURES=$(grep -Fc "Test Completed. Result={Fail" "$LOG_FILE" || true)
+CONTROLLER_ERRORS=$(grep -Fc "LogAutomationController: Error:" "$LOG_FILE" || true)
+COMMAND_ERRORS=$(grep -Fc "LogAutomationCommandLine: Error:" "$LOG_FILE" || true)
+SKIPS=$(grep -Eic "skipp(ed|ing)" "$LOG_FILE" || true)
 
-FAILURES=$(grep -c "Error:" "$LOG_FILE" || true)
-FAILED_TESTS=$(grep -c "Test Failed" "$LOG_FILE" || true)
-SKIPS=$(grep -c "skipped" "$LOG_FILE" || grep -c "Skipped" "$LOG_FILE" || true)
-
-TOTAL_FAILURES=$((FAILURES + FAILED_TESTS))
+TOTAL_FAILURES=$((FAILURES + CONTROLLER_ERRORS + COMMAND_ERRORS))
 
 if [ "$TOTAL_FAILURES" -gt 0 ]; then
   echo "✗ Tests failed. Found $TOTAL_FAILURES real failure(s)."

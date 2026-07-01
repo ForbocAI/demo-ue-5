@@ -73,17 +73,19 @@ FTerrainMeshPayload BuildLoadedTerrainMeshPayload(
       TerrainData.GetTerrainWorldSize() /
           static_cast<float>(GridSize - 1)};
   const FTerrainMeshPayload WithVertices =
-      ecs::foldGridRange<FTerrainMeshPayload>(
+      func::fold_grid_range<FTerrainMeshPayload>(
           GridSize, GridSize, ReserveTerrainMeshPayload(GridSize),
           [&Context](const FTerrainMeshPayload &Payload,
-                     const ecs::FGridIndex &Index) {
-            return AddTerrainVertex(Context, Index.Row, Index.Column, Payload);
+                     const func::GridIndex &Index) {
+            return AddTerrainVertex(Context, static_cast<int32>(Index.Row),
+                                    static_cast<int32>(Index.Column), Payload);
           });
-  return ecs::foldGridRange<FTerrainMeshPayload>(
+  return func::fold_grid_range<FTerrainMeshPayload>(
       GridSize - 1, GridSize - 1, WithVertices,
       [&Context](const FTerrainMeshPayload &Payload,
-                 const ecs::FGridIndex &Index) {
-        return AddTerrainQuadTriangles(Context, Index.Row, Index.Column,
+                 const func::GridIndex &Index) {
+        return AddTerrainQuadTriangles(Context, static_cast<int32>(Index.Row),
+                                       static_cast<int32>(Index.Column),
                                        Payload);
       });
 }

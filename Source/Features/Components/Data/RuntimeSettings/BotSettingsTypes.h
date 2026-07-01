@@ -1,0 +1,207 @@
+#pragma once
+
+#include "Core/rtk.hpp"
+
+namespace ForbocAI {
+namespace Demo {
+namespace Data {
+
+struct FTownspersonDefaultsSettings {
+  FString Id;
+  FString Name;
+  FString Role;
+  FString Persona;
+  FString InteractionPrompt;
+  FString DefaultPlayerLine;
+};
+
+
+struct FBotStatPresetSettings {
+  float MoveSpeed;
+  float AwarenessRange;
+  float Resolve;
+  bool bCanTalk;
+};
+
+
+struct FBotRuntimeSettings {
+  FString InitialName;
+  float InitialHealth;
+  float InitialMaxHealth;
+  float InitialMana;
+  float InitialMaxMana;
+  float InitialStamina;
+  float InitialMaxStamina;
+  float MinimumHealth;
+  FVector InitialPosition;
+  FRotator InitialRotation;
+  FVector InitialLastKnownPlayerPosition;
+  float InitialTimeSinceLastSeenPlayer;
+  float EnemySpottedTimeSinceLastSeenPlayer;
+  bool bInitialHasAggro;
+  bool bDefaultHazardOverlapping;
+  bool bDefaultVisibilityCanSeeEnemy;
+  int32 InitialPhase;
+  int32 InitialTickCount;
+  float AggroTimeoutSeconds;
+  float DamageFleeHealthRatio;
+  float PhaseFleeHealthRatio;
+  float MovementArrivalDistanceSquared;
+  float AggroPositionToleranceSquared;
+  float DefaultMovementInterpSpeed;
+  int32 PatrolGoalPriority;
+  FString PatrolGoalIdFormat;
+  bool bPatrolGoalInitialCompleted;
+  bool bActiveGoalComponentHasActiveGoal;
+  FBotStatPresetSettings TownspersonStats;
+  FBotStatPresetSettings HorseStats;
+  float ObservationIntervalSeconds;
+  float InitialObservationTimeSeconds;
+  bool bOrchestratorCanEverTick;
+  bool bRegisteredBotActive;
+  bool bPositionPayloadHasLocalLocation;
+  bool bPositionPayloadHasWorldLocation;
+  FString StartLog;
+  FString RegisteredLogFormat;
+  FString ProcessFailedLogFormat;
+  FString ExecuteLogFormat;
+  FString NullActorLabel;
+  FString MoveActionType;
+  FString AttackActionType;
+  FVector MoveActionOffset;
+  FString StateObservationFormat;
+  int32 DefaultBehaviorState;
+};
+
+
+struct FTownspersonPresentationSettings {
+  float CharacterHeightFeet = 0.0f;
+  float CharacterShoulderWidthFeet = 0.0f;
+  float PatrolPauseSeconds = 0.0f;
+  float PromptAboveHeadFeet = 0.0f;
+  float NameAbovePromptFeet = 0.0f;
+  float DialogueAboveNameHeightRatio = 0.0f;
+  float InteractionRadiusLots = 0.0f;
+  float WalkSpeedHeightRatio = 0.0f;
+  float MannequinScale = 0.0f;
+  FVector MannequinOffsetFeet = FVector::ZeroVector;
+  FRotator MannequinRotation = FRotator::ZeroRotator;
+  float PromptTextScale = 0.0f;
+  float DialogueTextScale = 0.0f;
+  FString MeshPath;
+  FString AnimationBlueprintClassPath;
+};
+
+
+struct FHorsePresentationSettings {
+  FString DefaultName;
+  float HorseLengthFeet = 0.0f;
+  float BodyHeightFeet = 0.0f;
+  float LegHeightFeet = 0.0f;
+  float NeckHeightFeet = 0.0f;
+  float HeadHeightFeet = 0.0f;
+  float SaddleHeightFeet = 0.0f;
+  float PatrolPauseSeconds = 0.0f;
+  float WalkSpeedHorseLengthRatio = 0.0f;
+  float RouteArrivalLegRatio = 0.0f;
+  float ImportedHorseScale = 0.0f;
+  float MountedRiderScale = 0.0f;
+  float NameTextWorldSizeFeet = 0.0f;
+  FString HorseMeshPath;
+  FString HorseWalkAnimationPath;
+  FString RiderMeshPath;
+  FString RiderWalkAnimationPath;
+};
+
+
+inline bool operator==(const FBotStatPresetSettings &Left,
+                       const FBotStatPresetSettings &Right) {
+  return FMath::IsNearlyEqual(Left.MoveSpeed, Right.MoveSpeed) &&
+         FMath::IsNearlyEqual(Left.AwarenessRange, Right.AwarenessRange) &&
+         FMath::IsNearlyEqual(Left.Resolve, Right.Resolve) &&
+         Left.bCanTalk == Right.bCanTalk;
+}
+
+inline bool operator!=(const FBotStatPresetSettings &Left,
+                       const FBotStatPresetSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FBotRuntimeSettings &Left,
+                       const FBotRuntimeSettings &Right) {
+  return Left.InitialName == Right.InitialName &&
+         FMath::IsNearlyEqual(Left.InitialHealth, Right.InitialHealth) &&
+         FMath::IsNearlyEqual(Left.InitialMaxHealth,
+                              Right.InitialMaxHealth) &&
+         FMath::IsNearlyEqual(Left.InitialMana, Right.InitialMana) &&
+         FMath::IsNearlyEqual(Left.InitialMaxMana, Right.InitialMaxMana) &&
+         FMath::IsNearlyEqual(Left.InitialStamina, Right.InitialStamina) &&
+         FMath::IsNearlyEqual(Left.InitialMaxStamina,
+                              Right.InitialMaxStamina) &&
+         FMath::IsNearlyEqual(Left.MinimumHealth, Right.MinimumHealth) &&
+         Left.InitialPosition == Right.InitialPosition &&
+         Left.InitialRotation == Right.InitialRotation &&
+         Left.InitialLastKnownPlayerPosition ==
+             Right.InitialLastKnownPlayerPosition &&
+         FMath::IsNearlyEqual(Left.InitialTimeSinceLastSeenPlayer,
+                              Right.InitialTimeSinceLastSeenPlayer) &&
+         FMath::IsNearlyEqual(Left.EnemySpottedTimeSinceLastSeenPlayer,
+                              Right.EnemySpottedTimeSinceLastSeenPlayer) &&
+         Left.bInitialHasAggro == Right.bInitialHasAggro &&
+         Left.bDefaultHazardOverlapping ==
+             Right.bDefaultHazardOverlapping &&
+         Left.bDefaultVisibilityCanSeeEnemy ==
+             Right.bDefaultVisibilityCanSeeEnemy &&
+         Left.InitialPhase == Right.InitialPhase &&
+         Left.InitialTickCount == Right.InitialTickCount &&
+         FMath::IsNearlyEqual(Left.AggroTimeoutSeconds,
+                              Right.AggroTimeoutSeconds) &&
+         FMath::IsNearlyEqual(Left.DamageFleeHealthRatio,
+                              Right.DamageFleeHealthRatio) &&
+         FMath::IsNearlyEqual(Left.PhaseFleeHealthRatio,
+                              Right.PhaseFleeHealthRatio) &&
+         FMath::IsNearlyEqual(Left.MovementArrivalDistanceSquared,
+                              Right.MovementArrivalDistanceSquared) &&
+         FMath::IsNearlyEqual(Left.AggroPositionToleranceSquared,
+                              Right.AggroPositionToleranceSquared) &&
+         FMath::IsNearlyEqual(Left.DefaultMovementInterpSpeed,
+                              Right.DefaultMovementInterpSpeed) &&
+         Left.PatrolGoalPriority == Right.PatrolGoalPriority &&
+         Left.PatrolGoalIdFormat == Right.PatrolGoalIdFormat &&
+         Left.bPatrolGoalInitialCompleted ==
+             Right.bPatrolGoalInitialCompleted &&
+         Left.bActiveGoalComponentHasActiveGoal ==
+             Right.bActiveGoalComponentHasActiveGoal &&
+         Left.TownspersonStats == Right.TownspersonStats &&
+         Left.HorseStats == Right.HorseStats &&
+         FMath::IsNearlyEqual(Left.ObservationIntervalSeconds,
+                              Right.ObservationIntervalSeconds) &&
+         FMath::IsNearlyEqual(Left.InitialObservationTimeSeconds,
+                              Right.InitialObservationTimeSeconds) &&
+         Left.bOrchestratorCanEverTick ==
+             Right.bOrchestratorCanEverTick &&
+         Left.bRegisteredBotActive == Right.bRegisteredBotActive &&
+         Left.bPositionPayloadHasLocalLocation ==
+             Right.bPositionPayloadHasLocalLocation &&
+         Left.bPositionPayloadHasWorldLocation ==
+             Right.bPositionPayloadHasWorldLocation &&
+         Left.StartLog == Right.StartLog &&
+         Left.RegisteredLogFormat == Right.RegisteredLogFormat &&
+         Left.ProcessFailedLogFormat == Right.ProcessFailedLogFormat &&
+         Left.ExecuteLogFormat == Right.ExecuteLogFormat &&
+         Left.NullActorLabel == Right.NullActorLabel &&
+         Left.MoveActionType == Right.MoveActionType &&
+         Left.AttackActionType == Right.AttackActionType &&
+         Left.MoveActionOffset == Right.MoveActionOffset &&
+         Left.StateObservationFormat == Right.StateObservationFormat &&
+         Left.DefaultBehaviorState == Right.DefaultBehaviorState;
+}
+
+inline bool operator!=(const FBotRuntimeSettings &Left,
+                       const FBotRuntimeSettings &Right) {
+  return !(Left == Right);
+}
+
+} // namespace Data
+} // namespace Demo
+} // namespace ForbocAI

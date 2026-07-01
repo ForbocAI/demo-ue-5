@@ -27,7 +27,7 @@ FBotStatsComponent Component(const FBotStatsSource &Source) {
 
 TArray<FBotStatsComponent>
 FromTownspeople(const FBotStatsFromTownspeopleRequest &Request) {
-  return ecs::mapArray<FTownspersonSeed, FBotStatsComponent>(
+  return func::map_array<FTownspersonSeed, FBotStatsComponent>(
       Request.Seeds, [&Request](const FTownspersonSeed &Seed) {
         return Component({Seed.Id, Request.RuntimeSettings.TownspersonStats.MoveSpeed,
                           Request.RuntimeSettings.TownspersonStats.AwarenessRange,
@@ -39,7 +39,7 @@ FromTownspeople(const FBotStatsFromTownspeopleRequest &Request) {
 
 TArray<FBotStatsComponent> FromHorses(
     const FBotStatsFromHorsesRequest &Request) {
-  return ecs::mapArray<FHorseRouteSeed, FBotStatsComponent>(
+  return func::map_array<FHorseRouteSeed, FBotStatsComponent>(
       Request.Seeds, [&Request](const FHorseRouteSeed &Seed) {
         return Component({Seed.Id, Request.RuntimeSettings.HorseStats.MoveSpeed,
                           Request.RuntimeSettings.HorseStats.AwarenessRange,

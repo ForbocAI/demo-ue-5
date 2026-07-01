@@ -1,13 +1,12 @@
 #include "Features/Systems/Projection/SystemsProjectionBotAdapters.h"
 
-#include "Core/functional_core.hpp"
+#include "Core/ue_fp.hpp"
 #include "Features/Components/ComponentsAdapters.h"
 #include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
-namespace SystemsProjectionBotAdapters {
 namespace {
 
 /**
@@ -44,7 +43,7 @@ FString BotGoalTypeText(EBotGoalType Type) {
  * a component value before building strategic goal maps.
  */
 ecs::FComponentValue BotGoalTypeValue(EBotGoalType Type) {
-  return ecs::textValue(BotGoalTypeText(Type));
+  return ecs::createTextComponentValue(BotGoalTypeText(Type));
 }
 
 /**
@@ -55,17 +54,14 @@ ecs::FComponentValue BotGoalTypeValue(EBotGoalType Type) {
  * with the same component field layout.
  */
 ecs::FComponentValue StrategicGoalValue(const FBotStrategicGoal &Goal) {
-  TMap<FString, ecs::FComponentValue> Fields;
-  Fields.Add(TEXT("id"), ecs::textValue(Goal.Id));
-  Fields.Add(TEXT("type"), BotGoalTypeValue(Goal.Type));
-  Fields.Add(TEXT("priority"), ecs::intValue(Goal.Priority));
-  Fields.Add(TEXT("targetEntityId"), ecs::textValue(Goal.TargetEntityId));
-  Fields.Add(TEXT("targetLocation"),
-             ComponentsAdapters::LocalPointValue(Goal.TargetLocation));
-  Fields.Add(TEXT("hasTargetLocation"),
-             ecs::boolValue(Goal.bHasTargetLocation));
-  Fields.Add(TEXT("completed"), ecs::boolValue(Goal.bCompleted));
-  return ecs::mapValue(Fields);
+  return ComponentsAdapters::ComponentValueMap(
+      {{"id", Goal.Id},
+       {"type", BotGoalTypeValue(Goal.Type)},
+       {"priority", Goal.Priority},
+       {"targetEntityId", Goal.TargetEntityId},
+       {"targetLocation", Goal.TargetLocation},
+       {"hasTargetLocation", Goal.bHasTargetLocation},
+       {"completed", Goal.bCompleted}});
 }
 
 /**
@@ -81,6 +77,12 @@ StrategicGoalList(const TArray<FBotStrategicGoal> &Goals) {
       Goals, [](const FBotStrategicGoal &Goal) {
         return StrategicGoalValue(Goal);
       });
+}
+
+ecs::FComponentValue BotKnowledgeValue(const FBotKnowledgeBase &Knowledge) {
+  return ComponentsAdapters::ComponentValueMap(
+      {{"KnownLandmarkIds", Knowledge.KnownLandmarkIds},
+       {"KnownBotIds", Knowledge.KnownBotIds}});
 }
 
 /**
@@ -117,6 +119,68 @@ FString BotBehaviorText(EBotBehaviorState State) {
   return Text.value;
 }
 
+} // namespace
+
+namespace ComponentsAdapters {
+
+template <>
+struct TComponentSourceProjector<FBotStatsComponent> {
+  ecs::FComponentValue operator()(const FBotStatsComponent &Stats) const {
+    return ComponentValueMap({{"Id", Stats.Id},
+                              {"MoveSpeed", Stats.MoveSpeed},
+                              {"AwarenessRange", Stats.AwarenessRange},
+                              {"Resolve", Stats.Resolve},
+                              {"CanTalk", Stats.bCanTalk},
+                              {"MountedRider", Stats.bMountedRider}});
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FBotPositionComponent> {
+  ecs::FComponentValue
+  operator()(const FBotPositionComponent &Position) const {
+    return ComponentValueMap(
+        {{"Id", Position.Id},
+         {"LocalLocation", Position.LocalLocation},
+         {"WorldLocation", Position.WorldLocation},
+         {"HasWorldLocation", Position.bHasWorldLocation},
+         {"FacingRight", Position.bFacingRight}});
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FBotAIComponent> {
+  ecs::FComponentValue operator()(const FBotAIComponent &AI) const {
+    return ComponentValueMap({{"Id", AI.Id},
+                              {"BehaviorState",
+                               BotBehaviorText(AI.BehaviorState)},
+                              {"TargetEntityId", AI.TargetEntityId},
+                              {"TargetLocation", AI.TargetLocation},
+                              {"HasTargetLocation", AI.bHasTargetLocation},
+                              {"PatrolIndex", AI.PatrolIndex},
+                              {"PatrolRoute", AI.PatrolRoute}});
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FBotGoalComponent> {
+  ecs::FComponentValue operator()(const FBotGoalComponent &Goal) const {
+    return ComponentValueMap(
+        {{"Id", Goal.Id},
+         {"HasActiveGoal", Goal.bHasActiveGoal},
+         {"ActiveGoal", StrategicGoalValue(Goal.ActiveGoal)},
+         {"GoalQueue", StrategicGoalList(Goal.GoalQueue)},
+         {"Knowledge", BotKnowledgeValue(Goal.Knowledge)}});
+  }
+};
+
+} // namespace ComponentsAdapters
+
+namespace SystemsProjectionBotAdapters {
+namespace {
+
+using ComponentsAdapters::RegisteredComponentGroups;
+
 /**
  * @brief Builds ECS bot projection domain steps for one bot subdomain.
  * @signature TArray<TArray<FString>> BuildBotProjectionDomains(const FString &BotSystemDomain)
@@ -132,157 +196,89 @@ BuildBotProjectionDomains(const FString &BotSystemDomain) {
            BotSystemDomain}};
 }
 
-/**
- * @brief Builds ECS component steps from one bot stats row.
- * @signature TArray<ComponentsAdapters::FEcsComponentProjectionBinding> BuildBotStatsComponentBindings(const FBotStatsComponent &Stats)
- *
- * User Story: As a runtime reducer, bot stats entity-adapter rows should
- * project into ECS stats and bot capability components.
- */
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-BuildBotStatsComponentBindings(const FBotStatsComponent &Stats) {
-  return {{TEXT("Components/Stats/MoveSpeed"),
-           ecs::floatValue(Stats.MoveSpeed)},
-          {TEXT("Components/Stats/AwarenessRange"),
-           ecs::floatValue(Stats.AwarenessRange)},
-          {TEXT("Components/Stats/Resolve"), ecs::floatValue(Stats.Resolve)},
-          {TEXT("Components/Bots/CanTalk"), ecs::boolValue(Stats.bCanTalk)},
-          {TEXT("Components/Bots/MountedRider"),
-           ecs::boolValue(Stats.bMountedRider)}};
-}
-
-/**
- * @brief Builds ECS component steps from one bot position row.
- * @signature TArray<ComponentsAdapters::FEcsComponentProjectionBinding> BuildBotPositionComponentBindings(const FBotPositionComponent &Position)
- *
- * User Story: As a runtime reducer, bot position entity-adapter rows should
- * project into ECS local/world spatial components.
- */
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-BuildBotPositionComponentBindings(const FBotPositionComponent &Position) {
-  return {{TEXT("Components/Spatial/LocalLocation"),
-           ComponentsAdapters::LocalPointValue(Position.LocalLocation)},
-          {TEXT("Components/Spatial/WorldLocation"),
-           ecs::vec3Value(Position.WorldLocation)},
-          {TEXT("Components/Spatial/HasWorldLocation"),
-           ecs::boolValue(Position.bHasWorldLocation)},
-          {TEXT("Components/Rendering/FacingRight"),
-           ecs::boolValue(Position.bFacingRight)}};
-}
-
-/**
- * @brief Builds ECS component steps from one bot AI row.
- * @signature TArray<ComponentsAdapters::FEcsComponentProjectionBinding> BuildBotAIComponentBindings(const FBotAIComponent &AI)
- *
- * User Story: As a runtime reducer, bot AI entity-adapter rows should project
- * behavior, target, and patrol route data into ECS components.
- */
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-BuildBotAIComponentBindings(const FBotAIComponent &AI) {
-  return {{TEXT("Components/Bots/BehaviorState"),
-           ecs::textValue(BotBehaviorText(AI.BehaviorState))},
-          {TEXT("Components/Bots/TargetEntityId"),
-           ecs::textValue(AI.TargetEntityId)},
-          {TEXT("Components/Bots/TargetLocation"),
-           ComponentsAdapters::LocalPointValue(AI.TargetLocation)},
-          {TEXT("Components/Bots/HasTargetLocation"),
-           ecs::boolValue(AI.bHasTargetLocation)},
-          {TEXT("Components/Bots/PatrolIndex"), ecs::intValue(AI.PatrolIndex)},
-          {TEXT("Components/Spatial/PatrolRoute"),
-           ecs::listValue(ComponentsAdapters::LocalPointList(AI.PatrolRoute))}};
-}
-
-/**
- * @brief Builds ECS component steps from one bot goal row.
- * @signature TArray<ComponentsAdapters::FEcsComponentProjectionBinding> BuildBotGoalComponentBindings(const FBotGoalComponent &Goal)
- *
- * User Story: As a runtime reducer, bot goal entity-adapter rows should project
- * active goals, queued goals, and knowledge lists into ECS components.
- */
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-BuildBotGoalComponentBindings(const FBotGoalComponent &Goal) {
-  return {{TEXT("Components/Bots/HasActiveGoal"),
-           ecs::boolValue(Goal.bHasActiveGoal)},
-          {TEXT("Components/Bots/ActiveGoal"),
-           StrategicGoalValue(Goal.ActiveGoal)},
-          {TEXT("Components/Bots/GoalQueue"),
-           ecs::listValue(StrategicGoalList(Goal.GoalQueue))},
-          {TEXT("Components/Bots/KnownLandmarkIds"),
-           ecs::listValue(
-               ComponentsAdapters::StringList(Goal.Knowledge.KnownLandmarkIds))},
-          {TEXT("Components/Bots/KnownBotIds"),
-           ecs::listValue(
-               ComponentsAdapters::StringList(Goal.Knowledge.KnownBotIds))}};
-}
-
-template <typename Payload, typename SelectId, typename SelectDomain,
-          typename SelectComponents>
+template <typename Payload, typename SelectId, typename SelectSource,
+          typename ComponentCatalog>
 ecs::FWorld ProjectBotPayload(const Payload &PayloadValue,
+                              const FString &BotSystemDomain,
                               SelectId SelectIdValue,
-                              SelectDomain SelectDomainValue,
-                              SelectComponents SelectComponentValues) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+                              SelectSource SelectSourceValue,
+                              const ComponentCatalog &Components) {
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       PayloadValue,
       [SelectIdValue](const Payload &SelectedPayload) {
         return EntitiesAdapters::BotEntityKey(SelectIdValue(SelectedPayload));
       },
-      [SelectDomainValue](const Payload &SelectedPayload) {
-        return BuildBotProjectionDomains(SelectDomainValue(SelectedPayload));
-      },
-      SelectComponentValues);
+      func::constant<TArray<TArray<FString>>>(
+          BuildBotProjectionDomains(BotSystemDomain)),
+      SelectSourceValue, Components);
 }
 
 } // namespace
 
-ecs::FWorld ProjectBotStats(const FProjectBotStatsEcsPayload &Payload) {
+ecs::FWorld ProjectBotStats(const FProjectBotStatsPayload &Payload) {
   return ProjectBotPayload(
-      Payload,
-      [](const FProjectBotStatsEcsPayload &PayloadValue) {
+      Payload, TEXT("Stats"),
+      [](const FProjectBotStatsPayload &PayloadValue) {
         return PayloadValue.Stats.Id;
       },
-      [](const FProjectBotStatsEcsPayload &) { return FString(TEXT("Stats")); },
-      [](const FProjectBotStatsEcsPayload &PayloadValue) {
-        return BuildBotStatsComponentBindings(PayloadValue.Stats);
-      });
+      [](const FProjectBotStatsPayload &PayloadValue) -> const FBotStatsComponent & {
+        return PayloadValue.Stats;
+      },
+      RegisteredComponentGroups<FBotStatsComponent>(
+          {{"Components/Stats", {"MoveSpeed", "AwarenessRange", "Resolve"}},
+           {"Components/Bots", {"CanTalk", "MountedRider"}}}));
 }
 
 ecs::FWorld
-ProjectBotPosition(const FProjectBotPositionEcsPayload &Payload) {
+ProjectBotPosition(const FProjectBotPositionPayload &Payload) {
   return ProjectBotPayload(
-      Payload,
-      [](const FProjectBotPositionEcsPayload &PayloadValue) {
+      Payload, TEXT("Position"),
+      [](const FProjectBotPositionPayload &PayloadValue) {
         return PayloadValue.Position.Id;
       },
-      [](const FProjectBotPositionEcsPayload &) {
-        return FString(TEXT("Position"));
+      [](const FProjectBotPositionPayload &PayloadValue)
+          -> const FBotPositionComponent & {
+        return PayloadValue.Position;
       },
-      [](const FProjectBotPositionEcsPayload &PayloadValue) {
-        return BuildBotPositionComponentBindings(PayloadValue.Position);
-      });
+      RegisteredComponentGroups<FBotPositionComponent>(
+          {{"Components/Spatial",
+            {"LocalLocation", "WorldLocation", "HasWorldLocation"}},
+           {"Components/Rendering", {"FacingRight"}}}));
 }
 
-ecs::FWorld ProjectBotAI(const FProjectBotAIEcsPayload &Payload) {
+ecs::FWorld ProjectBotAI(const FProjectBotAIPayload &Payload) {
   return ProjectBotPayload(
-      Payload,
-      [](const FProjectBotAIEcsPayload &PayloadValue) {
+      Payload, TEXT("AI"),
+      [](const FProjectBotAIPayload &PayloadValue) {
         return PayloadValue.AI.Id;
       },
-      [](const FProjectBotAIEcsPayload &) { return FString(TEXT("AI")); },
-      [](const FProjectBotAIEcsPayload &PayloadValue) {
-        return BuildBotAIComponentBindings(PayloadValue.AI);
-      });
+      [](const FProjectBotAIPayload &PayloadValue) -> const FBotAIComponent & {
+        return PayloadValue.AI;
+      },
+      RegisteredComponentGroups<FBotAIComponent>(
+          {{"Components/Bots",
+            {"BehaviorState", "TargetEntityId", "TargetLocation",
+             "HasTargetLocation", "PatrolIndex"}},
+           {"Components/Spatial", {"PatrolRoute"}}}));
 }
 
-ecs::FWorld ProjectBotGoal(const FProjectBotGoalEcsPayload &Payload) {
+ecs::FWorld ProjectBotGoal(const FProjectBotGoalPayload &Payload) {
   return ProjectBotPayload(
-      Payload,
-      [](const FProjectBotGoalEcsPayload &PayloadValue) {
+      Payload, TEXT("Goals"),
+      [](const FProjectBotGoalPayload &PayloadValue) {
         return PayloadValue.Goal.Id;
       },
-      [](const FProjectBotGoalEcsPayload &) { return FString(TEXT("Goals")); },
-      [](const FProjectBotGoalEcsPayload &PayloadValue) {
-        return BuildBotGoalComponentBindings(PayloadValue.Goal);
-      });
+      [](const FProjectBotGoalPayload &PayloadValue)
+          -> const FBotGoalComponent & {
+        return PayloadValue.Goal;
+      },
+      RegisteredComponentGroups<FBotGoalComponent>(
+          {{"Components/Bots",
+            {"HasActiveGoal",
+             "ActiveGoal",
+             "GoalQueue",
+             {"KnownLandmarkIds", {"Knowledge", "KnownLandmarkIds"}},
+             {"KnownBotIds", {"Knowledge", "KnownBotIds"}}}}}));
 }
 
 } // namespace SystemsProjectionBotAdapters

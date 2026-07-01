@@ -1,7 +1,8 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
 #include "Components/StaticMeshComponent.h"
-#include "Core/functional_core.hpp"
+#include "Core/frmt.hpp"
+#include "Core/ue_fp.hpp"
 #include "Engine/Texture2D.h"
 #include "Features/Systems/Rendering/RenderingActions.h"
 #include "Features/Systems/Rendering/RenderingReducers.h"
@@ -287,9 +288,12 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
 FString TextureCacheKey(
     const FLevelRetroTextureSpec &Spec,
     const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
-  return FString::Printf(*RuntimeSettings.TextureCacheKeyFormat,
-                         static_cast<int32>(Spec.Texture), Spec.Size.X,
-                         Spec.Size.Y);
+  return frmt::RuntimeString(
+      RuntimeSettings.TextureCacheKeyFormat,
+      frmt::Args(
+          {frmt::Arg(static_cast<int32>(Spec.Texture)),
+           frmt::Arg(Spec.Size.X),
+           frmt::Arg(Spec.Size.Y)}));
 }
 
 UTexture2D *CreateRetroTexture(

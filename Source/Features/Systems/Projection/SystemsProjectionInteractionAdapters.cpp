@@ -5,19 +5,7 @@
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
-namespace SystemsProjectionInteractionAdapters {
 namespace {
-
-/**
- * @brief Returns the stable ECS entity key for interaction projection.
- * @signature ecs::EntityKey InteractionEntityKey()
- *
- * User Story: As interaction projection code, I need one focus entity so each
- * reducer pass updates the same ECS interaction record.
- */
-ecs::EntityKey InteractionEntityKey() {
-  return TEXT("systems:interaction:focus");
-}
 
 /**
  * @brief Converts one interaction candidate into an ECS map value.
@@ -28,12 +16,11 @@ ecs::EntityKey InteractionEntityKey() {
  */
 ecs::FComponentValue
 InteractionCandidateValue(const FInteractionCandidate &Candidate) {
-  TMap<FString, ecs::FComponentValue> Fields;
-  Fields.Add(TEXT("index"), ecs::intValue(Candidate.Index));
-  Fields.Add(TEXT("entityId"), ecs::textValue(Candidate.EntityId));
-  Fields.Add(TEXT("location"), ecs::vec3Value(Candidate.Location));
-  Fields.Add(TEXT("canInteract"), ecs::boolValue(Candidate.bCanInteract));
-  return ecs::mapValue(Fields);
+  return ComponentsAdapters::ComponentValueMap(
+      {{"index", Candidate.Index},
+       {"entityId", Candidate.EntityId},
+       {"location", Candidate.Location},
+       {"canInteract", Candidate.bCanInteract}});
 }
 
 /**
@@ -51,6 +38,49 @@ TArray<ecs::FComponentValue> InteractionCandidateList(
       });
 }
 
+ecs::FComponentValue
+InteractionSelectionValue(const FInteractionSelection &Selection) {
+  return ComponentsAdapters::ComponentValueMap(
+      {{"Found", Selection.bFound},
+       {"EntityId", Selection.EntityId},
+       {"CandidateIndex", Selection.CandidateIndex}});
+}
+
+} // namespace
+
+namespace ComponentsAdapters {
+
+template <>
+struct TComponentSourceProjector<FInteractionState> {
+  ecs::FComponentValue
+  operator()(const FInteractionState &Interaction) const {
+    return ComponentValueMap(
+        {{"Origin", Interaction.LastOrigin},
+         {"MaxDistance", Interaction.LastMaxDistance},
+         {"Candidates", InteractionCandidateList(Interaction.LastCandidates)},
+         {"SelectedCandidate",
+          InteractionSelectionValue(Interaction.SelectedCandidate)}});
+  }
+};
+
+} // namespace ComponentsAdapters
+
+namespace SystemsProjectionInteractionAdapters {
+namespace {
+
+using ComponentsAdapters::RegisteredComponentGroups;
+
+/**
+ * @brief Returns the stable ECS entity key for interaction projection.
+ * @signature ecs::EntityKey InteractionEntityKey()
+ *
+ * User Story: As interaction projection code, I need one focus entity so each
+ * reducer pass updates the same ECS interaction record.
+ */
+ecs::EntityKey InteractionEntityKey() {
+  return TEXT("systems:interaction:focus");
+}
+
 /**
  * @brief Builds ECS domain steps for interaction projection.
  * @signature TArray<TArray<FString>> BuildInteractionDomains()
@@ -63,44 +93,25 @@ TArray<TArray<FString>> BuildInteractionDomains() {
           {TEXT("Systems"), TEXT("Projection"), TEXT("Interaction")}};
 }
 
-/**
- * @brief Builds ECS component steps from interaction slice state.
- * @signature TArray<ComponentsAdapters::FEcsComponentProjectionBinding> BuildInteractionComponentBindings(const FInteractionState &Interaction)
- *
- * User Story: As a runtime reducer, interaction origin, range, candidates, and
- * selected result should project as ECS component data in one adapter pass.
- */
-TArray<ComponentsAdapters::FEcsComponentProjectionBinding>
-BuildInteractionComponentBindings(const FInteractionState &Interaction) {
-  return {{TEXT("Components/Spatial/Origin"),
-           ecs::vec3Value(Interaction.LastOrigin)},
-          {TEXT("Components/Spatial/MaxDistance"),
-           ecs::floatValue(Interaction.LastMaxDistance)},
-          {TEXT("Components/Interaction/Candidates"),
-           ecs::listValue(InteractionCandidateList(Interaction.LastCandidates))},
-          {TEXT("Components/Interaction/Found"),
-           ecs::boolValue(Interaction.SelectedCandidate.bFound)},
-          {TEXT("Components/Interaction/EntityId"),
-           ecs::textValue(Interaction.SelectedCandidate.EntityId)},
-          {TEXT("Components/Interaction/CandidateIndex"),
-           ecs::intValue(Interaction.SelectedCandidate.CandidateIndex)}};
-}
-
 } // namespace
 
 ecs::FWorld
-ProjectInteraction(const FProjectInteractionEcsPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityWith(
+ProjectInteraction(const FProjectInteractionPayload &Payload) {
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
-      [](const FProjectInteractionEcsPayload &) {
-        return InteractionEntityKey();
+      func::constant<ecs::EntityKey>(InteractionEntityKey()),
+      func::constant<TArray<TArray<FString>>>(BuildInteractionDomains()),
+      [](const FProjectInteractionPayload &PayloadValue)
+          -> const FInteractionState & {
+        return PayloadValue.Interaction;
       },
-      [](const FProjectInteractionEcsPayload &) {
-        return BuildInteractionDomains();
-      },
-      [](const FProjectInteractionEcsPayload &PayloadValue) {
-        return BuildInteractionComponentBindings(PayloadValue.Interaction);
-      });
+      RegisteredComponentGroups<FInteractionState>(
+          {{"Components/Spatial", {"Origin", "MaxDistance"}},
+           {"Components/Interaction",
+            {"Candidates",
+             {"Found", {"SelectedCandidate", "Found"}},
+             {"EntityId", {"SelectedCandidate", "EntityId"}},
+             {"CandidateIndex", {"SelectedCandidate", "CandidateIndex"}}}}}));
 }
 
 } // namespace SystemsProjectionInteractionAdapters

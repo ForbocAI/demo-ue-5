@@ -1,0 +1,82 @@
+{
+  "texture_catalog": [
+    {
+      "texture": "terrain_ortho",
+      "name": "terrain-ortho-dither",
+      "use": "dithered terrain color from the French Gulch ortho sample",
+      "size": 16
+    },
+    {
+      "texture": "building_timber",
+      "name": "building-timber",
+      "use": "false-front buildings, cabins, porch boards, and hotel/store silhouettes",
+      "size": 16
+    },
+    {
+      "texture": "road_dust",
+      "name": "road-dust",
+      "use": "Main Street, French Gulch Road, wagon yard, and mine road",
+      "size": 16
+    },
+    {
+      "texture": "water_creek",
+      "name": "clear-creek-water",
+      "use": "Clear Creek ribbon, shallow bends, and future Water System guide surfaces",
+      "size": 16
+    },
+    {
+      "texture": "foliage_riparian",
+      "name": "riparian-foliage",
+      "use": "cottonwoods, willow shrubs, chaparral, and PCG foliage markers",
+      "size": 16
+    },
+    {
+      "texture": "rock_granite",
+      "name": "creek-granite-rock",
+      "use": "boulders, creek stone shelves, cemetery terrace, and hillside rock scatter",
+      "size": 16
+    },
+    {
+      "texture": "mine_timber",
+      "name": "mine-dark-timber",
+      "use": "mine entrance, timber supports, and waste-rock edge pieces",
+      "size": 16
+    },
+    {
+      "texture": "marker_paint",
+      "name": "prototype-marker-paint",
+      "use": "PCG/Water staging markers and remaining non-final blockout markers",
+      "size": 16
+    },
+    {
+      "texture": "npc_body",
+      "name": "npc-work-cloth",
+      "use": "primitive townspeople clothing",
+      "size": 16
+    },
+    {
+      "texture": "npc_hat",
+      "name": "npc-worn-hat",
+      "use": "primitive townspeople hats",
+      "size": 16
+    },
+    {
+      "texture": "horse_coat",
+      "name": "horse-coat",
+      "use": "walking horse body, neck, and head primitives",
+      "size": 16
+    },
+    {
+      "texture": "horse_leg",
+      "name": "horse-leg-dark",
+      "use": "walking horse legs and tail primitives",
+      "size": 16
+    },
+    {
+      "texture": "horse_tack",
+      "name": "horse-tack-saddle",
+      "use": "walking horse saddle and tack primitives",
+      "size": 16
+    }
+  ]
+}
