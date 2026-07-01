@@ -4,6 +4,8 @@
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/DataTypes.h"
 
+#include <initializer_list>
+
 namespace ForbocAI {
 namespace Demo {
 namespace Data {
@@ -225,6 +227,119 @@ FJsonVectorReader VectorIn(const TSharedPtr<FJsonObject> &Object);
  */
 FJsonRotatorReader RotatorIn(const TSharedPtr<FJsonObject> &Object);
 
+inline FString AppendJsonSettingsFieldChar(const FString &Value, TCHAR Char) {
+  FString Next = Value;
+  Next.AppendChar(Char);
+  return Next;
+}
+
+inline FString AppendJsonSettingsFieldCharWhen(const FString &Value,
+                                               bool bAppend, TCHAR Char) {
+  return bAppend ? AppendJsonSettingsFieldChar(Value, Char) : Value;
+}
+
+inline FString NormalizeSettingsFieldAtomFrom(const FString &Atom, int32 Index,
+                                              int32 StartIndex,
+                                              const FString &Acc) {
+  const TCHAR Current = Index < Atom.Len() ? Atom[Index] : TCHAR('\0');
+  const bool bUpper = FChar::IsUpper(Current);
+  const bool bPreviousLowerOrDigit =
+      Index > StartIndex &&
+      (FChar::IsLower(Atom[Index - 1]) || FChar::IsDigit(Atom[Index - 1]));
+  const bool bNextLower =
+      Index + 1 < Atom.Len() && FChar::IsLower(Atom[Index + 1]);
+  const bool bSeparate =
+      bUpper && Index > StartIndex && (bPreviousLowerOrDigit || bNextLower);
+  return Index >= Atom.Len()
+             ? Acc
+             : NormalizeSettingsFieldAtomFrom(
+                   Atom, Index + 1, StartIndex,
+                   AppendJsonSettingsFieldChar(
+                       AppendJsonSettingsFieldCharWhen(Acc, bSeparate,
+                                                       TCHAR('_')),
+                       FChar::ToLower(Current)));
+}
+
+inline FString NormalizeSettingsFieldAtom(const FString &Atom) {
+  const int32 StartIndex =
+      Atom.Len() > 1 && Atom[0] == TCHAR('b') && FChar::IsUpper(Atom[1]) ? 1
+                                                                          : 0;
+  return NormalizeSettingsFieldAtomFrom(Atom, StartIndex, StartIndex,
+                                        FString());
+}
+
+inline FString SettingsFieldName(const TCHAR *Atom) {
+  return NormalizeSettingsFieldAtom(FString(Atom));
+}
+
+inline FString SettingsFieldName(const char *Atom) {
+  return NormalizeSettingsFieldAtom(FString(UTF8_TO_TCHAR(Atom)));
+}
+
+template <typename Value> Value ReadFieldValue(const FJsonFieldRequest &Request);
+
+template <>
+inline FString ReadFieldValue<FString>(const FJsonFieldRequest &Request) {
+  return ReadString(Request);
+}
+
+template <>
+inline float ReadFieldValue<float>(const FJsonFieldRequest &Request) {
+  return ReadFloat(Request);
+}
+
+template <>
+inline int32 ReadFieldValue<int32>(const FJsonFieldRequest &Request) {
+  return ReadInt(Request);
+}
+
+template <>
+inline bool ReadFieldValue<bool>(const FJsonFieldRequest &Request) {
+  return ReadBool(Request);
+}
+
+template <>
+inline FVector ReadFieldValue<FVector>(const FJsonFieldRequest &Request) {
+  return ReadVector(Request);
+}
+
+template <>
+inline FRotator ReadFieldValue<FRotator>(const FJsonFieldRequest &Request) {
+  return ReadRotator(Request);
+}
+
+inline TArray<FString>
+ReadStringArrayValue(const TArray<TSharedPtr<FJsonValue>> &Values) {
+  return func::fold_indexed(
+      Values, static_cast<size_t>(Values.Num()), TArray<FString>(),
+      [](const TArray<FString> &Acc, const TSharedPtr<FJsonValue> &Value) {
+        check(Value.IsValid());
+        TArray<FString> Next = Acc;
+        Next.Add(Value->AsString());
+        return Next;
+      });
+}
+
+inline TArray<FString> ReadStringArray(const FJsonFieldRequest &Request) {
+  return ReadStringArrayValue(ReadArray(Request));
+}
+
+inline FString ReadStringField(const TSharedPtr<FJsonObject> &Object,
+                               const char *FieldAtom) {
+  return ReadString(Field(Object, *SettingsFieldName(FieldAtom)));
+}
+
+inline TSharedPtr<FJsonObject>
+ReadObjectField(const TSharedPtr<FJsonObject> &Object, const char *FieldAtom) {
+  return ReadObjectValue(Field(Object, *SettingsFieldName(FieldAtom)));
+}
+
+template <>
+inline TArray<FString>
+ReadFieldValue<TArray<FString>>(const FJsonFieldRequest &Request) {
+  return ReadStringArray(Request);
+}
+
 /**
  * @brief Maps JSON object values into typed payloads.
  * @signature template <typename Output> TArray<Output> MapJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values, TFunction<Output(const TSharedPtr<FJsonObject> &)> MapValue)
@@ -242,6 +357,149 @@ MapJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values,
             Value.IsValid() ? Value->AsObject() : TSharedPtr<FJsonObject>();
         check(Object.IsValid());
         return MapValue(Object);
+      });
+}
+
+template <typename Output>
+TArray<Output>
+ReadObjectArrayField(const TSharedPtr<FJsonObject> &Object,
+                     const char *FieldAtom,
+                     Output (*MapValue)(const TSharedPtr<FJsonObject> &)) {
+  return MapJsonValues<Output>(ReadArray(Field(Object, *SettingsFieldName(FieldAtom))),
+                               MapValue);
+}
+
+template <typename Settings> struct TJsonSettingsField {
+  FString FieldName;
+  TFunction<Settings(const FJsonFieldRequest &, const Settings &)> Apply;
+
+  template <typename Value>
+  TJsonSettingsField(const char *FieldAtom, Value Settings::*Member)
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member](const FJsonFieldRequest &Request,
+                       const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = ReadFieldValue<Value>(Request);
+          return Next;
+        }) {}
+
+  template <typename Value>
+  TJsonSettingsField(const TCHAR *FieldAtom, Value Settings::*Member)
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member](const FJsonFieldRequest &Request,
+                       const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = ReadFieldValue<Value>(Request);
+          return Next;
+        }) {}
+
+  template <typename Value>
+  TJsonSettingsField(
+      const char *FieldAtom, Value Settings::*Member,
+      Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &))
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member, ReadObjectFn](const FJsonFieldRequest &Request,
+                                     const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = ReadObjectFn(ReadObjectValue(Request));
+          return Next;
+        }) {}
+
+  template <typename Value>
+  TJsonSettingsField(
+      const TCHAR *FieldAtom, Value Settings::*Member,
+      Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &))
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member, ReadObjectFn](const FJsonFieldRequest &Request,
+                                     const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = ReadObjectFn(ReadObjectValue(Request));
+          return Next;
+        }) {}
+
+  template <typename Output>
+  TJsonSettingsField(
+      const char *FieldAtom, TArray<Output> Settings::*Member,
+      Output (*MapObjectFn)(const TSharedPtr<FJsonObject> &))
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member, MapObjectFn](const FJsonFieldRequest &Request,
+                                    const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = MapJsonValues<Output>(ReadArray(Request), MapObjectFn);
+          return Next;
+        }) {}
+
+  template <typename Output>
+  TJsonSettingsField(
+      const TCHAR *FieldAtom, TArray<Output> Settings::*Member,
+      Output (*MapObjectFn)(const TSharedPtr<FJsonObject> &))
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member, MapObjectFn](const FJsonFieldRequest &Request,
+                                    const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = MapJsonValues<Output>(ReadArray(Request), MapObjectFn);
+          return Next;
+        }) {}
+};
+
+#define JSON_EMPTY()
+#define JSON_DEFER(Id) Id JSON_EMPTY()
+#define JSON_OBSTRUCT(...) __VA_ARGS__ JSON_DEFER(JSON_EMPTY)()
+#define JSON_EXPAND(...)                                                     \
+  JSON_EXPAND_MORE(                                                          \
+      JSON_EXPAND_MORE(JSON_EXPAND_MORE(JSON_EXPAND_MORE(__VA_ARGS__))))
+#define JSON_EXPAND_MORE(...)                                                \
+  JSON_EXPAND_DEEP(                                                          \
+      JSON_EXPAND_DEEP(JSON_EXPAND_DEEP(JSON_EXPAND_DEEP(__VA_ARGS__))))
+#define JSON_EXPAND_DEEP(...)                                                \
+  JSON_EXPAND_AGAIN(                                                         \
+      JSON_EXPAND_AGAIN(JSON_EXPAND_AGAIN(JSON_EXPAND_AGAIN(__VA_ARGS__))))
+#define JSON_EXPAND_AGAIN(...) __VA_ARGS__
+#define JSON_SETTING_FIELD(Type, Field) {#Field, &Type::Field}
+#define JSON_SETTING_FIELD_LIST_INDIRECT() JSON_SETTING_FIELD_LIST
+#define JSON_SETTING_FIELD_LIST(Type, Field, ...)                            \
+  JSON_SETTING_FIELD(Type, Field)                                            \
+  __VA_OPT__(, JSON_OBSTRUCT(JSON_SETTING_FIELD_LIST_INDIRECT)()(            \
+                    Type, __VA_ARGS__))
+#define JSON_SETTING_FIELDS(Type, ...)                                       \
+  JSON_EXPAND(JSON_SETTING_FIELD_LIST(Type, __VA_ARGS__))
+#define JSON_SETTINGS_FIELDS(Type, ...)                                      \
+  {JSON_SETTING_FIELDS(Type, __VA_ARGS__)}
+#define JSON_OBJECT_SETTING_FIELD(Type, Reader, Field)                       \
+  {#Field, &Type::Field, Reader}
+#define JSON_OBJECT_SETTING_FIELD_LIST_INDIRECT()                            \
+  JSON_OBJECT_SETTING_FIELD_LIST
+#define JSON_OBJECT_SETTING_FIELD_LIST(Type, Reader, Field, ...)             \
+  JSON_OBJECT_SETTING_FIELD(Type, Reader, Field)                             \
+  __VA_OPT__(, JSON_OBSTRUCT(JSON_OBJECT_SETTING_FIELD_LIST_INDIRECT)()(      \
+                    Type, Reader, __VA_ARGS__))
+#define JSON_OBJECT_SETTING_FIELDS(Type, Reader, ...)                        \
+  JSON_EXPAND(JSON_OBJECT_SETTING_FIELD_LIST(Type, Reader, __VA_ARGS__))
+#define JSON_OBJECT_SETTINGS_FIELDS(Type, Reader, ...)                       \
+  {JSON_OBJECT_SETTING_FIELDS(Type, Reader, __VA_ARGS__)}
+#define JSON_OBJECT_ARRAY_SETTING_FIELD(Type, Reader, Field)                 \
+  {#Field, &Type::Field, Reader}
+#define JSON_OBJECT_ARRAY_SETTING_FIELD_LIST_INDIRECT()                      \
+  JSON_OBJECT_ARRAY_SETTING_FIELD_LIST
+#define JSON_OBJECT_ARRAY_SETTING_FIELD_LIST(Type, Reader, Field, ...)       \
+  JSON_OBJECT_ARRAY_SETTING_FIELD(Type, Reader, Field)                       \
+  __VA_OPT__(, JSON_OBSTRUCT(JSON_OBJECT_ARRAY_SETTING_FIELD_LIST_INDIRECT)()(\
+                    Type, Reader, __VA_ARGS__))
+#define JSON_OBJECT_ARRAY_SETTING_FIELDS(Type, Reader, ...)                  \
+  JSON_EXPAND(JSON_OBJECT_ARRAY_SETTING_FIELD_LIST(Type, Reader, __VA_ARGS__))
+#define JSON_OBJECT_ARRAY_SETTINGS_FIELDS(Type, Reader, ...)                 \
+  {JSON_OBJECT_ARRAY_SETTING_FIELDS(Type, Reader, __VA_ARGS__)}
+
+template <typename Settings>
+Settings
+ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
+                   std::initializer_list<TJsonSettingsField<Settings>> Fields) {
+  return func::fold_indexed(
+      TArray<TJsonSettingsField<Settings>>(Fields),
+      static_cast<size_t>(Fields.size()), Settings{},
+      [Object](const Settings &Current,
+               const TJsonSettingsField<Settings> &Binding) {
+        return Binding.Apply(Field(Object, *Binding.FieldName), Current);
       });
 }
 
