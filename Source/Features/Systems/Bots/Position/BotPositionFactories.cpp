@@ -1,6 +1,7 @@
 #include "Features/Systems/Bots/Position/BotPositionFactories.h"
 
 #include "Core/ecs.hpp"
+#include "Features/Systems/Bots/BotSourceMapping.h"
 #include "Features/Systems/Bots/Position/BotPositionAdapters.h"
 
 namespace ForbocAI {
@@ -9,8 +10,14 @@ namespace Level {
 namespace BotPositionFactories {
 namespace {
 
-FLevelLocalPoint FirstRoutePoint(const TArray<FLevelLocalPoint> &Route) {
-  return Route.Num() > 0 ? Route[0] : FLevelLocalPoint{0.0f, 0.0f, 0.0f};
+FBotPositionSource TownspersonPositionSource(const FTownspersonSeed &Seed) {
+  return {Seed.Id, BotSourceMapping::FirstRoutePoint(Seed.PatrolRoute),
+          FVector::ZeroVector, false, true};
+}
+
+FBotPositionSource HorsePositionSource(const FHorseRouteSeed &Seed) {
+  return {Seed.Id, BotSourceMapping::FirstRoutePoint(Seed.PatrolRoute),
+          FVector::ZeroVector, false, true};
 }
 
 } // namespace
@@ -33,20 +40,16 @@ FBotPositionComponent Component(const FBotPositionSource &Source) {
 
 TArray<FBotPositionComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return func::map_array<FTownspersonSeed, FBotPositionComponent>(
-      Seeds, [](const FTownspersonSeed &Seed) {
-        return Component({Seed.Id, FirstRoutePoint(Seed.PatrolRoute),
-                          FVector::ZeroVector, false, true});
-      });
+  return BotSourceMapping::MapSeedComponents<
+      FTownspersonSeed, FBotPositionSource, FBotPositionComponent>(
+      Seeds, TownspersonPositionSource, Component);
 }
 
 TArray<FBotPositionComponent>
 FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return func::map_array<FHorseRouteSeed, FBotPositionComponent>(
-      Seeds, [](const FHorseRouteSeed &Seed) {
-        return Component({Seed.Id, FirstRoutePoint(Seed.PatrolRoute),
-                          FVector::ZeroVector, false, true});
-      });
+  return BotSourceMapping::MapSeedComponents<
+      FHorseRouteSeed, FBotPositionSource, FBotPositionComponent>(
+      Seeds, HorsePositionSource, Component);
 }
 
 } // namespace BotPositionFactories

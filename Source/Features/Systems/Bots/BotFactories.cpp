@@ -2,11 +2,25 @@
 
 #include "Core/ecs.hpp"
 #include "Features/Systems/Bots/BotAdapters.h"
+#include "Features/Systems/Bots/BotSourceMapping.h"
 
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace BotFactories {
+namespace {
+
+FBotEntitySource TownspersonEntitySource(const FTownspersonSeed &Seed) {
+  return {Seed.Id, Seed.Name, EBotEntityKind::Townsperson,
+          EBotAlignment::Friendly, true};
+}
+
+FBotEntitySource HorseEntitySource(const FHorseRouteSeed &Seed) {
+  return {Seed.Id, Seed.Name, EBotEntityKind::Horse, EBotAlignment::Neutral,
+          true};
+}
+
+} // namespace
 
 FBotState CreateInitialState() {
   FBotState State;
@@ -25,19 +39,15 @@ FBotEntity Bot(const FBotEntitySource &Source) {
 }
 
 TArray<FBotEntity> FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return func::map_array<FTownspersonSeed, FBotEntity>(
-      Seeds, [](const FTownspersonSeed &Seed) {
-        return Bot({Seed.Id, Seed.Name, EBotEntityKind::Townsperson,
-                    EBotAlignment::Friendly, true});
-      });
+  return BotSourceMapping::MapSeedComponents<FTownspersonSeed,
+                                             FBotEntitySource, FBotEntity>(
+      Seeds, TownspersonEntitySource, Bot);
 }
 
 TArray<FBotEntity> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return func::map_array<FHorseRouteSeed, FBotEntity>(
-      Seeds, [](const FHorseRouteSeed &Seed) {
-        return Bot({Seed.Id, Seed.Name, EBotEntityKind::Horse,
-                    EBotAlignment::Neutral, true});
-      });
+  return BotSourceMapping::MapSeedComponents<FHorseRouteSeed, FBotEntitySource,
+                                             FBotEntity>(
+      Seeds, HorseEntitySource, Bot);
 }
 
 } // namespace BotFactories

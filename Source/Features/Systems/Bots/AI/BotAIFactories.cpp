@@ -1,6 +1,7 @@
 #include "Features/Systems/Bots/AI/BotAIFactories.h"
 
 #include "Core/ecs.hpp"
+#include "Features/Systems/Bots/BotSourceMapping.h"
 #include "Features/Systems/Bots/AI/BotAIAdapters.h"
 
 namespace ForbocAI {
@@ -9,8 +10,23 @@ namespace Level {
 namespace BotAIFactories {
 namespace {
 
-FLevelLocalPoint FirstRoutePoint(const TArray<FLevelLocalPoint> &Route) {
-  return Route.Num() > 0 ? Route[0] : FLevelLocalPoint{0.0f, 0.0f, 0.0f};
+FBotAISource PatrolAISource(const FString &Id,
+                            const TArray<FLevelLocalPoint> &PatrolRoute) {
+  return {Id,
+          EBotBehaviorState::Patrol,
+          FString(),
+          BotSourceMapping::FirstRoutePoint(PatrolRoute),
+          true,
+          0,
+          PatrolRoute};
+}
+
+FBotAISource TownspersonAISource(const FTownspersonSeed &Seed) {
+  return PatrolAISource(Seed.Id, Seed.PatrolRoute);
+}
+
+FBotAISource HorseAISource(const FHorseRouteSeed &Seed) {
+  return PatrolAISource(Seed.Id, Seed.PatrolRoute);
 }
 
 } // namespace
@@ -35,21 +51,15 @@ FBotAIComponent Component(const FBotAISource &Source) {
 
 TArray<FBotAIComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return func::map_array<FTownspersonSeed, FBotAIComponent>(
-      Seeds, [](const FTownspersonSeed &Seed) {
-        return Component({Seed.Id, EBotBehaviorState::Patrol, FString(),
-                          FirstRoutePoint(Seed.PatrolRoute), true, 0,
-                          Seed.PatrolRoute});
-      });
+  return BotSourceMapping::MapSeedComponents<FTownspersonSeed, FBotAISource,
+                                             FBotAIComponent>(
+      Seeds, TownspersonAISource, Component);
 }
 
 TArray<FBotAIComponent> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return func::map_array<FHorseRouteSeed, FBotAIComponent>(
-      Seeds, [](const FHorseRouteSeed &Seed) {
-        return Component({Seed.Id, EBotBehaviorState::Patrol, FString(),
-                          FirstRoutePoint(Seed.PatrolRoute), true, 0,
-                          Seed.PatrolRoute});
-      });
+  return BotSourceMapping::MapSeedComponents<FHorseRouteSeed, FBotAISource,
+                                             FBotAIComponent>(
+      Seeds, HorseAISource, Component);
 }
 
 } // namespace BotAIFactories

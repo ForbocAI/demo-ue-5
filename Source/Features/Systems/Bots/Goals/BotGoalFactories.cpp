@@ -2,6 +2,7 @@
 
 #include "Core/frmt.hpp"
 #include "Core/ecs.hpp"
+#include "Features/Systems/Bots/BotSourceMapping.h"
 #include "Features/Systems/Bots/Goals/BotGoalAdapters.h"
 
 namespace ForbocAI {
@@ -9,18 +10,6 @@ namespace Demo {
 namespace Level {
 namespace BotGoalFactories {
 namespace {
-
-FLevelLocalPoint
-FirstRoutePoint(const TArray<FLevelLocalPoint> &Route,
-                const ForbocAI::Demo::Data::FBotRuntimeSettings
-                    &RuntimeSettings) {
-  return !Route.IsEmpty()
-	             ? Route[0]
-	             : FLevelLocalPoint{
-	                   static_cast<float>(RuntimeSettings.InitialPosition.X),
-	                   static_cast<float>(RuntimeSettings.InitialPosition.Y),
-	                   static_cast<float>(RuntimeSettings.InitialPosition.Z)};
-}
 
 FBotStrategicGoal PatrolGoal(const FString &BotId,
                              const TArray<FLevelLocalPoint> &Route,
@@ -33,7 +22,8 @@ FBotStrategicGoal PatrolGoal(const FString &BotId,
   Result.Type = EBotGoalType::Patrol;
   Result.Priority = RuntimeSettings.PatrolGoalPriority;
   Result.TargetEntityId = FString();
-  Result.TargetLocation = FirstRoutePoint(Route, RuntimeSettings);
+  Result.TargetLocation =
+      BotSourceMapping::FirstRoutePoint(Route, RuntimeSettings);
   Result.bHasTargetLocation = !Route.IsEmpty();
   Result.bCompleted = RuntimeSettings.bPatrolGoalInitialCompleted;
   return Result;
@@ -53,6 +43,25 @@ ActiveGoalComponent(const FString &BotId,
   return Result;
 }
 
+FBotGoalComponent GoalComponentSource(
+    const ForbocAI::Demo::Data::FBotRuntimeSettings &RuntimeSettings,
+    const FString &BotId, const TArray<FLevelLocalPoint> &Route) {
+  return ActiveGoalComponent(
+      BotId, PatrolGoal(BotId, Route, RuntimeSettings), RuntimeSettings);
+}
+
+FBotGoalComponent TownspersonGoalSource(
+    const ForbocAI::Demo::Data::FBotRuntimeSettings &RuntimeSettings,
+    const FTownspersonSeed &Seed) {
+  return GoalComponentSource(RuntimeSettings, Seed.Id, Seed.PatrolRoute);
+}
+
+FBotGoalComponent HorseGoalSource(
+    const ForbocAI::Demo::Data::FBotRuntimeSettings &RuntimeSettings,
+    const FHorseRouteSeed &Seed) {
+  return GoalComponentSource(RuntimeSettings, Seed.Id, Seed.PatrolRoute);
+}
+
 } // namespace
 
 FBotGoalState CreateInitialState() {
@@ -67,25 +76,19 @@ FBotStrategicGoal Goal(const FBotStrategicGoal &Source) { return Source; }
 FBotGoalComponent Component(const FBotGoalComponent &Source) { return Source; }
 
 TArray<FBotGoalComponent>
-FromTownspeople(const FBotGoalsFromTownspeopleRequest &Request) {
-  return func::map_array<FTownspersonSeed, FBotGoalComponent>(
-      Request.Seeds, [&Request](const FTownspersonSeed &Seed) {
-        return ActiveGoalComponent(Seed.Id,
-                                   PatrolGoal(Seed.Id, Seed.PatrolRoute,
-                                              Request.RuntimeSettings),
-                                   Request.RuntimeSettings);
-      });
+FromTownspeople(const TBotGoalsFromSeedsRequest<FTownspersonSeed> &Request) {
+  return BotSourceMapping::MapSeedRuntimeComponents<
+      TBotGoalsFromSeedsRequest<FTownspersonSeed>, FTownspersonSeed,
+      FBotGoalComponent, FBotGoalComponent>(Request, TownspersonGoalSource,
+                                            Component);
 }
 
 TArray<FBotGoalComponent>
-FromHorses(const FBotGoalsFromHorsesRequest &Request) {
-  return func::map_array<FHorseRouteSeed, FBotGoalComponent>(
-      Request.Seeds, [&Request](const FHorseRouteSeed &Seed) {
-        return ActiveGoalComponent(Seed.Id,
-                                   PatrolGoal(Seed.Id, Seed.PatrolRoute,
-                                              Request.RuntimeSettings),
-                                   Request.RuntimeSettings);
-      });
+FromHorses(const TBotGoalsFromSeedsRequest<FHorseRouteSeed> &Request) {
+  return BotSourceMapping::MapSeedRuntimeComponents<
+      TBotGoalsFromSeedsRequest<FHorseRouteSeed>, FHorseRouteSeed,
+      FBotGoalComponent, FBotGoalComponent>(Request, HorseGoalSource,
+                                            Component);
 }
 
 } // namespace BotGoalFactories

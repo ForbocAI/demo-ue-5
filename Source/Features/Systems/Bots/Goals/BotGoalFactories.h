@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Features/Components/Data/DataTypes.h"
+#include "Features/Systems/Bots/BotSourceMapping.h"
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
 #include "Features/Systems/Bots/Horses/HorseTypes.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
@@ -10,23 +11,17 @@ namespace Demo {
 namespace Level {
 namespace BotGoalFactories {
 
-struct FBotGoalsFromTownspeopleRequest {
-  TArray<FTownspersonSeed> Seeds;
-  ForbocAI::Demo::Data::FBotRuntimeSettings RuntimeSettings;
-};
-
-struct FBotGoalsFromHorsesRequest {
-  TArray<FHorseRouteSeed> Seeds;
-  ForbocAI::Demo::Data::FBotRuntimeSettings RuntimeSettings;
-};
+template <typename Seed>
+using TBotGoalsFromSeedsRequest =
+    BotSourceMapping::TSeedRuntimeRequest<Seed, Data::FBotRuntimeSettings>;
 
 FBotGoalState CreateInitialState();
 FBotStrategicGoal Goal(const FBotStrategicGoal &Source);
 FBotGoalComponent Component(const FBotGoalComponent &Source);
 TArray<FBotGoalComponent>
-FromTownspeople(const FBotGoalsFromTownspeopleRequest &Request);
+FromTownspeople(const TBotGoalsFromSeedsRequest<FTownspersonSeed> &Request);
 TArray<FBotGoalComponent>
-FromHorses(const FBotGoalsFromHorsesRequest &Request);
+FromHorses(const TBotGoalsFromSeedsRequest<FHorseRouteSeed> &Request);
 
 } // namespace BotGoalFactories
 } // namespace Level

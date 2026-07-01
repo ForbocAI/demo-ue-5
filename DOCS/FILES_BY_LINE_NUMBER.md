@@ -14,9 +14,9 @@
 | 325 | `Source/Features/Systems/Level/LevelReducers.h` |
 | 323 | `Source/Features/Systems/Runtime/RuntimeSelectors.cpp` |
 | 316 | `Source/Features/Systems/Runtime/RuntimeTypes.h` |
-| 298 | `Source/Features/Components/ComponentsAdapters.h` |
 | 293 | `Source/Features/Components/Level/LevelDataAdapters.cpp` |
 | 287 | `Source/Features/Systems/Projection/SystemsProjectionBotAdapters.cpp` |
+| 285 | `Source/Features/Components/ComponentsAdapters.h` |
 | 279 | `Content/Data/runtime_settings_speech.json` |
 | 278 | `Source/Features/Systems/Level/LevelTypes.h` |
 | 275 | `Source/Features/Systems/Rendering/RenderingReducers.cpp` |
@@ -66,11 +66,11 @@
 | 141 | `Source/Blueprints/GenericStateBlueprintLibrary.h` |
 | 141 | `Source/Features/Systems/Interaction/InteractionTypes.h` |
 | 139 | `Source/Features/Systems/Projection/SystemsProjectionTypes.h` |
+| 139 | `Source/Tests/BotFunctionalCore.spec.cpp` |
 | 136 | `Scripts/check_param_count.py` |
 | 135 | `Source/Features/Systems/Terrain/TerrainTypes.h` |
 | 134 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsTypes.h` |
 | 134 | `Source/Features/Components/Spatial/LevelLayoutSlice.cpp` |
-| 134 | `Source/Tests/BotFunctionalCore.spec.cpp` |
 | 132 | `Source/Features/Systems/Bots/Goals/BotGoalTypes.h` |
 | 131 | `Source/Features/Components/Data/RuntimeSettings/SpeechSettingsTypes.h` |
 | 129 | `Source/Features/Components/Data/RuntimeSettings/LevelSettingsTypes.h` |
@@ -98,9 +98,9 @@
 | 101 | `Source/Features/Systems/Rendering/RenderingReducers.h` |
 | 98 | `Source/Features/Components/Data/JsonValueAdapters.h` |
 | 97 | `Source/Features/Systems/Bots/AI/BotAITypes.h` |
+| 97 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.cpp` |
 | 97 | `Source/Features/Systems/SystemsAdapters.h` |
 | 94 | `Content/Data/french_gulch_landmarks.json` |
-| 94 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.cpp` |
 | 94 | `Source/Views/PlayerCharacterView.h` |
 | 93 | `Source/Features/Systems/Bots/Stats/BotStatsTypes.h` |
 | 92 | `Source/Features/Systems/Dialogue/DialogueReducers.h` |
@@ -121,9 +121,12 @@
 | 73 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeSectionAdapters.cpp` |
 | 73 | `Source/Features/Systems/Runtime/RuntimeReducers.h` |
 | 72 | `Scripts/setup-dev.sh` |
+| 72 | `Source/Features/Systems/Bots/Stats/BotStatsFactories.cpp` |
 | 72 | `Source/Features/Systems/Projection/SystemsProjectionTerrainAdapters.cpp` |
+| 71 | `Source/Features/Systems/Bots/BotSourceMapping.h` |
 | 70 | `Content/Map/Heightmaps/french_gulch_ca_terrain_65.csv` |
 | 68 | `Content/Map/Heightmaps/french_gulch_ca_ortho_65.csv` |
+| 68 | `Source/Features/Systems/Bots/AI/BotAIFactories.cpp` |
 | 67 | `Source/Features/Systems/Level/LevelSlice.h` |
 | 67 | `Source/Features/Systems/Projection/SystemsProjectionSpawnAdapters.cpp` |
 | 66 | `Content/Data/runtime_settings_ui.json` |
@@ -142,7 +145,7 @@
 | 60 | `Source/Features/Entities/Environments/Landmarks/LandmarksAdapters.cpp` |
 | 59 | `Source/Features/Components/Level/LevelTypes.h` |
 | 59 | `Source/Features/Systems/Rendering/RenderingSlice.cpp` |
-| 58 | `Source/Features/Systems/Bots/AI/BotAIFactories.cpp` |
+| 58 | `Source/Features/Systems/Bots/Position/BotPositionFactories.cpp` |
 | 58 | `Source/Views/PlayerRuntimeControllerView.h` |
 | 58 | `Source/Views/RuntimeChatWidget.h` |
 | 57 | `.gitignore` |
@@ -150,8 +153,7 @@
 | 57 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.h` |
 | 57 | `Source/Features/Systems/Spawn/SpawnTypes.h` |
 | 57 | `Source/Features/Systems/Speech/SpeechReducers.h` |
-| 55 | `Source/Features/Systems/Bots/Position/BotPositionFactories.cpp` |
-| 55 | `Source/Features/Systems/Bots/Stats/BotStatsFactories.cpp` |
+| 56 | `Source/Features/Systems/Bots/BotFactories.cpp` |
 | 55 | `Source/Features/Systems/SystemsAdapters.cpp` |
 | 54 | `Scripts/update-sdk.sh` |
 | 54 | `Source/Features/Components/Data/Json/JsonTypes.h` |
@@ -171,7 +173,6 @@
 | 47 | `Source/Features/Components/Data/DataStateTypes.h` |
 | 47 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeScaleAdapters.h` |
 | 47 | `Source/Features/Systems/Rendering/RenderingActions.cpp` |
-| 46 | `Source/Features/Systems/Bots/BotFactories.cpp` |
 | 46 | `Source/Features/Systems/Speech/SpeechSlice.h` |
 | 46 | `Source/Features/Systems/UI/UIActions.h` |
 | 45 | `Source/Features/Systems/Bots/Goals/BotGoalReducers.h` |
@@ -214,7 +215,6 @@
 | 34 | `Content/Data/french_gulch_horses.json` |
 | 34 | `Source/Features/Components/Data/RuntimeSettings/PlayerSettingsTypes.h` |
 | 34 | `Source/Features/Entities/Characters/Bots/BotsAdapters.h` |
-| 34 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.h` |
 | 34 | `Source/Features/Systems/Bots/Goals/BotGoalSelectors.cpp` |
 | 34 | `Source/Features/Systems/Speech/SpeechActions.h` |
 | 34 | `Source/Views/RuntimeSpeechPresenterView.cpp` |
@@ -222,7 +222,6 @@
 | 33 | `Source/Features/Systems/Bots/Core/BotCoreTypes.h` |
 | 33 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorTypes.h` |
 | 33 | `Source/Features/Systems/Bots/Orchestrator/Factories/BotOrchestratorFactoriesTypes.h` |
-| 33 | `Source/Features/Systems/Bots/Stats/BotStatsFactories.h` |
 | 32 | `Content/Data/runtime_settings_player.json` |
 | 32 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h` |
 | 32 | `Source/Features/Systems/Speech/SpeechSelectors.h` |
@@ -239,6 +238,7 @@
 | 30 | `Source/Features/Systems/Terrain/TerrainFactories.cpp` |
 | 29 | `Source/Features/Systems/Bots/AI/BotAIActions.cpp` |
 | 29 | `Source/Features/Systems/Bots/BotActions.cpp` |
+| 29 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.h` |
 | 29 | `Source/Features/Systems/Bots/Horses/HorseSlice.cpp` |
 | 29 | `Source/Features/Systems/Bots/Stats/BotStatsSelectors.cpp` |
 | 29 | `Source/Features/Systems/Bots/Stats/BotStatsSlice.cpp` |
@@ -251,6 +251,7 @@
 | 28 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorReducers.h` |
 | 28 | `Source/Features/Systems/Bots/Orchestrator/Factories/BotOrchestratorFactoriesActions.h` |
 | 28 | `Source/Features/Systems/Bots/Orchestrator/Factories/BotOrchestratorFactoriesReducers.h` |
+| 28 | `Source/Features/Systems/Bots/Stats/BotStatsFactories.h` |
 | 28 | `Source/Features/Systems/Dialogue/DialogueActions.h` |
 | 28 | `Source/Features/Systems/Rendering/RenderingThunks.h` |
 | 28 | `Source/Features/Systems/Terrain/TerrainReducers.h` |

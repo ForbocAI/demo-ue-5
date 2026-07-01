@@ -7,6 +7,31 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace BotStatsFactories {
+namespace {
+
+FBotStatsSource TownspersonStatsSource(
+    const ForbocAI::Demo::Data::FBotRuntimeSettings &RuntimeSettings,
+    const FTownspersonSeed &Seed) {
+  return {Seed.Id,
+          RuntimeSettings.TownspersonStats.MoveSpeed,
+          RuntimeSettings.TownspersonStats.AwarenessRange,
+          RuntimeSettings.TownspersonStats.Resolve,
+          RuntimeSettings.TownspersonStats.bCanTalk,
+          false};
+}
+
+FBotStatsSource HorseStatsSource(
+    const ForbocAI::Demo::Data::FBotRuntimeSettings &RuntimeSettings,
+    const FHorseRouteSeed &Seed) {
+  return {Seed.Id,
+          RuntimeSettings.HorseStats.MoveSpeed,
+          RuntimeSettings.HorseStats.AwarenessRange,
+          RuntimeSettings.HorseStats.Resolve,
+          RuntimeSettings.HorseStats.bCanTalk,
+          Seed.bMountedRider};
+}
+
+} // namespace
 
 FBotStatsState CreateInitialState() {
   FBotStatsState State;
@@ -26,27 +51,19 @@ FBotStatsComponent Component(const FBotStatsSource &Source) {
 }
 
 TArray<FBotStatsComponent>
-FromTownspeople(const FBotStatsFromTownspeopleRequest &Request) {
-  return func::map_array<FTownspersonSeed, FBotStatsComponent>(
-      Request.Seeds, [&Request](const FTownspersonSeed &Seed) {
-        return Component({Seed.Id, Request.RuntimeSettings.TownspersonStats.MoveSpeed,
-                          Request.RuntimeSettings.TownspersonStats.AwarenessRange,
-                          Request.RuntimeSettings.TownspersonStats.Resolve,
-                          Request.RuntimeSettings.TownspersonStats.bCanTalk,
-                          false});
-      });
+FromTownspeople(const TBotStatsFromSeedsRequest<FTownspersonSeed> &Request) {
+  return BotSourceMapping::MapSeedRuntimeComponents<
+      TBotStatsFromSeedsRequest<FTownspersonSeed>, FTownspersonSeed,
+      FBotStatsSource, FBotStatsComponent>(Request, TownspersonStatsSource,
+                                           Component);
 }
 
 TArray<FBotStatsComponent> FromHorses(
-    const FBotStatsFromHorsesRequest &Request) {
-  return func::map_array<FHorseRouteSeed, FBotStatsComponent>(
-      Request.Seeds, [&Request](const FHorseRouteSeed &Seed) {
-        return Component({Seed.Id, Request.RuntimeSettings.HorseStats.MoveSpeed,
-                          Request.RuntimeSettings.HorseStats.AwarenessRange,
-                          Request.RuntimeSettings.HorseStats.Resolve,
-                          Request.RuntimeSettings.HorseStats.bCanTalk,
-                          Seed.bMountedRider});
-      });
+    const TBotStatsFromSeedsRequest<FHorseRouteSeed> &Request) {
+  return BotSourceMapping::MapSeedRuntimeComponents<
+      TBotStatsFromSeedsRequest<FHorseRouteSeed>, FHorseRouteSeed,
+      FBotStatsSource, FBotStatsComponent>(Request, HorseStatsSource,
+                                           Component);
 }
 
 } // namespace BotStatsFactories

@@ -7,7 +7,8 @@
 using namespace ForbocAI::Demo::Level;
 
 namespace {
-const ForbocAI::Demo::Data::FBotRuntimeSettings &BotRuntimeSettings() {
+const ForbocAI::Demo::Data::FBotRuntimeSettings &
+BotFunctionalCoreRuntimeSettings() {
   static const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
       ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
   return Settings.BotRuntime;
@@ -17,7 +18,8 @@ rtk::EnhancedStore<FBotCoreRuntimeState> ConfigureStore(
     const FString &BotName) {
   return rtk::configureStore<FBotCoreRuntimeState>(
       BotCoreReducers::BotReducer(),
-      CreateBotCoreRuntimeInitialState({BotName, BotRuntimeSettings()}));
+      CreateBotCoreRuntimeInitialState(
+          {BotName, BotFunctionalCoreRuntimeSettings()}));
 }
 } // namespace
 
@@ -33,7 +35,10 @@ void FBotFunctionalCoreSpec::Define()
             FBotCoreRuntimeState State = Store.getState();
 
             TestEqual("Name", State.Name, TEXT("TestBot"));
-            TestTrue("Health", FMath::IsNearlyEqual(State.Stats.Health, BotRuntimeSettings().InitialHealth));
+            TestTrue("Health",
+                     FMath::IsNearlyEqual(
+                         State.Stats.Health,
+                         BotFunctionalCoreRuntimeSettings().InitialHealth));
             TestTrue("Phase", State.Phase == EBotCorePhase::Idle);
             TestTrue("ID is valid", State.Id.IsValid());
         });
