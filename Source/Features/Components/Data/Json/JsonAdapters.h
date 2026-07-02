@@ -299,6 +299,19 @@ inline bool ReadFieldValue<bool>(const FJsonFieldRequest &Request) {
 }
 
 template <>
+inline TSharedPtr<FJsonObject>
+ReadFieldValue<TSharedPtr<FJsonObject>>(const FJsonFieldRequest &Request) {
+  return ReadObjectValue(Request);
+}
+
+template <>
+inline TArray<TSharedPtr<FJsonValue>>
+ReadFieldValue<TArray<TSharedPtr<FJsonValue>>>(
+    const FJsonFieldRequest &Request) {
+  return ReadArray(Request);
+}
+
+template <>
 inline FVector ReadFieldValue<FVector>(const FJsonFieldRequest &Request) {
   return ReadVector(Request);
 }
@@ -372,6 +385,31 @@ ReadObjectArrayField(const TSharedPtr<FJsonObject> &Object,
                      Output (*MapValue)(const TSharedPtr<FJsonObject> &)) {
   return MapJsonValues<Output>(ReadArray(Field(Object, *SettingsFieldName(FieldAtom))),
                                MapValue);
+}
+
+template <typename Output> struct TTextValueDeclaration {
+  FString Text;
+  Output Value;
+
+  TTextValueDeclaration(const char *InText, Output InValue)
+      : Text(FString(UTF8_TO_TCHAR(InText))), Value(InValue) {}
+};
+
+template <typename Output>
+func::Maybe<Output>
+ReadTextValue(const FString &Text,
+              std::initializer_list<TTextValueDeclaration<Output>>
+                  Declarations) {
+  const FString LowerText = Text.ToLower();
+  return func::fold_indexed(
+      TArray<TTextValueDeclaration<Output>>(Declarations),
+      static_cast<size_t>(Declarations.size()), func::nothing<Output>(),
+      [LowerText](const func::Maybe<Output> &Current,
+                  const TTextValueDeclaration<Output> &Declaration) {
+        return Current.hasValue || Declaration.Text != LowerText
+                   ? Current
+                   : func::just(Declaration.Value);
+      });
 }
 
 template <typename Settings> struct TJsonSettingsField {

@@ -3,6 +3,8 @@
 #include "Features/Components/Data/Json/JsonAdapters.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
+#include <initializer_list>
+
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -12,34 +14,56 @@ namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
 
 namespace {
 
+struct FRoutePointFields {
+  float EastLots;
+  float NorthLots;
+};
+
+struct FInteractionFields {
+  FString Intent;
+  FString Prompt;
+  FString DefaultPlayerLine;
+  FString PinnedResponse;
+};
+
+struct FTownspersonFields {
+  FString Id;
+  FString Name;
+  FString Role;
+  FString Persona;
+  TSharedPtr<FJsonObject> Interaction;
+  TArray<TSharedPtr<FJsonValue>> PatrolRoute;
+};
+
+struct FHorseRouteFields {
+  FString Id;
+  FString Name;
+  bool bMountedRider;
+  TArray<TSharedPtr<FJsonValue>> PatrolRoute;
+};
+
 struct FRouteLotsRequest {
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
-  float EastLots = 0.0f;
-  float NorthLots = 0.0f;
+  float EastLots;
+  float NorthLots;
 };
 
-typedef TFunction<FLevelLocalPoint(const FRouteLotsRequest &)>
-    FRouteLotsProjector;
+typedef FLevelLocalPoint (*FRouteLotsProjector)(const FRouteLotsRequest &);
 
-struct FInteractionStringRequest {
-  func::Maybe<TSharedPtr<FJsonObject>> Interaction;
-  FString FieldName;
-};
-
-struct FTownspersonFromJsonRequest {
-  TSharedPtr<FJsonObject> TownspersonObject;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
-};
-
-struct FHorseRouteFromJsonRequest {
-  TSharedPtr<FJsonObject> HorseObject;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
-};
-
-struct FPatrolRouteFromJsonRequest {
-  TSharedPtr<FJsonObject> RouteOwner;
+struct FPatrolRouteFieldsRequest {
+  TArray<TSharedPtr<FJsonValue>> Points;
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
   FRouteLotsProjector ProjectLots;
+};
+
+struct FTownspersonBuildRequest {
+  FTownspersonFields Fields;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+struct FHorseRouteBuildRequest {
+  FHorseRouteFields Fields;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
 };
 
 FLevelLocalPoint TownspersonRouteLots(const FRouteLotsRequest &Request) {
@@ -57,108 +81,81 @@ FLevelLocalPoint HorseRouteLots(const FRouteLotsRequest &Request) {
 ETownspersonInteractionIntent InteractionIntentFromJson(
     const FString &Intent) {
   const func::Maybe<ETownspersonInteractionIntent> Parsed =
-      func::multi_match<FString, ETownspersonInteractionIntent>(
-          Intent.ToLower(),
-          {
-              func::when<FString, ETownspersonInteractionIntent>(
-                  func::equals<FString>(TEXT("general")),
-                  [](const FString &) {
-                    return ETownspersonInteractionIntent::General;
-                  }),
-              func::when<FString, ETownspersonInteractionIntent>(
-                  func::equals<FString>(TEXT("dialogue")),
-                  [](const FString &) {
-                    return ETownspersonInteractionIntent::Dialogue;
-                  }),
-              func::when<FString, ETownspersonInteractionIntent>(
-                  func::equals<FString>(TEXT("memory")),
-                  [](const FString &) {
-                    return ETownspersonInteractionIntent::Memory;
-                  }),
-              func::when<FString, ETownspersonInteractionIntent>(
-                  func::equals<FString>(TEXT("combat_validation")),
-                  [](const FString &) {
-                    return ETownspersonInteractionIntent::CombatValidation;
-                  }),
-          });
+      JsonAdapters::ReadTextValue<ETownspersonInteractionIntent>(
+          Intent, {{"general", ETownspersonInteractionIntent::General},
+                   {"dialogue", ETownspersonInteractionIntent::Dialogue},
+                   {"memory", ETownspersonInteractionIntent::Memory},
+                   {"combat_validation",
+                    ETownspersonInteractionIntent::CombatValidation}});
   checkf(Parsed.hasValue, TEXT("Invalid townsperson interaction intent: %s"),
          *Intent);
   return Parsed.value;
 }
 
+FRoutePointFields ReadRoutePointFields(const TSharedPtr<FJsonObject> &Object) {
+  return JsonAdapters::ReadSettingsFields<FRoutePointFields>(
+      Object, JSON_SETTINGS_FIELDS(FRoutePointFields, EastLots, NorthLots));
+}
+
+FInteractionFields
+ReadInteractionFields(const TSharedPtr<FJsonObject> &Object) {
+  return JsonAdapters::ReadSettingsFields<FInteractionFields>(
+      Object, JSON_SETTINGS_FIELDS(FInteractionFields, Intent, Prompt,
+                                   DefaultPlayerLine, PinnedResponse));
+}
+
+FTownspersonFields
+ReadTownspersonFields(const TSharedPtr<FJsonObject> &Object) {
+  return JsonAdapters::ReadSettingsFields<FTownspersonFields>(
+      Object, JSON_SETTINGS_FIELDS(FTownspersonFields, Id, Name, Role,
+                                   Persona, Interaction, PatrolRoute));
+}
+
+FHorseRouteFields ReadHorseRouteFields(const TSharedPtr<FJsonObject> &Object) {
+  return JsonAdapters::ReadSettingsFields<FHorseRouteFields>(
+      Object, JSON_SETTINGS_FIELDS(FHorseRouteFields, Id, Name, bMountedRider,
+                                   PatrolRoute));
+}
+
 TArray<FLevelLocalPoint>
-PatrolRouteFromJson(const FPatrolRouteFromJsonRequest &Request) {
-  const JsonAdapters::FJsonArrayReader Array =
-      JsonAdapters::ArrayIn(Request.RouteOwner);
+PatrolRouteFromFields(const FPatrolRouteFieldsRequest &Request) {
   const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
       Request.Geometry;
   const FRouteLotsProjector ProjectLots = Request.ProjectLots;
-  return JsonAdapters::MapJsonValues<FLevelLocalPoint>(
-      Array(TEXT("patrol_route")),
-      [Geometry, ProjectLots](const TSharedPtr<FJsonObject> &Point) {
-        const JsonAdapters::FJsonFloatReader Float =
-            JsonAdapters::FloatIn(Point);
-        return ProjectLots(
-            {Geometry, Float(TEXT("east_lots")), Float(TEXT("north_lots"))});
+  return func::map_array<FRoutePointFields, FLevelLocalPoint>(
+      JsonAdapters::MapJsonValues<FRoutePointFields>(Request.Points,
+                                                     ReadRoutePointFields),
+      [Geometry, ProjectLots](const FRoutePointFields &Fields) {
+        return ProjectLots({Geometry, Fields.EastLots, Fields.NorthLots});
       });
 }
 
-FString ReadInteractionString(const FInteractionStringRequest &Request) {
-  checkf(Request.Interaction.hasValue,
-         TEXT("Townsperson interaction object is required"));
-  const JsonAdapters::FJsonStringReader String =
-      JsonAdapters::StringIn(Request.Interaction.value);
-  return String(*Request.FieldName);
-}
-
-ETownspersonInteractionIntent ReadInteractionIntent(
-    const func::Maybe<TSharedPtr<FJsonObject>> &Interaction) {
-  checkf(Interaction.hasValue,
-         TEXT("Townsperson interaction object is required"));
-  const JsonAdapters::FJsonStringReader String =
-      JsonAdapters::StringIn(Interaction.value);
-  return InteractionIntentFromJson(String(TEXT("intent")));
-}
-
-FTownspersonSeed TownspersonFromJson(
-    const FTownspersonFromJsonRequest &Request) {
-  const JsonAdapters::FJsonObjectReader Object =
-      JsonAdapters::ObjectIn(Request.TownspersonObject);
-  const JsonAdapters::FJsonStringReader String =
-      JsonAdapters::StringIn(Request.TownspersonObject);
-  const func::Maybe<TSharedPtr<FJsonObject>> Interaction =
-      Object(TEXT("interaction"));
-
+FTownspersonSeed TownspersonFromFields(
+    const FTownspersonBuildRequest &Request) {
+  const FInteractionFields Interaction =
+      ReadInteractionFields(Request.Fields.Interaction);
   FTownspersonSeed Seed;
-  Seed.Id = String(TEXT("id"));
-  Seed.Name = String(TEXT("name"));
-  Seed.Role = String(TEXT("role"));
-  Seed.Persona = String(TEXT("persona"));
-  Seed.InteractionPrompt =
-      ReadInteractionString({Interaction, TEXT("prompt")});
-  Seed.DefaultPlayerLine =
-      ReadInteractionString({Interaction, TEXT("default_player_line")});
-  Seed.PinnedResponse =
-      ReadInteractionString({Interaction, TEXT("pinned_response")});
-  Seed.InteractionIntent = ReadInteractionIntent(Interaction);
-  Seed.PatrolRoute = PatrolRouteFromJson(
-      {Request.TownspersonObject, Request.Geometry, TownspersonRouteLots});
+  Seed.Id = Request.Fields.Id;
+  Seed.Name = Request.Fields.Name;
+  Seed.Role = Request.Fields.Role;
+  Seed.Persona = Request.Fields.Persona;
+  Seed.InteractionPrompt = Interaction.Prompt;
+  Seed.DefaultPlayerLine = Interaction.DefaultPlayerLine;
+  Seed.PinnedResponse = Interaction.PinnedResponse;
+  Seed.InteractionIntent = InteractionIntentFromJson(Interaction.Intent);
+  Seed.PatrolRoute = PatrolRouteFromFields(
+      {Request.Fields.PatrolRoute, Request.Geometry, TownspersonRouteLots});
   return Seed;
 }
 
-FHorseRouteSeed HorseRouteFromJson(
-    const FHorseRouteFromJsonRequest &Request) {
-  const JsonAdapters::FJsonStringReader String =
-      JsonAdapters::StringIn(Request.HorseObject);
-  const JsonAdapters::FJsonBoolReader Bool =
-      JsonAdapters::BoolIn(Request.HorseObject);
+FHorseRouteSeed HorseRouteFromFields(
+    const FHorseRouteBuildRequest &Request) {
   FHorseRouteSeed Seed;
-  Seed.Id = String(TEXT("id"));
-  Seed.Name = String(TEXT("name"));
-  Seed.bMountedRider = Bool(TEXT("mounted_rider"));
-  Seed.PatrolRoute =
-      PatrolRouteFromJson({Request.HorseObject, Request.Geometry,
-                           HorseRouteLots});
+  Seed.Id = Request.Fields.Id;
+  Seed.Name = Request.Fields.Name;
+  Seed.bMountedRider = Request.Fields.bMountedRider;
+  Seed.PatrolRoute = PatrolRouteFromFields(
+      {Request.Fields.PatrolRoute, Request.Geometry, HorseRouteLots});
   return Seed;
 }
 
@@ -168,11 +165,11 @@ TArray<FTownspersonSeed> BuildTownspersonSeed(
     const FBotSeedBuildRequest &Request) {
   const TSharedPtr<FJsonObject> Root =
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
-  const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
-  return JsonAdapters::MapJsonValues<FTownspersonSeed>(
-      Array(TEXT("townspeople")),
-      [&Request](const TSharedPtr<FJsonObject> &TownspersonObject) {
-        return TownspersonFromJson({TownspersonObject, Request.Geometry});
+  return func::map_array<FTownspersonFields, FTownspersonSeed>(
+      JsonAdapters::ReadObjectArrayField<FTownspersonFields>(
+          Root, "Townspeople", ReadTownspersonFields),
+      [&Request](const FTownspersonFields &Fields) {
+        return TownspersonFromFields({Fields, Request.Geometry});
       });
 }
 
@@ -180,11 +177,11 @@ TArray<FHorseRouteSeed> BuildHorseRouteSeed(
     const FBotSeedBuildRequest &Request) {
   const TSharedPtr<FJsonObject> Root =
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
-  const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
-  return JsonAdapters::MapJsonValues<FHorseRouteSeed>(
-      Array(TEXT("horses")),
-      [&Request](const TSharedPtr<FJsonObject> &HorseObject) {
-        return HorseRouteFromJson({HorseObject, Request.Geometry});
+  return func::map_array<FHorseRouteFields, FHorseRouteSeed>(
+      JsonAdapters::ReadObjectArrayField<FHorseRouteFields>(
+          Root, "Horses", ReadHorseRouteFields),
+      [&Request](const FHorseRouteFields &Fields) {
+        return HorseRouteFromFields({Fields, Request.Geometry});
       });
 }
 

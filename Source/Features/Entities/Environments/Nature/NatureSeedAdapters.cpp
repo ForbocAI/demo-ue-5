@@ -3,6 +3,8 @@
 #include "Features/Components/Data/Json/JsonAdapters.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
+#include <initializer_list>
+
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -12,21 +14,59 @@ namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
 
 namespace {
 
-struct FFeatureLotsRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
-  float EastLots = 0.0f;
-  float NorthLots = 0.0f;
-  FVector Scale = FVector::OneVector;
+enum class ENatureScaleMode { LongFeature, Pad };
+
+struct FNatureScaleModeFields {
+  FString Mode;
 };
 
-struct FScaleFromJsonRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+struct FNaturePadScaleFields {
+  float WidthFeet;
+  float DepthFeet;
+  float HeightFeet;
+};
+
+struct FNatureLongFeatureScaleFields {
+  float WidthFeet;
+  float LengthLots;
+  float HeightFeet;
+};
+
+struct FNatureFeatureFields {
+  FString Id;
+  FString Name;
+  FString Kind;
+  float EastLots;
+  float NorthLots;
   TSharedPtr<FJsonObject> Scale;
 };
 
-struct FFeatureFromJsonRequest {
+struct FFeatureLotsRequest {
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
-  TSharedPtr<FJsonObject> FeatureObject;
+  float EastLots;
+  float NorthLots;
+  FVector Scale;
+};
+
+struct FScaleFieldsRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  TSharedPtr<FJsonObject> Object;
+};
+
+typedef FVector (*FScaleFieldsProjector)(const FScaleFieldsRequest &);
+
+struct FScaleProjectorDeclaration {
+  ENatureScaleMode Mode;
+  FScaleFieldsProjector Project;
+
+  FScaleProjectorDeclaration(ENatureScaleMode InMode,
+                             FScaleFieldsProjector InProject)
+      : Mode(InMode), Project(InProject) {}
+};
+
+struct FFeatureBuildRequest {
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  FNatureFeatureFields Fields;
 };
 
 FLevelLocalPoint FeatureLots(const FFeatureLotsRequest &Request) {
@@ -40,103 +80,109 @@ FLevelLocalPoint FeatureLots(const FFeatureLotsRequest &Request) {
 
 ENatureFeatureKind NatureKindFromJson(const FString &Kind) {
   const func::Maybe<ENatureFeatureKind> Parsed =
-      func::multi_match<FString, ENatureFeatureKind>(
-          Kind.ToLower(),
-          {
-              func::when<FString, ENatureFeatureKind>(
-                  func::equals<FString>(TEXT("water")),
-                  [](const FString &) { return ENatureFeatureKind::Water; }),
-              func::when<FString, ENatureFeatureKind>(
-                  func::equals<FString>(TEXT("rock")),
-                  [](const FString &) { return ENatureFeatureKind::Rock; }),
-              func::when<FString, ENatureFeatureKind>(
-                  func::equals<FString>(TEXT("tree_grove")),
-                  [](const FString &) {
-                    return ENatureFeatureKind::TreeGrove;
-                  }),
-              func::when<FString, ENatureFeatureKind>(
-                  func::equals<FString>(TEXT("shrub")),
-                  [](const FString &) { return ENatureFeatureKind::Shrub; }),
-              func::when<FString, ENatureFeatureKind>(
-                  func::equals<FString>(TEXT("water_system_marker")),
-                  [](const FString &) {
-                    return ENatureFeatureKind::WaterSystemMarker;
-                  }),
-              func::when<FString, ENatureFeatureKind>(
-                  func::equals<FString>(TEXT("pcg_marker")),
-                  [](const FString &) {
-                    return ENatureFeatureKind::PCGMarker;
-                  }),
-          });
+      JsonAdapters::ReadTextValue<ENatureFeatureKind>(
+          Kind, {{"water", ENatureFeatureKind::Water},
+                 {"rock", ENatureFeatureKind::Rock},
+                 {"tree_grove", ENatureFeatureKind::TreeGrove},
+                 {"shrub", ENatureFeatureKind::Shrub},
+                 {"water_system_marker",
+                  ENatureFeatureKind::WaterSystemMarker},
+                 {"pcg_marker", ENatureFeatureKind::PCGMarker}});
   checkf(Parsed.hasValue, TEXT("Invalid nature feature kind: %s"), *Kind);
   return Parsed.value;
 }
 
-FVector PadScaleFromJson(const FScaleFromJsonRequest &Request) {
-  const JsonAdapters::FJsonFloatReader Float =
-      JsonAdapters::FloatIn(Request.Scale);
+ENatureScaleMode NatureScaleModeFromJson(const FString &Mode) {
+  const func::Maybe<ENatureScaleMode> Parsed =
+      JsonAdapters::ReadTextValue<ENatureScaleMode>(
+          Mode, {{"long_feature", ENatureScaleMode::LongFeature},
+                 {"pad", ENatureScaleMode::Pad},
+                 {"pad_feet", ENatureScaleMode::Pad}});
+  checkf(Parsed.hasValue, TEXT("Invalid nature feature scale mode: %s"),
+         *Mode);
+  return Parsed.value;
+}
+
+FNatureScaleModeFields
+ReadScaleModeFields(const TSharedPtr<FJsonObject> &Object) {
+  return JsonAdapters::ReadSettingsFields<FNatureScaleModeFields>(
+      Object, JSON_SETTINGS_FIELDS(FNatureScaleModeFields, Mode));
+}
+
+FNaturePadScaleFields
+ReadPadScaleFields(const TSharedPtr<FJsonObject> &Object) {
+  return JsonAdapters::ReadSettingsFields<FNaturePadScaleFields>(
+      Object, JSON_SETTINGS_FIELDS(FNaturePadScaleFields, WidthFeet,
+                                   DepthFeet, HeightFeet));
+}
+
+FNatureLongFeatureScaleFields
+ReadLongFeatureScaleFields(const TSharedPtr<FJsonObject> &Object) {
+  return JsonAdapters::ReadSettingsFields<FNatureLongFeatureScaleFields>(
+      Object, JSON_SETTINGS_FIELDS(FNatureLongFeatureScaleFields, WidthFeet,
+                                   LengthLots, HeightFeet));
+}
+
+FNatureFeatureFields
+ReadFeatureFields(const TSharedPtr<FJsonObject> &Object) {
+  return JsonAdapters::ReadSettingsFields<FNatureFeatureFields>(
+      Object, JSON_SETTINGS_FIELDS(FNatureFeatureFields, Id, Name, Kind,
+                                   EastLots, NorthLots, Scale));
+}
+
+FVector PadScaleFromFields(const FScaleFieldsRequest &Request) {
+  const FNaturePadScaleFields Fields = ReadPadScaleFields(Request.Object);
   return LevelLayoutSlice::PadScaleFromFeet(
-      {Request.Geometry, Float(TEXT("width_feet")), Float(TEXT("depth_feet")),
-       Float(TEXT("height_feet"))});
+      {Request.Geometry, Fields.WidthFeet, Fields.DepthFeet,
+       Fields.HeightFeet});
 }
 
-FVector LongFeatureScaleFromJson(const FScaleFromJsonRequest &Request) {
-  const JsonAdapters::FJsonFloatReader Float =
-      JsonAdapters::FloatIn(Request.Scale);
+FVector LongFeatureScaleFromFields(const FScaleFieldsRequest &Request) {
+  const FNatureLongFeatureScaleFields Fields =
+      ReadLongFeatureScaleFields(Request.Object);
   return LevelLayoutSlice::LongFeatureScale(
-      {Request.Geometry, Float(TEXT("width_feet")), Float(TEXT("length_lots")),
-       Float(TEXT("height_feet"))});
+      {Request.Geometry, Fields.WidthFeet, Fields.LengthLots,
+       Fields.HeightFeet});
 }
 
-FVector ScaleObjectFromJson(const FScaleFromJsonRequest &Request) {
-  const JsonAdapters::FJsonStringReader String =
-      JsonAdapters::StringIn(Request.Scale);
-  const func::Maybe<FVector> Parsed =
-      func::multi_match<FString, FVector>(
-          String(TEXT("mode")),
-          {
-              func::when<FString, FVector>(
-                  func::equals<FString>(TEXT("long_feature")),
-                  [&Request](const FString &) {
-                    return LongFeatureScaleFromJson(Request);
-                  }),
-              func::when<FString, FVector>(
-                  func::equals<FString>(TEXT("pad")),
-                  [&Request](const FString &) {
-                    return PadScaleFromJson(Request);
-                  }),
-              func::when<FString, FVector>(
-                  func::equals<FString>(TEXT("pad_feet")),
-                  [&Request](const FString &) {
-                    return PadScaleFromJson(Request);
-                  }),
-          });
+func::Maybe<FVector> ProjectScaleFields(
+    const FScaleFieldsRequest &Request,
+    std::initializer_list<FScaleProjectorDeclaration> Declarations) {
+  const ENatureScaleMode Mode =
+      NatureScaleModeFromJson(ReadScaleModeFields(Request.Object).Mode);
+  return func::fold_indexed(
+      TArray<FScaleProjectorDeclaration>(Declarations),
+      static_cast<size_t>(Declarations.size()), func::nothing<FVector>(),
+      [Mode, Request](const func::Maybe<FVector> &Current,
+                      const FScaleProjectorDeclaration &Declaration) {
+        return Current.hasValue || Declaration.Mode != Mode
+                   ? Current
+                   : func::just(Declaration.Project(Request));
+      });
+}
+
+FVector ScaleObjectFromFields(const FScaleFieldsRequest &Request) {
+  const func::Maybe<FVector> Parsed = ProjectScaleFields(
+      Request, {{ENatureScaleMode::LongFeature, LongFeatureScaleFromFields},
+                {ENatureScaleMode::Pad, PadScaleFromFields}});
   checkf(Parsed.hasValue, TEXT("Invalid nature feature scale mode"));
   return Parsed.value;
 }
 
-FVector ScaleFromJson(const FFeatureFromJsonRequest &Request) {
-  const JsonAdapters::FJsonObjectReader Object =
-      JsonAdapters::ObjectIn(Request.FeatureObject);
-  const func::Maybe<TSharedPtr<FJsonObject>> Scale =
-      Object(TEXT("scale"));
-  checkf(Scale.hasValue, TEXT("Nature feature scale object is required"));
-  return ScaleObjectFromJson({Request.Geometry, Scale.value});
+FVector ScaleFromFields(const FFeatureBuildRequest &Request) {
+  return ScaleObjectFromFields({Request.Geometry, Request.Fields.Scale});
 }
 
-FNatureFeatureSeed FeatureFromJson(const FFeatureFromJsonRequest &Request) {
-  const JsonAdapters::FJsonStringReader String =
-      JsonAdapters::StringIn(Request.FeatureObject);
-  const JsonAdapters::FJsonFloatReader Float =
-      JsonAdapters::FloatIn(Request.FeatureObject);
+FNatureFeatureSeed FeatureFromFields(const FFeatureBuildRequest &Request) {
+  const FVector Scale = ScaleFromFields(Request);
   FNatureFeatureSeed Seed;
-  Seed.Id = String(TEXT("id"));
-  Seed.Name = String(TEXT("name"));
-  Seed.Kind = NatureKindFromJson(String(TEXT("kind")));
-  Seed.Scale = ScaleFromJson(Request);
+  Seed.Id = Request.Fields.Id;
+  Seed.Name = Request.Fields.Name;
+  Seed.Kind = NatureKindFromJson(Request.Fields.Kind);
+  Seed.Scale = Scale;
   Seed.Location = FeatureLots(
-      {Request.Geometry, Float(TEXT("east_lots")), Float(TEXT("north_lots")),
-       Seed.Scale});
+      {Request.Geometry, Request.Fields.EastLots, Request.Fields.NorthLots,
+       Scale});
   return Seed;
 }
 
@@ -146,11 +192,11 @@ TArray<FNatureFeatureSeed> BuildNatureSeed(
     const FNatureSeedBuildRequest &Request) {
   const TSharedPtr<FJsonObject> Root =
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
-  const JsonAdapters::FJsonArrayReader Array = JsonAdapters::ArrayIn(Root);
-  return JsonAdapters::MapJsonValues<FNatureFeatureSeed>(
-      Array(TEXT("features")),
-      [&Request](const TSharedPtr<FJsonObject> &FeatureObject) {
-        return FeatureFromJson({Request.Geometry, FeatureObject});
+  return func::map_array<FNatureFeatureFields, FNatureFeatureSeed>(
+      JsonAdapters::ReadObjectArrayField<FNatureFeatureFields>(
+          Root, "Features", ReadFeatureFields),
+      [&Request](const FNatureFeatureFields &Fields) {
+        return FeatureFromFields({Request.Geometry, Fields});
       });
 }
 

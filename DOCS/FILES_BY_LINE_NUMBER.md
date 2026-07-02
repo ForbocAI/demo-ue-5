@@ -3,7 +3,7 @@
 | Lines | File Path |
 |-------|-----------|
 | 3337 | `Source/Core/ecs.hpp` |
-| 514 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
+| 552 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 414 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 414 | `Source/Tests/RuntimeStore.spec.cpp` |
 | 411 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
@@ -32,6 +32,7 @@
 | 215 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.cpp` |
 | 214 | `Source/Features/Components/Data/RuntimeSettings/RenderingSettingsTypes.h` |
 | 207 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsTypes.h` |
+| 206 | `Source/Features/Entities/Environments/Nature/NatureSeedAdapters.cpp` |
 | 205 | `README.md` |
 | 205 | `Source/Features/Systems/Bots/Pipeline/BotPipelineReducers.h` |
 | 202 | `Source/Features/Components/Data/Json/JsonAdapters.cpp` |
@@ -39,8 +40,8 @@
 | 200 | `Source/Views/PlayerCharacterView.cpp` |
 | 199 | `Scripts/check_branchless_source.py` |
 | 196 | `Source/Features/Systems/UI/UITypes.h` |
-| 194 | `Source/Features/Entities/Characters/Bots/BotsAdapters.cpp` |
 | 194 | `Source/Features/Systems/Bots/Townspeople/TownspersonTypes.h` |
+| 191 | `Source/Features/Entities/Characters/Bots/BotsAdapters.cpp` |
 | 183 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeScaleAdapters.cpp` |
 | 179 | `Scripts/lock_sdk_submodule.sh` |
 | 177 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeBlockAdapters.cpp` |
@@ -49,7 +50,6 @@
 | 172 | `Source/Features/Systems/Bots/Position/BotPositionReducers.cpp` |
 | 171 | `Source/Features/Systems/Speech/SpeechAdapters.cpp` |
 | 163 | `Source/Features/Entities/Characters/Player/PlayerTypes.h` |
-| 160 | `Source/Features/Entities/Environments/Nature/NatureSeedAdapters.cpp` |
 | 160 | `Source/Tests/ProtocolLoop.spec.cpp` |
 | 159 | `Source/Views/HorseView.cpp` |
 | 149 | `Content/Data/french_gulch_runtime_level.json` |
@@ -94,18 +94,19 @@
 | 107 | `Source/Features/Systems/Runtime/RuntimeSlice.cpp` |
 | 106 | `Source/Features/Systems/Projection/SystemsProjectionRuntimeAdapters.cpp` |
 | 105 | `Source/Features/Entities/Characters/Player/PlayerReducers.h` |
+| 104 | `Content/Data/french_gulch_landmarks.json` |
 | 103 | `Source/Features/Systems/Bots/Core/BotCoreActions.h` |
 | 103 | `Source/Views/RuntimeLevelView.h` |
 | 101 | `Source/Features/Systems/Rendering/RenderingReducers.h` |
 | 97 | `Source/Features/Systems/Bots/AI/BotAITypes.h` |
 | 97 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.cpp` |
 | 97 | `Source/Features/Systems/SystemsAdapters.h` |
-| 94 | `Content/Data/french_gulch_landmarks.json` |
 | 94 | `Source/Views/PlayerCharacterView.h` |
 | 93 | `Source/Features/Systems/Bots/Stats/BotStatsTypes.h` |
 | 92 | `Source/Features/Systems/Dialogue/DialogueReducers.h` |
 | 92 | `Source/Store.cpp` |
 | 92 | `Source/Views/HorseView.h` |
+| 91 | `Source/Features/Entities/Environments/Landmarks/LandmarksAdapters.cpp` |
 | 89 | `Content/Data/french_gulch_townspeople.json` |
 | 88 | `Source/Features/Components/Rendering/RenderingTypes.h` |
 | 85 | `Config/DefaultInput.ini` |
@@ -145,7 +146,6 @@
 | 63 | `Source/Views/LevelGameModeView.cpp` |
 | 61 | `Source/Features/Components/Data/JsonValueAdapters.cpp` |
 | 60 | `Source/Core/frmt.hpp` |
-| 60 | `Source/Features/Entities/Environments/Landmarks/LandmarksAdapters.cpp` |
 | 59 | `Source/Features/Components/Level/LevelTypes.h` |
 | 59 | `Source/Features/Systems/Rendering/RenderingSlice.cpp` |
 | 58 | `Source/Features/Systems/Bots/Position/BotPositionFactories.cpp` |
