@@ -17,33 +17,11 @@ namespace {
  * explicitly so unknown values fail instead of becoming silent fallbacks.
  */
 FString BotGoalTypeText(EBotGoalType Type) {
-  const func::Maybe<FString> Text =
-      func::multi_match<EBotGoalType, FString>(
-          Type, {func::when<EBotGoalType, FString>(
-                     func::equals(EBotGoalType::Patrol),
-                     [](const EBotGoalType &) { return FString(TEXT("Patrol")); }),
-                 func::when<EBotGoalType, FString>(
-                     func::equals(EBotGoalType::Converse),
-                     [](const EBotGoalType &) { return FString(TEXT("Converse")); }),
-                 func::when<EBotGoalType, FString>(
-                     func::equals(EBotGoalType::Travel),
-                     [](const EBotGoalType &) { return FString(TEXT("Travel")); }),
-                 func::when<EBotGoalType, FString>(
-                     func::equals(EBotGoalType::Idle),
-                     [](const EBotGoalType &) { return FString(TEXT("Idle")); })});
-  check(Text.hasValue);
-  return Text.value;
-}
-
-/**
- * @brief Converts bot goal enum state into an ECS component value.
- * @signature ecs::FComponentValue BotGoalTypeValue(EBotGoalType Type)
- *
- * User Story: As a bot-goals adapter, I need enum text conversion wrapped as
- * a component value before building strategic goal maps.
- */
-ecs::FComponentValue BotGoalTypeValue(EBotGoalType Type) {
-  return ecs::createTextComponentValue(BotGoalTypeText(Type));
+  return ComponentsAdapters::ComponentText(
+      Type, {{EBotGoalType::Patrol, "Patrol"},
+             {EBotGoalType::Converse, "Converse"},
+             {EBotGoalType::Travel, "Travel"},
+             {EBotGoalType::Idle, "Idle"}});
 }
 
 /**
@@ -54,14 +32,14 @@ ecs::FComponentValue BotGoalTypeValue(EBotGoalType Type) {
  * with the same component field layout.
  */
 ecs::FComponentValue StrategicGoalValue(const FBotStrategicGoal &Goal) {
-  return ComponentsAdapters::ComponentValueMap(
-      {{"id", Goal.Id},
-       {"type", BotGoalTypeValue(Goal.Type)},
-       {"priority", Goal.Priority},
-       {"targetEntityId", Goal.TargetEntityId},
-       {"targetLocation", Goal.TargetLocation},
-       {"hasTargetLocation", Goal.bHasTargetLocation},
-       {"completed", Goal.bCompleted}});
+  return ComponentsAdapters::ComponentSourceValueMap(
+      Goal, {{"id", &FBotStrategicGoal::Id},
+             {"type", &FBotStrategicGoal::Type, BotGoalTypeText},
+             {"priority", &FBotStrategicGoal::Priority},
+             {"targetEntityId", &FBotStrategicGoal::TargetEntityId},
+             {"targetLocation", &FBotStrategicGoal::TargetLocation},
+             {"hasTargetLocation", &FBotStrategicGoal::bHasTargetLocation},
+             {"completed", &FBotStrategicGoal::bCompleted}});
 }
 
 /**
@@ -73,16 +51,14 @@ ecs::FComponentValue StrategicGoalValue(const FBotStrategicGoal &Goal) {
  */
 TArray<ecs::FComponentValue>
 StrategicGoalList(const TArray<FBotStrategicGoal> &Goals) {
-  return ecs::mapComponentValues<FBotStrategicGoal>(
-      Goals, [](const FBotStrategicGoal &Goal) {
-        return StrategicGoalValue(Goal);
-      });
+  return ecs::mapComponentValues<FBotStrategicGoal>(Goals, StrategicGoalValue);
 }
 
 ecs::FComponentValue BotKnowledgeValue(const FBotKnowledgeBase &Knowledge) {
-  return ComponentsAdapters::ComponentValueMap(
-      {{"KnownLandmarkIds", Knowledge.KnownLandmarkIds},
-       {"KnownBotIds", Knowledge.KnownBotIds}});
+  return ComponentsAdapters::ComponentSourceValueMap(
+      Knowledge,
+      {{"KnownLandmarkIds", &FBotKnowledgeBase::KnownLandmarkIds},
+       {"KnownBotIds", &FBotKnowledgeBase::KnownBotIds}});
 }
 
 /**
@@ -93,30 +69,11 @@ ecs::FComponentValue BotKnowledgeValue(const FBotKnowledgeBase &Knowledge) {
  * explicitly so invalid values do not masquerade as Idle.
  */
 FString BotBehaviorText(EBotBehaviorState State) {
-  const func::Maybe<FString> Text =
-      func::multi_match<EBotBehaviorState, FString>(
-          State, {func::when<EBotBehaviorState, FString>(
-                      func::equals(EBotBehaviorState::Idle),
-                      [](const EBotBehaviorState &) {
-                        return FString(TEXT("Idle"));
-                      }),
-                  func::when<EBotBehaviorState, FString>(
-                      func::equals(EBotBehaviorState::Patrol),
-                      [](const EBotBehaviorState &) {
-                        return FString(TEXT("Patrol"));
-                      }),
-                  func::when<EBotBehaviorState, FString>(
-                      func::equals(EBotBehaviorState::Moving),
-                      [](const EBotBehaviorState &) {
-                        return FString(TEXT("Moving"));
-                      }),
-                  func::when<EBotBehaviorState, FString>(
-                      func::equals(EBotBehaviorState::Acting),
-                      [](const EBotBehaviorState &) {
-                        return FString(TEXT("Acting"));
-                      })});
-  check(Text.hasValue);
-  return Text.value;
+  return ComponentsAdapters::ComponentText(
+      State, {{EBotBehaviorState::Idle, "Idle"},
+              {EBotBehaviorState::Patrol, "Patrol"},
+              {EBotBehaviorState::Moving, "Moving"},
+              {EBotBehaviorState::Acting, "Acting"}});
 }
 
 } // namespace
@@ -126,12 +83,13 @@ namespace ComponentsAdapters {
 template <>
 struct TComponentSourceProjector<FBotStatsComponent> {
   ecs::FComponentValue operator()(const FBotStatsComponent &Stats) const {
-    return ComponentValueMap({{"Id", Stats.Id},
-                              {"MoveSpeed", Stats.MoveSpeed},
-                              {"AwarenessRange", Stats.AwarenessRange},
-                              {"Resolve", Stats.Resolve},
-                              {"CanTalk", Stats.bCanTalk},
-                              {"MountedRider", Stats.bMountedRider}});
+    return ComponentSourceValueMap(
+        Stats, {{"Id", &FBotStatsComponent::Id},
+                {"MoveSpeed", &FBotStatsComponent::MoveSpeed},
+                {"AwarenessRange", &FBotStatsComponent::AwarenessRange},
+                {"Resolve", &FBotStatsComponent::Resolve},
+                {"CanTalk", &FBotStatsComponent::bCanTalk},
+                {"MountedRider", &FBotStatsComponent::bMountedRider}});
   }
 };
 
@@ -139,38 +97,43 @@ template <>
 struct TComponentSourceProjector<FBotPositionComponent> {
   ecs::FComponentValue
   operator()(const FBotPositionComponent &Position) const {
-    return ComponentValueMap(
-        {{"Id", Position.Id},
-         {"LocalLocation", Position.LocalLocation},
-         {"WorldLocation", Position.WorldLocation},
-         {"HasWorldLocation", Position.bHasWorldLocation},
-         {"FacingRight", Position.bFacingRight}});
+    return ComponentSourceValueMap(
+        Position, {{"Id", &FBotPositionComponent::Id},
+                   {"LocalLocation", &FBotPositionComponent::LocalLocation},
+                   {"WorldLocation", &FBotPositionComponent::WorldLocation},
+                   {"HasWorldLocation",
+                    &FBotPositionComponent::bHasWorldLocation},
+                   {"FacingRight", &FBotPositionComponent::bFacingRight}});
   }
 };
 
 template <>
 struct TComponentSourceProjector<FBotAIComponent> {
   ecs::FComponentValue operator()(const FBotAIComponent &AI) const {
-    return ComponentValueMap({{"Id", AI.Id},
-                              {"BehaviorState",
-                               BotBehaviorText(AI.BehaviorState)},
-                              {"TargetEntityId", AI.TargetEntityId},
-                              {"TargetLocation", AI.TargetLocation},
-                              {"HasTargetLocation", AI.bHasTargetLocation},
-                              {"PatrolIndex", AI.PatrolIndex},
-                              {"PatrolRoute", AI.PatrolRoute}});
+    return ComponentSourceValueMap(
+        AI, {{"Id", &FBotAIComponent::Id},
+             {"BehaviorState", &FBotAIComponent::BehaviorState,
+              BotBehaviorText},
+             {"TargetEntityId", &FBotAIComponent::TargetEntityId},
+             {"TargetLocation", &FBotAIComponent::TargetLocation},
+             {"HasTargetLocation", &FBotAIComponent::bHasTargetLocation},
+             {"PatrolIndex", &FBotAIComponent::PatrolIndex},
+             {"PatrolRoute", &FBotAIComponent::PatrolRoute}});
   }
 };
 
 template <>
 struct TComponentSourceProjector<FBotGoalComponent> {
   ecs::FComponentValue operator()(const FBotGoalComponent &Goal) const {
-    return ComponentValueMap(
-        {{"Id", Goal.Id},
-         {"HasActiveGoal", Goal.bHasActiveGoal},
-         {"ActiveGoal", StrategicGoalValue(Goal.ActiveGoal)},
-         {"GoalQueue", StrategicGoalList(Goal.GoalQueue)},
-         {"Knowledge", BotKnowledgeValue(Goal.Knowledge)}});
+    return ComponentSourceValueMap(
+        Goal, {{"Id", &FBotGoalComponent::Id},
+               {"HasActiveGoal", &FBotGoalComponent::bHasActiveGoal},
+               {"ActiveGoal", &FBotGoalComponent::ActiveGoal,
+                StrategicGoalValue},
+               {"GoalQueue", &FBotGoalComponent::GoalQueue,
+                StrategicGoalList},
+               {"Knowledge", &FBotGoalComponent::Knowledge,
+                BotKnowledgeValue}});
   }
 };
 
@@ -190,10 +153,12 @@ using ComponentsAdapters::RegisteredComponentGroups;
  */
 TArray<TArray<FString>>
 BuildBotProjectionDomains(const FString &BotSystemDomain) {
-  return {{TEXT("Systems"), TEXT("Bots"), BotSystemDomain},
-          {TEXT("Systems"), TEXT("Projection"), TEXT("Bots")},
-          {TEXT("Systems"), TEXT("Projection"), TEXT("Bots"),
-           BotSystemDomain}};
+  return {ComponentsAdapters::ComponentDomain({"Systems", "Bots"},
+                                              BotSystemDomain),
+          ComponentsAdapters::ComponentDomain(
+              {"Systems", "Projection", "Bots"}),
+          ComponentsAdapters::ComponentDomain(
+              {"Systems", "Projection", "Bots"}, BotSystemDomain)};
 }
 
 template <typename Payload, typename SelectId, typename SelectSource,
@@ -217,7 +182,7 @@ ecs::FWorld ProjectBotPayload(const Payload &PayloadValue,
 
 ecs::FWorld ProjectBotStats(const FProjectBotStatsPayload &Payload) {
   return ProjectBotPayload(
-      Payload, TEXT("Stats"),
+      Payload, ComponentsAdapters::ComponentAtom("Stats"),
       [](const FProjectBotStatsPayload &PayloadValue) {
         return PayloadValue.Stats.Id;
       },
@@ -232,7 +197,7 @@ ecs::FWorld ProjectBotStats(const FProjectBotStatsPayload &Payload) {
 ecs::FWorld
 ProjectBotPosition(const FProjectBotPositionPayload &Payload) {
   return ProjectBotPayload(
-      Payload, TEXT("Position"),
+      Payload, ComponentsAdapters::ComponentAtom("Position"),
       [](const FProjectBotPositionPayload &PayloadValue) {
         return PayloadValue.Position.Id;
       },
@@ -248,7 +213,7 @@ ProjectBotPosition(const FProjectBotPositionPayload &Payload) {
 
 ecs::FWorld ProjectBotAI(const FProjectBotAIPayload &Payload) {
   return ProjectBotPayload(
-      Payload, TEXT("AI"),
+      Payload, ComponentsAdapters::ComponentAtom("AI"),
       [](const FProjectBotAIPayload &PayloadValue) {
         return PayloadValue.AI.Id;
       },
@@ -264,7 +229,7 @@ ecs::FWorld ProjectBotAI(const FProjectBotAIPayload &Payload) {
 
 ecs::FWorld ProjectBotGoal(const FProjectBotGoalPayload &Payload) {
   return ProjectBotPayload(
-      Payload, TEXT("Goals"),
+      Payload, ComponentsAdapters::ComponentAtom("Goals"),
       [](const FProjectBotGoalPayload &PayloadValue) {
         return PayloadValue.Goal.Id;
       },

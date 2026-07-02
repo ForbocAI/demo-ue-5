@@ -58,6 +58,17 @@ inline TArray<FString> ComponentAtoms(std::initializer_list<const char *> Atoms)
       AtomList, [](const char *Atom) { return ComponentAtom(Atom); });
 }
 
+inline TArray<FString> ComponentDomain(std::initializer_list<const char *> Atoms) {
+  return ComponentAtoms(Atoms);
+}
+
+inline TArray<FString> ComponentDomain(std::initializer_list<const char *> Atoms,
+                                       const FString &Tail) {
+  TArray<FString> Segments = ComponentAtoms(Atoms);
+  Segments.Add(Tail);
+  return Segments;
+}
+
 struct FComponentDomainDeclaration {
   TArray<FString> Segments;
 
@@ -150,6 +161,15 @@ template <typename Source> struct TComponentSourceValueFieldDeclaration {
   TComponentSourceValueFieldDeclaration(const char *InName,
                                         Value Source::*Member,
                                         Output (*Convert)(Value))
+      : Name(ComponentAtom(InName)),
+        Project([Member, Convert](const Source &SourceValue) {
+          return ProjectComponentValue(Convert(SourceValue.*Member));
+        }) {}
+
+  template <typename Value, typename Output>
+  TComponentSourceValueFieldDeclaration(const char *InName,
+                                        Value Source::*Member,
+                                        Output (*Convert)(const Value &))
       : Name(ComponentAtom(InName)),
         Project([Member, Convert](const Source &SourceValue) {
           return ProjectComponentValue(Convert(SourceValue.*Member));
