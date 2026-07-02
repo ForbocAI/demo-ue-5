@@ -21,12 +21,15 @@ FBotAISource PatrolAISource(const FString &Id,
           PatrolRoute};
 }
 
-FBotAISource TownspersonAISource(const FTownspersonSeed &Seed) {
-  return PatrolAISource(Seed.Id, Seed.PatrolRoute);
+template <typename Seed> FBotAISource RouteAISource(const Seed &SeedValue) {
+  return PatrolAISource(SeedValue.Id, SeedValue.PatrolRoute);
 }
 
-FBotAISource HorseAISource(const FHorseRouteSeed &Seed) {
-  return PatrolAISource(Seed.Id, Seed.PatrolRoute);
+template <typename Seed>
+TArray<FBotAIComponent> FromRouteSeeds(const TArray<Seed> &Seeds) {
+  return BotSourceMapping::MapSeedComponents<Seed, FBotAISource,
+                                             FBotAIComponent>(
+      Seeds, RouteAISource<Seed>, Component);
 }
 
 } // namespace
@@ -51,15 +54,11 @@ FBotAIComponent Component(const FBotAISource &Source) {
 
 TArray<FBotAIComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return BotSourceMapping::MapSeedComponents<FTownspersonSeed, FBotAISource,
-                                             FBotAIComponent>(
-      Seeds, TownspersonAISource, Component);
+  return FromRouteSeeds<FTownspersonSeed>(Seeds);
 }
 
 TArray<FBotAIComponent> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return BotSourceMapping::MapSeedComponents<FHorseRouteSeed, FBotAISource,
-                                             FBotAIComponent>(
-      Seeds, HorseAISource, Component);
+  return FromRouteSeeds<FHorseRouteSeed>(Seeds);
 }
 
 } // namespace BotAIFactories
