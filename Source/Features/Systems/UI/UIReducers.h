@@ -5,11 +5,20 @@
 #include "Core/rtk.hpp"
 #include "Features/Systems/UI/UITypes.h"
 
+#include <initializer_list>
+
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace UIReducers {
 namespace detail {
+
+using FChatMessageViewModel =
+    ForbocAI::Demo::UI::FChatMessageViewModel;
+using FRuntimeConversationViewModel =
+    ForbocAI::Demo::UI::FRuntimeConversationViewModel;
+using FUIRuntimeSettings =
+    ForbocAI::Demo::Data::FUIRuntimeSettings;
 
 struct FUIRuntimeConversationText {
   FString Title;
@@ -17,40 +26,44 @@ struct FUIRuntimeConversationText {
   FString NpcReply;
 };
 
-inline FLinearColor ReduceChatColorForRole(
+struct FUIRoleColorDeclaration {
+  FString Role;
+  FLinearColor Color;
+
+  FUIRoleColorDeclaration(const FString &InRole,
+                          const FLinearColor &InColor)
+      : Role(InRole), Color(InColor) {}
+};
+
+inline func::Maybe<FLinearColor> FindRoleColor(
     const FString &Role,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
-  const func::Maybe<FLinearColor> Color =
-      func::multi_match<FString, FLinearColor>(
-          Role,
-          {
-              func::when<FString, FLinearColor>(
-                  func::equals<FString>(Settings.PlayerRoleLabel),
-                  [&Settings](const FString &) {
-                    return Settings.PlayerColor;
-                  }),
-              func::when<FString, FLinearColor>(
-                  func::equals<FString>(Settings.SystemRoleLabel),
-                  [&Settings](const FString &) {
-                    return Settings.SystemColor;
-                  }),
-              func::when<FString, FLinearColor>(
-                  func::equals<FString>(Settings.NpcRoleLabel),
-                  [&Settings](const FString &) { return Settings.NpcColor; }),
-              func::when<FString, FLinearColor>(
-                  func::equals<FString>(Settings.UnknownRoleLabel),
-                  [&Settings](const FString &) {
-                    return Settings.UnknownColor;
-                  }),
-          });
+    std::initializer_list<FUIRoleColorDeclaration> Declarations) {
+  const TArray<FUIRoleColorDeclaration> DeclarationList(Declarations);
+  return func::fold_array<FUIRoleColorDeclaration,
+                          func::Maybe<FLinearColor>>(
+      DeclarationList, func::nothing<FLinearColor>(),
+      [&Role](const func::Maybe<FLinearColor> &Acc,
+              const FUIRoleColorDeclaration &Declaration) {
+        return Acc.hasValue || Declaration.Role != Role
+                   ? Acc
+                   : func::just(Declaration.Color);
+      });
+}
+
+inline FLinearColor ReduceChatColorForRole(const FString &Role,
+                                           const FUIRuntimeSettings &Settings) {
+  const func::Maybe<FLinearColor> Color = FindRoleColor(
+      Role, {{Settings.PlayerRoleLabel, Settings.PlayerColor},
+             {Settings.SystemRoleLabel, Settings.SystemColor},
+             {Settings.NpcRoleLabel, Settings.NpcColor},
+             {Settings.UnknownRoleLabel, Settings.UnknownColor}});
   check(Color.hasValue);
   return Color.value;
 }
 
-inline ForbocAI::Demo::UI::FChatMessageViewModel
-ReduceChatMessageViewModel(
+inline FChatMessageViewModel ReduceChatMessageViewModel(
     const FUIChatMessageViewModelRequest &Request,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const FUIRuntimeSettings &Settings) {
   return {frmt::RuntimeString(
               Settings.ChatMessageFormat,
               frmt::Args(
@@ -59,10 +72,9 @@ ReduceChatMessageViewModel(
           ReduceChatColorForRole(Request.Role, Settings)};
 }
 
-inline ForbocAI::Demo::UI::FChatMessageViewModel
-ReduceHistoryEntryViewModel(
-    const FString &Entry,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+inline FChatMessageViewModel
+ReduceHistoryEntryViewModel(const FString &Entry,
+                            const FUIRuntimeSettings &Settings) {
   const int32 SeparatorIndex = Entry.Find(Settings.HistoryRoleSeparator);
   return SeparatorIndex > Settings.HistoryMinimumRoleIndex
              ? ReduceChatMessageViewModel(
@@ -78,10 +90,10 @@ inline FString ReduceSubmittedChatText(const FText &Text) {
   return Text.ToString().TrimStartAndEnd();
 }
 
-inline ForbocAI::Demo::UI::FRuntimeConversationViewModel
+inline FRuntimeConversationViewModel
 ReduceRuntimeConversationViewModel(
     const FUIRuntimeConversationText &Text,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const FUIRuntimeSettings &Settings) {
   return {Text.Title,
           Text.PlayerLine,
           Text.NpcReply,
@@ -151,15 +163,12 @@ inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel>
 ReduceChatHistoryViewModels(
     const FUIChatHistoryViewModelsRequest &Request,
     const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
-  return func::fold_indexed(
-      Request.History, static_cast<size_t>(Request.History.Num()),
-      TArray<ForbocAI::Demo::UI::FChatMessageViewModel>(),
+  return func::map_array<FString,
+                         ForbocAI::Demo::UI::FChatMessageViewModel>(
+      Request.History,
       [&Settings](
-          const TArray<ForbocAI::Demo::UI::FChatMessageViewModel> &Acc,
           const FString &Entry) {
-        TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Next = Acc;
-        Next.Add(detail::ReduceHistoryEntryViewModel(Entry, Settings));
-        return Next;
+        return detail::ReduceHistoryEntryViewModel(Entry, Settings);
       });
 }
 
