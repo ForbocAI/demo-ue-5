@@ -1,0 +1,75 @@
+{
+  "texture_palette": {
+    "texture": "horse_tack",
+    "rules": [
+      {
+        "predicate": {
+          "kind": "mod_equals",
+          "x_multiplier": 1,
+          "y_multiplier": 1,
+          "noise_multiplier": 0,
+          "x_divisor": 1,
+          "y_divisor": 1,
+          "modulus": 6,
+          "equals": 0,
+          "less_than": 0
+        },
+        "result": {
+          "kind": "solid",
+          "color": {
+            "r": 45,
+            "g": 28,
+            "b": 16
+          },
+          "color_a": {
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "color_b": {
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "numerator_base": 0,
+          "numerator_noise_modulus": 1,
+          "denominator": 1
+        }
+      },
+      {
+        "predicate": {
+          "kind": "always",
+          "x_multiplier": 0,
+          "y_multiplier": 0,
+          "noise_multiplier": 0,
+          "x_divisor": 1,
+          "y_divisor": 1,
+          "modulus": 1,
+          "equals": 0,
+          "less_than": 1
+        },
+        "result": {
+          "kind": "solid",
+          "color": {
+            "r": 77,
+            "g": 48,
+            "b": 26
+          },
+          "color_a": {
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "color_b": {
+            "r": 0,
+            "g": 0,
+            "b": 0
+          },
+          "numerator_base": 0,
+          "numerator_noise_modulus": 1,
+          "denominator": 1
+        }
+      }
+    ]
+  }
+}

@@ -3,8 +3,7 @@
 | Lines | File Path |
 |-------|-----------|
 | 3337 | `Source/Core/ecs.hpp` |
-| 919 | `Content/Data/runtime_settings_rendering_runtime_texture_palettes.json` |
-| 509 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
+| 514 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 414 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 414 | `Source/Tests/RuntimeStore.spec.cpp` |
 | 411 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
@@ -55,6 +54,7 @@
 | 159 | `Source/Views/HorseView.cpp` |
 | 149 | `Content/Data/french_gulch_runtime_level.json` |
 | 149 | `Source/Features/Systems/Terrain/TerrainReducers.cpp` |
+| 148 | `Source/Features/Components/Data/RuntimeSettings/RenderingSettingsAdapters.cpp` |
 | 147 | `Scripts/Tools/create_french_gulch_map.py` |
 | 147 | `Source/Features/Systems/Bots/Goals/BotGoalReducers.cpp` |
 | 145 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLabelAdapters.cpp` |
@@ -66,7 +66,6 @@
 | 141 | `Source/Features/Systems/Interaction/InteractionTypes.h` |
 | 139 | `Source/Features/Systems/Projection/SystemsProjectionTypes.h` |
 | 139 | `Source/Tests/BotFunctionalCore.spec.cpp` |
-| 137 | `Source/Features/Components/Data/RuntimeSettings/RenderingSettingsAdapters.cpp` |
 | 136 | `Scripts/check_param_count.py` |
 | 135 | `Source/Features/Systems/Terrain/TerrainTypes.h` |
 | 134 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsTypes.h` |
@@ -89,6 +88,8 @@
 | 117 | `Source/Features/Systems/Runtime/RuntimeFactories.cpp` |
 | 116 | `Content/Data/french_gulch_nature.json` |
 | 110 | `Source/Features/Systems/Dialogue/DialogueTypes.h` |
+| 109 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_building_timber.json` |
+| 109 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_water_creek.json` |
 | 108 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.cpp` |
 | 107 | `Source/Features/Systems/Runtime/RuntimeSlice.cpp` |
 | 106 | `Source/Features/Systems/Projection/SystemsProjectionRuntimeAdapters.cpp` |
@@ -112,6 +113,14 @@
 | 82 | `Source/Tests/OrchestratorMultiBot.spec.cpp` |
 | 81 | `Source/Features/Systems/Bots/Core/BotCoreRuntimeTypes.h` |
 | 78 | `Source/Features/Components/Data/RuntimeSettings/UISettingsTypes.h` |
+| 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_foliage_riparian.json` |
+| 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_horse_tack.json` |
+| 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_marker_paint.json` |
+| 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_mine_timber.json` |
+| 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_npc_body.json` |
+| 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_npc_hat.json` |
+| 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_road_dust.json` |
+| 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_rock_granite.json` |
 | 75 | `Source/Views/RuntimeChatWidget.cpp` |
 | 73 | `Source/Features/Systems/Landmarks/LandmarkTypes.h` |
 | 73 | `Source/Features/Systems/Runtime/RuntimeReducers.h` |
@@ -190,6 +199,9 @@
 | 43 | `Source/Features/Systems/SystemsTypes.h` |
 | 43 | `Source/Features/Systems/UI/UISlice.h` |
 | 42 | `Source/Features/Systems/Level/LevelSelectors.h` |
+| 41 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_horse_coat.json` |
+| 41 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_horse_leg.json` |
+| 41 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_terrain_ortho.json` |
 | 41 | `DemoProject.uproject` |
 | 41 | `Source/Features/Systems/Rendering/RenderingSelectors.cpp` |
 | 40 | `Content/Data/runtime_settings_level.json` |
@@ -352,6 +364,7 @@
 | 18 | `Source/Features/Systems/Spawn/SpawnReducers.h` |
 | 18 | `Source/Features/Systems/Spawn/SpawnSelectors.cpp` |
 | 17 | `Content/Data/runtime_settings_rendering_profile.json` |
+| 17 | `Content/Data/runtime_settings_rendering_runtime_texture_palettes.json` |
 | 17 | `Source/Features/Systems/Bots/AI/BotAIActions.h` |
 | 17 | `Source/Features/Systems/Bots/BotActions.h` |
 | 17 | `Source/Features/Systems/Bots/Horses/HorseSelectors.h` |

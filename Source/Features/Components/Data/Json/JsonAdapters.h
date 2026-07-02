@@ -329,6 +329,11 @@ inline FString ReadStringField(const TSharedPtr<FJsonObject> &Object,
   return ReadString(Field(Object, *SettingsFieldName(FieldAtom)));
 }
 
+inline TArray<FString> ReadStringArrayField(
+    const TSharedPtr<FJsonObject> &Object, const char *FieldAtom) {
+  return ReadStringArray(Field(Object, *SettingsFieldName(FieldAtom)));
+}
+
 inline TSharedPtr<FJsonObject>
 ReadObjectField(const TSharedPtr<FJsonObject> &Object, const char *FieldAtom) {
   return ReadObjectValue(Field(Object, *SettingsFieldName(FieldAtom)));

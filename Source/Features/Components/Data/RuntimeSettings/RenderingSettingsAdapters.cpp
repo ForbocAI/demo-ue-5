@@ -72,6 +72,20 @@ FRenderingTexturePaletteSettings ReadRenderingTexturePaletteSettings(
                                         Rules)});
 }
 
+FRenderingTexturePaletteSettings
+ReadRenderingTexturePaletteSource(const FString &Source) {
+  return ReadRenderingTexturePaletteSettings(
+      Json::ReadObjectField(Json::LoadRequiredObjectFromContent({Source}),
+                            "TexturePalette"));
+}
+
+TArray<FRenderingTexturePaletteSettings>
+ReadRenderingTexturePaletteSources(const TSharedPtr<FJsonObject> &Object) {
+  return func::map_array<FString, FRenderingTexturePaletteSettings>(
+      Json::ReadStringArrayField(Object, "TexturePaletteSources"),
+      ReadRenderingTexturePaletteSource);
+}
+
 } // namespace
 
 FRenderingAssetPathSettings
@@ -124,10 +138,7 @@ ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &TextureSettings,
       Json::ReadObjectArrayField<FRenderingConsoleVariableSettings>(
           ConsoleVariables, "ConsoleVariables",
           ReadRenderingConsoleVariableSettings);
-  Settings.TexturePalettes =
-      Json::ReadObjectArrayField<FRenderingTexturePaletteSettings>(
-          TexturePalettes, "TexturePalettes",
-          ReadRenderingTexturePaletteSettings);
+  Settings.TexturePalettes = ReadRenderingTexturePaletteSources(TexturePalettes);
   return Settings;
 }
 
