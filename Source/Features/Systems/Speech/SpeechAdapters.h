@@ -6,6 +6,9 @@
 #include "Core/ue_fp.hpp"
 #include "Features/Components/Data/DataTypes.h"
 #include "Sound/SoundWave.h"
+
+#include <initializer_list>
+
 #include "SpeechAdapters.generated.h"
 
 /**
@@ -125,24 +128,113 @@ struct FSpeechResult {
 
 namespace SpeechOps {
 
+using FSpeechRuntimeSettings =
+    ForbocAI::Demo::Data::FSpeechRuntimeSettings;
+using FSpeechVisemeMappingSettings =
+    ForbocAI::Demo::Data::FSpeechVisemeMappingSettings;
+using FSpeechVowelPhonemeSettings =
+    ForbocAI::Demo::Data::FSpeechVowelPhonemeSettings;
+using FSpeechPhonemeDurationRuleSettings =
+    ForbocAI::Demo::Data::FSpeechPhonemeDurationRuleSettings;
+
+template <typename Item, typename Key, typename Value>
+struct TSpeechMapDeclaration {
+  std::function<Key(const Item &)> SelectKey;
+  std::function<Value(const Item &)> SelectValue;
+};
+
+template <typename Input, typename Output>
+struct TSpeechDispatchDeclaration {
+  std::function<bool(const Input &)> Matches;
+  std::function<Output(const Input &)> Run;
+};
+
+struct FSpeechDurationRuleEval {
+  FString Phoneme;
+  FSpeechPhonemeDurationRuleSettings Rule;
+};
+
+using FSpeechDurationRuleApply = bool (*)(const FSpeechDurationRuleEval &);
+
+struct FSpeechDurationRuleDeclaration {
+  FString Kind;
+  FSpeechDurationRuleApply Matches;
+
+  FSpeechDurationRuleDeclaration(const char *InKind,
+                                 FSpeechDurationRuleApply InMatches)
+      : Kind(FString(UTF8_TO_TCHAR(InKind))), Matches(InMatches) {}
+};
+
+template <typename Item, typename Key, typename Value>
+TMap<Key, Value> BuildSpeechMap(
+    const TArray<Item> &Items,
+    const TSpeechMapDeclaration<Item, Key, Value> &Declaration) {
+  return func::fold_array<Item, TMap<Key, Value>>(
+      Items, TMap<Key, Value>(),
+      [Declaration](const TMap<Key, Value> &Acc, const Item &ItemValue) {
+        TMap<Key, Value> Next = Acc;
+        Next.Add(Declaration.SelectKey(ItemValue),
+                 Declaration.SelectValue(ItemValue));
+        return Next;
+      });
+}
+
+template <typename Input, typename Output>
+func::Maybe<Output> RunSpeechDispatch(
+    const Input &Value,
+    std::initializer_list<TSpeechDispatchDeclaration<Input, Output>>
+        Declarations) {
+  const TArray<TSpeechDispatchDeclaration<Input, Output>> DeclarationList(
+      Declarations);
+  return func::fold_array<TSpeechDispatchDeclaration<Input, Output>,
+                          func::Maybe<Output>>(
+      DeclarationList, func::nothing<Output>(),
+      [&Value](const func::Maybe<Output> &Acc,
+               const TSpeechDispatchDeclaration<Input, Output> &Declaration) {
+        return Acc.hasValue || !Declaration.Matches(Value)
+                   ? Acc
+                   : func::just(Declaration.Run(Value));
+      });
+}
+
+inline func::Maybe<bool> MatchDurationRule(
+    const FSpeechDurationRuleEval &Eval,
+    std::initializer_list<FSpeechDurationRuleDeclaration> Declarations) {
+  const TArray<FSpeechDurationRuleDeclaration> DeclarationList(Declarations);
+  return func::fold_array<FSpeechDurationRuleDeclaration, func::Maybe<bool>>(
+      DeclarationList, func::nothing<bool>(),
+      [&Eval](const func::Maybe<bool> &Acc,
+              const FSpeechDurationRuleDeclaration &Declaration) {
+        return Acc.hasValue || Declaration.Kind != Eval.Rule.Kind
+                   ? Acc
+                   : func::just(Declaration.Matches(Eval));
+      });
+}
+
+inline bool DurationPhonemeEquals(const FSpeechDurationRuleEval &Eval) {
+  return Eval.Rule.Phoneme == Eval.Phoneme;
+}
+
+inline bool DurationAlways(const FSpeechDurationRuleEval &) {
+  return true;
+}
+
 inline FVisemeMapping RestViseme(
-    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+    const FSpeechRuntimeSettings &Settings) {
   return {Settings.RestViseme, Settings.RestWeight};
 }
 
 inline TMap<FString, FVisemeMapping> VisemeMapFromSettings(
-    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
-  return func::fold_indexed(
+    const FSpeechRuntimeSettings &Settings) {
+  return BuildSpeechMap<FSpeechVisemeMappingSettings, FString,
+                        FVisemeMapping>(
       Settings.VisemeMappings,
-      static_cast<size_t>(Settings.VisemeMappings.Num()),
-      TMap<FString, FVisemeMapping>(),
-      [](const TMap<FString, FVisemeMapping> &Acc,
-         const ForbocAI::Demo::Data::FSpeechVisemeMappingSettings &Mapping) {
-        TMap<FString, FVisemeMapping> Next = Acc;
-        Next.Add(Mapping.Phoneme,
-                 {Mapping.MorphTargetName, Mapping.BlendWeight});
-        return Next;
-      });
+      {[](const FSpeechVisemeMappingSettings &Mapping) {
+         return Mapping.Phoneme;
+       },
+       [](const FSpeechVisemeMappingSettings &Mapping) {
+         return FVisemeMapping{Mapping.MorphTargetName, Mapping.BlendWeight};
+       }});
 }
 
 /**
@@ -152,8 +244,7 @@ inline TMap<FString, FVisemeMapping> VisemeMapFromSettings(
 inline func::Maybe<FVisemeMapping> LookupViseme(
     const FString &Phoneme,
     const TMap<FString, FVisemeMapping> &Map) {
-  const FVisemeMapping *Found = Map.Find(Phoneme);
-  return func::from_nullable(Found);
+  return func::find_map_value<FString, FVisemeMapping>(Map, Phoneme);
 }
 
 inline FVisemeMapping RequiredVisemeForPhoneme(
@@ -177,9 +268,8 @@ inline FVisemeMapping ActiveVisemeAtTime(
     const TMap<FString, FVisemeMapping> &VisemeMap,
     const FVisemeMapping &Rest) {
   return func::match(
-      func::find_indexed(
-          Phonemes, static_cast<size_t>(Phonemes.Num()),
-          [CurrentTime](const FPhonemeEvent &Phoneme) {
+      func::find_array<FPhonemeEvent>(
+          Phonemes, [CurrentTime](const FPhonemeEvent &Phoneme) {
             return CurrentTime >= Phoneme.StartTime &&
                    CurrentTime < Phoneme.StartTime + Phoneme.Duration;
           }),
@@ -204,66 +294,51 @@ inline bool ContainsCharacter(const FString &Characters, TCHAR Character) {
 
 inline func::Maybe<FString> LookupVowelPhoneme(
     TCHAR Ch,
-    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+    const FSpeechRuntimeSettings &Settings) {
   const FString Character = UpperString(FChar::ToUpper(Ch));
   return func::fmap(
-      func::find_indexed(
+      func::find_array<FSpeechVowelPhonemeSettings>(
           Settings.VowelPhonemes,
-          static_cast<size_t>(Settings.VowelPhonemes.Num()),
-          [Character](
-              const ForbocAI::Demo::Data::FSpeechVowelPhonemeSettings
-                  &Mapping) { return Mapping.Character == Character; }),
-      [](const ForbocAI::Demo::Data::FSpeechVowelPhonemeSettings &Mapping) {
+          [Character](const FSpeechVowelPhonemeSettings &Mapping) {
+            return Mapping.Character == Character;
+          }),
+      [](const FSpeechVowelPhonemeSettings &Mapping) {
         return Mapping.Phoneme;
       });
 }
 
 inline func::Maybe<FString> EstimatePhonemeForChar(
     TCHAR Ch,
-    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+    const FSpeechRuntimeSettings &Settings) {
   const TCHAR Upper = FChar::ToUpper(Ch);
   return func::match(
       LookupVowelPhoneme(Upper, Settings),
       [](const FString &Phoneme) { return func::just(Phoneme); },
       [&Settings, Upper]() {
-        return func::multi_match<TCHAR, FString>(
+        return RunSpeechDispatch<TCHAR, FString>(
             Upper,
-            {
-                func::when<TCHAR, FString>(
-                    [&Settings](TCHAR Candidate) {
-                      return ContainsCharacter(Settings.SilenceCharacters,
-                                               Candidate);
-                    },
-                    [&Settings](TCHAR) { return Settings.SilencePhoneme; }),
-                func::when<TCHAR, FString>(
-                    [](TCHAR Candidate) { return FChar::IsAlpha(Candidate); },
-                    [](TCHAR Candidate) { return UpperString(Candidate); }),
-            });
+            {{[&Settings](const TCHAR &Candidate) {
+                return ContainsCharacter(Settings.SilenceCharacters,
+                                         Candidate);
+              },
+              [&Settings](const TCHAR &) { return Settings.SilencePhoneme; }},
+             {[](const TCHAR &Candidate) {
+                return FChar::IsAlpha(Candidate);
+              },
+              [](const TCHAR &Candidate) { return UpperString(Candidate); }}});
       });
 }
 
 inline float EstimatePhonemeDuration(const FString &Phoneme,
-                                     const ForbocAI::Demo::Data::
-                                         FSpeechRuntimeSettings &Settings) {
-  const func::Maybe<ForbocAI::Demo::Data::FSpeechPhonemeDurationRuleSettings>
-      Rule = func::find_indexed(
+                                     const FSpeechRuntimeSettings &Settings) {
+  const func::Maybe<FSpeechPhonemeDurationRuleSettings> Rule =
+      func::find_array<FSpeechPhonemeDurationRuleSettings>(
           Settings.DurationRules,
-          static_cast<size_t>(Settings.DurationRules.Num()),
-          [&Phoneme](
-              const ForbocAI::Demo::Data::FSpeechPhonemeDurationRuleSettings
-                  &Candidate) {
-            const func::Maybe<bool> Matches = func::multi_match<FString, bool>(
-                Candidate.Kind,
-                {
-                    func::when<FString, bool>(
-                        func::equals<FString>(TEXT("phoneme_equals")),
-                        [&Candidate, &Phoneme](const FString &) {
-                          return Candidate.Phoneme == Phoneme;
-                        }),
-                    func::when<FString, bool>(
-                        func::equals<FString>(TEXT("always")),
-                        [](const FString &) { return true; }),
-                });
+          [&Phoneme](const FSpeechPhonemeDurationRuleSettings &Candidate) {
+            const func::Maybe<bool> Matches = MatchDurationRule(
+                {Phoneme, Candidate},
+                {{"phoneme_equals", DurationPhonemeEquals},
+                 {"always", DurationAlways}});
             check(Matches.hasValue);
             return Matches.value;
           });
@@ -280,7 +355,7 @@ inline float EstimatePhonemeDuration(const FString &Phoneme,
  */
 inline TArray<FPhonemeEvent> EstimatePhonemesFromText(
     const FString &Text,
-    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+    const FSpeechRuntimeSettings &Settings) {
   return func::fold_indexed(
              Text, static_cast<size_t>(Text.Len()), FPhonemeEstimateState{},
              [&Settings](const FPhonemeEstimateState &State,

@@ -4,8 +4,8 @@
 |-------|-----------|
 | 3337 | `Source/Core/ecs.hpp` |
 | 552 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
+| 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 432 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
-| 414 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 414 | `Source/Tests/RuntimeStore.spec.cpp` |
 | 403 | `Source/Features/Components/ComponentsAdapters.h` |
 | 340 | `Scripts/Tools/generate_french_gulch_heightmap.py` |
