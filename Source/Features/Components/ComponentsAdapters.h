@@ -58,6 +58,22 @@ inline TArray<FString> ComponentAtoms(std::initializer_list<const char *> Atoms)
       AtomList, [](const char *Atom) { return ComponentAtom(Atom); });
 }
 
+struct FComponentDomainDeclaration {
+  TArray<FString> Segments;
+
+  FComponentDomainDeclaration(std::initializer_list<const char *> InSegments)
+      : Segments(ComponentAtoms(InSegments)) {}
+};
+
+inline TArray<TArray<FString>>
+ComponentDomains(std::initializer_list<FComponentDomainDeclaration> Domains) {
+  const TArray<FComponentDomainDeclaration> DomainList(Domains);
+  return func::map_array<FComponentDomainDeclaration, TArray<FString>>(
+      DomainList, [](const FComponentDomainDeclaration &Domain) {
+        return Domain.Segments;
+      });
+}
+
 struct FComponentValueField {
   FString Name;
   ecs::FComponentValue Value;
@@ -86,11 +102,93 @@ ComponentValueMap(std::initializer_list<FComponentValueField> Fields) {
   return ecs::createMapComponentValue(ComponentValueFields(Fields));
 }
 
+template <typename Value> struct TComponentTextDeclaration {
+  Value Expected;
+  FString Text;
+
+  TComponentTextDeclaration(Value InExpected, const char *InText)
+      : Expected(InExpected), Text(ComponentAtom(InText)) {}
+};
+
+template <typename Value>
+FString ComponentText(
+    Value Current,
+    std::initializer_list<TComponentTextDeclaration<Value>> Declarations) {
+  const func::Maybe<FString> Text = func::fold_indexed(
+      TArray<TComponentTextDeclaration<Value>>(Declarations),
+      static_cast<size_t>(Declarations.size()), func::nothing<FString>(),
+      [Current](const func::Maybe<FString> &Acc,
+                const TComponentTextDeclaration<Value> &Declaration) {
+        return Acc.hasValue || Declaration.Expected != Current
+                   ? Acc
+                   : func::just(Declaration.Text);
+      });
+  check(Text.hasValue);
+  return Text.value;
+}
+
 template <typename Source> struct TComponentSourceProjector;
 
 template <typename Source>
 ecs::FComponentValue ProjectComponentSourceValue(const Source &SourceValue) {
   return TComponentSourceProjector<Source>()(SourceValue);
+}
+
+template <typename Source> struct TComponentSourceValueFieldDeclaration {
+  FString Name;
+  TFunction<ecs::FComponentValue(const Source &)> Project;
+
+  template <typename Value>
+  TComponentSourceValueFieldDeclaration(const char *InName,
+                                        Value Source::*Member)
+      : Name(ComponentAtom(InName)),
+        Project([Member](const Source &SourceValue) {
+          return ProjectComponentValue(SourceValue.*Member);
+        }) {}
+
+  template <typename Value, typename Output>
+  TComponentSourceValueFieldDeclaration(const char *InName,
+                                        Value Source::*Member,
+                                        Output (*Convert)(Value))
+      : Name(ComponentAtom(InName)),
+        Project([Member, Convert](const Source &SourceValue) {
+          return ProjectComponentValue(Convert(SourceValue.*Member));
+        }) {}
+
+  template <typename Output>
+  TComponentSourceValueFieldDeclaration(const char *InName,
+                                        Output (*ProjectValue)(const Source &))
+      : Name(ComponentAtom(InName)),
+        Project([ProjectValue](const Source &SourceValue) {
+          return ProjectComponentValue(ProjectValue(SourceValue));
+        }) {}
+};
+
+template <typename Source>
+inline TMap<FString, ecs::FComponentValue> ComponentSourceValueFields(
+    const Source &SourceValue,
+    std::initializer_list<TComponentSourceValueFieldDeclaration<Source>>
+        Fields) {
+  const TArray<TComponentSourceValueFieldDeclaration<Source>> FieldList(Fields);
+  return func::fold_array<TComponentSourceValueFieldDeclaration<Source>,
+                          TMap<FString, ecs::FComponentValue>>(
+      FieldList, TMap<FString, ecs::FComponentValue>(),
+      [&SourceValue](const TMap<FString, ecs::FComponentValue> &Acc,
+                     const TComponentSourceValueFieldDeclaration<Source>
+                         &Field) {
+        TMap<FString, ecs::FComponentValue> Next = Acc;
+        Next.Add(Field.Name, Field.Project(SourceValue));
+        return Next;
+      });
+}
+
+template <typename Source>
+inline ecs::FComponentValue ComponentSourceValueMap(
+    const Source &SourceValue,
+    std::initializer_list<TComponentSourceValueFieldDeclaration<Source>>
+        Fields) {
+  return ecs::createMapComponentValue(
+      ComponentSourceValueFields<Source>(SourceValue, Fields));
 }
 
 template <typename Source> struct TAppendComponentBindingProjection {

@@ -16,33 +16,14 @@ namespace {
  * explicit and fail on impossible values instead of falling back silently.
  */
 FString LandmarkKindText(ELandmarkKind Kind) {
-  const func::Maybe<FString> Text =
-      func::multi_match<ELandmarkKind, FString>(
-          Kind, {func::when<ELandmarkKind, FString>(
-                     func::equals(ELandmarkKind::Building),
-                     [](const ELandmarkKind &) { return FString(TEXT("Building")); }),
-                 func::when<ELandmarkKind, FString>(
-                     func::equals(ELandmarkKind::Road),
-                     [](const ELandmarkKind &) { return FString(TEXT("Road")); }),
-                 func::when<ELandmarkKind, FString>(
-                     func::equals(ELandmarkKind::Creek),
-                     [](const ELandmarkKind &) { return FString(TEXT("Creek")); }),
-                 func::when<ELandmarkKind, FString>(
-                     func::equals(ELandmarkKind::TerrainMarker),
-                     [](const ELandmarkKind &) {
-                       return FString(TEXT("TerrainMarker"));
-                     }),
-                 func::when<ELandmarkKind, FString>(
-                     func::equals(ELandmarkKind::Mine),
-                     [](const ELandmarkKind &) { return FString(TEXT("Mine")); }),
-                 func::when<ELandmarkKind, FString>(
-                     func::equals(ELandmarkKind::Cemetery),
-                     [](const ELandmarkKind &) { return FString(TEXT("Cemetery")); }),
-                 func::when<ELandmarkKind, FString>(
-                     func::equals(ELandmarkKind::Park),
-                     [](const ELandmarkKind &) { return FString(TEXT("Park")); })});
-  check(Text.hasValue);
-  return Text.value;
+  return ComponentsAdapters::ComponentText(
+      Kind, {{ELandmarkKind::Building, "Building"},
+             {ELandmarkKind::Road, "Road"},
+             {ELandmarkKind::Creek, "Creek"},
+             {ELandmarkKind::TerrainMarker, "TerrainMarker"},
+             {ELandmarkKind::Mine, "Mine"},
+             {ELandmarkKind::Cemetery, "Cemetery"},
+             {ELandmarkKind::Park, "Park"}});
 }
 
 /**
@@ -53,34 +34,13 @@ FString LandmarkKindText(ELandmarkKind Kind) {
  * and fail on impossible values instead of falling back silently.
  */
 FString NatureKindText(ENatureFeatureKind Kind) {
-  const func::Maybe<FString> Text =
-      func::multi_match<ENatureFeatureKind, FString>(
-          Kind, {func::when<ENatureFeatureKind, FString>(
-                     func::equals(ENatureFeatureKind::Water),
-                     [](const ENatureFeatureKind &) { return FString(TEXT("Water")); }),
-                 func::when<ENatureFeatureKind, FString>(
-                     func::equals(ENatureFeatureKind::Rock),
-                     [](const ENatureFeatureKind &) { return FString(TEXT("Rock")); }),
-                 func::when<ENatureFeatureKind, FString>(
-                     func::equals(ENatureFeatureKind::TreeGrove),
-                     [](const ENatureFeatureKind &) {
-                       return FString(TEXT("TreeGrove"));
-                     }),
-                 func::when<ENatureFeatureKind, FString>(
-                     func::equals(ENatureFeatureKind::Shrub),
-                     [](const ENatureFeatureKind &) { return FString(TEXT("Shrub")); }),
-                 func::when<ENatureFeatureKind, FString>(
-                     func::equals(ENatureFeatureKind::PCGMarker),
-                     [](const ENatureFeatureKind &) {
-                       return FString(TEXT("PCGMarker"));
-                     }),
-                 func::when<ENatureFeatureKind, FString>(
-                     func::equals(ENatureFeatureKind::WaterSystemMarker),
-                     [](const ENatureFeatureKind &) {
-                       return FString(TEXT("WaterSystemMarker"));
-                     })});
-  check(Text.hasValue);
-  return Text.value;
+  return ComponentsAdapters::ComponentText(
+      Kind, {{ENatureFeatureKind::Water, "Water"},
+             {ENatureFeatureKind::Rock, "Rock"},
+             {ENatureFeatureKind::TreeGrove, "TreeGrove"},
+             {ENatureFeatureKind::Shrub, "Shrub"},
+             {ENatureFeatureKind::PCGMarker, "PCGMarker"},
+             {ENatureFeatureKind::WaterSystemMarker, "WaterSystemMarker"}});
 }
 
 /**
@@ -91,31 +51,12 @@ FString NatureKindText(ENatureFeatureKind Kind) {
  * be explicit and fail on impossible values instead of falling back silently.
  */
 FString InteractionIntentText(ETownspersonInteractionIntent Intent) {
-  const func::Maybe<FString> Text =
-      func::multi_match<ETownspersonInteractionIntent, FString>(
-          Intent, {func::when<ETownspersonInteractionIntent, FString>(
-                       func::equals(ETownspersonInteractionIntent::General),
-                       [](const ETownspersonInteractionIntent &) {
-                         return FString(TEXT("General"));
-                       }),
-                   func::when<ETownspersonInteractionIntent, FString>(
-                       func::equals(ETownspersonInteractionIntent::Dialogue),
-                       [](const ETownspersonInteractionIntent &) {
-                         return FString(TEXT("Dialogue"));
-                       }),
-                   func::when<ETownspersonInteractionIntent, FString>(
-                       func::equals(ETownspersonInteractionIntent::Memory),
-                       [](const ETownspersonInteractionIntent &) {
-                         return FString(TEXT("Memory"));
-                       }),
-                   func::when<ETownspersonInteractionIntent, FString>(
-                       func::equals(
-                           ETownspersonInteractionIntent::CombatValidation),
-                       [](const ETownspersonInteractionIntent &) {
-                         return FString(TEXT("CombatValidation"));
-                       })});
-  check(Text.hasValue);
-  return Text.value;
+  return ComponentsAdapters::ComponentText(
+      Intent, {{ETownspersonInteractionIntent::General, "General"},
+               {ETownspersonInteractionIntent::Dialogue, "Dialogue"},
+               {ETownspersonInteractionIntent::Memory, "Memory"},
+               {ETownspersonInteractionIntent::CombatValidation,
+                "CombatValidation"}});
 }
 
 /**
@@ -126,18 +67,9 @@ FString InteractionIntentText(ETownspersonInteractionIntent Intent) {
  * explicit and fail on impossible values instead of falling back silently.
  */
 FString BotKindText(EBotEntityKind Kind) {
-  const func::Maybe<FString> Text =
-      func::multi_match<EBotEntityKind, FString>(
-          Kind, {func::when<EBotEntityKind, FString>(
-                     func::equals(EBotEntityKind::Townsperson),
-                     [](const EBotEntityKind &) {
-                       return FString(TEXT("Townsperson"));
-                     }),
-                 func::when<EBotEntityKind, FString>(
-                     func::equals(EBotEntityKind::Horse),
-                     [](const EBotEntityKind &) { return FString(TEXT("Horse")); })});
-  check(Text.hasValue);
-  return Text.value;
+  return ComponentsAdapters::ComponentText(
+      Kind, {{EBotEntityKind::Townsperson, "Townsperson"},
+             {EBotEntityKind::Horse, "Horse"}});
 }
 
 /**
@@ -148,54 +80,49 @@ FString BotKindText(EBotEntityKind Kind) {
  * be explicit and fail on impossible values instead of falling back silently.
  */
 FString BotAlignmentText(EBotAlignment Alignment) {
-  const func::Maybe<FString> Text =
-      func::multi_match<EBotAlignment, FString>(
-          Alignment, {func::when<EBotAlignment, FString>(
-                          func::equals(EBotAlignment::Friendly),
-                          [](const EBotAlignment &) {
-                            return FString(TEXT("Friendly"));
-                          }),
-                      func::when<EBotAlignment, FString>(
-                          func::equals(EBotAlignment::Neutral),
-                          [](const EBotAlignment &) {
-                            return FString(TEXT("Neutral"));
-                          })});
-  check(Text.hasValue);
-  return Text.value;
+  return ComponentsAdapters::ComponentText(
+      Alignment, {{EBotAlignment::Friendly, "Friendly"},
+                  {EBotAlignment::Neutral, "Neutral"}});
 }
 
 TArray<TArray<FString>> LandmarkDomains() {
-  return {{TEXT("Entities"), TEXT("Environments"), TEXT("Landmarks")},
-          {TEXT("Systems"), TEXT("Landmarks")}};
+  return ComponentsAdapters::ComponentDomains(
+      {{"Entities", "Environments", "Landmarks"},
+       {"Systems", "Landmarks"}});
 }
 
 TArray<TArray<FString>> NatureDomains() {
-  return {{TEXT("Entities"), TEXT("Environments"), TEXT("Nature")},
-          {TEXT("Systems"), TEXT("Nature")}};
+  return ComponentsAdapters::ComponentDomains(
+      {{"Entities", "Environments", "Nature"}, {"Systems", "Nature"}});
 }
 
 TArray<TArray<FString>> TownspersonDomains() {
-  return {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
-           TEXT("Townspeople")},
-          {TEXT("Systems"), TEXT("Bots"), TEXT("Townspeople")}};
+  return ComponentsAdapters::ComponentDomains(
+      {{"Entities", "Characters", "Bots", "Townspeople"},
+       {"Systems", "Bots", "Townspeople"}});
 }
 
 TArray<TArray<FString>> HorseDomains() {
-  return {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
-           TEXT("Horses")},
-          {TEXT("Systems"), TEXT("Bots"), TEXT("Horses")}};
+  return ComponentsAdapters::ComponentDomains(
+      {{"Entities", "Characters", "Bots", "Horses"},
+       {"Systems", "Bots", "Horses"}});
 }
 
 TArray<TArray<FString>> BotDomains() {
-  return {{TEXT("Entities"), TEXT("Characters"), TEXT("Bots")},
-          {TEXT("Systems"), TEXT("Bots")}};
+  return ComponentsAdapters::ComponentDomains(
+      {{"Entities", "Characters", "Bots"}, {"Systems", "Bots"}});
 }
 
 TArray<TArray<FString>> PlayerDomains() {
-  return {{TEXT("Entities"), TEXT("Characters"), TEXT("Player")}};
+  return ComponentsAdapters::ComponentDomains(
+      {{"Entities", "Characters", "Player"}});
 }
 
-FString LastActionIdText(const func::Maybe<FString> &LastActionId) {
+bool HasLastActionId(func::Maybe<FString> LastActionId) {
+  return LastActionId.hasValue;
+}
+
+FString LastActionIdText(func::Maybe<FString> LastActionId) {
   return LastActionId.hasValue ? LastActionId.value : FString();
 }
 
@@ -206,11 +133,12 @@ namespace ComponentsAdapters {
 template <>
 struct TComponentSourceProjector<FLandmark> {
   ecs::FComponentValue operator()(const FLandmark &Landmark) const {
-    return ComponentValueMap({{"Id", Landmark.Id},
-                              {"Label", Landmark.Label},
-                              {"Kind", LandmarkKindText(Landmark.Kind)},
-                              {"Location", Landmark.Location},
-                              {"Scale", Landmark.Scale}});
+    return ComponentSourceValueMap(
+        Landmark, {{"Id", &FLandmark::Id},
+                   {"Label", &FLandmark::Label},
+                   {"Kind", &FLandmark::Kind, LandmarkKindText},
+                   {"Location", &FLandmark::Location},
+                   {"Scale", &FLandmark::Scale}});
   }
 };
 
@@ -218,11 +146,13 @@ template <>
 struct TComponentSourceProjector<FNatureFeatureSeed> {
   ecs::FComponentValue
   operator()(const FNatureFeatureSeed &NatureFeature) const {
-    return ComponentValueMap({{"Id", NatureFeature.Id},
-                              {"Name", NatureFeature.Name},
-                              {"Kind", NatureKindText(NatureFeature.Kind)},
-                              {"LocalLocation", NatureFeature.Location},
-                              {"Scale", NatureFeature.Scale}});
+    return ComponentSourceValueMap(
+        NatureFeature,
+        {{"Id", &FNatureFeatureSeed::Id},
+         {"Name", &FNatureFeatureSeed::Name},
+         {"Kind", &FNatureFeatureSeed::Kind, NatureKindText},
+         {"LocalLocation", &FNatureFeatureSeed::Location},
+         {"Scale", &FNatureFeatureSeed::Scale}});
   }
 };
 
@@ -230,48 +160,52 @@ template <>
 struct TComponentSourceProjector<FTownspersonSeed> {
   ecs::FComponentValue
   operator()(const FTownspersonSeed &Townsperson) const {
-    return ComponentValueMap(
-        {{"Id", Townsperson.Id},
-         {"Name", Townsperson.Name},
-         {"Role", Townsperson.Role},
-         {"Persona", Townsperson.Persona},
-         {"InteractionPrompt", Townsperson.InteractionPrompt},
-         {"DefaultPlayerLine", Townsperson.DefaultPlayerLine},
-         {"PinnedResponse", Townsperson.PinnedResponse},
-         {"InteractionIntent",
-          InteractionIntentText(Townsperson.InteractionIntent)},
-         {"PatrolRoute", Townsperson.PatrolRoute}});
+    return ComponentSourceValueMap(
+        Townsperson,
+        {{"Id", &FTownspersonSeed::Id},
+         {"Name", &FTownspersonSeed::Name},
+         {"Role", &FTownspersonSeed::Role},
+         {"Persona", &FTownspersonSeed::Persona},
+         {"InteractionPrompt", &FTownspersonSeed::InteractionPrompt},
+         {"DefaultPlayerLine", &FTownspersonSeed::DefaultPlayerLine},
+         {"PinnedResponse", &FTownspersonSeed::PinnedResponse},
+         {"InteractionIntent", &FTownspersonSeed::InteractionIntent,
+          InteractionIntentText},
+         {"PatrolRoute", &FTownspersonSeed::PatrolRoute}});
   }
 };
 
 template <>
 struct TComponentSourceProjector<FHorseRouteSeed> {
   ecs::FComponentValue operator()(const FHorseRouteSeed &Horse) const {
-    return ComponentValueMap({{"Id", Horse.Id},
-                              {"Name", Horse.Name},
-                              {"MountedRider", Horse.bMountedRider},
-                              {"PatrolRoute", Horse.PatrolRoute}});
+    return ComponentSourceValueMap(
+        Horse, {{"Id", &FHorseRouteSeed::Id},
+                {"Name", &FHorseRouteSeed::Name},
+                {"MountedRider", &FHorseRouteSeed::bMountedRider},
+                {"PatrolRoute", &FHorseRouteSeed::PatrolRoute}});
   }
 };
 
 template <>
 struct TComponentSourceProjector<FBotEntity> {
   ecs::FComponentValue operator()(const FBotEntity &Bot) const {
-    return ComponentValueMap({{"Id", Bot.Id},
-                              {"DisplayName", Bot.DisplayName},
-                              {"Kind", BotKindText(Bot.Kind)},
-                              {"Alignment", BotAlignmentText(Bot.Alignment)},
-                              {"Active", Bot.bActive}});
+    return ComponentSourceValueMap(
+        Bot, {{"Id", &FBotEntity::Id},
+              {"DisplayName", &FBotEntity::DisplayName},
+              {"Kind", &FBotEntity::Kind, BotKindText},
+              {"Alignment", &FBotEntity::Alignment, BotAlignmentText},
+              {"Active", &FBotEntity::bActive}});
   }
 };
 
 template <>
 struct TComponentSourceProjector<FPlayerState> {
   ecs::FComponentValue operator()(const FPlayerState &Player) const {
-    return ComponentValueMap(
-        {{"Ready", Player.bReady},
-         {"HasLastActionId", Player.LastActionId.hasValue},
-         {"LastActionId", LastActionIdText(Player.LastActionId)}});
+    return ComponentSourceValueMap(
+        Player,
+        {{"Ready", &FPlayerState::bReady},
+         {"HasLastActionId", &FPlayerState::LastActionId, HasLastActionId},
+         {"LastActionId", &FPlayerState::LastActionId, LastActionIdText}});
   }
 };
 
