@@ -1,7 +1,9 @@
 #include "Features/Systems/Rendering/RenderingReducers.h"
 
-#include "Core/ecs.hpp"
+#include "Core/ue_fp.hpp"
 #include "Features/Components/Spatial/SpatialSelectors.h"
+
+#include <initializer_list>
 
 namespace ForbocAI {
 namespace Demo {
@@ -21,52 +23,48 @@ FVector ReduceWorldFeetVector(
                  WorldFeet(Geometry, Feet.Z));
 }
 
-func::Maybe<ELevelRetroTexture> ResolveTextureKind(const FString &Texture) {
-  return func::multi_match<FString, ELevelRetroTexture>(
-      Texture,
-      {
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("terrain_ortho")),
-              [](const FString &) { return ELevelRetroTexture::TerrainOrtho; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("building_timber")),
-              [](const FString &) { return ELevelRetroTexture::BuildingTimber; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("road_dust")),
-              [](const FString &) { return ELevelRetroTexture::RoadDust; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("water_creek")),
-              [](const FString &) { return ELevelRetroTexture::WaterCreek; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("foliage_riparian")),
-              [](const FString &) {
-                return ELevelRetroTexture::FoliageRiparian;
-              }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("rock_granite")),
-              [](const FString &) { return ELevelRetroTexture::RockGranite; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("mine_timber")),
-              [](const FString &) { return ELevelRetroTexture::MineTimber; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("marker_paint")),
-              [](const FString &) { return ELevelRetroTexture::MarkerPaint; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("npc_body")),
-              [](const FString &) { return ELevelRetroTexture::NpcBody; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("npc_hat")),
-              [](const FString &) { return ELevelRetroTexture::NpcHat; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("horse_coat")),
-              [](const FString &) { return ELevelRetroTexture::HorseCoat; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("horse_leg")),
-              [](const FString &) { return ELevelRetroTexture::HorseLeg; }),
-          func::when<FString, ELevelRetroTexture>(
-              func::equals<FString>(TEXT("horse_tack")),
-              [](const FString &) { return ELevelRetroTexture::HorseTack; }),
+inline FString RenderingReducerAtom(const char *Atom) {
+  return FString(UTF8_TO_TCHAR(Atom));
+}
+
+struct FTextureKindDeclaration {
+  FString Name;
+  ELevelRetroTexture Texture;
+
+  FTextureKindDeclaration(const char *InName, ELevelRetroTexture InTexture)
+      : Name(RenderingReducerAtom(InName)), Texture(InTexture) {}
+};
+
+func::Maybe<ELevelRetroTexture> TextureKindFromCatalog(
+    const FString &Texture,
+    std::initializer_list<FTextureKindDeclaration> Declarations) {
+  const TArray<FTextureKindDeclaration> DeclarationList(Declarations);
+  return func::fold_array<FTextureKindDeclaration,
+                          func::Maybe<ELevelRetroTexture>>(
+      DeclarationList, func::nothing<ELevelRetroTexture>(),
+      [&Texture](const func::Maybe<ELevelRetroTexture> &Acc,
+                 const FTextureKindDeclaration &Declaration) {
+        return Acc.hasValue || Declaration.Name != Texture
+                   ? Acc
+                   : func::just(Declaration.Texture);
       });
+}
+
+func::Maybe<ELevelRetroTexture> ResolveTextureKind(const FString &Texture) {
+  return TextureKindFromCatalog(
+      Texture, {{"terrain_ortho", ELevelRetroTexture::TerrainOrtho},
+                {"building_timber", ELevelRetroTexture::BuildingTimber},
+                {"road_dust", ELevelRetroTexture::RoadDust},
+                {"water_creek", ELevelRetroTexture::WaterCreek},
+                {"foliage_riparian", ELevelRetroTexture::FoliageRiparian},
+                {"rock_granite", ELevelRetroTexture::RockGranite},
+                {"mine_timber", ELevelRetroTexture::MineTimber},
+                {"marker_paint", ELevelRetroTexture::MarkerPaint},
+                {"npc_body", ELevelRetroTexture::NpcBody},
+                {"npc_hat", ELevelRetroTexture::NpcHat},
+                {"horse_coat", ELevelRetroTexture::HorseCoat},
+                {"horse_leg", ELevelRetroTexture::HorseLeg},
+                {"horse_tack", ELevelRetroTexture::HorseTack}});
 }
 
 FLevelRetroTextureSpec ReduceTextureCatalogItem(
@@ -112,15 +110,9 @@ FLevelRetroRenderProfile ReduceRuntimeProfile(
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
     const TArray<ForbocAI::Demo::Data::FRenderingTextureSpecSettings>
         &Settings) {
-  return func::fold_indexed(
-      Settings, static_cast<size_t>(Settings.Num()),
-      TArray<FLevelRetroTextureSpec>(),
-      [](const TArray<FLevelRetroTextureSpec> &Acc,
-         const ForbocAI::Demo::Data::FRenderingTextureSpecSettings &Item) {
-        TArray<FLevelRetroTextureSpec> Next = Acc;
-        Next.Add(ReduceTextureCatalogItem(Item));
-        return Next;
-      });
+  return func::map_array<
+      ForbocAI::Demo::Data::FRenderingTextureSpecSettings,
+      FLevelRetroTextureSpec>(Settings, ReduceTextureCatalogItem);
 }
 
 FRenderingAssetPaths ReduceRenderingAssetPaths(
@@ -131,11 +123,11 @@ FRenderingAssetPaths ReduceRenderingAssetPaths(
 FLevelRetroTextureSpec
 ReduceTextureSpec(const FRenderingTextureSpecRequest &Request) {
   check(!Request.Catalog.IsEmpty());
-  const func::Maybe<FLevelRetroTextureSpec> Found = func::find_indexed(
-      Request.Catalog, static_cast<size_t>(Request.Catalog.Num()),
-      [&Request](const FLevelRetroTextureSpec &Spec) {
-        return Spec.Texture == Request.Texture;
-      });
+  const func::Maybe<FLevelRetroTextureSpec> Found =
+      func::find_array<FLevelRetroTextureSpec>(
+          Request.Catalog, [&Request](const FLevelRetroTextureSpec &Spec) {
+            return Spec.Texture == Request.Texture;
+          });
   check(Found.hasValue);
   return Found.value;
 }
