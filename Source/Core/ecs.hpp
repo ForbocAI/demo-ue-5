@@ -1382,8 +1382,6 @@ struct FWorld {
 typedef std::function<FWorld(const FWorld &)> FWorldTransform;
 typedef std::function<FWorldTransform(const ComponentType &)>
     FComponentTypeWorldTransformFactory;
-typedef std::function<FWorldTransform(const EntityKey &)>
-    FEntityKeyWorldTransformFactory;
 
 template <typename Item>
 using TWorldRowProjector =
@@ -2187,15 +2185,22 @@ inline TArray<FRelationshipWrite> createRelationshipWrites(
 }
 
 /**
+ * @brief Writes one relationship row by upserting a default-or-present value.
+ */
+inline TMap<EntityKey, FRelationship>
+writeRelationship(TMap<EntityKey, FRelationship> Relationships,
+                  const FRelationshipWrite &Write) {
+  return func::upsert_map_value<EntityKey, FRelationship>(
+      Relationships, Write.Entity, createRelationship(), Write.Transform);
+}
+
+/**
  * @brief Applies one relationship write by reading default-or-present first.
  */
 inline FWorld applyRelationshipWrite(const FWorld &World,
                                      const FRelationshipWrite &Write) {
   FWorld Next = World;
-  Next.Relationships.Add(
-      Write.Entity,
-      Write.Transform(getRelationshipOrDefault(createGetRelationshipRequest(
-          Next.Relationships, Write.Entity))));
+  Next.Relationships = writeRelationship(Next.Relationships, Write);
   return Next;
 }
 
@@ -2214,6 +2219,39 @@ inline EntityKey relationshipWriteEntity(const FRelationshipWrite &Write) {
   return Write.Entity;
 }
 
+inline bool relationshipContainsChild(const EntityKey &Child,
+                                      const FRelationship &Relationship) {
+  return func::contains_value<EntityKey>(Relationship.Children, Child);
+}
+
+inline TArray<EntityKey> findRelationshipParentsForChild(
+    const FWorld &World, const EntityKey &Child) {
+  return func::filter_array<EntityKey>(
+      func::map_keys<EntityKey, FRelationship>(World.Relationships),
+      [&World, &Child](const EntityKey &Parent) {
+        return relationshipContainsChild(
+            Child,
+            getRelationshipOrDefault(createGetRelationshipRequest(
+                World.Relationships, Parent)));
+      });
+}
+
+inline FRelationshipWriteDeclaration createRemoveRelationshipChildDeclaration(
+    const EntityKey &Parent, const EntityKey &Child) {
+  return {Parent, ERelationshipWriteKind::RemoveChild, Child};
+}
+
+inline TArray<FRelationshipWrite>
+createRelationshipChildCleanupWrites(const FWorld &World,
+                                     const EntityKey &Child) {
+  return func::map_array<EntityKey, FRelationshipWrite>(
+      findRelationshipParentsForChild(World, Child),
+      [&Child](const EntityKey &Parent) {
+        return createRelationshipWrite(
+            createRemoveRelationshipChildDeclaration(Parent, Child));
+      });
+}
+
 /**
  * @brief Records every dirty entity touched by relationship writes.
  */
@@ -2226,6 +2264,15 @@ recordRelationshipWriteDirtyEntities(const FWorld &World,
 }
 
 /**
+ * @brief Applies relationship writes and records touched relationship entities.
+ */
+inline FWorld applyRelationshipWritesAndRecordDirty(
+    const FWorld &World, const TArray<FRelationshipWrite> &Writes) {
+  return recordRelationshipWriteDirtyEntities(
+      applyRelationshipWrites(World, Writes), Writes);
+}
+
+/**
  * @brief Applies declared relationship writes and marks touched entities dirty.
  */
 inline FWorld applyRelationshipWriteDeclarations(
@@ -2233,8 +2280,7 @@ inline FWorld applyRelationshipWriteDeclarations(
     std::initializer_list<FRelationshipWriteDeclaration> Declarations) {
   const TArray<FRelationshipWrite> Writes =
       createRelationshipWrites(Declarations);
-  return recordRelationshipWriteDirtyEntities(
-      applyRelationshipWrites(World, Writes), Writes);
+  return applyRelationshipWritesAndRecordDirty(World, Writes);
 }
 
 /**
@@ -2328,42 +2374,17 @@ inline FWorldTransform removeEntityDirectIndexes(const EntityKey &Entity) {
 }
 
 /**
- * @brief Builds a transform factory that removes one child from one parent relationship.
- * @signature inline FEntityKeyWorldTransformFactory removeEntityFromRelationshipParent(const EntityKey &Entity)
- *
- * User Story: As hierarchy reducers, parent child-list cleanup should be a
- * curried transform instead of a relationship-table loop.
- */
-inline FEntityKeyWorldTransformFactory
-removeEntityFromRelationshipParent(const EntityKey &Entity) {
-  return [Entity](const EntityKey &Parent) {
-    return [Entity, Parent](const FWorld &World) {
-      FWorld Next = World;
-      FRelationship Relationship = Next.Relationships.FindChecked(Parent);
-      Relationship.Children.Remove(Entity);
-      Next.Relationships.Add(Parent, Relationship);
-      return Next;
-    };
-  };
-}
-
-/**
  * @brief Builds a world transform that removes an entity from parent child lists.
  * @signature inline FWorldTransform removeEntityRelationshipChildIndexes(const EntityKey &Entity)
  *
- * User Story: As hierarchy reducers, child-list cleanup should fold through
- * relationship keys as a reusable world transform.
+ * User Story: As hierarchy reducers, child-list cleanup should reuse
+ * relationship writes so row mutation and dirty propagation stay centralized.
  */
 inline FWorldTransform
 removeEntityRelationshipChildIndexes(const EntityKey &Entity) {
   return [Entity](const FWorld &World) {
-    const FEntityKeyWorldTransformFactory RemoveFromParent =
-        removeEntityFromRelationshipParent(Entity);
-    return func::fold_array<EntityKey, FWorld>(
-        func::map_keys<EntityKey, FRelationship>(World.Relationships), World,
-        [RemoveFromParent](const FWorld &Acc, const EntityKey &Parent) {
-          return RemoveFromParent(Parent)(Acc);
-        });
+    return applyRelationshipWritesAndRecordDirty(
+        World, createRelationshipChildCleanupWrites(World, Entity));
   };
 }
 

@@ -2,7 +2,7 @@
 
 | Lines | File Path |
 |-------|-----------|
-| 3337 | `Source/Core/ecs.hpp` |
+| 3358 | `Source/Core/ecs.hpp` |
 | 552 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 432 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
