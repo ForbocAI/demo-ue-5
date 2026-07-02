@@ -11,6 +11,8 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 
+#include <initializer_list>
+
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -49,6 +51,57 @@ struct FRetroCVarEval {
   FLevelRetroRenderProfile Profile;
 };
 
+inline FString RenderingDispatchAtom(const char *Atom) {
+  return FString(UTF8_TO_TCHAR(Atom));
+}
+
+template <typename Declaration>
+func::Maybe<int32> FindRenderingDeclarationIndex(
+    const FString &Name, const TArray<Declaration> &Declarations) {
+  const TArray<int32> Indices = func::index_range(Declarations.Num());
+  return func::find_indexed(
+      Indices, static_cast<size_t>(Indices.Num()),
+      [&Name, &Declarations](int32 Index) {
+        return Declarations[Index].Name == Name;
+      });
+}
+
+template <typename Declaration>
+Declaration RequiredRenderingDeclaration(
+    const FString &Name, std::initializer_list<Declaration> Declarations) {
+  const TArray<Declaration> DeclarationList(Declarations);
+  const func::Maybe<int32> Found =
+      FindRenderingDeclarationIndex(Name, DeclarationList);
+  check(Found.hasValue);
+  return DeclarationList[Found.value];
+}
+
+template <typename Value> struct TProfileFieldDeclaration {
+  FString Name;
+  Value FLevelRetroRenderProfile::*Member;
+
+  TProfileFieldDeclaration(const char *InName,
+                           Value FLevelRetroRenderProfile::*InMember)
+      : Name(RenderingDispatchAtom(InName)), Member(InMember) {}
+};
+
+template <typename Apply> struct TRenderingDispatchDeclaration {
+  FString Name;
+  Apply Run;
+
+  TRenderingDispatchDeclaration(const char *InName, Apply InRun)
+      : Name(RenderingDispatchAtom(InName)), Run(InRun) {}
+};
+
+using FCVarApply = void (*)(const FRetroCVarEval &);
+using FPredicateApply = bool (*)(const FRetroPredicateEval &, int32);
+using FColorResultApply = FColor (*)(const FRetroResultEval &);
+using FCVarApplyDeclaration = TRenderingDispatchDeclaration<FCVarApply>;
+using FPredicateApplyDeclaration =
+    TRenderingDispatchDeclaration<FPredicateApply>;
+using FColorResultDeclaration =
+    TRenderingDispatchDeclaration<FColorResultApply>;
+
 void SetCVarFloat(const FString &Name, float Value) {
   IConsoleVariable *Found =
       IConsoleManager::Get().FindConsoleVariable(*Name);
@@ -63,56 +116,41 @@ void SetCVarInt(const FString &Name, int32 Value) {
   Found->Set(Value, ECVF_SetByGameSetting);
 }
 
+template <typename Value>
+func::Maybe<Value> SelectProfileValue(
+    const FLevelRetroRenderProfile &Profile, const FString &Field,
+    std::initializer_list<TProfileFieldDeclaration<Value>> Fields) {
+  const TArray<TProfileFieldDeclaration<Value>> FieldList(Fields);
+  return func::match(
+      FindRenderingDeclarationIndex(Field, FieldList),
+      [&Profile, &FieldList](int32 Index) {
+        return func::just<Value>(Profile.*FieldList[Index].Member);
+      },
+      []() { return func::nothing<Value>(); });
+}
+
 func::Maybe<int32> SelectProfileInt(const FLevelRetroRenderProfile &Profile,
                                     const FString &Field) {
-  return func::multi_match<FString, int32>(
-      Field,
-      {
-          func::when<FString, int32>(
-              func::equals<FString>(TEXT("anti_aliasing_method")),
-              [&Profile](const FString &) {
-                return Profile.AntiAliasingMethod;
-              }),
-          func::when<FString, int32>(
-              func::equals<FString>(TEXT("post_process_aa_quality")),
-              [&Profile](const FString &) {
-                return Profile.PostProcessAAQuality;
-              }),
-          func::when<FString, int32>(
-              func::equals<FString>(TEXT("shadow_cascades")),
-              [&Profile](const FString &) { return Profile.ShadowCascades; }),
-          func::when<FString, int32>(
-              func::equals<FString>(TEXT("shadow_max_resolution")),
-              [&Profile](const FString &) {
-                return Profile.ShadowMaxResolution;
-              }),
-      });
+  return SelectProfileValue<int32>(
+      Profile, Field,
+      {{"anti_aliasing_method",
+        &FLevelRetroRenderProfile::AntiAliasingMethod},
+       {"post_process_aa_quality",
+        &FLevelRetroRenderProfile::PostProcessAAQuality},
+       {"shadow_cascades", &FLevelRetroRenderProfile::ShadowCascades},
+       {"shadow_max_resolution",
+        &FLevelRetroRenderProfile::ShadowMaxResolution}});
 }
 
 func::Maybe<float> SelectProfileFloat(const FLevelRetroRenderProfile &Profile,
                                       const FString &Field) {
-  return func::multi_match<FString, float>(
-      Field,
-      {
-          func::when<FString, float>(
-              func::equals<FString>(TEXT("screen_percentage")),
-              [&Profile](const FString &) { return Profile.ScreenPercentage; }),
-          func::when<FString, float>(
-              func::equals<FString>(TEXT("view_distance_scale")),
-              [&Profile](const FString &) {
-                return Profile.ViewDistanceScale;
-              }),
-          func::when<FString, float>(
-              func::equals<FString>(TEXT("foliage_density_scale")),
-              [&Profile](const FString &) {
-                return Profile.FoliageDensityScale;
-              }),
-          func::when<FString, float>(
-              func::equals<FString>(TEXT("grass_density_scale")),
-              [&Profile](const FString &) {
-                return Profile.GrassDensityScale;
-              }),
-      });
+  return SelectProfileValue<float>(
+      Profile, Field,
+      {{"screen_percentage", &FLevelRetroRenderProfile::ScreenPercentage},
+       {"view_distance_scale", &FLevelRetroRenderProfile::ViewDistanceScale},
+       {"foliage_density_scale",
+        &FLevelRetroRenderProfile::FoliageDensityScale},
+       {"grass_density_scale", &FLevelRetroRenderProfile::GrassDensityScale}});
 }
 
 int32 RequiredProfileInt(const FRetroCVarEval &Eval) {
@@ -129,36 +167,30 @@ float RequiredProfileFloat(const FRetroCVarEval &Eval) {
   return Value.value;
 }
 
+void ApplyFixedIntCVar(const FRetroCVarEval &Eval) {
+  SetCVarInt(Eval.Setting.Name, Eval.Setting.IntValue);
+}
+
+void ApplyProfileIntCVar(const FRetroCVarEval &Eval) {
+  SetCVarInt(Eval.Setting.Name, RequiredProfileInt(Eval));
+}
+
+void ApplyFixedFloatCVar(const FRetroCVarEval &Eval) {
+  SetCVarFloat(Eval.Setting.Name, Eval.Setting.FloatValue);
+}
+
+void ApplyProfileFloatCVar(const FRetroCVarEval &Eval) {
+  SetCVarFloat(Eval.Setting.Name, RequiredProfileFloat(Eval));
+}
+
 void ApplyConsoleVariable(const FRetroCVarEval &Eval) {
-  const func::Maybe<bool> Applied = func::multi_match<FString, bool>(
+  RequiredRenderingDeclaration<FCVarApplyDeclaration>(
       Eval.Setting.ValueKind,
-      {
-          func::when<FString, bool>(
-              func::equals<FString>(TEXT("fixed_int")),
-              [&Eval](const FString &) {
-                SetCVarInt(Eval.Setting.Name, Eval.Setting.IntValue);
-                return true;
-              }),
-          func::when<FString, bool>(
-              func::equals<FString>(TEXT("profile_int")),
-              [&Eval](const FString &) {
-                SetCVarInt(Eval.Setting.Name, RequiredProfileInt(Eval));
-                return true;
-              }),
-          func::when<FString, bool>(
-              func::equals<FString>(TEXT("fixed_float")),
-              [&Eval](const FString &) {
-                SetCVarFloat(Eval.Setting.Name, Eval.Setting.FloatValue);
-                return true;
-              }),
-          func::when<FString, bool>(
-              func::equals<FString>(TEXT("profile_float")),
-              [&Eval](const FString &) {
-                SetCVarFloat(Eval.Setting.Name, RequiredProfileFloat(Eval));
-                return true;
-              }),
-      });
-  check(Applied.hasValue);
+      {{"fixed_int", ApplyFixedIntCVar},
+       {"profile_int", ApplyProfileIntCVar},
+       {"fixed_float", ApplyFixedFloatCVar},
+       {"profile_float", ApplyProfileFloatCVar}})
+      .Run(Eval);
 }
 
 FColor Color(const ForbocAI::Demo::Data::FRenderingRgbSettings &Rgb,
@@ -186,6 +218,10 @@ FColor Mix(const FRetroResultEval &Eval) {
       static_cast<uint8>(Eval.Alpha));
 }
 
+FColor SolidColor(const FRetroResultEval &Eval) {
+  return Color(Eval.Result.Color, Eval.Alpha);
+}
+
 int32 HashCell(FRetroHashCell Cell) {
   check(Cell.Hash);
   int32 Value = Cell.X * Cell.Hash->XMultiplier ^
@@ -203,48 +239,33 @@ int32 PredicateTerm(const FRetroPredicateEval &Eval) {
          Eval.Predicate.NoiseMultiplier * Eval.Noise;
 }
 
+bool AlwaysPredicate(const FRetroPredicateEval &, int32) { return true; }
+
+bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term) {
+  check(Eval.Predicate.Modulus > 0);
+  return Term % Eval.Predicate.Modulus == Eval.Predicate.Equals;
+}
+
+bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term) {
+  check(Eval.Predicate.Modulus > 0);
+  return Term % Eval.Predicate.Modulus < Eval.Predicate.LessThan;
+}
+
 bool PredicateMatches(const FRetroPredicateEval &Eval) {
   const int32 Term = PredicateTerm(Eval);
-  const func::Maybe<bool> Matched = func::multi_match<FString, bool>(
-      Eval.Predicate.Kind,
-      {
-          func::when<FString, bool>(
-              func::equals<FString>(TEXT("always")),
-              [](const FString &) { return true; }),
-          func::when<FString, bool>(
-              func::equals<FString>(TEXT("mod_equals")),
-              [&Eval, Term](const FString &) {
-                check(Eval.Predicate.Modulus > 0);
-                return Term % Eval.Predicate.Modulus ==
-                       Eval.Predicate.Equals;
-              }),
-          func::when<FString, bool>(
-              func::equals<FString>(TEXT("mod_less_than")),
-              [&Eval, Term](const FString &) {
-                check(Eval.Predicate.Modulus > 0);
-                return Term % Eval.Predicate.Modulus <
-                       Eval.Predicate.LessThan;
-              }),
-      });
-  check(Matched.hasValue);
-  return Matched.value;
+  return RequiredRenderingDeclaration<FPredicateApplyDeclaration>(
+             Eval.Predicate.Kind,
+             {{"always", AlwaysPredicate},
+              {"mod_equals", ModEqualsPredicate},
+              {"mod_less_than", ModLessThanPredicate}})
+      .Run(Eval, Term);
 }
 
 FColor ResolveColor(const FRetroResultEval &Eval) {
-  const func::Maybe<FColor> Resolved = func::multi_match<FString, FColor>(
-      Eval.Result.Kind,
-      {
-          func::when<FString, FColor>(
-              func::equals<FString>(TEXT("solid")),
-              [&Eval](const FString &) {
-                return Color(Eval.Result.Color, Eval.Alpha);
-              }),
-          func::when<FString, FColor>(
-              func::equals<FString>(TEXT("mix")),
-              [&Eval](const FString &) { return Mix(Eval); }),
-      });
-  check(Resolved.hasValue);
-  return Resolved.value;
+  return RequiredRenderingDeclaration<FColorResultDeclaration>(
+             Eval.Result.Kind,
+             {{"solid", SolidColor}, {"mix", Mix}})
+      .Run(Eval);
 }
 
 ForbocAI::Demo::Data::FRenderingTexturePaletteSettings
