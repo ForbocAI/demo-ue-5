@@ -18,11 +18,16 @@
 #include "Features/Systems/Terrain/TerrainActions.h"
 #include "Features/Systems/Terrain/TerrainFactories.h"
 
+#include <initializer_list>
+
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace RuntimeThunks {
 namespace {
+
+using FRuntimeDispatch =
+    std::function<rtk::AnyAction(const rtk::AnyAction &)>;
 
 struct FRuntimeDataLoadRequest {
   FLevelTerrainData &TerrainData;
@@ -32,11 +37,25 @@ struct FRuntimeDataLoadRequest {
 };
 
 struct FRuntimeSeedDispatchRequest {
-  const std::function<rtk::AnyAction(const rtk::AnyAction &)> &Dispatch;
+  const FRuntimeDispatch &Dispatch;
   const FLevelTerrainData &TerrainData;
   const FLevelOrthoData &OrthoData;
   ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources;
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+struct FRuntimeSeedSource {
+  const FLevelTerrainData &TerrainData;
+  const FLevelOrthoData &OrthoData;
+  ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+using FRuntimeSeedActionBuilder =
+    rtk::AnyAction (*)(const FRuntimeSeedSource &);
+
+struct FRuntimeSeedActionDeclaration {
+  FRuntimeSeedActionBuilder Build;
 };
 
 void LoadRuntimeData(const FRuntimeDataLoadRequest &Request) {
@@ -44,34 +63,86 @@ void LoadRuntimeData(const FRuntimeDataLoadRequest &Request) {
   Request.OrthoData.LoadFromContent({Request.Sources});
 }
 
-void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
-  Request.Dispatch(TerrainActions::TerrainLoaded()(
+FRuntimeSeedSource RuntimeSeedSource(
+    const FRuntimeSeedDispatchRequest &Request) {
+  return {Request.TerrainData, Request.OrthoData, Request.DataSources,
+          Request.Geometry};
+}
+
+rtk::AnyAction TerrainLoadedSeedAction(const FRuntimeSeedSource &Source) {
+  return TerrainActions::TerrainLoaded()(
       TerrainFactories::LoadedPayload(
-          {Request.TerrainData.GetSourcePath(), Request.OrthoData.GetSourcePath(),
-           Request.TerrainData.GetGridSize(),
-           Request.TerrainData.GetMinElevationMeters(),
-           Request.TerrainData.GetMaxElevationMeters()})));
-  Request.Dispatch(LandmarkActions::LandmarksSeeded()(
+          {Source.TerrainData.GetSourcePath(),
+           Source.OrthoData.GetSourcePath(),
+           Source.TerrainData.GetGridSize(),
+           Source.TerrainData.GetMinElevationMeters(),
+           Source.TerrainData.GetMaxElevationMeters()}));
+}
+
+rtk::AnyAction LandmarksSeededAction(const FRuntimeSeedSource &Source) {
+  return LandmarkActions::LandmarksSeeded()(
       LandmarksAdapters::BuildLandmarkSeed(
-          {Request.DataSources.LandmarksJsonPath, Request.TerrainData,
-           Request.Geometry})));
-  Request.Dispatch(SpawnActions::PlayerSpawnAnchored()(
+          {Source.DataSources.LandmarksJsonPath, Source.TerrainData,
+           Source.Geometry}));
+}
+
+rtk::AnyAction PlayerSpawnAnchoredAction(const FRuntimeSeedSource &Source) {
+  return SpawnActions::PlayerSpawnAnchored()(
       SpawnFactories::SpawnPointPayload(
           {LevelLayoutSlice::ToWorld(
-               {Request.TerrainData,
-                LevelLayoutSlice::PlayerSpawnPoint(Request.Geometry)}),
-           LevelLayoutSlice::PlayerSpawnRotation(Request.Geometry),
-           LevelLayoutSlice::PlayerSpawnAnchorLabel(Request.Geometry)})));
-  Request.Dispatch(TownspersonActions::TownspeopleSeeded()(
+               {Source.TerrainData,
+                LevelLayoutSlice::PlayerSpawnPoint(Source.Geometry)}),
+           LevelLayoutSlice::PlayerSpawnRotation(Source.Geometry),
+           LevelLayoutSlice::PlayerSpawnAnchorLabel(Source.Geometry)}));
+}
+
+rtk::AnyAction TownspeopleSeededAction(const FRuntimeSeedSource &Source) {
+  return TownspersonActions::TownspeopleSeeded()(
       BotsAdapters::BuildTownspersonSeed(
-          {Request.DataSources.TownspeopleJsonPath, Request.Geometry})));
-  Request.Dispatch(
-      HorseActions::HorsesSeeded()(
-          BotsAdapters::BuildHorseRouteSeed(
-              {Request.DataSources.HorsesJsonPath, Request.Geometry})));
-  Request.Dispatch(NatureActions::NatureSeeded()(
+          {Source.DataSources.TownspeopleJsonPath, Source.Geometry}));
+}
+
+rtk::AnyAction HorsesSeededAction(const FRuntimeSeedSource &Source) {
+  return HorseActions::HorsesSeeded()(
+      BotsAdapters::BuildHorseRouteSeed(
+          {Source.DataSources.HorsesJsonPath, Source.Geometry}));
+}
+
+rtk::AnyAction NatureSeededAction(const FRuntimeSeedSource &Source) {
+  return NatureActions::NatureSeeded()(
       NatureAdapters::BuildNatureSeed(
-          {Request.DataSources.NatureJsonPath, Request.Geometry})));
+          {Source.DataSources.NatureJsonPath, Source.Geometry}));
+}
+
+TArray<rtk::AnyAction> RuntimeSeedActions(
+    const FRuntimeSeedSource &Source,
+    std::initializer_list<FRuntimeSeedActionDeclaration> Declarations) {
+  return func::map_array<FRuntimeSeedActionDeclaration, rtk::AnyAction>(
+      TArray<FRuntimeSeedActionDeclaration>(Declarations),
+      [&Source](const FRuntimeSeedActionDeclaration &Declaration) {
+        return Declaration.Build(Source);
+      });
+}
+
+void DispatchRuntimeActions(const FRuntimeDispatch &Dispatch,
+                            const TArray<rtk::AnyAction> &Actions) {
+  func::for_each_array<rtk::AnyAction>(
+      Actions, [&Dispatch](const rtk::AnyAction &Action) {
+        Dispatch(Action);
+      });
+}
+
+void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
+  DispatchRuntimeActions(
+      Request.Dispatch,
+      RuntimeSeedActions(
+          RuntimeSeedSource(Request),
+          {{TerrainLoadedSeedAction},
+           {LandmarksSeededAction},
+           {PlayerSpawnAnchoredAction},
+           {TownspeopleSeededAction},
+           {HorsesSeededAction},
+           {NatureSeededAction}}));
 }
 
 } // namespace
