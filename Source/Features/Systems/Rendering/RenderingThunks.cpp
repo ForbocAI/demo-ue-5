@@ -11,8 +11,6 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 
-#include <initializer_list>
-
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -66,16 +64,6 @@ func::Maybe<int32> FindRenderingDeclarationIndex(
       });
 }
 
-template <typename Declaration>
-Declaration RequiredRenderingDeclaration(
-    const FString &Name, std::initializer_list<Declaration> Declarations) {
-  const TArray<Declaration> DeclarationList(Declarations);
-  const func::Maybe<int32> Found =
-      FindRenderingDeclarationIndex(Name, DeclarationList);
-  check(Found.hasValue);
-  return DeclarationList[Found.value];
-}
-
 template <typename Value> struct TProfileFieldDeclaration {
   FString Name;
   Value FLevelRetroRenderProfile::*Member;
@@ -102,6 +90,87 @@ using FPredicateApplyDeclaration =
 using FColorResultDeclaration =
     TRenderingDispatchDeclaration<FColorResultApply>;
 
+void ApplyFixedIntCVar(const FRetroCVarEval &Eval);
+void ApplyProfileIntCVar(const FRetroCVarEval &Eval);
+void ApplyFixedFloatCVar(const FRetroCVarEval &Eval);
+void ApplyProfileFloatCVar(const FRetroCVarEval &Eval);
+bool AlwaysPredicate(const FRetroPredicateEval &Eval, int32 Term);
+bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term);
+bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term);
+FColor SolidColor(const FRetroResultEval &Eval);
+FColor Mix(const FRetroResultEval &Eval);
+
+template <typename Value> struct TProfileFieldRegistry;
+
+template <> struct TProfileFieldRegistry<int32> {
+  static const TArray<TProfileFieldDeclaration<int32>> &Fields() {
+    static const TArray<TProfileFieldDeclaration<int32>> RegisteredFields = {
+        {"anti_aliasing_method",
+         &FLevelRetroRenderProfile::AntiAliasingMethod},
+        {"post_process_aa_quality",
+         &FLevelRetroRenderProfile::PostProcessAAQuality},
+        {"shadow_cascades", &FLevelRetroRenderProfile::ShadowCascades},
+        {"shadow_max_resolution",
+         &FLevelRetroRenderProfile::ShadowMaxResolution}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TProfileFieldRegistry<float> {
+  static const TArray<TProfileFieldDeclaration<float>> &Fields() {
+    static const TArray<TProfileFieldDeclaration<float>> RegisteredFields = {
+        {"screen_percentage", &FLevelRetroRenderProfile::ScreenPercentage},
+        {"view_distance_scale",
+         &FLevelRetroRenderProfile::ViewDistanceScale},
+        {"foliage_density_scale",
+         &FLevelRetroRenderProfile::FoliageDensityScale},
+        {"grass_density_scale",
+         &FLevelRetroRenderProfile::GrassDensityScale}};
+    return RegisteredFields;
+  }
+};
+
+template <typename Declaration> struct TRenderingDispatchRegistry;
+
+template <> struct TRenderingDispatchRegistry<FCVarApplyDeclaration> {
+  static const TArray<FCVarApplyDeclaration> &Declarations() {
+    static const TArray<FCVarApplyDeclaration> RegisteredDeclarations = {
+        {"fixed_int", ApplyFixedIntCVar},
+        {"profile_int", ApplyProfileIntCVar},
+        {"fixed_float", ApplyFixedFloatCVar},
+        {"profile_float", ApplyProfileFloatCVar}};
+    return RegisteredDeclarations;
+  }
+};
+
+template <> struct TRenderingDispatchRegistry<FPredicateApplyDeclaration> {
+  static const TArray<FPredicateApplyDeclaration> &Declarations() {
+    static const TArray<FPredicateApplyDeclaration> RegisteredDeclarations = {
+        {"always", AlwaysPredicate},
+        {"mod_equals", ModEqualsPredicate},
+        {"mod_less_than", ModLessThanPredicate}};
+    return RegisteredDeclarations;
+  }
+};
+
+template <> struct TRenderingDispatchRegistry<FColorResultDeclaration> {
+  static const TArray<FColorResultDeclaration> &Declarations() {
+    static const TArray<FColorResultDeclaration> RegisteredDeclarations = {
+        {"solid", SolidColor}, {"mix", Mix}};
+    return RegisteredDeclarations;
+  }
+};
+
+template <typename Declaration>
+Declaration RequiredRenderingDeclaration(const FString &Name) {
+  const TArray<Declaration> &Declarations =
+      TRenderingDispatchRegistry<Declaration>::Declarations();
+  const func::Maybe<int32> Found =
+      FindRenderingDeclarationIndex(Name, Declarations);
+  check(Found.hasValue);
+  return Declarations[Found.value];
+}
+
 void SetCVarFloat(const FString &Name, float Value) {
   IConsoleVariable *Found =
       IConsoleManager::Get().FindConsoleVariable(*Name);
@@ -118,9 +187,9 @@ void SetCVarInt(const FString &Name, int32 Value) {
 
 template <typename Value>
 func::Maybe<Value> SelectProfileValue(
-    const FLevelRetroRenderProfile &Profile, const FString &Field,
-    std::initializer_list<TProfileFieldDeclaration<Value>> Fields) {
-  const TArray<TProfileFieldDeclaration<Value>> FieldList(Fields);
+    const FLevelRetroRenderProfile &Profile, const FString &Field) {
+  const TArray<TProfileFieldDeclaration<Value>> &FieldList =
+      TProfileFieldRegistry<Value>::Fields();
   return func::match(
       FindRenderingDeclarationIndex(Field, FieldList),
       [&Profile, &FieldList](int32 Index) {
@@ -129,42 +198,20 @@ func::Maybe<Value> SelectProfileValue(
       []() { return func::nothing<Value>(); });
 }
 
-func::Maybe<int32> SelectProfileInt(const FLevelRetroRenderProfile &Profile,
-                                    const FString &Field) {
-  return SelectProfileValue<int32>(
-      Profile, Field,
-      {{"anti_aliasing_method",
-        &FLevelRetroRenderProfile::AntiAliasingMethod},
-       {"post_process_aa_quality",
-        &FLevelRetroRenderProfile::PostProcessAAQuality},
-       {"shadow_cascades", &FLevelRetroRenderProfile::ShadowCascades},
-       {"shadow_max_resolution",
-        &FLevelRetroRenderProfile::ShadowMaxResolution}});
-}
-
-func::Maybe<float> SelectProfileFloat(const FLevelRetroRenderProfile &Profile,
-                                      const FString &Field) {
-  return SelectProfileValue<float>(
-      Profile, Field,
-      {{"screen_percentage", &FLevelRetroRenderProfile::ScreenPercentage},
-       {"view_distance_scale", &FLevelRetroRenderProfile::ViewDistanceScale},
-       {"foliage_density_scale",
-        &FLevelRetroRenderProfile::FoliageDensityScale},
-       {"grass_density_scale", &FLevelRetroRenderProfile::GrassDensityScale}});
+template <typename Value>
+Value RequiredProfileValue(const FRetroCVarEval &Eval) {
+  const func::Maybe<Value> ValueResult =
+      SelectProfileValue<Value>(Eval.Profile, Eval.Setting.ProfileField);
+  check(ValueResult.hasValue);
+  return ValueResult.value;
 }
 
 int32 RequiredProfileInt(const FRetroCVarEval &Eval) {
-  const func::Maybe<int32> Value =
-      SelectProfileInt(Eval.Profile, Eval.Setting.ProfileField);
-  check(Value.hasValue);
-  return Value.value;
+  return RequiredProfileValue<int32>(Eval);
 }
 
 float RequiredProfileFloat(const FRetroCVarEval &Eval) {
-  const func::Maybe<float> Value =
-      SelectProfileFloat(Eval.Profile, Eval.Setting.ProfileField);
-  check(Value.hasValue);
-  return Value.value;
+  return RequiredProfileValue<float>(Eval);
 }
 
 void ApplyFixedIntCVar(const FRetroCVarEval &Eval) {
@@ -184,12 +231,7 @@ void ApplyProfileFloatCVar(const FRetroCVarEval &Eval) {
 }
 
 void ApplyConsoleVariable(const FRetroCVarEval &Eval) {
-  RequiredRenderingDeclaration<FCVarApplyDeclaration>(
-      Eval.Setting.ValueKind,
-      {{"fixed_int", ApplyFixedIntCVar},
-       {"profile_int", ApplyProfileIntCVar},
-       {"fixed_float", ApplyFixedFloatCVar},
-       {"profile_float", ApplyProfileFloatCVar}})
+  RequiredRenderingDeclaration<FCVarApplyDeclaration>(Eval.Setting.ValueKind)
       .Run(Eval);
 }
 
@@ -254,17 +296,12 @@ bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term) {
 bool PredicateMatches(const FRetroPredicateEval &Eval) {
   const int32 Term = PredicateTerm(Eval);
   return RequiredRenderingDeclaration<FPredicateApplyDeclaration>(
-             Eval.Predicate.Kind,
-             {{"always", AlwaysPredicate},
-              {"mod_equals", ModEqualsPredicate},
-              {"mod_less_than", ModLessThanPredicate}})
+             Eval.Predicate.Kind)
       .Run(Eval, Term);
 }
 
 FColor ResolveColor(const FRetroResultEval &Eval) {
-  return RequiredRenderingDeclaration<FColorResultDeclaration>(
-             Eval.Result.Kind,
-             {{"solid", SolidColor}, {"mix", Mix}})
+  return RequiredRenderingDeclaration<FColorResultDeclaration>(Eval.Result.Kind)
       .Run(Eval);
 }
 

@@ -6,7 +6,7 @@
 | 749 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 477 | `Source/Features/Components/ComponentsAdapters.h` |
-| 432 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
+| 469 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
 | 430 | `Source/Tests/RuntimeStore.spec.cpp` |
 | 412 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.cpp` |
 | 382 | `Source/Features/Entities/EntitiesAdapters.cpp` |
