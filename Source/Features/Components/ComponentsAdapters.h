@@ -5,6 +5,7 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 #include <initializer_list>
+#include <type_traits>
 
 namespace ForbocAI {
 namespace Demo {
@@ -124,10 +125,10 @@ template <typename Value> struct TComponentTextDeclaration {
 template <typename Value>
 FString ComponentText(
     Value Current,
-    std::initializer_list<TComponentTextDeclaration<Value>> Declarations) {
+    const TArray<TComponentTextDeclaration<Value>> &Declarations) {
   const func::Maybe<FString> Text = func::fold_indexed(
-      TArray<TComponentTextDeclaration<Value>>(Declarations),
-      static_cast<size_t>(Declarations.size()), func::nothing<FString>(),
+      Declarations, static_cast<size_t>(Declarations.Num()),
+      func::nothing<FString>(),
       [Current](const func::Maybe<FString> &Acc,
                 const TComponentTextDeclaration<Value> &Declaration) {
         return Acc.hasValue || Declaration.Expected != Current
@@ -136,6 +137,29 @@ FString ComponentText(
       });
   check(Text.hasValue);
   return Text.value;
+}
+
+template <typename Value>
+FString ComponentText(
+    Value Current,
+    std::initializer_list<TComponentTextDeclaration<Value>> Declarations) {
+  return ComponentText<Value>(Current,
+                              TArray<TComponentTextDeclaration<Value>>(
+                                  Declarations));
+}
+
+template <typename Value> struct TComponentTextRegistry;
+
+template <typename Value> FString RegisteredComponentText(Value Current) {
+  return ComponentText<Value>(Current,
+                              TComponentTextRegistry<Value>::Declarations());
+}
+
+template <typename Value>
+typename std::enable_if<std::is_enum<Value>::value,
+                        ecs::FComponentValue>::type
+ProjectComponentValue(Value ValueText) {
+  return ProjectComponentValue(RegisteredComponentText<Value>(ValueText));
 }
 
 template <typename Source> struct TComponentSourceProjector;
@@ -148,6 +172,12 @@ ecs::FComponentValue ProjectComponentSourceValue(const Source &SourceValue) {
 template <typename Source> struct TComponentSourceValueFieldDeclaration {
   FString Name;
   TFunction<ecs::FComponentValue(const Source &)> Project;
+
+  TComponentSourceValueFieldDeclaration()
+      : Name(),
+        Project([](const Source &) {
+          return ProjectComponentValue(FString());
+        }) {}
 
   template <typename Value>
   TComponentSourceValueFieldDeclaration(const char *InName,
@@ -184,6 +214,8 @@ template <typename Source> struct TComponentSourceValueFieldDeclaration {
         }) {}
 };
 
+template <typename Source> struct TComponentSourceValueFieldRegistry;
+
 template <typename Source>
 inline TMap<FString, ecs::FComponentValue> ComponentSourceValueFields(
     const Source &SourceValue,
@@ -203,12 +235,54 @@ inline TMap<FString, ecs::FComponentValue> ComponentSourceValueFields(
 }
 
 template <typename Source>
+inline func::Maybe<TComponentSourceValueFieldDeclaration<Source>>
+FindComponentSourceValueField(const char *FieldAtom) {
+  const FString FieldName = ComponentAtom(FieldAtom);
+  const TArray<TComponentSourceValueFieldDeclaration<Source>> &Fields =
+      TComponentSourceValueFieldRegistry<Source>::Fields();
+  return func::fold_array<
+      TComponentSourceValueFieldDeclaration<Source>,
+      func::Maybe<TComponentSourceValueFieldDeclaration<Source>>>(
+      Fields, func::nothing<TComponentSourceValueFieldDeclaration<Source>>(),
+      [FieldName](const func::Maybe<TComponentSourceValueFieldDeclaration<
+                      Source>> &Current,
+                  const TComponentSourceValueFieldDeclaration<Source> &Field) {
+        return Current.hasValue || Field.Name != FieldName
+                   ? Current
+                   : func::just(Field);
+      });
+}
+
+template <typename Source>
+inline TMap<FString, ecs::FComponentValue> ComponentSourceValueFields(
+    const Source &SourceValue, const TArray<const char *> &FieldAtoms) {
+  return func::fold_array<const char *, TMap<FString, ecs::FComponentValue>>(
+      FieldAtoms, TMap<FString, ecs::FComponentValue>(),
+      [&SourceValue](const TMap<FString, ecs::FComponentValue> &Acc,
+                     const char *FieldAtom) {
+        const func::Maybe<TComponentSourceValueFieldDeclaration<Source>>
+            Field = FindComponentSourceValueField<Source>(FieldAtom);
+        check(Field.hasValue);
+        TMap<FString, ecs::FComponentValue> Next = Acc;
+        Next.Add(Field.value.Name, Field.value.Project(SourceValue));
+        return Next;
+      });
+}
+
+template <typename Source>
 inline ecs::FComponentValue ComponentSourceValueMap(
     const Source &SourceValue,
     std::initializer_list<TComponentSourceValueFieldDeclaration<Source>>
         Fields) {
   return ecs::createMapComponentValue(
       ComponentSourceValueFields<Source>(SourceValue, Fields));
+}
+
+template <typename Source>
+inline ecs::FComponentValue ComponentSourceValueMap(
+    const Source &SourceValue, std::initializer_list<const char *> FieldAtoms) {
+  return ecs::createMapComponentValue(ComponentSourceValueFields<Source>(
+      SourceValue, TArray<const char *>(FieldAtoms)));
 }
 
 template <typename Source> struct TAppendComponentBindingProjection {

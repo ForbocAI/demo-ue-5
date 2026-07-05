@@ -5,15 +5,15 @@
 | 3358 | `Source/Core/ecs.hpp` |
 | 709 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
+| 477 | `Source/Features/Components/ComponentsAdapters.h` |
 | 432 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
 | 414 | `Source/Tests/RuntimeStore.spec.cpp` |
 | 412 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.cpp` |
-| 403 | `Source/Features/Components/ComponentsAdapters.h` |
+| 382 | `Source/Features/Entities/EntitiesAdapters.cpp` |
 | 350 | `Source/Features/Components/Data/JsonValueAdapters.h` |
 | 340 | `Scripts/Tools/generate_french_gulch_heightmap.py` |
 | 338 | `Source/Features/Systems/Level/LevelReducers.h` |
 | 336 | `Scripts/Tools/import_classic_horse_assets.py` |
-| 334 | `Source/Features/Entities/EntitiesAdapters.cpp` |
 | 332 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.cpp` |
 | 324 | `Source/Features/Systems/Runtime/RuntimeReducers.cpp` |
 | 323 | `Source/Features/Systems/Runtime/RuntimeSelectors.cpp` |

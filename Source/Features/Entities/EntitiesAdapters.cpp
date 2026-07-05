@@ -8,83 +8,6 @@ namespace Demo {
 namespace Level {
 namespace {
 
-/**
- * @brief Converts landmark enum state into stable ECS text.
- * @signature FString LandmarkKindText(ELandmarkKind Kind)
- *
- * User Story: As entity projection code, landmark enum cases should be
- * explicit and fail on impossible values instead of falling back silently.
- */
-FString LandmarkKindText(ELandmarkKind Kind) {
-  return ComponentsAdapters::ComponentText(
-      Kind, {{ELandmarkKind::Building, "Building"},
-             {ELandmarkKind::Road, "Road"},
-             {ELandmarkKind::Creek, "Creek"},
-             {ELandmarkKind::TerrainMarker, "TerrainMarker"},
-             {ELandmarkKind::Mine, "Mine"},
-             {ELandmarkKind::Cemetery, "Cemetery"},
-             {ELandmarkKind::Park, "Park"}});
-}
-
-/**
- * @brief Converts nature enum state into stable ECS text.
- * @signature FString NatureKindText(ENatureFeatureKind Kind)
- *
- * User Story: As entity projection code, nature enum cases should be explicit
- * and fail on impossible values instead of falling back silently.
- */
-FString NatureKindText(ENatureFeatureKind Kind) {
-  return ComponentsAdapters::ComponentText(
-      Kind, {{ENatureFeatureKind::Water, "Water"},
-             {ENatureFeatureKind::Rock, "Rock"},
-             {ENatureFeatureKind::TreeGrove, "TreeGrove"},
-             {ENatureFeatureKind::Shrub, "Shrub"},
-             {ENatureFeatureKind::PCGMarker, "PCGMarker"},
-             {ENatureFeatureKind::WaterSystemMarker, "WaterSystemMarker"}});
-}
-
-/**
- * @brief Converts townsperson interaction intent into stable ECS text.
- * @signature FString InteractionIntentText(ETownspersonInteractionIntent Intent)
- *
- * User Story: As entity projection code, townsperson intent enum cases should
- * be explicit and fail on impossible values instead of falling back silently.
- */
-FString InteractionIntentText(ETownspersonInteractionIntent Intent) {
-  return ComponentsAdapters::ComponentText(
-      Intent, {{ETownspersonInteractionIntent::General, "General"},
-               {ETownspersonInteractionIntent::Dialogue, "Dialogue"},
-               {ETownspersonInteractionIntent::Memory, "Memory"},
-               {ETownspersonInteractionIntent::CombatValidation,
-                "CombatValidation"}});
-}
-
-/**
- * @brief Converts bot kind enum state into stable ECS text.
- * @signature FString BotKindText(EBotEntityKind Kind)
- *
- * User Story: As bot entity projection code, bot kind enum cases should be
- * explicit and fail on impossible values instead of falling back silently.
- */
-FString BotKindText(EBotEntityKind Kind) {
-  return ComponentsAdapters::ComponentText(
-      Kind, {{EBotEntityKind::Townsperson, "Townsperson"},
-             {EBotEntityKind::Horse, "Horse"}});
-}
-
-/**
- * @brief Converts bot alignment enum state into stable ECS text.
- * @signature FString BotAlignmentText(EBotAlignment Alignment)
- *
- * User Story: As bot entity projection code, bot alignment enum cases should
- * be explicit and fail on impossible values instead of falling back silently.
- */
-FString BotAlignmentText(EBotAlignment Alignment) {
-  return ComponentsAdapters::ComponentText(
-      Alignment, {{EBotAlignment::Friendly, "Friendly"},
-                  {EBotAlignment::Neutral, "Neutral"}});
-}
-
 TArray<TArray<FString>> LandmarkDomains() {
   return ComponentsAdapters::ComponentDomains(
       {{"Entities", "Environments", "Landmarks"},
@@ -130,15 +53,162 @@ FString LastActionIdText(func::Maybe<FString> LastActionId) {
 
 namespace ComponentsAdapters {
 
+template <> struct TComponentTextRegistry<ELandmarkKind> {
+  static const TArray<TComponentTextDeclaration<ELandmarkKind>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<ELandmarkKind>>
+        RegisteredCases = {{ELandmarkKind::Building, "Building"},
+                           {ELandmarkKind::Road, "Road"},
+                           {ELandmarkKind::Creek, "Creek"},
+                           {ELandmarkKind::TerrainMarker, "TerrainMarker"},
+                           {ELandmarkKind::Mine, "Mine"},
+                           {ELandmarkKind::Cemetery, "Cemetery"},
+                           {ELandmarkKind::Park, "Park"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentTextRegistry<ENatureFeatureKind> {
+  static const TArray<TComponentTextDeclaration<ENatureFeatureKind>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<ENatureFeatureKind>>
+        RegisteredCases = {{ENatureFeatureKind::Water, "Water"},
+                           {ENatureFeatureKind::Rock, "Rock"},
+                           {ENatureFeatureKind::TreeGrove, "TreeGrove"},
+                           {ENatureFeatureKind::Shrub, "Shrub"},
+                           {ENatureFeatureKind::PCGMarker, "PCGMarker"},
+                           {ENatureFeatureKind::WaterSystemMarker,
+                            "WaterSystemMarker"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentTextRegistry<ETownspersonInteractionIntent> {
+  static const TArray<
+      TComponentTextDeclaration<ETownspersonInteractionIntent>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<
+        ETownspersonInteractionIntent>>
+        RegisteredCases = {
+            {ETownspersonInteractionIntent::General, "General"},
+            {ETownspersonInteractionIntent::Dialogue, "Dialogue"},
+            {ETownspersonInteractionIntent::Memory, "Memory"},
+            {ETownspersonInteractionIntent::CombatValidation,
+             "CombatValidation"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentTextRegistry<EBotEntityKind> {
+  static const TArray<TComponentTextDeclaration<EBotEntityKind>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<EBotEntityKind>>
+        RegisteredCases = {{EBotEntityKind::Townsperson, "Townsperson"},
+                           {EBotEntityKind::Horse, "Horse"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentTextRegistry<EBotAlignment> {
+  static const TArray<TComponentTextDeclaration<EBotAlignment>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<EBotAlignment>>
+        RegisteredCases = {{EBotAlignment::Friendly, "Friendly"},
+                           {EBotAlignment::Neutral, "Neutral"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FLandmark> {
+  static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>>
+        RegisteredFields = {{"Id", &FLandmark::Id},
+                            {"Label", &FLandmark::Label},
+                            {"Kind", &FLandmark::Kind},
+                            {"Location", &FLandmark::Location},
+                            {"Scale", &FLandmark::Scale}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FNatureFeatureSeed> {
+  static const TArray<
+      TComponentSourceValueFieldDeclaration<FNatureFeatureSeed>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<
+        FNatureFeatureSeed>>
+        RegisteredFields = {{"Id", &FNatureFeatureSeed::Id},
+                            {"Name", &FNatureFeatureSeed::Name},
+                            {"Kind", &FNatureFeatureSeed::Kind},
+                            {"LocalLocation", &FNatureFeatureSeed::Location},
+                            {"Scale", &FNatureFeatureSeed::Scale}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FTownspersonSeed> {
+  static const TArray<
+      TComponentSourceValueFieldDeclaration<FTownspersonSeed>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<
+        FTownspersonSeed>>
+        RegisteredFields = {
+            {"Id", &FTownspersonSeed::Id},
+            {"Name", &FTownspersonSeed::Name},
+            {"Role", &FTownspersonSeed::Role},
+            {"Persona", &FTownspersonSeed::Persona},
+            {"InteractionPrompt", &FTownspersonSeed::InteractionPrompt},
+            {"DefaultPlayerLine", &FTownspersonSeed::DefaultPlayerLine},
+            {"PinnedResponse", &FTownspersonSeed::PinnedResponse},
+            {"InteractionIntent", &FTownspersonSeed::InteractionIntent},
+            {"PatrolRoute", &FTownspersonSeed::PatrolRoute}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FHorseRouteSeed> {
+  static const TArray<TComponentSourceValueFieldDeclaration<FHorseRouteSeed>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<FHorseRouteSeed>>
+        RegisteredFields = {{"Id", &FHorseRouteSeed::Id},
+                            {"Name", &FHorseRouteSeed::Name},
+                            {"MountedRider", &FHorseRouteSeed::bMountedRider},
+                            {"PatrolRoute", &FHorseRouteSeed::PatrolRoute}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FBotEntity> {
+  static const TArray<TComponentSourceValueFieldDeclaration<FBotEntity>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<FBotEntity>>
+        RegisteredFields = {{"Id", &FBotEntity::Id},
+                            {"DisplayName", &FBotEntity::DisplayName},
+                            {"Kind", &FBotEntity::Kind},
+                            {"Alignment", &FBotEntity::Alignment},
+                            {"Active", &FBotEntity::bActive}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FPlayerState> {
+  static const TArray<TComponentSourceValueFieldDeclaration<FPlayerState>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<FPlayerState>>
+        RegisteredFields = {
+            {"Ready", &FPlayerState::bReady},
+            {"HasLastActionId", &FPlayerState::LastActionId, HasLastActionId},
+            {"LastActionId", &FPlayerState::LastActionId, LastActionIdText}};
+    return RegisteredFields;
+  }
+};
+
 template <>
 struct TComponentSourceProjector<FLandmark> {
   ecs::FComponentValue operator()(const FLandmark &Landmark) const {
     return ComponentSourceValueMap(
-        Landmark, {{"Id", &FLandmark::Id},
-                   {"Label", &FLandmark::Label},
-                   {"Kind", &FLandmark::Kind, LandmarkKindText},
-                   {"Location", &FLandmark::Location},
-                   {"Scale", &FLandmark::Scale}});
+        Landmark, {"Id", "Label", "Kind", "Location", "Scale"});
   }
 };
 
@@ -147,12 +217,7 @@ struct TComponentSourceProjector<FNatureFeatureSeed> {
   ecs::FComponentValue
   operator()(const FNatureFeatureSeed &NatureFeature) const {
     return ComponentSourceValueMap(
-        NatureFeature,
-        {{"Id", &FNatureFeatureSeed::Id},
-         {"Name", &FNatureFeatureSeed::Name},
-         {"Kind", &FNatureFeatureSeed::Kind, NatureKindText},
-         {"LocalLocation", &FNatureFeatureSeed::Location},
-         {"Scale", &FNatureFeatureSeed::Scale}});
+        NatureFeature, {"Id", "Name", "Kind", "LocalLocation", "Scale"});
   }
 };
 
@@ -162,16 +227,9 @@ struct TComponentSourceProjector<FTownspersonSeed> {
   operator()(const FTownspersonSeed &Townsperson) const {
     return ComponentSourceValueMap(
         Townsperson,
-        {{"Id", &FTownspersonSeed::Id},
-         {"Name", &FTownspersonSeed::Name},
-         {"Role", &FTownspersonSeed::Role},
-         {"Persona", &FTownspersonSeed::Persona},
-         {"InteractionPrompt", &FTownspersonSeed::InteractionPrompt},
-         {"DefaultPlayerLine", &FTownspersonSeed::DefaultPlayerLine},
-         {"PinnedResponse", &FTownspersonSeed::PinnedResponse},
-         {"InteractionIntent", &FTownspersonSeed::InteractionIntent,
-          InteractionIntentText},
-         {"PatrolRoute", &FTownspersonSeed::PatrolRoute}});
+        {"Id", "Name", "Role", "Persona", "InteractionPrompt",
+         "DefaultPlayerLine", "PinnedResponse", "InteractionIntent",
+         "PatrolRoute"});
   }
 };
 
@@ -179,10 +237,7 @@ template <>
 struct TComponentSourceProjector<FHorseRouteSeed> {
   ecs::FComponentValue operator()(const FHorseRouteSeed &Horse) const {
     return ComponentSourceValueMap(
-        Horse, {{"Id", &FHorseRouteSeed::Id},
-                {"Name", &FHorseRouteSeed::Name},
-                {"MountedRider", &FHorseRouteSeed::bMountedRider},
-                {"PatrolRoute", &FHorseRouteSeed::PatrolRoute}});
+        Horse, {"Id", "Name", "MountedRider", "PatrolRoute"});
   }
 };
 
@@ -190,11 +245,7 @@ template <>
 struct TComponentSourceProjector<FBotEntity> {
   ecs::FComponentValue operator()(const FBotEntity &Bot) const {
     return ComponentSourceValueMap(
-        Bot, {{"Id", &FBotEntity::Id},
-              {"DisplayName", &FBotEntity::DisplayName},
-              {"Kind", &FBotEntity::Kind, BotKindText},
-              {"Alignment", &FBotEntity::Alignment, BotAlignmentText},
-              {"Active", &FBotEntity::bActive}});
+        Bot, {"Id", "DisplayName", "Kind", "Alignment", "Active"});
   }
 };
 
@@ -202,10 +253,7 @@ template <>
 struct TComponentSourceProjector<FPlayerState> {
   ecs::FComponentValue operator()(const FPlayerState &Player) const {
     return ComponentSourceValueMap(
-        Player,
-        {{"Ready", &FPlayerState::bReady},
-         {"HasLastActionId", &FPlayerState::LastActionId, HasLastActionId},
-         {"LastActionId", &FPlayerState::LastActionId, LastActionIdText}});
+        Player, {"Ready", "HasLastActionId", "LastActionId"});
   }
 };
 
