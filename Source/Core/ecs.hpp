@@ -2060,6 +2060,8 @@ inline FWorld recordEntitiesDirty(const FRecordEntitiesDirtyRequest &Request) {
 
 typedef std::function<FRelationship(const FRelationship &)>
     FRelationshipTransform;
+typedef std::function<FRelationship(const EntityKey &, const FRelationship &)>
+    FRelatedRelationshipTransform;
 
 struct FRelationshipWrite {
   EntityKey Entity;
@@ -2076,7 +2078,7 @@ enum class ERelationshipWriteKind {
 struct FRelationshipWriteDeclaration {
   EntityKey Entity;
   ERelationshipWriteKind Kind;
-  EntityKey RelatedEntity;
+  func::Maybe<EntityKey> RelatedEntity;
 };
 
 /**
@@ -2118,23 +2120,35 @@ inline FRelationship removeRelationshipChildKey(const EntityKey &Child,
   return Next;
 }
 
+inline EntityKey
+relationshipWriteRelatedEntity(const FRelationshipWriteDeclaration &Declaration) {
+  check(Declaration.RelatedEntity.hasValue);
+  return Declaration.RelatedEntity.value;
+}
+
+inline FRelationshipTransform createRelatedRelationshipTransform(
+    const FRelationshipWriteDeclaration &Declaration,
+    FRelatedRelationshipTransform Transform) {
+  const EntityKey RelatedEntity = relationshipWriteRelatedEntity(Declaration);
+  return FRelationshipTransform(
+      [RelatedEntity, Transform](const FRelationship &Relationship) {
+        return Transform(RelatedEntity, Relationship);
+      });
+}
+
 /**
  * @brief Expands one relationship write declaration into an ECS transform.
  */
 inline FRelationshipTransform createRelationshipWriteTransform(
     const FRelationshipWriteDeclaration &Declaration) {
-  const EntityKey RelatedEntity = Declaration.RelatedEntity;
   const func::Maybe<FRelationshipTransform> Transform =
       func::multi_match<ERelationshipWriteKind, FRelationshipTransform>(
           Declaration.Kind,
           {func::when<ERelationshipWriteKind, FRelationshipTransform>(
                func::equals(ERelationshipWriteKind::AssignParent),
-               [RelatedEntity](const ERelationshipWriteKind &) {
-                 return FRelationshipTransform(
-                     [RelatedEntity](const FRelationship &Relationship) {
-                       return assignRelationshipParent(RelatedEntity,
-                                                       Relationship);
-                     });
+               [&Declaration](const ERelationshipWriteKind &) {
+                 return createRelatedRelationshipTransform(
+                     Declaration, assignRelationshipParent);
                }),
            func::when<ERelationshipWriteKind, FRelationshipTransform>(
                func::equals(ERelationshipWriteKind::ClearParent),
@@ -2146,21 +2160,15 @@ inline FRelationshipTransform createRelationshipWriteTransform(
                }),
            func::when<ERelationshipWriteKind, FRelationshipTransform>(
                func::equals(ERelationshipWriteKind::AppendChild),
-               [RelatedEntity](const ERelationshipWriteKind &) {
-                 return FRelationshipTransform(
-                     [RelatedEntity](const FRelationship &Relationship) {
-                       return appendRelationshipChild(RelatedEntity,
-                                                      Relationship);
-                     });
+               [&Declaration](const ERelationshipWriteKind &) {
+                 return createRelatedRelationshipTransform(
+                     Declaration, appendRelationshipChild);
                }),
            func::when<ERelationshipWriteKind, FRelationshipTransform>(
                func::equals(ERelationshipWriteKind::RemoveChild),
-               [RelatedEntity](const ERelationshipWriteKind &) {
-                 return FRelationshipTransform(
-                     [RelatedEntity](const FRelationship &Relationship) {
-                       return removeRelationshipChildKey(RelatedEntity,
-                                                         Relationship);
-                     });
+               [&Declaration](const ERelationshipWriteKind &) {
+                 return createRelatedRelationshipTransform(
+                     Declaration, removeRelationshipChildKey);
                })});
   check(Transform.hasValue);
   return Transform.value;
@@ -2178,10 +2186,15 @@ inline FRelationshipWrite createRelationshipWrite(
  * @brief Expands relationship write declarations through one composer.
  */
 inline TArray<FRelationshipWrite> createRelationshipWrites(
-    std::initializer_list<FRelationshipWriteDeclaration> Declarations) {
-  const TArray<FRelationshipWriteDeclaration> DeclarationList(Declarations);
+    const TArray<FRelationshipWriteDeclaration> &Declarations) {
   return func::map_array<FRelationshipWriteDeclaration, FRelationshipWrite>(
-      DeclarationList, createRelationshipWrite);
+      Declarations, createRelationshipWrite);
+}
+
+inline TArray<FRelationshipWrite> createRelationshipWrites(
+    std::initializer_list<FRelationshipWriteDeclaration> Declarations) {
+  return createRelationshipWrites(
+      TArray<FRelationshipWriteDeclaration>(Declarations));
 }
 
 /**
@@ -2192,6 +2205,16 @@ writeRelationship(TMap<EntityKey, FRelationship> Relationships,
                   const FRelationshipWrite &Write) {
   return func::upsert_map_value<EntityKey, FRelationship>(
       Relationships, Write.Entity, createRelationship(), Write.Transform);
+}
+
+/**
+ * @brief Removes one relationship row from the relationship table.
+ */
+inline TMap<EntityKey, FRelationship>
+removeRelationship(TMap<EntityKey, FRelationship> Relationships,
+                   const EntityKey &Entity) {
+  Relationships.Remove(Entity);
+  return Relationships;
 }
 
 /**
@@ -2238,17 +2261,16 @@ inline TArray<EntityKey> findRelationshipParentsForChild(
 
 inline FRelationshipWriteDeclaration createRemoveRelationshipChildDeclaration(
     const EntityKey &Parent, const EntityKey &Child) {
-  return {Parent, ERelationshipWriteKind::RemoveChild, Child};
+  return {Parent, ERelationshipWriteKind::RemoveChild, func::just(Child)};
 }
 
-inline TArray<FRelationshipWrite>
-createRelationshipChildCleanupWrites(const FWorld &World,
-                                     const EntityKey &Child) {
-  return func::map_array<EntityKey, FRelationshipWrite>(
+inline TArray<FRelationshipWriteDeclaration>
+createRelationshipChildCleanupDeclarations(const FWorld &World,
+                                           const EntityKey &Child) {
+  return func::map_array<EntityKey, FRelationshipWriteDeclaration>(
       findRelationshipParentsForChild(World, Child),
       [&Child](const EntityKey &Parent) {
-        return createRelationshipWrite(
-            createRemoveRelationshipChildDeclaration(Parent, Child));
+        return createRemoveRelationshipChildDeclaration(Parent, Child);
       });
 }
 
@@ -2277,10 +2299,16 @@ inline FWorld applyRelationshipWritesAndRecordDirty(
  */
 inline FWorld applyRelationshipWriteDeclarations(
     const FWorld &World,
+    const TArray<FRelationshipWriteDeclaration> &Declarations) {
+  return applyRelationshipWritesAndRecordDirty(
+      World, createRelationshipWrites(Declarations));
+}
+
+inline FWorld applyRelationshipWriteDeclarations(
+    const FWorld &World,
     std::initializer_list<FRelationshipWriteDeclaration> Declarations) {
-  const TArray<FRelationshipWrite> Writes =
-      createRelationshipWrites(Declarations);
-  return applyRelationshipWritesAndRecordDirty(World, Writes);
+  return applyRelationshipWriteDeclarations(
+      World, TArray<FRelationshipWriteDeclaration>(Declarations));
 }
 
 /**
@@ -2367,7 +2395,7 @@ inline FWorldTransform removeEntityDirectIndexes(const EntityKey &Entity) {
     FWorld Next = World;
     Next.Tags.Remove(Entity);
     Next.EntityDomains.Remove(Entity);
-    Next.Relationships.Remove(Entity);
+    Next.Relationships = removeRelationship(Next.Relationships, Entity);
     Next.DirtyEntities.Remove(Entity);
     return Next;
   };
@@ -2383,8 +2411,8 @@ inline FWorldTransform removeEntityDirectIndexes(const EntityKey &Entity) {
 inline FWorldTransform
 removeEntityRelationshipChildIndexes(const EntityKey &Entity) {
   return [Entity](const FWorld &World) {
-    return applyRelationshipWritesAndRecordDirty(
-        World, createRelationshipChildCleanupWrites(World, Entity));
+    return applyRelationshipWriteDeclarations(
+        World, createRelationshipChildCleanupDeclarations(World, Entity));
   };
 }
 
@@ -2428,8 +2456,10 @@ inline FWorld despawnEntity(const FDespawnEntityRequest &Request) {
 inline FWorld setRelationshipParent(const FSetRelationshipParentRequest &Request) {
   return applyRelationshipWriteDeclarations(
       Request.World,
-      {{Request.Child, ERelationshipWriteKind::AssignParent, Request.Parent},
-       {Request.Parent, ERelationshipWriteKind::AppendChild, Request.Child}});
+      {{Request.Child, ERelationshipWriteKind::AssignParent,
+        func::just(Request.Parent)},
+       {Request.Parent, ERelationshipWriteKind::AppendChild,
+        func::just(Request.Child)}});
 }
 
 /**
@@ -2454,8 +2484,10 @@ inline FWorld addRelationshipChild(const FAddRelationshipChildRequest &Request) 
 inline FWorld removeRelationshipChild(const FRemoveRelationshipChildRequest &Request) {
   return applyRelationshipWriteDeclarations(
       Request.World,
-      {{Request.Parent, ERelationshipWriteKind::RemoveChild, Request.Child},
-       {Request.Child, ERelationshipWriteKind::ClearParent, EntityKey()}});
+      {{Request.Parent, ERelationshipWriteKind::RemoveChild,
+        func::just(Request.Child)},
+       {Request.Child, ERelationshipWriteKind::ClearParent,
+        func::nothing<EntityKey>()}});
 }
 
 /**

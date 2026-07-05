@@ -2,7 +2,7 @@
 
 | Lines | File Path |
 |-------|-----------|
-| 3358 | `Source/Core/ecs.hpp` |
+| 3390 | `Source/Core/ecs.hpp` |
 | 749 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 568 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 477 | `Source/Features/Components/ComponentsAdapters.h` |
