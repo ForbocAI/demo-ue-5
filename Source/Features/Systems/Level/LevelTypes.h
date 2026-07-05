@@ -44,12 +44,12 @@ struct FLevelRuntimeScaleSeed {
 struct FLevelRuntimeBlockSeed {
   FString Id;
   FString Name;
-  ELevelRuntimeAnchorMode Anchor = ELevelRuntimeAnchorMode::FeatureLots;
-  float EastLots = 0.0f;
-  float NorthLots = 0.0f;
-  FVector WorldLocation = FVector::ZeroVector;
+  ELevelRuntimeAnchorMode Anchor;
+  float EastLots;
+  float NorthLots;
+  FVector WorldLocation;
   FLevelRuntimeScaleSeed Scale;
-  ELevelRetroTexture Texture = ELevelRetroTexture::MarkerPaint;
+  ELevelRetroTexture Texture;
 };
 
 struct FLevelRuntimeLabelSeed {

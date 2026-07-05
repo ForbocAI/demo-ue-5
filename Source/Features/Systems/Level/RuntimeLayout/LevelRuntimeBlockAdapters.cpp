@@ -8,20 +8,167 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace RuntimeLayout {
+
+struct FLevelRuntimeLotLocationFields {
+  float EastLots;
+  float NorthLots;
+};
+
+func::Maybe<ELevelRuntimeAnchorMode>
+ReadBlockAnchorModeField(
+    const ForbocAI::Demo::Data::FJsonFieldRequest &Request);
+
+func::Maybe<ELevelRetroTexture>
+ReadTextureField(const ForbocAI::Demo::Data::FJsonFieldRequest &Request);
+
+} // namespace RuntimeLayout
+} // namespace Level
+} // namespace Demo
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Demo {
+namespace Data {
+namespace JsonValueAdapters {
+
+JSON_REQUIRED_FIELD_REGISTRY(
+    ForbocAI::Demo::Level::RuntimeLayout::FLevelRuntimeLotLocationFields,
+    EastLots, NorthLots);
+
+template <>
+struct TRequiredJsonFieldRegistry<ForbocAI::Demo::Level::FLevelRuntimeBlockSeed> {
+  static const TArray<
+      TRequiredJsonFieldDeclaration<
+          ForbocAI::Demo::Level::FLevelRuntimeBlockSeed>> &
+  Fields() {
+    static const TArray<
+        TRequiredJsonFieldDeclaration<
+            ForbocAI::Demo::Level::FLevelRuntimeBlockSeed>>
+        RegisteredFields = {
+            JSON_REQUIRED_FIELDS(ForbocAI::Demo::Level::FLevelRuntimeBlockSeed,
+                                 Id, Name),
+            JSON_REQUIRED_FIELD_READER(
+                ForbocAI::Demo::Level::FLevelRuntimeBlockSeed,
+                ForbocAI::Demo::Level::RuntimeLayout::
+                    ReadBlockAnchorModeField,
+                Anchor),
+            JSON_REQUIRED_FIELD_READER(
+                ForbocAI::Demo::Level::FLevelRuntimeBlockSeed,
+                ForbocAI::Demo::Level::RuntimeLayout::ReadScaleSeed, Scale),
+            JSON_REQUIRED_FIELD_READER(
+                ForbocAI::Demo::Level::FLevelRuntimeBlockSeed,
+                ForbocAI::Demo::Level::RuntimeLayout::ReadTextureField,
+                Texture)};
+    return RegisteredFields;
+  }
+};
+
+} // namespace JsonValueAdapters
+} // namespace Data
+} // namespace Demo
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Demo {
+namespace Level {
+namespace RuntimeLayout {
 namespace {
 
 namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
 using FJsonFieldRequest = ForbocAI::Demo::Data::FJsonFieldRequest;
 
-struct FLevelRuntimeLotLocationFields {
-  float EastLots = 0.0f;
-  float NorthLots = 0.0f;
+typedef func::Maybe<FLevelRuntimeBlockSeed> (*FBlockLocationReader)(
+    const TSharedPtr<FJsonObject> &, const FLevelRuntimeBlockSeed &);
+
+struct FLevelRuntimeBlockLocationDeclaration {
+  ELevelRuntimeAnchorMode Anchor;
+  FBlockLocationReader Read;
+
+  FLevelRuntimeBlockLocationDeclaration() = default;
+
+  FLevelRuntimeBlockLocationDeclaration(ELevelRuntimeAnchorMode InAnchor,
+                                        FBlockLocationReader InRead)
+      : Anchor(InAnchor), Read(InRead) {}
 };
 
-struct FLevelRuntimeBlockLocationRequest {
-  TSharedPtr<FJsonObject> Object;
-  FLevelRuntimeBlockSeed Seed;
-};
+FLevelRuntimeBlockSeed AssignWorldBlockLocation(
+    const FLevelRuntimeBlockSeed &Seed, const FVector &Location) {
+  FLevelRuntimeBlockSeed Next = Seed;
+  Next.WorldLocation = Location;
+  return Next;
+}
+
+FLevelRuntimeBlockSeed AssignLotBlockLocation(
+    const FLevelRuntimeBlockSeed &Seed,
+    const FLevelRuntimeLotLocationFields &Fields) {
+  FLevelRuntimeBlockSeed Next = Seed;
+  Next.EastLots = Fields.EastLots;
+  Next.NorthLots = Fields.NorthLots;
+  return Next;
+}
+
+func::Maybe<FLevelRuntimeBlockSeed>
+ReadWorldBlockLocation(const TSharedPtr<FJsonObject> &Object,
+                       const FLevelRuntimeBlockSeed &Seed) {
+  return func::mbind(
+      JsonValues::ReadRequiredField<TSharedPtr<FJsonObject>>(Object,
+                                                             "WorldLocation"),
+      [Seed](const TSharedPtr<FJsonObject> &WorldObject) {
+        return func::fmap(
+            WorldLocationFromJson({WorldObject}),
+            [Seed](const FVector &Location) {
+              return AssignWorldBlockLocation(Seed, Location);
+            });
+      });
+}
+
+func::Maybe<FLevelRuntimeBlockSeed>
+ReadLotBlockLocation(const TSharedPtr<FJsonObject> &Object,
+                     const FLevelRuntimeBlockSeed &Seed) {
+  return func::fmap(
+      JsonValues::ReadRequiredFields<FLevelRuntimeLotLocationFields>(
+          Object, JSON_REQUIRED_ATOMS(EastLots, NorthLots)),
+      [Seed](const FLevelRuntimeLotLocationFields &Fields) {
+        return AssignLotBlockLocation(Seed, Fields);
+      });
+}
+
+const TArray<FLevelRuntimeBlockLocationDeclaration> &
+BlockLocationDeclarations() {
+  static const TArray<FLevelRuntimeBlockLocationDeclaration> Declarations = {
+      {ELevelRuntimeAnchorMode::World, ReadWorldBlockLocation},
+      {ELevelRuntimeAnchorMode::BuildingLots, ReadLotBlockLocation},
+      {ELevelRuntimeAnchorMode::FeatureLots, ReadLotBlockLocation},
+      {ELevelRuntimeAnchorMode::PostOfficeLots, ReadLotBlockLocation}};
+  return Declarations;
+}
+
+func::Maybe<FLevelRuntimeBlockLocationDeclaration>
+FindBlockLocationDeclaration(ELevelRuntimeAnchorMode Anchor) {
+  return func::find_array<FLevelRuntimeBlockLocationDeclaration>(
+      BlockLocationDeclarations(),
+      [Anchor](const FLevelRuntimeBlockLocationDeclaration &Declaration) {
+        return Declaration.Anchor == Anchor;
+      });
+}
+
+func::Maybe<FLevelRuntimeBlockSeed>
+CompleteBlockLocation(const TSharedPtr<FJsonObject> &Object,
+                      const FLevelRuntimeBlockSeed &Seed) {
+  return func::match(
+      FindBlockLocationDeclaration(Seed.Anchor),
+      [Object, Seed](const FLevelRuntimeBlockLocationDeclaration
+                         &Declaration) { return Declaration.Read(Object, Seed); },
+      []() { return func::nothing<FLevelRuntimeBlockSeed>(); });
+}
+
+func::Maybe<FLevelRuntimeBlockSeed>
+ReadBlockSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
+  return JsonValues::ReadRequiredFields<FLevelRuntimeBlockSeed>(
+      Request.Object, JSON_REQUIRED_ATOMS(Id, Name, Anchor, Scale, Texture));
+}
+
+} // namespace
 
 func::Maybe<ELevelRuntimeAnchorMode>
 ReadBlockAnchorModeField(const FJsonFieldRequest &Request) {
@@ -39,135 +186,12 @@ ReadTextureField(const FJsonFieldRequest &Request) {
                      });
 }
 
-FLevelRuntimeBlockSeed
-ApplyWorldBlockLocation(const FLevelRuntimeBlockLocationRequest &Request,
-                        const FVector &Location) {
-  FLevelRuntimeBlockSeed Seed = Request.Seed;
-  Seed.WorldLocation = Location;
-  return Seed;
-}
-
-FLevelRuntimeBlockSeed
-ApplyLotBlockLocation(const FLevelRuntimeBlockLocationRequest &Request,
-                      const FLevelRuntimeLotLocationFields &Fields) {
-  FLevelRuntimeBlockSeed Seed = Request.Seed;
-  Seed.EastLots = Fields.EastLots;
-  Seed.NorthLots = Fields.NorthLots;
-  return Seed;
-}
-
-/**
- * @brief Applies world-location data to a block seed.
- *
- * @signature func::Maybe<FLevelRuntimeBlockSeed> ReadWorldBlockSeed(const FLevelRuntimeBlockLocationRequest &Request)
- *
- * User story: As a data author, world-anchored blocks can declare explicit
- * coordinates while reducers remain free of JSON decisions.
- */
-func::Maybe<FLevelRuntimeBlockSeed>
-ReadWorldBlockSeed(const FLevelRuntimeBlockLocationRequest &Request) {
-  return func::mbind(
-      JsonValues::ReadRequiredField<TSharedPtr<FJsonObject>>(
-          Request.Object, "WorldLocation"),
-      [Request](const TSharedPtr<FJsonObject> &WorldObject) {
-        return func::fmap(
-            WorldLocationFromJson({WorldObject}),
-            [Request](const FVector &Location) {
-              return ApplyWorldBlockLocation(Request, Location);
-            });
-      });
-}
-
-/**
- * @brief Applies post-office lot coordinates to a block seed.
- *
- * @signature func::Maybe<FLevelRuntimeBlockSeed> ReadLotBlockSeed(const FLevelRuntimeBlockLocationRequest &Request)
- *
- * User story: As a data author, lot-anchored blocks are validated into typed
- * seed coordinates before reducer-owned terrain projection.
- */
-func::Maybe<FLevelRuntimeBlockSeed>
-ReadLotBlockSeed(const FLevelRuntimeBlockLocationRequest &Request) {
-  return func::fmap(
-      JsonValues::ReadRequiredFields<FLevelRuntimeLotLocationFields>(
-          Request.Object,
-          {JSON_REQUIRED_FIELDS(FLevelRuntimeLotLocationFields, EastLots,
-                                NorthLots)}),
-      [Request](const FLevelRuntimeLotLocationFields &Fields) {
-        return ApplyLotBlockLocation(Request, Fields);
-      });
-}
-
-/**
- * @brief Completes a block seed according to its validated anchor mode.
- *
- * @signature func::Maybe<FLevelRuntimeBlockSeed> CompleteBlockLocation(const FLevelRuntimeBlockLocationRequest &Request)
- *
- * User story: As an ECS system maintainer, anchor branching remains pure
- * adapter logic and does not enter views or store ownership.
- */
-func::Maybe<FLevelRuntimeBlockSeed>
-CompleteBlockLocation(const FLevelRuntimeBlockLocationRequest &Request) {
-  const func::Maybe<func::Maybe<FLevelRuntimeBlockSeed>> Parsed =
-      func::multi_match<ELevelRuntimeAnchorMode,
-                        func::Maybe<FLevelRuntimeBlockSeed>>(
-          Request.Seed.Anchor,
-          {
-              func::when<ELevelRuntimeAnchorMode,
-                         func::Maybe<FLevelRuntimeBlockSeed>>(
-                  func::equals<ELevelRuntimeAnchorMode>(
-                      ELevelRuntimeAnchorMode::World),
-                  [Request](ELevelRuntimeAnchorMode) {
-                    return ReadWorldBlockSeed(Request);
-                  }),
-              func::when<ELevelRuntimeAnchorMode,
-                         func::Maybe<FLevelRuntimeBlockSeed>>(
-                  func::equals<ELevelRuntimeAnchorMode>(
-                      ELevelRuntimeAnchorMode::BuildingLots),
-                  [Request](ELevelRuntimeAnchorMode) {
-                    return ReadLotBlockSeed(Request);
-                  }),
-              func::when<ELevelRuntimeAnchorMode,
-                         func::Maybe<FLevelRuntimeBlockSeed>>(
-                  func::equals<ELevelRuntimeAnchorMode>(
-                      ELevelRuntimeAnchorMode::FeatureLots),
-                  [Request](ELevelRuntimeAnchorMode) {
-                    return ReadLotBlockSeed(Request);
-                  }),
-              func::when<ELevelRuntimeAnchorMode,
-                         func::Maybe<FLevelRuntimeBlockSeed>>(
-                  func::equals<ELevelRuntimeAnchorMode>(
-                      ELevelRuntimeAnchorMode::PostOfficeLots),
-                  [Request](ELevelRuntimeAnchorMode) {
-                    return ReadLotBlockSeed(Request);
-                  }),
-          });
-  return func::match(
-      Parsed,
-      [](const func::Maybe<FLevelRuntimeBlockSeed> &Seed) { return Seed; },
-      []() { return func::nothing<FLevelRuntimeBlockSeed>(); });
-}
-
-func::Maybe<FLevelRuntimeBlockSeed>
-ReadBlockSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
-  return JsonValues::ReadRequiredFields<FLevelRuntimeBlockSeed>(
-      Request.Object,
-      {JSON_REQUIRED_FIELDS(FLevelRuntimeBlockSeed, Id, Name),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed,
-                                  ReadBlockAnchorModeField, Anchor),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed, ReadScaleSeed, Scale),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeBlockSeed, ReadTextureField,
-                                  Texture)});
-}
-
-} // namespace
-
 func::Maybe<FLevelRuntimeBlockSeed>
 BlockFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
   return func::mbind(
       ReadBlockSeedFields(Request),
       [Request](const FLevelRuntimeBlockSeed &Seed) {
-        return CompleteBlockLocation({Request.Object, Seed});
+        return CompleteBlockLocation(Request.Object, Seed);
       });
 }
 
