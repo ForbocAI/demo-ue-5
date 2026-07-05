@@ -10,8 +10,6 @@
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Store.h"
 
-#include <initializer_list>
-
 using namespace ForbocAI::Demo::Level;
 
 namespace {
@@ -31,6 +29,11 @@ struct FBotRegistrationPayloadSource {
   FBotRuntimeSettings Settings;
 };
 
+struct FBotRegistrationDispatchSource {
+  FBotRegistrationPayloadSource Registration;
+  FBotPositionPayloadSource Position;
+};
+
 struct FBotActionDispatchContext {
   FString Id;
   AActor *BotActor;
@@ -41,13 +44,21 @@ struct FBotActionDispatchContext {
 using FBotActionDispatch = void (*)(const FBotActionDispatchContext &);
 
 struct FBotActionDispatchDeclaration {
-  FString ActionType;
+  FString FBotRuntimeSettings::*ActionType;
   FBotActionDispatch Dispatch;
-
-  FBotActionDispatchDeclaration(const FString &InActionType,
-                                FBotActionDispatch InDispatch)
-      : ActionType(InActionType), Dispatch(InDispatch) {}
 };
+
+void DispatchMoveAction(const FBotActionDispatchContext &Context);
+void DispatchAttackAction(const FBotActionDispatchContext &Context);
+
+template <typename Source> struct TBotRuntimeActionDeclaration {
+  rtk::AnyAction (*Build)(const Source &);
+};
+
+struct FBotTickActionCatalog {};
+struct FBotRegistrationActionCatalog {};
+
+template <typename Declaration> struct TBotOrchestratorRegistry;
 
 struct FBotActionDispatchRequest {
   FString ActionType;
@@ -62,9 +73,10 @@ struct FBotObservationSource {
   func::Maybe<FBotAIComponent> AI;
 };
 
+const FRuntimeState &RuntimeState() { return Store::GetStore().getState(); }
+
 FBotRuntimeSettings BotRuntimeSettings() {
-  return RuntimeSelectors::SelectBotRuntimeSettings(
-      Store::GetStore().getState());
+  return RuntimeSelectors::SelectBotRuntimeSettings(RuntimeState());
 }
 
 FLevelLocalPoint BotInitialLocalPoint(const FBotRuntimeSettings &Settings) {
@@ -131,13 +143,93 @@ rtk::AnyAction OrchestratorObservedAction(const FString &BotId) {
       BotOrchestratorPayload(BotId));
 }
 
+rtk::AnyAction PipelineObservedFromPositionSource(
+    const FBotPositionPayloadSource &Source) {
+  return PipelineObservedAction(Source.Id);
+}
+
+rtk::AnyAction BotPositionMovedFromPositionSource(
+    const FBotPositionPayloadSource &Source) {
+  return BotPositionMovedAction(Source);
+}
+
+rtk::AnyAction BotUpsertedFromRegistrationSource(
+    const FBotRegistrationDispatchSource &Source) {
+  return BotUpsertedAction(Source.Registration);
+}
+
+rtk::AnyAction BotPositionUpsertedFromRegistrationSource(
+    const FBotRegistrationDispatchSource &Source) {
+  return BotPositionUpsertedAction(Source.Position);
+}
+
+rtk::AnyAction OrchestratorObservedFromRegistrationSource(
+    const FBotRegistrationDispatchSource &Source) {
+  return OrchestratorObservedAction(Source.Registration.Id);
+}
+
+template <> struct TBotOrchestratorRegistry<FBotTickActionCatalog> {
+  static const TArray<TBotRuntimeActionDeclaration<FBotPositionPayloadSource>>
+      &Declarations() {
+    static const TArray<
+        TBotRuntimeActionDeclaration<FBotPositionPayloadSource>>
+        RegisteredDeclarations = {{PipelineObservedFromPositionSource},
+                                  {BotPositionMovedFromPositionSource}};
+    return RegisteredDeclarations;
+  }
+};
+
+template <>
+struct TBotOrchestratorRegistry<FBotRegistrationActionCatalog> {
+  static const TArray<
+      TBotRuntimeActionDeclaration<FBotRegistrationDispatchSource>>
+      &Declarations() {
+    static const TArray<
+        TBotRuntimeActionDeclaration<FBotRegistrationDispatchSource>>
+        RegisteredDeclarations = {
+            {BotUpsertedFromRegistrationSource},
+            {BotPositionUpsertedFromRegistrationSource},
+            {OrchestratorObservedFromRegistrationSource}};
+    return RegisteredDeclarations;
+  }
+};
+
+template <> struct TBotOrchestratorRegistry<FBotActionDispatchDeclaration> {
+  static const TArray<FBotActionDispatchDeclaration> &Declarations() {
+    static const TArray<FBotActionDispatchDeclaration>
+        RegisteredDeclarations = {
+            {&FBotRuntimeSettings::MoveActionType, DispatchMoveAction},
+            {&FBotRuntimeSettings::AttackActionType, DispatchAttackAction}};
+    return RegisteredDeclarations;
+  }
+};
+
 void DispatchRuntimeAction(const rtk::AnyAction &Action) {
   Store::GetStore().dispatch(Action);
 }
 
-void DispatchRuntimeActions(std::initializer_list<rtk::AnyAction> Actions) {
-  func::for_each_array<rtk::AnyAction>(
-      TArray<rtk::AnyAction>(Actions), DispatchRuntimeAction);
+template <typename Source>
+TArray<rtk::AnyAction> RuntimeActions(
+    const Source &SourceValue,
+    const TArray<TBotRuntimeActionDeclaration<Source>> &Declarations) {
+  return func::map_array<TBotRuntimeActionDeclaration<Source>,
+                         rtk::AnyAction>(
+      Declarations,
+      [&SourceValue](
+          const TBotRuntimeActionDeclaration<Source> &Declaration) {
+        return Declaration.Build(SourceValue);
+      });
+}
+
+void DispatchRuntimeActions(const TArray<rtk::AnyAction> &Actions) {
+  func::for_each_array<rtk::AnyAction>(Actions, DispatchRuntimeAction);
+}
+
+template <typename Source>
+void DispatchRuntimeActions(
+    const Source &SourceValue,
+    const TArray<TBotRuntimeActionDeclaration<Source>> &Declarations) {
+  DispatchRuntimeActions(RuntimeActions<Source>(SourceValue, Declarations));
 }
 
 void DispatchMoveAction(const FBotActionDispatchContext &Context) {
@@ -152,14 +244,17 @@ void DispatchAttackAction(const FBotActionDispatchContext &Context) {
 }
 
 bool RunBotActionDispatch(
-    const FBotActionDispatchRequest &Request,
-    std::initializer_list<FBotActionDispatchDeclaration> Declarations) {
-  const TArray<FBotActionDispatchDeclaration> DeclarationList(Declarations);
+    const FBotActionDispatchRequest &Request) {
+  const TArray<FBotActionDispatchDeclaration> &Declarations =
+      TBotOrchestratorRegistry<
+          FBotActionDispatchDeclaration>::Declarations();
   return func::fold_array<FBotActionDispatchDeclaration, bool>(
-      DeclarationList, false,
+      Declarations, false,
       [&Request](bool bHandled,
                  const FBotActionDispatchDeclaration &Declaration) {
-        return bHandled || Declaration.ActionType != Request.ActionType
+        return bHandled ||
+                       (Request.Context.Settings.*(Declaration.ActionType)) !=
+                           Request.ActionType
                    ? bHandled
                    : (Declaration.Dispatch(Request.Context), true);
       });
@@ -221,11 +316,11 @@ void ABotOrchestratorAdapter::Tick(float DeltaTime) {
        Settings](AActor *const &BotKey) {
         FBotRuntimeBinding *Binding = BotBindings.Find(BotKey);
         Binding
-            ? (DispatchRuntimeActions(
-                   {PipelineObservedAction(Binding->Id),
-                    BotPositionMovedAction(
-                        {Binding->Id, InitialLocalPoint,
-                         Binding->BotActor->GetActorLocation(), Settings})}),
+            ? (DispatchRuntimeActions<FBotPositionPayloadSource>(
+                   {Binding->Id, InitialLocalPoint,
+                    Binding->BotActor->GetActorLocation(), Settings},
+                   TBotOrchestratorRegistry<
+                       FBotTickActionCatalog>::Declarations()),
                (CurrentTime - Binding->LastObservationTime >=
                 Settings.ObservationIntervalSeconds)
                    ? (Binding->LastObservationTime = CurrentTime,
@@ -253,11 +348,11 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
     Binding.Agent = MakeShared<const FAgent>(AgentFactory::Create(Config));
 
     BotBindings.Add(Actor, Binding);
-    DispatchRuntimeActions(
-        {BotUpsertedAction({BotId, Persona, Settings}),
-         BotPositionUpsertedAction(
-             {BotId, InitialLocalPoint, Actor->GetActorLocation(), Settings}),
-         OrchestratorObservedAction(BotId)});
+    DispatchRuntimeActions<FBotRegistrationDispatchSource>(
+        {{BotId, Persona, Settings},
+         {BotId, InitialLocalPoint, Actor->GetActorLocation(), Settings}},
+        TBotOrchestratorRegistry<
+            FBotRegistrationActionCatalog>::Declarations());
 
     const FString RegisteredLog =
         frmt::RuntimeString(
@@ -315,15 +410,13 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
     UE_LOG(LogTemp, Display, TEXT("%s"), *ExecuteLog);
 
     RunBotActionDispatch(
-        {ActionType, {Binding->Id, BotActor, InitialLocalPoint, Settings}},
-        {{Settings.MoveActionType, DispatchMoveAction},
-         {Settings.AttackActionType, DispatchAttackAction}});
+        {ActionType, {Binding->Id, BotActor, InitialLocalPoint, Settings}});
   }();
 }
 
 FString ABotOrchestratorAdapter::GetStateObservation(
     const FString &BotId) const {
-  const FRuntimeState &State = Store::GetStore().getState();
+  const FRuntimeState &State = RuntimeState();
   return BotStateObservation(
       {BotId, RuntimeSelectors::SelectBotRuntimeSettings(State),
        RuntimeSelectors::SelectBotById(State, BotId),
