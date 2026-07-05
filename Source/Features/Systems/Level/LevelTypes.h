@@ -32,13 +32,13 @@ enum class ELevelRuntimeLabelHeightMode {
 };
 
 struct FLevelRuntimeScaleSeed {
-  ELevelRuntimeScaleMode Mode = ELevelRuntimeScaleMode::Pad;
-  float WidthFeet = 0.0f;
-  float DepthFeet = 0.0f;
-  float HeightFeet = 0.0f;
-  float FrontageFeet = 0.0f;
-  float Stories = 0.0f;
-  float LengthLots = 0.0f;
+  ELevelRuntimeScaleMode Mode;
+  float WidthFeet;
+  float DepthFeet;
+  float HeightFeet;
+  float FrontageFeet;
+  float Stories;
+  float LengthLots;
 };
 
 struct FLevelRuntimeBlockSeed {

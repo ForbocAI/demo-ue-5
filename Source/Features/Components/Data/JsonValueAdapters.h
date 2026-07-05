@@ -164,6 +164,12 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
   FString FieldName;
   TFunction<func::Maybe<State>(const FJsonFieldRequest &, const State &)> Apply;
 
+  TRequiredJsonFieldDeclaration()
+      : FieldName(),
+        Apply([](const FJsonFieldRequest &, const State &Current) {
+          return func::just(Current);
+        }) {}
+
   template <typename Value>
   TRequiredJsonFieldDeclaration(const char *FieldAtom, Value State::*Member)
       : FieldName(RequiredFieldName(FieldAtom)),
@@ -210,18 +216,26 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
 template <typename State>
 func::Maybe<State> ReadRequiredFields(
     const TSharedPtr<FJsonObject> &Object,
-    std::initializer_list<TRequiredJsonFieldDeclaration<State>> Fields,
+    const TArray<TRequiredJsonFieldDeclaration<State>> &Fields,
     const State &Initial = State()) {
   return func::fold_array<TRequiredJsonFieldDeclaration<State>,
                           func::Maybe<State>>(
-      TArray<TRequiredJsonFieldDeclaration<State>>(Fields),
-      func::just<State>(Initial),
+      Fields, func::just<State>(Initial),
       [Object](const func::Maybe<State> &Current,
                const TRequiredJsonFieldDeclaration<State> &Field) {
         return func::mbind(Current, [Object, Field](const State &Value) {
           return Field.Apply({Object, Field.FieldName}, Value);
         });
       });
+}
+
+template <typename State>
+func::Maybe<State> ReadRequiredFields(
+    const TSharedPtr<FJsonObject> &Object,
+    std::initializer_list<TRequiredJsonFieldDeclaration<State>> Fields,
+    const State &Initial = State()) {
+  return ReadRequiredFields<State>(
+      Object, TArray<TRequiredJsonFieldDeclaration<State>>(Fields), Initial);
 }
 
 #define JSON_REQUIRED_FIELD(Type, Field) {#Field, &Type::Field}
@@ -242,6 +256,70 @@ func::Maybe<State> ReadRequiredFields(
                     Type, Reader, __VA_ARGS__))
 #define JSON_REQUIRED_FIELD_READERS(Type, Reader, ...)                       \
   JSON_EXPAND(JSON_REQUIRED_FIELD_READER_LIST(Type, Reader, __VA_ARGS__))
+
+#define JSON_REQUIRED_ATOM(Field) #Field
+#define JSON_REQUIRED_ATOM_LIST_INDIRECT() JSON_REQUIRED_ATOM_LIST
+#define JSON_REQUIRED_ATOM_LIST(Field, ...)                                  \
+  JSON_REQUIRED_ATOM(Field)                                                  \
+  __VA_OPT__(, JSON_OBSTRUCT(JSON_REQUIRED_ATOM_LIST_INDIRECT)()(            \
+                    __VA_ARGS__))
+#define JSON_REQUIRED_ATOMS(...)                                             \
+  {JSON_EXPAND(JSON_REQUIRED_ATOM_LIST(__VA_ARGS__))}
+
+template <typename State> struct TRequiredJsonFieldRegistry;
+
+#define JSON_REQUIRED_FIELD_REGISTRY(Type, ...)                              \
+  template <> struct TRequiredJsonFieldRegistry<Type> {                      \
+    static const TArray<TRequiredJsonFieldDeclaration<Type>> &Fields() {      \
+      static const TArray<TRequiredJsonFieldDeclaration<Type>>                \
+          RegisteredFields = {JSON_REQUIRED_FIELDS(Type, __VA_ARGS__)};       \
+      return RegisteredFields;                                               \
+    }                                                                        \
+  }
+
+template <typename State>
+func::Maybe<TRequiredJsonFieldDeclaration<State>>
+FindRequiredJsonField(const char *FieldAtom) {
+  const FString FieldName = RequiredFieldName(FieldAtom);
+  const TArray<TRequiredJsonFieldDeclaration<State>> &Fields =
+      TRequiredJsonFieldRegistry<State>::Fields();
+  return func::fold_array<
+      TRequiredJsonFieldDeclaration<State>,
+      func::Maybe<TRequiredJsonFieldDeclaration<State>>>(
+      Fields, func::nothing<TRequiredJsonFieldDeclaration<State>>(),
+      [FieldName](const func::Maybe<TRequiredJsonFieldDeclaration<State>>
+                      &Current,
+                  const TRequiredJsonFieldDeclaration<State> &Field) {
+        return Current.hasValue || Field.FieldName != FieldName
+                   ? Current
+                   : func::just(Field);
+      });
+}
+
+template <typename State>
+func::Maybe<State> ReadRequiredFields(
+    const TSharedPtr<FJsonObject> &Object,
+    const TArray<const char *> &FieldAtoms, const State &Initial = State()) {
+  return func::fold_array<const char *, func::Maybe<State>>(
+      FieldAtoms, func::just<State>(Initial),
+      [Object](const func::Maybe<State> &Current, const char *FieldAtom) {
+        return func::mbind(Current, [Object, FieldAtom](const State &Value) {
+          const func::Maybe<TRequiredJsonFieldDeclaration<State>> Field =
+              FindRequiredJsonField<State>(FieldAtom);
+          check(Field.hasValue);
+          return Field.value.Apply({Object, Field.value.FieldName}, Value);
+        });
+      });
+}
+
+template <typename State>
+func::Maybe<State> ReadRequiredFields(
+    const TSharedPtr<FJsonObject> &Object,
+    std::initializer_list<const char *> FieldAtoms,
+    const State &Initial = State()) {
+  return ReadRequiredFields<State>(Object, TArray<const char *>(FieldAtoms),
+                                   Initial);
+}
 
 } // namespace JsonValueAdapters
 } // namespace Data
