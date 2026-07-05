@@ -5,49 +5,71 @@
 namespace ForbocAI {
 namespace Demo {
 namespace Data {
+namespace JsonAdapters {
+
+JSON_SETTINGS_REGISTRY(FLevelTerrainSourceSettings, TerrainCsvPath,
+                       OrthoCsvPath);
+
+JSON_SETTINGS_REGISTRY(FLevelDataSourceSettings, RuntimeLayoutJsonPath,
+                       LandmarksJsonPath, TownspeopleJsonPath, HorsesJsonPath,
+                       NatureJsonPath);
+
+JSON_SETTINGS_REGISTRY(FRuntimeValidationSettings, TerrainGridSize,
+                       OrthoGridSize, TerrainMinReliefMeters);
+
+JSON_SETTINGS_REGISTRY(FLevelGeometrySettings, TerrainWorldSize,
+                       TerrainElevationScale, TerrainLotsAcross,
+                       PostOfficeEastLots, PostOfficeNorthLots, CubeMeshSize,
+                       BlockScalePerFoot, HeightScalePerStory,
+                       FoundationHeightRatio, RoadClearanceRatio,
+                       CharacterHeightRatio, LabelClearanceRatio,
+                       ActorFootToTerrainRatio, ActorReferenceFeetAcross,
+                       PlayerSpawnNorthLots, PlayerSpawnExtraHeightRatio,
+                       MainStreetFacingYawDegrees, PlayerSpawnAnchorLabel,
+                       LandmarkLabelWorldSizeScale, NatureLabelWorldSizeScale);
+
+} // namespace JsonAdapters
 namespace LevelSettingsAdapters {
 namespace Json = JsonAdapters;
 
 FLevelTerrainSourceSettings
 ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FLevelTerrainSourceSettings>(
-      Object, JSON_SETTINGS_FIELDS(FLevelTerrainSourceSettings, TerrainCsvPath,
-                                   OrthoCsvPath));
+      Object, JSON_SETTINGS_ATOMS(TerrainCsvPath, OrthoCsvPath));
 }
 
 FLevelDataSourceSettings
 ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FLevelDataSourceSettings>(
-      Object, JSON_SETTINGS_FIELDS(FLevelDataSourceSettings,
-                                   RuntimeLayoutJsonPath, LandmarksJsonPath,
-                                   TownspeopleJsonPath, HorsesJsonPath,
-                                   NatureJsonPath));
+      Object, JSON_SETTINGS_ATOMS(RuntimeLayoutJsonPath, LandmarksJsonPath,
+                                  TownspeopleJsonPath, HorsesJsonPath,
+                                  NatureJsonPath));
 }
 
 FRuntimeValidationSettings
 ReadRuntimeValidationSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FRuntimeValidationSettings>(
-      Object, JSON_SETTINGS_FIELDS(FRuntimeValidationSettings, TerrainGridSize,
-                                   OrthoGridSize, TerrainMinReliefMeters));
+      Object, JSON_SETTINGS_ATOMS(TerrainGridSize, OrthoGridSize,
+                                  TerrainMinReliefMeters));
 }
 
 FLevelGeometrySettings
 ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FLevelGeometrySettings>(
-      Object, JSON_SETTINGS_FIELDS(FLevelGeometrySettings, TerrainWorldSize,
-                                   TerrainElevationScale, TerrainLotsAcross,
-                                   PostOfficeEastLots, PostOfficeNorthLots,
-                                   CubeMeshSize, BlockScalePerFoot,
-                                   HeightScalePerStory, FoundationHeightRatio,
-                                   RoadClearanceRatio, CharacterHeightRatio,
-                                   LabelClearanceRatio, ActorFootToTerrainRatio,
-                                   ActorReferenceFeetAcross,
-                                   PlayerSpawnNorthLots,
-                                   PlayerSpawnExtraHeightRatio,
-                                   MainStreetFacingYawDegrees,
-                                   PlayerSpawnAnchorLabel,
-                                   LandmarkLabelWorldSizeScale,
-                                   NatureLabelWorldSizeScale));
+      Object, JSON_SETTINGS_ATOMS(TerrainWorldSize, TerrainElevationScale,
+                                  TerrainLotsAcross, PostOfficeEastLots,
+                                  PostOfficeNorthLots, CubeMeshSize,
+                                  BlockScalePerFoot, HeightScalePerStory,
+                                  FoundationHeightRatio, RoadClearanceRatio,
+                                  CharacterHeightRatio, LabelClearanceRatio,
+                                  ActorFootToTerrainRatio,
+                                  ActorReferenceFeetAcross,
+                                  PlayerSpawnNorthLots,
+                                  PlayerSpawnExtraHeightRatio,
+                                  MainStreetFacingYawDegrees,
+                                  PlayerSpawnAnchorLabel,
+                                  LandmarkLabelWorldSizeScale,
+                                  NatureLabelWorldSizeScale));
 }
 
 } // namespace LevelSettingsAdapters

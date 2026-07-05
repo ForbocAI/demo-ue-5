@@ -13,8 +13,8 @@ struct FUIRuntimeSettings {
   FString UnknownRoleLabel;
   FString ChatMessageFormat;
   FString HistoryRoleSeparator;
-  int32 HistoryTextStartOffset = 0;
-  int32 HistoryMinimumRoleIndex = 0;
+  int32 HistoryTextStartOffset;
+  int32 HistoryMinimumRoleIndex;
   FString PlaceholderTitle;
   FString PlaceholderPlayerLine;
   FString PlaceholderNpcReply;
@@ -31,9 +31,9 @@ struct FUIRuntimeSettings {
   FLinearColor NpcColor;
   FLinearColor UnknownColor;
   FLinearColor RuntimeReplyColor;
-  float PanelPadding = 0.0f;
-  float TitleSize = 0.0f;
-  float BodySize = 0.0f;
+  float PanelPadding;
+  float TitleSize;
+  float BodySize;
 };
 
 

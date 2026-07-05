@@ -13,19 +13,19 @@ struct FRenderingAssetPathSettings {
 
 
 struct FRenderingProfileSettings {
-  float TimeOfDayHour = 0.0f;
-  int32 AntiAliasingMethod = 0;
-  int32 PostProcessAAQuality = 0;
-  float ScreenPercentage = 0.0f;
-  float ViewDistanceScale = 0.0f;
-  float FoliageDensityScale = 0.0f;
-  float GrassDensityScale = 0.0f;
-  float SunPitchDegrees = 0.0f;
-  float SunYawDegrees = 0.0f;
-  float DirectionalLightIntensity = 0.0f;
-  float DirectionalLightSourceAngle = 0.0f;
-  int32 ShadowCascades = 0;
-  int32 ShadowMaxResolution = 0;
+  float TimeOfDayHour;
+  int32 AntiAliasingMethod;
+  int32 PostProcessAAQuality;
+  float ScreenPercentage;
+  float ViewDistanceScale;
+  float FoliageDensityScale;
+  float GrassDensityScale;
+  float SunPitchDegrees;
+  float SunYawDegrees;
+  float DirectionalLightIntensity;
+  float DirectionalLightSourceAngle;
+  int32 ShadowCascades;
+  int32 ShadowMaxResolution;
 };
 
 
@@ -33,22 +33,22 @@ struct FRenderingTextureSpecSettings {
   FString Texture;
   FString Name;
   FString Use;
-  int32 Size = 0;
+  int32 Size;
 };
 
 
 struct FRenderingRgbSettings {
-  int32 R = 0;
-  int32 G = 0;
-  int32 B = 0;
+  int32 R;
+  int32 G;
+  int32 B;
 };
 
 
 struct FRenderingTextureHashSettings {
-  int32 XMultiplier = 0;
-  int32 YMultiplier = 0;
-  int32 SaltMultiplier = 0;
-  int32 XorShift = 0;
+  int32 XMultiplier;
+  int32 YMultiplier;
+  int32 SaltMultiplier;
+  int32 XorShift;
 };
 
 
@@ -56,21 +56,21 @@ struct FRenderingConsoleVariableSettings {
   FString Name;
   FString ValueKind;
   FString ProfileField;
-  int32 IntValue = 0;
-  float FloatValue = 0.0f;
+  int32 IntValue;
+  float FloatValue;
 };
 
 
 struct FRenderingTexturePredicateSettings {
   FString Kind;
-  int32 XMultiplier = 0;
-  int32 YMultiplier = 0;
-  int32 NoiseMultiplier = 0;
-  int32 XDivisor = 0;
-  int32 YDivisor = 0;
-  int32 Modulus = 0;
-  int32 Equals = 0;
-  int32 LessThan = 0;
+  int32 XMultiplier;
+  int32 YMultiplier;
+  int32 NoiseMultiplier;
+  int32 XDivisor;
+  int32 YDivisor;
+  int32 Modulus;
+  int32 Equals;
+  int32 LessThan;
 };
 
 
@@ -79,9 +79,9 @@ struct FRenderingTextureColorResultSettings {
   FRenderingRgbSettings Color;
   FRenderingRgbSettings ColorA;
   FRenderingRgbSettings ColorB;
-  int32 NumeratorBase = 0;
-  int32 NumeratorNoiseModulus = 0;
-  int32 Denominator = 0;
+  int32 NumeratorBase;
+  int32 NumeratorNoiseModulus;
+  int32 Denominator;
 };
 
 
@@ -98,8 +98,8 @@ struct FRenderingTexturePaletteSettings {
 
 
 struct FRenderingRuntimeSettings {
-  int32 TextureChannels = 0;
-  int32 TextureAlpha = 0;
+  int32 TextureChannels;
+  int32 TextureAlpha;
   FString TextureCacheKeyFormat;
   FString MaterialTextureParameter;
   FRenderingTextureHashSettings TextureHash;

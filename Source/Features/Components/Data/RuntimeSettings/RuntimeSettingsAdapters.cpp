@@ -10,8 +10,243 @@ namespace ForbocAI {
 namespace Demo {
 namespace Data {
 namespace RuntimeSettingsAdapters {
+
+FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object);
+FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object);
+
+} // namespace RuntimeSettingsAdapters
+namespace JsonAdapters {
+
+JSON_SETTINGS_REGISTRY(FRuntimeObservationIdSettings,
+                       PlayerPresentationRequested,
+                       PlayerMovementInputObserved,
+                       TownspersonPresentationRequested,
+                       HorsePresentationRequested,
+                       TownspersonCandidatesObserved);
+
+template <> struct TJsonSettingsRegistry<FRuntimeDebugMessageSettings> {
+  static const TArray<TJsonSettingsField<FRuntimeDebugMessageSettings>>
+      &Fields() {
+    static const TArray<TJsonSettingsField<FRuntimeDebugMessageSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(FRuntimeDebugMessageSettings, OnScreenKey,
+                                DurationSeconds),
+            JSON_OBJECT_SETTING_FIELD(
+                FRuntimeDebugMessageSettings,
+                RuntimeSettingsAdapters::ReadColorSettings, Color)};
+    return RegisteredFields;
+  }
+};
+
+JSON_SETTINGS_REGISTRY(FRuntimeViewNameSettings, SceneRoot,
+                       TownspersonCharacterMesh,
+                       TownspersonInteractionSphere, TownspersonNameText,
+                       TownspersonPromptText, TownspersonDialogueText,
+                       TownspersonOverlapProfile, HorseImportedMesh,
+                       HorseMountedRiderMesh, HorseNameText, PlayerCameraBoom,
+                       PlayerFollowCamera, SpeechPresentationMesh,
+                       SpeechComponent);
+
+JSON_SETTINGS_REGISTRY(FRuntimeTextSettings, TownspersonNameRoleFormat,
+                       NpcReplyLog, TownspersonMissingMesh,
+                       TownspersonMissingAnimation, HorseMissingMesh,
+                       HorseMissingWalkAnimation, RiderMissingWalkAnimation,
+                       RiderMissingMesh, StartupSdkEnabled,
+                       StartupSdkDisabled);
+
+template <> struct TJsonSettingsRegistry<FUIRuntimeSettings> {
+  static const TArray<TJsonSettingsField<FUIRuntimeSettings>> &Fields() {
+    static const TArray<TJsonSettingsField<FUIRuntimeSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(FUIRuntimeSettings, PlayerRoleLabel,
+                                SystemRoleLabel, NpcRoleLabel,
+                                UnknownRoleLabel, ChatMessageFormat,
+                                HistoryRoleSeparator, HistoryTextStartOffset,
+                                HistoryMinimumRoleIndex, PlaceholderTitle,
+                                PlaceholderPlayerLine, PlaceholderNpcReply,
+                                ConversationTitleFormat, PlayerLineFormat,
+                                NpcReplyFormat, ConnectionMessageFormat,
+                                UnboundDialogueError, PayloadIdFormat,
+                                PanelPadding, TitleSize, BodySize),
+            JSON_OBJECT_SETTING_FIELDS(
+                FUIRuntimeSettings,
+                RuntimeSettingsAdapters::ReadLinearColorSettings, PanelColor,
+                TitleColor, PlayerColor, SystemColor, NpcColor, UnknownColor,
+                RuntimeReplyColor)};
+    return RegisteredFields;
+  }
+};
+
+JSON_SETTINGS_REGISTRY(FDialogueRuntimeSettings, ReplyPayloadIdFormat);
+
+JSON_SETTINGS_REGISTRY(FBotStatPresetSettings, MoveSpeed, AwarenessRange,
+                       Resolve, bCanTalk);
+
+template <> struct TJsonSettingsRegistry<FBotRuntimeSettings> {
+  static const TArray<TJsonSettingsField<FBotRuntimeSettings>> &Fields() {
+    static const TArray<TJsonSettingsField<FBotRuntimeSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(FBotRuntimeSettings, InitialName,
+                                InitialHealth, InitialMaxHealth, InitialMana,
+                                InitialMaxMana, InitialStamina,
+                                InitialMaxStamina, MinimumHealth,
+                                InitialPosition, InitialRotation,
+                                InitialLastKnownPlayerPosition,
+                                InitialTimeSinceLastSeenPlayer,
+                                EnemySpottedTimeSinceLastSeenPlayer,
+                                bInitialHasAggro, bDefaultHazardOverlapping,
+                                bDefaultVisibilityCanSeeEnemy, InitialPhase,
+                                InitialTickCount, AggroTimeoutSeconds,
+                                DamageFleeHealthRatio, PhaseFleeHealthRatio,
+                                MovementArrivalDistanceSquared,
+                                AggroPositionToleranceSquared,
+                                DefaultMovementInterpSpeed,
+                                PatrolGoalPriority, PatrolGoalIdFormat,
+                                bPatrolGoalInitialCompleted,
+                                bActiveGoalComponentHasActiveGoal,
+                                ObservationIntervalSeconds,
+                                InitialObservationTimeSeconds,
+                                bOrchestratorCanEverTick,
+                                bRegisteredBotActive,
+                                bPositionPayloadHasLocalLocation,
+                                bPositionPayloadHasWorldLocation, StartLog,
+                                RegisteredLogFormat, ProcessFailedLogFormat,
+                                ExecuteLogFormat, NullActorLabel,
+                                MoveActionType, AttackActionType,
+                                MoveActionOffset, StateObservationFormat,
+                                DefaultBehaviorState),
+            JSON_OBJECT_SETTING_FIELDS(
+                FBotRuntimeSettings,
+                ReadSettingsWith<FBotStatPresetSettings>(
+                    JSON_SETTINGS_ATOMS(MoveSpeed, AwarenessRange, Resolve,
+                                        bCanTalk)),
+                TownspersonStats, HorseStats)};
+    return RegisteredFields;
+  }
+};
+
+JSON_SETTINGS_REGISTRY(FSpeechVisemeMappingSettings, Phoneme,
+                       MorphTargetName, BlendWeight);
+
+JSON_SETTINGS_REGISTRY(FSpeechVowelPhonemeSettings, Character, Phoneme);
+
+JSON_SETTINGS_REGISTRY(FSpeechPhonemeDurationRuleSettings, Kind, Phoneme,
+                       Multiplier);
+
+template <> struct TJsonSettingsRegistry<FSpeechRuntimeSettings> {
+  static const TArray<TJsonSettingsField<FSpeechRuntimeSettings>> &Fields() {
+    static const TArray<TJsonSettingsField<FSpeechRuntimeSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(FSpeechRuntimeSettings, RestViseme, RestWeight,
+                                SpeechRate, Volume, bEnableLipSync,
+                                bCanEverTick, bStartTickEnabled,
+                                InitialPlaybackTime, bInitialSpeechActive,
+                                EstimatedBasePhonemeSeconds,
+                                SilenceCharacters, SilencePhoneme,
+                                VisemeChangeTolerance, TtsEndpoint, TtsVerb,
+                                TtsContentTypeHeader, TtsContentType,
+                                TtsRequestFormat, TtsSuccessResponseCode,
+                                MinimumAudioBytes, SpeechStartLogFormat,
+                                SpeechAudioReceivedLogFormat,
+                                ResetMorphTargets),
+            JSON_OBJECT_ARRAY_SETTING_FIELDS(
+                FSpeechRuntimeSettings,
+                ReadSettingsWith<FSpeechVowelPhonemeSettings>(
+                    JSON_SETTINGS_ATOMS(Character, Phoneme)),
+                VowelPhonemes),
+            JSON_OBJECT_ARRAY_SETTING_FIELDS(
+                FSpeechRuntimeSettings,
+                ReadSettingsWith<FSpeechVisemeMappingSettings>(
+                    JSON_SETTINGS_ATOMS(Phoneme, MorphTargetName,
+                                        BlendWeight)),
+                VisemeMappings),
+            JSON_OBJECT_ARRAY_SETTING_FIELDS(
+                FSpeechRuntimeSettings,
+                ReadSettingsWith<FSpeechPhonemeDurationRuleSettings>(
+                    JSON_SETTINGS_ATOMS(Kind, Phoneme, Multiplier)),
+                DurationRules)};
+    return RegisteredFields;
+  }
+};
+
+} // namespace JsonAdapters
+namespace RuntimeSettingsAdapters {
 namespace Json = JsonAdapters;
 namespace {
+
+using FRuntimeSettingsSourceCatalog = TMap<FString, TSharedPtr<FJsonObject>>;
+
+struct FRuntimeSettingsSourceGroup {
+  const char *Parent;
+  TArray<const char *> Children;
+
+  FRuntimeSettingsSourceGroup(const char *InParent,
+                              std::initializer_list<const char *> InChildren)
+      : Parent(InParent), Children(InChildren) {}
+};
+
+FString RuntimeSettingsSourceKey(const char *Atom) {
+  return Json::SettingsFieldName(Atom);
+}
+
+TSharedPtr<FJsonObject>
+RuntimeSettingsSource(const FRuntimeSettingsSourceCatalog &Sources,
+                      const char *Atom) {
+  const TSharedPtr<FJsonObject> *Source =
+      Sources.Find(RuntimeSettingsSourceKey(Atom));
+  check(Source != nullptr);
+  check(Source->IsValid());
+  return *Source;
+}
+
+TSharedPtr<FJsonObject>
+LoadRuntimeSettingsSource(const TSharedPtr<FJsonObject> &Manifest,
+                          const char *FieldAtom) {
+  return Json::LoadRequiredObjectFromContent(
+      {Json::ReadStringField(Manifest, FieldAtom)});
+}
+
+const TArray<FRuntimeSettingsSourceGroup> &RuntimeSettingsSourceGroups() {
+  static const TArray<FRuntimeSettingsSourceGroup> Groups = {
+      {"Root",
+       {"Player", "Interaction", "Level", "Rendering", "Bots", "Dialogue",
+        "Speech", "UI", "Runtime"}},
+      {"Rendering",
+       {"RenderingAssets", "RenderingProfile", "RenderingRuntime",
+        "TextureCatalog"}},
+      {"RenderingRuntime",
+       {"TextureSettings", "ConsoleVariables", "TexturePalettes"}}};
+  return Groups;
+}
+
+FRuntimeSettingsSourceCatalog
+LoadRuntimeSettingsSourceGroup(const FRuntimeSettingsSourceCatalog &Sources,
+                               const FRuntimeSettingsSourceGroup &Group) {
+  const TSharedPtr<FJsonObject> Parent =
+      RuntimeSettingsSource(Sources, Group.Parent);
+  return func::fold_indexed(
+      Group.Children, static_cast<size_t>(Group.Children.Num()), Sources,
+      [Parent](const FRuntimeSettingsSourceCatalog &Current,
+               const char *Child) {
+        FRuntimeSettingsSourceCatalog Next = Current;
+        Next.Add(RuntimeSettingsSourceKey(Child),
+                 LoadRuntimeSettingsSource(Parent, Child));
+        return Next;
+      });
+}
+
+FRuntimeSettingsSourceCatalog
+LoadRuntimeSettingsSources(const TSharedPtr<FJsonObject> &Object) {
+  FRuntimeSettingsSourceCatalog Seed;
+  Seed.Add(RuntimeSettingsSourceKey("Root"), Object);
+  const TArray<FRuntimeSettingsSourceGroup> &Groups =
+      RuntimeSettingsSourceGroups();
+  return func::fold_indexed(
+      Groups, static_cast<size_t>(Groups.Num()), Seed,
+      LoadRuntimeSettingsSourceGroup);
+}
+
+} // namespace
 
 FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonIntReader Int = Json::IntIn(Object);
@@ -27,280 +262,148 @@ FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object) {
                       Float(TEXT("a")));
 }
 
-FRuntimeObservationIdSettings
-ReadRuntimeObservationIdSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FRuntimeObservationIdSettings>(
-      Object,
-      JSON_SETTINGS_FIELDS(FRuntimeObservationIdSettings,
-                           PlayerPresentationRequested,
-                           PlayerMovementInputObserved,
-                           TownspersonPresentationRequested,
-                           HorsePresentationRequested,
-                           TownspersonCandidatesObserved));
-}
-
-FRuntimeDebugMessageSettings
-ReadRuntimeDebugMessageSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FRuntimeDebugMessageSettings>(
-      Object,
-      {JSON_SETTING_FIELDS(FRuntimeDebugMessageSettings, OnScreenKey,
-                           DurationSeconds),
-       JSON_OBJECT_SETTING_FIELD(FRuntimeDebugMessageSettings,
-                                 ReadColorSettings, Color)});
-}
-
-FRuntimeViewNameSettings
-ReadRuntimeViewNameSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FRuntimeViewNameSettings>(
-      Object, JSON_SETTINGS_FIELDS(FRuntimeViewNameSettings, SceneRoot,
-                                   TownspersonCharacterMesh,
-                                   TownspersonInteractionSphere,
-                                   TownspersonNameText, TownspersonPromptText,
-                                   TownspersonDialogueText,
-                                   TownspersonOverlapProfile,
-                                   HorseImportedMesh, HorseMountedRiderMesh,
-                                   HorseNameText, PlayerCameraBoom,
-                                   PlayerFollowCamera, SpeechPresentationMesh,
-                                   SpeechComponent));
-}
-
-FRuntimeTextSettings
-ReadRuntimeTextSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FRuntimeTextSettings>(
-      Object, JSON_SETTINGS_FIELDS(FRuntimeTextSettings,
-                                   TownspersonNameRoleFormat, NpcReplyLog,
-                                   TownspersonMissingMesh,
-                                   TownspersonMissingAnimation,
-                                   HorseMissingMesh, HorseMissingWalkAnimation,
-                                   RiderMissingWalkAnimation, RiderMissingMesh,
-                                   StartupSdkEnabled, StartupSdkDisabled));
-}
-
-FUIRuntimeSettings ReadUIRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FUIRuntimeSettings>(
-      Object,
-      {JSON_SETTING_FIELDS(FUIRuntimeSettings, PlayerRoleLabel,
-                           SystemRoleLabel, NpcRoleLabel, UnknownRoleLabel,
-                           ChatMessageFormat, HistoryRoleSeparator,
-                           HistoryTextStartOffset, HistoryMinimumRoleIndex,
-                           PlaceholderTitle, PlaceholderPlayerLine,
-                           PlaceholderNpcReply, ConversationTitleFormat,
-                           PlayerLineFormat, NpcReplyFormat,
-                           ConnectionMessageFormat, UnboundDialogueError,
-                           PayloadIdFormat, PanelPadding, TitleSize, BodySize),
-       JSON_OBJECT_SETTING_FIELDS(FUIRuntimeSettings, ReadLinearColorSettings,
-                                  PanelColor, TitleColor, PlayerColor,
-                                  SystemColor, NpcColor, UnknownColor,
-                                  RuntimeReplyColor)});
-}
-
-FDialogueRuntimeSettings
-ReadDialogueRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FDialogueRuntimeSettings>(
-      Object, JSON_SETTINGS_FIELDS(FDialogueRuntimeSettings,
-                                   ReplyPayloadIdFormat));
-}
-
-FBotStatPresetSettings
-ReadBotStatPresetSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FBotStatPresetSettings>(
-      Object, JSON_SETTINGS_FIELDS(FBotStatPresetSettings, MoveSpeed,
-                                   AwarenessRange, Resolve, bCanTalk));
-}
-
-FBotRuntimeSettings
-ReadBotRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FBotRuntimeSettings>(
-      Object,
-      {JSON_SETTING_FIELDS(FBotRuntimeSettings, InitialName, InitialHealth,
-                           InitialMaxHealth, InitialMana, InitialMaxMana,
-                           InitialStamina, InitialMaxStamina, MinimumHealth),
-       JSON_SETTING_FIELDS(FBotRuntimeSettings, InitialPosition,
-                           InitialRotation, InitialLastKnownPlayerPosition,
-                           InitialTimeSinceLastSeenPlayer,
-                           EnemySpottedTimeSinceLastSeenPlayer,
-                           bInitialHasAggro, bDefaultHazardOverlapping,
-                           bDefaultVisibilityCanSeeEnemy),
-       JSON_SETTING_FIELDS(FBotRuntimeSettings, InitialPhase, InitialTickCount,
-                           AggroTimeoutSeconds, DamageFleeHealthRatio,
-                           PhaseFleeHealthRatio,
-                           MovementArrivalDistanceSquared,
-                           AggroPositionToleranceSquared,
-                           DefaultMovementInterpSpeed),
-       JSON_SETTING_FIELDS(FBotRuntimeSettings, PatrolGoalPriority,
-                           PatrolGoalIdFormat, bPatrolGoalInitialCompleted,
-                           bActiveGoalComponentHasActiveGoal),
-       JSON_SETTING_FIELDS(FBotRuntimeSettings, ObservationIntervalSeconds,
-                           InitialObservationTimeSeconds,
-                           bOrchestratorCanEverTick, bRegisteredBotActive,
-                           bPositionPayloadHasLocalLocation,
-                           bPositionPayloadHasWorldLocation),
-       JSON_SETTING_FIELDS(FBotRuntimeSettings, StartLog, RegisteredLogFormat,
-                           ProcessFailedLogFormat, ExecuteLogFormat,
-                           NullActorLabel, MoveActionType, AttackActionType,
-                           MoveActionOffset, StateObservationFormat,
-                           DefaultBehaviorState),
-       JSON_OBJECT_SETTING_FIELDS(FBotRuntimeSettings, ReadBotStatPresetSettings,
-                                  TownspersonStats, HorseStats)});
-}
-
-FSpeechVisemeMappingSettings
-ReadSpeechVisemeMappingSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FSpeechVisemeMappingSettings>(
-      Object, JSON_SETTINGS_FIELDS(FSpeechVisemeMappingSettings, Phoneme,
-                                   MorphTargetName, BlendWeight));
-}
-
-FSpeechVowelPhonemeSettings
-ReadSpeechVowelPhonemeSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FSpeechVowelPhonemeSettings>(
-      Object, JSON_SETTINGS_FIELDS(FSpeechVowelPhonemeSettings, Character,
-                                   Phoneme));
-}
-
-FSpeechPhonemeDurationRuleSettings
-ReadSpeechPhonemeDurationRuleSettings(
-    const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FSpeechPhonemeDurationRuleSettings>(
-      Object, JSON_SETTINGS_FIELDS(FSpeechPhonemeDurationRuleSettings, Kind,
-                                   Phoneme, Multiplier));
-}
-
-FSpeechRuntimeSettings
-ReadSpeechRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FSpeechRuntimeSettings>(
-      Object,
-      {JSON_SETTING_FIELDS(FSpeechRuntimeSettings, RestViseme, RestWeight,
-                           SpeechRate, Volume, bEnableLipSync, bCanEverTick,
-                           bStartTickEnabled, InitialPlaybackTime,
-                           bInitialSpeechActive, EstimatedBasePhonemeSeconds,
-                           SilenceCharacters, SilencePhoneme,
-                           VisemeChangeTolerance, TtsEndpoint, TtsVerb,
-                           TtsContentTypeHeader, TtsContentType,
-                           TtsRequestFormat, TtsSuccessResponseCode,
-                           MinimumAudioBytes, SpeechStartLogFormat,
-                           SpeechAudioReceivedLogFormat, ResetMorphTargets),
-       JSON_OBJECT_ARRAY_SETTING_FIELDS(FSpeechRuntimeSettings,
-                                        ReadSpeechVowelPhonemeSettings,
-                                        VowelPhonemes),
-       JSON_OBJECT_ARRAY_SETTING_FIELDS(FSpeechRuntimeSettings,
-                                        ReadSpeechVisemeMappingSettings,
-                                        VisemeMappings),
-       JSON_OBJECT_ARRAY_SETTING_FIELDS(FSpeechRuntimeSettings,
-                                        ReadSpeechPhonemeDurationRuleSettings,
-                                        DurationRules)});
-}
-
-TSharedPtr<FJsonObject>
-LoadRuntimeSettingsSubdomain(const TSharedPtr<FJsonObject> &Manifest,
-                             const char *FieldAtom) {
-  return Json::LoadRequiredObjectFromContent(
-      {Json::ReadStringField(Manifest, FieldAtom)});
-}
-
-} // namespace
-
 FDemoRuntimeSettings
 ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
-  const TSharedPtr<FJsonObject> Player =
-      LoadRuntimeSettingsSubdomain(Object, "Player");
-  const TSharedPtr<FJsonObject> Interaction =
-      LoadRuntimeSettingsSubdomain(Object, "Interaction");
-  const TSharedPtr<FJsonObject> Level =
-      LoadRuntimeSettingsSubdomain(Object, "Level");
-  const TSharedPtr<FJsonObject> Rendering =
-      LoadRuntimeSettingsSubdomain(Object, "Rendering");
-  const TSharedPtr<FJsonObject> RenderingAssets =
-      LoadRuntimeSettingsSubdomain(Rendering, "RenderingAssets");
-  const TSharedPtr<FJsonObject> RenderingProfile =
-      LoadRuntimeSettingsSubdomain(Rendering, "RenderingProfile");
-  const TSharedPtr<FJsonObject> RenderingRuntime =
-      LoadRuntimeSettingsSubdomain(Rendering, "RenderingRuntime");
-  const TSharedPtr<FJsonObject> RenderingRuntimeTextureSettings =
-      LoadRuntimeSettingsSubdomain(RenderingRuntime, "TextureSettings");
-  const TSharedPtr<FJsonObject> RenderingRuntimeConsoleVariables =
-      LoadRuntimeSettingsSubdomain(RenderingRuntime, "ConsoleVariables");
-  const TSharedPtr<FJsonObject> RenderingRuntimeTexturePalettes =
-      LoadRuntimeSettingsSubdomain(RenderingRuntime, "TexturePalettes");
-  const TSharedPtr<FJsonObject> TextureCatalog =
-      LoadRuntimeSettingsSubdomain(Rendering, "TextureCatalog");
-  const TSharedPtr<FJsonObject> Bots =
-      LoadRuntimeSettingsSubdomain(Object, "Bots");
-  const TSharedPtr<FJsonObject> Dialogue =
-      LoadRuntimeSettingsSubdomain(Object, "Dialogue");
-  const TSharedPtr<FJsonObject> Speech =
-      LoadRuntimeSettingsSubdomain(Object, "Speech");
-  const TSharedPtr<FJsonObject> UI =
-      LoadRuntimeSettingsSubdomain(Object, "UI");
-  const TSharedPtr<FJsonObject> Runtime =
-      LoadRuntimeSettingsSubdomain(Object, "Runtime");
+  const FRuntimeSettingsSourceCatalog Sources =
+      LoadRuntimeSettingsSources(Object);
   FDemoRuntimeSettings Settings;
-  Settings.PlayerPresentation =
-      PlayerSettingsAdapters::ReadPlayerPresentationSettings(
-          Json::ReadObjectField(Player, "PlayerPresentation"));
+  Settings.PlayerPresentation = PlayerSettingsAdapters::
+      ReadPlayerPresentationSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "Player"), "PlayerPresentation"));
   Settings.Interaction = PlayerSettingsAdapters::ReadInteractionSettings(
-      Json::ReadObjectField(Interaction, "Interaction"));
-  Settings.TownspersonDefaults =
-      BotSettingsAdapters::ReadTownspersonDefaultsSettings(
-          Json::ReadObjectField(Bots, "TownspersonDefaults"));
-  Settings.LevelTerrainSources =
-      LevelSettingsAdapters::ReadLevelTerrainSourceSettings(
-          Json::ReadObjectField(Level, "LevelTerrainSources"));
-  Settings.LevelDataSources =
-      LevelSettingsAdapters::ReadLevelDataSourceSettings(
-          Json::ReadObjectField(Level, "LevelDataSources"));
-  Settings.RuntimeValidation =
-      LevelSettingsAdapters::ReadRuntimeValidationSettings(
-          Json::ReadObjectField(Level, "RuntimeValidation"));
+      Json::ReadObjectField(RuntimeSettingsSource(Sources, "Interaction"),
+                            "Interaction"));
+  Settings.TownspersonDefaults = BotSettingsAdapters::
+      ReadTownspersonDefaultsSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "Bots"), "TownspersonDefaults"));
+  Settings.LevelTerrainSources = LevelSettingsAdapters::
+      ReadLevelTerrainSourceSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "Level"), "LevelTerrainSources"));
+  Settings.LevelDataSources = LevelSettingsAdapters::
+      ReadLevelDataSourceSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "Level"), "LevelDataSources"));
+  Settings.RuntimeValidation = LevelSettingsAdapters::
+      ReadRuntimeValidationSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "Level"), "RuntimeValidation"));
   Settings.LevelGeometry = LevelSettingsAdapters::ReadLevelGeometrySettings(
-      Json::ReadObjectField(Level, "LevelGeometry"));
-  Settings.RenderingAssets =
-      RenderingSettingsAdapters::ReadRenderingAssetPathSettings(
-          Json::ReadObjectField(RenderingAssets, "RenderingAssets"));
-  Settings.RenderingProfile =
-      RenderingSettingsAdapters::ReadRenderingProfileSettings(
-          Json::ReadObjectField(RenderingProfile, "RenderingProfile"));
-  Settings.TextureCatalog =
-      RenderingSettingsAdapters::ReadTextureCatalogSettings(TextureCatalog);
+      Json::ReadObjectField(RuntimeSettingsSource(Sources, "Level"),
+                            "LevelGeometry"));
+  Settings.RenderingAssets = RenderingSettingsAdapters::
+      ReadRenderingAssetPathSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "RenderingAssets"),
+          "RenderingAssets"));
+  Settings.RenderingProfile = RenderingSettingsAdapters::
+      ReadRenderingProfileSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "RenderingProfile"),
+          "RenderingProfile"));
+  Settings.TextureCatalog = RenderingSettingsAdapters::
+      ReadTextureCatalogSettings(RuntimeSettingsSource(Sources,
+                                                       "TextureCatalog"));
   Settings.RenderingRuntime =
       RenderingSettingsAdapters::ReadRenderingRuntimeSettings(
-          Json::ReadObjectField(RenderingRuntimeTextureSettings,
+          Json::ReadObjectField(RuntimeSettingsSource(Sources,
+                                                      "TextureSettings"),
                                 "TextureSettings"),
-          RenderingRuntimeConsoleVariables,
-          RenderingRuntimeTexturePalettes);
+          RuntimeSettingsSource(Sources, "ConsoleVariables"),
+          RuntimeSettingsSource(Sources, "TexturePalettes"));
   Settings.DialogueRuntime =
-      ReadDialogueRuntimeSettings(
-          Json::ReadObjectField(Dialogue, "RuntimeDialogue"));
-  Settings.BotRuntime =
-      ReadBotRuntimeSettings(Json::ReadObjectField(Bots, "RuntimeBots"));
-  Settings.TownspersonPresentation =
-      BotSettingsAdapters::ReadTownspersonPresentationSettings(
-          Json::ReadObjectField(Bots, "TownspersonPresentation"));
-  Settings.HorsePresentation =
-      BotSettingsAdapters::ReadHorsePresentationSettings(
-          Json::ReadObjectField(Bots, "HorsePresentation"));
+      Json::ReadSettingsWith<FDialogueRuntimeSettings>(
+          JSON_SETTINGS_ATOMS(ReplyPayloadIdFormat))(
+          Json::ReadObjectField(RuntimeSettingsSource(Sources, "Dialogue"),
+                                "RuntimeDialogue"));
+  Settings.BotRuntime = Json::ReadSettingsWith<FBotRuntimeSettings>(
+      JSON_SETTINGS_ATOMS(
+          InitialName, InitialHealth, InitialMaxHealth, InitialMana,
+          InitialMaxMana, InitialStamina, InitialMaxStamina, MinimumHealth,
+          InitialPosition, InitialRotation, InitialLastKnownPlayerPosition,
+          InitialTimeSinceLastSeenPlayer,
+          EnemySpottedTimeSinceLastSeenPlayer, bInitialHasAggro,
+          bDefaultHazardOverlapping, bDefaultVisibilityCanSeeEnemy,
+          InitialPhase, InitialTickCount, AggroTimeoutSeconds,
+          DamageFleeHealthRatio, PhaseFleeHealthRatio,
+          MovementArrivalDistanceSquared, AggroPositionToleranceSquared,
+          DefaultMovementInterpSpeed, PatrolGoalPriority, PatrolGoalIdFormat,
+          bPatrolGoalInitialCompleted, bActiveGoalComponentHasActiveGoal,
+          TownspersonStats, HorseStats, ObservationIntervalSeconds,
+          InitialObservationTimeSeconds, bOrchestratorCanEverTick,
+          bRegisteredBotActive, bPositionPayloadHasLocalLocation,
+          bPositionPayloadHasWorldLocation, StartLog, RegisteredLogFormat,
+          ProcessFailedLogFormat, ExecuteLogFormat, NullActorLabel,
+          MoveActionType, AttackActionType, MoveActionOffset,
+          StateObservationFormat, DefaultBehaviorState))(
+      Json::ReadObjectField(RuntimeSettingsSource(Sources, "Bots"),
+                            "RuntimeBots"));
+  Settings.TownspersonPresentation = BotSettingsAdapters::
+      ReadTownspersonPresentationSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "Bots"),
+          "TownspersonPresentation"));
+  Settings.HorsePresentation = BotSettingsAdapters::
+      ReadHorsePresentationSettings(Json::ReadObjectField(
+          RuntimeSettingsSource(Sources, "Bots"), "HorsePresentation"));
   Settings.RuntimeObservationIds =
-      ReadRuntimeObservationIdSettings(
-          Json::ReadObjectField(Runtime, "RuntimeObservationIds"));
+      Json::ReadSettingsWith<FRuntimeObservationIdSettings>(
+          JSON_SETTINGS_ATOMS(PlayerPresentationRequested,
+                              PlayerMovementInputObserved,
+                              TownspersonPresentationRequested,
+                              HorsePresentationRequested,
+                              TownspersonCandidatesObserved))(
+          Json::ReadObjectField(RuntimeSettingsSource(Sources, "Runtime"),
+                                "RuntimeObservationIds"));
   Settings.RuntimeDebugMessages =
-      ReadRuntimeDebugMessageSettings(
-          Json::ReadObjectField(Runtime, "RuntimeDebugMessages"));
+      Json::ReadSettingsWith<FRuntimeDebugMessageSettings>(
+          JSON_SETTINGS_ATOMS(OnScreenKey, DurationSeconds, Color))(
+          Json::ReadObjectField(RuntimeSettingsSource(Sources, "Runtime"),
+                                "RuntimeDebugMessages"));
   Settings.RuntimeViewNames =
-      ReadRuntimeViewNameSettings(
-          Json::ReadObjectField(Runtime, "RuntimeViewNames"));
-  Settings.RuntimeText =
-      ReadRuntimeTextSettings(Json::ReadObjectField(Runtime, "RuntimeText"));
-  Settings.UIRuntime =
-      ReadUIRuntimeSettings(Json::ReadObjectField(UI, "RuntimeUI"));
-  Settings.SpeechRuntime =
-      ReadSpeechRuntimeSettings(Json::ReadObjectField(Speech, "RuntimeSpeech"));
+      Json::ReadSettingsWith<FRuntimeViewNameSettings>(
+          JSON_SETTINGS_ATOMS(SceneRoot, TownspersonCharacterMesh,
+                              TownspersonInteractionSphere,
+                              TownspersonNameText, TownspersonPromptText,
+                              TownspersonDialogueText,
+                              TownspersonOverlapProfile, HorseImportedMesh,
+                              HorseMountedRiderMesh, HorseNameText,
+                              PlayerCameraBoom, PlayerFollowCamera,
+                              SpeechPresentationMesh, SpeechComponent))(
+          Json::ReadObjectField(RuntimeSettingsSource(Sources, "Runtime"),
+                                "RuntimeViewNames"));
+  Settings.RuntimeText = Json::ReadSettingsWith<FRuntimeTextSettings>(
+      JSON_SETTINGS_ATOMS(TownspersonNameRoleFormat, NpcReplyLog,
+                          TownspersonMissingMesh,
+                          TownspersonMissingAnimation, HorseMissingMesh,
+                          HorseMissingWalkAnimation,
+                          RiderMissingWalkAnimation, RiderMissingMesh,
+                          StartupSdkEnabled, StartupSdkDisabled))(
+      Json::ReadObjectField(RuntimeSettingsSource(Sources, "Runtime"),
+                            "RuntimeText"));
+  Settings.UIRuntime = Json::ReadSettingsWith<FUIRuntimeSettings>(
+      JSON_SETTINGS_ATOMS(
+          PlayerRoleLabel, SystemRoleLabel, NpcRoleLabel, UnknownRoleLabel,
+          ChatMessageFormat, HistoryRoleSeparator, HistoryTextStartOffset,
+          HistoryMinimumRoleIndex, PlaceholderTitle, PlaceholderPlayerLine,
+          PlaceholderNpcReply, ConversationTitleFormat, PlayerLineFormat,
+          NpcReplyFormat, ConnectionMessageFormat, UnboundDialogueError,
+          PayloadIdFormat, PanelColor, TitleColor, PlayerColor, SystemColor,
+          NpcColor, UnknownColor, RuntimeReplyColor, PanelPadding, TitleSize,
+          BodySize))(Json::ReadObjectField(RuntimeSettingsSource(Sources, "UI"),
+                                           "RuntimeUI"));
+  Settings.SpeechRuntime = Json::ReadSettingsWith<FSpeechRuntimeSettings>(
+      JSON_SETTINGS_ATOMS(
+          RestViseme, RestWeight, SpeechRate, Volume, bEnableLipSync,
+          bCanEverTick, bStartTickEnabled, InitialPlaybackTime,
+          bInitialSpeechActive, EstimatedBasePhonemeSeconds, VowelPhonemes,
+          SilenceCharacters, SilencePhoneme, VisemeChangeTolerance,
+          TtsEndpoint, TtsVerb, TtsContentTypeHeader, TtsContentType,
+          TtsRequestFormat, TtsSuccessResponseCode, MinimumAudioBytes,
+          SpeechStartLogFormat, SpeechAudioReceivedLogFormat,
+          ResetMorphTargets, VisemeMappings, DurationRules))(
+      Json::ReadObjectField(RuntimeSettingsSource(Sources, "Speech"),
+                            "RuntimeSpeech"));
   return Settings;
 }
 
 FDemoRuntimeSettings LoadDemoRuntimeSettings() {
-  return ReadDemoRuntimeSettings(
-      Json::LoadRequiredObjectFromContent(
-          {TEXT("Data/runtime_demo_settings.json")}));
+  return ReadDemoRuntimeSettings(Json::LoadRequiredObjectFromContent(
+      {TEXT("Data/runtime_demo_settings.json")}));
 }
 
 } // namespace RuntimeSettingsAdapters

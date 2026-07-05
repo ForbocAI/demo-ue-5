@@ -7,7 +7,7 @@ namespace Demo {
 namespace Data {
 
 struct FInteractionSettings {
-  float TownspersonMaxDistanceLots = 0.0f;
+  float TownspersonMaxDistanceLots;
   FString NoTownspersonMessage;
 };
 

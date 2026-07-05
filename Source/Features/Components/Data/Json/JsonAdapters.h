@@ -22,6 +22,9 @@ typedef TFunction<func::Maybe<TSharedPtr<FJsonObject>>(const TCHAR *)>
     FJsonObjectReader;
 typedef TFunction<TSharedPtr<FJsonObject>(const TCHAR *)>
     FJsonObjectValueReader;
+template <typename Settings>
+using TJsonObjectSettingsReader =
+    TFunction<Settings(const TSharedPtr<FJsonObject> &)>;
 typedef TFunction<FVector(const TCHAR *)> FJsonVectorReader;
 typedef TFunction<FRotator(const TCHAR *)> FJsonRotatorReader;
 
@@ -387,6 +390,15 @@ ReadObjectArrayField(const TSharedPtr<FJsonObject> &Object,
                                MapValue);
 }
 
+template <typename Output>
+TArray<Output>
+ReadObjectArrayField(const TSharedPtr<FJsonObject> &Object,
+                     const char *FieldAtom,
+                     TJsonObjectSettingsReader<Output> MapValue) {
+  return MapJsonValues<Output>(
+      ReadArray(Field(Object, *SettingsFieldName(FieldAtom))), MapValue);
+}
+
 template <typename Output> struct TTextValueDeclaration {
   FString Text;
   Output Value;
@@ -415,6 +427,12 @@ ReadTextValue(const FString &Text,
 template <typename Settings> struct TJsonSettingsField {
   FString FieldName;
   TFunction<Settings(const FJsonFieldRequest &, const Settings &)> Apply;
+
+  TJsonSettingsField()
+      : FieldName(),
+        Apply([](const FJsonFieldRequest &, const Settings &Current) {
+          return Current;
+        }) {}
 
   template <typename Value>
   TJsonSettingsField(const char *FieldAtom, Value Settings::*Member)
@@ -450,8 +468,32 @@ template <typename Settings> struct TJsonSettingsField {
 
   template <typename Value>
   TJsonSettingsField(
+      const char *FieldAtom, Value Settings::*Member,
+      TJsonObjectSettingsReader<Value> ReadObjectFn)
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member, ReadObjectFn](const FJsonFieldRequest &Request,
+                                     const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = ReadObjectFn(ReadObjectValue(Request));
+          return Next;
+        }) {}
+
+  template <typename Value>
+  TJsonSettingsField(
       const TCHAR *FieldAtom, Value Settings::*Member,
       Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &))
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member, ReadObjectFn](const FJsonFieldRequest &Request,
+                                     const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = ReadObjectFn(ReadObjectValue(Request));
+          return Next;
+        }) {}
+
+  template <typename Value>
+  TJsonSettingsField(
+      const TCHAR *FieldAtom, Value Settings::*Member,
+      TJsonObjectSettingsReader<Value> ReadObjectFn)
       : FieldName(SettingsFieldName(FieldAtom)),
         Apply([Member, ReadObjectFn](const FJsonFieldRequest &Request,
                                      const Settings &Current) {
@@ -474,8 +516,32 @@ template <typename Settings> struct TJsonSettingsField {
 
   template <typename Output>
   TJsonSettingsField(
+      const char *FieldAtom, TArray<Output> Settings::*Member,
+      TJsonObjectSettingsReader<Output> MapObjectFn)
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member, MapObjectFn](const FJsonFieldRequest &Request,
+                                    const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = MapJsonValues<Output>(ReadArray(Request), MapObjectFn);
+          return Next;
+        }) {}
+
+  template <typename Output>
+  TJsonSettingsField(
       const TCHAR *FieldAtom, TArray<Output> Settings::*Member,
       Output (*MapObjectFn)(const TSharedPtr<FJsonObject> &))
+      : FieldName(SettingsFieldName(FieldAtom)),
+        Apply([Member, MapObjectFn](const FJsonFieldRequest &Request,
+                                    const Settings &Current) {
+          Settings Next = Current;
+          Next.*Member = MapJsonValues<Output>(ReadArray(Request), MapObjectFn);
+          return Next;
+        }) {}
+
+  template <typename Output>
+  TJsonSettingsField(
+      const TCHAR *FieldAtom, TArray<Output> Settings::*Member,
+      TJsonObjectSettingsReader<Output> MapObjectFn)
       : FieldName(SettingsFieldName(FieldAtom)),
         Apply([Member, MapObjectFn](const FJsonFieldRequest &Request,
                                     const Settings &Current) {
@@ -490,13 +556,31 @@ template <typename Settings> struct TJsonSettingsField {
 #define JSON_OBSTRUCT(...) __VA_ARGS__ JSON_DEFER(JSON_EMPTY)()
 #define JSON_EXPAND(...)                                                     \
   JSON_EXPAND_MORE(                                                          \
-      JSON_EXPAND_MORE(JSON_EXPAND_MORE(JSON_EXPAND_MORE(__VA_ARGS__))))
+      JSON_EXPAND_MORE(                                                      \
+          JSON_EXPAND_MORE(                                                  \
+              JSON_EXPAND_MORE(                                              \
+                  JSON_EXPAND_MORE(                                          \
+                      JSON_EXPAND_MORE(                                      \
+                          JSON_EXPAND_MORE(                                  \
+                              JSON_EXPAND_MORE(__VA_ARGS__))))))))
 #define JSON_EXPAND_MORE(...)                                                \
   JSON_EXPAND_DEEP(                                                          \
-      JSON_EXPAND_DEEP(JSON_EXPAND_DEEP(JSON_EXPAND_DEEP(__VA_ARGS__))))
+      JSON_EXPAND_DEEP(                                                      \
+          JSON_EXPAND_DEEP(                                                  \
+              JSON_EXPAND_DEEP(                                              \
+                  JSON_EXPAND_DEEP(                                          \
+                      JSON_EXPAND_DEEP(                                      \
+                          JSON_EXPAND_DEEP(                                  \
+                              JSON_EXPAND_DEEP(__VA_ARGS__))))))))
 #define JSON_EXPAND_DEEP(...)                                                \
   JSON_EXPAND_AGAIN(                                                         \
-      JSON_EXPAND_AGAIN(JSON_EXPAND_AGAIN(JSON_EXPAND_AGAIN(__VA_ARGS__))))
+      JSON_EXPAND_AGAIN(                                                     \
+          JSON_EXPAND_AGAIN(                                                 \
+              JSON_EXPAND_AGAIN(                                             \
+                  JSON_EXPAND_AGAIN(                                         \
+                      JSON_EXPAND_AGAIN(                                     \
+                          JSON_EXPAND_AGAIN(                                 \
+                              JSON_EXPAND_AGAIN(__VA_ARGS__))))))))
 #define JSON_EXPAND_AGAIN(...) __VA_ARGS__
 #define JSON_SETTING_FIELD(Type, Field) {#Field, &Type::Field}
 #define JSON_SETTING_FIELD_LIST_INDIRECT() JSON_SETTING_FIELD_LIST
@@ -551,6 +635,72 @@ ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
                    std::initializer_list<TJsonSettingsField<Settings>> Fields) {
   return ReadSettingsFields<Settings>(
       Object, TArray<TJsonSettingsField<Settings>>(Fields));
+}
+
+#define JSON_SETTING_ATOM(Field) #Field
+#define JSON_SETTING_ATOM_LIST_INDIRECT() JSON_SETTING_ATOM_LIST
+#define JSON_SETTING_ATOM_LIST(Field, ...)                                   \
+  JSON_SETTING_ATOM(Field)                                                   \
+  __VA_OPT__(, JSON_OBSTRUCT(JSON_SETTING_ATOM_LIST_INDIRECT)()(             \
+                    __VA_ARGS__))
+#define JSON_SETTINGS_ATOMS(...)                                             \
+  {JSON_EXPAND(JSON_SETTING_ATOM_LIST(__VA_ARGS__))}
+
+template <typename Settings> struct TJsonSettingsRegistry;
+
+#define JSON_SETTINGS_REGISTRY(Type, ...)                                    \
+  template <> struct TJsonSettingsRegistry<Type> {                           \
+    static const TArray<TJsonSettingsField<Type>> &Fields() {                \
+      static const TArray<TJsonSettingsField<Type>> RegisteredFields =        \
+          JSON_SETTINGS_FIELDS(Type, __VA_ARGS__);                           \
+      return RegisteredFields;                                               \
+    }                                                                        \
+  }
+
+template <typename Settings>
+func::Maybe<TJsonSettingsField<Settings>>
+FindRegisteredSettingsField(const char *FieldAtom) {
+  const FString FieldName = SettingsFieldName(FieldAtom);
+  const TArray<TJsonSettingsField<Settings>> &Fields =
+      TJsonSettingsRegistry<Settings>::Fields();
+  return func::fold_indexed(
+      Fields, static_cast<size_t>(Fields.Num()),
+      func::nothing<TJsonSettingsField<Settings>>(),
+      [FieldName](const func::Maybe<TJsonSettingsField<Settings>> &Current,
+                  const TJsonSettingsField<Settings> &Binding) {
+        return Current.hasValue || Binding.FieldName != FieldName
+                   ? Current
+                   : func::just(Binding);
+      });
+}
+
+template <typename Settings>
+Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
+                            const TArray<const char *> &FieldAtoms) {
+  return func::fold_indexed(
+      FieldAtoms, static_cast<size_t>(FieldAtoms.Num()), Settings{},
+      [Object](const Settings &Current, const char *FieldAtom) {
+        const func::Maybe<TJsonSettingsField<Settings>> Binding =
+            FindRegisteredSettingsField<Settings>(FieldAtom);
+        check(Binding.hasValue);
+        return Binding.value.Apply(Field(Object, *Binding.value.FieldName),
+                                   Current);
+      });
+}
+
+template <typename Settings>
+Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
+                            std::initializer_list<const char *> FieldAtoms) {
+  return ReadSettingsFields<Settings>(Object, TArray<const char *>(FieldAtoms));
+}
+
+template <typename Settings>
+TJsonObjectSettingsReader<Settings>
+ReadSettingsWith(std::initializer_list<const char *> FieldAtoms) {
+  const TArray<const char *> Atoms(FieldAtoms);
+  return [Atoms](const TSharedPtr<FJsonObject> &Object) {
+    return ReadSettingsFields<Settings>(Object, Atoms);
+  };
 }
 
 } // namespace JsonAdapters

@@ -9,7 +9,7 @@ namespace Data {
 struct FSpeechVisemeMappingSettings {
   FString Phoneme;
   FString MorphTargetName;
-  float BlendWeight = 0.0f;
+  float BlendWeight;
 };
 
 struct FSpeechVowelPhonemeSettings {
@@ -20,32 +20,32 @@ struct FSpeechVowelPhonemeSettings {
 struct FSpeechPhonemeDurationRuleSettings {
   FString Kind;
   FString Phoneme;
-  float Multiplier = 0.0f;
+  float Multiplier;
 };
 
 
 struct FSpeechRuntimeSettings {
   FString RestViseme;
-  float RestWeight = 0.0f;
-  float SpeechRate = 0.0f;
-  float Volume = 0.0f;
-  bool bEnableLipSync = false;
-  bool bCanEverTick = false;
-  bool bStartTickEnabled = false;
-  float InitialPlaybackTime = 0.0f;
-  bool bInitialSpeechActive = false;
-  float EstimatedBasePhonemeSeconds = 0.0f;
+  float RestWeight;
+  float SpeechRate;
+  float Volume;
+  bool bEnableLipSync;
+  bool bCanEverTick;
+  bool bStartTickEnabled;
+  float InitialPlaybackTime;
+  bool bInitialSpeechActive;
+  float EstimatedBasePhonemeSeconds;
   TArray<FSpeechVowelPhonemeSettings> VowelPhonemes;
   FString SilenceCharacters;
   FString SilencePhoneme;
-  float VisemeChangeTolerance = 0.0f;
+  float VisemeChangeTolerance;
   FString TtsEndpoint;
   FString TtsVerb;
   FString TtsContentTypeHeader;
   FString TtsContentType;
   FString TtsRequestFormat;
-  int32 TtsSuccessResponseCode = 0;
-  int32 MinimumAudioBytes = 0;
+  int32 TtsSuccessResponseCode;
+  int32 MinimumAudioBytes;
   FString SpeechStartLogFormat;
   FString SpeechAudioReceivedLogFormat;
   TArray<FString> ResetMorphTargets;

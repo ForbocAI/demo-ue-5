@@ -3,10 +3,11 @@
 | Lines | File Path |
 |-------|-----------|
 | 3358 | `Source/Core/ecs.hpp` |
-| 559 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
+| 709 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 432 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
 | 414 | `Source/Tests/RuntimeStore.spec.cpp` |
+| 412 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.cpp` |
 | 403 | `Source/Features/Components/ComponentsAdapters.h` |
 | 340 | `Scripts/Tools/generate_french_gulch_heightmap.py` |
 | 336 | `Scripts/Tools/import_classic_horse_assets.py` |
@@ -16,7 +17,6 @@
 | 324 | `Source/Features/Systems/Runtime/RuntimeReducers.cpp` |
 | 323 | `Source/Features/Systems/Runtime/RuntimeSelectors.cpp` |
 | 316 | `Source/Features/Systems/Runtime/RuntimeTypes.h` |
-| 309 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.cpp` |
 | 293 | `Source/Features/Components/Level/LevelDataAdapters.cpp` |
 | 279 | `Content/Data/runtime_settings_speech.json` |
 | 278 | `Source/Features/Systems/Level/LevelTypes.h` |
@@ -44,6 +44,7 @@
 | 196 | `Source/Features/Systems/UI/UITypes.h` |
 | 194 | `Source/Features/Systems/Bots/Townspeople/TownspersonTypes.h` |
 | 191 | `Source/Features/Entities/Characters/Bots/BotsAdapters.cpp` |
+| 183 | `Source/Features/Components/Data/RuntimeSettings/RenderingSettingsAdapters.cpp` |
 | 183 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeScaleAdapters.cpp` |
 | 179 | `Scripts/lock_sdk_submodule.sh` |
 | 177 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeBlockAdapters.cpp` |
@@ -56,7 +57,6 @@
 | 159 | `Source/Views/HorseView.cpp` |
 | 149 | `Content/Data/french_gulch_runtime_level.json` |
 | 149 | `Source/Features/Systems/Terrain/TerrainReducers.cpp` |
-| 148 | `Source/Features/Components/Data/RuntimeSettings/RenderingSettingsAdapters.cpp` |
 | 147 | `Scripts/Tools/create_french_gulch_map.py` |
 | 147 | `Source/Features/Systems/Bots/Goals/BotGoalReducers.cpp` |
 | 145 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLabelAdapters.cpp` |
@@ -114,6 +114,7 @@
 | 82 | `Content/Data/runtime_settings_rendering_texture_catalog.json` |
 | 82 | `Source/Tests/OrchestratorMultiBot.spec.cpp` |
 | 81 | `Source/Features/Systems/Bots/Core/BotCoreRuntimeTypes.h` |
+| 78 | `Source/Features/Components/Data/RuntimeSettings/LevelSettingsAdapters.cpp` |
 | 78 | `Source/Features/Components/Data/RuntimeSettings/UISettingsTypes.h` |
 | 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_foliage_riparian.json` |
 | 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_horse_tack.json` |
@@ -124,11 +125,11 @@
 | 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_road_dust.json` |
 | 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_rock_granite.json` |
 | 75 | `Source/Views/RuntimeChatWidget.cpp` |
+| 74 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsAdapters.cpp` |
 | 73 | `Source/Features/Systems/Bots/BotFactories.cpp` |
 | 73 | `Source/Features/Systems/Landmarks/LandmarkTypes.h` |
 | 73 | `Source/Features/Systems/Runtime/RuntimeReducers.h` |
 | 72 | `Scripts/setup-dev.sh` |
-| 72 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsAdapters.cpp` |
 | 72 | `Source/Features/Systems/Projection/SystemsProjectionTerrainAdapters.cpp` |
 | 71 | `Source/Features/Systems/Bots/BotSourceMapping.h` |
 | 70 | `Content/Map/Heightmaps/french_gulch_ca_terrain_65.csv` |
@@ -158,10 +159,10 @@
 | 57 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.h` |
 | 57 | `Source/Features/Systems/Spawn/SpawnTypes.h` |
 | 57 | `Source/Features/Systems/Speech/SpeechReducers.h` |
-| 56 | `Source/Features/Components/Data/RuntimeSettings/LevelSettingsAdapters.cpp` |
 | 55 | `Source/Features/Systems/SystemsAdapters.cpp` |
 | 54 | `Scripts/update-sdk.sh` |
 | 54 | `Source/Features/Components/Data/Json/JsonTypes.h` |
+| 54 | `Source/Features/Components/Data/RuntimeSettings/PlayerSettingsAdapters.cpp` |
 | 54 | `Source/Tests/ConversationUI.spec.cpp` |
 | 53 | `Source/Features/Components/Data/RuntimeSettings/LevelSettingsAdapters.h` |
 | 53 | `Source/Features/Systems/Bots/BotReducers.cpp` |
@@ -210,7 +211,6 @@
 | 40 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutTypes.h` |
 | 40 | `Source/Views/LevelGameModeView.h` |
 | 39 | `Content/Map/Heightmaps/french_gulch_ca_terrain_metadata.json` |
-| 39 | `Source/Features/Components/Data/RuntimeSettings/PlayerSettingsAdapters.cpp` |
 | 39 | `Source/Features/Systems/Interaction/InteractionSelectors.h` |
 | 39 | `Source/Store.h` |
 | 38 | `Source/Features/Systems/Bots/Goals/BotGoalActions.cpp` |

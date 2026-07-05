@@ -75,19 +75,19 @@ struct FBotRuntimeSettings {
 
 
 struct FTownspersonPresentationSettings {
-  float CharacterHeightFeet = 0.0f;
-  float CharacterShoulderWidthFeet = 0.0f;
-  float PatrolPauseSeconds = 0.0f;
-  float PromptAboveHeadFeet = 0.0f;
-  float NameAbovePromptFeet = 0.0f;
-  float DialogueAboveNameHeightRatio = 0.0f;
-  float InteractionRadiusLots = 0.0f;
-  float WalkSpeedHeightRatio = 0.0f;
-  float MannequinScale = 0.0f;
-  FVector MannequinOffsetFeet = FVector::ZeroVector;
-  FRotator MannequinRotation = FRotator::ZeroRotator;
-  float PromptTextScale = 0.0f;
-  float DialogueTextScale = 0.0f;
+  float CharacterHeightFeet;
+  float CharacterShoulderWidthFeet;
+  float PatrolPauseSeconds;
+  float PromptAboveHeadFeet;
+  float NameAbovePromptFeet;
+  float DialogueAboveNameHeightRatio;
+  float InteractionRadiusLots;
+  float WalkSpeedHeightRatio;
+  float MannequinScale;
+  FVector MannequinOffsetFeet;
+  FRotator MannequinRotation;
+  float PromptTextScale;
+  float DialogueTextScale;
   FString MeshPath;
   FString AnimationBlueprintClassPath;
 };
@@ -95,18 +95,18 @@ struct FTownspersonPresentationSettings {
 
 struct FHorsePresentationSettings {
   FString DefaultName;
-  float HorseLengthFeet = 0.0f;
-  float BodyHeightFeet = 0.0f;
-  float LegHeightFeet = 0.0f;
-  float NeckHeightFeet = 0.0f;
-  float HeadHeightFeet = 0.0f;
-  float SaddleHeightFeet = 0.0f;
-  float PatrolPauseSeconds = 0.0f;
-  float WalkSpeedHorseLengthRatio = 0.0f;
-  float RouteArrivalLegRatio = 0.0f;
-  float ImportedHorseScale = 0.0f;
-  float MountedRiderScale = 0.0f;
-  float NameTextWorldSizeFeet = 0.0f;
+  float HorseLengthFeet;
+  float BodyHeightFeet;
+  float LegHeightFeet;
+  float NeckHeightFeet;
+  float HeadHeightFeet;
+  float SaddleHeightFeet;
+  float PatrolPauseSeconds;
+  float WalkSpeedHorseLengthRatio;
+  float RouteArrivalLegRatio;
+  float ImportedHorseScale;
+  float MountedRiderScale;
+  float NameTextWorldSizeFeet;
   FString HorseMeshPath;
   FString HorseWalkAnimationPath;
   FString RiderMeshPath;
