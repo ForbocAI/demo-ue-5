@@ -9,20 +9,140 @@ namespace Demo {
 namespace Level {
 namespace {
 
-/**
- * @brief Converts bot goal enum state into stable ECS text.
- * @signature FString BotGoalTypeText(EBotGoalType Type)
- *
- * User Story: As ECS projection code, I need closed enum cases rendered
- * explicitly so unknown values fail instead of becoming silent fallbacks.
- */
-FString BotGoalTypeText(EBotGoalType Type) {
-  return ComponentsAdapters::ComponentText(
-      Type, {{EBotGoalType::Patrol, "Patrol"},
-             {EBotGoalType::Converse, "Converse"},
-             {EBotGoalType::Travel, "Travel"},
-             {EBotGoalType::Idle, "Idle"}});
-}
+ecs::FComponentValue StrategicGoalValue(const FBotStrategicGoal &Goal);
+TArray<ecs::FComponentValue>
+StrategicGoalList(const TArray<FBotStrategicGoal> &Goals);
+ecs::FComponentValue BotKnowledgeValue(const FBotKnowledgeBase &Knowledge);
+
+} // namespace
+
+namespace ComponentsAdapters {
+
+template <> struct TComponentTextRegistry<EBotGoalType> {
+  static const TArray<TComponentTextDeclaration<EBotGoalType>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<EBotGoalType>>
+        RegisteredCases = {{EBotGoalType::Patrol, "Patrol"},
+                           {EBotGoalType::Converse, "Converse"},
+                           {EBotGoalType::Travel, "Travel"},
+                           {EBotGoalType::Idle, "Idle"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentTextRegistry<EBotBehaviorState> {
+  static const TArray<TComponentTextDeclaration<EBotBehaviorState>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<EBotBehaviorState>>
+        RegisteredCases = {{EBotBehaviorState::Idle, "Idle"},
+                           {EBotBehaviorState::Patrol, "Patrol"},
+                           {EBotBehaviorState::Moving, "Moving"},
+                           {EBotBehaviorState::Acting, "Acting"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FBotStrategicGoal> {
+  static const TArray<
+      TComponentSourceValueFieldDeclaration<FBotStrategicGoal>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<
+        FBotStrategicGoal>>
+        RegisteredFields = {
+            {"id", &FBotStrategicGoal::Id},
+            {"type", &FBotStrategicGoal::Type},
+            {"priority", &FBotStrategicGoal::Priority},
+            {"targetEntityId", &FBotStrategicGoal::TargetEntityId},
+            {"targetLocation", &FBotStrategicGoal::TargetLocation},
+            {"hasTargetLocation", &FBotStrategicGoal::bHasTargetLocation},
+            {"completed", &FBotStrategicGoal::bCompleted}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FBotKnowledgeBase> {
+  static const TArray<
+      TComponentSourceValueFieldDeclaration<FBotKnowledgeBase>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<
+        FBotKnowledgeBase>>
+        RegisteredFields = {
+            {"KnownLandmarkIds", &FBotKnowledgeBase::KnownLandmarkIds},
+            {"KnownBotIds", &FBotKnowledgeBase::KnownBotIds}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FBotStatsComponent> {
+  static const TArray<
+      TComponentSourceValueFieldDeclaration<FBotStatsComponent>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<
+        FBotStatsComponent>>
+        RegisteredFields = {{"Id", &FBotStatsComponent::Id},
+                            {"MoveSpeed", &FBotStatsComponent::MoveSpeed},
+                            {"AwarenessRange",
+                             &FBotStatsComponent::AwarenessRange},
+                            {"Resolve", &FBotStatsComponent::Resolve},
+                            {"CanTalk", &FBotStatsComponent::bCanTalk},
+                            {"MountedRider",
+                             &FBotStatsComponent::bMountedRider}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FBotPositionComponent> {
+  static const TArray<
+      TComponentSourceValueFieldDeclaration<FBotPositionComponent>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<
+        FBotPositionComponent>>
+        RegisteredFields = {
+            {"Id", &FBotPositionComponent::Id},
+            {"LocalLocation", &FBotPositionComponent::LocalLocation},
+            {"WorldLocation", &FBotPositionComponent::WorldLocation},
+            {"HasWorldLocation", &FBotPositionComponent::bHasWorldLocation},
+            {"FacingRight", &FBotPositionComponent::bFacingRight}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FBotAIComponent> {
+  static const TArray<TComponentSourceValueFieldDeclaration<FBotAIComponent>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<FBotAIComponent>>
+        RegisteredFields = {
+            {"Id", &FBotAIComponent::Id},
+            {"BehaviorState", &FBotAIComponent::BehaviorState},
+            {"TargetEntityId", &FBotAIComponent::TargetEntityId},
+            {"TargetLocation", &FBotAIComponent::TargetLocation},
+            {"HasTargetLocation", &FBotAIComponent::bHasTargetLocation},
+            {"PatrolIndex", &FBotAIComponent::PatrolIndex},
+            {"PatrolRoute", &FBotAIComponent::PatrolRoute}};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FBotGoalComponent> {
+  static const TArray<
+      TComponentSourceValueFieldDeclaration<FBotGoalComponent>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<
+        FBotGoalComponent>>
+        RegisteredFields = {
+            {"Id", &FBotGoalComponent::Id},
+            {"HasActiveGoal", &FBotGoalComponent::bHasActiveGoal},
+            {"ActiveGoal", &FBotGoalComponent::ActiveGoal,
+             StrategicGoalValue},
+            {"GoalQueue", &FBotGoalComponent::GoalQueue, StrategicGoalList},
+            {"Knowledge", &FBotGoalComponent::Knowledge, BotKnowledgeValue}};
+    return RegisteredFields;
+  }
+};
+
+} // namespace ComponentsAdapters
+
+namespace {
 
 /**
  * @brief Converts one strategic goal into an ECS map value.
@@ -33,13 +153,8 @@ FString BotGoalTypeText(EBotGoalType Type) {
  */
 ecs::FComponentValue StrategicGoalValue(const FBotStrategicGoal &Goal) {
   return ComponentsAdapters::ComponentSourceValueMap(
-      Goal, {{"id", &FBotStrategicGoal::Id},
-             {"type", &FBotStrategicGoal::Type, BotGoalTypeText},
-             {"priority", &FBotStrategicGoal::Priority},
-             {"targetEntityId", &FBotStrategicGoal::TargetEntityId},
-             {"targetLocation", &FBotStrategicGoal::TargetLocation},
-             {"hasTargetLocation", &FBotStrategicGoal::bHasTargetLocation},
-             {"completed", &FBotStrategicGoal::bCompleted}});
+      Goal, {"id", "type", "priority", "targetEntityId", "targetLocation",
+             "hasTargetLocation", "completed"});
 }
 
 /**
@@ -56,24 +171,7 @@ StrategicGoalList(const TArray<FBotStrategicGoal> &Goals) {
 
 ecs::FComponentValue BotKnowledgeValue(const FBotKnowledgeBase &Knowledge) {
   return ComponentsAdapters::ComponentSourceValueMap(
-      Knowledge,
-      {{"KnownLandmarkIds", &FBotKnowledgeBase::KnownLandmarkIds},
-       {"KnownBotIds", &FBotKnowledgeBase::KnownBotIds}});
-}
-
-/**
- * @brief Converts bot behavior enum state into stable ECS text.
- * @signature FString BotBehaviorText(EBotBehaviorState State)
- *
- * User Story: As ECS projection code, I need behavior enum cases rendered
- * explicitly so invalid values do not masquerade as Idle.
- */
-FString BotBehaviorText(EBotBehaviorState State) {
-  return ComponentsAdapters::ComponentText(
-      State, {{EBotBehaviorState::Idle, "Idle"},
-              {EBotBehaviorState::Patrol, "Patrol"},
-              {EBotBehaviorState::Moving, "Moving"},
-              {EBotBehaviorState::Acting, "Acting"}});
+      Knowledge, {"KnownLandmarkIds", "KnownBotIds"});
 }
 
 } // namespace
@@ -84,12 +182,8 @@ template <>
 struct TComponentSourceProjector<FBotStatsComponent> {
   ecs::FComponentValue operator()(const FBotStatsComponent &Stats) const {
     return ComponentSourceValueMap(
-        Stats, {{"Id", &FBotStatsComponent::Id},
-                {"MoveSpeed", &FBotStatsComponent::MoveSpeed},
-                {"AwarenessRange", &FBotStatsComponent::AwarenessRange},
-                {"Resolve", &FBotStatsComponent::Resolve},
-                {"CanTalk", &FBotStatsComponent::bCanTalk},
-                {"MountedRider", &FBotStatsComponent::bMountedRider}});
+        Stats, {"Id", "MoveSpeed", "AwarenessRange", "Resolve", "CanTalk",
+                "MountedRider"});
   }
 };
 
@@ -98,12 +192,8 @@ struct TComponentSourceProjector<FBotPositionComponent> {
   ecs::FComponentValue
   operator()(const FBotPositionComponent &Position) const {
     return ComponentSourceValueMap(
-        Position, {{"Id", &FBotPositionComponent::Id},
-                   {"LocalLocation", &FBotPositionComponent::LocalLocation},
-                   {"WorldLocation", &FBotPositionComponent::WorldLocation},
-                   {"HasWorldLocation",
-                    &FBotPositionComponent::bHasWorldLocation},
-                   {"FacingRight", &FBotPositionComponent::bFacingRight}});
+        Position, {"Id", "LocalLocation", "WorldLocation",
+                   "HasWorldLocation", "FacingRight"});
   }
 };
 
@@ -111,14 +201,8 @@ template <>
 struct TComponentSourceProjector<FBotAIComponent> {
   ecs::FComponentValue operator()(const FBotAIComponent &AI) const {
     return ComponentSourceValueMap(
-        AI, {{"Id", &FBotAIComponent::Id},
-             {"BehaviorState", &FBotAIComponent::BehaviorState,
-              BotBehaviorText},
-             {"TargetEntityId", &FBotAIComponent::TargetEntityId},
-             {"TargetLocation", &FBotAIComponent::TargetLocation},
-             {"HasTargetLocation", &FBotAIComponent::bHasTargetLocation},
-             {"PatrolIndex", &FBotAIComponent::PatrolIndex},
-             {"PatrolRoute", &FBotAIComponent::PatrolRoute}});
+        AI, {"Id", "BehaviorState", "TargetEntityId", "TargetLocation",
+             "HasTargetLocation", "PatrolIndex", "PatrolRoute"});
   }
 };
 
@@ -126,14 +210,8 @@ template <>
 struct TComponentSourceProjector<FBotGoalComponent> {
   ecs::FComponentValue operator()(const FBotGoalComponent &Goal) const {
     return ComponentSourceValueMap(
-        Goal, {{"Id", &FBotGoalComponent::Id},
-               {"HasActiveGoal", &FBotGoalComponent::bHasActiveGoal},
-               {"ActiveGoal", &FBotGoalComponent::ActiveGoal,
-                StrategicGoalValue},
-               {"GoalQueue", &FBotGoalComponent::GoalQueue,
-                StrategicGoalList},
-               {"Knowledge", &FBotGoalComponent::Knowledge,
-                BotKnowledgeValue}});
+        Goal, {"Id", "HasActiveGoal", "ActiveGoal", "GoalQueue",
+               "Knowledge"});
   }
 };
 

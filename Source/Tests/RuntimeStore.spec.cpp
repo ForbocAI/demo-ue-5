@@ -63,12 +63,27 @@ public:
   void Serialize(const TCHAR *V, ELogVerbosity::Type Verbosity,
                  const FName &Category) override {
     (void)Verbosity;
+    CaptureLine(V, Category);
+  }
+
+  void Serialize(const TCHAR *V, ELogVerbosity::Type Verbosity,
+                 const FName &Category, double Time) override {
+    (void)Verbosity;
+    (void)Time;
+    CaptureLine(V, Category);
+  }
+
+  void SerializeRecord(const UE::FLogRecord &Record) override {
+    FOutputDevice::SerializeRecord(Record);
+  }
+
+private:
+  void CaptureLine(const TCHAR *V, const FName &Category) {
     Category == FName(TEXT("LogForbocDemoRedux"))
         ? (Lines.Add(FString(V)), void())
         : void();
   }
 
-private:
   TArray<FString> &Lines;
 };
 
@@ -402,6 +417,7 @@ bool FRuntimeStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
       Store::ConfigureStore();
   EnhancedStoreValue.dispatch(RuntimeActions::RuntimeHydrated()(
       RuntimeFactories::CreateInitialState()));
+  GLog->FlushThreadedLogs();
   GLog->RemoveOutputDevice(&CaptureDevice);
 
   TestTrue(TEXT("Redux logger writes action title to UE automation output"),
