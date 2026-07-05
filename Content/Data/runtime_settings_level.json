@@ -35,6 +35,22 @@
     "main_street_facing_yaw_degrees": 70.0,
     "player_spawn_anchor_label": "U.S. Post Office / 14200 Main St",
     "landmark_label_world_size_scale": 0.48,
-    "nature_label_world_size_scale": 0.36
+    "nature_label_world_size_scale": 0.36,
+    "terrain_lod_step": 4,
+    "terrain_minimum_lod_step": 1,
+    "terrain_grid_terminal_offset": 1,
+    "terrain_lod_grid_padding": 1,
+    "terrain_quad_index_reserve_count": 6,
+    "terrain_quad_column_step": 1,
+    "terrain_quad_row_step": 1,
+    "terrain_half_world_size_scale": 0.5,
+    "terrain_vertex_height_offset": 0.0,
+    "block_forced_lod_model": 1,
+    "block_cull_distance": 3200.0,
+    "runtime_spawn_on_begin_play": true,
+    "runtime_first_render_index": 0,
+    "runtime_index_step": 1,
+    "patrol_route_required_point_count": 1,
+    "initial_patrol_route_index": 0
   }
 }

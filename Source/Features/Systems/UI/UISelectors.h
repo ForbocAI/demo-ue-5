@@ -46,6 +46,14 @@ inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel> SelectMessages(
   return State.Messages;
 }
 
+/**
+ * @brief Selects authored UI runtime settings.
+ */
+inline const ForbocAI::Demo::Data::FUIRuntimeSettings &
+SelectRuntimeSettings(const FUIState &State) {
+  return State.RuntimeSettings;
+}
+
 } // namespace UISelectors
 } // namespace Level
 } // namespace Demo

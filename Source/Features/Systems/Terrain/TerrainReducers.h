@@ -18,7 +18,9 @@ FTerrainState ReduceTerrainMeshPayloadObserved(
 
 FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
-                        const FLevelOrthoData &OrthoData);
+                        const FLevelOrthoData &OrthoData,
+                        const ForbocAI::Demo::Data::FLevelGeometrySettings
+                            &Geometry);
 FTerrainMeshSectionViewModel
 ReduceTerrainMeshSectionViewModel(const FTerrainMeshPayload &Payload);
 

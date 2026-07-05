@@ -6,6 +6,45 @@ namespace ForbocAI {
 namespace Demo {
 namespace Data {
 
+struct FRuntimeStatsOverlaySettings {
+  FString FramesPerSecondLabel;
+  FString StackDepthLabel;
+  FString PolyCountLabel;
+  FString LabelValueSeparator;
+  FString ValueFormat;
+  float ViewportLeft;
+  float ViewportTop;
+  float ViewportWidth;
+  float ViewportHeight;
+  float PanelPadding;
+  float FramesPerSecondNumerator;
+  float MinimumDeltaSeconds;
+  float InitialDeltaSeconds;
+  int32 InitialFramesPerSecond;
+  int32 EmptyStackDepth;
+  int32 EmptyPolyCount;
+  int32 EmptyTriangleCount;
+  int32 MeshLodIndex;
+  int32 ProcMeshFirstSectionIndex;
+  int32 ProcMeshSectionStep;
+  int32 TriangleIndexDivisor;
+  int32 ZOrder;
+  int32 FontSize;
+  int32 FramesPerSecondMediumThreshold;
+  int32 FramesPerSecondHighThreshold;
+  int32 StackDepthMediumThreshold;
+  int32 StackDepthHighThreshold;
+  int32 PolyCountMediumThreshold;
+  int32 PolyCountHighThreshold;
+  bool bRemoveDpIScale;
+  bool bAutoWrapText;
+  FLinearColor PanelColor;
+  FLinearColor TextColor;
+  FLinearColor LowValueColor;
+  FLinearColor MediumValueColor;
+  FLinearColor HighValueColor;
+};
+
 struct FUIRuntimeSettings {
   FString PlayerRoleLabel;
   FString SystemRoleLabel;
@@ -34,8 +73,57 @@ struct FUIRuntimeSettings {
   float PanelPadding;
   float TitleSize;
   float BodySize;
+  FRuntimeStatsOverlaySettings StatsOverlay;
 };
 
+inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
+                       const FRuntimeStatsOverlaySettings &Right) {
+  return Left.FramesPerSecondLabel == Right.FramesPerSecondLabel &&
+         Left.StackDepthLabel == Right.StackDepthLabel &&
+         Left.PolyCountLabel == Right.PolyCountLabel &&
+         Left.LabelValueSeparator == Right.LabelValueSeparator &&
+         Left.ValueFormat == Right.ValueFormat &&
+         FMath::IsNearlyEqual(Left.ViewportLeft, Right.ViewportLeft) &&
+         FMath::IsNearlyEqual(Left.ViewportTop, Right.ViewportTop) &&
+         FMath::IsNearlyEqual(Left.ViewportWidth, Right.ViewportWidth) &&
+         FMath::IsNearlyEqual(Left.ViewportHeight, Right.ViewportHeight) &&
+         FMath::IsNearlyEqual(Left.PanelPadding, Right.PanelPadding) &&
+         FMath::IsNearlyEqual(Left.FramesPerSecondNumerator,
+                              Right.FramesPerSecondNumerator) &&
+         FMath::IsNearlyEqual(Left.MinimumDeltaSeconds,
+                              Right.MinimumDeltaSeconds) &&
+         FMath::IsNearlyEqual(Left.InitialDeltaSeconds,
+                              Right.InitialDeltaSeconds) &&
+         Left.InitialFramesPerSecond == Right.InitialFramesPerSecond &&
+         Left.EmptyStackDepth == Right.EmptyStackDepth &&
+         Left.EmptyPolyCount == Right.EmptyPolyCount &&
+         Left.EmptyTriangleCount == Right.EmptyTriangleCount &&
+         Left.MeshLodIndex == Right.MeshLodIndex &&
+         Left.ProcMeshFirstSectionIndex == Right.ProcMeshFirstSectionIndex &&
+         Left.ProcMeshSectionStep == Right.ProcMeshSectionStep &&
+         Left.TriangleIndexDivisor == Right.TriangleIndexDivisor &&
+         Left.ZOrder == Right.ZOrder && Left.FontSize == Right.FontSize &&
+         Left.FramesPerSecondMediumThreshold ==
+             Right.FramesPerSecondMediumThreshold &&
+         Left.FramesPerSecondHighThreshold ==
+             Right.FramesPerSecondHighThreshold &&
+         Left.StackDepthMediumThreshold == Right.StackDepthMediumThreshold &&
+         Left.StackDepthHighThreshold == Right.StackDepthHighThreshold &&
+         Left.PolyCountMediumThreshold == Right.PolyCountMediumThreshold &&
+         Left.PolyCountHighThreshold == Right.PolyCountHighThreshold &&
+         Left.bRemoveDpIScale == Right.bRemoveDpIScale &&
+         Left.bAutoWrapText == Right.bAutoWrapText &&
+         Left.PanelColor == Right.PanelColor &&
+         Left.TextColor == Right.TextColor &&
+         Left.LowValueColor == Right.LowValueColor &&
+         Left.MediumValueColor == Right.MediumValueColor &&
+         Left.HighValueColor == Right.HighValueColor;
+}
+
+inline bool operator!=(const FRuntimeStatsOverlaySettings &Left,
+                       const FRuntimeStatsOverlaySettings &Right) {
+  return !(Left == Right);
+}
 
 inline bool operator==(const FUIRuntimeSettings &Left,
                        const FUIRuntimeSettings &Right) {
@@ -65,7 +153,8 @@ inline bool operator==(const FUIRuntimeSettings &Left,
          Left.RuntimeReplyColor == Right.RuntimeReplyColor &&
          FMath::IsNearlyEqual(Left.PanelPadding, Right.PanelPadding) &&
          FMath::IsNearlyEqual(Left.TitleSize, Right.TitleSize) &&
-         FMath::IsNearlyEqual(Left.BodySize, Right.BodySize);
+         FMath::IsNearlyEqual(Left.BodySize, Right.BodySize) &&
+         Left.StatsOverlay == Right.StatsOverlay;
 }
 
 inline bool operator!=(const FUIRuntimeSettings &Left,

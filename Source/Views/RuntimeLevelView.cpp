@@ -15,8 +15,23 @@
 
 namespace FG = ForbocAI::Demo::Level;
 
+namespace {
+
+struct FBlockLevelOfDetailRequest {
+  UStaticMeshComponent *Component;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+void ApplyBlockLevelOfDetail(const FBlockLevelOfDetailRequest &Request) {
+  check(Request.Component);
+  Request.Component->SetForcedLodModel(Request.Geometry.BlockForcedLodModel);
+  Request.Component->SetCullDistance(Request.Geometry.BlockCullDistance);
+}
+
+} // namespace
+
 ARuntimeLevelView::ARuntimeLevelView()
-    : bSpawnOnBeginPlay(true), CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
+    : CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
   PrimaryActorTick.bCanEverTick = false;
 
   const FG::FRuntimeState State = FG::Store::GetStore().getState();
@@ -25,6 +40,8 @@ ARuntimeLevelView::ARuntimeLevelView()
   CubeMesh = LoadObject<UStaticMesh>(nullptr, *AssetPaths.LevelCubeMeshPath);
   BlockBaseMaterial =
       FG::RenderingSlice::LoadBlockoutMaterial(AssetPaths.BlockoutMaterialPath);
+  LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry(State);
+  bSpawnOnBeginPlay = LevelGeometrySettings.bRuntimeSpawnOnBeginPlay;
   TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(State);
   RenderingRuntimeSettings =
       FG::RuntimeSelectors::SelectRenderingRuntimeSettings(State);
@@ -50,6 +67,8 @@ void ARuntimeLevelView::RenderLevel() {
   func::executeAsync(Result);
   TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(
       FG::Store::GetStore().getState());
+  LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry(
+      FG::Store::GetStore().getState());
   RenderingRuntimeSettings =
       FG::RuntimeSelectors::SelectRenderingRuntimeSettings(
           FG::Store::GetStore().getState());
@@ -59,9 +78,10 @@ void ARuntimeLevelView::RenderLevel() {
 void ARuntimeLevelView::RenderLevelPayload(
     const FG::FRuntimeLevelViewPayload &Payload) {
   RenderTerrain(Payload);
-  RenderSections(Payload.Sections, 0);
-  RenderTownspeople(Payload.Townspeople, 0);
-  RenderHorses(Payload.Horses, 0);
+  RenderSections(Payload.Sections, LevelGeometrySettings.RuntimeFirstRenderIndex);
+  RenderTownspeople(Payload.Townspeople,
+                    LevelGeometrySettings.RuntimeFirstRenderIndex);
+  RenderHorses(Payload.Horses, LevelGeometrySettings.RuntimeFirstRenderIndex);
 }
 
 void ARuntimeLevelView::RenderTerrain(
@@ -87,27 +107,30 @@ void ARuntimeLevelView::RenderSections(
     const TArray<FG::FLevelRuntimeSectionSpawn> &Sections, int32 Index) {
   Index >= Sections.Num()
       ? void()
-      : (RenderSection(Sections[Index]), RenderSections(Sections, Index + 1));
+      : (RenderSection(Sections[Index]),
+         RenderSections(Sections, Index + LevelGeometrySettings.RuntimeIndexStep));
 }
 
 void ARuntimeLevelView::RenderSection(
     const FG::FLevelRuntimeSectionSpawn &Section) {
-  RenderBlocks(Section.Blocks, 0);
-  RenderLabels(Section.Labels, 0);
+  RenderBlocks(Section.Blocks, LevelGeometrySettings.RuntimeFirstRenderIndex);
+  RenderLabels(Section.Labels, LevelGeometrySettings.RuntimeFirstRenderIndex);
 }
 
 void ARuntimeLevelView::RenderBlocks(
     const TArray<FG::FLevelBlockSpawn> &Blocks, int32 Index) {
   Index >= Blocks.Num()
       ? void()
-      : (RenderBlock(Blocks[Index]), RenderBlocks(Blocks, Index + 1));
+      : (RenderBlock(Blocks[Index]),
+         RenderBlocks(Blocks, Index + LevelGeometrySettings.RuntimeIndexStep));
 }
 
 void ARuntimeLevelView::RenderLabels(
     const TArray<FG::FLevelLabelSpawn> &Labels, int32 Index) {
   Index >= Labels.Num()
       ? void()
-      : (RenderLabel(Labels[Index]), RenderLabels(Labels, Index + 1));
+      : (RenderLabel(Labels[Index]),
+         RenderLabels(Labels, Index + LevelGeometrySettings.RuntimeIndexStep));
 }
 
 void ARuntimeLevelView::RenderTownspeople(
@@ -116,14 +139,16 @@ void ARuntimeLevelView::RenderTownspeople(
   Index >= Townspeople.Num()
       ? void()
       : (RenderTownsperson(Townspeople[Index]),
-         RenderTownspeople(Townspeople, Index + 1));
+         RenderTownspeople(Townspeople,
+                           Index + LevelGeometrySettings.RuntimeIndexStep));
 }
 
 void ARuntimeLevelView::RenderHorses(
     const TArray<FG::FRuntimeHorseViewSpawn> &Horses, int32 Index) {
   Index >= Horses.Num()
       ? void()
-      : (RenderHorse(Horses[Index]), RenderHorses(Horses, Index + 1));
+      : (RenderHorse(Horses[Index]),
+         RenderHorses(Horses, Index + LevelGeometrySettings.RuntimeIndexStep));
 }
 
 AStaticMeshActor *ARuntimeLevelView::RenderBlock(
@@ -141,15 +166,21 @@ AStaticMeshActor *ARuntimeLevelView::RenderBlock(
             WorldValue->SpawnActor<AStaticMeshActor>(
                 BlockSpawn.Location, FRotator::ZeroRotator, Params);
         return Block
-                   ? (Block->SetActorScale3D(BlockSpawn.Scale),
-                      Block->GetStaticMeshComponent()->SetStaticMesh(CubeMesh),
-                      FG::RenderingSlice::ApplyTexture(
-                          {Block->GetStaticMeshComponent(), BlockBaseMaterial,
-                           BlockSpawn.Texture, TextureCatalog,
-                           RenderingRuntimeSettings}),
-                      Block->GetStaticMeshComponent()->SetMobility(
-                          EComponentMobility::Static),
-                      Block)
+                   ? ([this, &BlockSpawn, Block]() -> AStaticMeshActor * {
+                       UStaticMeshComponent *MeshComponent =
+                           Block->GetStaticMeshComponent();
+                       check(MeshComponent);
+                       Block->SetActorScale3D(BlockSpawn.Scale);
+                       MeshComponent->SetStaticMesh(CubeMesh);
+                       ApplyBlockLevelOfDetail(
+                           {MeshComponent, LevelGeometrySettings});
+                       FG::RenderingSlice::ApplyTexture(
+                           {MeshComponent, BlockBaseMaterial,
+                            BlockSpawn.Texture, TextureCatalog,
+                            RenderingRuntimeSettings});
+                       MeshComponent->SetMobility(EComponentMobility::Static);
+                       return Block;
+                     }())
                    : nullptr;
       },
       []() -> AStaticMeshActor * { return nullptr; });
@@ -178,11 +209,14 @@ ATownspersonView *ARuntimeLevelView::RenderTownsperson(
   UWorld *World = GetWorld();
   return func::match(
       func::from_nullable_value(
-          World, World != nullptr && Spawn.PatrolRoute.Num() > 0),
-      [&Spawn](UWorld *WorldValue) -> ATownspersonView * {
+          World, World != nullptr &&
+                     Spawn.PatrolRoute.Num() >=
+                         LevelGeometrySettings.PatrolRouteRequiredPointCount),
+      [this, &Spawn](UWorld *WorldValue) -> ATownspersonView * {
         ATownspersonView *Townsperson =
             WorldValue->SpawnActor<ATownspersonView>(
-                Spawn.PatrolRoute[0], FRotator::ZeroRotator);
+                Spawn.PatrolRoute[LevelGeometrySettings.InitialPatrolRouteIndex],
+                FRotator::ZeroRotator);
         FTownspersonViewConfig Config;
         Config.Id = Spawn.Id;
         Config.Name = Spawn.Name;
@@ -204,10 +238,13 @@ AHorseView *ARuntimeLevelView::RenderHorse(
   UWorld *World = GetWorld();
   return func::match(
       func::from_nullable_value(
-          World, World != nullptr && Spawn.PatrolRoute.Num() > 0),
-      [&Spawn](UWorld *WorldValue) -> AHorseView * {
+          World, World != nullptr &&
+                     Spawn.PatrolRoute.Num() >=
+                         LevelGeometrySettings.PatrolRouteRequiredPointCount),
+      [this, &Spawn](UWorld *WorldValue) -> AHorseView * {
         AHorseView *Horse = WorldValue->SpawnActor<AHorseView>(
-            Spawn.PatrolRoute[0], FRotator::ZeroRotator);
+            Spawn.PatrolRoute[LevelGeometrySettings.InitialPatrolRouteIndex],
+            FRotator::ZeroRotator);
         FHorseViewConfig Config;
         Config.Name = Spawn.Name;
         Config.PatrolRoute = Spawn.PatrolRoute;

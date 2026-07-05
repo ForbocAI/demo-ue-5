@@ -35,7 +35,7 @@ inline FString Arg(const TCHAR *Value) { return FString(Value); }
  * User Story: As speech and UI formatting code, I need character values to
  * remain explicit data before they are rendered or logged.
  */
-inline FString Arg(TCHAR Value) { return FString(1, &Value); }
+inline FString Arg(TCHAR Value) { return FString::Printf(TEXT("%c"), Value); }
 
 /**
  * @brief Adapts an int32 into the runtime formatter argument list.
@@ -46,6 +46,16 @@ inline FString Arg(TCHAR Value) { return FString(1, &Value); }
  * should format through one value adapter instead of ad hoc conversions.
  */
 inline FString Arg(int32 Value) { return FString::FromInt(Value); }
+
+/**
+ * @brief Adapts an int64 into the runtime formatter argument list.
+ * @signature inline FString Arg(int64 Value)
+ * @return The decimal FString representation of the integer.
+ *
+ * User Story: As runtime stats UI, larger aggregate counters should format
+ * through the same authored-string path as smaller reducer-owned values.
+ */
+inline FString Arg(int64 Value) { return LexToString(Value); }
 
 /**
  * @brief Adapts a float into the runtime formatter argument list.
@@ -108,6 +118,16 @@ inline int32 FirstRuntimeFormatTokenIndex(const FString &Pattern) {
       EarlierTokenIndex(Pattern.Find(TEXT("%f")), Pattern.Find(TEXT("%c"))));
 }
 
+inline int32 RuntimeFormatTokenWidth() { return FString(TEXT("%s")).Len(); }
+
+inline int32 FirstRuntimeFormatArgumentIndex() {
+  return INDEX_NONE + static_cast<int32>(true);
+}
+
+inline int32 NextRuntimeFormatArgumentIndex(int32 Index) {
+  return Index + static_cast<int32>(true);
+}
+
 /**
  * @brief Replaces the first supported runtime format token with one value.
  * @signature inline FString ReplaceRuntimeFormatToken(const FString &Pattern, const FString &Value)
@@ -121,7 +141,8 @@ inline FString ReplaceRuntimeFormatToken(const FString &Pattern,
   const int32 TokenIndex = FirstRuntimeFormatTokenIndex(Pattern);
   return TokenIndex == INDEX_NONE
              ? Pattern
-             : Pattern.Left(TokenIndex) + Value + Pattern.Mid(TokenIndex + 2);
+             : Pattern.Left(TokenIndex) + Value +
+                   Pattern.Mid(TokenIndex + RuntimeFormatTokenWidth());
 }
 
 /**
@@ -139,7 +160,7 @@ inline FString FormatRuntimeStringAt(const FString &Pattern,
              ? Pattern
              : FormatRuntimeStringAt(
                    ReplaceRuntimeFormatToken(Pattern, Values[Index]), Values,
-                   Index + 1);
+                   NextRuntimeFormatArgumentIndex(Index));
 }
 
 /**
@@ -153,7 +174,8 @@ inline FString FormatRuntimeStringAt(const FString &Pattern,
  */
 inline FString RuntimeString(const FString &Pattern,
                              const TArray<FString> &Values) {
-  return FormatRuntimeStringAt(Pattern, Values, 0);
+  return FormatRuntimeStringAt(Pattern, Values,
+                               FirstRuntimeFormatArgumentIndex());
 }
 
 } // namespace frmt

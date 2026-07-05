@@ -84,6 +84,8 @@ const ForbocAI::Demo::Data::FRuntimeViewNameSettings &
 SelectRuntimeViewNames(const FRuntimeState &State);
 const ForbocAI::Demo::Data::FRuntimeTextSettings &
 SelectRuntimeText(const FRuntimeState &State);
+const ForbocAI::Demo::Data::FUIRuntimeSettings &
+SelectUIRuntimeSettings(const FRuntimeState &State);
 const ForbocAI::Demo::Data::FBotRuntimeSettings &
 SelectBotRuntimeSettings(const FRuntimeState &State);
 TArray<FBotEntity> SelectBots(const FRuntimeState &State);

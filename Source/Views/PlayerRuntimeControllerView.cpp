@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Store.h"
 #include "Views/RuntimeChatWidget.h"
+#include "Views/RuntimeStatsWidget.h"
 #include "Views/TownspersonView.h"
 
 namespace FG = ForbocAI::Demo::Level;
@@ -71,7 +72,14 @@ APlayerRuntimeControllerView::APlayerRuntimeControllerView()
           FG::RuntimeSelectors::SelectTownspersonInteractionDistance(
               FG::Store::GetStore().getState())),
       RuntimeConversationWidgetClass(URuntimeChatWidget::StaticClass()),
-      RuntimeConversationWidget(nullptr) {}
+      RuntimeConversationWidget(nullptr),
+      RuntimeStatsWidgetClass(URuntimeStatsWidget::StaticClass()),
+      RuntimeStatsWidget(nullptr) {}
+
+void APlayerRuntimeControllerView::BeginPlay() {
+  Super::BeginPlay();
+  PresentRuntimeStatsWidget();
+}
 
 void APlayerRuntimeControllerView::SetupInputComponent() {
   Super::SetupInputComponent();
@@ -122,4 +130,18 @@ void APlayerRuntimeControllerView::PresentConversationViewModel(
           RuntimeConversationWidget->AddToViewport();
         }(), void());
   RuntimeConversationWidget->ShowConversationViewModel(Conversation);
+}
+
+void APlayerRuntimeControllerView::PresentRuntimeStatsWidget() {
+  RuntimeStatsWidget
+      ? void()
+      : ([this]() {
+          RuntimeStatsWidget = CreateWidget<URuntimeStatsWidget>(
+              this, RuntimeStatsWidgetClass);
+          check(RuntimeStatsWidget);
+          RuntimeStatsWidget->AddToViewport(
+              FG::RuntimeSelectors::SelectUIRuntimeSettings(
+                  FG::Store::GetStore().getState())
+                  .StatsOverlay.ZOrder);
+        }(), void());
 }

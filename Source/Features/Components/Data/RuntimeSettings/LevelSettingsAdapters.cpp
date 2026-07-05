@@ -26,7 +26,16 @@ JSON_SETTINGS_REGISTRY(FLevelGeometrySettings, TerrainWorldSize,
                        ActorFootToTerrainRatio, ActorReferenceFeetAcross,
                        PlayerSpawnNorthLots, PlayerSpawnExtraHeightRatio,
                        MainStreetFacingYawDegrees, PlayerSpawnAnchorLabel,
-                       LandmarkLabelWorldSizeScale, NatureLabelWorldSizeScale);
+                       LandmarkLabelWorldSizeScale, NatureLabelWorldSizeScale,
+                       TerrainLodStep, TerrainMinimumLodStep,
+                       TerrainGridTerminalOffset, TerrainLodGridPadding,
+                       TerrainQuadIndexReserveCount, TerrainQuadColumnStep,
+                       TerrainQuadRowStep, TerrainHalfWorldSizeScale,
+                       TerrainVertexHeightOffset, BlockForcedLodModel,
+                       BlockCullDistance, bRuntimeSpawnOnBeginPlay,
+                       RuntimeFirstRenderIndex, RuntimeIndexStep,
+                       PatrolRouteRequiredPointCount,
+                       InitialPatrolRouteIndex);
 
 } // namespace JsonAdapters
 namespace LevelSettingsAdapters {
@@ -69,7 +78,20 @@ ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object) {
                                   MainStreetFacingYawDegrees,
                                   PlayerSpawnAnchorLabel,
                                   LandmarkLabelWorldSizeScale,
-                                  NatureLabelWorldSizeScale));
+                                  NatureLabelWorldSizeScale, TerrainLodStep,
+                                  TerrainMinimumLodStep,
+                                  TerrainGridTerminalOffset,
+                                  TerrainLodGridPadding,
+                                  TerrainQuadIndexReserveCount,
+                                  TerrainQuadColumnStep, TerrainQuadRowStep,
+                                  TerrainHalfWorldSizeScale,
+                                  TerrainVertexHeightOffset,
+                                  BlockForcedLodModel,
+                                  BlockCullDistance,
+                                  bRuntimeSpawnOnBeginPlay,
+                                  RuntimeFirstRenderIndex, RuntimeIndexStep,
+                                  PatrolRouteRequiredPointCount,
+                                  InitialPatrolRouteIndex));
 }
 
 } // namespace LevelSettingsAdapters

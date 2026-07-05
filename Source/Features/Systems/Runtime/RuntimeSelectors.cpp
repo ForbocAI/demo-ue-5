@@ -237,6 +237,11 @@ SelectRuntimeText(const FRuntimeState &State) {
   return State.RuntimeText;
 }
 
+const ForbocAI::Demo::Data::FUIRuntimeSettings &
+SelectUIRuntimeSettings(const FRuntimeState &State) {
+  return UISelectors::SelectRuntimeSettings(State.UI);
+}
+
 const ForbocAI::Demo::Data::FBotRuntimeSettings &
 SelectBotRuntimeSettings(const FRuntimeState &State) {
   return State.BotRuntime;

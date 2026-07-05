@@ -3,6 +3,7 @@
 #include "Core/ue_fp.hpp"
 #include "CoreMinimal.h"
 #include "Features/Components/Data/DataTypes.h"
+#include "Features/Components/Data/RuntimeSettings/LevelSettingsTypes.h"
 #include "Features/Components/Rendering/RenderingTypes.h"
 #include "GameFramework/Actor.h"
 #include "RuntimeLevelView.generated.h"
@@ -58,6 +59,7 @@ private:
   UStaticMesh *CubeMesh;
   UMaterialInterface *BlockBaseMaterial;
   TArray<ForbocAI::Demo::Level::FLevelRetroTextureSpec> TextureCatalog;
+  ForbocAI::Demo::Data::FLevelGeometrySettings LevelGeometrySettings;
   ForbocAI::Demo::Data::FRenderingRuntimeSettings RenderingRuntimeSettings;
 
   /**

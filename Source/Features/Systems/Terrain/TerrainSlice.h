@@ -16,8 +16,11 @@ const rtk::Slice<FTerrainState> &GetSlice();
 
 inline FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
-                        const FLevelOrthoData &OrthoData) {
-  return TerrainReducers::BuildTerrainMeshPayload(TerrainData, OrthoData);
+                        const FLevelOrthoData &OrthoData,
+                        const ForbocAI::Demo::Data::FLevelGeometrySettings
+                            &Geometry) {
+  return TerrainReducers::BuildTerrainMeshPayload(TerrainData, OrthoData,
+                                                  Geometry);
 }
 
 } // namespace TerrainSlice

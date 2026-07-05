@@ -187,7 +187,7 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
 
   FRuntimeLevelViewPayload Payload;
   Payload.TerrainMesh = TerrainReducers::BuildTerrainMeshPayload(
-      *Request.TerrainData, *Request.OrthoData);
+      *Request.TerrainData, *Request.OrthoData, *Request.Geometry);
   Payload.bTerrainMeshLoaded = Payload.TerrainMesh.bLoaded;
 
   ReduceAppendSection(Payload.Sections,

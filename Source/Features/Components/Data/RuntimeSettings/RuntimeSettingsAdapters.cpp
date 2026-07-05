@@ -17,6 +17,33 @@ FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object);
 } // namespace RuntimeSettingsAdapters
 namespace JsonAdapters {
 
+template <> struct TJsonSettingsRegistry<FRuntimeStatsOverlaySettings> {
+  static const TArray<TJsonSettingsField<FRuntimeStatsOverlaySettings>>
+      &Fields() {
+    static const TArray<TJsonSettingsField<FRuntimeStatsOverlaySettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(
+                FRuntimeStatsOverlaySettings, FramesPerSecondLabel,
+                StackDepthLabel, PolyCountLabel, LabelValueSeparator,
+                ValueFormat,
+                ViewportLeft, ViewportTop, ViewportWidth, ViewportHeight,
+                PanelPadding, FramesPerSecondNumerator, MinimumDeltaSeconds,
+                InitialDeltaSeconds, InitialFramesPerSecond, EmptyStackDepth,
+                EmptyPolyCount, EmptyTriangleCount, MeshLodIndex,
+                ProcMeshFirstSectionIndex, ProcMeshSectionStep,
+                TriangleIndexDivisor, ZOrder, FontSize, bRemoveDpIScale,
+                bAutoWrapText, FramesPerSecondMediumThreshold,
+                FramesPerSecondHighThreshold, StackDepthMediumThreshold,
+                StackDepthHighThreshold, PolyCountMediumThreshold,
+                PolyCountHighThreshold),
+            JSON_OBJECT_SETTING_FIELDS(
+                FRuntimeStatsOverlaySettings,
+                RuntimeSettingsAdapters::ReadLinearColorSettings, PanelColor,
+                TextColor, LowValueColor, MediumValueColor, HighValueColor)};
+    return RegisteredFields;
+  }
+};
+
 JSON_SETTINGS_REGISTRY(FRuntimeObservationIdSettings,
                        PlayerPresentationRequested,
                        PlayerMovementInputObserved,
@@ -72,7 +99,28 @@ template <> struct TJsonSettingsRegistry<FUIRuntimeSettings> {
                 FUIRuntimeSettings,
                 RuntimeSettingsAdapters::ReadLinearColorSettings, PanelColor,
                 TitleColor, PlayerColor, SystemColor, NpcColor, UnknownColor,
-                RuntimeReplyColor)};
+                RuntimeReplyColor),
+            JSON_OBJECT_SETTING_FIELDS(
+                FUIRuntimeSettings,
+                ReadSettingsWith<FRuntimeStatsOverlaySettings>(
+                    JSON_SETTINGS_ATOMS(
+                        FramesPerSecondLabel, StackDepthLabel, PolyCountLabel,
+                        LabelValueSeparator, ValueFormat, ViewportLeft,
+                        ViewportTop, ViewportWidth, ViewportHeight,
+                        PanelPadding, FramesPerSecondNumerator,
+                        MinimumDeltaSeconds, InitialDeltaSeconds,
+                        InitialFramesPerSecond, EmptyStackDepth,
+                        EmptyPolyCount, EmptyTriangleCount, MeshLodIndex,
+                        ProcMeshFirstSectionIndex, ProcMeshSectionStep,
+                        TriangleIndexDivisor, ZOrder, FontSize,
+                        bRemoveDpIScale, bAutoWrapText,
+                        FramesPerSecondMediumThreshold,
+                        FramesPerSecondHighThreshold,
+                        StackDepthMediumThreshold, StackDepthHighThreshold,
+                        PolyCountMediumThreshold, PolyCountHighThreshold,
+                        PanelColor, TextColor, LowValueColor,
+                        MediumValueColor, HighValueColor)),
+                StatsOverlay)};
     return RegisteredFields;
   }
 };
@@ -384,8 +432,9 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
           NpcReplyFormat, ConnectionMessageFormat, UnboundDialogueError,
           PayloadIdFormat, PanelColor, TitleColor, PlayerColor, SystemColor,
           NpcColor, UnknownColor, RuntimeReplyColor, PanelPadding, TitleSize,
-          BodySize))(Json::ReadObjectField(RuntimeSettingsSource(Sources, "UI"),
-                                           "RuntimeUI"));
+          BodySize, StatsOverlay))(
+      Json::ReadObjectField(RuntimeSettingsSource(Sources, "UI"),
+                            "RuntimeUI"));
   Settings.SpeechRuntime = Json::ReadSettingsWith<FSpeechRuntimeSettings>(
       JSON_SETTINGS_ATOMS(
           RestViseme, RestWeight, SpeechRate, Volume, bEnableLipSync,

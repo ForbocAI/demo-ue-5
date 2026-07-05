@@ -61,6 +61,69 @@
     },
     "panel_padding": 16.0,
     "title_size": 22.0,
-    "body_size": 18.0
+    "body_size": 18.0,
+    "stats_overlay": {
+      "frames_per_second_label": "Frames/sec:",
+      "stack_depth_label": "Stack depth:",
+      "poly_count_label": "Poly count:",
+      "label_value_separator": " ",
+      "value_format": "%d",
+      "viewport_left": 12.0,
+      "viewport_top": 12.0,
+      "viewport_width": 220.0,
+      "viewport_height": 82.0,
+      "panel_padding": 8.0,
+      "frames_per_second_numerator": 1.0,
+      "minimum_delta_seconds": 0.000001,
+      "initial_delta_seconds": 0.0,
+      "initial_frames_per_second": 0,
+      "empty_stack_depth": 0,
+      "empty_poly_count": 0,
+      "empty_triangle_count": 0,
+      "mesh_lod_index": 0,
+      "proc_mesh_first_section_index": 0,
+      "proc_mesh_section_step": 1,
+      "triangle_index_divisor": 3,
+      "z_order": 5,
+      "font_size": 16,
+      "frames_per_second_medium_threshold": 30,
+      "frames_per_second_high_threshold": 60,
+      "stack_depth_medium_threshold": 4,
+      "stack_depth_high_threshold": 8,
+      "poly_count_medium_threshold": 50000,
+      "poly_count_high_threshold": 150000,
+      "remove_dp_i_scale": false,
+      "auto_wrap_text": false,
+      "panel_color": {
+        "r": 0.015,
+        "g": 0.018,
+        "b": 0.02,
+        "a": 0.78
+      },
+      "text_color": {
+        "r": 0.82,
+        "g": 0.94,
+        "b": 0.88,
+        "a": 1.0
+      },
+      "low_value_color": {
+        "r": 0.1,
+        "g": 0.9,
+        "b": 0.25,
+        "a": 1.0
+      },
+      "medium_value_color": {
+        "r": 1.0,
+        "g": 0.85,
+        "b": 0.1,
+        "a": 1.0
+      },
+      "high_value_color": {
+        "r": 1.0,
+        "g": 0.18,
+        "b": 0.12,
+        "a": 1.0
+      }
+    }
   }
 }

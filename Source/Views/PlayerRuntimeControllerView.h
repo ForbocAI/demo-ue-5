@@ -7,6 +7,7 @@
 
 class ATownspersonView;
 class URuntimeChatWidget;
+class URuntimeStatsWidget;
 
 namespace ForbocAI::Demo::UI {
 struct FRuntimeConversationViewModel;
@@ -32,6 +33,7 @@ public:
   APlayerRuntimeControllerView();
 
 protected:
+  virtual void BeginPlay() override;
   virtual void SetupInputComponent() override;
 
 private:
@@ -44,6 +46,12 @@ private:
   UPROPERTY()
   URuntimeChatWidget *RuntimeConversationWidget;
 
+  UPROPERTY(EditDefaultsOnly, Category = "Level|UI")
+  TSubclassOf<URuntimeStatsWidget> RuntimeStatsWidgetClass;
+
+  UPROPERTY()
+  URuntimeStatsWidget *RuntimeStatsWidget;
+
   /**
    * @brief Observes nearby townsperson actors and dispatches the interaction
    * candidate action/thunk workflow.
@@ -55,4 +63,9 @@ private:
    */
   void PresentConversationViewModel(
       const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation);
+
+  /**
+   * @brief Ensures the runtime stats overlay is visible in the viewport.
+   */
+  void PresentRuntimeStatsWidget();
 };

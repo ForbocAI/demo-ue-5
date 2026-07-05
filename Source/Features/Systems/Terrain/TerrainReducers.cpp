@@ -11,23 +11,69 @@ namespace {
 struct FTerrainMeshBuildContext {
   const FLevelTerrainData &TerrainData;
   const FLevelOrthoData &OrthoData;
-  int32 GridSize;
+  int32 SourceGridSize;
+  int32 SourceGridLastIndex;
+  int32 LodGridSize;
+  int32 LodGridLastIndex;
+  int32 LodStep;
+  int32 QuadColumnStep;
+  int32 QuadRowStep;
   float HalfSize;
   float Step;
+  float VertexHeightOffset;
 };
 
-FTerrainMeshPayload ReserveTerrainMeshPayload(int32 GridSize) {
+struct FTerrainMeshReserveRequest {
+  int32 LodGridSize;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+struct FTerrainLodGridSizeRequest {
+  int32 SourceGridSize;
+  int32 LodStep;
+  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+};
+
+FTerrainMeshPayload
+ReserveTerrainMeshPayload(const FTerrainMeshReserveRequest &Request) {
   return (func::pipe(FTerrainMeshPayload{}) |
-          [GridSize](FTerrainMeshPayload Payload) {
+          [&Request](FTerrainMeshPayload Payload) {
             Payload.bLoaded = true;
-            Payload.Vertices.Reserve(GridSize * GridSize);
-            Payload.Normals.Reserve(GridSize * GridSize);
-            Payload.UVs.Reserve(GridSize * GridSize);
-            Payload.VertexColors.Reserve(GridSize * GridSize);
-            Payload.Triangles.Reserve((GridSize - 1) * (GridSize - 1) * 6);
+            Payload.Vertices.Reserve(Request.LodGridSize *
+                                     Request.LodGridSize);
+            Payload.Normals.Reserve(Request.LodGridSize *
+                                    Request.LodGridSize);
+            Payload.UVs.Reserve(Request.LodGridSize * Request.LodGridSize);
+            Payload.VertexColors.Reserve(Request.LodGridSize *
+                                         Request.LodGridSize);
+            Payload.Triangles.Reserve(
+                (Request.LodGridSize -
+                 Request.Geometry.TerrainGridTerminalOffset) *
+                (Request.LodGridSize -
+                 Request.Geometry.TerrainGridTerminalOffset) *
+                Request.Geometry.TerrainQuadIndexReserveCount);
             return Payload;
           })
       .val;
+}
+
+int32 SelectTerrainLodStep(
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  return FMath::Max(Geometry.TerrainLodStep, Geometry.TerrainMinimumLodStep);
+}
+
+int32 SelectTerrainLodGridSize(const FTerrainLodGridSizeRequest &Request) {
+  return ((Request.SourceGridSize -
+           Request.Geometry.TerrainGridTerminalOffset) /
+          Request.LodStep) +
+         Request.Geometry.TerrainLodGridPadding;
+}
+
+int32 SelectTerrainSourceGridIndex(const FTerrainMeshBuildContext &Context,
+                                   int32 LodIndex) {
+  return LodIndex >= Context.LodGridLastIndex
+             ? Context.SourceGridLastIndex
+             : LodIndex * Context.LodStep;
 }
 
 FColor TerrainVertexColor(const FTerrainMeshBuildContext &Context, int32 Row,
@@ -38,23 +84,28 @@ FColor TerrainVertexColor(const FTerrainMeshBuildContext &Context, int32 Row,
 FTerrainMeshPayload AddTerrainVertex(const FTerrainMeshBuildContext &Context,
                                      int32 Row, int32 Column,
                                      FTerrainMeshPayload Payload) {
-  const float NorthSouth = Context.HalfSize - Context.Step * Row;
-  const float EastWest = -Context.HalfSize + Context.Step * Column;
-  Payload.Vertices.Add(Context.TerrainData.ToWorld(EastWest, NorthSouth, 0.0f));
+  const int32 SourceRow = SelectTerrainSourceGridIndex(Context, Row);
+  const int32 SourceColumn = SelectTerrainSourceGridIndex(Context, Column);
+  const float NorthSouth = Context.HalfSize - Context.Step * SourceRow;
+  const float EastWest = -Context.HalfSize + Context.Step * SourceColumn;
+  Payload.Vertices.Add(Context.TerrainData.ToWorld(
+      EastWest, NorthSouth, Context.VertexHeightOffset));
   Payload.Normals.Add(FVector::UpVector);
-  Payload.UVs.Add(FVector2D(static_cast<float>(Column) / (Context.GridSize - 1),
-                            static_cast<float>(Row) / (Context.GridSize - 1)));
-  Payload.VertexColors.Add(TerrainVertexColor(Context, Row, Column));
+  Payload.UVs.Add(FVector2D(
+      static_cast<float>(SourceColumn) / Context.SourceGridLastIndex,
+      static_cast<float>(SourceRow) / Context.SourceGridLastIndex));
+  Payload.VertexColors.Add(TerrainVertexColor(Context, SourceRow,
+                                              SourceColumn));
   return Payload;
 }
 
 FTerrainMeshPayload AddTerrainQuadTriangles(
     const FTerrainMeshBuildContext &Context, int32 Row, int32 Column,
     FTerrainMeshPayload Payload) {
-  const int32 A = Row * Context.GridSize + Column;
-  const int32 B = A + 1;
-  const int32 C = A + Context.GridSize;
-  const int32 D = C + 1;
+  const int32 A = Row * Context.LodGridSize + Column;
+  const int32 B = A + Context.QuadColumnStep;
+  const int32 C = A + Context.LodGridSize * Context.QuadRowStep;
+  const int32 D = C + Context.QuadColumnStep;
   Payload.Triangles.Add(A);
   Payload.Triangles.Add(C);
   Payload.Triangles.Add(B);
@@ -65,23 +116,33 @@ FTerrainMeshPayload AddTerrainQuadTriangles(
 }
 
 FTerrainMeshPayload BuildLoadedTerrainMeshPayload(
-    const FLevelTerrainData &TerrainData, const FLevelOrthoData &OrthoData) {
-  const int32 GridSize = TerrainData.GetGridSize();
+    const FLevelTerrainData &TerrainData, const FLevelOrthoData &OrthoData,
+    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+  const int32 SourceGridSize = TerrainData.GetGridSize();
+  const int32 LodStep = SelectTerrainLodStep(Geometry);
+  const int32 LodGridSize =
+      SelectTerrainLodGridSize({SourceGridSize, LodStep, Geometry});
   const FTerrainMeshBuildContext Context{
-      TerrainData, OrthoData, GridSize,
-      TerrainData.GetTerrainWorldSize() * 0.5f,
+      TerrainData, OrthoData, SourceGridSize,
+      SourceGridSize - Geometry.TerrainGridTerminalOffset, LodGridSize,
+      LodGridSize - Geometry.TerrainGridTerminalOffset, LodStep,
+      Geometry.TerrainQuadColumnStep, Geometry.TerrainQuadRowStep,
+      TerrainData.GetTerrainWorldSize() * Geometry.TerrainHalfWorldSizeScale,
       TerrainData.GetTerrainWorldSize() /
-          static_cast<float>(GridSize - 1)};
+          static_cast<float>(SourceGridSize -
+                             Geometry.TerrainGridTerminalOffset),
+      Geometry.TerrainVertexHeightOffset};
   const FTerrainMeshPayload WithVertices =
       func::fold_grid_range<FTerrainMeshPayload>(
-          GridSize, GridSize, ReserveTerrainMeshPayload(GridSize),
+          LodGridSize, LodGridSize,
+          ReserveTerrainMeshPayload({LodGridSize, Geometry}),
           [&Context](const FTerrainMeshPayload &Payload,
                      const func::GridIndex &Index) {
             return AddTerrainVertex(Context, static_cast<int32>(Index.Row),
                                     static_cast<int32>(Index.Column), Payload);
           });
   return func::fold_grid_range<FTerrainMeshPayload>(
-      GridSize - 1, GridSize - 1, WithVertices,
+      Context.LodGridLastIndex, Context.LodGridLastIndex, WithVertices,
       [&Context](const FTerrainMeshPayload &Payload,
                  const func::GridIndex &Index) {
         return AddTerrainQuadTriangles(Context, static_cast<int32>(Index.Row),
@@ -120,10 +181,13 @@ FTerrainState ReduceTerrainMeshPayloadObserved(
 
 FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
-                        const FLevelOrthoData &OrthoData) {
+                        const FLevelOrthoData &OrthoData,
+                        const ForbocAI::Demo::Data::FLevelGeometrySettings
+                            &Geometry) {
   return TerrainData.IsLoaded()
              ? (OrthoData.IsLoaded()
-                    ? BuildLoadedTerrainMeshPayload(TerrainData, OrthoData)
+                    ? BuildLoadedTerrainMeshPayload(TerrainData, OrthoData,
+                                                    Geometry)
                     : FTerrainMeshPayload{})
              : FTerrainMeshPayload{};
 }

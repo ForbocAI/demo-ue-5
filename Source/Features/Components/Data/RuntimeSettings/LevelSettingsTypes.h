@@ -49,6 +49,22 @@ struct FLevelGeometrySettings {
   FString PlayerSpawnAnchorLabel;
   float LandmarkLabelWorldSizeScale;
   float NatureLabelWorldSizeScale;
+  int32 TerrainLodStep;
+  int32 TerrainMinimumLodStep;
+  int32 TerrainGridTerminalOffset;
+  int32 TerrainLodGridPadding;
+  int32 TerrainQuadIndexReserveCount;
+  int32 TerrainQuadColumnStep;
+  int32 TerrainQuadRowStep;
+  float TerrainHalfWorldSizeScale;
+  float TerrainVertexHeightOffset;
+  int32 BlockForcedLodModel;
+  float BlockCullDistance;
+  bool bRuntimeSpawnOnBeginPlay;
+  int32 RuntimeFirstRenderIndex;
+  int32 RuntimeIndexStep;
+  int32 PatrolRouteRequiredPointCount;
+  int32 InitialPatrolRouteIndex;
 };
 
 
@@ -116,7 +132,29 @@ inline bool operator==(const FLevelGeometrySettings &Left,
          FMath::IsNearlyEqual(Left.LandmarkLabelWorldSizeScale,
                               Right.LandmarkLabelWorldSizeScale) &&
          FMath::IsNearlyEqual(Left.NatureLabelWorldSizeScale,
-                              Right.NatureLabelWorldSizeScale);
+                              Right.NatureLabelWorldSizeScale) &&
+         Left.TerrainLodStep == Right.TerrainLodStep &&
+         Left.TerrainMinimumLodStep == Right.TerrainMinimumLodStep &&
+         Left.TerrainGridTerminalOffset ==
+             Right.TerrainGridTerminalOffset &&
+         Left.TerrainLodGridPadding == Right.TerrainLodGridPadding &&
+         Left.TerrainQuadIndexReserveCount ==
+             Right.TerrainQuadIndexReserveCount &&
+         Left.TerrainQuadColumnStep == Right.TerrainQuadColumnStep &&
+         Left.TerrainQuadRowStep == Right.TerrainQuadRowStep &&
+         FMath::IsNearlyEqual(Left.TerrainHalfWorldSizeScale,
+                              Right.TerrainHalfWorldSizeScale) &&
+         FMath::IsNearlyEqual(Left.TerrainVertexHeightOffset,
+                              Right.TerrainVertexHeightOffset) &&
+         Left.BlockForcedLodModel == Right.BlockForcedLodModel &&
+         FMath::IsNearlyEqual(Left.BlockCullDistance,
+                              Right.BlockCullDistance) &&
+         Left.bRuntimeSpawnOnBeginPlay == Right.bRuntimeSpawnOnBeginPlay &&
+         Left.RuntimeFirstRenderIndex == Right.RuntimeFirstRenderIndex &&
+         Left.RuntimeIndexStep == Right.RuntimeIndexStep &&
+         Left.PatrolRouteRequiredPointCount ==
+             Right.PatrolRouteRequiredPointCount &&
+         Left.InitialPatrolRouteIndex == Right.InitialPatrolRouteIndex;
 }
 
 inline bool operator!=(const FLevelGeometrySettings &Left,
