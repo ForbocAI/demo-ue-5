@@ -17,8 +17,6 @@
 #include "Features/Systems/Terrain/TerrainReducers.h"
 #include "Features/Systems/UI/UIReducers.h"
 
-#include <initializer_list>
-
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -30,10 +28,6 @@ typedef TFunction<func::Maybe<FRuntimeState>(
     FRuntimeActionReducer;
 
 template <typename Payload>
-using TRuntimeActionPayloadExtractor =
-    TFunction<func::Maybe<Payload>(const rtk::AnyAction &)>;
-
-template <typename Payload>
 using TRuntimePayloadReducer =
     FRuntimeState (*)(const FRuntimeState &,
                       const rtk::PayloadAction<Payload> &);
@@ -41,6 +35,10 @@ using TRuntimePayloadReducer =
 struct FRuntimeActionReducerDeclaration {
   FRuntimeActionReducer Reduce;
 };
+
+struct FRuntimeActionReducerCatalog {};
+
+template <typename Catalog> struct TRuntimeReducerRegistry;
 
 struct FRuntimeActionReducerRequest {
   const FRuntimeState &State;
@@ -77,12 +75,12 @@ func::Maybe<FRuntimeState> ReduceExtractedPayloadAction(
 
 template <typename Payload>
 FRuntimeActionReducerDeclaration RuntimePayloadReducer(
-    TRuntimeActionPayloadExtractor<Payload> Extract,
+    const rtk::ActionCreator<Payload> &Creator,
     TRuntimePayloadReducer<Payload> Reduce) {
-  return {[Extract, Reduce](const FRuntimeState &State,
+  return {[Creator, Reduce](const FRuntimeState &State,
                             const rtk::AnyAction &Action) {
     return func::mbind(
-        Extract(Action),
+        Creator.extract(Action),
         [&State, &Action, Reduce](const Payload &PayloadValue) {
           return ReduceExtractedPayloadAction(State, Action, PayloadValue,
                                               Reduce);
@@ -90,34 +88,12 @@ FRuntimeActionReducerDeclaration RuntimePayloadReducer(
   }};
 }
 
-func::Maybe<FRuntimeTownspersonInteractionSource>
-ExtractTownspersonInteractionSource(const rtk::AnyAction &Action) {
-  return RuntimeActions::TownspersonInteractionSourceObserved().extract(Action);
-}
-
-func::Maybe<TArray<FTownspersonSeed>>
-ExtractTownspeopleSeeded(const rtk::AnyAction &Action) {
-  return TownspersonActions::TownspeopleSeeded().extract(Action);
-}
-
-func::Maybe<TArray<FHorseRouteSeed>>
-ExtractHorsesSeeded(const rtk::AnyAction &Action) {
-  return HorseActions::HorsesSeeded().extract(Action);
-}
-
-func::Maybe<FRuntimeState> ReduceRuntimeActionWith(
-    const FRuntimeActionReducerRequest &Request,
-    const FRuntimeActionReducerDeclaration &Declaration) {
-  return Declaration.Reduce(Request.State, Request.Action);
-}
-
 func::Maybe<FRuntimeState> ReduceRuntimeActionMaybe(
     const FRuntimeActionReducerRequest &Request,
-    std::initializer_list<FRuntimeActionReducerDeclaration> Declarations) {
+    const TArray<FRuntimeActionReducerDeclaration> &Declarations) {
   return func::fold_array<FRuntimeActionReducerDeclaration,
                           func::Maybe<FRuntimeState>>(
-      TArray<FRuntimeActionReducerDeclaration>(Declarations),
-      func::nothing<FRuntimeState>(),
+      Declarations, func::nothing<FRuntimeState>(),
       [&Request](const func::Maybe<FRuntimeState> &Current,
                  const FRuntimeActionReducerDeclaration &Declaration) {
         return func::match(
@@ -126,7 +102,7 @@ func::Maybe<FRuntimeState> ReduceRuntimeActionMaybe(
               return func::just(Reduced);
             },
             [&Request, &Declaration]() {
-              return ReduceRuntimeActionWith(Request, Declaration);
+              return Declaration.Reduce(Request.State, Request.Action);
             });
       });
 }
@@ -303,18 +279,32 @@ FRuntimeState ReduceRuntimeHorsesSeeded(
       .val;
 }
 
+namespace {
+
+template <> struct TRuntimeReducerRegistry<FRuntimeActionReducerCatalog> {
+  static const TArray<FRuntimeActionReducerDeclaration> &Declarations() {
+    static const TArray<FRuntimeActionReducerDeclaration>
+        RegisteredDeclarations = {
+            RuntimePayloadReducer(
+                RuntimeActions::TownspersonInteractionSourceObserved(),
+                ReduceTownspersonInteractionSourceObserved),
+            RuntimePayloadReducer(TownspersonActions::TownspeopleSeeded(),
+                                  ReduceRuntimeTownspeopleSeeded),
+            RuntimePayloadReducer(HorseActions::HorsesSeeded(),
+                                  ReduceRuntimeHorsesSeeded)};
+    return RegisteredDeclarations;
+  }
+};
+
+} // namespace
+
 FRuntimeState ReduceRuntimeAction(const FRuntimeState &State,
                                   const rtk::AnyAction &Action) {
   return func::or_else(
       ReduceRuntimeActionMaybe(
           {State, Action},
-          {RuntimePayloadReducer<FRuntimeTownspersonInteractionSource>(
-               ExtractTownspersonInteractionSource,
-               ReduceTownspersonInteractionSourceObserved),
-           RuntimePayloadReducer<TArray<FTownspersonSeed>>(
-               ExtractTownspeopleSeeded, ReduceRuntimeTownspeopleSeeded),
-           RuntimePayloadReducer<TArray<FHorseRouteSeed>>(
-               ExtractHorsesSeeded, ReduceRuntimeHorsesSeeded)}),
+          TRuntimeReducerRegistry<
+              FRuntimeActionReducerCatalog>::Declarations()),
       State);
 }
 
