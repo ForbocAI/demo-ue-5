@@ -18,8 +18,6 @@
 #include "Features/Systems/Terrain/TerrainActions.h"
 #include "Features/Systems/Terrain/TerrainFactories.h"
 
-#include <initializer_list>
-
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -57,6 +55,10 @@ using FRuntimeSeedActionBuilder =
 struct FRuntimeSeedActionDeclaration {
   FRuntimeSeedActionBuilder Build;
 };
+
+struct FRuntimeSeedActionCatalog {};
+
+template <typename Catalog> struct TRuntimeThunkRegistry;
 
 void LoadRuntimeData(const FRuntimeDataLoadRequest &Request) {
   Request.TerrainData.LoadFromContent({Request.Sources, Request.Geometry});
@@ -114,13 +116,29 @@ rtk::AnyAction NatureSeededAction(const FRuntimeSeedSource &Source) {
           {Source.DataSources.NatureJsonPath, Source.Geometry}));
 }
 
+template <> struct TRuntimeThunkRegistry<FRuntimeSeedActionCatalog> {
+  static const TArray<FRuntimeSeedActionDeclaration> &Declarations() {
+    static const TArray<FRuntimeSeedActionDeclaration>
+        RegisteredDeclarations = {{TerrainLoadedSeedAction},
+                                  {LandmarksSeededAction},
+                                  {PlayerSpawnAnchoredAction},
+                                  {TownspeopleSeededAction},
+                                  {HorsesSeededAction},
+                                  {NatureSeededAction}};
+    return RegisteredDeclarations;
+  }
+};
+
 TArray<rtk::AnyAction> RuntimeSeedActions(
     const FRuntimeSeedSource &Source,
-    std::initializer_list<FRuntimeSeedActionDeclaration> Declarations) {
-  return func::map_array<FRuntimeSeedActionDeclaration, rtk::AnyAction>(
-      TArray<FRuntimeSeedActionDeclaration>(Declarations),
-      [&Source](const FRuntimeSeedActionDeclaration &Declaration) {
-        return Declaration.Build(Source);
+    const TArray<FRuntimeSeedActionDeclaration> &Declarations) {
+  return func::fold_array<FRuntimeSeedActionDeclaration,
+                          TArray<rtk::AnyAction>>(
+      Declarations, TArray<rtk::AnyAction>(),
+      [&Source](const TArray<rtk::AnyAction> &Acc,
+                const FRuntimeSeedActionDeclaration &Declaration) {
+        return func::append_value<rtk::AnyAction>(
+            Acc, Declaration.Build(Source));
       });
 }
 
@@ -137,12 +155,8 @@ void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
       Request.Dispatch,
       RuntimeSeedActions(
           RuntimeSeedSource(Request),
-          {{TerrainLoadedSeedAction},
-           {LandmarksSeededAction},
-           {PlayerSpawnAnchoredAction},
-           {TownspeopleSeededAction},
-           {HorsesSeededAction},
-           {NatureSeededAction}}));
+          TRuntimeThunkRegistry<
+              FRuntimeSeedActionCatalog>::Declarations()));
 }
 
 } // namespace
