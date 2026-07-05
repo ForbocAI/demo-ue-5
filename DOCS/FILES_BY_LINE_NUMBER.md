@@ -60,6 +60,7 @@
 | 147 | `Scripts/Tools/create_french_gulch_map.py` |
 | 147 | `Source/Features/Systems/Bots/Goals/BotGoalReducers.cpp` |
 | 145 | `Source/Tests/ContentAssets.spec.cpp` |
+| 143 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.cpp` |
 | 142 | `Scripts/DOCS/count_project_lines.py` |
 | 141 | `Scripts/run-tests.sh` |
 | 141 | `Source/Blueprints/GenericStateBlueprintLibrary.h` |
@@ -91,7 +92,6 @@
 | 110 | `Source/Features/Systems/Dialogue/DialogueTypes.h` |
 | 109 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_building_timber.json` |
 | 109 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_water_creek.json` |
-| 108 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.cpp` |
 | 107 | `Source/Features/Systems/Runtime/RuntimeSlice.cpp` |
 | 106 | `Source/Features/Systems/Projection/SystemsProjectionRuntimeAdapters.cpp` |
 | 105 | `Source/Features/Entities/Characters/Player/PlayerReducers.h` |

@@ -2,7 +2,76 @@
 
 #include "Features/Components/Data/JsonValueAdapters.h"
 
-#include <initializer_list>
+namespace ForbocAI {
+namespace Demo {
+namespace Data {
+namespace JsonAdapters {
+
+namespace LevelTypes = ForbocAI::Demo::Level;
+
+using ELevelRetroTexture = LevelTypes::ELevelRetroTexture;
+using ELevelRuntimeAnchorMode = LevelTypes::ELevelRuntimeAnchorMode;
+using ELevelRuntimeLabelHeightMode =
+    LevelTypes::ELevelRuntimeLabelHeightMode;
+using ELevelRuntimeScaleMode = LevelTypes::ELevelRuntimeScaleMode;
+
+template <> struct TJsonTextValueRegistry<ELevelRuntimeScaleMode> {
+  static const TArray<TTextValueDeclaration<ELevelRuntimeScaleMode>> &Values() {
+    static const TArray<TTextValueDeclaration<ELevelRuntimeScaleMode>>
+        RegisteredValues = {
+            {"building", ELevelRuntimeScaleMode::Building},
+            {"long_feature", ELevelRuntimeScaleMode::LongFeature},
+            {"pad", ELevelRuntimeScaleMode::Pad}};
+    return RegisteredValues;
+  }
+};
+
+template <> struct TJsonTextValueRegistry<ELevelRuntimeAnchorMode> {
+  static const TArray<TTextValueDeclaration<ELevelRuntimeAnchorMode>>
+      &Values() {
+    static const TArray<TTextValueDeclaration<ELevelRuntimeAnchorMode>>
+        RegisteredValues = {
+            {"building_lots", ELevelRuntimeAnchorMode::BuildingLots},
+            {"feature_lots", ELevelRuntimeAnchorMode::FeatureLots},
+            {"post_office_lots", ELevelRuntimeAnchorMode::PostOfficeLots},
+            {"world", ELevelRuntimeAnchorMode::World}};
+    return RegisteredValues;
+  }
+};
+
+template <> struct TJsonTextValueRegistry<ELevelRuntimeLabelHeightMode> {
+  static const TArray<TTextValueDeclaration<ELevelRuntimeLabelHeightMode>>
+      &Values() {
+    static const TArray<TTextValueDeclaration<ELevelRuntimeLabelHeightMode>>
+        RegisteredValues = {
+            {"explicit", ELevelRuntimeLabelHeightMode::Explicit},
+            {"label_for_scale",
+             ELevelRuntimeLabelHeightMode::LabelForScale},
+            {"above_block", ELevelRuntimeLabelHeightMode::AboveBlock}};
+    return RegisteredValues;
+  }
+};
+
+template <> struct TJsonTextValueRegistry<ELevelRetroTexture> {
+  static const TArray<TTextValueDeclaration<ELevelRetroTexture>> &Values() {
+    static const TArray<TTextValueDeclaration<ELevelRetroTexture>>
+        RegisteredValues = {
+            {"terrain_ortho", ELevelRetroTexture::TerrainOrtho},
+            {"building_timber", ELevelRetroTexture::BuildingTimber},
+            {"road_dust", ELevelRetroTexture::RoadDust},
+            {"water_creek", ELevelRetroTexture::WaterCreek},
+            {"foliage_riparian", ELevelRetroTexture::FoliageRiparian},
+            {"rock_granite", ELevelRetroTexture::RockGranite},
+            {"mine_timber", ELevelRetroTexture::MineTimber},
+            {"marker_paint", ELevelRetroTexture::MarkerPaint}};
+    return RegisteredValues;
+  }
+};
+
+} // namespace JsonAdapters
+} // namespace Data
+} // namespace Demo
+} // namespace ForbocAI
 
 namespace ForbocAI {
 namespace Demo {
@@ -10,15 +79,7 @@ namespace Level {
 namespace RuntimeLayout {
 namespace {
 
-template <typename Output> struct TEnumTextDeclaration {
-  FString Text;
-  Output Value;
-
-  TEnumTextDeclaration() : Text(), Value() {}
-
-  TEnumTextDeclaration(const char *InText, Output InValue)
-      : Text(FString(UTF8_TO_TCHAR(InText))), Value(InValue) {}
-};
+namespace JsonText = ForbocAI::Demo::Data::JsonAdapters;
 
 /**
  * @brief Logs one invalid runtime-layout enum field.
@@ -37,69 +98,43 @@ func::Maybe<Output> LogInvalidEnum(
 }
 
 /**
- * @brief Parses lower-case authored enum text through declaration data.
+ * @brief Parses authored enum text through registered declaration data.
  *
- * @signature template <typename Output> func::Maybe<Output> ParseEnumText(const FLevelRuntimeEnumTextRequest &Request, std::initializer_list<TEnumTextDeclaration<Output>> Declarations)
+ * @signature template <typename Output> func::Maybe<Output> ParseEnumText(const FLevelRuntimeEnumTextRequest &Request)
  *
- * User story: As a runtime-layout adapter maintainer, enum parsers should list
- * authored tokens as data while one reusable runner owns lookup and failure.
+ * User story: As a runtime-layout adapter maintainer, enum parsers should
+ * register authored tokens as data while one reusable runner owns lookup and
+ * failure.
  */
 template <typename Output>
-func::Maybe<Output> ParseEnumText(
-    const FLevelRuntimeEnumTextRequest &Request,
-    std::initializer_list<TEnumTextDeclaration<Output>> Declarations) {
-  const FString Text = Request.Text.ToLower();
+func::Maybe<Output>
+ParseEnumText(const FLevelRuntimeEnumTextRequest &Request) {
   return func::match(
-      func::find_array<TEnumTextDeclaration<Output>>(
-          TArray<TEnumTextDeclaration<Output>>(Declarations),
-          [Text](const TEnumTextDeclaration<Output> &Declaration) {
-            return Declaration.Text == Text;
-          }),
-      [](const TEnumTextDeclaration<Output> &Declaration) {
-        return func::just(Declaration.Value);
-      },
-      [Request]() { return LogInvalidEnum<Output>(Request); });
+      JsonText::ReadRegisteredTextValue<Output>(Request.Text),
+      [](Output Value) { return func::just(Value); },
+      [&Request]() { return LogInvalidEnum<Output>(Request); });
 }
 
 } // namespace
 
 func::Maybe<ELevelRuntimeScaleMode>
 ParseScaleMode(const FLevelRuntimeEnumTextRequest &Request) {
-  return ParseEnumText<ELevelRuntimeScaleMode>(
-      Request, {{"building", ELevelRuntimeScaleMode::Building},
-                {"long_feature", ELevelRuntimeScaleMode::LongFeature},
-                {"pad", ELevelRuntimeScaleMode::Pad}});
+  return ParseEnumText<ELevelRuntimeScaleMode>(Request);
 }
 
 func::Maybe<ELevelRuntimeAnchorMode>
 ParseAnchorMode(const FLevelRuntimeEnumTextRequest &Request) {
-  return ParseEnumText<ELevelRuntimeAnchorMode>(
-      Request, {{"building_lots", ELevelRuntimeAnchorMode::BuildingLots},
-                {"feature_lots", ELevelRuntimeAnchorMode::FeatureLots},
-                {"post_office_lots", ELevelRuntimeAnchorMode::PostOfficeLots},
-                {"world", ELevelRuntimeAnchorMode::World}});
+  return ParseEnumText<ELevelRuntimeAnchorMode>(Request);
 }
 
 func::Maybe<ELevelRuntimeLabelHeightMode>
 ParseLabelHeightMode(const FLevelRuntimeEnumTextRequest &Request) {
-  return ParseEnumText<ELevelRuntimeLabelHeightMode>(
-      Request, {{"explicit", ELevelRuntimeLabelHeightMode::Explicit},
-                {"label_for_scale",
-                 ELevelRuntimeLabelHeightMode::LabelForScale},
-                {"above_block", ELevelRuntimeLabelHeightMode::AboveBlock}});
+  return ParseEnumText<ELevelRuntimeLabelHeightMode>(Request);
 }
 
 func::Maybe<ELevelRetroTexture>
 ParseTexture(const FLevelRuntimeEnumTextRequest &Request) {
-  return ParseEnumText<ELevelRetroTexture>(
-      Request, {{"terrain_ortho", ELevelRetroTexture::TerrainOrtho},
-                {"building_timber", ELevelRetroTexture::BuildingTimber},
-                {"road_dust", ELevelRetroTexture::RoadDust},
-                {"water_creek", ELevelRetroTexture::WaterCreek},
-                {"foliage_riparian", ELevelRetroTexture::FoliageRiparian},
-                {"rock_granite", ELevelRetroTexture::RockGranite},
-                {"mine_timber", ELevelRetroTexture::MineTimber},
-                {"marker_paint", ELevelRetroTexture::MarkerPaint}});
+  return ParseEnumText<ELevelRetroTexture>(Request);
 }
 
 } // namespace RuntimeLayout
