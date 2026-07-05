@@ -8,124 +8,150 @@ namespace ForbocAI {
 namespace Demo {
 namespace Level {
 namespace RuntimeLayout {
+
+struct FLevelRuntimeLabelExplicitHeightFields {
+  float HeightOffset;
+};
+
+} // namespace RuntimeLayout
+} // namespace Level
+} // namespace Demo
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Demo {
+namespace Data {
+namespace JsonValueAdapters {
+
+template <>
+func::Maybe<ForbocAI::Demo::Level::ELevelRuntimeAnchorMode>
+ReadRequiredValue<ForbocAI::Demo::Level::ELevelRuntimeAnchorMode>(
+    const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
+  return func::mbind(ReadRequiredValue<FString>(Request),
+                     [Request](const FString &Text) {
+                       return ForbocAI::Demo::Level::RuntimeLayout::
+                           ParseAnchorMode({Text, Request.FieldName});
+                     });
+}
+
+template <>
+func::Maybe<ForbocAI::Demo::Level::ELevelRuntimeLabelHeightMode>
+ReadRequiredValue<ForbocAI::Demo::Level::ELevelRuntimeLabelHeightMode>(
+    const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
+  return func::mbind(ReadRequiredValue<FString>(Request),
+                     [Request](const FString &Text) {
+                       return ForbocAI::Demo::Level::RuntimeLayout::
+                           ParseLabelHeightMode({Text, Request.FieldName});
+                     });
+}
+
+JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Demo::Level::FLevelRuntimeLabelSeed, Id,
+                             Text, Anchor, Height, EastLots, NorthLots,
+                             WorldSizeScale);
+
+JSON_REQUIRED_FIELD_REGISTRY(
+    ForbocAI::Demo::Level::RuntimeLayout::
+        FLevelRuntimeLabelExplicitHeightFields,
+    HeightOffset);
+
+} // namespace JsonValueAdapters
+} // namespace Data
+} // namespace Demo
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Demo {
+namespace Level {
+namespace RuntimeLayout {
 namespace {
 
 namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
-using FJsonFieldRequest = ForbocAI::Demo::Data::FJsonFieldRequest;
 
-struct FLevelRuntimeLabelHeightRequest {
-  TSharedPtr<FJsonObject> Object;
-  FLevelRuntimeLabelSeed Seed;
+typedef func::Maybe<FLevelRuntimeLabelSeed> (*FLabelHeightReader)(
+    const TSharedPtr<FJsonObject> &, const FLevelRuntimeLabelSeed &);
+
+struct FLevelRuntimeLabelHeightDeclaration {
+  ELevelRuntimeLabelHeightMode Height;
+  FLabelHeightReader Read;
+
+  FLevelRuntimeLabelHeightDeclaration() = default;
+
+  FLevelRuntimeLabelHeightDeclaration(ELevelRuntimeLabelHeightMode InHeight,
+                                      FLabelHeightReader InRead)
+      : Height(InHeight), Read(InRead) {}
 };
 
-func::Maybe<ELevelRuntimeAnchorMode>
-ReadLabelAnchorModeField(const FJsonFieldRequest &Request) {
-  return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
-                     [Request](const FString &Text) {
-                       return ParseAnchorMode({Text, Request.FieldName});
-                     });
+FLevelRuntimeLabelSeed
+AssignExplicitHeight(const FLevelRuntimeLabelSeed &Seed,
+                     const FLevelRuntimeLabelExplicitHeightFields &Fields) {
+  FLevelRuntimeLabelSeed Next = Seed;
+  Next.HeightOffset = Fields.HeightOffset;
+  return Next;
 }
 
-func::Maybe<ELevelRuntimeLabelHeightMode>
-ReadLabelHeightModeField(const FJsonFieldRequest &Request) {
-  return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
-                     [Request](const FString &Text) {
-                       return ParseLabelHeightMode({Text, Request.FieldName});
-                     });
+FLevelRuntimeLabelSeed
+AssignReferenceScale(const FLevelRuntimeLabelSeed &Seed,
+                     const FLevelRuntimeScaleSeed &ReferenceScale) {
+  FLevelRuntimeLabelSeed Next = Seed;
+  Next.ReferenceScale = ReferenceScale;
+  return Next;
 }
 
-/**
- * @brief Applies an explicit height offset to a label seed.
- *
- * @signature func::Maybe<FLevelRuntimeLabelSeed> ReadExplicitHeightLabelSeed(const FLevelRuntimeLabelHeightRequest &Request)
- *
- * User story: As a data author, explicit label height remains authored JSON
- * data and reaches views only after RTK reducers derive placement.
- */
 func::Maybe<FLevelRuntimeLabelSeed>
-ReadExplicitHeightLabelSeed(const FLevelRuntimeLabelHeightRequest &Request) {
-  return func::mbind(
-      JsonValues::ReadRequiredField<float>(Request.Object, "HeightOffset"),
-      [Request](float HeightOffset) {
-        FLevelRuntimeLabelSeed Seed = Request.Seed;
-        Seed.HeightOffset = HeightOffset;
-        return func::just(Seed);
+ReadExplicitHeightLabelSeed(const TSharedPtr<FJsonObject> &Object,
+                            const FLevelRuntimeLabelSeed &Seed) {
+  return func::fmap(
+      JsonValues::ReadRequiredFields<FLevelRuntimeLabelExplicitHeightFields>(
+          Object, JSON_REQUIRED_ATOMS(HeightOffset)),
+      [Seed](const FLevelRuntimeLabelExplicitHeightFields &Fields) {
+        return AssignExplicitHeight(Seed, Fields);
       });
 }
 
-/**
- * @brief Applies a reference scale to a label seed.
- *
- * @signature func::Maybe<FLevelRuntimeLabelSeed> ReadReferenceScaleLabelSeed(const FLevelRuntimeLabelHeightRequest &Request)
- *
- * User story: As a Level reducer author, label height can later derive from
- * typed scale data instead of raw JSON fields.
- */
 func::Maybe<FLevelRuntimeLabelSeed>
-ReadReferenceScaleLabelSeed(const FLevelRuntimeLabelHeightRequest &Request) {
-  return func::mbind(
-      ReadScaleSeed(JsonValues::RequiredField(Request.Object,
-                                              "ReferenceScale")),
-      [Request](const FLevelRuntimeScaleSeed &ReferenceScale) {
-        FLevelRuntimeLabelSeed Seed = Request.Seed;
-        Seed.ReferenceScale = ReferenceScale;
-        return func::just(Seed);
+ReadReferenceScaleLabelSeed(const TSharedPtr<FJsonObject> &Object,
+                            const FLevelRuntimeLabelSeed &Seed) {
+  return func::fmap(
+      ReadScaleSeed(JsonValues::RequiredField(Object, "ReferenceScale")),
+      [Seed](const FLevelRuntimeScaleSeed &ReferenceScale) {
+        return AssignReferenceScale(Seed, ReferenceScale);
       });
 }
 
-/**
- * @brief Completes a label seed according to validated height mode.
- *
- * @signature func::Maybe<FLevelRuntimeLabelSeed> CompleteLabelHeight(const FLevelRuntimeLabelHeightRequest &Request)
- *
- * User story: As an ECS system maintainer, label height branching stays in the
- * Level runtime-layout adapter instead of view display code.
- */
+const TArray<FLevelRuntimeLabelHeightDeclaration> &LabelHeightDeclarations() {
+  static const TArray<FLevelRuntimeLabelHeightDeclaration> Declarations = {
+      {ELevelRuntimeLabelHeightMode::Explicit, ReadExplicitHeightLabelSeed},
+      {ELevelRuntimeLabelHeightMode::LabelForScale,
+       ReadReferenceScaleLabelSeed},
+      {ELevelRuntimeLabelHeightMode::AboveBlock, ReadReferenceScaleLabelSeed}};
+  return Declarations;
+}
+
+func::Maybe<FLevelRuntimeLabelHeightDeclaration>
+FindLabelHeightDeclaration(ELevelRuntimeLabelHeightMode Height) {
+  return func::find_array<FLevelRuntimeLabelHeightDeclaration>(
+      LabelHeightDeclarations(),
+      [Height](const FLevelRuntimeLabelHeightDeclaration &Declaration) {
+        return Declaration.Height == Height;
+      });
+}
+
 func::Maybe<FLevelRuntimeLabelSeed>
-CompleteLabelHeight(const FLevelRuntimeLabelHeightRequest &Request) {
-  const func::Maybe<func::Maybe<FLevelRuntimeLabelSeed>> Parsed =
-      func::multi_match<ELevelRuntimeLabelHeightMode,
-                        func::Maybe<FLevelRuntimeLabelSeed>>(
-          Request.Seed.Height,
-          {
-              func::when<ELevelRuntimeLabelHeightMode,
-                         func::Maybe<FLevelRuntimeLabelSeed>>(
-                  func::equals<ELevelRuntimeLabelHeightMode>(
-                      ELevelRuntimeLabelHeightMode::Explicit),
-                  [Request](ELevelRuntimeLabelHeightMode) {
-                    return ReadExplicitHeightLabelSeed(Request);
-                  }),
-              func::when<ELevelRuntimeLabelHeightMode,
-                         func::Maybe<FLevelRuntimeLabelSeed>>(
-                  func::equals<ELevelRuntimeLabelHeightMode>(
-                      ELevelRuntimeLabelHeightMode::LabelForScale),
-                  [Request](ELevelRuntimeLabelHeightMode) {
-                    return ReadReferenceScaleLabelSeed(Request);
-                  }),
-              func::when<ELevelRuntimeLabelHeightMode,
-                         func::Maybe<FLevelRuntimeLabelSeed>>(
-                  func::equals<ELevelRuntimeLabelHeightMode>(
-                      ELevelRuntimeLabelHeightMode::AboveBlock),
-                  [Request](ELevelRuntimeLabelHeightMode) {
-                    return ReadReferenceScaleLabelSeed(Request);
-                  }),
-          });
+CompleteLabelHeight(const TSharedPtr<FJsonObject> &Object,
+                    const FLevelRuntimeLabelSeed &Seed) {
   return func::match(
-      Parsed,
-      [](const func::Maybe<FLevelRuntimeLabelSeed> &Seed) { return Seed; },
+      FindLabelHeightDeclaration(Seed.Height),
+      [Object, Seed](const FLevelRuntimeLabelHeightDeclaration &Declaration) {
+        return Declaration.Read(Object, Seed);
+      },
       []() { return func::nothing<FLevelRuntimeLabelSeed>(); });
 }
 
 func::Maybe<FLevelRuntimeLabelSeed>
 ReadLabelSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
   return JsonValues::ReadRequiredFields<FLevelRuntimeLabelSeed>(
-      Request.Object,
-      {JSON_REQUIRED_FIELDS(FLevelRuntimeLabelSeed, Id, Text, EastLots,
-                            NorthLots, WorldSizeScale),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeLabelSeed,
-                                  ReadLabelAnchorModeField, Anchor),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeLabelSeed,
-                                  ReadLabelHeightModeField, Height)});
+      Request.Object, JSON_REQUIRED_ATOMS(Id, Text, Anchor, Height, EastLots,
+                                          NorthLots, WorldSizeScale));
 }
 
 } // namespace
@@ -135,7 +161,7 @@ LabelFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
   return func::mbind(
       ReadLabelSeedFields(Request),
       [Request](const FLevelRuntimeLabelSeed &Seed) {
-        return CompleteLabelHeight({Request.Object, Seed});
+        return CompleteLabelHeight(Request.Object, Seed);
       });
 }
 

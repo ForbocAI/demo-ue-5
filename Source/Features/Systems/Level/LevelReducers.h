@@ -42,13 +42,12 @@ struct FWorldLocationFromSeedRequest {
 struct FLabelHeightOffsetRequest {
   FLevelRuntimeLabelSeed Seed;
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
-  FVector ReferenceScale = FVector::OneVector;
+  FVector ReferenceScale;
 };
 
 struct FLabelLocalPointRequest {
   FLevelRuntimeLabelSeed Seed;
   ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
-  FVector ReferenceScale = FVector::OneVector;
 };
 
 struct FLandmarkLabelLocationRequest {
@@ -129,13 +128,29 @@ inline float LabelHeightOffsetFromSeed(
                    : Request.Seed.HeightOffset;
 }
 
-inline FLevelLocalPoint LabelLocalPointFromSeed(
+inline FLevelLocalPoint ExplicitLabelLocalPointFromSeed(
     const FLabelLocalPointRequest &Request) {
+  return LevelLayoutSlice::FromPostOfficeLots(
+      {Request.Geometry, Request.Seed.EastLots, Request.Seed.NorthLots,
+       Request.Seed.HeightOffset});
+}
+
+inline FLevelLocalPoint ReferenceLabelLocalPointFromSeed(
+    const FLabelLocalPointRequest &Request) {
+  const FVector ReferenceScale =
+      ScaleFromSeed({Request.Seed.ReferenceScale, Request.Geometry});
   const float HeightOffset = LabelHeightOffsetFromSeed(
-      {Request.Seed, Request.Geometry, Request.ReferenceScale});
+      {Request.Seed, Request.Geometry, ReferenceScale});
   return LevelLayoutSlice::FromPostOfficeLots(
       {Request.Geometry, Request.Seed.EastLots, Request.Seed.NorthLots,
        HeightOffset});
+}
+
+inline FLevelLocalPoint LabelLocalPointFromSeed(
+    const FLabelLocalPointRequest &Request) {
+  return Request.Seed.Height == ELevelRuntimeLabelHeightMode::Explicit
+             ? ExplicitLabelLocalPointFromSeed(Request)
+             : ReferenceLabelLocalPointFromSeed(Request);
 }
 
 inline FVector LabelLocationForLandmark(
@@ -211,13 +226,11 @@ BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSpawnRequest &Request) {
 
 inline FLevelLabelSpawn
 BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSpawnRequest &Request) {
-  const FVector ReferenceScale =
-      detail::ScaleFromSeed({Request.Seed.ReferenceScale, Request.Geometry});
   return {Request.Seed.Text,
           LevelLayoutSlice::ToWorld(
               {Request.TerrainData,
                detail::LabelLocalPointFromSeed(
-                   {Request.Seed, Request.Geometry, ReferenceScale})}),
+                   {Request.Seed, Request.Geometry})}),
           LevelLayoutSlice::CubeHalfExtent(Request.Geometry) *
               Request.Seed.WorldSizeScale};
 }

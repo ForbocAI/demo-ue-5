@@ -55,13 +55,12 @@ struct FLevelRuntimeBlockSeed {
 struct FLevelRuntimeLabelSeed {
   FString Id;
   FString Text;
-  ELevelRuntimeAnchorMode Anchor = ELevelRuntimeAnchorMode::PostOfficeLots;
-  ELevelRuntimeLabelHeightMode Height =
-      ELevelRuntimeLabelHeightMode::Explicit;
-  float EastLots = 0.0f;
-  float NorthLots = 0.0f;
-  float HeightOffset = 0.0f;
-  float WorldSizeScale = 1.0f;
+  ELevelRuntimeAnchorMode Anchor;
+  ELevelRuntimeLabelHeightMode Height;
+  float EastLots;
+  float NorthLots;
+  float HeightOffset;
+  float WorldSizeScale;
   FLevelRuntimeScaleSeed ReferenceScale;
 };
 

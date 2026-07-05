@@ -10,17 +10,17 @@
 | 412 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.cpp` |
 | 403 | `Source/Features/Components/ComponentsAdapters.h` |
 | 340 | `Scripts/Tools/generate_french_gulch_heightmap.py` |
+| 338 | `Source/Features/Systems/Level/LevelReducers.h` |
 | 336 | `Scripts/Tools/import_classic_horse_assets.py` |
 | 334 | `Source/Features/Entities/EntitiesAdapters.cpp` |
 | 332 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.cpp` |
 | 327 | `Source/Features/Components/Data/JsonValueAdapters.h` |
-| 325 | `Source/Features/Systems/Level/LevelReducers.h` |
 | 324 | `Source/Features/Systems/Runtime/RuntimeReducers.cpp` |
 | 323 | `Source/Features/Systems/Runtime/RuntimeSelectors.cpp` |
 | 316 | `Source/Features/Systems/Runtime/RuntimeTypes.h` |
 | 293 | `Source/Features/Components/Level/LevelDataAdapters.cpp` |
 | 279 | `Content/Data/runtime_settings_speech.json` |
-| 278 | `Source/Features/Systems/Level/LevelTypes.h` |
+| 277 | `Source/Features/Systems/Level/LevelTypes.h` |
 | 273 | `Source/Views/TownspersonView.cpp` |
 | 268 | `Source/Features/Systems/UI/UIReducers.h` |
 | 267 | `Source/Features/Systems/Rendering/RenderingReducers.cpp` |
@@ -50,6 +50,7 @@
 | 176 | `Source/Features/Systems/Bots/Position/BotPositionTypes.h` |
 | 175 | `Source/Views/TownspersonView.h` |
 | 172 | `Source/Features/Systems/Bots/Position/BotPositionReducers.cpp` |
+| 171 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLabelAdapters.cpp` |
 | 171 | `Source/Features/Systems/Speech/SpeechAdapters.cpp` |
 | 163 | `Source/Features/Entities/Characters/Player/PlayerTypes.h` |
 | 160 | `Source/Tests/ProtocolLoop.spec.cpp` |
@@ -58,7 +59,6 @@
 | 149 | `Source/Features/Systems/Terrain/TerrainReducers.cpp` |
 | 147 | `Scripts/Tools/create_french_gulch_map.py` |
 | 147 | `Source/Features/Systems/Bots/Goals/BotGoalReducers.cpp` |
-| 145 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLabelAdapters.cpp` |
 | 145 | `Source/Tests/ContentAssets.spec.cpp` |
 | 142 | `Scripts/DOCS/count_project_lines.py` |
 | 141 | `Scripts/run-tests.sh` |
