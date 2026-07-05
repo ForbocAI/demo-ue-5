@@ -9,26 +9,59 @@ namespace Level {
 namespace BotStatsFactories {
 namespace {
 
-FBotStatsSource TownspersonStatsSource(
-    const ForbocAI::Demo::Data::FBotRuntimeSettings &RuntimeSettings,
-    const FTownspersonSeed &Seed) {
-  return {Seed.Id,
-          RuntimeSettings.TownspersonStats.MoveSpeed,
-          RuntimeSettings.TownspersonStats.AwarenessRange,
-          RuntimeSettings.TownspersonStats.Resolve,
-          RuntimeSettings.TownspersonStats.bCanTalk,
-          false};
+template <typename Seed> struct TBotStatsDefaults {
+  Data::FBotStatPresetSettings Data::FBotRuntimeSettings::*Preset;
+  bool (*SelectMountedRider)(const Seed &SeedValue);
+};
+
+template <typename Seed> struct TBotStatsSourceRequest {
+  const Data::FBotRuntimeSettings &RuntimeSettings;
+  const Seed &SeedValue;
+  const TBotStatsDefaults<Seed> &Defaults;
+};
+
+bool NoMountedRider(const FTownspersonSeed &) { return false; }
+
+bool HorseMountedRider(const FHorseRouteSeed &Seed) {
+  return Seed.bMountedRider;
 }
 
-FBotStatsSource HorseStatsSource(
-    const ForbocAI::Demo::Data::FBotRuntimeSettings &RuntimeSettings,
-    const FHorseRouteSeed &Seed) {
-  return {Seed.Id,
-          RuntimeSettings.HorseStats.MoveSpeed,
-          RuntimeSettings.HorseStats.AwarenessRange,
-          RuntimeSettings.HorseStats.Resolve,
-          RuntimeSettings.HorseStats.bCanTalk,
-          Seed.bMountedRider};
+const TBotStatsDefaults<FTownspersonSeed> TownspersonStatsDefaults = {
+    &Data::FBotRuntimeSettings::TownspersonStats, NoMountedRider};
+
+const TBotStatsDefaults<FHorseRouteSeed> HorseStatsDefaults = {
+    &Data::FBotRuntimeSettings::HorseStats, HorseMountedRider};
+
+template <typename Seed>
+const Data::FBotStatPresetSettings &
+StatsPreset(const TBotStatsSourceRequest<Seed> &Request) {
+  return Request.RuntimeSettings.*(Request.Defaults.Preset);
+}
+
+template <typename Seed>
+FBotStatsSource StatsSource(const TBotStatsSourceRequest<Seed> &Request) {
+  const Data::FBotStatPresetSettings &Preset = StatsPreset<Seed>(Request);
+  return {Request.SeedValue.Id,
+          Preset.MoveSpeed,
+          Preset.AwarenessRange,
+          Preset.Resolve,
+          Preset.bCanTalk,
+          Request.Defaults.SelectMountedRider(Request.SeedValue)};
+}
+
+template <typename Seed>
+TArray<FBotStatsComponent>
+FromSeeds(const TBotStatsFromSeedsRequest<Seed> &Request,
+          const TBotStatsDefaults<Seed> &Defaults) {
+  return BotSourceMapping::MapSeedRuntimeComponents<
+      TBotStatsFromSeedsRequest<Seed>, Seed, FBotStatsSource,
+      FBotStatsComponent>(
+      Request,
+      [&Defaults](const Data::FBotRuntimeSettings &RuntimeSettings,
+                  const Seed &SeedValue) {
+        return StatsSource<Seed>({RuntimeSettings, SeedValue, Defaults});
+      },
+      Component);
 }
 
 } // namespace
@@ -52,18 +85,12 @@ FBotStatsComponent Component(const FBotStatsSource &Source) {
 
 TArray<FBotStatsComponent>
 FromTownspeople(const TBotStatsFromSeedsRequest<FTownspersonSeed> &Request) {
-  return BotSourceMapping::MapSeedRuntimeComponents<
-      TBotStatsFromSeedsRequest<FTownspersonSeed>, FTownspersonSeed,
-      FBotStatsSource, FBotStatsComponent>(Request, TownspersonStatsSource,
-                                           Component);
+  return FromSeeds<FTownspersonSeed>(Request, TownspersonStatsDefaults);
 }
 
 TArray<FBotStatsComponent> FromHorses(
     const TBotStatsFromSeedsRequest<FHorseRouteSeed> &Request) {
-  return BotSourceMapping::MapSeedRuntimeComponents<
-      TBotStatsFromSeedsRequest<FHorseRouteSeed>, FHorseRouteSeed,
-      FBotStatsSource, FBotStatsComponent>(Request, HorseStatsSource,
-                                           Component);
+  return FromSeeds<FHorseRouteSeed>(Request, HorseStatsDefaults);
 }
 
 } // namespace BotStatsFactories

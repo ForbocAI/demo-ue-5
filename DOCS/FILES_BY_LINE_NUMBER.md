@@ -98,6 +98,7 @@
 | 103 | `Source/Features/Systems/Bots/Core/BotCoreActions.h` |
 | 103 | `Source/Views/RuntimeLevelView.h` |
 | 101 | `Source/Features/Systems/Rendering/RenderingReducers.h` |
+| 99 | `Source/Features/Systems/Bots/Stats/BotStatsFactories.cpp` |
 | 97 | `Source/Features/Systems/Bots/AI/BotAITypes.h` |
 | 97 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.cpp` |
 | 97 | `Source/Features/Systems/SystemsAdapters.h` |
@@ -126,7 +127,6 @@
 | 73 | `Source/Features/Systems/Landmarks/LandmarkTypes.h` |
 | 73 | `Source/Features/Systems/Runtime/RuntimeReducers.h` |
 | 72 | `Scripts/setup-dev.sh` |
-| 72 | `Source/Features/Systems/Bots/Stats/BotStatsFactories.cpp` |
 | 72 | `Source/Features/Systems/Projection/SystemsProjectionTerrainAdapters.cpp` |
 | 71 | `Source/Features/Systems/Bots/BotSourceMapping.h` |
 | 70 | `Content/Map/Heightmaps/french_gulch_ca_terrain_65.csv` |
