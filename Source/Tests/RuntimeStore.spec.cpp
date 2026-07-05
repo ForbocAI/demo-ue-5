@@ -6,6 +6,7 @@
 #include "Features/Entities/Characters/Bots/BotsAdapters.h"
 #include "Features/Entities/Environments/Nature/NatureSeedAdapters.h"
 #include "Features/Entities/Environments/Landmarks/LandmarksAdapters.h"
+#include "Features/Systems/Level/LevelAdapters.h"
 #include "Features/Systems/Bots/Horses/HorseSlice.h"
 #include "Features/Systems/Landmarks/LandmarkSlice.h"
 #include "Features/Systems/Nature/NatureSlice.h"
@@ -163,6 +164,17 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            TerrainData.GetMaxElevationMeters() >
                TerrainData.GetMinElevationMeters() +
                    Validation.TerrainMinReliefMeters);
+
+  const FLevelRuntimeLayoutSeed RuntimeLayout =
+      LevelAdapters::LoadRuntimeLayoutSeed(DataSources.RuntimeLayoutJsonPath);
+  TestEqual(TEXT("Runtime layout loads town labels"),
+            RuntimeLayout.Town.Labels.Num(), 1);
+  check(RuntimeLayout.Town.Labels.Num() > 0);
+  TestEqual(TEXT("Runtime layout parses label height_mode"),
+            static_cast<int32>(RuntimeLayout.Town.Labels[0].Height),
+            static_cast<int32>(ELevelRuntimeLabelHeightMode::Explicit));
+  TestEqual(TEXT("Runtime layout loads overlay labels"),
+            RuntimeLayout.OverlayLabels.Num(), 1);
 
   rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
       Store::ConfigureStore();

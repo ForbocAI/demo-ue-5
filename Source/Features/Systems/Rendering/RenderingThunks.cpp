@@ -11,6 +11,8 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogForbocRendering, Log, All);
+
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -171,18 +173,50 @@ Declaration RequiredRenderingDeclaration(const FString &Name) {
   return Declarations[Found.value];
 }
 
-void SetCVarFloat(const FString &Name, float Value) {
+/**
+ * @brief Finds a runtime console variable without asserting on platform gaps.
+ * @signature func::Maybe<IConsoleVariable *> FindRenderingConsoleVariable(const FString &Name)
+ *
+ * User Story: As first-run demo rendering, I need optional engine CVars to skip
+ * cleanly when a target runtime does not register them.
+ */
+func::Maybe<IConsoleVariable *>
+FindRenderingConsoleVariable(const FString &Name) {
   IConsoleVariable *Found =
       IConsoleManager::Get().FindConsoleVariable(*Name);
-  check(Found);
-  Found->Set(Value, ECVF_SetByGameSetting);
+  return func::from_nullable_value<IConsoleVariable *>(Found, Found != nullptr);
+}
+
+/**
+ * @brief Applies a runtime console variable value when the CVar exists.
+ * @signature template <typename Value> bool ApplyRenderingConsoleVariableValue(const FString &Name, Value NewValue)
+ *
+ * User Story: As the runtime profile thunk, I need profile application to be
+ * resilient to engine CVar availability while still reporting skipped settings.
+ */
+template <typename Value>
+bool ApplyRenderingConsoleVariableValue(const FString &Name, Value NewValue) {
+  return func::match(
+      FindRenderingConsoleVariable(Name),
+      [NewValue](IConsoleVariable *Found) {
+        Found->Set(NewValue, ECVF_SetByGameSetting);
+        return true;
+      },
+      [&Name]() {
+        UE_LOG(LogForbocRendering, Warning,
+               TEXT("Rendering console variable '%s' is unavailable; "
+                    "runtime profile value skipped."),
+               *Name);
+        return false;
+      });
+}
+
+void SetCVarFloat(const FString &Name, float Value) {
+  ApplyRenderingConsoleVariableValue<float>(Name, Value);
 }
 
 void SetCVarInt(const FString &Name, int32 Value) {
-  IConsoleVariable *Found =
-      IConsoleManager::Get().FindConsoleVariable(*Name);
-  check(Found);
-  Found->Set(Value, ECVF_SetByGameSetting);
+  ApplyRenderingConsoleVariableValue<int32>(Name, Value);
 }
 
 template <typename Value>

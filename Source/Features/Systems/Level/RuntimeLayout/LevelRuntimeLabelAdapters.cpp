@@ -45,9 +45,26 @@ ReadRequiredValue<ForbocAI::Demo::Level::ELevelRuntimeLabelHeightMode>(
                      });
 }
 
-JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Demo::Level::FLevelRuntimeLabelSeed, Id,
-                             Text, Anchor, Height, EastLots, NorthLots,
-                             WorldSizeScale);
+template <>
+struct TRequiredJsonFieldRegistry<
+    ForbocAI::Demo::Level::FLevelRuntimeLabelSeed> {
+  static const TArray<
+      TRequiredJsonFieldDeclaration<
+          ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>> &
+  Fields() {
+    static const TArray<
+        TRequiredJsonFieldDeclaration<
+            ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>>
+        RegisteredFields = {
+            JSON_REQUIRED_FIELDS(ForbocAI::Demo::Level::FLevelRuntimeLabelSeed,
+                                 Id, Text, Anchor),
+            {"HeightMode",
+             &ForbocAI::Demo::Level::FLevelRuntimeLabelSeed::Height},
+            JSON_REQUIRED_FIELDS(ForbocAI::Demo::Level::FLevelRuntimeLabelSeed,
+                                 EastLots, NorthLots, WorldSizeScale)};
+    return RegisteredFields;
+  }
+};
 
 JSON_REQUIRED_FIELD_REGISTRY(
     ForbocAI::Demo::Level::RuntimeLayout::
@@ -150,8 +167,8 @@ CompleteLabelHeight(const TSharedPtr<FJsonObject> &Object,
 func::Maybe<FLevelRuntimeLabelSeed>
 ReadLabelSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
   return JsonValues::ReadRequiredFields<FLevelRuntimeLabelSeed>(
-      Request.Object, JSON_REQUIRED_ATOMS(Id, Text, Anchor, Height, EastLots,
-                                          NorthLots, WorldSizeScale));
+      Request.Object, JSON_REQUIRED_ATOMS(Id, Text, Anchor, HeightMode,
+                                          EastLots, NorthLots, WorldSizeScale));
 }
 
 } // namespace

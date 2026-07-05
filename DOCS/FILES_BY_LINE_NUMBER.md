@@ -5,9 +5,9 @@
 | 3390 | `Source/Core/ecs.hpp` |
 | 749 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 568 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
+| 503 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
 | 477 | `Source/Features/Components/ComponentsAdapters.h` |
-| 469 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
-| 430 | `Source/Tests/RuntimeStore.spec.cpp` |
+| 442 | `Source/Tests/RuntimeStore.spec.cpp` |
 | 425 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.cpp` |
 | 412 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.cpp` |
 | 382 | `Source/Features/Entities/EntitiesAdapters.cpp` |
@@ -45,12 +45,12 @@
 | 199 | `Scripts/check_branchless_source.py` |
 | 196 | `Source/Features/Systems/UI/UITypes.h` |
 | 194 | `Source/Features/Systems/Bots/Townspeople/TownspersonTypes.h` |
+| 188 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLabelAdapters.cpp` |
 | 183 | `Source/Features/Components/Data/RuntimeSettings/RenderingSettingsAdapters.cpp` |
 | 179 | `Scripts/lock_sdk_submodule.sh` |
 | 176 | `Source/Features/Systems/Bots/Position/BotPositionTypes.h` |
 | 175 | `Source/Views/TownspersonView.h` |
 | 172 | `Source/Features/Systems/Bots/Position/BotPositionReducers.cpp` |
-| 171 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLabelAdapters.cpp` |
 | 171 | `Source/Features/Systems/Speech/SpeechAdapters.cpp` |
 | 163 | `Source/Features/Entities/Characters/Player/PlayerTypes.h` |
 | 160 | `Source/Tests/ProtocolLoop.spec.cpp` |
