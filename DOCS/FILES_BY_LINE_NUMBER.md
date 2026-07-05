@@ -3,7 +3,7 @@
 | Lines | File Path |
 |-------|-----------|
 | 3358 | `Source/Core/ecs.hpp` |
-| 742 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
+| 749 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 477 | `Source/Features/Components/ComponentsAdapters.h` |
 | 432 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
@@ -31,6 +31,7 @@
 | 221 | `Source/Tests/Pipeline.spec.cpp` |
 | 218 | `Source/Views/RuntimeLevelView.cpp` |
 | 217 | `Source/Tests/Speech.spec.cpp` |
+| 215 | `Source/Features/Entities/Characters/Bots/BotsAdapters.cpp` |
 | 214 | `Source/Features/Components/Data/RuntimeSettings/RenderingSettingsTypes.h` |
 | 213 | `Source/Features/Systems/Runtime/RuntimeThunks.cpp` |
 | 207 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsTypes.h` |
@@ -44,7 +45,6 @@
 | 199 | `Scripts/check_branchless_source.py` |
 | 196 | `Source/Features/Systems/UI/UITypes.h` |
 | 194 | `Source/Features/Systems/Bots/Townspeople/TownspersonTypes.h` |
-| 191 | `Source/Features/Entities/Characters/Bots/BotsAdapters.cpp` |
 | 183 | `Source/Features/Components/Data/RuntimeSettings/RenderingSettingsAdapters.cpp` |
 | 179 | `Scripts/lock_sdk_submodule.sh` |
 | 176 | `Source/Features/Systems/Bots/Position/BotPositionTypes.h` |

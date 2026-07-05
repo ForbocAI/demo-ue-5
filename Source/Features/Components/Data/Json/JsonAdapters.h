@@ -729,11 +729,18 @@ ReadSettingsWith(std::initializer_list<const char *> FieldAtoms) {
 
 template <typename Settings>
 TArray<Settings>
+MapSettingsJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values,
+                      std::initializer_list<const char *> FieldAtoms) {
+  return MapJsonValues<Settings>(Values, ReadSettingsWith<Settings>(FieldAtoms));
+}
+
+template <typename Settings>
+TArray<Settings>
 ReadSettingsObjectArrayField(const TSharedPtr<FJsonObject> &Object,
                              const char *FieldAtom,
                              std::initializer_list<const char *> FieldAtoms) {
-  return ReadObjectArrayField<Settings>(Object, FieldAtom,
-                                        ReadSettingsWith<Settings>(FieldAtoms));
+  return MapSettingsJsonValues<Settings>(
+      ReadArray(Field(Object, *SettingsFieldName(FieldAtom))), FieldAtoms);
 }
 
 } // namespace JsonAdapters
