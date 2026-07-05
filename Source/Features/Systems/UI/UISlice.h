@@ -11,6 +11,14 @@ namespace Demo {
 namespace Level {
 namespace UISlice {
 
+/**
+ * @brief Builds the initial UI RTK slice state.
+ * @signature inline FUIState CreateInitialState()
+ * @return UI state with no last action and the conversation surface hidden.
+ *
+ * User story: As a player entering the demo, conversation UI should start from
+ * deterministic reducer-owned state before ECS and view events project into it.
+ */
 inline FUIState CreateInitialState() {
   return (func::pipe(FUIState{}) |
           [](FUIState State) -> FUIState {
@@ -21,6 +29,14 @@ inline FUIState CreateInitialState() {
       .val;
 }
 
+/**
+ * @brief Returns the lazily constructed UI RTK slice.
+ * @signature inline const rtk::Slice<FUIState> &GetSlice()
+ * @return The singleton slice that owns UI reducer registration.
+ *
+ * User story: As gameplay UI code, dispatching conversation actions should
+ * flow through one RTK slice so views read selector-derived state only.
+ */
 inline const rtk::Slice<FUIState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FUIState>> Slice =
       func::lazy([]() -> rtk::Slice<FUIState> {

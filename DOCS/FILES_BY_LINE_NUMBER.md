@@ -146,12 +146,16 @@
 | 64 | `Source/Features/Systems/Bots/BotTypes.h` |
 | 64 | `Source/Features/Systems/Bots/Stats/BotStatsReducers.cpp` |
 | 64 | `Source/Features/Systems/Bots/Townspeople/TownspersonSelectors.cpp` |
+| 64 | `Source/Features/Systems/Speech/SpeechSelectors.h` |
 | 63 | `Source/Features/Systems/Bots/AI/BotAIReducers.cpp` |
 | 63 | `Source/Views/LevelGameModeView.cpp` |
 | 62 | `Source/Features/Systems/Bots/Position/BotPositionFactories.cpp` |
+| 62 | `Source/Features/Systems/Speech/SpeechSlice.h` |
 | 61 | `Source/Features/Components/Data/JsonValueAdapters.cpp` |
 | 59 | `Source/Features/Components/Level/LevelTypes.h` |
+| 59 | `Source/Features/Systems/Bots/Core/BotCoreSlice.h` |
 | 59 | `Source/Features/Systems/Rendering/RenderingSlice.cpp` |
+| 59 | `Source/Features/Systems/UI/UISlice.h` |
 | 58 | `Source/Views/PlayerRuntimeControllerView.h` |
 | 58 | `Source/Views/RuntimeChatWidget.h` |
 | 57 | `.gitignore` |
@@ -170,6 +174,7 @@
 | 53 | `Source/Features/Systems/Interaction/InteractionSlice.h` |
 | 53 | `Source/Features/Systems/Nature/NatureTypes.h` |
 | 53 | `Source/Features/Systems/Projection/SystemsProjectionBotAdapters.h` |
+| 52 | `Source/Features/Systems/UI/UISelectors.h` |
 | 49 | `Source/Features/Entities/Characters/Player/PlayerActions.h` |
 | 49 | `Source/Features/Systems/Bots/Townspeople/TownspersonActions.cpp` |
 | 48 | `Source/Features/Entities/Characters/Player/PlayerSlice.h` |
@@ -179,7 +184,6 @@
 | 47 | `Source/Features/Components/Data/DataStateTypes.h` |
 | 47 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeScaleAdapters.h` |
 | 47 | `Source/Features/Systems/Rendering/RenderingActions.cpp` |
-| 46 | `Source/Features/Systems/Speech/SpeechSlice.h` |
 | 46 | `Source/Features/Systems/UI/UIActions.h` |
 | 45 | `Source/Features/Systems/Bots/Goals/BotGoalReducers.h` |
 | 45 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorSlice.h` |
@@ -190,7 +194,7 @@
 | 44 | `Source/Views/TerrainMeshView.cpp` |
 | 43 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsAdapters.h` |
 | 43 | `Source/Features/Components/Data/RuntimeSettings/DemoRuntimeSettingsTypes.h` |
-| 43 | `Source/Features/Systems/Bots/Core/BotCoreSlice.h` |
+| 43 | `Source/Features/Systems/Bots/Core/BotCoreSelectors.h` |
 | 43 | `Source/Features/Systems/Bots/Horses/HorseTypes.h` |
 | 43 | `Source/Features/Systems/Bots/Pipeline/BotPipelineSlice.h` |
 | 43 | `Source/Features/Systems/Bots/Position/BotPositionReducers.h` |
@@ -201,7 +205,6 @@
 | 43 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutAdapters.cpp` |
 | 43 | `Source/Features/Systems/SystemsSlice.h` |
 | 43 | `Source/Features/Systems/SystemsTypes.h` |
-| 43 | `Source/Features/Systems/UI/UISlice.h` |
 | 42 | `Source/Features/Systems/Level/LevelSelectors.h` |
 | 41 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_horse_coat.json` |
 | 41 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_horse_leg.json` |
@@ -238,7 +241,6 @@
 | 33 | `Source/Features/Systems/Bots/Orchestrator/Factories/BotOrchestratorFactoriesTypes.h` |
 | 32 | `Content/Data/runtime_settings_player.json` |
 | 32 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h` |
-| 32 | `Source/Features/Systems/Speech/SpeechSelectors.h` |
 | 32 | `Source/Features/Systems/Terrain/TerrainSlice.cpp` |
 | 31 | `.editorconfig` |
 | 31 | `Config/DefaultEngine.ini` |
@@ -269,11 +271,9 @@
 | 28 | `Source/Features/Systems/Dialogue/DialogueActions.h` |
 | 28 | `Source/Features/Systems/Rendering/RenderingThunks.h` |
 | 28 | `Source/Features/Systems/Terrain/TerrainReducers.h` |
-| 28 | `Source/Features/Systems/UI/UISelectors.h` |
 | 27 | `Source/Features/Entities/Environments/Landmarks/LandmarksAdapters.h` |
 | 27 | `Source/Features/Systems/Bots/AI/BotAISelectors.cpp` |
 | 27 | `Source/Features/Systems/Bots/BotReducers.h` |
-| 27 | `Source/Features/Systems/Bots/Core/BotCoreSelectors.h` |
 | 27 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorActions.h` |
 | 27 | `Source/Features/Systems/Bots/Orchestrator/BotOrchestratorSelectors.h` |
 | 27 | `Source/Features/Systems/Bots/Orchestrator/Factories/BotOrchestratorFactoriesSelectors.h` |
