@@ -410,18 +410,42 @@ template <typename Output> struct TTextValueDeclaration {
 template <typename Output>
 func::Maybe<Output>
 ReadTextValue(const FString &Text,
-              std::initializer_list<TTextValueDeclaration<Output>>
-                  Declarations) {
+              const TArray<TTextValueDeclaration<Output>> &Declarations) {
   const FString LowerText = Text.ToLower();
   return func::fold_indexed(
-      TArray<TTextValueDeclaration<Output>>(Declarations),
-      static_cast<size_t>(Declarations.size()), func::nothing<Output>(),
+      Declarations, static_cast<size_t>(Declarations.Num()),
+      func::nothing<Output>(),
       [LowerText](const func::Maybe<Output> &Current,
                   const TTextValueDeclaration<Output> &Declaration) {
         return Current.hasValue || Declaration.Text != LowerText
                    ? Current
                    : func::just(Declaration.Value);
       });
+}
+
+template <typename Output>
+func::Maybe<Output>
+ReadTextValue(const FString &Text,
+              std::initializer_list<TTextValueDeclaration<Output>>
+                  Declarations) {
+  return ReadTextValue<Output>(
+      Text, TArray<TTextValueDeclaration<Output>>(Declarations));
+}
+
+template <typename Output> struct TJsonTextValueRegistry;
+
+template <typename Output>
+func::Maybe<Output> ReadRegisteredTextValue(const FString &Text) {
+  return ReadTextValue<Output>(Text,
+                               TJsonTextValueRegistry<Output>::Values());
+}
+
+template <typename Output>
+Output RequireRegisteredTextValue(const FString &Text, const TCHAR *Label) {
+  const func::Maybe<Output> Parsed = ReadRegisteredTextValue<Output>(Text);
+  checkf(Parsed.hasValue, TEXT("Invalid JSON text value for %s: %s"), Label,
+         *Text);
+  return Parsed.value;
 }
 
 template <typename Settings> struct TJsonSettingsField {
