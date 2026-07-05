@@ -124,6 +124,7 @@
 | 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_road_dust.json` |
 | 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_rock_granite.json` |
 | 75 | `Source/Views/RuntimeChatWidget.cpp` |
+| 73 | `Source/Features/Systems/Bots/BotFactories.cpp` |
 | 73 | `Source/Features/Systems/Landmarks/LandmarkTypes.h` |
 | 73 | `Source/Features/Systems/Runtime/RuntimeReducers.h` |
 | 72 | `Scripts/setup-dev.sh` |
@@ -157,7 +158,6 @@
 | 57 | `Source/Features/Systems/Spawn/SpawnTypes.h` |
 | 57 | `Source/Features/Systems/Speech/SpeechReducers.h` |
 | 56 | `Source/Features/Components/Data/RuntimeSettings/LevelSettingsAdapters.cpp` |
-| 56 | `Source/Features/Systems/Bots/BotFactories.cpp` |
 | 55 | `Source/Features/Systems/SystemsAdapters.cpp` |
 | 54 | `Scripts/update-sdk.sh` |
 | 54 | `Source/Features/Components/Data/Json/JsonTypes.h` |

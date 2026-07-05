@@ -10,14 +10,35 @@ namespace Level {
 namespace BotFactories {
 namespace {
 
-FBotEntitySource TownspersonEntitySource(const FTownspersonSeed &Seed) {
-  return {Seed.Id, Seed.Name, EBotEntityKind::Townsperson,
-          EBotAlignment::Friendly, true};
+struct FBotEntityDefaults {
+  EBotEntityKind Kind;
+  EBotAlignment Alignment;
+  bool bActive;
+};
+
+const FBotEntityDefaults TownspersonEntityDefaults = {
+    EBotEntityKind::Townsperson, EBotAlignment::Friendly, true};
+
+const FBotEntityDefaults HorseEntityDefaults = {
+    EBotEntityKind::Horse, EBotAlignment::Neutral, true};
+
+template <typename Seed>
+FBotEntitySource EntitySource(const Seed &SeedValue,
+                              const FBotEntityDefaults &Defaults) {
+  return {SeedValue.Id, SeedValue.Name, Defaults.Kind, Defaults.Alignment,
+          Defaults.bActive};
 }
 
-FBotEntitySource HorseEntitySource(const FHorseRouteSeed &Seed) {
-  return {Seed.Id, Seed.Name, EBotEntityKind::Horse, EBotAlignment::Neutral,
-          true};
+template <typename Seed>
+TArray<FBotEntity> FromSeeds(const TArray<Seed> &Seeds,
+                             const FBotEntityDefaults &Defaults) {
+  return BotSourceMapping::MapSeedComponents<Seed, FBotEntitySource,
+                                             FBotEntity>(
+      Seeds,
+      [&Defaults](const Seed &SeedValue) {
+        return EntitySource<Seed>(SeedValue, Defaults);
+      },
+      Bot);
 }
 
 } // namespace
@@ -39,15 +60,11 @@ FBotEntity Bot(const FBotEntitySource &Source) {
 }
 
 TArray<FBotEntity> FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return BotSourceMapping::MapSeedComponents<FTownspersonSeed,
-                                             FBotEntitySource, FBotEntity>(
-      Seeds, TownspersonEntitySource, Bot);
+  return FromSeeds<FTownspersonSeed>(Seeds, TownspersonEntityDefaults);
 }
 
 TArray<FBotEntity> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return BotSourceMapping::MapSeedComponents<FHorseRouteSeed, FBotEntitySource,
-                                             FBotEntity>(
-      Seeds, HorseEntitySource, Bot);
+  return FromSeeds<FHorseRouteSeed>(Seeds, HorseEntityDefaults);
 }
 
 } // namespace BotFactories
