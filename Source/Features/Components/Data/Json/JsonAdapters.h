@@ -727,6 +727,15 @@ ReadSettingsWith(std::initializer_list<const char *> FieldAtoms) {
   };
 }
 
+template <typename Settings>
+TArray<Settings>
+ReadSettingsObjectArrayField(const TSharedPtr<FJsonObject> &Object,
+                             const char *FieldAtom,
+                             std::initializer_list<const char *> FieldAtoms) {
+  return ReadObjectArrayField<Settings>(Object, FieldAtom,
+                                        ReadSettingsWith<Settings>(FieldAtoms));
+}
+
 } // namespace JsonAdapters
 } // namespace Data
 } // namespace Demo

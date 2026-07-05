@@ -3,7 +3,7 @@
 | Lines | File Path |
 |-------|-----------|
 | 3358 | `Source/Core/ecs.hpp` |
-| 733 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
+| 742 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 477 | `Source/Features/Components/ComponentsAdapters.h` |
 | 432 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
@@ -85,6 +85,7 @@
 | 121 | `Source/Features/Systems/Runtime/RuntimeSelectors.h` |
 | 120 | `Source/Features/Systems/Projection/SystemsProjectionInteractionAdapters.cpp` |
 | 118 | `Scripts/check_sdk_submodule_guard.sh` |
+| 117 | `Source/Features/Entities/Environments/Landmarks/LandmarksAdapters.cpp` |
 | 117 | `Source/Features/Systems/Runtime/RuntimeFactories.cpp` |
 | 116 | `Content/Data/french_gulch_nature.json` |
 | 110 | `Source/Features/Systems/Dialogue/DialogueTypes.h` |
@@ -107,7 +108,6 @@
 | 92 | `Source/Features/Systems/Dialogue/DialogueReducers.h` |
 | 92 | `Source/Store.cpp` |
 | 92 | `Source/Views/HorseView.h` |
-| 91 | `Source/Features/Entities/Environments/Landmarks/LandmarksAdapters.cpp` |
 | 89 | `Content/Data/french_gulch_townspeople.json` |
 | 88 | `Source/Features/Components/Rendering/RenderingTypes.h` |
 | 85 | `Config/DefaultInput.ini` |
