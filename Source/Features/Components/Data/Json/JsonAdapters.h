@@ -536,14 +536,21 @@ template <typename Settings> struct TJsonSettingsField {
 template <typename Settings>
 Settings
 ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
-                   std::initializer_list<TJsonSettingsField<Settings>> Fields) {
+                   const TArray<TJsonSettingsField<Settings>> &Fields) {
   return func::fold_indexed(
-      TArray<TJsonSettingsField<Settings>>(Fields),
-      static_cast<size_t>(Fields.size()), Settings{},
+      Fields, static_cast<size_t>(Fields.Num()), Settings{},
       [Object](const Settings &Current,
                const TJsonSettingsField<Settings> &Binding) {
         return Binding.Apply(Field(Object, *Binding.FieldName), Current);
       });
+}
+
+template <typename Settings>
+Settings
+ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
+                   std::initializer_list<TJsonSettingsField<Settings>> Fields) {
+  return ReadSettingsFields<Settings>(
+      Object, TArray<TJsonSettingsField<Settings>>(Fields));
 }
 
 } // namespace JsonAdapters

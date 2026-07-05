@@ -3,7 +3,7 @@
 | Lines | File Path |
 |-------|-----------|
 | 3358 | `Source/Core/ecs.hpp` |
-| 552 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
+| 559 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
 | 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 432 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
 | 414 | `Source/Tests/RuntimeStore.spec.cpp` |
@@ -128,6 +128,7 @@
 | 73 | `Source/Features/Systems/Landmarks/LandmarkTypes.h` |
 | 73 | `Source/Features/Systems/Runtime/RuntimeReducers.h` |
 | 72 | `Scripts/setup-dev.sh` |
+| 72 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsAdapters.cpp` |
 | 72 | `Source/Features/Systems/Projection/SystemsProjectionTerrainAdapters.cpp` |
 | 71 | `Source/Features/Systems/Bots/BotSourceMapping.h` |
 | 70 | `Content/Map/Heightmaps/french_gulch_ca_terrain_65.csv` |
@@ -168,7 +169,6 @@
 | 53 | `Source/Features/Systems/Interaction/InteractionSlice.h` |
 | 53 | `Source/Features/Systems/Nature/NatureTypes.h` |
 | 53 | `Source/Features/Systems/Projection/SystemsProjectionBotAdapters.h` |
-| 52 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsAdapters.cpp` |
 | 49 | `Source/Features/Entities/Characters/Player/PlayerActions.h` |
 | 49 | `Source/Features/Systems/Bots/Townspeople/TownspersonActions.cpp` |
 | 49 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeSectionAdapters.cpp` |
