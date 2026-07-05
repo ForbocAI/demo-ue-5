@@ -10,14 +10,22 @@ namespace Level {
 namespace BotPositionFactories {
 namespace {
 
-FBotPositionSource TownspersonPositionSource(const FTownspersonSeed &Seed) {
-  return {Seed.Id, BotSourceMapping::FirstRoutePoint(Seed.PatrolRoute),
+FBotPositionSource PositionSource(const FString &Id,
+                                  const TArray<FLevelLocalPoint> &PatrolRoute) {
+  return {Id, BotSourceMapping::FirstRoutePoint(PatrolRoute),
           FVector::ZeroVector, false, true};
 }
 
-FBotPositionSource HorsePositionSource(const FHorseRouteSeed &Seed) {
-  return {Seed.Id, BotSourceMapping::FirstRoutePoint(Seed.PatrolRoute),
-          FVector::ZeroVector, false, true};
+template <typename Seed>
+FBotPositionSource RoutePositionSource(const Seed &SeedValue) {
+  return PositionSource(SeedValue.Id, SeedValue.PatrolRoute);
+}
+
+template <typename Seed>
+TArray<FBotPositionComponent> FromRouteSeeds(const TArray<Seed> &Seeds) {
+  return BotSourceMapping::MapSeedComponents<Seed, FBotPositionSource,
+                                             FBotPositionComponent>(
+      Seeds, RoutePositionSource<Seed>, Component);
 }
 
 } // namespace
@@ -40,16 +48,12 @@ FBotPositionComponent Component(const FBotPositionSource &Source) {
 
 TArray<FBotPositionComponent>
 FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
-  return BotSourceMapping::MapSeedComponents<
-      FTownspersonSeed, FBotPositionSource, FBotPositionComponent>(
-      Seeds, TownspersonPositionSource, Component);
+  return FromRouteSeeds<FTownspersonSeed>(Seeds);
 }
 
 TArray<FBotPositionComponent>
 FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
-  return BotSourceMapping::MapSeedComponents<
-      FHorseRouteSeed, FBotPositionSource, FBotPositionComponent>(
-      Seeds, HorsePositionSource, Component);
+  return FromRouteSeeds<FHorseRouteSeed>(Seeds);
 }
 
 } // namespace BotPositionFactories

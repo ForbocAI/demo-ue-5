@@ -144,11 +144,11 @@
 | 64 | `Source/Features/Systems/Bots/Townspeople/TownspersonSelectors.cpp` |
 | 63 | `Source/Features/Systems/Bots/AI/BotAIReducers.cpp` |
 | 63 | `Source/Views/LevelGameModeView.cpp` |
+| 62 | `Source/Features/Systems/Bots/Position/BotPositionFactories.cpp` |
 | 61 | `Source/Features/Components/Data/JsonValueAdapters.cpp` |
 | 60 | `Source/Core/frmt.hpp` |
 | 59 | `Source/Features/Components/Level/LevelTypes.h` |
 | 59 | `Source/Features/Systems/Rendering/RenderingSlice.cpp` |
-| 58 | `Source/Features/Systems/Bots/Position/BotPositionFactories.cpp` |
 | 58 | `Source/Views/PlayerRuntimeControllerView.h` |
 | 58 | `Source/Views/RuntimeChatWidget.h` |
 | 57 | `.gitignore` |
