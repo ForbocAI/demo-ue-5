@@ -8,21 +8,56 @@ namespace {
 namespace Json = ForbocAI::Demo::Data::JsonAdapters;
 using FJsonFieldRequest = ForbocAI::Demo::Data::FJsonFieldRequest;
 
-template <typename Value> struct TStateJsonReadDeclaration {
+template <typename Value> struct TStateJsonFieldDeclaration {
   TFunction<Value(const FJsonFieldRequest &)> Read;
-};
-
-template <typename Value> struct TStateJsonWriteDeclaration {
   TFunction<void(const FJsonFieldRequest &, const Value &)> Write;
 };
 
-struct FStateJsonFieldQueryDeclaration {
-  TFunction<bool(const FJsonFieldRequest &)> Query;
-};
+template <typename Value> struct TStateJsonFieldRegistry;
 
 struct FStateJsonMergeRequest {
   TSharedPtr<FJsonObject> Target;
   TSharedPtr<FJsonObject> Source;
+};
+
+bool HasJsonField(const FJsonFieldRequest &Request);
+void WriteStringJsonField(const FJsonFieldRequest &Request,
+                          const FString &Value);
+void WriteFloatJsonField(const FJsonFieldRequest &Request,
+                         const float &Value);
+void WriteIntJsonField(const FJsonFieldRequest &Request, const int32 &Value);
+void WriteBoolJsonField(const FJsonFieldRequest &Request, const bool &Value);
+
+template <> struct TStateJsonFieldRegistry<FString> {
+  static const TStateJsonFieldDeclaration<FString> &Declaration() {
+    static const TStateJsonFieldDeclaration<FString> RegisteredDeclaration = {
+        Json::ReadString, WriteStringJsonField};
+    return RegisteredDeclaration;
+  }
+};
+
+template <> struct TStateJsonFieldRegistry<float> {
+  static const TStateJsonFieldDeclaration<float> &Declaration() {
+    static const TStateJsonFieldDeclaration<float> RegisteredDeclaration = {
+        Json::ReadFloat, WriteFloatJsonField};
+    return RegisteredDeclaration;
+  }
+};
+
+template <> struct TStateJsonFieldRegistry<int32> {
+  static const TStateJsonFieldDeclaration<int32> &Declaration() {
+    static const TStateJsonFieldDeclaration<int32> RegisteredDeclaration = {
+        Json::ReadInt, WriteIntJsonField};
+    return RegisteredDeclaration;
+  }
+};
+
+template <> struct TStateJsonFieldRegistry<bool> {
+  static const TStateJsonFieldDeclaration<bool> &Declaration() {
+    static const TStateJsonFieldDeclaration<bool> RegisteredDeclaration = {
+        Json::ReadBool, WriteBoolJsonField};
+    return RegisteredDeclaration;
+  }
 };
 
 TSharedPtr<FJsonObject> ParseStateJson(const FString &JsonData) {
@@ -49,25 +84,24 @@ FJsonFieldRequest StateJsonField(const FString &JsonData,
 }
 
 template <typename Value>
-Value ReadStateJsonField(
-    const FString &JsonData, const FString &FieldName,
-    const TStateJsonReadDeclaration<Value> &Declaration) {
-  return Declaration.Read(StateJsonField(JsonData, FieldName));
+Value ReadStateJsonField(const FString &JsonData,
+                         const FString &FieldName) {
+  return TStateJsonFieldRegistry<Value>::Declaration().Read(
+      StateJsonField(JsonData, FieldName));
 }
 
 template <typename Value>
-FString WriteStateJsonField(
-    const FString &JsonData, const FString &FieldName, const Value &ValueData,
-    const TStateJsonWriteDeclaration<Value> &Declaration) {
+FString WriteStateJsonField(const FString &JsonData,
+                            const FString &FieldName,
+                            const Value &ValueData) {
   const TSharedPtr<FJsonObject> Json = ParseStateJson(JsonData);
-  Declaration.Write({Json, FieldName}, ValueData);
+  TStateJsonFieldRegistry<Value>::Declaration().Write({Json, FieldName},
+                                                      ValueData);
   return SerializeStateJson(Json);
 }
 
-bool QueryStateJsonField(
-    const FString &JsonData, const FString &FieldName,
-    const FStateJsonFieldQueryDeclaration &Declaration) {
-  return Declaration.Query(StateJsonField(JsonData, FieldName));
+bool HasStateJsonField(const FString &JsonData, const FString &FieldName) {
+  return HasJsonField(StateJsonField(JsonData, FieldName));
 }
 
 bool HasJsonField(const FJsonFieldRequest &Request) {
@@ -142,27 +176,27 @@ FString UGenericStateBlueprintLibrary::SerializeJson(
 
 FString UGenericStateBlueprintLibrary::GetStateString(
     const FString &JsonData, const FString &FieldName) {
-  return ReadStateJsonField<FString>(JsonData, FieldName, {Json::ReadString});
+  return ReadStateJsonField<FString>(JsonData, FieldName);
 }
 
 float UGenericStateBlueprintLibrary::GetStateFloat(
     const FString &JsonData, const FString &FieldName) {
-  return ReadStateJsonField<float>(JsonData, FieldName, {Json::ReadFloat});
+  return ReadStateJsonField<float>(JsonData, FieldName);
 }
 
 int32 UGenericStateBlueprintLibrary::GetStateInt(
     const FString &JsonData, const FString &FieldName) {
-  return ReadStateJsonField<int32>(JsonData, FieldName, {Json::ReadInt});
+  return ReadStateJsonField<int32>(JsonData, FieldName);
 }
 
 bool UGenericStateBlueprintLibrary::GetStateBool(
     const FString &JsonData, const FString &FieldName) {
-  return ReadStateJsonField<bool>(JsonData, FieldName, {Json::ReadBool});
+  return ReadStateJsonField<bool>(JsonData, FieldName);
 }
 
 bool UGenericStateBlueprintLibrary::HasStateField(
     const FString &JsonData, const FString &FieldName) {
-  return QueryStateJsonField(JsonData, FieldName, {HasJsonField});
+  return HasStateJsonField(JsonData, FieldName);
 }
 
 // ── Write Operations ──
@@ -170,26 +204,22 @@ bool UGenericStateBlueprintLibrary::HasStateField(
 FString UGenericStateBlueprintLibrary::SetStateString(
     const FString &JsonData, const FString &FieldName,
     const FString &Value) {
-  return WriteStateJsonField<FString>(JsonData, FieldName, Value,
-                                      {WriteStringJsonField});
+  return WriteStateJsonField<FString>(JsonData, FieldName, Value);
 }
 
 FString UGenericStateBlueprintLibrary::SetStateFloat(
     const FString &JsonData, const FString &FieldName, float Value) {
-  return WriteStateJsonField<float>(JsonData, FieldName, Value,
-                                    {WriteFloatJsonField});
+  return WriteStateJsonField<float>(JsonData, FieldName, Value);
 }
 
 FString UGenericStateBlueprintLibrary::SetStateInt(
     const FString &JsonData, const FString &FieldName, int32 Value) {
-  return WriteStateJsonField<int32>(JsonData, FieldName, Value,
-                                    {WriteIntJsonField});
+  return WriteStateJsonField<int32>(JsonData, FieldName, Value);
 }
 
 FString UGenericStateBlueprintLibrary::SetStateBool(
     const FString &JsonData, const FString &FieldName, bool Value) {
-  return WriteStateJsonField<bool>(JsonData, FieldName, Value,
-                                   {WriteBoolJsonField});
+  return WriteStateJsonField<bool>(JsonData, FieldName, Value);
 }
 
 // ── Utility ──
