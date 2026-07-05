@@ -5,8 +5,6 @@
 #include "Core/rtk.hpp"
 #include "Features/Systems/UI/UITypes.h"
 
-#include <initializer_list>
-
 namespace ForbocAI {
 namespace Demo {
 namespace Level {
@@ -15,6 +13,8 @@ namespace detail {
 
 using FChatMessageViewModel =
     ForbocAI::Demo::UI::FChatMessageViewModel;
+using FChatMessageViewModels =
+    TArray<ForbocAI::Demo::UI::FChatMessageViewModel>;
 using FRuntimeConversationViewModel =
     ForbocAI::Demo::UI::FRuntimeConversationViewModel;
 using FUIRuntimeSettings =
@@ -27,36 +27,90 @@ struct FUIRuntimeConversationText {
 };
 
 struct FUIRoleColorDeclaration {
-  FString Role;
-  FLinearColor Color;
+  FString FUIRuntimeSettings::*Role;
+  FLinearColor FUIRuntimeSettings::*Color;
+};
 
-  FUIRoleColorDeclaration(const FString &InRole,
-                          const FLinearColor &InColor)
-      : Role(InRole), Color(InColor) {}
+template <typename Value> struct TUIStatePayloadFieldDeclaration {
+  Value FUIState::*StateField;
+  Value FUIPayload::*PayloadField;
+};
+
+struct FUIChatHistoryRenderedDeclaration {};
+
+template <typename Declaration> struct TUIReducerRegistry;
+
+template <> struct TUIReducerRegistry<FUIRoleColorDeclaration> {
+  static const TArray<FUIRoleColorDeclaration> &Declarations() {
+    static const TArray<FUIRoleColorDeclaration> RegisteredDeclarations = {
+        {&FUIRuntimeSettings::PlayerRoleLabel, &FUIRuntimeSettings::PlayerColor},
+        {&FUIRuntimeSettings::SystemRoleLabel, &FUIRuntimeSettings::SystemColor},
+        {&FUIRuntimeSettings::NpcRoleLabel, &FUIRuntimeSettings::NpcColor},
+        {&FUIRuntimeSettings::UnknownRoleLabel,
+         &FUIRuntimeSettings::UnknownColor}};
+    return RegisteredDeclarations;
+  }
+};
+
+template <> struct TUIReducerRegistry<FUIChatHistoryRenderedDeclaration> {
+  static const TArray<TUIStatePayloadFieldDeclaration<FChatMessageViewModels>>
+      &Declarations() {
+    static const TArray<
+        TUIStatePayloadFieldDeclaration<FChatMessageViewModels>>
+        RegisteredDeclarations = {{&FUIState::Messages,
+                                   &FUIPayload::Messages}};
+    return RegisteredDeclarations;
+  }
 };
 
 inline func::Maybe<FLinearColor> FindRoleColor(
-    const FString &Role,
-    std::initializer_list<FUIRoleColorDeclaration> Declarations) {
-  const TArray<FUIRoleColorDeclaration> DeclarationList(Declarations);
+    const FString &Role, const FUIRuntimeSettings &Settings) {
+  const TArray<FUIRoleColorDeclaration> &Declarations =
+      TUIReducerRegistry<FUIRoleColorDeclaration>::Declarations();
   return func::fold_array<FUIRoleColorDeclaration,
                           func::Maybe<FLinearColor>>(
-      DeclarationList, func::nothing<FLinearColor>(),
-      [&Role](const func::Maybe<FLinearColor> &Acc,
-              const FUIRoleColorDeclaration &Declaration) {
-        return Acc.hasValue || Declaration.Role != Role
+      Declarations, func::nothing<FLinearColor>(),
+      [&Role, &Settings](const func::Maybe<FLinearColor> &Acc,
+                         const FUIRoleColorDeclaration &Declaration) {
+        return Acc.hasValue || (Settings.*(Declaration.Role)) != Role
                    ? Acc
-                   : func::just(Declaration.Color);
+                   : func::just(Settings.*(Declaration.Color));
       });
+}
+
+template <typename Value>
+FUIState ReducePayloadFields(
+    const FUIState &State, const FUIPayload &Payload,
+    const TArray<TUIStatePayloadFieldDeclaration<Value>> &Declarations) {
+  return func::fold_array<TUIStatePayloadFieldDeclaration<Value>, FUIState>(
+      Declarations, State,
+      [&Payload](const FUIState &Acc,
+                 const TUIStatePayloadFieldDeclaration<Value> &Declaration) {
+        FUIState Next = Acc;
+        Next.*(Declaration.StateField) = Payload.*(Declaration.PayloadField);
+        return Next;
+      });
+}
+
+template <typename Value>
+FUIState ReducePayloadActionFields(
+    const FUIState &State, const rtk::PayloadAction<FUIPayload> &Action,
+    const TArray<TUIStatePayloadFieldDeclaration<Value>> &Declarations) {
+  return (func::pipe(State) |
+          [&Action](FUIState Next) -> FUIState {
+            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            return Next;
+          } |
+          [&Action, &Declarations](const FUIState &Next) -> FUIState {
+            return ReducePayloadFields<Value>(Next, Action.PayloadValue,
+                                              Declarations);
+          })
+      .val;
 }
 
 inline FLinearColor ReduceChatColorForRole(const FString &Role,
                                            const FUIRuntimeSettings &Settings) {
-  const func::Maybe<FLinearColor> Color = FindRoleColor(
-      Role, {{Settings.PlayerRoleLabel, Settings.PlayerColor},
-             {Settings.SystemRoleLabel, Settings.SystemColor},
-             {Settings.NpcRoleLabel, Settings.NpcColor},
-             {Settings.UnknownRoleLabel, Settings.UnknownColor}});
+  const func::Maybe<FLinearColor> Color = FindRoleColor(Role, Settings);
   check(Color.hasValue);
   return Color.value;
 }
@@ -88,6 +142,19 @@ ReduceHistoryEntryViewModel(const FString &Entry,
 
 inline FString ReduceSubmittedChatText(const FText &Text) {
   return Text.ToString().TrimStartAndEnd();
+}
+
+template <typename Source, typename Output, typename Context>
+using FUIMapWithContext = Output (*)(const Source &, const Context &);
+
+template <typename Source, typename Output, typename Context>
+TArray<Output> MapWithContext(const TArray<Source> &Values,
+                              const Context &ContextValue,
+                              FUIMapWithContext<Source, Output, Context> Map) {
+  return func::map_array<Source, Output>(
+      Values, [&ContextValue, Map](const Source &Value) {
+        return Map(Value, ContextValue);
+      });
 }
 
 inline FRuntimeConversationViewModel
@@ -138,13 +205,10 @@ inline FUIState ReduceConversationPresented(
 inline FUIState ReduceChatHistoryRendered(
     const FUIState &State,
     const rtk::PayloadAction<FUIPayload> &Action) {
-  return (func::pipe(State) |
-          [&Action](FUIState Next) -> FUIState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
-            Next.Messages = Action.PayloadValue.Messages;
-            return Next;
-          })
-      .val;
+  return detail::ReducePayloadActionFields<detail::FChatMessageViewModels>(
+      State, Action,
+      detail::TUIReducerRegistry<
+          detail::FUIChatHistoryRenderedDeclaration>::Declarations());
 }
 
 /**
@@ -163,13 +227,9 @@ inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel>
 ReduceChatHistoryViewModels(
     const FUIChatHistoryViewModelsRequest &Request,
     const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
-  return func::map_array<FString,
-                         ForbocAI::Demo::UI::FChatMessageViewModel>(
-      Request.History,
-      [&Settings](
-          const FString &Entry) {
-        return detail::ReduceHistoryEntryViewModel(Entry, Settings);
-      });
+  return detail::MapWithContext<FString, detail::FChatMessageViewModel,
+                                detail::FUIRuntimeSettings>(
+      Request.History, Settings, detail::ReduceHistoryEntryViewModel);
 }
 
 /**
