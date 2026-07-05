@@ -15,6 +15,8 @@
 
 namespace FG = ForbocAI::Demo::Level;
 
+DEFINE_LOG_CATEGORY_STATIC(LogForbocDemoRuntime, Log, All);
+
 namespace {
 
 struct FBlockLevelOfDetailRequest {
@@ -49,6 +51,8 @@ ARuntimeLevelView::ARuntimeLevelView()
 
 void ARuntimeLevelView::BeginPlay() {
   Super::BeginPlay();
+  UE_LOG(LogForbocDemoRuntime, Display,
+         TEXT("Forboc runtime smoke: RuntimeLevelView BeginPlay"));
   bSpawnOnBeginPlay ? RenderLevel() : void();
 }
 

@@ -27,7 +27,7 @@
 | 277 | `Source/Features/Systems/Level/LevelTypes.h` |
 | 273 | `Source/Views/TownspersonView.cpp` |
 | 261 | `Source/Features/Components/ComponentsAdapters.cpp` |
-| 255 | `Source/Views/RuntimeLevelView.cpp` |
+| 259 | `Source/Views/RuntimeLevelView.cpp` |
 | 238 | `Source/Features/Systems/Rendering/RenderingTypes.h` |
 | 237 | `Source/Features/Entities/Environments/Nature/NatureSeedAdapters.cpp` |
 | 230 | `Source/Blueprints/GenericStateBlueprintLibrary.cpp` |
@@ -60,6 +60,7 @@
 | 163 | `Source/Features/Entities/Characters/Player/PlayerTypes.h` |
 | 160 | `Source/Tests/ProtocolLoop.spec.cpp` |
 | 159 | `Source/Views/HorseView.cpp` |
+| 157 | `Scripts/run-tests.sh` |
 | 149 | `Content/Data/french_gulch_runtime_level.json` |
 | 147 | `Scripts/Tools/create_french_gulch_map.py` |
 | 147 | `Source/Features/Systems/Bots/Goals/BotGoalReducers.cpp` |
@@ -67,7 +68,6 @@
 | 145 | `Source/Tests/ContentAssets.spec.cpp` |
 | 143 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.cpp` |
 | 142 | `Scripts/DOCS/count_project_lines.py` |
-| 141 | `Scripts/run-tests.sh` |
 | 141 | `Source/Blueprints/GenericStateBlueprintLibrary.h` |
 | 141 | `Source/Features/Systems/Interaction/InteractionTypes.h` |
 | 140 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeScaleAdapters.cpp` |
@@ -108,6 +108,7 @@
 | 99 | `Source/Features/Systems/Bots/Stats/BotStatsFactories.cpp` |
 | 97 | `Source/Features/Systems/Bots/AI/BotAITypes.h` |
 | 97 | `Source/Features/Systems/SystemsAdapters.h` |
+| 94 | `Scripts/run-runtime-smoke.sh` |
 | 94 | `Source/Views/PlayerCharacterView.h` |
 | 93 | `Source/Features/Systems/Bots/Stats/BotStatsTypes.h` |
 | 92 | `Source/Features/Systems/Dialogue/DialogueReducers.h` |

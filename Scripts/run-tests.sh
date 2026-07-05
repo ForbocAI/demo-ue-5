@@ -9,6 +9,10 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_FILE="$PROJECT_ROOT/DemoProject.uproject"
 PROJECT_FILE_ARG="$PROJECT_FILE"
+RUNTIME_SMOKE_SCRIPT="$PROJECT_ROOT/Scripts/run-runtime-smoke.sh"
+RUNTIME_SMOKE_POWERSHELL_SCRIPT="$PROJECT_ROOT/Scripts/run-runtime-smoke.ps1"
+RUNTIME_SMOKE_POWERSHELL_ARG="$RUNTIME_SMOKE_POWERSHELL_SCRIPT"
+RUNTIME_SMOKE_VIA_POWERSHELL=0
 UNREAL_BUILD=""
 UNREAL_BUILD_ARG=""
 BUILD_VIA_CMD=0
@@ -24,12 +28,18 @@ if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" ==
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Build.bat"
     UNREAL_BUILD_ARG="$UNREAL_BUILD"
+    RUNTIME_SMOKE_VIA_POWERSHELL=1
+    if command -v cygpath >/dev/null 2>&1; then
+      RUNTIME_SMOKE_POWERSHELL_ARG="$(cygpath -w "$RUNTIME_SMOKE_POWERSHELL_SCRIPT")"
+    fi
 elif grep -qi microsoft /proc/version 2>/dev/null; then
     UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.7}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Build.bat"
     PROJECT_FILE_ARG="$(wslpath -w "$PROJECT_FILE")"
     UNREAL_BUILD_ARG="$(wslpath -w "$UNREAL_BUILD")"
+    RUNTIME_SMOKE_POWERSHELL_ARG="$(wslpath -w "$RUNTIME_SMOKE_POWERSHELL_SCRIPT")"
+    RUNTIME_SMOKE_VIA_POWERSHELL=1
     BUILD_VIA_CMD=1
 else
     UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.7}"
@@ -134,6 +144,12 @@ else
   if [ "$UE_EXIT" -ne 0 ]; then
     echo "✗ Editor crashed or returned non-zero exit code: $UE_EXIT"
     exit 1
+  fi
+  echo "Running Runtime map smoke test..."
+  if [ "$RUNTIME_SMOKE_VIA_POWERSHELL" -eq 1 ]; then
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$RUNTIME_SMOKE_POWERSHELL_ARG"
+  else
+    bash "$RUNTIME_SMOKE_SCRIPT"
   fi
   echo "✓ All tests passed."
   echo "  (Found $SKIPS offline skip(s)/warning(s) which are treated as successful skips)"
