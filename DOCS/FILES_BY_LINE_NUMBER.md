@@ -4,7 +4,7 @@
 |-------|-----------|
 | 3358 | `Source/Core/ecs.hpp` |
 | 749 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
-| 489 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
+| 568 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 477 | `Source/Features/Components/ComponentsAdapters.h` |
 | 469 | `Source/Features/Systems/Rendering/RenderingThunks.cpp` |
 | 430 | `Source/Tests/RuntimeStore.spec.cpp` |

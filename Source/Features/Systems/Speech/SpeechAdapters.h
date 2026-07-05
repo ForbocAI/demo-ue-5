@@ -7,8 +7,6 @@
 #include "Features/Components/Data/DataTypes.h"
 #include "Sound/SoundWave.h"
 
-#include <initializer_list>
-
 #include "SpeechAdapters.generated.h"
 
 /**
@@ -149,11 +147,18 @@ struct TSpeechDispatchDeclaration {
   std::function<Output(const Input &)> Run;
 };
 
+struct FSpeechCharacterEval {
+  TCHAR Character;
+  const FSpeechRuntimeSettings *Settings;
+};
+
 struct FSpeechDurationRuleEval {
   FString Phoneme;
   FSpeechPhonemeDurationRuleSettings Rule;
 };
 
+using FSpeechCharacterDispatchDeclaration =
+    TSpeechDispatchDeclaration<FSpeechCharacterEval, FString>;
 using FSpeechDurationRuleApply = bool (*)(const FSpeechDurationRuleEval &);
 
 struct FSpeechDurationRuleDeclaration {
@@ -163,6 +168,55 @@ struct FSpeechDurationRuleDeclaration {
   FSpeechDurationRuleDeclaration(const char *InKind,
                                  FSpeechDurationRuleApply InMatches)
       : Kind(FString(UTF8_TO_TCHAR(InKind))), Matches(InMatches) {}
+};
+
+inline bool CharacterIsSilence(const FSpeechCharacterEval &Eval);
+inline FString CharacterSilencePhoneme(const FSpeechCharacterEval &Eval);
+inline bool CharacterIsAlpha(const FSpeechCharacterEval &Eval);
+inline FString CharacterAlphaPhoneme(const FSpeechCharacterEval &Eval);
+inline bool DurationPhonemeEquals(const FSpeechDurationRuleEval &Eval);
+inline bool DurationAlways(const FSpeechDurationRuleEval &Eval);
+
+template <typename Item> struct TSpeechMapRegistry;
+
+template <> struct TSpeechMapRegistry<FSpeechVisemeMappingSettings> {
+  typedef FString Key;
+  typedef FVisemeMapping Value;
+
+  static const TSpeechMapDeclaration<FSpeechVisemeMappingSettings, Key, Value>
+      &Declaration() {
+    static const TSpeechMapDeclaration<FSpeechVisemeMappingSettings, Key, Value>
+        RegisteredDeclaration = {
+            [](const FSpeechVisemeMappingSettings &Mapping) {
+              return Mapping.Phoneme;
+            },
+            [](const FSpeechVisemeMappingSettings &Mapping) {
+              return FVisemeMapping{Mapping.MorphTargetName,
+                                    Mapping.BlendWeight};
+            }};
+    return RegisteredDeclaration;
+  }
+};
+
+template <typename Declaration> struct TSpeechDispatchRegistry;
+
+template <> struct TSpeechDispatchRegistry<FSpeechCharacterDispatchDeclaration> {
+  static const TArray<FSpeechCharacterDispatchDeclaration> &Declarations() {
+    static const TArray<FSpeechCharacterDispatchDeclaration>
+        RegisteredDeclarations = {
+            {CharacterIsSilence, CharacterSilencePhoneme},
+            {CharacterIsAlpha, CharacterAlphaPhoneme}};
+    return RegisteredDeclarations;
+  }
+};
+
+template <> struct TSpeechDispatchRegistry<FSpeechDurationRuleDeclaration> {
+  static const TArray<FSpeechDurationRuleDeclaration> &Declarations() {
+    static const TArray<FSpeechDurationRuleDeclaration> RegisteredDeclarations =
+        {{"phoneme_equals", DurationPhonemeEquals},
+         {"always", DurationAlways}};
+    return RegisteredDeclarations;
+  }
 };
 
 template <typename Item, typename Key, typename Value>
@@ -179,16 +233,24 @@ TMap<Key, Value> BuildSpeechMap(
       });
 }
 
+template <typename Item>
+TMap<typename TSpeechMapRegistry<Item>::Key,
+     typename TSpeechMapRegistry<Item>::Value>
+BuildSpeechMap(const TArray<Item> &Items) {
+  typedef typename TSpeechMapRegistry<Item>::Key Key;
+  typedef typename TSpeechMapRegistry<Item>::Value Value;
+  return BuildSpeechMap<Item, Key, Value>(
+      Items, TSpeechMapRegistry<Item>::Declaration());
+}
+
 template <typename Input, typename Output>
-func::Maybe<Output> RunSpeechDispatch(
-    const Input &Value,
-    std::initializer_list<TSpeechDispatchDeclaration<Input, Output>>
-        Declarations) {
-  const TArray<TSpeechDispatchDeclaration<Input, Output>> DeclarationList(
-      Declarations);
+func::Maybe<Output> RunSpeechDispatch(const Input &Value) {
+  const TArray<TSpeechDispatchDeclaration<Input, Output>> &Declarations =
+      TSpeechDispatchRegistry<
+          TSpeechDispatchDeclaration<Input, Output>>::Declarations();
   return func::fold_array<TSpeechDispatchDeclaration<Input, Output>,
                           func::Maybe<Output>>(
-      DeclarationList, func::nothing<Output>(),
+      Declarations, func::nothing<Output>(),
       [&Value](const func::Maybe<Output> &Acc,
                const TSpeechDispatchDeclaration<Input, Output> &Declaration) {
         return Acc.hasValue || !Declaration.Matches(Value)
@@ -197,18 +259,24 @@ func::Maybe<Output> RunSpeechDispatch(
       });
 }
 
-inline func::Maybe<bool> MatchDurationRule(
-    const FSpeechDurationRuleEval &Eval,
-    std::initializer_list<FSpeechDurationRuleDeclaration> Declarations) {
-  const TArray<FSpeechDurationRuleDeclaration> DeclarationList(Declarations);
-  return func::fold_array<FSpeechDurationRuleDeclaration, func::Maybe<bool>>(
-      DeclarationList, func::nothing<bool>(),
-      [&Eval](const func::Maybe<bool> &Acc,
-              const FSpeechDurationRuleDeclaration &Declaration) {
-        return Acc.hasValue || Declaration.Kind != Eval.Rule.Kind
-                   ? Acc
-                   : func::just(Declaration.Matches(Eval));
-      });
+template <typename Declaration>
+Declaration RequiredSpeechDeclaration(const FString &Kind) {
+  const TArray<Declaration> &Declarations =
+      TSpeechDispatchRegistry<Declaration>::Declarations();
+  const TArray<int32> Indices = func::index_range(Declarations.Num());
+  const func::Maybe<int32> Found =
+      func::find_indexed(Indices, static_cast<size_t>(Indices.Num()),
+                         [&Kind, &Declarations](int32 Index) {
+                           return Declarations[Index].Kind == Kind;
+                         });
+  check(Found.hasValue);
+  return Declarations[Found.value];
+}
+
+inline bool DurationRuleMatches(const FSpeechDurationRuleEval &Eval) {
+  return RequiredSpeechDeclaration<FSpeechDurationRuleDeclaration>(
+             Eval.Rule.Kind)
+      .Matches(Eval);
 }
 
 inline bool DurationPhonemeEquals(const FSpeechDurationRuleEval &Eval) {
@@ -226,15 +294,26 @@ inline FVisemeMapping RestViseme(
 
 inline TMap<FString, FVisemeMapping> VisemeMapFromSettings(
     const FSpeechRuntimeSettings &Settings) {
-  return BuildSpeechMap<FSpeechVisemeMappingSettings, FString,
-                        FVisemeMapping>(
-      Settings.VisemeMappings,
-      {[](const FSpeechVisemeMappingSettings &Mapping) {
-         return Mapping.Phoneme;
-       },
-       [](const FSpeechVisemeMappingSettings &Mapping) {
-         return FVisemeMapping{Mapping.MorphTargetName, Mapping.BlendWeight};
-       }});
+  return BuildSpeechMap<FSpeechVisemeMappingSettings>(Settings.VisemeMappings);
+}
+
+template <typename Key, typename Value>
+func::Maybe<Value> LookupSpeechMapValue(const Key &KeyValue,
+                                        const TMap<Key, Value> &Map) {
+  return func::find_map_value<Key, Value>(Map, KeyValue);
+}
+
+template <typename Value>
+Value RequiredSpeechValue(const func::Maybe<Value> &ValueResult) {
+  check(ValueResult.hasValue);
+  return ValueResult.value;
+}
+
+template <typename Key, typename Value>
+Value RequiredSpeechMapValue(const Key &KeyValue,
+                             const TMap<Key, Value> &Map) {
+  return RequiredSpeechValue<Value>(LookupSpeechMapValue<Key, Value>(KeyValue,
+                                                                     Map));
 }
 
 /**
@@ -244,15 +323,13 @@ inline TMap<FString, FVisemeMapping> VisemeMapFromSettings(
 inline func::Maybe<FVisemeMapping> LookupViseme(
     const FString &Phoneme,
     const TMap<FString, FVisemeMapping> &Map) {
-  return func::find_map_value<FString, FVisemeMapping>(Map, Phoneme);
+  return LookupSpeechMapValue<FString, FVisemeMapping>(Phoneme, Map);
 }
 
 inline FVisemeMapping RequiredVisemeForPhoneme(
     const FString &Phoneme,
     const TMap<FString, FVisemeMapping> &Map) {
-  const func::Maybe<FVisemeMapping> Found = LookupViseme(Phoneme, Map);
-  check(Found.hasValue);
-  return Found.value;
+  return RequiredSpeechMapValue<FString, FVisemeMapping>(Phoneme, Map);
 }
 
 /**
@@ -292,6 +369,22 @@ inline bool ContainsCharacter(const FString &Characters, TCHAR Character) {
   return Characters.Contains(UpperString(Character));
 }
 
+inline bool CharacterIsSilence(const FSpeechCharacterEval &Eval) {
+  return ContainsCharacter(Eval.Settings->SilenceCharacters, Eval.Character);
+}
+
+inline FString CharacterSilencePhoneme(const FSpeechCharacterEval &Eval) {
+  return Eval.Settings->SilencePhoneme;
+}
+
+inline bool CharacterIsAlpha(const FSpeechCharacterEval &Eval) {
+  return FChar::IsAlpha(Eval.Character);
+}
+
+inline FString CharacterAlphaPhoneme(const FSpeechCharacterEval &Eval) {
+  return UpperString(Eval.Character);
+}
+
 inline func::Maybe<FString> LookupVowelPhoneme(
     TCHAR Ch,
     const FSpeechRuntimeSettings &Settings) {
@@ -315,17 +408,8 @@ inline func::Maybe<FString> EstimatePhonemeForChar(
       LookupVowelPhoneme(Upper, Settings),
       [](const FString &Phoneme) { return func::just(Phoneme); },
       [&Settings, Upper]() {
-        return RunSpeechDispatch<TCHAR, FString>(
-            Upper,
-            {{[&Settings](const TCHAR &Candidate) {
-                return ContainsCharacter(Settings.SilenceCharacters,
-                                         Candidate);
-              },
-              [&Settings](const TCHAR &) { return Settings.SilencePhoneme; }},
-             {[](const TCHAR &Candidate) {
-                return FChar::IsAlpha(Candidate);
-              },
-              [](const TCHAR &Candidate) { return UpperString(Candidate); }}});
+        return RunSpeechDispatch<FSpeechCharacterEval, FString>(
+            {Upper, &Settings});
       });
 }
 
@@ -335,12 +419,7 @@ inline float EstimatePhonemeDuration(const FString &Phoneme,
       func::find_array<FSpeechPhonemeDurationRuleSettings>(
           Settings.DurationRules,
           [&Phoneme](const FSpeechPhonemeDurationRuleSettings &Candidate) {
-            const func::Maybe<bool> Matches = MatchDurationRule(
-                {Phoneme, Candidate},
-                {{"phoneme_equals", DurationPhonemeEquals},
-                 {"always", DurationAlways}});
-            check(Matches.hasValue);
-            return Matches.value;
+            return DurationRuleMatches({Phoneme, Candidate});
           });
   check(Rule.hasValue);
   return Settings.EstimatedBasePhonemeSeconds * Rule.value.Multiplier;
