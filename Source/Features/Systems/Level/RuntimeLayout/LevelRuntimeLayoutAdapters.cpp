@@ -16,23 +16,6 @@ ReadRequiredValue<ForbocAI::Demo::Level::FLevelRuntimeSectionSeed>(
   return ForbocAI::Demo::Level::RuntimeLayout::ReadSection(Request);
 }
 
-template <>
-func::Maybe<TArray<ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>>
-ReadRequiredValue<TArray<ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>>(
-    const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
-  return func::mbind(
-      ReadRequiredArray(Request),
-      [Request](const TArray<TSharedPtr<FJsonValue>> &Values) {
-        return MapRequiredJsonValuesWith<
-            ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>(
-            Request.FieldName,
-            [](const TSharedPtr<FJsonObject> &Object) {
-              return ForbocAI::Demo::Level::RuntimeLayout::LabelFromJson(
-                  {Object});
-            })(Values);
-      });
-}
-
 JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Demo::Level::FLevelRuntimeLayoutSeed,
                              Terrain, Town, Mine, OverlayLabels);
 

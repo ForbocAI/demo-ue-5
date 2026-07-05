@@ -160,6 +160,15 @@ func::Maybe<TArray<Output>> ReadRequiredObjectArray(
       });
 }
 
+template <typename Output> struct TRequiredJsonObjectMapper;
+
+template <typename Output>
+func::Maybe<TArray<Output>>
+ReadRequiredMappedObjectArray(const FJsonFieldRequest &Request) {
+  return ReadRequiredObjectArray<Output>(
+      Request, TRequiredJsonObjectMapper<Output>::Read);
+}
+
 template <typename State> struct TRequiredJsonFieldDeclaration {
   FString FieldName;
   TFunction<func::Maybe<State>(const FJsonFieldRequest &, const State &)> Apply;
@@ -168,6 +177,20 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
       : FieldName(),
         Apply([](const FJsonFieldRequest &, const State &Current) {
           return func::just(Current);
+        }) {}
+
+  template <typename Output>
+  TRequiredJsonFieldDeclaration(const char *FieldAtom,
+                                TArray<Output> State::*Member)
+      : FieldName(RequiredFieldName(FieldAtom)),
+        Apply([Member](const FJsonFieldRequest &Request,
+                       const State &Current) {
+          return func::mbind(
+              ReadRequiredMappedObjectArray<Output>(Request),
+              [Member, Current](const TArray<Output> &FieldValue) {
+                return AssignRequiredField<State, TArray<Output>>(
+                    Member, Current, FieldValue);
+              });
         }) {}
 
   template <typename Value>

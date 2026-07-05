@@ -6,32 +6,28 @@
 
 namespace ForbocAI {
 namespace Demo {
+namespace Data {
+namespace JsonValueAdapters {
+
+JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Demo::Level::FLevelRuntimeSectionSeed,
+                             Blocks, Labels);
+
+} // namespace JsonValueAdapters
+} // namespace Data
+} // namespace Demo
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Demo {
 namespace Level {
 namespace RuntimeLayout {
-namespace {
 
 namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
-
-func::Maybe<FLevelRuntimeBlockSeed>
-ReadBlockObject(const TSharedPtr<FJsonObject> &Object) {
-  return BlockFromJson({Object});
-}
-
-func::Maybe<FLevelRuntimeLabelSeed>
-ReadLabelObject(const TSharedPtr<FJsonObject> &Object) {
-  return LabelFromJson({Object});
-}
-
-} // namespace
 
 func::Maybe<FLevelRuntimeSectionSeed>
 SectionFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
   return JsonValues::ReadRequiredFields<FLevelRuntimeSectionSeed>(
-      Request.Object,
-      {JSON_REQUIRED_FIELD_READER(FLevelRuntimeSectionSeed, ReadBlockObject,
-                                  Blocks),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeSectionSeed, ReadLabelObject,
-                                  Labels)});
+      Request.Object, JSON_REQUIRED_ATOMS(Blocks, Labels));
 }
 
 func::Maybe<FLevelRuntimeSectionSeed>

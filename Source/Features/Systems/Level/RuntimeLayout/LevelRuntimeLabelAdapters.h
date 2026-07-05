@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Features/Components/Data/JsonValueAdapters.h"
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutTypes.h"
 
 namespace ForbocAI {
@@ -20,5 +21,23 @@ LabelFromJson(const FLevelRuntimeJsonObjectRequest &Request);
 
 } // namespace RuntimeLayout
 } // namespace Level
+} // namespace Demo
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Demo {
+namespace Data {
+namespace JsonValueAdapters {
+
+template <>
+struct TRequiredJsonObjectMapper<ForbocAI::Demo::Level::FLevelRuntimeLabelSeed> {
+  static func::Maybe<ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>
+  Read(const TSharedPtr<FJsonObject> &Object) {
+    return ForbocAI::Demo::Level::RuntimeLayout::LabelFromJson({Object});
+  }
+};
+
+} // namespace JsonValueAdapters
+} // namespace Data
 } // namespace Demo
 } // namespace ForbocAI
