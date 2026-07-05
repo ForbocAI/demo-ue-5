@@ -98,9 +98,9 @@
 | 103 | `Source/Features/Systems/Bots/Core/BotCoreActions.h` |
 | 103 | `Source/Views/RuntimeLevelView.h` |
 | 101 | `Source/Features/Systems/Rendering/RenderingReducers.h` |
+| 100 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.cpp` |
 | 99 | `Source/Features/Systems/Bots/Stats/BotStatsFactories.cpp` |
 | 97 | `Source/Features/Systems/Bots/AI/BotAITypes.h` |
-| 97 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.cpp` |
 | 97 | `Source/Features/Systems/SystemsAdapters.h` |
 | 94 | `Source/Views/PlayerCharacterView.h` |
 | 93 | `Source/Features/Systems/Bots/Stats/BotStatsTypes.h` |
