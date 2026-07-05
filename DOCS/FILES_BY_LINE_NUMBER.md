@@ -150,6 +150,7 @@
 | 62 | `Source/Features/Systems/Bots/Position/BotPositionFactories.cpp` |
 | 61 | `Source/Features/Components/Data/JsonValueAdapters.cpp` |
 | 60 | `Source/Core/frmt.hpp` |
+| 60 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutAdapters.cpp` |
 | 59 | `Source/Features/Components/Level/LevelTypes.h` |
 | 59 | `Source/Features/Systems/Rendering/RenderingSlice.cpp` |
 | 58 | `Source/Views/PlayerRuntimeControllerView.h` |
@@ -222,7 +223,6 @@
 | 35 | `Source/Features/Systems/Bots/AI/BotAISlice.cpp` |
 | 35 | `Source/Features/Systems/Bots/BotSlice.cpp` |
 | 35 | `Source/Features/Systems/Bots/Townspeople/TownspersonSlice.cpp` |
-| 35 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutAdapters.cpp` |
 | 35 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeSectionAdapters.h` |
 | 34 | `Content/Data/french_gulch_horses.json` |
 | 34 | `Source/Features/Components/Data/RuntimeSettings/PlayerSettingsTypes.h` |

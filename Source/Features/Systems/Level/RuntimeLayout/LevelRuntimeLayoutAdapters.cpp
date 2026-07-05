@@ -6,27 +6,52 @@
 
 namespace ForbocAI {
 namespace Demo {
-namespace Level {
-namespace RuntimeLayout {
-namespace {
+namespace Data {
+namespace JsonValueAdapters {
 
-namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
-
-func::Maybe<FLevelRuntimeLabelSeed>
-ReadOverlayLabelObject(const TSharedPtr<FJsonObject> &Object) {
-  return LabelFromJson({Object});
+template <>
+func::Maybe<ForbocAI::Demo::Level::FLevelRuntimeSectionSeed>
+ReadRequiredValue<ForbocAI::Demo::Level::FLevelRuntimeSectionSeed>(
+    const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
+  return ForbocAI::Demo::Level::RuntimeLayout::ReadSection(Request);
 }
 
-} // namespace
+template <>
+func::Maybe<TArray<ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>>
+ReadRequiredValue<TArray<ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>>(
+    const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
+  return func::mbind(
+      ReadRequiredArray(Request),
+      [Request](const TArray<TSharedPtr<FJsonValue>> &Values) {
+        return MapRequiredJsonValuesWith<
+            ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>(
+            Request.FieldName,
+            [](const TSharedPtr<FJsonObject> &Object) {
+              return ForbocAI::Demo::Level::RuntimeLayout::LabelFromJson(
+                  {Object});
+            })(Values);
+      });
+}
+
+JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Demo::Level::FLevelRuntimeLayoutSeed,
+                             Terrain, Town, Mine, OverlayLabels);
+
+} // namespace JsonValueAdapters
+} // namespace Data
+} // namespace Demo
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Demo {
+namespace Level {
+namespace RuntimeLayout {
+
+namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
 
 func::Maybe<FLevelRuntimeLayoutSeed>
 LayoutFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
   return JsonValues::ReadRequiredFields<FLevelRuntimeLayoutSeed>(
-      Request.Object,
-      {JSON_REQUIRED_FIELD_READERS(FLevelRuntimeLayoutSeed, ReadSection,
-                                   Terrain, Town, Mine),
-       JSON_REQUIRED_FIELD_READER(FLevelRuntimeLayoutSeed,
-                                  ReadOverlayLabelObject, OverlayLabels)});
+      Request.Object, JSON_REQUIRED_ATOMS(Terrain, Town, Mine, OverlayLabels));
 }
 
 } // namespace RuntimeLayout
