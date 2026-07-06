@@ -247,6 +247,11 @@ SelectBotRuntimeSettings(const FRuntimeState &State) {
   return State.BotRuntime;
 }
 
+const FRuntimeReducerDiagnosticsState &
+SelectRuntimeReducerDiagnostics(const FRuntimeState &State) {
+  return State.ReducerDiagnostics;
+}
+
 TArray<FBotEntity> SelectBots(const FRuntimeState &State) {
   return BotSelectors::SelectAll(State.Bots);
 }

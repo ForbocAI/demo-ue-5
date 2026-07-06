@@ -195,7 +195,9 @@ Use the runtime HUD and budget log to diagnose the source of slowness. High
 game/wall/input delta with low render/RHI/GPU time points at game-thread work or
 frame pacing. The HUD also reports memory, poly count, poly-count timing, stats
 selection timing, engine idle wait, fixed-frame/fixed-timestep state, frame
-caps, VSync, foreground focus, CPU throttle, and hidden window state.
+caps, VSync, foreground focus, CPU throttle, hidden window state, root reducer
+time, combined reducer time, ECS projection time, projected entity count, and
+projected component type count.
 
 ---
 

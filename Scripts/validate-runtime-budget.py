@@ -41,7 +41,12 @@ SAMPLE_PATTERN = re.compile(
     r"idle_when_not_foreground=(?P<idle_when_not_foreground>-?\d+) "
     r"app_has_focus=(?P<app_has_focus>-?\d+) "
     r"cpu_throttle=(?P<cpu_throttle>-?\d+) "
-    r"all_windows_hidden=(?P<all_windows_hidden>-?\d+)"
+    r"all_windows_hidden=(?P<all_windows_hidden>-?\d+) "
+    r"root_reducer_ms=(?P<root_reducer_ms>-?\d+(?:\.\d+)?) "
+    r"combined_reducer_ms=(?P<combined_reducer_ms>-?\d+(?:\.\d+)?) "
+    r"ecs_projection_ms=(?P<ecs_projection_ms>-?\d+(?:\.\d+)?) "
+    r"ecs_entities=(?P<ecs_entities>-?\d+) "
+    r"ecs_component_types=(?P<ecs_component_types>-?\d+)"
 )
 def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -106,6 +111,11 @@ def sample_from_line(line: str) -> dict | None:
         "app_has_focus": int(match.group("app_has_focus")),
         "cpu_throttle": int(match.group("cpu_throttle")),
         "all_windows_hidden": int(match.group("all_windows_hidden")),
+        "root_reducer_ms": float(match.group("root_reducer_ms")),
+        "combined_reducer_ms": float(match.group("combined_reducer_ms")),
+        "ecs_projection_ms": float(match.group("ecs_projection_ms")),
+        "ecs_entities": int(match.group("ecs_entities")),
+        "ecs_component_types": int(match.group("ecs_component_types")),
     }
 
 
@@ -187,7 +197,10 @@ def print_summary(budget: dict, samples: list[dict]) -> None:
         "max_fixed_frame_rate={:.2f} max_fixed_time_step_enabled={} "
         "max_fixed_delta_ms={:.2f} max_vsync={} "
         "max_idle_when_not_foreground={} min_app_has_focus={} "
-        "max_cpu_throttle={} max_all_windows_hidden={}".format(
+        "max_cpu_throttle={} max_all_windows_hidden={} "
+        "max_root_reducer_ms={:.2f} max_combined_reducer_ms={:.2f} "
+        "max_ecs_projection_ms={:.2f} max_ecs_entities={} "
+        "max_ecs_component_types={}".format(
             budget["id"],
             len(samples),
             statistics.fmean(fps_values),
@@ -221,6 +234,11 @@ def print_summary(budget: dict, samples: list[dict]) -> None:
             min(sample["app_has_focus"] for sample in samples),
             max(sample["cpu_throttle"] for sample in samples),
             max(sample["all_windows_hidden"] for sample in samples),
+            max(sample["root_reducer_ms"] for sample in samples),
+            max(sample["combined_reducer_ms"] for sample in samples),
+            max(sample["ecs_projection_ms"] for sample in samples),
+            max(sample["ecs_entities"] for sample in samples),
+            max(sample["ecs_component_types"] for sample in samples),
         )
     )
 

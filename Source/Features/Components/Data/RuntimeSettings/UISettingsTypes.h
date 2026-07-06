@@ -37,6 +37,11 @@ struct FRuntimeStatsOverlaySettings {
   FString AppHasFocusLabel;
   FString CpuThrottleEnabledLabel;
   FString AllWindowsHiddenLabel;
+  FString RootReducerMillisecondsLabel;
+  FString CombinedReducerMillisecondsLabel;
+  FString EcsProjectionMillisecondsLabel;
+  FString ProjectedEntityCountLabel;
+  FString ProjectedComponentTypeCountLabel;
   FString LabelValueSeparator;
   FString ValueFormat;
   FString DecimalValueFormat;
@@ -184,6 +189,15 @@ inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
          Left.AppHasFocusLabel == Right.AppHasFocusLabel &&
          Left.CpuThrottleEnabledLabel == Right.CpuThrottleEnabledLabel &&
          Left.AllWindowsHiddenLabel == Right.AllWindowsHiddenLabel &&
+         Left.RootReducerMillisecondsLabel ==
+             Right.RootReducerMillisecondsLabel &&
+         Left.CombinedReducerMillisecondsLabel ==
+             Right.CombinedReducerMillisecondsLabel &&
+         Left.EcsProjectionMillisecondsLabel ==
+             Right.EcsProjectionMillisecondsLabel &&
+         Left.ProjectedEntityCountLabel == Right.ProjectedEntityCountLabel &&
+         Left.ProjectedComponentTypeCountLabel ==
+             Right.ProjectedComponentTypeCountLabel &&
          Left.LabelValueSeparator == Right.LabelValueSeparator &&
          Left.ValueFormat == Right.ValueFormat &&
          Left.DecimalValueFormat == Right.DecimalValueFormat &&

@@ -32,7 +32,7 @@
     },
     "failure_guidance": [
       "This performance test runs the normal Runtime map/game path. If it fails, address the normal game's performance instead of weakening the test or replacing it with a fake smoke path.",
-      "Read wall_ms, input_delta_ms, stats_select_ms, poly_count_ms, engine_idle_ms, engine_idle_overshoot_ms, max_fps, frame_rate_limit, effective_max_tick_rate, fixed_frame_rate_enabled, fixed_frame_rate, fixed_time_step_enabled, fixed_delta_ms, vsync, idle_when_not_foreground, app_has_focus, cpu_throttle, and all_windows_hidden before changing visuals so the source of slowness is isolated first.",
+      "Read wall_ms, input_delta_ms, stats_select_ms, poly_count_ms, engine_idle_ms, engine_idle_overshoot_ms, max_fps, frame_rate_limit, effective_max_tick_rate, fixed_frame_rate_enabled, fixed_frame_rate, fixed_time_step_enabled, fixed_delta_ms, vsync, idle_when_not_foreground, app_has_focus, cpu_throttle, all_windows_hidden, root_reducer_ms, combined_reducer_ms, ecs_projection_ms, ecs_entities, and ecs_component_types before changing visuals so the source of slowness is isolated first.",
       "Review the low-budget targets: 320x240 fullscreen scaled output, no AA/post polish, nearest/retro textures, Quake/HROT/WRATH-style low-poly silhouettes, PS2/SotC-style fog-hidden distance, cheap non-volumetric fog for LOD cover, tighter cull/view distance, stricter static/skeletal LODs, hard poly limits, static terrain/buildings, only animals/people movable, runtime logging volume, GC pressure, stack depth/recursion, per-tick actor scans, and PSO/shader hitches.",
       "Use the review screenshots captured every ten seconds to confirm that fog is covering the LOD boundary instead of drawing expensive distant detail."
     ],

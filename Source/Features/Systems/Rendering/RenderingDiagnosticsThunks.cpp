@@ -418,6 +418,8 @@ FRuntimeStatsViewModel SelectRuntimeStats(
   const double StartedSeconds = SelectRuntimeBudgetClockSeconds();
   const FRuntimeState &State = Store::GetStore().getState();
   const ecs::FWorld &EcsWorld = RuntimeSelectors::SelectWorld(State);
+  const FRuntimeReducerDiagnosticsState &ReducerDiagnostics =
+      RuntimeSelectors::SelectRuntimeReducerDiagnostics(State);
   const FRuntimeMemoryStats MemoryStats = SelectRuntimeMemoryStats(Settings);
   const FRuntimeFrameTimingStats TimingStats =
       SelectRuntimeFrameTimingStats(Settings);
@@ -457,7 +459,12 @@ FRuntimeStatsViewModel SelectRuntimeStats(
           PacingStats.IdleWhenNotForegroundEnabled,
           PacingStats.AppHasFocus,
           PacingStats.CpuThrottleEnabled,
-          PacingStats.AllWindowsHidden};
+          PacingStats.AllWindowsHidden,
+          ReducerDiagnostics.LastRootReducerMilliseconds,
+          ReducerDiagnostics.LastCombinedReducerMilliseconds,
+          ReducerDiagnostics.LastProjectionMilliseconds,
+          ReducerDiagnostics.LastProjectedEntityCount,
+          ReducerDiagnostics.LastProjectedComponentTypeCount};
 }
 
 void RequestRuntimeBudgetScreenshot(

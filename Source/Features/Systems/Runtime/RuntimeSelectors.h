@@ -88,6 +88,8 @@ const ForbocAI::Game::Data::FUIRuntimeSettings &
 SelectUIRuntimeSettings(const FRuntimeState &State);
 const ForbocAI::Game::Data::FBotRuntimeSettings &
 SelectBotRuntimeSettings(const FRuntimeState &State);
+const FRuntimeReducerDiagnosticsState &
+SelectRuntimeReducerDiagnostics(const FRuntimeState &State);
 TArray<FBotEntity> SelectBots(const FRuntimeState &State);
 func::Maybe<FBotEntity> SelectBotById(const FRuntimeState &State,
                                       const FString &Id);

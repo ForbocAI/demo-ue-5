@@ -26,12 +26,47 @@
 #include "Features/Systems/SystemsSlice.h"
 #include "Features/Systems/Terrain/TerrainSlice.h"
 #include "Features/Systems/UI/UISlice.h"
+#include "HAL/PlatformTime.h"
 
 namespace ForbocAI {
 namespace Game {
 namespace Level {
 namespace RuntimeSlice {
 namespace {
+
+double RuntimeMilliseconds(double StartedSeconds, double FinishedSeconds,
+                           const FRuntimeState &State) {
+  return (FinishedSeconds - StartedSeconds) *
+         State.UI.RuntimeSettings.StatsOverlay.SecondsToMilliseconds;
+}
+
+FRuntimeState ReduceRootWithDiagnostics(
+    const rtk::CaseReducer<FRuntimeState> &CombinedReducers,
+    const FRuntimeState &State, const rtk::AnyAction &Action) {
+  const double RootStartedSeconds = FPlatformTime::Seconds();
+  const double CombinedStartedSeconds = FPlatformTime::Seconds();
+  FRuntimeState Combined = CombinedReducers(State, Action);
+  const double CombinedFinishedSeconds = FPlatformTime::Seconds();
+  FRuntimeState RuntimeReduced =
+      RuntimeReducers::ReduceRuntimeAction(Combined, Action);
+  const double ProjectionStartedSeconds = FPlatformTime::Seconds();
+  FRuntimeState Projected =
+      RuntimeReducers::ReduceRuntimeProjected(RuntimeReduced);
+  const double ProjectionFinishedSeconds = FPlatformTime::Seconds();
+  const double RootFinishedSeconds = FPlatformTime::Seconds();
+  const ecs::FWorldInspection Inspection =
+      ecs::inspectWorld(Projected.Ecs.World);
+  Projected.ReducerDiagnostics = {
+      Action.Type,
+      RuntimeMilliseconds(CombinedStartedSeconds, CombinedFinishedSeconds,
+                          Projected),
+      RuntimeMilliseconds(ProjectionStartedSeconds, ProjectionFinishedSeconds,
+                          Projected),
+      RuntimeMilliseconds(RootStartedSeconds, RootFinishedSeconds, Projected),
+      Inspection.EntityCount,
+      Inspection.ComponentTypeCount};
+  return Projected;
+}
 
 const rtk::CaseReducer<FRuntimeState> &RootReducer() {
   static const rtk::CaseReducer<FRuntimeState> Reducer = []() {
@@ -71,9 +106,7 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
         rtk::combineReducers(Reducers);
     return [CombinedReducers](const FRuntimeState &State,
                               const rtk::AnyAction &Action) -> FRuntimeState {
-      return RuntimeReducers::ReduceRuntimeProjected(
-          RuntimeReducers::ReduceRuntimeAction(
-              CombinedReducers(State, Action), Action));
+      return ReduceRootWithDiagnostics(CombinedReducers, State, Action);
     };
   }();
   return Reducer;

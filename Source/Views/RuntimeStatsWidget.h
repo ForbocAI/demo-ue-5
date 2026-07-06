@@ -121,6 +121,21 @@ private:
   UPROPERTY()
   UTextBlock *AllWindowsHiddenValueTextElement;
 
+  UPROPERTY()
+  UTextBlock *RootReducerMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *CombinedReducerMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *EcsProjectionMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *ProjectedEntityCountValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *ProjectedComponentTypeCountValueTextElement;
+
   float StatsRefreshElapsedSeconds{};
   float PolyCountRefreshElapsedSeconds{};
   double LastFrameClockSeconds{};

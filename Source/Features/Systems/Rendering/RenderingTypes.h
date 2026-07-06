@@ -107,6 +107,11 @@ struct FRuntimeStatsViewModel {
   int32 AppHasFocus;
   int32 CpuThrottleEnabled;
   int32 AllWindowsHidden;
+  double RootReducerMilliseconds;
+  double CombinedReducerMilliseconds;
+  double EcsProjectionMilliseconds;
+  int32 ProjectedEntityCount;
+  int32 ProjectedComponentTypeCount;
 };
 
 struct FRenderingPresentationRequest {

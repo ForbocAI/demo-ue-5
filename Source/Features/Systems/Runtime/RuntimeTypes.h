@@ -41,6 +41,15 @@ struct FRuntimeEcsState {
   ecs::FWorld World = ecs::createWorld();
 };
 
+struct FRuntimeReducerDiagnosticsState {
+  FString LastActionType;
+  double LastCombinedReducerMilliseconds = double{};
+  double LastProjectionMilliseconds = double{};
+  double LastRootReducerMilliseconds = double{};
+  int32 LastProjectedEntityCount = int32{};
+  int32 LastProjectedComponentTypeCount = int32{};
+};
+
 /**
  * @brief Store-derived townsperson spawn data consumed by runtime views.
  */
@@ -149,6 +158,25 @@ inline bool operator!=(const FRuntimeEcsState &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FRuntimeReducerDiagnosticsState &Left,
+                       const FRuntimeReducerDiagnosticsState &Right) {
+  return Left.LastActionType == Right.LastActionType &&
+         FMath::IsNearlyEqual(Left.LastCombinedReducerMilliseconds,
+                              Right.LastCombinedReducerMilliseconds) &&
+         FMath::IsNearlyEqual(Left.LastProjectionMilliseconds,
+                              Right.LastProjectionMilliseconds) &&
+         FMath::IsNearlyEqual(Left.LastRootReducerMilliseconds,
+                              Right.LastRootReducerMilliseconds) &&
+         Left.LastProjectedEntityCount == Right.LastProjectedEntityCount &&
+         Left.LastProjectedComponentTypeCount ==
+             Right.LastProjectedComponentTypeCount;
+}
+
+inline bool operator!=(const FRuntimeReducerDiagnosticsState &Left,
+                       const FRuntimeReducerDiagnosticsState &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FRuntimeTownspersonViewSpawn &Left,
                        const FRuntimeTownspersonViewSpawn &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name && Left.Role == Right.Role &&
@@ -251,6 +279,7 @@ struct FRuntimeState {
   ForbocAI::Game::Data::FRuntimeTextSettings RuntimeText;
   ForbocAI::Game::Data::FBotRuntimeSettings BotRuntime;
   FRuntimeEcsState Ecs;
+  FRuntimeReducerDiagnosticsState ReducerDiagnostics;
   FRuntimeTownspersonInteractionRequest LastTownspersonInteractionRequest;
   FPlayerState Player;
   FSystemsState Systems;
@@ -285,6 +314,7 @@ inline bool operator==(const FRuntimeState &Left,
          Left.RuntimeText == Right.RuntimeText &&
          Left.BotRuntime == Right.BotRuntime &&
          Left.Ecs == Right.Ecs &&
+         Left.ReducerDiagnostics == Right.ReducerDiagnostics &&
          Left.LastTownspersonInteractionRequest ==
              Right.LastTownspersonInteractionRequest &&
          Left.Player == Right.Player &&

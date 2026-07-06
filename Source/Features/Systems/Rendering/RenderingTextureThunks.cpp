@@ -46,7 +46,7 @@ inline FString RenderingTextureDispatchAtom(const char *Atom) {
 }
 
 template <typename Declaration>
-func::Maybe<int32> FindRenderingDeclarationIndex(
+func::Maybe<int32> FindTextureRenderingDeclarationIndex(
     const FString &Name, const TArray<Declaration> &Declarations) {
   const TArray<int32> Indices = func::index_range(Declarations.Num());
   return func::find_indexed(
@@ -56,20 +56,20 @@ func::Maybe<int32> FindRenderingDeclarationIndex(
       });
 }
 
-template <typename Apply> struct TRenderingDispatchDeclaration {
+template <typename Apply> struct TTextureRenderingDispatchDeclaration {
   FString Name;
   Apply Run;
 
-  TRenderingDispatchDeclaration(const char *InName, Apply InRun)
+  TTextureRenderingDispatchDeclaration(const char *InName, Apply InRun)
       : Name(RenderingTextureDispatchAtom(InName)), Run(InRun) {}
 };
 
 using FPredicateApply = bool (*)(const FRetroPredicateEval &, int32);
 using FColorResultApply = FColor (*)(const FRetroResultEval &);
 using FPredicateApplyDeclaration =
-    TRenderingDispatchDeclaration<FPredicateApply>;
+    TTextureRenderingDispatchDeclaration<FPredicateApply>;
 using FColorResultDeclaration =
-    TRenderingDispatchDeclaration<FColorResultApply>;
+    TTextureRenderingDispatchDeclaration<FColorResultApply>;
 
 bool AlwaysPredicate(const FRetroPredicateEval &Eval, int32 Term);
 bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term);
@@ -95,7 +95,7 @@ FPredicateApplyDeclaration RequiredPredicateDeclaration(const FString &Name) {
   const TArray<FPredicateApplyDeclaration> &Declarations =
       PredicateApplyDeclarations();
   const func::Maybe<int32> Found =
-      FindRenderingDeclarationIndex(Name, Declarations);
+      FindTextureRenderingDeclarationIndex(Name, Declarations);
   check(Found.hasValue);
   return Declarations[Found.value];
 }
@@ -104,7 +104,7 @@ FColorResultDeclaration RequiredColorDeclaration(const FString &Name) {
   const TArray<FColorResultDeclaration> &Declarations =
       ColorResultDeclarations();
   const func::Maybe<int32> Found =
-      FindRenderingDeclarationIndex(Name, Declarations);
+      FindTextureRenderingDeclarationIndex(Name, Declarations);
   check(Found.hasValue);
   return Declarations[Found.value];
 }

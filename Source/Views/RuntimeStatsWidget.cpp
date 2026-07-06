@@ -187,7 +187,10 @@ void LogRuntimeBudgetSample(const FRuntimeStatsViewModel &Stats) {
               "fixed_frame_rate_enabled=%d fixed_frame_rate=%.2f "
               "fixed_time_step_enabled=%d fixed_delta_ms=%.2f "
               "vsync=%d idle_when_not_foreground=%d app_has_focus=%d "
-              "cpu_throttle=%d all_windows_hidden=%d"),
+              "cpu_throttle=%d all_windows_hidden=%d "
+              "root_reducer_ms=%.2f combined_reducer_ms=%.2f "
+              "ecs_projection_ms=%.2f ecs_entities=%d "
+              "ecs_component_types=%d"),
          Stats.FramesPerSecond, Stats.StackDepth, Stats.PolyCount,
          Stats.UsedPhysicalMemoryMegabytes,
          Stats.PeakPhysicalMemoryMegabytes, Stats.UsedVirtualMemoryMegabytes,
@@ -202,7 +205,10 @@ void LogRuntimeBudgetSample(const FRuntimeStatsViewModel &Stats) {
          Stats.FixedTimeStepEnabled, Stats.FixedDeltaMilliseconds,
          Stats.VsyncEnabled,
          Stats.IdleWhenNotForegroundEnabled, Stats.AppHasFocus,
-         Stats.CpuThrottleEnabled, Stats.AllWindowsHidden);
+         Stats.CpuThrottleEnabled, Stats.AllWindowsHidden,
+         Stats.RootReducerMilliseconds, Stats.CombinedReducerMilliseconds,
+         Stats.EcsProjectionMilliseconds, Stats.ProjectedEntityCount,
+         Stats.ProjectedComponentTypeCount);
 }
 
 FString FormatRuntimeStatsDebugMessage(
@@ -225,7 +231,10 @@ FString FormatRuntimeStatsDebugMessage(
       Stats.FixedFrameRateEnabled, Stats.FixedFrameRate,
       Stats.FixedTimeStepEnabled, Stats.FixedDeltaMilliseconds,
       Stats.VsyncEnabled, Stats.IdleWhenNotForegroundEnabled,
-      Stats.AppHasFocus, Stats.CpuThrottleEnabled, Stats.AllWindowsHidden);
+      Stats.AppHasFocus, Stats.CpuThrottleEnabled, Stats.AllWindowsHidden,
+      Stats.RootReducerMilliseconds, Stats.CombinedReducerMilliseconds,
+      Stats.EcsProjectionMilliseconds, Stats.ProjectedEntityCount,
+      Stats.ProjectedComponentTypeCount);
 }
 
 void PresentRuntimeStatsDebugMessage(
@@ -376,6 +385,21 @@ void URuntimeStatsWidget::NativeConstruct() {
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
               {WidgetTree, Settings.AllWindowsHiddenLabel,
                &AllWindowsHiddenValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.RootReducerMillisecondsLabel,
+               &RootReducerMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.CombinedReducerMillisecondsLabel,
+               &CombinedReducerMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.EcsProjectionMillisecondsLabel,
+               &EcsProjectionMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.ProjectedEntityCountLabel,
+               &ProjectedEntityCountValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.ProjectedComponentTypeCountLabel,
+               &ProjectedComponentTypeCountValueTextElement, &Settings}));
           WidgetTree->RootWidget = PanelElement;
         }(), void());
 }
@@ -490,6 +514,16 @@ void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
                                Stats.CpuThrottleEnabled, &Settings}),
          ApplyStatsPlainValue({AllWindowsHiddenValueTextElement,
                                Stats.AllWindowsHidden, &Settings}),
+         ApplyStatsDecimalValue({RootReducerMillisecondsValueTextElement,
+                                 Stats.RootReducerMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({CombinedReducerMillisecondsValueTextElement,
+                                 Stats.CombinedReducerMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({EcsProjectionMillisecondsValueTextElement,
+                                 Stats.EcsProjectionMilliseconds, &Settings}),
+         ApplyStatsPlainValue({ProjectedEntityCountValueTextElement,
+                               Stats.ProjectedEntityCount, &Settings}),
+         ApplyStatsPlainValue({ProjectedComponentTypeCountValueTextElement,
+                               Stats.ProjectedComponentTypeCount, &Settings}),
          PresentRuntimeStatsDebugMessage(Stats, Settings),
          StatsRefreshElapsedSeconds = Settings.IntervalResetElapsedSeconds,
          void())
