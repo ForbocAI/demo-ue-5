@@ -24,8 +24,8 @@ JSON_SETTINGS_REGISTRY(FHorsePresentationSettings, DefaultName, HorseLengthFeet,
                        HeadHeightFeet, SaddleHeightFeet, PatrolPauseSeconds,
                        WalkSpeedHorseLengthRatio, RouteArrivalLegRatio,
                        ImportedHorseScale, MountedRiderScale,
-                       NameTextWorldSizeFeet, HorseMeshPath,
-                       HorseWalkAnimationPath, RiderMeshPath,
+                       MountedRiderOffsetFeet, NameTextWorldSizeFeet,
+                       HorseMeshPath, HorseWalkAnimationPath, RiderMeshPath,
                        RiderWalkAnimationPath);
 
 } // namespace JsonAdapters
@@ -63,9 +63,10 @@ ReadHorsePresentationSettings(const TSharedPtr<FJsonObject> &Object) {
                                   PatrolPauseSeconds,
                                   WalkSpeedHorseLengthRatio,
                                   RouteArrivalLegRatio, ImportedHorseScale,
-                                  MountedRiderScale, NameTextWorldSizeFeet,
-                                  HorseMeshPath, HorseWalkAnimationPath,
-                                  RiderMeshPath, RiderWalkAnimationPath));
+                                  MountedRiderScale, MountedRiderOffsetFeet,
+                                  NameTextWorldSizeFeet, HorseMeshPath,
+                                  HorseWalkAnimationPath, RiderMeshPath,
+                                  RiderWalkAnimationPath));
 }
 
 } // namespace BotSettingsAdapters

@@ -119,6 +119,8 @@ bash Scripts/lock_sdk_submodule.sh --lock
 | `Source/Views` | Unreal display/effect boundary for actors, widgets, input binding, and mesh application |
 | `Content/Characters/Mannequins` | Project-owned UE mannequin meshes, materials, rigs, and animation assets |
 | `Content/Characters/Horses/ClassicHorse` | Project-owned horse, mounted rider, animation, and texture assets |
+| `Content/Data/runtime_settings_level.json` | Authored terrain size, blockout foot/story scale, terrain sampling, and runtime spawn settings |
+| `Content/Data/runtime_settings_bots.json` | Authored townsperson/horse presentation, including mounted-rider scale and seat offset |
 | `Content/Data/runtime_settings_rendering_*.json` | Authored visual profile, distance LOD stages, console variables, and skeletal LOD generation inputs |
 | `Systems/Bots` | Multi-bot feature state backed by normalized RTK-style reducers/selectors |
 | `Systems/Dialogue` | Dialogue actions, reducers, selectors, and thunks for gate-closed runtime interaction |
@@ -191,6 +193,12 @@ duration, and saves review screenshots under `screenshots`. Scripts may pass
 screenshot timing flags; normal render size, visual profile, HUD labels, LOD,
 and performance thresholds are authored in `Content/Data/*.json` and read by
 feature code.
+
+`Content/Data/runtime_settings_level.json` owns the shared world proportion
+contract: terrain world size, town lots, blockout feet, story height, actor-foot
+conversion, terrain mesh sampling, and runtime spawn toggles stay in JSON.
+Runtime store tests assert that blockout feet match actor feet so buildings,
+terrain anchors, horses, and people keep the same scale.
 
 Native UE rendering APIs are used at the effect boundary: component LOD/cull
 calls for visible actors, native SkyAtmosphere/SkyLight/DirectionalLight/Fog

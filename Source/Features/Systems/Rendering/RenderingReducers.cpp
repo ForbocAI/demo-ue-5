@@ -394,10 +394,7 @@ FHorsePresentationViewModel ReduceHorsePresentation(
       FVector(Settings.ImportedHorseScale, Settings.ImportedHorseScale,
               Settings.ImportedHorseScale);
   Model.MountedRiderLocation =
-      FVector(0.0f, 0.0f,
-              WorldFeet(Geometry,
-                        Settings.LegHeightFeet + Settings.BodyHeightFeet +
-                            Settings.SaddleHeightFeet * 0.5f));
+      ReduceWorldFeetVector(Geometry, Settings.MountedRiderOffsetFeet);
   Model.MountedRiderScale =
       FVector(Settings.MountedRiderScale, Settings.MountedRiderScale,
               Settings.MountedRiderScale);

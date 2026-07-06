@@ -167,6 +167,22 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
                TerrainData.GetMinElevationMeters() +
                    Validation.TerrainMinReliefMeters);
 
+  const float ActorWorldUnitsPerFoot =
+      LevelLayoutSlice::ActorWorldUnitsFromFeet({Geometry, 1.0f});
+  const float BlockWorldUnitsPerFoot =
+      Geometry.BlockScalePerFoot * Geometry.CubeMeshSize;
+  TestTrue(TEXT("Blockout feet match actor feet"),
+           FMath::IsNearlyEqual(BlockWorldUnitsPerFoot,
+                                ActorWorldUnitsPerFoot));
+  const float StoryWorldUnits =
+      Geometry.HeightScalePerStory * Geometry.CubeMeshSize;
+  const float CharacterHeightFeet =
+      Settings.TownspersonPresentation.CharacterHeightFeet;
+  TestTrue(TEXT("Blockout story clears a character"),
+           StoryWorldUnits >
+               LevelLayoutSlice::ActorWorldUnitsFromFeet(
+                   {Geometry, CharacterHeightFeet}));
+
   const FLevelRuntimeLayoutSeed RuntimeLayout =
       LevelAdapters::LoadRuntimeLayoutSeed(DataSources.RuntimeLayoutJsonPath);
   TestEqual(TEXT("Runtime layout loads town labels"),
@@ -257,6 +273,23 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestEqual(TEXT("RTK entity adapter stores seeded horses"),
             RuntimeSelectors::SelectHorses(State).Num(),
             HorseRouteSeeds.Num());
+  const FHorsePresentationViewModel &HorsePresentation =
+      RuntimeSelectors::SelectHorsePresentation(State);
+  const FVector &MountedRiderOffsetFeet =
+      Settings.HorsePresentation.MountedRiderOffsetFeet;
+  const FVector AuthoredMountedRiderOffset = FVector(
+      LevelLayoutSlice::ActorWorldUnitsFromFeet(
+          {Geometry, static_cast<float>(MountedRiderOffsetFeet.X)}),
+      LevelLayoutSlice::ActorWorldUnitsFromFeet(
+          {Geometry, static_cast<float>(MountedRiderOffsetFeet.Y)}),
+      LevelLayoutSlice::ActorWorldUnitsFromFeet(
+          {Geometry, static_cast<float>(MountedRiderOffsetFeet.Z)}));
+  TestTrue(TEXT("Mounted rider offset is authored in JSON"),
+           HorsePresentation.MountedRiderLocation.Equals(
+               AuthoredMountedRiderOffset));
+  TestTrue(TEXT("Mounted rider sits below horse label"),
+           HorsePresentation.MountedRiderLocation.Z <
+               HorsePresentation.NameTextLocation.Z);
   func::for_each_indexed(
       HorseRouteSeeds, static_cast<size_t>(HorseRouteSeeds.Num()),
       [this](const FHorseRouteSeed &HorseRoute) {
