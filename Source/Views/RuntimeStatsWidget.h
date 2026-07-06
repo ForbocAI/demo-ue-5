@@ -40,6 +40,87 @@ private:
   UPROPERTY()
   UTextBlock *PolyCountValueTextElement;
 
+  UPROPERTY()
+  UTextBlock *UsedPhysicalMemoryValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *PeakPhysicalMemoryValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *UsedVirtualMemoryValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *GameThreadMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *RenderThreadMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *RhiThreadMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *GpuMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *DrawCallsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *RhiPrimitivesValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *WallDeltaMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *InputDeltaMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *StatsSelectionMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *PolyCountMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *EngineIdleMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *EngineIdleOvershootMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *MaxFpsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *FrameRateLimitValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *EffectiveMaxTickRateValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *FixedFrameRateEnabledValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *FixedFrameRateValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *FixedTimeStepEnabledValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *FixedDeltaMillisecondsValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *VsyncEnabledValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *IdleWhenNotForegroundEnabledValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *AppHasFocusValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *CpuThrottleEnabledValueTextElement;
+
+  UPROPERTY()
+  UTextBlock *AllWindowsHiddenValueTextElement;
+
   float StatsRefreshElapsedSeconds{};
   float PolyCountRefreshElapsedSeconds{};
   double LastFrameClockSeconds{};
@@ -48,6 +129,7 @@ private:
   float BudgetScreenshotIntervalSeconds{};
   int32 BudgetScreenshotIndex{};
   int64 CachedPolyCount{};
+  double CachedPolyCountMilliseconds{};
 
   /**
    * @brief Refreshes the visible HUD text from current runtime counters.

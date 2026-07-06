@@ -5,9 +5,7 @@
 
 #include "Views/TerrainMeshView.h"
 
-#include "Features/Systems/Runtime/RuntimeSelectors.h"
-#include "Features/Systems/Terrain/TerrainActions.h"
-#include "Store.h"
+#include "Features/Systems/Terrain/TerrainTypes.h"
 #include "Views/ProceduralMeshElement.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -26,24 +24,23 @@ ATerrainMeshView::ATerrainMeshView() {
 
   static ConstructorHelpers::FObjectFinder<UMaterialInterface> VertexMaterial(
       TEXT("/Engine/EngineDebugMaterials/VertexColorMaterial.VertexColorMaterial"));
-  VertexMaterial.Succeeded() ? (ProceduralMeshElement->SetMaterial(
-                                    0, VertexMaterial.Object),
-                                void())
-                             : void();
+  TerrainMaterial =
+      VertexMaterial.Succeeded() ? VertexMaterial.Object : nullptr;
 }
 
 bool ATerrainMeshView::ApplyTerrainMeshPayload(
     const ForbocAI::Game::Level::FTerrainMeshPayload &Payload) {
-  FG::Store::GetStore().dispatch(
-      FG::TerrainActions::TerrainMeshPayloadObserved()(Payload));
-  const FG::FTerrainMeshSectionViewModel Model =
-      FG::RuntimeSelectors::SelectTerrainMeshSectionViewModel(
-          FG::Store::GetStore().getState());
   TArray<FProcMeshTangent> Tangents;
-  return Model.bLoaded
-             ? (ProceduralMeshElement->CreateMeshSection(
-                    0, Model.Vertices, Model.Triangles, Model.Normals,
-                    Model.UVs, Model.VertexColors, Tangents, true),
+  return Payload.bLoaded
+             ? (TerrainMaterial
+                    ? (ProceduralMeshElement->SetMaterial(
+                           Payload.MaterialSlotIndex, TerrainMaterial),
+                       void())
+                    : void(),
+                ProceduralMeshElement->CreateMeshSection(
+                    Payload.MeshSectionIndex, Payload.Vertices,
+                    Payload.Triangles, Payload.Normals, Payload.UVs,
+                    Payload.VertexColors, Tangents, Payload.bCreateCollision),
                 true)
              : false;
 }

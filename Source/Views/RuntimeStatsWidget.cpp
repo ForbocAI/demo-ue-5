@@ -8,22 +8,14 @@
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/HorizontalBox.h"
-#include "Components/SkinnedMeshComponent.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
-#include "Core/frmt.hpp"
-#include "Core/ue_fp.hpp"
 #include "Engine/Engine.h"
-#include "Engine/SkinnedAsset.h"
-#include "Engine/StaticMesh.h"
 #include "Features/Systems/Rendering/RenderingSlice.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
-#include "GameFramework/Actor.h"
-#include "Kismet/GameplayStatics.h"
-#include "ProceduralMeshComponent.h"
-#include "Rendering/SkeletalMeshRenderData.h"
 #include "Store.h"
+
+#include <cstdarg>
 
 namespace FG = ForbocAI::Game::Level;
 
@@ -33,12 +25,7 @@ namespace {
 
 using FRuntimeStatsOverlaySettings =
     ForbocAI::Game::Data::FRuntimeStatsOverlaySettings;
-
-struct FRuntimeStatsViewModel {
-  int32 FramesPerSecond;
-  int32 StackDepth;
-  int64 PolyCount;
-};
+using FRuntimeStatsViewModel = FG::FRuntimeStatsViewModel;
 
 struct FStatsTextElementRequest {
   UWidgetTree *Tree;
@@ -62,15 +49,15 @@ struct FStatsValueUpdateRequest {
   const FRuntimeStatsOverlaySettings *Settings;
 };
 
-struct FRuntimeStatsLodIndexRequest {
-  int32 ForcedLodModel;
-  int32 AutomaticLodIndex;
+struct FStatsDecimalValueUpdateRequest {
+  UTextBlock *TextElement;
+  double Value;
   const FRuntimeStatsOverlaySettings *Settings;
 };
 
-struct FRuntimeStatsLodClampRequest {
-  int32 LodIndex;
-  int32 LodCount;
+struct FStatsPlainValueUpdateRequest {
+  UTextBlock *TextElement;
+  int64 Value;
   const FRuntimeStatsOverlaySettings *Settings;
 };
 
@@ -80,211 +67,30 @@ const FRuntimeStatsOverlaySettings &SelectStatsOverlaySettings() {
       .StatsOverlay;
 }
 
-int32 SelectFramesPerSecond(float DeltaSeconds,
-                            const FRuntimeStatsOverlaySettings &Settings) {
-  return DeltaSeconds > Settings.MinimumDeltaSeconds
-             ? FMath::RoundToInt(Settings.FramesPerSecondNumerator /
-                                 DeltaSeconds)
-             : Settings.InitialFramesPerSecond;
-}
-
-int32 SelectEcsStackDepth(const ecs::FWorld &World,
-                          const FRuntimeStatsOverlaySettings &Settings) {
-  TArray<ecs::FDomainNode> Nodes;
-  World.Domains.Nodes.GenerateValueArray(Nodes);
-  return func::fold_array<ecs::FDomainNode, int32>(
-      Nodes, Settings.EmptyStackDepth,
-      [](const int32 &Depth, const ecs::FDomainNode &Node) {
-        return FMath::Max(Depth, Node.Path.Segments.Num());
-      });
-}
-
-int32 SelectRuntimeStatsLodIndex(const FRuntimeStatsLodIndexRequest &Request) {
-  check(Request.Settings);
-  return Request.ForcedLodModel > Request.Settings->ForcedLodAutomaticModel
-             ? Request.ForcedLodModel - Request.Settings->LodModelIndexOffset
-             : Request.AutomaticLodIndex;
-}
-
-int32 ClampRuntimeStatsLodIndex(const FRuntimeStatsLodClampRequest &Request) {
-  check(Request.Settings);
-  return FMath::Clamp(
-      Request.LodIndex, Request.Settings->ForcedLodAutomaticModel,
-      Request.LodCount - Request.Settings->LodModelIndexOffset);
-}
-
-bool ShouldCountPrimitiveComponent(UPrimitiveComponent *Component) {
-  return Component != nullptr && Component->IsVisible() &&
-         !Component->bHiddenInGame && Component->GetOwner() != nullptr &&
-         !Component->GetOwner()->IsHidden();
-}
-
-int64 CountStaticMeshTriangles(UStaticMeshComponent *Component,
-                               const FRuntimeStatsOverlaySettings &Settings) {
-  return func::match(
-      func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
-                                               Component)),
-      [&Settings](UStaticMeshComponent *ComponentValue) {
-        UStaticMesh *Mesh = ComponentValue->GetStaticMesh();
-        return func::match(
-            func::from_nullable_value(Mesh, Mesh != nullptr),
-            [ComponentValue, &Settings](UStaticMesh *MeshValue) -> int64 {
-              const int32 LodIndex = ClampRuntimeStatsLodIndex(
-                  {SelectRuntimeStatsLodIndex(
-                       {ComponentValue->GetForcedLodModel(),
-                        Settings.MeshLodIndex, &Settings}),
-                   MeshValue->GetNumLODs(), &Settings});
-              return static_cast<int64>(MeshValue->GetNumTriangles(LodIndex));
-            },
-            [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
-      },
-      [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
-}
-
-int64 CountProceduralMeshSectionTriangles(
-    UProceduralMeshComponent &Component, int32 SectionIndex,
-    const FRuntimeStatsOverlaySettings &Settings);
-
-int64 CountExistingProceduralMeshSectionTriangles(
-    UProceduralMeshComponent &Component, int32 SectionIndex,
-    const FRuntimeStatsOverlaySettings &Settings) {
-  FProcMeshSection *Section = Component.GetProcMeshSection(SectionIndex);
-  return func::match(
-      func::from_nullable_value(Section, Section != nullptr),
-      [&Component, SectionIndex, &Settings](FProcMeshSection *SectionValue)
-          -> int64 {
-        return static_cast<int64>(SectionValue->ProcIndexBuffer.Num() /
-                                  Settings.TriangleIndexDivisor) +
-               CountProceduralMeshSectionTriangles(
-                   Component, SectionIndex + Settings.ProcMeshSectionStep,
-                   Settings);
-      },
-      [&Component, SectionIndex, &Settings]() -> int64 {
-        return CountProceduralMeshSectionTriangles(
-            Component, SectionIndex + Settings.ProcMeshSectionStep, Settings);
-      });
-}
-
-int64 CountProceduralMeshSectionTriangles(
-    UProceduralMeshComponent &Component, int32 SectionIndex,
-    const FRuntimeStatsOverlaySettings &Settings) {
-  return SectionIndex >= Component.GetNumSections()
-             ? static_cast<int64>(Settings.EmptyTriangleCount)
-             : CountExistingProceduralMeshSectionTriangles(Component,
-                                                           SectionIndex,
-                                                           Settings);
-}
-
-int64 CountProceduralMeshTriangles(
-    UProceduralMeshComponent *Component,
-    const FRuntimeStatsOverlaySettings &Settings) {
-  return func::match(
-      func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
-                                               Component)),
-      [&Settings](UProceduralMeshComponent *ComponentValue) -> int64 {
-        return CountProceduralMeshSectionTriangles(
-            *ComponentValue, Settings.ProcMeshFirstSectionIndex, Settings);
-      },
-      [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
-}
-
-int64 CountSkinnedMeshTriangles(USkinnedMeshComponent *Component,
-                                const FRuntimeStatsOverlaySettings &Settings) {
-  return func::match(
-      func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
-                                               Component)),
-      [&Settings](USkinnedMeshComponent *ComponentValue) {
-        USkinnedAsset *Asset = ComponentValue->GetSkinnedAsset();
-        return func::match(
-            func::from_nullable_value(Asset, Asset != nullptr),
-            [ComponentValue, &Settings](USkinnedAsset *AssetValue) -> int64 {
-              const FSkeletalMeshRenderData *RenderData =
-                  AssetValue->GetResourceForRendering();
-              const int32 LodIndex =
-                  RenderData != nullptr
-                      ? ClampRuntimeStatsLodIndex(
-                            {SelectRuntimeStatsLodIndex(
-                                 {ComponentValue->GetForcedLOD(),
-                                  ComponentValue->GetPredictedLODLevel(),
-                                  &Settings}),
-                             RenderData->LODRenderData.Num(), &Settings})
-                      : Settings.MeshLodIndex;
-              return RenderData != nullptr &&
-                             RenderData->LODRenderData.IsValidIndex(
-                                 LodIndex)
-                         ? static_cast<int64>(
-                               RenderData->LODRenderData[LodIndex]
-                                   .GetTotalFaces())
-                         : static_cast<int64>(Settings.EmptyTriangleCount);
-            },
-            [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
-      },
-      [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
-}
-
-template <typename Component>
-int64 CountActorComponentTriangles(
-    AActor *Actor,
-    int64 (*CountTriangles)(Component *,
-                            const FRuntimeStatsOverlaySettings &),
-    const FRuntimeStatsOverlaySettings &Settings) {
-  return func::match(
-      func::from_nullable_value(Actor, Actor != nullptr),
-      [CountTriangles, &Settings](AActor *ActorValue) {
-        TArray<Component *> Components;
-        ActorValue->GetComponents<Component>(Components);
-        return func::fold_array<Component *, int64>(
-            Components, Settings.EmptyPolyCount,
-            [CountTriangles,
-             &Settings](const int64 &Total, Component *MeshComponent) {
-              return Total + CountTriangles(MeshComponent, Settings);
-            });
-      },
-      [&Settings]() -> int64 { return Settings.EmptyPolyCount; });
-}
-
-int64 CountActorTriangles(AActor *Actor,
-                          const FRuntimeStatsOverlaySettings &Settings) {
-  return CountActorComponentTriangles<UStaticMeshComponent>(
-             Actor, CountStaticMeshTriangles, Settings) +
-         CountActorComponentTriangles<UProceduralMeshComponent>(
-             Actor, CountProceduralMeshTriangles, Settings) +
-         CountActorComponentTriangles<USkinnedMeshComponent>(
-             Actor, CountSkinnedMeshTriangles, Settings);
-}
-
-int64 CountWorldTriangles(UWorld *World,
-                          const FRuntimeStatsOverlaySettings &Settings) {
-  return func::match(
-      func::from_nullable_value(World, World != nullptr),
-      [&Settings](UWorld *WorldValue) {
-        TArray<AActor *> Actors;
-        UGameplayStatics::GetAllActorsOfClass(WorldValue, AActor::StaticClass(),
-                                              Actors);
-        return func::fold_array<AActor *, int64>(
-            Actors, Settings.EmptyPolyCount,
-            [&Settings](const int64 &Total, AActor *Actor) {
-              return Total + CountActorTriangles(Actor, Settings);
-            });
-      },
-      [&Settings]() -> int64 { return Settings.EmptyPolyCount; });
-}
-
-FRuntimeStatsViewModel
-SelectRuntimeStats(UWorld *World, float DeltaSeconds,
-                   const FRuntimeStatsOverlaySettings &Settings,
-                   int64 PolyCount) {
-  const FG::FRuntimeState State = FG::Store::GetStore().getState();
-  const ecs::FWorld &EcsWorld = FG::RuntimeSelectors::SelectWorld(State);
-  return {SelectFramesPerSecond(DeltaSeconds, Settings),
-          SelectEcsStackDepth(EcsWorld, Settings),
-          PolyCount};
+FString FormatRuntimeStatsText(const FString &Format, int32 BufferCharacterCount,
+                               ...) {
+  TArray<TCHAR> Buffer;
+  Buffer.SetNumZeroed(BufferCharacterCount);
+  const TCHAR *FormatPtr = *Format;
+  va_list Args;
+  va_start(Args, BufferCharacterCount);
+  FCString::GetVarArgs(Buffer.GetData(), Buffer.Num(), FormatPtr, Args);
+  va_end(Args);
+  return FString(Buffer.GetData());
 }
 
 FString FormatRuntimeStatsValue(int64 Value,
                                 const FRuntimeStatsOverlaySettings &Settings) {
-  return frmt::RuntimeString(Settings.ValueFormat,
-                             frmt::Args({frmt::Arg(Value)}));
+  return FormatRuntimeStatsText(Settings.ValueFormat,
+                                Settings.FormatBufferCharacterCount,
+                                static_cast<long long>(Value));
+}
+
+FString
+FormatRuntimeStatsDecimalValue(double Value,
+                               const FRuntimeStatsOverlaySettings &Settings) {
+  return FormatRuntimeStatsText(Settings.DecimalValueFormat,
+                                Settings.FormatBufferCharacterCount, Value);
 }
 
 FLinearColor SelectRuntimeStatsValueColor(
@@ -343,19 +149,83 @@ void ApplyStatsValue(const FStatsValueUpdateRequest &Request) {
       []() {});
 }
 
+void ApplyStatsDecimalValue(const FStatsDecimalValueUpdateRequest &Request) {
+  check(Request.Settings);
+  func::match(
+      func::from_nullable_value(Request.TextElement,
+                                Request.TextElement != nullptr),
+      [&Request](UTextBlock *TextElement) {
+        TextElement->SetText(FText::FromString(
+            FormatRuntimeStatsDecimalValue(Request.Value, *Request.Settings)));
+        TextElement->SetColorAndOpacity(FSlateColor(Request.Settings->TextColor));
+      },
+      []() {});
+}
+
+void ApplyStatsPlainValue(const FStatsPlainValueUpdateRequest &Request) {
+  check(Request.Settings);
+  func::match(
+      func::from_nullable_value(Request.TextElement,
+                                Request.TextElement != nullptr),
+      [&Request](UTextBlock *TextElement) {
+        TextElement->SetText(FText::FromString(
+            FormatRuntimeStatsValue(Request.Value, *Request.Settings)));
+        TextElement->SetColorAndOpacity(FSlateColor(Request.Settings->TextColor));
+      },
+      []() {});
+}
+
 void LogRuntimeBudgetSample(const FRuntimeStatsViewModel &Stats) {
   UE_LOG(LogForbocRuntimeBudget, Display,
-         TEXT("runtime-budget sample fps=%d stack_depth=%d poly_count=%lld"),
-         Stats.FramesPerSecond, Stats.StackDepth, Stats.PolyCount);
+         TEXT("runtime-budget sample fps=%d stack_depth=%d poly_count=%lld "
+              "memory_mib=%lld peak_memory_mib=%lld virtual_memory_mib=%lld "
+              "game_ms=%.2f render_ms=%.2f rhi_ms=%.2f gpu_ms=%.2f "
+              "draw_calls=%d rhi_primitives=%d wall_ms=%.2f "
+              "input_delta_ms=%.2f stats_select_ms=%.2f poly_count_ms=%.2f "
+              "engine_idle_ms=%.2f engine_idle_overshoot_ms=%.2f "
+              "max_fps=%.2f frame_rate_limit=%.2f effective_max_tick_rate=%.2f "
+              "fixed_frame_rate_enabled=%d fixed_frame_rate=%.2f "
+              "fixed_time_step_enabled=%d fixed_delta_ms=%.2f "
+              "vsync=%d idle_when_not_foreground=%d app_has_focus=%d "
+              "cpu_throttle=%d all_windows_hidden=%d"),
+         Stats.FramesPerSecond, Stats.StackDepth, Stats.PolyCount,
+         Stats.UsedPhysicalMemoryMegabytes,
+         Stats.PeakPhysicalMemoryMegabytes, Stats.UsedVirtualMemoryMegabytes,
+         Stats.GameThreadMilliseconds, Stats.RenderThreadMilliseconds,
+         Stats.RhiThreadMilliseconds, Stats.GpuMilliseconds, Stats.DrawCalls,
+         Stats.RhiPrimitives, Stats.WallDeltaMilliseconds,
+         Stats.InputDeltaMilliseconds, Stats.StatsSelectionMilliseconds,
+         Stats.PolyCountMilliseconds, Stats.EngineIdleMilliseconds,
+         Stats.EngineIdleOvershootMilliseconds, Stats.MaxFps,
+         Stats.FrameRateLimit, Stats.EffectiveMaxTickRate,
+         Stats.FixedFrameRateEnabled, Stats.FixedFrameRate,
+         Stats.FixedTimeStepEnabled, Stats.FixedDeltaMilliseconds,
+         Stats.VsyncEnabled,
+         Stats.IdleWhenNotForegroundEnabled, Stats.AppHasFocus,
+         Stats.CpuThrottleEnabled, Stats.AllWindowsHidden);
 }
 
 FString FormatRuntimeStatsDebugMessage(
     const FRuntimeStatsViewModel &Stats,
     const FRuntimeStatsOverlaySettings &Settings) {
-  return frmt::RuntimeString(
-      Settings.DebugMessageFormat,
-      frmt::Args({frmt::Arg(Stats.FramesPerSecond),
-                  frmt::Arg(Stats.StackDepth), frmt::Arg(Stats.PolyCount)}));
+  return FormatRuntimeStatsText(
+      Settings.DebugMessageFormat, Settings.FormatBufferCharacterCount,
+      Stats.FramesPerSecond, Stats.StackDepth,
+      static_cast<long long>(Stats.PolyCount),
+      static_cast<long long>(Stats.UsedPhysicalMemoryMegabytes),
+      static_cast<long long>(Stats.PeakPhysicalMemoryMegabytes),
+      static_cast<long long>(Stats.UsedVirtualMemoryMegabytes),
+      Stats.GameThreadMilliseconds, Stats.RenderThreadMilliseconds,
+      Stats.RhiThreadMilliseconds, Stats.GpuMilliseconds, Stats.DrawCalls,
+      Stats.RhiPrimitives, Stats.WallDeltaMilliseconds,
+      Stats.InputDeltaMilliseconds, Stats.StatsSelectionMilliseconds,
+      Stats.PolyCountMilliseconds, Stats.EngineIdleMilliseconds,
+      Stats.EngineIdleOvershootMilliseconds, Stats.MaxFps,
+      Stats.FrameRateLimit, Stats.EffectiveMaxTickRate,
+      Stats.FixedFrameRateEnabled, Stats.FixedFrameRate,
+      Stats.FixedTimeStepEnabled, Stats.FixedDeltaMilliseconds,
+      Stats.VsyncEnabled, Stats.IdleWhenNotForegroundEnabled,
+      Stats.AppHasFocus, Stats.CpuThrottleEnabled, Stats.AllWindowsHidden);
 }
 
 void PresentRuntimeStatsDebugMessage(
@@ -393,6 +263,7 @@ void URuntimeStatsWidget::NativeConstruct() {
       BudgetClockSeconds - BudgetScreenshotIntervalSeconds;
   BudgetScreenshotIndex = Settings.BudgetScreenshotInitialIndex;
   CachedPolyCount = Settings.EmptyPolyCount;
+  CachedPolyCountMilliseconds = Settings.DiagnosticDefaultFloatValue;
   SetPositionInViewport(FVector2D(Settings.ViewportLeft, Settings.ViewportTop),
                         Settings.bRemoveDpIScale);
   SetDesiredSizeInViewport(
@@ -424,6 +295,87 @@ void URuntimeStatsWidget::NativeConstruct() {
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
               {WidgetTree, Settings.PolyCountLabel, &PolyCountValueTextElement,
                &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.UsedPhysicalMemoryLabel,
+               &UsedPhysicalMemoryValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.PeakPhysicalMemoryLabel,
+               &PeakPhysicalMemoryValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.UsedVirtualMemoryLabel,
+               &UsedVirtualMemoryValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.GameThreadMillisecondsLabel,
+               &GameThreadMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.RenderThreadMillisecondsLabel,
+               &RenderThreadMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.RhiThreadMillisecondsLabel,
+               &RhiThreadMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.GpuMillisecondsLabel,
+               &GpuMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.DrawCallsLabel, &DrawCallsValueTextElement,
+               &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.RhiPrimitivesLabel,
+               &RhiPrimitivesValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.WallDeltaMillisecondsLabel,
+               &WallDeltaMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.InputDeltaMillisecondsLabel,
+               &InputDeltaMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.StatsSelectionMillisecondsLabel,
+               &StatsSelectionMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.PolyCountMillisecondsLabel,
+               &PolyCountMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.EngineIdleMillisecondsLabel,
+               &EngineIdleMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.EngineIdleOvershootMillisecondsLabel,
+               &EngineIdleOvershootMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.MaxFpsLabel, &MaxFpsValueTextElement,
+               &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.FrameRateLimitLabel,
+               &FrameRateLimitValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.EffectiveMaxTickRateLabel,
+               &EffectiveMaxTickRateValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.FixedFrameRateEnabledLabel,
+               &FixedFrameRateEnabledValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.FixedFrameRateLabel,
+               &FixedFrameRateValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.FixedTimeStepEnabledLabel,
+               &FixedTimeStepEnabledValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.FixedDeltaMillisecondsLabel,
+               &FixedDeltaMillisecondsValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.VsyncEnabledLabel,
+               &VsyncEnabledValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.IdleWhenNotForegroundEnabledLabel,
+               &IdleWhenNotForegroundEnabledValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.AppHasFocusLabel,
+               &AppHasFocusValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.CpuThrottleEnabledLabel,
+               &CpuThrottleEnabledValueTextElement, &Settings}));
+          StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
+              {WidgetTree, Settings.AllWindowsHiddenLabel,
+               &AllWindowsHiddenValueTextElement, &Settings}));
           WidgetTree->RootWidget = PanelElement;
         }(), void());
 }
@@ -447,9 +399,14 @@ void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
   const bool bRefreshPolyCount =
       ShouldRunInterval(PolyCountRefreshElapsedSeconds,
                         Settings.PolyCountRefreshIntervalSeconds);
-  CachedPolyCount =
-      bRefreshPolyCount ? CountWorldTriangles(GetWorld(), Settings)
-                        : CachedPolyCount;
+  const FG::FRuntimePolyCountStats PolyCountStats =
+      bRefreshPolyCount
+          ? FG::RenderingSlice::SelectRuntimePolyCountStats(GetWorld(),
+                                                            Settings)
+          : FG::FRuntimePolyCountStats{CachedPolyCount,
+                                       CachedPolyCountMilliseconds};
+  CachedPolyCount = PolyCountStats.PolyCount;
+  CachedPolyCountMilliseconds = PolyCountStats.MeasurementMilliseconds;
   PolyCountRefreshElapsedSeconds =
       bRefreshPolyCount ? Settings.IntervalResetElapsedSeconds
                         : PolyCountRefreshElapsedSeconds;
@@ -458,8 +415,9 @@ void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
       ShouldRunInterval(StatsRefreshElapsedSeconds,
                         Settings.StatsRefreshIntervalSeconds);
   const FRuntimeStatsViewModel Stats =
-      SelectRuntimeStats(GetWorld(), WallDeltaSeconds, Settings,
-                         CachedPolyCount);
+      FG::RenderingSlice::SelectRuntimeStats(
+          GetWorld(), DeltaSeconds, WallDeltaSeconds, CachedPolyCount,
+          CachedPolyCountMilliseconds, Settings);
   bRefreshStats
       ? (ApplyStatsValue({FramesPerSecondValueTextElement,
                           Stats.FramesPerSecond,
@@ -471,6 +429,67 @@ void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
          ApplyStatsValue({PolyCountValueTextElement, Stats.PolyCount,
                           Settings.PolyCountMediumThreshold,
                           Settings.PolyCountHighThreshold, &Settings}),
+         ApplyStatsValue({UsedPhysicalMemoryValueTextElement,
+                          Stats.UsedPhysicalMemoryMegabytes,
+                          Settings.MemoryMediumThreshold,
+                          Settings.MemoryHighThreshold, &Settings}),
+         ApplyStatsValue({PeakPhysicalMemoryValueTextElement,
+                          Stats.PeakPhysicalMemoryMegabytes,
+                          Settings.MemoryMediumThreshold,
+                          Settings.MemoryHighThreshold, &Settings}),
+         ApplyStatsValue({UsedVirtualMemoryValueTextElement,
+                          Stats.UsedVirtualMemoryMegabytes,
+                          Settings.MemoryMediumThreshold,
+                          Settings.MemoryHighThreshold, &Settings}),
+         ApplyStatsDecimalValue({GameThreadMillisecondsValueTextElement,
+                                 Stats.GameThreadMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({RenderThreadMillisecondsValueTextElement,
+                                 Stats.RenderThreadMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({RhiThreadMillisecondsValueTextElement,
+                                 Stats.RhiThreadMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({GpuMillisecondsValueTextElement,
+                                 Stats.GpuMilliseconds, &Settings}),
+         ApplyStatsPlainValue(
+             {DrawCallsValueTextElement, Stats.DrawCalls, &Settings}),
+         ApplyStatsPlainValue(
+             {RhiPrimitivesValueTextElement, Stats.RhiPrimitives, &Settings}),
+         ApplyStatsDecimalValue({WallDeltaMillisecondsValueTextElement,
+                                 Stats.WallDeltaMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({InputDeltaMillisecondsValueTextElement,
+                                 Stats.InputDeltaMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({StatsSelectionMillisecondsValueTextElement,
+                                 Stats.StatsSelectionMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({PolyCountMillisecondsValueTextElement,
+                                 Stats.PolyCountMilliseconds, &Settings}),
+         ApplyStatsDecimalValue({EngineIdleMillisecondsValueTextElement,
+                                 Stats.EngineIdleMilliseconds, &Settings}),
+         ApplyStatsDecimalValue(
+             {EngineIdleOvershootMillisecondsValueTextElement,
+              Stats.EngineIdleOvershootMilliseconds, &Settings}),
+         ApplyStatsDecimalValue(
+             {MaxFpsValueTextElement, Stats.MaxFps, &Settings}),
+         ApplyStatsDecimalValue({FrameRateLimitValueTextElement,
+                                 Stats.FrameRateLimit, &Settings}),
+         ApplyStatsDecimalValue({EffectiveMaxTickRateValueTextElement,
+                                 Stats.EffectiveMaxTickRate, &Settings}),
+         ApplyStatsPlainValue({FixedFrameRateEnabledValueTextElement,
+                               Stats.FixedFrameRateEnabled, &Settings}),
+         ApplyStatsDecimalValue({FixedFrameRateValueTextElement,
+                                 Stats.FixedFrameRate, &Settings}),
+         ApplyStatsPlainValue({FixedTimeStepEnabledValueTextElement,
+                               Stats.FixedTimeStepEnabled, &Settings}),
+         ApplyStatsDecimalValue({FixedDeltaMillisecondsValueTextElement,
+                                 Stats.FixedDeltaMilliseconds, &Settings}),
+         ApplyStatsPlainValue(
+             {VsyncEnabledValueTextElement, Stats.VsyncEnabled, &Settings}),
+         ApplyStatsPlainValue({IdleWhenNotForegroundEnabledValueTextElement,
+                               Stats.IdleWhenNotForegroundEnabled, &Settings}),
+         ApplyStatsPlainValue(
+             {AppHasFocusValueTextElement, Stats.AppHasFocus, &Settings}),
+         ApplyStatsPlainValue({CpuThrottleEnabledValueTextElement,
+                               Stats.CpuThrottleEnabled, &Settings}),
+         ApplyStatsPlainValue({AllWindowsHiddenValueTextElement,
+                               Stats.AllWindowsHidden, &Settings}),
          PresentRuntimeStatsDebugMessage(Stats, Settings),
          StatsRefreshElapsedSeconds = Settings.IntervalResetElapsedSeconds,
          void())

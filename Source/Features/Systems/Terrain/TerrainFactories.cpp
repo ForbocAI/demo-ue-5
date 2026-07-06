@@ -6,12 +6,7 @@ namespace Level {
 namespace TerrainFactories {
 
 FTerrainState CreateInitialState() {
-  FTerrainState State;
-  State.bTerrainLoaded = false;
-  State.GridSize = 0;
-  State.MinElevationMeters = 0.0f;
-  State.MaxElevationMeters = 0.0f;
-  return State;
+  return FTerrainState{};
 }
 
 FTerrainLoadedPayload LoadedPayload(const FTerrainLoadedSource &Source) {

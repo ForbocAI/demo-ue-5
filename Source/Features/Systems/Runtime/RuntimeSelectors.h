@@ -27,8 +27,6 @@ const FUIState &SelectUIState(const FRuntimeState &State);
 const FTerrainState &SelectTerrainState(const FRuntimeState &State);
 const FSpawnState &SelectSpawnState(const FRuntimeState &State);
 bool SelectTerrainLoaded(const FRuntimeState &State);
-const FTerrainMeshSectionViewModel &
-SelectTerrainMeshSectionViewModel(const FRuntimeState &State);
 TArray<FLandmark> SelectLandmarks(const FRuntimeState &State);
 func::Maybe<FLandmark> SelectLandmarkById(const FRuntimeState &State,
                                           const FString &Id);

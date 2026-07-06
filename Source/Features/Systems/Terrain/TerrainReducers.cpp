@@ -39,6 +39,10 @@ ReserveTerrainMeshPayload(const FTerrainMeshReserveRequest &Request) {
   return (func::pipe(FTerrainMeshPayload{}) |
           [&Request](FTerrainMeshPayload Payload) {
             Payload.bLoaded = true;
+            Payload.MaterialSlotIndex =
+                Request.Geometry.TerrainMaterialSlotIndex;
+            Payload.MeshSectionIndex = Request.Geometry.TerrainMeshSectionIndex;
+            Payload.bCreateCollision = Request.Geometry.bTerrainCreateCollision;
             Payload.Vertices.Reserve(Request.LodGridSize *
                                      Request.LodGridSize);
             Payload.Normals.Reserve(Request.LodGridSize *
@@ -167,18 +171,6 @@ ReduceTerrainLoaded(const FTerrainState &State,
   }).val;
 }
 
-FTerrainState ReduceTerrainMeshPayloadObserved(
-    const FTerrainState &State,
-    const rtk::PayloadAction<FTerrainMeshPayload> &Action) {
-  return (func::pipe(State) |
-          [&Action](FTerrainState Next) -> FTerrainState {
-            Next.LastMeshSection =
-                ReduceTerrainMeshSectionViewModel(Action.PayloadValue);
-            return Next;
-          })
-      .val;
-}
-
 FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
                         const FLevelOrthoData &OrthoData,
@@ -190,21 +182,6 @@ BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
                                                     Geometry)
                     : FTerrainMeshPayload{})
              : FTerrainMeshPayload{};
-}
-
-FTerrainMeshSectionViewModel
-ReduceTerrainMeshSectionViewModel(const FTerrainMeshPayload &Payload) {
-  return (func::pipe(FTerrainMeshSectionViewModel{}) |
-          [&Payload](FTerrainMeshSectionViewModel Model) {
-            Model.bLoaded = Payload.bLoaded;
-            Model.Vertices = Payload.Vertices;
-            Model.Triangles = Payload.Triangles;
-            Model.Normals = Payload.Normals;
-            Model.UVs = Payload.UVs;
-            Model.VertexColors = Payload.VertexColors;
-            return Model;
-          })
-      .val;
 }
 
 } // namespace TerrainReducers

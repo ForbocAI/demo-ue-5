@@ -428,6 +428,15 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
             DistanceLodStages[4].bStaticVisible ||
                 DistanceLodStages[4].bDynamicVisible);
 
+  const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &StatsOverlay =
+      RuntimeSelectors::SelectUIRuntimeSettings(State).StatsOverlay;
+  TestEqual(TEXT("Stats overlay reads authored memory divisor"),
+            StatsOverlay.MemoryBytesPerMegabyte, 1048576);
+  TestEqual(TEXT("Stats overlay shows physical memory"),
+            StatsOverlay.UsedPhysicalMemoryLabel, FString(TEXT("MEM:")));
+  TestEqual(TEXT("Stats overlay shows peak physical memory"),
+            StatsOverlay.PeakPhysicalMemoryLabel, FString(TEXT("PEAK:")));
+
   const TArray<FLevelRetroTextureSpec> &TextureCatalog =
       RenderingSelectors::SelectTextureCatalog(
           RuntimeSelectors::SelectRenderingState(State));

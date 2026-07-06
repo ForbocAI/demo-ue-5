@@ -32,6 +32,17 @@ bool ShouldRunRuntimeBudgetScreenshot(
 void RequestRuntimeBudgetScreenshot(
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings,
     int32 Index);
+FRuntimeMemoryStats SelectRuntimeMemoryStats(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings);
+FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings);
+FRuntimePolyCountStats SelectRuntimePolyCountStats(
+    UWorld *World,
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings);
+FRuntimeStatsViewModel SelectRuntimeStats(
+    UWorld *World, float DeltaSeconds, double WallDeltaSeconds,
+    int64 PolyCount, double PolyCountMilliseconds,
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings);
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path);
 void ApplyTexture(const FLevelRetroTextureApply &Request);
 

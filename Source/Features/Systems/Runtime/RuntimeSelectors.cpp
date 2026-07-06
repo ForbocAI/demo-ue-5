@@ -81,11 +81,6 @@ bool SelectTerrainLoaded(const FRuntimeState &State) {
   return TerrainSelectors::SelectLoaded(State.Terrain);
 }
 
-const FTerrainMeshSectionViewModel &
-SelectTerrainMeshSectionViewModel(const FRuntimeState &State) {
-  return TerrainSelectors::SelectLastMeshSection(State.Terrain);
-}
-
 TArray<FLandmark> SelectLandmarks(const FRuntimeState &State) {
   return LandmarkSelectors::SelectAll(State.Landmarks);
 }

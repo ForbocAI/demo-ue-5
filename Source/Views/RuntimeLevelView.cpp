@@ -49,7 +49,7 @@ ARuntimeLevelView::ARuntimeLevelView()
     : CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
   PrimaryActorTick.bCanEverTick = false;
 
-  const FG::FRuntimeState State = FG::Store::GetStore().getState();
+  const FG::FRuntimeState &State = FG::Store::GetStore().getState();
   const FG::FRenderingAssetPaths AssetPaths =
       FG::RuntimeSelectors::SelectRenderingAssetPaths(State);
   CubeMesh = LoadObject<UStaticMesh>(nullptr, *AssetPaths.LevelCubeMeshPath);

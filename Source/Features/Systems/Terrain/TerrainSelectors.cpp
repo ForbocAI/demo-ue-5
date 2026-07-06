@@ -11,11 +11,6 @@ bool SelectLoaded(const FTerrainState &State) {
       .val;
 }
 
-const FTerrainMeshSectionViewModel &
-SelectLastMeshSection(const FTerrainState &State) {
-  return State.LastMeshSection;
-}
-
 } // namespace TerrainSelectors
 } // namespace Level
 } // namespace Game

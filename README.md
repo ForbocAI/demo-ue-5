@@ -171,6 +171,34 @@ actions, reducers, thunks, selectors, and ECS helpers, not in widget graphs.
 
 ---
 
+## Runtime budget and diagnostics
+
+Run the normal playable map from Windows with:
+
+```powershell
+.\Scripts\run-game.bat
+```
+
+Run the real performance budget with:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\run-runtime-budget.ps1
+```
+
+The budget script launches the normal Runtime map, measures the JSON-authored
+duration, and saves review screenshots under `screenshots`. Scripts may pass
+screenshot timing flags; normal render size, visual profile, HUD labels, LOD,
+and performance thresholds are authored in `Content/Data/*.json` and read by
+feature code.
+
+Use the runtime HUD and budget log to diagnose the source of slowness. High
+game/wall/input delta with low render/RHI/GPU time points at game-thread work or
+frame pacing. The HUD also reports memory, poly count, poly-count timing, stats
+selection timing, engine idle wait, fixed-frame/fixed-timestep state, frame
+caps, VSync, foreground focus, CPU throttle, and hidden window state.
+
+---
+
 ## Troubleshooting
 
 | Problem | Fix |

@@ -29,7 +29,7 @@ ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
   RootComponent = SceneRoot;
   PresentationMesh->SetupAttachment(SceneRoot);
 
-  const FG::FRuntimeState State = FG::Store::GetStore().getState();
+  const FG::FRuntimeState &State = FG::Store::GetStore().getState();
   const FG::FPlayerPresentationViewModel Presentation =
       FG::RuntimeSelectors::SelectPlayerPresentation(State);
   USkeletalMesh *Mesh =

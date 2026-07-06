@@ -76,6 +76,31 @@ void RequestRuntimeBudgetScreenshot(
   RenderingThunks::RequestRuntimeBudgetScreenshot(Settings, Index);
 }
 
+FRuntimeMemoryStats SelectRuntimeMemoryStats(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return RenderingThunks::SelectRuntimeMemoryStats(Settings);
+}
+
+FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return RenderingThunks::SelectRuntimeFrameTimingStats(Settings);
+}
+
+FRuntimePolyCountStats SelectRuntimePolyCountStats(
+    UWorld *World,
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return RenderingThunks::SelectRuntimePolyCountStats(World, Settings);
+}
+
+FRuntimeStatsViewModel SelectRuntimeStats(
+    UWorld *World, float DeltaSeconds, double WallDeltaSeconds,
+    int64 PolyCount, double PolyCountMilliseconds,
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return RenderingThunks::SelectRuntimeStats(
+      World, DeltaSeconds, WallDeltaSeconds, PolyCount,
+      PolyCountMilliseconds, Settings);
+}
+
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path) {
   return RenderingThunks::LoadBlockoutMaterial(Path);
 }

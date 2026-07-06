@@ -16,7 +16,7 @@ public class ForbocAIDemo : ModuleRules
 		PublicIncludePaths.AddRange(new string[] { ModuleSourceRoot, ForbocSdkPublicRoot });
 		PrivateIncludePaths.AddRange(new string[] { ModuleSourceRoot, ForbocSdkPublicRoot });
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "EnhancedInput", "InputCore", "Json", "JsonUtilities", "ProceduralMeshComponent", "UMG", "ForbocAI_SDK" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "EnhancedInput", "InputCore", "Json", "JsonUtilities", "ProceduralMeshComponent", "RenderCore", "RHI", "UMG", "ForbocAI_SDK" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "HTTP", "Slate", "SlateCore" });
 	}

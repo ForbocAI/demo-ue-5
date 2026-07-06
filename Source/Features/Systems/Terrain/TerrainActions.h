@@ -9,7 +9,6 @@ namespace Level {
 namespace TerrainActions {
 
 const rtk::ActionCreator<FTerrainLoadedPayload> &TerrainLoaded();
-const rtk::ActionCreator<FTerrainMeshPayload> &TerrainMeshPayloadObserved();
 
 } // namespace TerrainActions
 } // namespace Level

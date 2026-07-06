@@ -163,7 +163,7 @@ void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
 
 rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
   return [](std::function<rtk::AnyAction(const rtk::AnyAction &)> Dispatch,
-            std::function<FRuntimeState()> GetState)
+            std::function<const FRuntimeState &()> GetState)
              -> func::AsyncResult<FSpawnPointPayload> {
     return func::createAsyncResult<FSpawnPointPayload>(
         [Dispatch, GetState](std::function<void(FSpawnPointPayload)> Resolve,
@@ -171,7 +171,7 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
           (void)Reject;
           FLevelTerrainData TerrainData;
           FLevelOrthoData OrthoData;
-          const FRuntimeState State = GetState();
+          const FRuntimeState &State = GetState();
           const ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources =
               RuntimeSelectors::SelectLevelTerrainSources(State);
           const ForbocAI::Game::Data::FLevelDataSourceSettings DataSources =
@@ -189,7 +189,7 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
 rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
 RequestLevelViewPayload() {
   return [](std::function<rtk::AnyAction(const rtk::AnyAction &)> Dispatch,
-            std::function<FRuntimeState()> GetState)
+            std::function<const FRuntimeState &()> GetState)
              -> func::AsyncResult<FRuntimeLevelViewPayload> {
     return func::createAsyncResult<FRuntimeLevelViewPayload>(
         [Dispatch, GetState](
@@ -198,7 +198,7 @@ RequestLevelViewPayload() {
           (void)Reject;
           FLevelTerrainData TerrainData;
           FLevelOrthoData OrthoData;
-          const FRuntimeState State = GetState();
+          const FRuntimeState &State = GetState();
           const ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources =
               RuntimeSelectors::SelectLevelTerrainSources(State);
           const ForbocAI::Game::Data::FLevelDataSourceSettings DataSources =

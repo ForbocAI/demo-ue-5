@@ -7,6 +7,7 @@
 
 class UMaterialInterface;
 class UStaticMeshComponent;
+class UWorld;
 
 namespace ForbocAI {
 namespace Game {
@@ -32,6 +33,80 @@ struct FRenderingPayloadRequest {
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
   ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
+};
+
+struct FRuntimeMemoryStats {
+  int64 UsedPhysicalMegabytes;
+  int64 PeakUsedPhysicalMegabytes;
+  int64 UsedVirtualMegabytes;
+};
+
+struct FRuntimeFrameTimingStats {
+  double GameThreadMilliseconds;
+  double RenderThreadMilliseconds;
+  double RhiThreadMilliseconds;
+  double GpuMilliseconds;
+  int32 DrawCalls;
+  int32 RhiPrimitives;
+};
+
+struct FRuntimeFramePacingStats {
+  double WallDeltaMilliseconds;
+  double InputDeltaMilliseconds;
+  double StatsSelectionMilliseconds;
+  double PolyCountMilliseconds;
+  double EngineIdleMilliseconds;
+  double EngineIdleOvershootMilliseconds;
+  float MaxFps;
+  float FrameRateLimit;
+  float EffectiveMaxTickRate;
+  int32 FixedFrameRateEnabled;
+  float FixedFrameRate;
+  int32 FixedTimeStepEnabled;
+  double FixedDeltaMilliseconds;
+  int32 VsyncEnabled;
+  int32 IdleWhenNotForegroundEnabled;
+  int32 AppHasFocus;
+  int32 CpuThrottleEnabled;
+  int32 AllWindowsHidden;
+};
+
+struct FRuntimePolyCountStats {
+  int64 PolyCount;
+  double MeasurementMilliseconds;
+};
+
+struct FRuntimeStatsViewModel {
+  int32 FramesPerSecond;
+  int32 StackDepth;
+  int64 PolyCount;
+  int64 UsedPhysicalMemoryMegabytes;
+  int64 PeakPhysicalMemoryMegabytes;
+  int64 UsedVirtualMemoryMegabytes;
+  double GameThreadMilliseconds;
+  double RenderThreadMilliseconds;
+  double RhiThreadMilliseconds;
+  double GpuMilliseconds;
+  int32 DrawCalls;
+  int32 RhiPrimitives;
+  double WallDeltaMilliseconds;
+  double InputDeltaMilliseconds;
+  double StatsSelectionMilliseconds;
+  double PolyCountMilliseconds;
+  double EngineIdleMilliseconds;
+  double EngineIdleOvershootMilliseconds;
+  float MaxFps;
+  float FrameRateLimit;
+  float EffectiveMaxTickRate;
+  int32 FixedFrameRateEnabled;
+  float FixedFrameRate;
+  int32 FixedTimeStepEnabled;
+  double FixedDeltaMilliseconds;
+  int32 VsyncEnabled;
+  int32 IdleWhenNotForegroundEnabled;
+  int32 AppHasFocus;
+  int32 CpuThrottleEnabled;
+  int32 AllWindowsHidden;
 };
 
 struct FRenderingPresentationRequest {

@@ -10,9 +10,38 @@ struct FRuntimeStatsOverlaySettings {
   FString FramesPerSecondLabel;
   FString StackDepthLabel;
   FString PolyCountLabel;
+  FString UsedPhysicalMemoryLabel;
+  FString PeakPhysicalMemoryLabel;
+  FString UsedVirtualMemoryLabel;
+  FString GameThreadMillisecondsLabel;
+  FString RenderThreadMillisecondsLabel;
+  FString RhiThreadMillisecondsLabel;
+  FString GpuMillisecondsLabel;
+  FString DrawCallsLabel;
+  FString RhiPrimitivesLabel;
+  FString WallDeltaMillisecondsLabel;
+  FString InputDeltaMillisecondsLabel;
+  FString StatsSelectionMillisecondsLabel;
+  FString PolyCountMillisecondsLabel;
+  FString EngineIdleMillisecondsLabel;
+  FString EngineIdleOvershootMillisecondsLabel;
+  FString MaxFpsLabel;
+  FString FrameRateLimitLabel;
+  FString EffectiveMaxTickRateLabel;
+  FString FixedFrameRateEnabledLabel;
+  FString FixedFrameRateLabel;
+  FString FixedTimeStepEnabledLabel;
+  FString FixedDeltaMillisecondsLabel;
+  FString VsyncEnabledLabel;
+  FString IdleWhenNotForegroundEnabledLabel;
+  FString AppHasFocusLabel;
+  FString CpuThrottleEnabledLabel;
+  FString AllWindowsHiddenLabel;
   FString LabelValueSeparator;
   FString ValueFormat;
+  FString DecimalValueFormat;
   FString DebugMessageFormat;
+  int32 FormatBufferCharacterCount;
   int32 DebugMessageKey;
   float DebugMessageDurationSeconds;
   float ViewportLeft;
@@ -38,6 +67,19 @@ struct FRuntimeStatsOverlaySettings {
   int32 EmptyStackDepth;
   int32 EmptyPolyCount;
   int32 EmptyTriangleCount;
+  int32 EmptyMemoryMegabytes;
+  int32 MemoryBytesPerMegabyte;
+  int32 RhiStatsGpuIndex;
+  int32 RhiStatsMinimumGpuIndex;
+  int32 RhiStatsMaximumGpuIndex;
+  FString IdleWhenNotForegroundCVarName;
+  FString MaxFpsCVarName;
+  FString VsyncCVarName;
+  float SecondsToMilliseconds;
+  int32 DiagnosticFalseIntValue;
+  int32 DiagnosticTrueIntValue;
+  int32 DiagnosticDefaultIntValue;
+  float DiagnosticDefaultFloatValue;
   int32 MeshLodIndex;
   int32 ForcedLodAutomaticModel;
   int32 LodModelIndexOffset;
@@ -52,11 +94,14 @@ struct FRuntimeStatsOverlaySettings {
   int32 StackDepthHighThreshold;
   int32 PolyCountMediumThreshold;
   int32 PolyCountHighThreshold;
+  int32 MemoryMediumThreshold;
+  int32 MemoryHighThreshold;
   bool bRemoveDpIScale;
   bool bAutoWrapText;
   bool bBudgetScreenshotCreateDirectoryTree;
   bool bBudgetScreenshotShowUI;
   bool bBudgetScreenshotAddFilenameSuffix;
+  bool bDiagnosticAllowFrameRateSmoothing;
   FLinearColor PanelColor;
   FLinearColor TextColor;
   FLinearColor LowValueColor;
@@ -100,9 +145,50 @@ inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
   return Left.FramesPerSecondLabel == Right.FramesPerSecondLabel &&
          Left.StackDepthLabel == Right.StackDepthLabel &&
          Left.PolyCountLabel == Right.PolyCountLabel &&
+         Left.UsedPhysicalMemoryLabel == Right.UsedPhysicalMemoryLabel &&
+         Left.PeakPhysicalMemoryLabel == Right.PeakPhysicalMemoryLabel &&
+         Left.UsedVirtualMemoryLabel == Right.UsedVirtualMemoryLabel &&
+         Left.GameThreadMillisecondsLabel ==
+             Right.GameThreadMillisecondsLabel &&
+         Left.RenderThreadMillisecondsLabel ==
+             Right.RenderThreadMillisecondsLabel &&
+         Left.RhiThreadMillisecondsLabel ==
+             Right.RhiThreadMillisecondsLabel &&
+         Left.GpuMillisecondsLabel == Right.GpuMillisecondsLabel &&
+         Left.DrawCallsLabel == Right.DrawCallsLabel &&
+         Left.RhiPrimitivesLabel == Right.RhiPrimitivesLabel &&
+         Left.WallDeltaMillisecondsLabel ==
+             Right.WallDeltaMillisecondsLabel &&
+         Left.InputDeltaMillisecondsLabel ==
+             Right.InputDeltaMillisecondsLabel &&
+         Left.StatsSelectionMillisecondsLabel ==
+             Right.StatsSelectionMillisecondsLabel &&
+         Left.PolyCountMillisecondsLabel ==
+             Right.PolyCountMillisecondsLabel &&
+         Left.EngineIdleMillisecondsLabel ==
+             Right.EngineIdleMillisecondsLabel &&
+         Left.EngineIdleOvershootMillisecondsLabel ==
+             Right.EngineIdleOvershootMillisecondsLabel &&
+         Left.MaxFpsLabel == Right.MaxFpsLabel &&
+         Left.FrameRateLimitLabel == Right.FrameRateLimitLabel &&
+         Left.EffectiveMaxTickRateLabel == Right.EffectiveMaxTickRateLabel &&
+         Left.FixedFrameRateEnabledLabel ==
+             Right.FixedFrameRateEnabledLabel &&
+         Left.FixedFrameRateLabel == Right.FixedFrameRateLabel &&
+         Left.FixedTimeStepEnabledLabel == Right.FixedTimeStepEnabledLabel &&
+         Left.FixedDeltaMillisecondsLabel ==
+             Right.FixedDeltaMillisecondsLabel &&
+         Left.VsyncEnabledLabel == Right.VsyncEnabledLabel &&
+         Left.IdleWhenNotForegroundEnabledLabel ==
+             Right.IdleWhenNotForegroundEnabledLabel &&
+         Left.AppHasFocusLabel == Right.AppHasFocusLabel &&
+         Left.CpuThrottleEnabledLabel == Right.CpuThrottleEnabledLabel &&
+         Left.AllWindowsHiddenLabel == Right.AllWindowsHiddenLabel &&
          Left.LabelValueSeparator == Right.LabelValueSeparator &&
          Left.ValueFormat == Right.ValueFormat &&
+         Left.DecimalValueFormat == Right.DecimalValueFormat &&
          Left.DebugMessageFormat == Right.DebugMessageFormat &&
+         Left.FormatBufferCharacterCount == Right.FormatBufferCharacterCount &&
          Left.DebugMessageKey == Right.DebugMessageKey &&
          FMath::IsNearlyEqual(Left.DebugMessageDurationSeconds,
                               Right.DebugMessageDurationSeconds) &&
@@ -142,6 +228,22 @@ inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
          Left.EmptyStackDepth == Right.EmptyStackDepth &&
          Left.EmptyPolyCount == Right.EmptyPolyCount &&
          Left.EmptyTriangleCount == Right.EmptyTriangleCount &&
+         Left.EmptyMemoryMegabytes == Right.EmptyMemoryMegabytes &&
+         Left.MemoryBytesPerMegabyte == Right.MemoryBytesPerMegabyte &&
+         Left.RhiStatsGpuIndex == Right.RhiStatsGpuIndex &&
+         Left.RhiStatsMinimumGpuIndex == Right.RhiStatsMinimumGpuIndex &&
+         Left.RhiStatsMaximumGpuIndex == Right.RhiStatsMaximumGpuIndex &&
+         Left.IdleWhenNotForegroundCVarName ==
+             Right.IdleWhenNotForegroundCVarName &&
+         Left.MaxFpsCVarName == Right.MaxFpsCVarName &&
+         Left.VsyncCVarName == Right.VsyncCVarName &&
+         FMath::IsNearlyEqual(Left.SecondsToMilliseconds,
+                              Right.SecondsToMilliseconds) &&
+         Left.DiagnosticFalseIntValue == Right.DiagnosticFalseIntValue &&
+         Left.DiagnosticTrueIntValue == Right.DiagnosticTrueIntValue &&
+         Left.DiagnosticDefaultIntValue == Right.DiagnosticDefaultIntValue &&
+         FMath::IsNearlyEqual(Left.DiagnosticDefaultFloatValue,
+                              Right.DiagnosticDefaultFloatValue) &&
          Left.MeshLodIndex == Right.MeshLodIndex &&
          Left.ForcedLodAutomaticModel == Right.ForcedLodAutomaticModel &&
          Left.LodModelIndexOffset == Right.LodModelIndexOffset &&
@@ -157,6 +259,8 @@ inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
          Left.StackDepthHighThreshold == Right.StackDepthHighThreshold &&
          Left.PolyCountMediumThreshold == Right.PolyCountMediumThreshold &&
          Left.PolyCountHighThreshold == Right.PolyCountHighThreshold &&
+         Left.MemoryMediumThreshold == Right.MemoryMediumThreshold &&
+         Left.MemoryHighThreshold == Right.MemoryHighThreshold &&
          Left.bRemoveDpIScale == Right.bRemoveDpIScale &&
          Left.bAutoWrapText == Right.bAutoWrapText &&
          Left.bBudgetScreenshotCreateDirectoryTree ==
@@ -164,6 +268,8 @@ inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
          Left.bBudgetScreenshotShowUI == Right.bBudgetScreenshotShowUI &&
          Left.bBudgetScreenshotAddFilenameSuffix ==
              Right.bBudgetScreenshotAddFilenameSuffix &&
+         Left.bDiagnosticAllowFrameRateSmoothing ==
+             Right.bDiagnosticAllowFrameRateSmoothing &&
          Left.PanelColor == Right.PanelColor &&
          Left.TextColor == Right.TextColor &&
          Left.LowValueColor == Right.LowValueColor &&

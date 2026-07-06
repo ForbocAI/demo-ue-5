@@ -58,6 +58,9 @@ struct FLevelGeometrySettings {
   int32 TerrainQuadRowStep;
   float TerrainHalfWorldSizeScale;
   float TerrainVertexHeightOffset;
+  int32 TerrainMaterialSlotIndex;
+  int32 TerrainMeshSectionIndex;
+  bool bTerrainCreateCollision;
   int32 BlockForcedLodModel;
   float BlockCullDistance;
   bool bRuntimeSpawnOnBeginPlay;
@@ -146,6 +149,9 @@ inline bool operator==(const FLevelGeometrySettings &Left,
                               Right.TerrainHalfWorldSizeScale) &&
          FMath::IsNearlyEqual(Left.TerrainVertexHeightOffset,
                               Right.TerrainVertexHeightOffset) &&
+         Left.TerrainMaterialSlotIndex == Right.TerrainMaterialSlotIndex &&
+         Left.TerrainMeshSectionIndex == Right.TerrainMeshSectionIndex &&
+         Left.bTerrainCreateCollision == Right.bTerrainCreateCollision &&
          Left.BlockForcedLodModel == Right.BlockForcedLodModel &&
          FMath::IsNearlyEqual(Left.BlockCullDistance,
                               Right.BlockCullDistance) &&

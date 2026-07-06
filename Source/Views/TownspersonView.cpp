@@ -31,7 +31,7 @@ FG::FTownspersonViewDefaults ObserveTownspersonViewDefaults(
 }
 
 FG::FTownspersonPresentationViewModel ObserveTownspersonPresentation() {
-  const FG::FRuntimeState State = FG::Store::GetStore().getState();
+  const FG::FRuntimeState &State = FG::Store::GetStore().getState();
   const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
   FG::Store::GetStore().dispatch(

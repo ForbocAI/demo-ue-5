@@ -10,8 +10,6 @@ namespace Level {
 namespace TerrainSelectors {
 
 bool SelectLoaded(const FTerrainState &State);
-const FTerrainMeshSectionViewModel &
-SelectLastMeshSection(const FTerrainState &State);
 
 } // namespace TerrainSelectors
 } // namespace Level

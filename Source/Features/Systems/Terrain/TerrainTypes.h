@@ -24,15 +24,9 @@ struct FTerrainLoadedSource {
 
 struct FTerrainMeshPayload {
   bool bLoaded = false;
-  TArray<FVector> Vertices;
-  TArray<int32> Triangles;
-  TArray<FVector> Normals;
-  TArray<FVector2D> UVs;
-  TArray<FColor> VertexColors;
-};
-
-struct FTerrainMeshSectionViewModel {
-  bool bLoaded = false;
+  int32 MaterialSlotIndex = int32{};
+  int32 MeshSectionIndex = int32{};
+  bool bCreateCollision = false;
   TArray<FVector> Vertices;
   TArray<int32> Triangles;
   TArray<FVector> Normals;
@@ -44,10 +38,9 @@ struct FTerrainState {
   bool bTerrainLoaded = false;
   FString TerrainSource;
   FString OrthoSource;
-  int32 GridSize = 0;
-  float MinElevationMeters = 0.0f;
-  float MaxElevationMeters = 0.0f;
-  FTerrainMeshSectionViewModel LastMeshSection;
+  int32 GridSize = int32{};
+  float MinElevationMeters = float{};
+  float MaxElevationMeters = float{};
 };
 
 inline bool operator==(const FTerrainLoadedPayload &Left,
@@ -91,14 +84,7 @@ inline bool operator==(const FTerrainState &Left,
          FMath::IsNearlyEqual(Left.MinElevationMeters,
                               Right.MinElevationMeters) &&
          FMath::IsNearlyEqual(Left.MaxElevationMeters,
-                              Right.MaxElevationMeters) &&
-         Left.LastMeshSection.bLoaded == Right.LastMeshSection.bLoaded &&
-         Left.LastMeshSection.Vertices == Right.LastMeshSection.Vertices &&
-         Left.LastMeshSection.Triangles == Right.LastMeshSection.Triangles &&
-         Left.LastMeshSection.Normals == Right.LastMeshSection.Normals &&
-         Left.LastMeshSection.UVs == Right.LastMeshSection.UVs &&
-         Left.LastMeshSection.VertexColors ==
-             Right.LastMeshSection.VertexColors;
+                              Right.MaxElevationMeters);
 }
 
 inline bool operator!=(const FTerrainState &Left,
@@ -108,25 +94,17 @@ inline bool operator!=(const FTerrainState &Left,
 
 inline bool operator==(const FTerrainMeshPayload &Left,
                        const FTerrainMeshPayload &Right) {
-  return Left.bLoaded == Right.bLoaded && Left.Vertices == Right.Vertices &&
+  return Left.bLoaded == Right.bLoaded &&
+         Left.MaterialSlotIndex == Right.MaterialSlotIndex &&
+         Left.MeshSectionIndex == Right.MeshSectionIndex &&
+         Left.bCreateCollision == Right.bCreateCollision &&
+         Left.Vertices == Right.Vertices &&
          Left.Triangles == Right.Triangles && Left.Normals == Right.Normals &&
          Left.UVs == Right.UVs && Left.VertexColors == Right.VertexColors;
 }
 
 inline bool operator!=(const FTerrainMeshPayload &Left,
                        const FTerrainMeshPayload &Right) {
-  return !(Left == Right);
-}
-
-inline bool operator==(const FTerrainMeshSectionViewModel &Left,
-                       const FTerrainMeshSectionViewModel &Right) {
-  return Left.bLoaded == Right.bLoaded && Left.Vertices == Right.Vertices &&
-         Left.Triangles == Right.Triangles && Left.Normals == Right.Normals &&
-         Left.UVs == Right.UVs && Left.VertexColors == Right.VertexColors;
-}
-
-inline bool operator!=(const FTerrainMeshSectionViewModel &Left,
-                       const FTerrainMeshSectionViewModel &Right) {
   return !(Left == Right);
 }
 

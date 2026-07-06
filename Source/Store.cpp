@@ -73,8 +73,9 @@ rtk::logger::ReduxLoggerOptions<FRuntimeState> CreateReduxLoggerOptions() {
   rtk::logger::ReduxLoggerOptions<FRuntimeState> Options;
   const FRuntimeReduxLogSettings LogSettings = RuntimeReduxLogSettings();
   Options.Logger = CreateReduxLoggerSink();
-  Options.Predicate = [LogSettings](const std::function<FRuntimeState()> &,
-                                    const rtk::AnyAction &Action) {
+  Options.Predicate = [LogSettings](
+                          const std::function<const FRuntimeState &()> &,
+                          const rtk::AnyAction &Action) {
     return ShouldLogRuntimeAction(Action, LogSettings);
   };
   Options.bTimestamp = false;

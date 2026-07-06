@@ -10,6 +10,7 @@
 #include "TerrainMeshView.generated.h"
 
 class UProceduralMeshElement;
+class UMaterialInterface;
 
 namespace ForbocAI {
 namespace Game {
@@ -47,4 +48,7 @@ public:
 private:
   UPROPERTY()
   UProceduralMeshElement *ProceduralMeshElement;
+
+  UPROPERTY()
+  UMaterialInterface *TerrainMaterial;
 };
