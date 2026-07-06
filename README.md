@@ -119,6 +119,7 @@ bash Scripts/lock_sdk_submodule.sh --lock
 | `Source/Views` | Unreal display/effect boundary for actors, widgets, input binding, and mesh application |
 | `Content/Characters/Mannequins` | Project-owned UE mannequin meshes, materials, rigs, and animation assets |
 | `Content/Characters/Horses/ClassicHorse` | Project-owned horse, mounted rider, animation, and texture assets |
+| `Content/Data/runtime_settings_rendering_*.json` | Authored visual profile, distance LOD stages, console variables, and skeletal LOD generation inputs |
 | `Systems/Bots` | Multi-bot feature state backed by normalized RTK-style reducers/selectors |
 | `Systems/Dialogue` | Dialogue actions, reducers, selectors, and thunks for gate-closed runtime interaction |
 | `SpeechComponent` | TTS + viseme blending hooks |
@@ -193,9 +194,18 @@ feature code.
 
 Native UE rendering APIs are used at the effect boundary: component LOD/cull
 calls for visible actors, native SkyAtmosphere/SkyLight/DirectionalLight/Fog
-and PostProcess for the night profile, and built-in engine sky assets for the
-starfield. Static-world HLOD can be built with `Scripts/build-hlod.ps1` or
-`Scripts/build-hlod.sh` after the static world is authored into the map.
+and PostProcess for the night profile, a tagged sky dome for the background
+sky, and procedural unlit pixel meshes for the moon and point stars.
+`Content/Data/runtime_settings_rendering_profile.json` owns output size, night
+lighting, fog, post-process, moon placement, and moon/star pixel tuning.
+`Content/Data/runtime_settings_rendering_lod.json` owns static blockout and
+dynamic actor distance LOD stages.
+
+For optional asset maintenance, regenerate committed skeletal mesh LODs with
+`Scripts/generate-skeletal-lods.ps1` or `Scripts/generate-skeletal-lods.sh`.
+Static-world HLOD can be built with `Scripts/build-hlod.ps1` or
+`Scripts/build-hlod.sh` after static world geometry is authored into the map;
+runtime-spawned dynamic actors still use native component LOD/cull calls.
 
 Use the runtime HUD and budget log to diagnose the source of slowness. High
 game/wall/input delta with low render/RHI/GPU time points at game-thread work or
