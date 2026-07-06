@@ -192,6 +192,13 @@ The script queries OpenStreetMap through Overpass around the U.S. Post Office /
 `french_gulch_landmarks.json`, `french_gulch_nature.json`, and the shared
 world-scale values in `runtime_settings_level.json`.
 
+`Content/Data/Source/french_gulch_layout_metadata.json` records the source
+anchor, query radius, generated object counts, and acquired player-spawn facts.
+The player spawn is written back to `runtime_settings_level.json` as
+`player_spawn_east_lots`, `player_spawn_north_lots`, and
+`main_street_facing_yaw_degrees` so code reads a data-backed road anchor instead
+of a copied world-space coordinate.
+
 Terrain and ortho samples remain generated from the existing public terrain
 pipeline. Google Maps or Street View screenshots are visual references only;
 they are not committed source data.
@@ -218,6 +225,17 @@ screenshot timing flags; normal render size, visual profile, HUD labels, LOD,
 and performance thresholds are authored in `Content/Data/*.json` and read by
 feature code.
 
+The baseline budget can ignore a configured number of warmup samples and filter
+screenshot-write stalls where wall time jumps while game/input time stays
+normal. Those values live in
+`Content/Data/runtime_performance_budget_ps3_baseline.json` and are applied by
+both the PowerShell runner and `Scripts/validate-runtime-budget.py`.
+
+`Scripts/run-tests.sh` also runs a rendering tuning guard. The guard rejects
+hard-coded numeric moon/star helper values in the runtime rendering profile
+helpers and points contributors back to
+`Content/Data/runtime_settings_rendering_profile.json`.
+
 `Content/Data/runtime_settings_level.json` owns the shared world proportion
 contract: terrain world size, town lots, blockout feet, story height, actor-foot
 conversion, terrain mesh sampling, and runtime spawn toggles stay in JSON.
@@ -232,6 +250,11 @@ sky, and procedural unlit pixel meshes for the moon and point stars.
 lighting, fog, post-process, moon placement, and moon/star pixel tuning.
 `Content/Data/runtime_settings_rendering_lod.json` owns static blockout and
 dynamic actor distance LOD stages.
+
+The runtime applies dynamic actor LOD through native skeletal mesh APIs and
+clamps forced/minimum skeletal LOD requests to the LODs that exist on the
+imported mesh. That keeps townspeople, horses, and riders visible when JSON LOD
+stages reach the far/silhouette ranges.
 
 For optional asset maintenance, regenerate committed skeletal mesh LODs with
 `Scripts/generate-skeletal-lods.ps1` or `Scripts/generate-skeletal-lods.sh`.

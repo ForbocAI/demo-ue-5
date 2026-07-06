@@ -11,6 +11,11 @@
   "terrain_extent_meters": 3200.0,
   "unreal_units_per_meter": 100.0,
   "lot_size_feet": 10.0,
+  "player_spawn_lots": {
+    "east_lots": 5.318,
+    "north_lots": -8.55,
+    "yaw_degrees": 64.06299999999999
+  },
   "counts": {
     "raw_elements": 110,
     "runtime_terrain_blocks": 41,

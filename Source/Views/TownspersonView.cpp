@@ -17,6 +17,7 @@
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "GameFramework/Pawn.h"
 #include "Store.h"
+#include "Views/SkeletalLodClamp.h"
 
 namespace FG = ForbocAI::Game::Level;
 
@@ -73,7 +74,7 @@ ObserveInteractionOverlap(
 ATownspersonView::ATownspersonView()
     : WalkSpeed(0.0f), PauseDuration(0.0f), PatrolIndex(0),
       PauseRemaining(0.0f), PatrolArrivalDistance(0.0f),
-      bPlayerNearby(false) {
+      bPlayerNearby(false), CurrentLod() {
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =
       FG::RuntimeSelectors::SelectBotRuntimeSettings(
@@ -103,6 +104,8 @@ ATownspersonView::ATownspersonView()
   CharacterMesh->SetRelativeLocation(Presentation.MannequinOffset);
   CharacterMesh->SetRelativeRotation(Presentation.MannequinRotation);
   CharacterMesh->SetRelativeScale3D(Presentation.MannequinScale);
+  CharacterMesh->SetVisibility(false);
+  CharacterMesh->SetHiddenInGame(true);
 
   InteractionSphere =
       CreateDefaultSubobject<USphereComponent>(
@@ -119,6 +122,8 @@ ATownspersonView::ATownspersonView()
   NameText->SetRelativeLocation(Presentation.NameTextLocation);
   NameText->SetHorizontalAlignment(EHTA_Center);
   NameText->SetWorldSize(Presentation.NameTextWorldSize);
+  NameText->SetVisibility(false);
+  NameText->SetHiddenInGame(true);
 
   PromptText =
       CreateDefaultSubobject<UTextRenderComponent>(
@@ -198,8 +203,9 @@ void ATownspersonView::ApplyDistanceLod(
   CurrentLod = Lod;
   PrimaryActorTick.TickInterval = Lod.ActorTickIntervalSeconds;
   SetActorTickEnabled(Lod.bPatrolEnabled);
-  CharacterMesh->SetForcedLOD(Lod.SkeletalMeshForcedLodModel);
-  CharacterMesh->OverrideMinLOD(Lod.SkeletalMeshMinLodModel);
+  ForbocAI::Game::Views::SkeletalLodClamp::Apply(
+      CharacterMesh, Lod.SkeletalMeshForcedLodModel,
+      Lod.SkeletalMeshMinLodModel);
   CharacterMesh->SetCullDistance(Lod.CullDistance);
   CharacterMesh->SetVisibility(Lod.bDynamicVisible);
   CharacterMesh->SetHiddenInGame(!Lod.bDynamicVisible);

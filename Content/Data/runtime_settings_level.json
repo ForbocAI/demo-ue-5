@@ -30,9 +30,9 @@
     "label_clearance_ratio": 2.4,
     "actor_foot_to_terrain_ratio": 1.0,
     "actor_reference_feet_across": 10498.687664000001,
-    "player_spawn_north_lots": -8.0,
+    "player_spawn_north_lots": -8.55,
     "player_spawn_extra_height_ratio": 1.4,
-    "main_street_facing_yaw_degrees": 64.0,
+    "main_street_facing_yaw_degrees": 64.06299999999999,
     "player_spawn_anchor_label": "U.S. Post Office / 14200 Trinity Mountain Rd",
     "landmark_label_world_size_scale": 4.8,
     "nature_label_world_size_scale": 3.6,
@@ -54,6 +54,7 @@
     "runtime_first_render_index": 0,
     "runtime_index_step": 1,
     "patrol_route_required_point_count": 1,
-    "initial_patrol_route_index": 0
+    "initial_patrol_route_index": 0,
+    "player_spawn_east_lots": 5.318
   }
 }

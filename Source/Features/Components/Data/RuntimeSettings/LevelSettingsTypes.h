@@ -43,6 +43,7 @@ struct FLevelGeometrySettings {
   float LabelClearanceRatio;
   float ActorFootToTerrainRatio;
   float ActorReferenceFeetAcross;
+  float PlayerSpawnEastLots;
   float PlayerSpawnNorthLots;
   float PlayerSpawnExtraHeightRatio;
   float MainStreetFacingYawDegrees;
@@ -125,6 +126,8 @@ inline bool operator==(const FLevelGeometrySettings &Left,
                               Right.ActorFootToTerrainRatio) &&
          FMath::IsNearlyEqual(Left.ActorReferenceFeetAcross,
                               Right.ActorReferenceFeetAcross) &&
+         FMath::IsNearlyEqual(Left.PlayerSpawnEastLots,
+                              Right.PlayerSpawnEastLots) &&
          FMath::IsNearlyEqual(Left.PlayerSpawnNorthLots,
                               Right.PlayerSpawnNorthLots) &&
          FMath::IsNearlyEqual(Left.PlayerSpawnExtraHeightRatio,

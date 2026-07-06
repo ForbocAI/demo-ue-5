@@ -127,6 +127,22 @@ def runtime_samples(path: Path) -> list[dict]:
     ]
 
 
+def measured_runtime_samples(budget: dict, samples: list[dict]) -> list[dict]:
+    warmup_count = int(budget.get("measurement_warmup_sample_count", 0))
+    screenshot_stall_wall_ms = float(budget.get("screenshot_stall_wall_ms", "inf"))
+    screenshot_stall_input_delta_ms = float(
+        budget.get("screenshot_stall_input_delta_ms", 0.0)
+    )
+    return [
+        sample
+        for sample in samples[warmup_count:]
+        if not (
+            sample["wall_ms"] >= screenshot_stall_wall_ms
+            and sample["input_delta_ms"] <= screenshot_stall_input_delta_ms
+        )
+    ]
+
+
 def measured_failures(budget: dict, samples: list[dict]) -> list[str]:
     if len(samples) < budget["minimum_sample_count"]:
         return [f"only {len(samples)} valid runtime samples captured"]
@@ -257,7 +273,7 @@ def main() -> int:
 
     budget = runtime_budget(args.budget)
     profile = rendering_profile(args.profile)
-    samples = runtime_samples(args.log)
+    samples = measured_runtime_samples(budget, runtime_samples(args.log))
     failures = profile_limit_failures(profile, budget["profile_limits"])
     failures.extend(measured_failures(budget, samples))
 

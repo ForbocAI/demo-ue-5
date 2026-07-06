@@ -21,6 +21,7 @@
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
 #include "Store.h"
+#include "Views/SkeletalLodClamp.h"
 
 namespace FG = ForbocAI::Game::Level;
 
@@ -183,8 +184,8 @@ void APlayerCharacterView::ConfigureTemplateCharacter() {
   GetMesh()->SetSkeletalMesh(CharacterMesh);
   GetMesh()->SetRelativeLocation(MeshRelativeLocation);
   GetMesh()->SetRelativeRotation(MeshRelativeRotation);
-  GetMesh()->SetForcedLOD(CharacterForcedLodModel);
-  GetMesh()->OverrideMinLOD(CharacterMinLodModel);
+  ForbocAI::Game::Views::SkeletalLodClamp::Apply(
+      GetMesh(), CharacterForcedLodModel, CharacterMinLodModel);
   GetMesh()->SetCullDistance(CharacterCullDistance);
   GetMesh()->SetCastShadow(bCharacterCastShadow);
   GetMesh()->SetComponentTickEnabled(bCharacterComponentTickEnabled);

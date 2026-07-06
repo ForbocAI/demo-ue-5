@@ -16,7 +16,7 @@
     "dialogue_above_name_height_ratio": 0.41,
     "interaction_radius_lots": 0.9,
     "walk_speed_height_ratio": 0.86,
-    "mannequin_scale": 0.82,
+    "mannequin_scale": 0.74,
     "mannequin_offset_feet": {
       "x": 0.0,
       "y": 0.0,
@@ -43,8 +43,8 @@
     "patrol_pause_seconds": 1.4,
     "walk_speed_horse_length_ratio": 0.58,
     "route_arrival_leg_ratio": 0.8,
-    "imported_horse_scale": 0.62,
-    "mounted_rider_scale": 0.62,
+    "imported_horse_scale": 0.56,
+    "mounted_rider_scale": 0.56,
     "mounted_rider_offset_feet": {
       "x": 0.0,
       "y": 0.0,

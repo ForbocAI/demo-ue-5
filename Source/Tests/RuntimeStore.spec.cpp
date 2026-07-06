@@ -448,9 +448,10 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            RetroProfile.bMoonDiscEnabled &&
                RetroProfile.MoonDiscMeshPath.Contains(TEXT("Cube")) &&
                RetroProfile.MoonDiscMaterialPath.Contains(TEXT("Unlit")));
-  TestTrue(TEXT("Retro profile keeps reference haze light and blue"),
-           RetroProfile.bFogEnabled && RetroProfile.FogDensity <= 0.006f &&
-               RetroProfile.FogMaxOpacity <= 0.28f &&
+  TestTrue(TEXT("Retro profile uses budget haze to cover distant LOD"),
+           RetroProfile.bFogEnabled && RetroProfile.FogDensity >= 0.02f &&
+               RetroProfile.FogDensity <= 0.06f &&
+               RetroProfile.FogMaxOpacity <= 0.95f &&
                RetroProfile.FogColorB > RetroProfile.FogColorR);
   TestFalse(TEXT("Retro profile keeps volumetric fog disabled"),
             RetroProfile.bVolumetricFogEnabled);

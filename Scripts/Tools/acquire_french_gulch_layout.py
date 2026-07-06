@@ -29,6 +29,13 @@ UNREAL_UNITS_PER_METER = 100.0
 FEET_PER_METER = 3.280839895
 LOT_SIZE_FEET = 10.0
 EARTH_RADIUS_METERS = 6378137.0
+MIN_BUILDING_DIMENSION_FEET = 8.0
+REGULAR_BUILDING_MAX_FRONTAGE_FEET = 72.0
+REGULAR_BUILDING_MAX_DEPTH_FEET = 48.0
+POST_OFFICE_MAX_FRONTAGE_FEET = 68.0
+POST_OFFICE_MAX_DEPTH_FEET = 46.0
+NAMED_BUILDING_MAX_FRONTAGE_FEET = 116.0
+NAMED_BUILDING_MAX_DEPTH_FEET = 64.0
 
 
 def snake_id(text: str) -> str:
@@ -90,6 +97,18 @@ def lots_from_meters(value: float) -> float:
 
 def feet(value_meters: float) -> float:
     return value_meters * FEET_PER_METER
+
+
+def clamp_feet(value_meters: float, maximum_feet: float) -> float:
+    return min(max(MIN_BUILDING_DIMENSION_FEET, feet(value_meters)), maximum_feet)
+
+
+def building_dimension_caps(tags: dict) -> tuple[float, float]:
+    if tags.get("amenity") == "post_office":
+        return POST_OFFICE_MAX_FRONTAGE_FEET, POST_OFFICE_MAX_DEPTH_FEET
+    if tags.get("name") in {"E. Franck & Co.", "French Gulch Hotel"}:
+        return NAMED_BUILDING_MAX_FRONTAGE_FEET, NAMED_BUILDING_MAX_DEPTH_FEET
+    return REGULAR_BUILDING_MAX_FRONTAGE_FEET, REGULAR_BUILDING_MAX_DEPTH_FEET
 
 
 def way_points(element: dict, origin_lat: float, origin_lon: float) -> list[tuple[float, float]]:
@@ -203,6 +222,7 @@ def building_record(element: dict, origin_lat: float, origin_lon: float) -> dict
     if width_m * depth_m < 10.0:
         return None
     tags = element.get("tags", {})
+    max_frontage, max_depth = building_dimension_caps(tags)
     stories = 1.6 if tags.get("name") in {"E. Franck & Co.", "French Gulch Hotel"} else 1.35
     return {
         "id": f"osm-building-{element['id']}",
@@ -211,8 +231,8 @@ def building_record(element: dict, origin_lat: float, origin_lon: float) -> dict
         "east_lots": lots_from_meters(center[0]),
         "north_lots": lots_from_meters(center[1]),
         "yaw_degrees": yaw,
-        "frontage_feet": max(8.0, feet(width_m)),
-        "depth_feet": max(8.0, feet(depth_m)),
+        "frontage_feet": clamp_feet(width_m, max_frontage),
+        "depth_feet": clamp_feet(depth_m, max_depth),
         "stories": stories,
         "distance_m": math.hypot(center[0], center[1]),
         "named_landmark": is_named_landmark(element),
@@ -359,6 +379,21 @@ def find_origin(elements: list[dict]) -> tuple[float, float, str]:
     return ANCHOR_LAT, ANCHOR_LON, "google-street-view-url-anchor"
 
 
+def player_spawn_from_road_blocks(blocks: list[dict]) -> dict:
+    roads = [block for block in blocks if "Trinity Mountain Road" in block["name"]]
+    if not roads:
+        return {"east_lots": 0.0, "north_lots": -8.0, "yaw_degrees": 64.0}
+    road = min(
+        roads,
+        key=lambda block: math.hypot(block["east_lots"], block["north_lots"]),
+    )
+    return {
+        "east_lots": road["east_lots"],
+        "north_lots": road["north_lots"],
+        "yaw_degrees": normalize_yaw(road["yaw_degrees"] + 90.0),
+    }
+
+
 def generated_layout(data: dict) -> tuple[dict, dict, dict, dict]:
     elements = data.get("elements", [])
     origin_lat, origin_lon, origin_source = find_origin(elements)
@@ -379,6 +414,7 @@ def generated_layout(data: dict) -> tuple[dict, dict, dict, dict]:
     )[:36]
     terrain_blocks = road_segment_blocks(elements, origin_lat, origin_lon)
     terrain_blocks.extend(creek_segment_blocks(elements, origin_lat, origin_lon))
+    player_spawn = player_spawn_from_road_blocks(terrain_blocks)
     layout = {
         "terrain": {"blocks": terrain_blocks, "labels": []},
         "town": {
@@ -421,6 +457,7 @@ def generated_layout(data: dict) -> tuple[dict, dict, dict, dict]:
         "terrain_extent_meters": TERRAIN_EXTENT_METERS,
         "unreal_units_per_meter": UNREAL_UNITS_PER_METER,
         "lot_size_feet": LOT_SIZE_FEET,
+        "player_spawn_lots": player_spawn,
         "counts": {
             "raw_elements": len(elements),
             "runtime_terrain_blocks": len(layout["terrain"]["blocks"]),
@@ -431,10 +468,11 @@ def generated_layout(data: dict) -> tuple[dict, dict, dict, dict]:
     return layout, landmarks, nature, metadata
 
 
-def update_level_settings() -> None:
+def update_level_settings(metadata: dict) -> None:
     settings = load_json(LEVEL_SETTINGS_PATH)
     geometry = settings["level_geometry"]
     extent_feet = TERRAIN_EXTENT_METERS * FEET_PER_METER
+    player_spawn = metadata["player_spawn_lots"]
     geometry.update(
         {
             "terrain_world_size": TERRAIN_EXTENT_METERS * UNREAL_UNITS_PER_METER,
@@ -449,9 +487,10 @@ def update_level_settings() -> None:
             "label_clearance_ratio": 2.4,
             "actor_foot_to_terrain_ratio": 1.0,
             "actor_reference_feet_across": extent_feet,
-            "player_spawn_north_lots": -8.0,
+            "player_spawn_east_lots": player_spawn["east_lots"],
+            "player_spawn_north_lots": player_spawn["north_lots"],
             "player_spawn_extra_height_ratio": 1.4,
-            "main_street_facing_yaw_degrees": 64.0,
+            "main_street_facing_yaw_degrees": player_spawn["yaw_degrees"],
             "player_spawn_anchor_label": "U.S. Post Office / 14200 Trinity Mountain Rd",
             "landmark_label_world_size_scale": 4.8,
             "nature_label_world_size_scale": 3.6,
@@ -474,7 +513,7 @@ def main() -> int:
     write_json(LANDMARKS_PATH, landmarks)
     write_json(NATURE_PATH, nature)
     write_json(METADATA_PATH, metadata)
-    update_level_settings()
+    update_level_settings(metadata)
     print(
         "Generated French Gulch layout: "
         f"{metadata['counts']['runtime_terrain_blocks']} terrain blocks, "

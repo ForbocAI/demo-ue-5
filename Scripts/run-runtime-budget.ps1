@@ -154,6 +154,20 @@ function Get-LimitFieldName {
   return ($LimitName -replace "^max_", "") -replace "^min_", ""
 }
 
+function Get-OptionalBudgetValue {
+  param(
+    [object] $Budget,
+    [string] $Name,
+    [object] $DefaultValue
+  )
+
+  $Property = $Budget.runtime_budget.PSObject.Properties[$Name]
+  if ($null -eq $Property) {
+    return $DefaultValue
+  }
+  return $Property.Value
+}
+
 function Get-RuntimeBudgetSamples {
   param([string] $Path)
 
@@ -202,6 +216,23 @@ function Get-RuntimeBudgetSamples {
       }
     } |
     Where-Object { $_.Fps -gt 0 }
+}
+
+function Get-MeasuredRuntimeBudgetSamples {
+  param(
+    [object] $Budget,
+    [object[]] $Samples
+  )
+
+  $WarmupCount = [int] (Get-OptionalBudgetValue -Budget $Budget -Name "measurement_warmup_sample_count" -DefaultValue 0)
+  $ScreenshotStallWallMs = [double] (Get-OptionalBudgetValue -Budget $Budget -Name "screenshot_stall_wall_ms" -DefaultValue ([double]::PositiveInfinity))
+  $ScreenshotStallInputDeltaMs = [double] (Get-OptionalBudgetValue -Budget $Budget -Name "screenshot_stall_input_delta_ms" -DefaultValue 0.0)
+  return @($Samples |
+      Select-Object -Skip $WarmupCount |
+      Where-Object {
+        !(($_.WallMs -ge $ScreenshotStallWallMs) -and
+          ($_.InputDeltaMs -le $ScreenshotStallInputDeltaMs))
+      })
 }
 
 function Test-ProfileBudget {
@@ -276,7 +307,8 @@ function Invoke-RuntimeBudgetValidation {
 
   $Budget = Get-Content -LiteralPath $BudgetPath -Raw | ConvertFrom-Json
   $Profile = Get-Content -LiteralPath $ProfilePath -Raw | ConvertFrom-Json
-  $Samples = @(Get-RuntimeBudgetSamples -Path $LogPath)
+  $RawSamples = @(Get-RuntimeBudgetSamples -Path $LogPath)
+  $Samples = @(Get-MeasuredRuntimeBudgetSamples -Budget $Budget -Samples $RawSamples)
   $Failures = @()
   $Failures += Test-ProfileBudget -Profile $Profile -Budget $Budget
   $Failures += Test-MeasuredBudget -Budget $Budget -Samples $Samples

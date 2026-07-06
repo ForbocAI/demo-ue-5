@@ -7,8 +7,8 @@
       "east_lots": 0.132,
       "north_lots": -0.616,
       "yaw_degrees": 160.103,
-      "frontage_feet": 73.651,
-      "depth_feet": 57.422,
+      "frontage_feet": 68.0,
+      "depth_feet": 46.0,
       "stories": 1.35
     },
     {
@@ -30,7 +30,7 @@
       "north_lots": -65.187,
       "yaw_degrees": 96.515,
       "frontage_feet": 114.696,
-      "depth_feet": 69.292,
+      "depth_feet": 64.0,
       "stories": 1.6
     }
   ]

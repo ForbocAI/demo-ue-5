@@ -113,7 +113,7 @@ FVector ToWorld(const FLevelToWorldRequest &Request) {
 FLevelLocalPoint PlayerSpawnPoint(
     const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
   return FromPostOfficeLots(
-      {Geometry, 0.0f, Geometry.PlayerSpawnNorthLots,
+      {Geometry, Geometry.PlayerSpawnEastLots, Geometry.PlayerSpawnNorthLots,
        CharacterHeightOffset(Geometry) +
            CubeHalfExtent(Geometry) * Geometry.PlayerSpawnExtraHeightRatio});
 }

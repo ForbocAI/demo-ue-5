@@ -5,9 +5,9 @@
       "name": "Sorrel at livery",
       "mounted_rider": false,
       "patrol_route": [
-        { "east_lots": 4.75, "north_lots": -1.45 },
-        { "east_lots": 2.75, "north_lots": -1.05 },
-        { "east_lots": 1.2, "north_lots": -2.55 }
+        { "east_lots": 5.318, "north_lots": -8.55 },
+        { "east_lots": 10.869, "north_lots": 3.356 },
+        { "east_lots": 13.541, "north_lots": 11.08 }
       ]
     },
     {
@@ -15,9 +15,9 @@
       "name": "Post road rider",
       "mounted_rider": true,
       "patrol_route": [
-        { "east_lots": 0.2, "north_lots": -0.65 },
-        { "east_lots": 1.55, "north_lots": 0.1 },
-        { "east_lots": 3.6, "north_lots": 0.95 }
+        { "east_lots": -2.283, "north_lots": -27.213 },
+        { "east_lots": 0.361, "north_lots": -19.288 },
+        { "east_lots": 5.318, "north_lots": -8.55 }
       ]
     },
     {
@@ -25,9 +25,9 @@
       "name": "Mine pack horse",
       "mounted_rider": false,
       "patrol_route": [
-        { "east_lots": -1.35, "north_lots": 4.85 },
-        { "east_lots": -2.55, "north_lots": 6.6 },
-        { "east_lots": -0.45, "north_lots": 2.8 }
+        { "east_lots": -4.955, "north_lots": -37.257 },
+        { "east_lots": -2.283, "north_lots": -27.213 },
+        { "east_lots": 0.361, "north_lots": -19.288 }
       ]
     }
   ]

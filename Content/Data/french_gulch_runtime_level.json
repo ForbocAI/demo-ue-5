@@ -706,7 +706,7 @@
         "scale": {
           "mode": "building",
           "frontage_feet": 55.926,
-          "depth_feet": 50.784,
+          "depth_feet": 48.0,
           "stories": 1.35
         },
         "texture": "building_timber"
@@ -765,8 +765,8 @@
         "yaw_degrees": -1.93,
         "scale": {
           "mode": "building",
-          "frontage_feet": 80.49,
-          "depth_feet": 53.195,
+          "frontage_feet": 72.0,
+          "depth_feet": 48.0,
           "stories": 1.35
         },
         "texture": "building_timber"
@@ -1111,7 +1111,7 @@
         "scale": {
           "mode": "building",
           "frontage_feet": 62.591,
-          "depth_feet": 53.75,
+          "depth_feet": 48.0,
           "stories": 1.35
         },
         "texture": "building_timber"

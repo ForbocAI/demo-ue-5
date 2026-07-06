@@ -12,9 +12,9 @@
         "pinned_response": "The town remembers player facts as explicit memory entries, then recalls them by query without mutating the active conversation state."
       },
       "patrol_route": [
-        { "east_lots": -1.8, "north_lots": 5.3 },
-        { "east_lots": -2.825, "north_lots": 6.725 },
-        { "east_lots": -0.5, "north_lots": 2.6 }
+        { "east_lots": -4.955, "north_lots": -37.257 },
+        { "east_lots": -2.283, "north_lots": -27.213 },
+        { "east_lots": 0.361, "north_lots": -19.288 }
       ]
     },
     {
@@ -29,9 +29,9 @@
         "pinned_response": "Dialogue is routed through the runtime store and local rule responder; the SDK path can take over when its feature gate is open."
       },
       "patrol_route": [
-        { "east_lots": 0.0, "north_lots": -0.175 },
-        { "east_lots": 0.9, "north_lots": 0.4 },
-        { "east_lots": -0.35, "north_lots": 0.625 }
+        { "east_lots": 5.318, "north_lots": -8.55 },
+        { "east_lots": 8.25, "north_lots": -2.4 },
+        { "east_lots": 10.869, "north_lots": 3.356 }
       ]
     },
     {
@@ -46,9 +46,9 @@
         "pinned_response": "Bridge checks candidate bot actions against the current bot state, so grounded actors can move or attack while invalid actions are blocked before execution."
       },
       "patrol_route": [
-        { "east_lots": 2.3, "north_lots": 1.8 },
-        { "east_lots": 3.475, "north_lots": 4.2 },
-        { "east_lots": 2.9, "north_lots": -0.85 }
+        { "east_lots": 10.869, "north_lots": 3.356 },
+        { "east_lots": 13.541, "north_lots": 11.08 },
+        { "east_lots": 5.318, "north_lots": -8.55 }
       ]
     },
     {
@@ -63,9 +63,9 @@
         "pinned_response": "Mara watches the road, the creek crossing, and the riders moving through French Gulch."
       },
       "patrol_route": [
-        { "east_lots": 1.525, "north_lots": -2.5 },
-        { "east_lots": 3.825, "north_lots": 1.15 },
-        { "east_lots": 4.775, "north_lots": -1.15 }
+        { "east_lots": -2.283, "north_lots": -27.213 },
+        { "east_lots": 0.361, "north_lots": -19.288 },
+        { "east_lots": 5.318, "north_lots": -8.55 }
       ]
     },
     {
@@ -80,9 +80,9 @@
         "pinned_response": "Samuel tracks who needs a room, who has a horse tied up, and which table is carrying fresh claims gossip."
       },
       "patrol_route": [
-        { "east_lots": 3.85, "north_lots": 1.175 },
-        { "east_lots": 2.9, "north_lots": -0.95 },
-        { "east_lots": 4.6, "north_lots": 0.4 }
+        { "east_lots": -7.156, "north_lots": -60.485 },
+        { "east_lots": -7.613, "north_lots": -53.692 },
+        { "east_lots": -6.796, "north_lots": -47.045 }
       ]
     }
   ]
