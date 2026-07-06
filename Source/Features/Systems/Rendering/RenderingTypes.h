@@ -21,6 +21,15 @@ struct FLevelRetroTextureApply {
   ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
 };
 
+// Public multi-input boundary for applying a runtime render profile to a
+// world. Grouped into one request struct so the entry point stays unary
+// instead of widening into a World/Profile/Settings parameter list.
+struct FRuntimeProfileApplyRequest {
+  UWorld *World;
+  FLevelRetroRenderProfile Profile;
+  ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
+};
+
 struct FRenderingPayload {
   FString Id;
   FLevelRetroRenderProfile RuntimeProfile;

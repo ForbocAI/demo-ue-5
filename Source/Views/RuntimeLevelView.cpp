@@ -74,9 +74,9 @@ void ARuntimeLevelView::RenderLevel() {
       FG::RuntimeSelectors::SelectRuntimeProfile(
           FG::Store::GetStore().getState());
   FG::RenderingSlice::ApplyRuntimeProfile(
-      GetWorld(), Profile,
-      FG::RuntimeSelectors::SelectRenderingRuntimeSettings(
-          FG::Store::GetStore().getState()));
+      {GetWorld(), Profile,
+       FG::RuntimeSelectors::SelectRenderingRuntimeSettings(
+           FG::Store::GetStore().getState())});
   auto Payload = FG::FRuntimeLevelViewPayload();
   const auto Result = FG::Store::GetStore().dispatch(
       FG::RuntimeSlice::RequestLevelViewPayload());

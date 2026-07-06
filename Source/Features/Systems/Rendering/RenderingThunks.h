@@ -18,10 +18,7 @@ namespace RenderingThunks {
 rtk::ThunkAction<FRenderingPayload, FRuntimeState>
 ObserveRuntimeProfile(const FString &Id);
 
-void ApplyRuntimeProfile(
-    UWorld *World,
-    const FLevelRetroRenderProfile &Profile,
-    const ForbocAI::Game::Data::FRenderingRuntimeSettings &RuntimeSettings);
+void ApplyRuntimeProfile(const FRuntimeProfileApplyRequest &Request);
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings);
 double SelectRuntimeBudgetClockSeconds();

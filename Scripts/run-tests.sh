@@ -87,8 +87,7 @@ python3 "$PROJECT_ROOT/Scripts/check_branchless_source.py" "$PROJECT_ROOT/Source
 
 echo "Checking runtime rendering JSON tuning discipline..."
 python3 "$PROJECT_ROOT/Scripts/check_runtime_rendering_json_tuning.py" --self-test
-python3 "$PROJECT_ROOT/Scripts/check_runtime_rendering_json_tuning.py" \
-  "$PROJECT_ROOT/Source/Features/Systems/Rendering/RenderingProfileThunks.cpp"
+python3 "$PROJECT_ROOT/Scripts/check_runtime_rendering_json_tuning.py" "$PROJECT_ROOT/Source"
 
 echo "Validating runtime settings JSON..."
 for JSON_FILE in "$PROJECT_ROOT/Content/Data/runtime_settings.json" "$PROJECT_ROOT"/Content/Data/runtime_settings_*.json; do

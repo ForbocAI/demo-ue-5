@@ -178,7 +178,7 @@ def main() -> int:
     parser.add_argument(
         "paths",
         nargs="*",
-        default=["Source/Features/Systems/Rendering/RenderingProfileThunks.cpp"],
+        default=["Source"],
         help="C++ source file or directory to scan.",
     )
     args = parser.parse_args()

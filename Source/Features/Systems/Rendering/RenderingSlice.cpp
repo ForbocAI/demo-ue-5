@@ -39,11 +39,8 @@ const rtk::Slice<FRenderingState> &GetSlice() {
   return func::eval(Slice);
 }
 
-void ApplyRuntimeProfile(
-    UWorld *World,
-    const FLevelRetroRenderProfile &Profile,
-    const ForbocAI::Game::Data::FRenderingRuntimeSettings &RuntimeSettings) {
-  RenderingThunks::ApplyRuntimeProfile(World, Profile, RuntimeSettings);
+void ApplyRuntimeProfile(const FRuntimeProfileApplyRequest &Request) {
+  RenderingThunks::ApplyRuntimeProfile(Request);
 }
 
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
