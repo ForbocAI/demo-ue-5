@@ -119,6 +119,8 @@ bash Scripts/lock_sdk_submodule.sh --lock
 | `Source/Views` | Unreal display/effect boundary for actors, widgets, input binding, and mesh application |
 | `Content/Characters/Mannequins` | Project-owned UE mannequin meshes, materials, rigs, and animation assets |
 | `Content/Characters/Horses/ClassicHorse` | Project-owned horse, mounted rider, animation, and texture assets |
+| `Scripts/Tools/acquire_french_gulch_layout.py` | Pulls public OpenStreetMap layout data and regenerates the French Gulch runtime blockout JSON |
+| `Content/Data/Source/french_gulch_*` | Cached public source data and metadata for the runtime layout generation step |
 | `Content/Data/runtime_settings_level.json` | Authored terrain size, blockout foot/story scale, terrain sampling, and runtime spawn settings |
 | `Content/Data/runtime_settings_bots.json` | Authored townsperson/horse presentation, including mounted-rider scale and seat offset |
 | `Content/Data/runtime_settings_rendering_*.json` | Authored visual profile, distance LOD stages, console variables, and skeletal LOD generation inputs |
@@ -171,6 +173,28 @@ presentation assets for the level, dialogue actors, and speech component.
 `WBP_Chat` receives selected view models from the single runtime store through
 `RuntimeChatWidget`. Dialogue, speech, and interaction decisions belong in
 actions, reducers, thunks, selectors, and ECS helpers, not in widget graphs.
+
+---
+
+## Real-world layout data
+
+The French Gulch runtime layout is generated from public data, then committed as
+reviewable JSON. Run the acquisition step when the map layout needs to be
+refreshed:
+
+```bash
+python3 Scripts/Tools/acquire_french_gulch_layout.py
+```
+
+The script queries OpenStreetMap through Overpass around the U.S. Post Office /
+14200 Trinity Mountain Rd anchor, caches the raw response under
+`Content/Data/Source`, and regenerates `french_gulch_runtime_level.json`,
+`french_gulch_landmarks.json`, `french_gulch_nature.json`, and the shared
+world-scale values in `runtime_settings_level.json`.
+
+Terrain and ortho samples remain generated from the existing public terrain
+pipeline. Google Maps or Street View screenshots are visual references only;
+they are not committed source data.
 
 ---
 

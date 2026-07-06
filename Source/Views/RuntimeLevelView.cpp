@@ -183,7 +183,7 @@ AStaticMeshActor *ARuntimeLevelView::RenderBlock(
 
         AStaticMeshActor *Block =
             WorldValue->SpawnActor<AStaticMeshActor>(
-                BlockSpawn.Location, FRotator::ZeroRotator, Params);
+                BlockSpawn.Location, BlockSpawn.Rotation, Params);
         return Block
                    ? ([this, &BlockSpawn, Block]() -> AStaticMeshActor * {
                        UStaticMeshComponent *MeshComponent =

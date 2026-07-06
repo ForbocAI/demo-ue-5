@@ -193,6 +193,24 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
             static_cast<int32>(ELevelRuntimeLabelHeightMode::Explicit));
   TestEqual(TEXT("Runtime layout loads overlay labels"),
             RuntimeLayout.OverlayLabels.Num(), 1);
+  TestTrue(TEXT("Runtime layout loads OSM road and creek blocks"),
+           RuntimeLayout.Terrain.Blocks.Num() >= 20);
+  TestTrue(TEXT("Runtime layout loads OSM building footprints"),
+           RuntimeLayout.Town.Blocks.Num() >= 20);
+  TestTrue(TEXT("Runtime layout includes Trinity Mountain Road"),
+           func::any_indexed(
+               RuntimeLayout.Terrain.Blocks,
+               static_cast<size_t>(RuntimeLayout.Terrain.Blocks.Num()),
+               [](const FLevelRuntimeBlockSeed &Block) {
+                 return Block.Name.Contains(TEXT("Trinity Mountain Road"));
+               }));
+  TestTrue(TEXT("Runtime layout includes Clear Creek"),
+           func::any_indexed(
+               RuntimeLayout.Terrain.Blocks,
+               static_cast<size_t>(RuntimeLayout.Terrain.Blocks.Num()),
+               [](const FLevelRuntimeBlockSeed &Block) {
+                 return Block.Name.Contains(TEXT("Clear Creek"));
+               }));
 
   rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
       Store::ConfigureStore();
@@ -257,7 +275,7 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Post office landmark is selectable"), PostOffice.hasValue);
   check(PostOffice.hasValue);
   TestEqual(TEXT("Post office label"), PostOffice.value.Label,
-            FString(TEXT("U.S. Post Office false-front")));
+            FString(TEXT("U.S. Post Office / 14200 Trinity Mountain Rd")));
 
   const FSpawnPointPayload Spawn =
       RuntimeSelectors::SelectPlayerSpawn(State);
@@ -382,43 +400,11 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(TEXT("Post road rider goal targets a route location"),
            PostRoadGoal->bHasTargetLocation);
 
-  TestTrue(TEXT("Clear Creek natural environment features are seeded"),
-           NatureFeatureSeeds.Num() >= 12);
+  TestEqual(TEXT("OSM-backed layout removes fictional nature markers"),
+            NatureFeatureSeeds.Num(), 0);
   TestEqual(TEXT("RTK entity adapter stores seeded nature features"),
             RuntimeSelectors::SelectNatureFeatures(State).Num(),
             NatureFeatureSeeds.Num());
-
-  TestTrue(TEXT("Nature seed includes water"),
-           func::any_indexed(
-               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
-               [](const FNatureFeatureSeed &Feature) {
-                 return Feature.Kind == ENatureFeatureKind::Water;
-               }));
-  TestTrue(TEXT("Nature seed includes rocks"),
-           func::any_indexed(
-               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
-               [](const FNatureFeatureSeed &Feature) {
-                 return Feature.Kind == ENatureFeatureKind::Rock;
-               }));
-  TestTrue(TEXT("Nature seed includes vegetation"),
-           func::any_indexed(
-               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
-               [](const FNatureFeatureSeed &Feature) {
-                 return Feature.Kind == ENatureFeatureKind::TreeGrove ||
-                        Feature.Kind == ENatureFeatureKind::Shrub;
-               }));
-  TestTrue(TEXT("Nature seed includes PCG marker"),
-           func::any_indexed(
-               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
-               [](const FNatureFeatureSeed &Feature) {
-                 return Feature.Kind == ENatureFeatureKind::PCGMarker;
-               }));
-  TestTrue(TEXT("Nature seed includes Water System marker"),
-           func::any_indexed(
-               NatureFeatureSeeds, static_cast<size_t>(NatureFeatureSeeds.Num()),
-               [](const FNatureFeatureSeed &Feature) {
-                 return Feature.Kind == ENatureFeatureKind::WaterSystemMarker;
-               }));
 
   const FLevelRetroRenderProfile &RetroProfile =
       RenderingSelectors::SelectRuntimeProfile(

@@ -19,6 +19,7 @@ FLandmark Landmark(const FLandmarkSource &Source) {
   Result.Label = Source.Label;
   Result.Kind = Source.Kind;
   Result.Location = Source.Location;
+  Result.Rotation = Source.Rotation;
   Result.Scale = Source.Scale;
   return Result;
 }

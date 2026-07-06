@@ -21,6 +21,7 @@ struct FLandmark {
   FString Label;
   ELandmarkKind Kind;
   FVector Location;
+  FRotator Rotation;
   FVector Scale;
 };
 
@@ -29,6 +30,7 @@ struct FLandmarkSource {
   FString Label;
   ELandmarkKind Kind;
   FVector Location;
+  FRotator Rotation;
   FVector Scale;
 };
 
@@ -39,7 +41,7 @@ struct FLandmarkState {
 inline bool operator==(const FLandmark &Left, const FLandmark &Right) {
   return Left.Id == Right.Id && Left.Label == Right.Label &&
          Left.Kind == Right.Kind && Left.Location == Right.Location &&
-         Left.Scale == Right.Scale;
+         Left.Rotation.Equals(Right.Rotation) && Left.Scale == Right.Scale;
 }
 
 inline bool operator!=(const FLandmark &Left, const FLandmark &Right) {
@@ -50,7 +52,7 @@ inline bool operator==(const FLandmarkSource &Left,
                        const FLandmarkSource &Right) {
   return Left.Id == Right.Id && Left.Label == Right.Label &&
          Left.Kind == Right.Kind && Left.Location == Right.Location &&
-         Left.Scale == Right.Scale;
+         Left.Rotation.Equals(Right.Rotation) && Left.Scale == Right.Scale;
 }
 
 inline bool operator!=(const FLandmarkSource &Left,

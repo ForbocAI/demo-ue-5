@@ -2,13 +2,16 @@
 
 | Lines | File Path |
 |-------|-----------|
+| 12689 | `Content/Data/Source/french_gulch_osm_overpass.json` |
 | 3390 | `Source/Core/ecs.hpp` |
+| 1194 | `Content/Data/french_gulch_runtime_level.json` |
 | 1172 | `Source/Features/Systems/Rendering/RenderingProfileThunks.cpp` |
 | 749 | `Source/Features/Components/Data/Json/JsonAdapters.h` |
-| 588 | `Source/Tests/RuntimeStore.spec.cpp` |
+| 574 | `Source/Tests/RuntimeStore.spec.cpp` |
 | 568 | `Source/Features/Systems/Speech/SpeechAdapters.h` |
 | 563 | `Source/Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.cpp` |
 | 551 | `Source/Views/RuntimeStatsWidget.cpp` |
+| 488 | `Scripts/Tools/acquire_french_gulch_layout.py` |
 | 487 | `Source/Features/Systems/Rendering/RenderingDiagnosticsThunks.cpp` |
 | 477 | `Source/Features/Components/ComponentsAdapters.h` |
 | 477 | `Source/Features/Systems/Runtime/RuntimeReducers.cpp` |
@@ -20,8 +23,8 @@
 | 350 | `Source/Features/Components/Data/JsonValueAdapters.h` |
 | 348 | `Source/Features/Systems/Runtime/RuntimeTypes.h` |
 | 340 | `Scripts/Tools/generate_french_gulch_heightmap.py` |
+| 340 | `Source/Features/Systems/Level/LevelReducers.h` |
 | 338 | `Source/Features/Components/Data/RuntimeSettings/UISettingsTypes.h` |
-| 338 | `Source/Features/Systems/Level/LevelReducers.h` |
 | 336 | `Scripts/Tools/import_classic_horse_assets.py` |
 | 333 | `Source/Features/Systems/Runtime/RuntimeSelectors.cpp` |
 | 330 | `Source/Features/Systems/Projection/SystemsProjectionBotAdapters.cpp` |
@@ -32,8 +35,8 @@
 | 308 | `Source/Features/Systems/Rendering/RenderingTextureThunks.cpp` |
 | 297 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsTypes.h` |
 | 293 | `Source/Features/Components/Level/LevelDataAdapters.cpp` |
+| 284 | `Source/Features/Systems/Level/LevelTypes.h` |
 | 282 | `Source/Views/RuntimeLevelView.cpp` |
-| 281 | `Source/Features/Systems/Level/LevelTypes.h` |
 | 279 | `Content/Data/runtime_settings_speech.json` |
 | 277 | `Scripts/validate-runtime-budget.py` |
 | 263 | `Content/Data/runtime_settings_rendering_runtime_console_variables.json` |
@@ -53,7 +56,7 @@
 | 209 | `Scripts/Tools/create_blueprint_assets.py` |
 | 205 | `Source/Features/Systems/Bots/Pipeline/BotPipelineReducers.h` |
 | 202 | `Source/Features/Components/Data/Json/JsonAdapters.cpp` |
-| 201 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeBlockAdapters.cpp` |
+| 202 | `Source/Features/Systems/Level/RuntimeLayout/LevelRuntimeBlockAdapters.cpp` |
 | 199 | `Scripts/check_branchless_source.py` |
 | 198 | `Content/Data/runtime_settings_ui.json` |
 | 196 | `Source/Features/Systems/UI/UITypes.h` |
@@ -73,7 +76,6 @@
 | 160 | `Source/Tests/ProtocolLoop.spec.cpp` |
 | 153 | `Source/Views/RuntimeStatsWidget.h` |
 | 152 | `Source/Views/PlayerRuntimeControllerView.cpp` |
-| 149 | `Content/Data/french_gulch_runtime_level.json` |
 | 147 | `Source/Features/Systems/Bots/Goals/BotGoalReducers.cpp` |
 | 144 | `Source/Features/Systems/Runtime/RuntimeSlice.cpp` |
 | 143 | `Scripts/Tools/create_french_gulch_map.py` |
@@ -98,9 +100,8 @@
 | 122 | `Source/Features/Systems/Bots/Pipeline/BotPipelineTypes.h` |
 | 120 | `Source/Features/Systems/Projection/SystemsProjectionInteractionAdapters.cpp` |
 | 120 | `Source/Features/Systems/Runtime/RuntimeFactories.cpp` |
+| 119 | `Source/Features/Entities/Environments/Landmarks/LandmarksAdapters.cpp` |
 | 118 | `Scripts/check_sdk_submodule_guard.sh` |
-| 117 | `Source/Features/Entities/Environments/Landmarks/LandmarksAdapters.cpp` |
-| 116 | `Content/Data/french_gulch_nature.json` |
 | 115 | `Source/Features/Systems/Rendering/RenderingSlice.cpp` |
 | 113 | `Source/Features/Systems/Rendering/RenderingReducers.h` |
 | 113 | `Source/Features/Systems/Terrain/TerrainTypes.h` |
@@ -112,7 +113,6 @@
 | 109 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_water_creek.json` |
 | 106 | `Source/Features/Systems/Projection/SystemsProjectionRuntimeAdapters.cpp` |
 | 105 | `Source/Views/PlayerCharacterView.h` |
-| 104 | `Content/Data/french_gulch_landmarks.json` |
 | 104 | `Source/Features/Components/Data/RuntimeSettings/LevelSettingsAdapters.cpp` |
 | 103 | `Source/Features/Systems/Bots/Core/BotCoreActions.h` |
 | 103 | `Source/Views/HorseView.h` |
@@ -143,8 +143,8 @@
 | 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_road_dust.json` |
 | 75 | `Content/Data/runtime_settings_rendering_runtime_texture_palette_rock_granite.json` |
 | 75 | `Source/Features/Components/Data/RuntimeSettings/BotSettingsAdapters.cpp` |
+| 75 | `Source/Features/Systems/Landmarks/LandmarkTypes.h` |
 | 73 | `Source/Features/Systems/Bots/BotFactories.cpp` |
-| 73 | `Source/Features/Systems/Landmarks/LandmarkTypes.h` |
 | 72 | `Scripts/setup-dev.sh` |
 | 72 | `Source/Features/Systems/Projection/SystemsProjectionTerrainAdapters.cpp` |
 | 71 | `Source/Features/Systems/Bots/BotSourceMapping.h` |
@@ -240,6 +240,7 @@
 | 39 | `Source/Views/RuntimeSpeechPresenterView.cpp` |
 | 38 | `Content/Data/runtime_settings_player.json` |
 | 38 | `Source/Features/Systems/Bots/Goals/BotGoalActions.cpp` |
+| 37 | `Content/Data/french_gulch_landmarks.json` |
 | 37 | `Source/Features/Entities/Characters/Player/PlayerSelectors.h` |
 | 37 | `Source/Tests/ContractParity.spec.cpp` |
 | 36 | `.gitattributes` |
@@ -265,13 +266,13 @@
 | 31 | `Source/Features/Systems/Runtime/RuntimeSlice.h` |
 | 30 | `Source/Features/Systems/Bots/Stats/BotStatsActions.cpp` |
 | 30 | `Source/Features/Systems/Interaction/InteractionActions.h` |
+| 30 | `Source/Features/Systems/Landmarks/LandmarkFactories.cpp` |
 | 29 | `Source/Features/Systems/Bots/AI/BotAIActions.cpp` |
 | 29 | `Source/Features/Systems/Bots/BotActions.cpp` |
 | 29 | `Source/Features/Systems/Bots/Goals/BotGoalFactories.h` |
 | 29 | `Source/Features/Systems/Bots/Horses/HorseSlice.cpp` |
 | 29 | `Source/Features/Systems/Bots/Stats/BotStatsSelectors.cpp` |
 | 29 | `Source/Features/Systems/Bots/Stats/BotStatsSlice.cpp` |
-| 29 | `Source/Features/Systems/Landmarks/LandmarkFactories.cpp` |
 | 29 | `Source/Features/Systems/Landmarks/LandmarkSlice.cpp` |
 | 29 | `Source/Features/Systems/Nature/NatureSlice.cpp` |
 | 29 | `Source/Features/Systems/Spawn/SpawnSlice.cpp` |
@@ -330,6 +331,7 @@
 | 21 | `Source/Features/Systems/Nature/NatureSelectors.cpp` |
 | 21 | `Source/Features/Systems/Rendering/RenderingActions.h` |
 | 21 | `Source/Views/ProceduralMeshElement.h` |
+| 20 | `Content/Data/Source/french_gulch_layout_metadata.json` |
 | 20 | `Source/Features/Components/Data/DataActions.cpp` |
 | 20 | `Source/Features/Components/Data/DataSlice.h` |
 | 20 | `Source/Features/Systems/Bots/AI/BotAIAdapters.cpp` |
@@ -472,3 +474,4 @@
 | 4 | `.gitmodules` |
 | 4 | `Source/Features/Components/Level/LevelDataAdapters.h` |
 | 4 | `Source/ForbocAIDemo.h` |
+| 3 | `Content/Data/french_gulch_nature.json` |

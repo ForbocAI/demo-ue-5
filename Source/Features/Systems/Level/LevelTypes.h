@@ -48,6 +48,7 @@ struct FLevelRuntimeBlockSeed {
   float EastLots;
   float NorthLots;
   FVector WorldLocation;
+  float YawDegrees;
   FLevelRuntimeScaleSeed Scale;
   ELevelRetroTexture Texture;
 };
@@ -79,6 +80,7 @@ struct FLevelRuntimeLayoutSeed {
 struct FLevelBlockSpawn {
   FString Name;
   FVector Location = FVector::ZeroVector;
+  FRotator Rotation = FRotator::ZeroRotator;
   FVector Scale = FVector::OneVector;
   ELevelRetroTexture Texture = ELevelRetroTexture::MarkerPaint;
   FLevelDistanceLodStage Lod;
@@ -197,6 +199,7 @@ inline bool operator==(const FLevelRuntimeBlockSeed &Left,
          FMath::IsNearlyEqual(Left.EastLots, Right.EastLots) &&
          FMath::IsNearlyEqual(Left.NorthLots, Right.NorthLots) &&
          Left.WorldLocation == Right.WorldLocation &&
+         FMath::IsNearlyEqual(Left.YawDegrees, Right.YawDegrees) &&
          Left.Scale == Right.Scale && Left.Texture == Right.Texture;
 }
 
@@ -245,8 +248,8 @@ inline bool operator!=(const FLevelRuntimeLayoutSeed &Left,
 inline bool operator==(const FLevelBlockSpawn &Left,
                        const FLevelBlockSpawn &Right) {
   return Left.Name == Right.Name && Left.Location == Right.Location &&
-         Left.Scale == Right.Scale && Left.Texture == Right.Texture &&
-         Left.Lod == Right.Lod;
+         Left.Rotation.Equals(Right.Rotation) && Left.Scale == Right.Scale &&
+         Left.Texture == Right.Texture && Left.Lod == Right.Lod;
 }
 
 inline bool operator!=(const FLevelBlockSpawn &Left,

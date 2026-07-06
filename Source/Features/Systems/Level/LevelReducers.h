@@ -220,6 +220,7 @@ BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSpawnRequest &Request) {
   return {Request.Seed.Name,
           detail::WorldLocationFromSeed(
               {Request.Seed, Request.TerrainData, Request.Geometry, Scale}),
+          FRotator(0.0f, Request.Seed.YawDegrees, 0.0f),
           Scale,
           Request.Seed.Texture};
 }
@@ -268,7 +269,7 @@ BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
               Request.Landmarks,
               [](const FLandmark &Landmark) {
                 return FLevelBlockSpawn{Landmark.Label, Landmark.Location,
-                                        Landmark.Scale,
+                                        Landmark.Rotation, Landmark.Scale,
                                         ELevelRetroTexture::BuildingTimber};
               }),
           func::map_array<FLandmark, FLevelLabelSpawn>(
@@ -292,6 +293,7 @@ BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
                     Feature.Name,
                     LevelLayoutSlice::ToWorld(
                         {Request.TerrainData, Feature.Location}),
+                    FRotator::ZeroRotator,
                     Feature.Scale, detail::TextureForNatureKind(Feature.Kind)};
               }),
           func::filter_map_array<FNatureFeatureSeed, FLevelLabelSpawn>(

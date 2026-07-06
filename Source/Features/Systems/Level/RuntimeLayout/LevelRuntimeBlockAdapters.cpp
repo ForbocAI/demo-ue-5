@@ -46,7 +46,7 @@ struct TRequiredJsonFieldRegistry<ForbocAI::Game::Level::FLevelRuntimeBlockSeed>
             ForbocAI::Game::Level::FLevelRuntimeBlockSeed>>
         RegisteredFields = {
             JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLevelRuntimeBlockSeed,
-                                 Id, Name),
+                                 Id, Name, YawDegrees),
             JSON_REQUIRED_FIELD_READER(
                 ForbocAI::Game::Level::FLevelRuntimeBlockSeed,
                 ForbocAI::Game::Level::RuntimeLayout::
@@ -165,7 +165,8 @@ CompleteBlockLocation(const TSharedPtr<FJsonObject> &Object,
 func::Maybe<FLevelRuntimeBlockSeed>
 ReadBlockSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
   return JsonValues::ReadRequiredFields<FLevelRuntimeBlockSeed>(
-      Request.Object, JSON_REQUIRED_ATOMS(Id, Name, Anchor, Scale, Texture));
+      Request.Object,
+      JSON_REQUIRED_ATOMS(Id, Name, Anchor, YawDegrees, Scale, Texture));
 }
 
 } // namespace

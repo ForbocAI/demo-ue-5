@@ -2,103 +2,36 @@
   "landmarks": [
     {
       "id": "post-office",
-      "label": "U.S. Post Office false-front",
+      "label": "U.S. Post Office / 14200 Trinity Mountain Rd",
       "kind": "building",
-      "east_lots": 0.0,
-      "north_lots": 0.0,
-      "frontage_feet": 34.0,
-      "depth_feet": 19.0,
-      "stories": 1.5
+      "east_lots": 0.132,
+      "north_lots": -0.616,
+      "yaw_degrees": 160.103,
+      "frontage_feet": 73.651,
+      "depth_feet": 57.422,
+      "stories": 1.35
     },
     {
-      "id": "general-store",
-      "label": "General store",
+      "id": "e-franck-co",
+      "label": "E. Franck & Co.",
       "kind": "building",
-      "east_lots": 1.0,
-      "north_lots": 0.45,
-      "frontage_feet": 29.0,
-      "depth_feet": 18.0,
-      "stories": 1.4
-    },
-    {
-      "id": "assay-office",
-      "label": "Assay office",
-      "kind": "building",
-      "east_lots": 1.8,
-      "north_lots": -0.6,
-      "frontage_feet": 23.0,
-      "depth_feet": 15.0,
-      "stories": 1.25
-    },
-    {
-      "id": "hotel",
-      "label": "French Gulch Hotel / boarding house",
-      "kind": "building",
-      "east_lots": 3.85,
-      "north_lots": 1.175,
-      "frontage_feet": 43.0,
-      "depth_feet": 24.0,
-      "stories": 1.85
-    },
-    {
-      "id": "saloon",
-      "label": "Saloon false-front",
-      "kind": "building",
-      "east_lots": 2.9,
-      "north_lots": -0.95,
-      "frontage_feet": 37.0,
-      "depth_feet": 19.0,
-      "stories": 1.65
-    },
-    {
-      "id": "livery",
-      "label": "Livery stable",
-      "kind": "building",
-      "east_lots": 4.8,
-      "north_lots": -1.275,
-      "frontage_feet": 44.0,
-      "depth_feet": 27.0,
-      "stories": 1.3
-    },
-    {
-      "id": "blacksmith",
-      "label": "Blacksmith shop",
-      "kind": "building",
-      "east_lots": 5.65,
-      "north_lots": -0.275,
-      "frontage_feet": 27.0,
-      "depth_feet": 18.0,
-      "stories": 1.25
-    },
-    {
-      "id": "sheriff",
-      "label": "Sheriff office and jail",
-      "kind": "building",
-      "east_lots": 2.425,
-      "north_lots": 2.05,
-      "frontage_feet": 25.0,
-      "depth_feet": 16.0,
-      "stories": 1.25
-    },
-    {
-      "id": "school-church",
-      "label": "School / church",
-      "kind": "building",
-      "east_lots": 6.8,
-      "north_lots": 3.1,
-      "frontage_feet": 33.0,
-      "depth_feet": 23.0,
+      "east_lots": -0.939,
+      "north_lots": -63.96,
+      "yaw_degrees": -80.814,
+      "frontage_feet": 92.207,
+      "depth_feet": 48.27,
       "stories": 1.6
     },
     {
-      "id": "fire-house",
-      "label": "Volunteer fire house",
+      "id": "french-gulch-hotel",
+      "label": "French Gulch Hotel",
       "kind": "building",
-      "east_lots": 3.3,
-      "north_lots": 4.25,
-      "frontage_feet": 31.0,
-      "depth_feet": 20.0,
-      "stories": 1.4
+      "east_lots": -11.526,
+      "north_lots": -65.187,
+      "yaw_degrees": 96.515,
+      "frontage_feet": 114.696,
+      "depth_feet": 69.292,
+      "stories": 1.6
     }
   ]
 }

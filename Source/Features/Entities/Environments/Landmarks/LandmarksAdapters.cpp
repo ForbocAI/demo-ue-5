@@ -17,6 +17,7 @@ struct FLandmarkFields {
   FString Kind;
   float EastLots;
   float NorthLots;
+  float YawDegrees;
   float FrontageFeet;
   float DepthFeet;
   float Stories;
@@ -53,7 +54,7 @@ template <> struct TJsonTextValueRegistry<ELandmarkKind> {
 };
 
 JSON_SETTINGS_REGISTRY(FLandmarkFields, Id, Label, Kind, EastLots, NorthLots,
-                       FrontageFeet, DepthFeet, Stories);
+                       YawDegrees, FrontageFeet, DepthFeet, Stories);
 
 } // namespace JsonAdapters
 } // namespace Data
@@ -91,7 +92,8 @@ FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) {
   return LandmarkFactories::Landmark(
       {Request.Fields.Id, Request.Fields.Label,
        LandmarkKindFromJson(Request.Fields.Kind),
-       LevelLayoutSlice::ToWorld({*Request.TerrainData, Local}), Scale});
+       LevelLayoutSlice::ToWorld({*Request.TerrainData, Local}),
+       FRotator(0.0f, Request.Fields.YawDegrees, 0.0f), Scale});
 }
 
 } // namespace
@@ -104,7 +106,7 @@ BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
       JsonAdapters::ReadSettingsObjectArrayField<FLandmarkFields>(
           Root, "Landmarks",
           JSON_SETTINGS_ATOMS(Id, Label, Kind, EastLots, NorthLots,
-                              FrontageFeet, DepthFeet, Stories)),
+                              YawDegrees, FrontageFeet, DepthFeet, Stories)),
       [&Request](const FLandmarkFields &Fields) {
         return LandmarkFromFields(
             {&Request.TerrainData, Request.Geometry, Fields});
