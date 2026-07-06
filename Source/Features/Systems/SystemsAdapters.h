@@ -3,7 +3,7 @@
 #include "Features/Systems/Projection/SystemsProjectionTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FRuntimeState;
@@ -93,5 +93,5 @@ ecs::FWorld ProjectRuntimeWorld(const FProjectRuntimePayload &Payload);
 
 } // namespace SystemsAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

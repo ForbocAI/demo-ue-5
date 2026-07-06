@@ -4,7 +4,7 @@
 #include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 /**
@@ -40,8 +40,8 @@ struct FInteractionNearestCandidateRequest {
 };
 
 struct FInteractionDistanceSettingsRequest {
-  ForbocAI::Demo::Data::FInteractionSettings Interaction;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FInteractionSettings Interaction;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 /**
@@ -137,5 +137,5 @@ inline bool operator!=(const FInteractionState &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

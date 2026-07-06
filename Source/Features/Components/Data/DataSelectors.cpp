@@ -1,7 +1,7 @@
 #include "Features/Components/Data/DataSelectors.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace DataSelectors {
 
@@ -19,5 +19,5 @@ int32 SelectLoadedObjectCount(const FDataState &State) {
 
 } // namespace DataSelectors
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

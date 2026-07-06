@@ -127,13 +127,13 @@ struct FSpeechResult {
 namespace SpeechOps {
 
 using FSpeechRuntimeSettings =
-    ForbocAI::Demo::Data::FSpeechRuntimeSettings;
+    ForbocAI::Game::Data::FSpeechRuntimeSettings;
 using FSpeechVisemeMappingSettings =
-    ForbocAI::Demo::Data::FSpeechVisemeMappingSettings;
+    ForbocAI::Game::Data::FSpeechVisemeMappingSettings;
 using FSpeechVowelPhonemeSettings =
-    ForbocAI::Demo::Data::FSpeechVowelPhonemeSettings;
+    ForbocAI::Game::Data::FSpeechVowelPhonemeSettings;
 using FSpeechPhonemeDurationRuleSettings =
-    ForbocAI::Demo::Data::FSpeechPhonemeDurationRuleSettings;
+    ForbocAI::Game::Data::FSpeechPhonemeDurationRuleSettings;
 
 template <typename Item, typename Key, typename Value>
 struct TSpeechMapDeclaration {
@@ -429,7 +429,7 @@ inline float EstimatePhonemeDuration(const FString &Phoneme,
  * Simple phoneme estimation from text when TTS does not provide phonemes.
  * Pure function — deterministic text-to-phoneme conversion.
  *
- * This is a rough approximation for demo purposes.
+ * This is a rough approximation for runtime purposes.
  * Real phoneme data should come from the TTS engine.
  */
 inline TArray<FPhonemeEvent> EstimatePhonemesFromText(
@@ -463,7 +463,7 @@ inline TArray<FPhonemeEvent> EstimatePhonemesFromText(
 // ── Speech Component (UE boundary layer) ──
 
 UCLASS(ClassGroup = (ForbocAI), meta = (BlueprintSpawnableComponent))
-class DEMOPROJECT_API USpeechComponent : public UActorComponent {
+class FORBOCAIDEMO_API USpeechComponent : public UActorComponent {
   GENERATED_BODY()
 
 public:
@@ -558,7 +558,7 @@ private:
   float CurrentVisemeWeight;
 
   /** Authored runtime speech settings loaded from project JSON. */
-  ForbocAI::Demo::Data::FSpeechRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FSpeechRuntimeSettings RuntimeSettings;
 
   /** Ensure the viseme map is populated. */
   void EnsureVisemeMap();

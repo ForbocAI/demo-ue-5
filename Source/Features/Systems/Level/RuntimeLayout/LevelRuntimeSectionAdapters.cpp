@@ -5,24 +5,24 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeLabelAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
-JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Demo::Level::FLevelRuntimeSectionSeed,
+JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Game::Level::FLevelRuntimeSectionSeed,
                              Blocks, Labels);
 
 } // namespace JsonValueAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
-namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
+namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
 func::Maybe<FLevelRuntimeSectionSeed>
 SectionFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
@@ -31,7 +31,7 @@ SectionFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
 }
 
 func::Maybe<FLevelRuntimeSectionSeed>
-ReadSection(const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
+ReadSection(const ForbocAI::Game::Data::FJsonFieldRequest &Request) {
   return func::mbind(
       JsonValues::ReadRequiredValue<TSharedPtr<FJsonObject>>(Request),
       [](const TSharedPtr<FJsonObject> &SectionObject) {
@@ -41,5 +41,5 @@ ReadSection(const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

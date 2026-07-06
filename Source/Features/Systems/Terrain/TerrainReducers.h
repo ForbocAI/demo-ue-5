@@ -5,7 +5,7 @@
 #include "Features/Systems/Terrain/TerrainTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TerrainReducers {
 
@@ -19,12 +19,12 @@ FTerrainState ReduceTerrainMeshPayloadObserved(
 FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
                         const FLevelOrthoData &OrthoData,
-                        const ForbocAI::Demo::Data::FLevelGeometrySettings
+                        const ForbocAI::Game::Data::FLevelGeometrySettings
                             &Geometry);
 FTerrainMeshSectionViewModel
 ReduceTerrainMeshSectionViewModel(const FTerrainMeshPayload &Payload);
 
 } // namespace TerrainReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FInteractionSettings {
@@ -12,5 +12,5 @@ struct FInteractionSettings {
 };
 
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

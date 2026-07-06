@@ -1,7 +1,7 @@
 #include "Features/Systems/Bots/Horses/HorseAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace HorseAdapters {
 
@@ -16,5 +16,5 @@ const rtk::EntityAdapter<FHorseRouteSeed> &HorseAdapter() {
 
 } // namespace HorseAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

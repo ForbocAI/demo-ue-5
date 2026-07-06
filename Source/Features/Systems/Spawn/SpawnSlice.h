@@ -7,7 +7,7 @@
 #include "Features/Systems/Spawn/SpawnTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SpawnSlice {
 
@@ -15,5 +15,5 @@ const rtk::Slice<FSpawnState> &GetSlice();
 
 } // namespace SpawnSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

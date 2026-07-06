@@ -2,10 +2,10 @@
 	"FileVersion": 3,
 	"EngineAssociation": "5.7",
 	"Category": "",
-	"Description": "ForbocAI SDK Demo Project",
+	"Description": "ForbocAIDemo",
 	"Modules": [
 		{
-			"Name": "DemoProject",
+			"Name": "ForbocAIDemo",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [

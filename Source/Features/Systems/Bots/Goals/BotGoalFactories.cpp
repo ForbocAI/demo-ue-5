@@ -6,7 +6,7 @@
 #include "Features/Systems/Bots/Goals/BotGoalAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotGoalFactories {
 namespace {
@@ -96,5 +96,5 @@ FromHorses(const TBotGoalsFromSeedsRequest<FHorseRouteSeed> &Request) {
 
 } // namespace BotGoalFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

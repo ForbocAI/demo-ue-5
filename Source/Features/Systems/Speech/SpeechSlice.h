@@ -8,7 +8,7 @@
 #include "Features/Systems/Speech/SpeechTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SpeechSlice {
 
@@ -58,5 +58,5 @@ inline const rtk::Slice<FSpeechState> &GetSlice() {
 
 } // namespace SpeechSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

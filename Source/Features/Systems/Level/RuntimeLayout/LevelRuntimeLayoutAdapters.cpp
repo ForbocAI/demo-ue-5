@@ -5,31 +5,31 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeSectionAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
 template <>
-func::Maybe<ForbocAI::Demo::Level::FLevelRuntimeSectionSeed>
-ReadRequiredValue<ForbocAI::Demo::Level::FLevelRuntimeSectionSeed>(
-    const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
-  return ForbocAI::Demo::Level::RuntimeLayout::ReadSection(Request);
+func::Maybe<ForbocAI::Game::Level::FLevelRuntimeSectionSeed>
+ReadRequiredValue<ForbocAI::Game::Level::FLevelRuntimeSectionSeed>(
+    const ForbocAI::Game::Data::FJsonFieldRequest &Request) {
+  return ForbocAI::Game::Level::RuntimeLayout::ReadSection(Request);
 }
 
-JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Demo::Level::FLevelRuntimeLayoutSeed,
+JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Game::Level::FLevelRuntimeLayoutSeed,
                              Terrain, Town, Mine, OverlayLabels);
 
 } // namespace JsonValueAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
-namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
+namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
 func::Maybe<FLevelRuntimeLayoutSeed>
 LayoutFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
@@ -39,5 +39,5 @@ LayoutFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

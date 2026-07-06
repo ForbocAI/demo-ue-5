@@ -7,7 +7,7 @@
 #include "Features/Systems/Bots/Horses/HorseTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace HorseSlice {
 
@@ -15,5 +15,5 @@ const rtk::Slice<FHorseState> &GetSlice();
 
 } // namespace HorseSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

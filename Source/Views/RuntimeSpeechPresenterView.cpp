@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/RuntimeSpeechPresenterView.h"
 
 #include "Components/SceneComponent.h"
@@ -6,7 +11,7 @@
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Store.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
 
 ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
     : SceneRoot(CreateDefaultSubobject<USceneComponent>(

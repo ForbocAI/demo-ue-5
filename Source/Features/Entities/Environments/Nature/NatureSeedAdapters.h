@@ -7,13 +7,13 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace NatureAdapters {
 
 struct FNatureSeedBuildRequest {
   FString RelativeJsonPath;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 TArray<FNatureFeatureSeed> BuildNatureSeed(
@@ -21,5 +21,5 @@ TArray<FNatureFeatureSeed> BuildNatureSeed(
 
 } // namespace NatureAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/PlayerRuntimeControllerView.h"
 
 #include "Engine/Engine.h"
@@ -13,7 +18,7 @@
 #include "Views/RuntimeStatsWidget.h"
 #include "Views/TownspersonView.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
 
 namespace {
 
@@ -21,7 +26,7 @@ FG::FInteractionCandidatesObserved ObserveTownspersonCandidates(
     const APlayerRuntimeControllerView &Controller, float InteractionDistance,
     TArray<ATownspersonView *> &ObservedTownspeople) {
   FG::FInteractionCandidatesObserved Observation;
-  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+  const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectRuntimeObservationIds(
           FG::Store::GetStore().getState());
   Observation.Id = Ids.TownspersonCandidatesObserved;
@@ -58,7 +63,7 @@ FG::FRuntimeTownspersonInteractionSource ObserveTownspersonInteractionSource(
 
 void PresentMissingInteraction(const FString &Message) {
   check(GEngine);
-  const ForbocAI::Demo::Data::FRuntimeDebugMessageSettings &Debug =
+  const ForbocAI::Game::Data::FRuntimeDebugMessageSettings &Debug =
       FG::RuntimeSelectors::SelectRuntimeDebugMessages(
           FG::Store::GetStore().getState());
   GEngine->AddOnScreenDebugMessage(Debug.OnScreenKey, Debug.DurationSeconds,
@@ -108,7 +113,7 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
           FG::Store::GetStore().dispatch(
               FG::RuntimeActions::TownspersonInteractionSourceObserved()(
                   ObserveTownspersonInteractionSource(*Townsperson)));
-          const ForbocAI::Demo::UI::FRuntimeConversationViewModel
+          const ForbocAI::Game::UI::FRuntimeConversationViewModel
               Conversation = FG::RuntimeSelectors::SelectRuntimeConversation(
                   FG::Store::GetStore().getState());
           const FString Reply = Conversation.NpcReply;
@@ -120,7 +125,7 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
 }
 
 void APlayerRuntimeControllerView::PresentConversationViewModel(
-    const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation) {
+    const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) {
   RuntimeConversationWidget
       ? void()
       : ([this]() {

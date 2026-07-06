@@ -1,30 +1,63 @@
 #include "Store.h"
 
 #include "Core/redux_logger.hpp"
+#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Systems/Runtime/RuntimeFactories.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
 
 #include <vector>
 
-DEFINE_LOG_CATEGORY_STATIC(LogForbocDemoRedux, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeRedux, Log, All);
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace Store {
 namespace detail {
+
+using FRuntimeReduxLogSettings = ForbocAI::Game::Data::FRuntimeReduxLogSettings;
+
+FRuntimeReduxLogSettings RuntimeReduxLogSettings() {
+  return ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings()
+      .RuntimeReduxLog;
+}
+
+bool IsSampledRuntimeLogAction(
+    const rtk::AnyAction &Action,
+    const FRuntimeReduxLogSettings &Settings) {
+  return func::any_indexed(
+      Settings.SampledActionTypes,
+      static_cast<size_t>(Settings.SampledActionTypes.Num()),
+      [&Action](const FString &Type) { return Action.Type == Type; });
+}
+
+bool ShouldLogSampledRuntimeAction(
+    const rtk::AnyAction &Action,
+    const FRuntimeReduxLogSettings &Settings) {
+  static TMap<FString, int32> CountsByType;
+  const int32 NextCount = CountsByType.FindRef(Action.Type) + 1;
+  CountsByType.Add(Action.Type, NextCount);
+  return NextCount == 1 || NextCount % Settings.SampleInterval == 0;
+}
+
+bool ShouldLogRuntimeAction(const rtk::AnyAction &Action,
+                            const FRuntimeReduxLogSettings &Settings) {
+  return IsSampledRuntimeLogAction(Action, Settings)
+             ? ShouldLogSampledRuntimeAction(Action, Settings)
+             : true;
+}
 
 /**
  * @brief Builds the UE console sink used by redux-logger middleware.
  * @signature std::function<void(const FString &)> CreateReduxLoggerSink()
  * @return Logger sink that writes each redux-logger line to the UE log system.
  *
- * User Story: As a developer running the demo or automation tests, I need RTK
+ * User Story: As a developer running the runtime or automation tests, I need RTK
  * action flow to be visible in the UE console and captured test logs.
  */
 std::function<void(const FString &)> CreateReduxLoggerSink() {
   return [](const FString &Message) -> void {
-    UE_LOG(LogForbocDemoRedux, Display, TEXT("%s"), *Message);
+    UE_LOG(LogForbocRuntimeRedux, Display, TEXT("%s"), *Message);
   };
 }
 
@@ -38,14 +71,19 @@ std::function<void(const FString &)> CreateReduxLoggerSink() {
  */
 rtk::logger::ReduxLoggerOptions<FRuntimeState> CreateReduxLoggerOptions() {
   rtk::logger::ReduxLoggerOptions<FRuntimeState> Options;
+  const FRuntimeReduxLogSettings LogSettings = RuntimeReduxLogSettings();
   Options.Logger = CreateReduxLoggerSink();
+  Options.Predicate = [LogSettings](const std::function<FRuntimeState()> &,
+                                    const rtk::AnyAction &Action) {
+    return ShouldLogRuntimeAction(Action, LogSettings);
+  };
   Options.bTimestamp = false;
   Options.bDuration = false;
   return Options;
 }
 
 /**
- * @brief Builds RTK middleware for the demo runtime store.
+ * @brief Builds RTK middleware for the runtime store.
  * @signature std::vector<rtk::Middleware<FRuntimeState>> CreateRuntimeMiddleware()
  * @return Middleware chain containing the SDK redux-logger middleware.
  *
@@ -88,5 +126,5 @@ rtk::EnhancedStore<FRuntimeState> &GetStore() {
 
 } // namespace Store
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

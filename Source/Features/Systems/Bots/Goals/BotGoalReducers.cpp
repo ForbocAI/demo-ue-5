@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Goals/BotGoalFactories.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotGoalReducers {
 namespace {
@@ -143,5 +143,5 @@ FBotGoalState ReduceHorsesSeeded(
 
 } // namespace BotGoalReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

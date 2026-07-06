@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FTerrainLoadedPayload {
@@ -131,5 +131,5 @@ inline bool operator!=(const FTerrainMeshSectionViewModel &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

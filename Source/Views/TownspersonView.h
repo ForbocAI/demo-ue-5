@@ -1,6 +1,12 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Features/Components/Rendering/RenderingTypes.h"
 #include "GameFramework/Actor.h"
 #include "TownspersonView.generated.h"
 
@@ -42,6 +48,8 @@ struct FTownspersonViewConfig {
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   TArray<FVector> PatrolRoute;
+
+  ForbocAI::Game::Level::FLevelDistanceLodStage Lod;
 };
 
 /**
@@ -55,7 +63,7 @@ struct FTownspersonViewConfig {
  * while the game logic remains in store-owned systems.
  */
 UCLASS(Blueprintable)
-class DEMOPROJECT_API ATownspersonView : public AActor {
+class FORBOCAIDEMO_API ATownspersonView : public AActor {
   GENERATED_BODY()
 
 public:
@@ -155,8 +163,11 @@ private:
   bool bPlayerNearby;
   FString CharacterMeshPath;
   FString CharacterAnimationBlueprintClassPath;
+  ForbocAI::Game::Level::FLevelDistanceLodStage CurrentLod;
 
   void AdvancePatrol(float DeltaTime);
+  void ApplyDistanceLod(
+      const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod);
   void ConfigureSampleCharacterAsset();
   void RefreshText();
 

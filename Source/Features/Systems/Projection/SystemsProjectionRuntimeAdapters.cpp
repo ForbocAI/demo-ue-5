@@ -9,7 +9,7 @@
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SystemsProjectionRuntimeAdapters {
 namespace {
@@ -102,5 +102,5 @@ ProjectRuntimeWorld(const FProjectRuntimePayload &Payload) {
 
 } // namespace SystemsProjectionRuntimeAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

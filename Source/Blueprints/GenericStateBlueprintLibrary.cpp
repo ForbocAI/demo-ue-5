@@ -5,8 +5,8 @@
 
 namespace {
 
-namespace Json = ForbocAI::Demo::Data::JsonAdapters;
-using FJsonFieldRequest = ForbocAI::Demo::Data::FJsonFieldRequest;
+namespace Json = ForbocAI::Game::Data::JsonAdapters;
+using FJsonFieldRequest = ForbocAI::Game::Data::FJsonFieldRequest;
 
 template <typename Value> struct TStateJsonFieldDeclaration {
   TFunction<Value(const FJsonFieldRequest &)> Read;

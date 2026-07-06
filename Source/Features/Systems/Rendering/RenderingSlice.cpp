@@ -4,7 +4,7 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RenderingSlice {
 
@@ -40,9 +40,40 @@ const rtk::Slice<FRenderingState> &GetSlice() {
 }
 
 void ApplyRuntimeProfile(
+    UWorld *World,
     const FLevelRetroRenderProfile &Profile,
-    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
-  RenderingThunks::ApplyRuntimeProfile(Profile, RuntimeSettings);
+    const ForbocAI::Game::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+  RenderingThunks::ApplyRuntimeProfile(World, Profile, RuntimeSettings);
+}
+
+float SelectRuntimeBudgetScreenshotIntervalSeconds(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return RenderingThunks::SelectRuntimeBudgetScreenshotIntervalSeconds(
+      Settings);
+}
+
+double SelectRuntimeBudgetClockSeconds() {
+  return RenderingThunks::SelectRuntimeBudgetClockSeconds();
+}
+
+bool ShouldRunRuntimeBudgetWallInterval(double CurrentSeconds,
+                                        double LastSeconds,
+                                        float IntervalSeconds) {
+  return RenderingThunks::ShouldRunRuntimeBudgetWallInterval(
+      CurrentSeconds, LastSeconds, IntervalSeconds);
+}
+
+bool ShouldRunRuntimeBudgetScreenshot(
+    double CurrentSeconds, double LastSeconds, float IntervalSeconds,
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return RenderingThunks::ShouldRunRuntimeBudgetScreenshot(
+      CurrentSeconds, LastSeconds, IntervalSeconds, Settings);
+}
+
+void RequestRuntimeBudgetScreenshot(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings,
+    int32 Index) {
+  RenderingThunks::RequestRuntimeBudgetScreenshot(Settings, Index);
 }
 
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path) {
@@ -55,5 +86,5 @@ void ApplyTexture(const FLevelRetroTextureApply &Request) {
 
 } // namespace RenderingSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

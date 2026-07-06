@@ -3,7 +3,7 @@
 #include "Features/Components/Data/Json/JsonAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
@@ -96,5 +96,5 @@ ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object) {
 
 } // namespace LevelSettingsAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

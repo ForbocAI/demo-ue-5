@@ -2,10 +2,10 @@
 
 Run from the project root through UnrealEditor-Cmd:
 
-  UnrealEditor-Cmd.exe DemoProject.uproject -run=pythonscript -script=Scripts/Tools/create_french_gulch_map.py
+  UnrealEditor-Cmd.exe ForbocAIDemo.uproject -run=pythonscript -script=Scripts/Tools/create_french_gulch_map.py
 
-Run Scripts/Tools/create_demo_blueprint_assets.py first so the map can use the
-tracked Blueprint game mode and presentation actors.
+The map is rebuilt from native runtime view classes so startup stays aligned
+with the current ForbocAIDemo module.
 """
 
 import unreal
@@ -13,9 +13,9 @@ import unreal
 
 MAP_PACKAGE = "/Game/Map/Maps/Runtime"
 MAP_FOLDER = "/Game/Map/Maps"
-GAME_MODE_CLASS = "/Game/Blueprints/BP_LevelGameMode.BP_LevelGameMode_C"
-RUNTIME_LEVEL_CLASS = "/Game/Blueprints/BP_RuntimeLevelView.BP_RuntimeLevelView_C"
-SPEECH_PRESENTER_CLASS = "/Game/Blueprints/BP_SpeechPresenter.BP_SpeechPresenter_C"
+GAME_MODE_CLASS = "/Script/ForbocAIDemo.LevelGameModeView"
+RUNTIME_LEVEL_CLASS = "/Script/ForbocAIDemo.RuntimeLevelView"
+SPEECH_PRESENTER_CLASS = "/Script/ForbocAIDemo.RuntimeSpeechPresenterView"
 
 
 def log(message: str) -> None:
@@ -109,12 +109,8 @@ def main() -> int:
     if not unreal.EditorAssetLibrary.does_directory_exist(MAP_FOLDER):
         unreal.EditorAssetLibrary.make_directory(MAP_FOLDER)
 
-    if unreal.EditorAssetLibrary.does_asset_exist(MAP_PACKAGE):
-        log(f"Loading {MAP_PACKAGE}")
-        level_editor_subsystem().load_level(MAP_PACKAGE)
-    else:
-        log(f"Creating {MAP_PACKAGE}")
-        unreal.EditorLoadingAndSavingUtils.new_blank_map(False)
+    log(f"Rebuilding {MAP_PACKAGE}")
+    unreal.EditorLoadingAndSavingUtils.new_blank_map(False)
 
     configure_world_settings()
     ensure_lighting()

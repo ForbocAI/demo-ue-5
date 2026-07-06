@@ -1,6 +1,12 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Features/Components/Rendering/RenderingTypes.h"
 #include "GameFramework/Actor.h"
 #include "HorseView.generated.h"
 
@@ -11,7 +17,7 @@ class UTextRenderComponent;
  * @brief View payload for configuring one horse actor from runtime store data.
  *
  * Architecture: Runtime reducers prepare horse spawn presentation data; this
- * struct is an Unreal-facing adapter shape and does not own store semantics.
+ * struct is an Unreal-facing adapter shape for Feature-owned store semantics.
  */
 USTRUCT(BlueprintType)
 struct FHorseViewConfig {
@@ -25,6 +31,8 @@ struct FHorseViewConfig {
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|Horse")
   bool bMountedRider = false;
+
+  ForbocAI::Game::Level::FLevelDistanceLodStage Lod;
 };
 
 /**
@@ -34,11 +42,11 @@ struct FHorseViewConfig {
  * Route and mounted-rider facts originate in feature reducers/thunks, keeping
  * ECS/store data below the view layer.
  *
- * User story: As a player exploring the demo town, horses appear from the same
+ * User story: As a player exploring the runtime town, horses appear from the same
  * runtime payload that drives the rest of the level scene.
  */
 UCLASS()
-class DEMOPROJECT_API AHorseView : public AActor {
+class FORBOCAIDEMO_API AHorseView : public AActor {
   GENERATED_BODY()
 
 public:
@@ -85,8 +93,11 @@ private:
   FString HorseWalkAnimationPath;
   FString RiderMeshPath;
   FString RiderWalkAnimationPath;
+  ForbocAI::Game::Level::FLevelDistanceLodStage CurrentLod;
 
   void AdvancePatrol(float DeltaTime);
+  void ApplyDistanceLod(
+      const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod);
   void ConfigureImportedHorseAsset();
   void RefreshText();
 };

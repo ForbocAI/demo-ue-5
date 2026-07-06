@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/PlayerCharacterView.h"
 
 #include "Animation/AnimInstance.h"
@@ -17,12 +22,12 @@
 #include "InputMappingContext.h"
 #include "Store.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
 
 namespace {
 FG::FPlayerPresentationViewModel ObservePlayerPresentation() {
   const FG::FRuntimeState State = FG::Store::GetStore().getState();
-  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+  const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
   FG::Store::GetStore().dispatch(
       FG::PlayerActions::PlayerPresentationRequested()(
@@ -40,14 +45,24 @@ APlayerCharacterView::APlayerCharacterView()
     : MappingContext(nullptr), MouseMappingContext(nullptr), MoveAction(nullptr),
       LookAction(nullptr), MouseLookAction(nullptr), JumpAction(nullptr),
       MeshRelativeLocation(FVector::ZeroVector),
-      MeshRelativeRotation(FRotator::ZeroRotator) {
+      MeshRelativeRotation(FRotator::ZeroRotator), CharacterForcedLodModel(0),
+      CharacterMinLodModel(0), CharacterCullDistance(0.0f),
+      bCharacterCastShadow(false), bCharacterComponentTickEnabled(false),
+      bCharacterUpdateRateOptimizationsEnabled(false) {
   const FG::FPlayerPresentationViewModel Presentation =
       ObservePlayerPresentation();
-  const ForbocAI::Demo::Data::FRuntimeViewNameSettings &ViewNames =
+  const ForbocAI::Game::Data::FRuntimeViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectRuntimeViewNames(
           FG::Store::GetStore().getState());
   MeshRelativeLocation = Presentation.MeshRelativeLocation;
   MeshRelativeRotation = Presentation.MeshRelativeRotation;
+  CharacterForcedLodModel = Presentation.SkeletalMeshForcedLodModel;
+  CharacterMinLodModel = Presentation.SkeletalMeshMinLodModel;
+  CharacterCullDistance = Presentation.MeshCullDistance;
+  bCharacterCastShadow = Presentation.bMeshCastShadow;
+  bCharacterComponentTickEnabled = Presentation.bMeshComponentTickEnabled;
+  bCharacterUpdateRateOptimizationsEnabled =
+      Presentation.bMeshUpdateRateOptimizationsEnabled;
   CharacterMeshPath = Presentation.MeshPath;
   CharacterAnimationBlueprintClassPath =
       Presentation.AnimationBlueprintClassPath;
@@ -133,10 +148,10 @@ void APlayerCharacterView::SetupPlayerInputComponent(
 
 void APlayerCharacterView::DoMove(float Right, float Forward) {
   check(Controller);
-  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+  const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectRuntimeObservationIds(
           FG::Store::GetStore().getState());
-  const ForbocAI::Demo::Level::FPlayerMovementInputViewModel Model =
+  const ForbocAI::Game::Level::FPlayerMovementInputViewModel Model =
       (FG::Store::GetStore().dispatch(
            FG::PlayerActions::PlayerMovementInputObserved()(
                {Ids.PlayerMovementInputObserved,
@@ -168,6 +183,13 @@ void APlayerCharacterView::ConfigureTemplateCharacter() {
   GetMesh()->SetSkeletalMesh(CharacterMesh);
   GetMesh()->SetRelativeLocation(MeshRelativeLocation);
   GetMesh()->SetRelativeRotation(MeshRelativeRotation);
+  GetMesh()->SetForcedLOD(CharacterForcedLodModel);
+  GetMesh()->OverrideMinLOD(CharacterMinLodModel);
+  GetMesh()->SetCullDistance(CharacterCullDistance);
+  GetMesh()->SetCastShadow(bCharacterCastShadow);
+  GetMesh()->SetComponentTickEnabled(bCharacterComponentTickEnabled);
+  GetMesh()->bEnableUpdateRateOptimizations =
+      bCharacterUpdateRateOptimizationsEnabled;
   GetMesh()->SetAnimInstanceClass(AnimClass);
 }
 

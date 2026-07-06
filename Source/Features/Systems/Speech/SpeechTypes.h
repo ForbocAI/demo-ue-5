@@ -4,7 +4,7 @@
 #include "Features/Systems/Speech/SpeechAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FSpeechPayload {
@@ -17,7 +17,7 @@ struct FSpeechState {
   func::Maybe<FString> LastSpokenText = func::nothing<FString>();
   TArray<FPhonemeEvent> ActivePhonemes;
   FVisemeMapping CurrentViseme;
-  ForbocAI::Demo::Data::FSpeechRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FSpeechRuntimeSettings RuntimeSettings;
   bool bSpeaking = false;
 };
 
@@ -41,5 +41,5 @@ inline bool operator!=(const FSpeechState &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

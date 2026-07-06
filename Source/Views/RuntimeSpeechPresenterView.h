@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,10 +19,10 @@ class USpeechComponent;
  *
  * User Story: As a Blueprint user, I need a source-controlled actor parent with
  * a mesh and USpeechComponent so speech and lip-sync events can be exercised
- * without adding runtime decision logic to view code.
+ * while runtime decisions stay in Features.
  */
 UCLASS(Blueprintable)
-class DEMOPROJECT_API ARuntimeSpeechPresenterView : public AActor {
+class FORBOCAIDEMO_API ARuntimeSpeechPresenterView : public AActor {
   GENERATED_BODY()
 
 public:

@@ -3,7 +3,7 @@
 #include "Features/Components/ComponentsAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace {
 
@@ -116,5 +116,5 @@ ProjectInteraction(const FProjectInteractionPayload &Payload) {
 
 } // namespace SystemsProjectionInteractionAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FSpeechVisemeMappingSettings {
@@ -127,5 +127,5 @@ inline bool operator!=(const FSpeechRuntimeSettings &Left,
 }
 
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

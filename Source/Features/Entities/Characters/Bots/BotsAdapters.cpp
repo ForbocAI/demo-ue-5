@@ -4,11 +4,11 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotsAdapters {
 
-namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
+namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
 struct FRoutePointFields {
   float EastLots;
@@ -40,16 +40,16 @@ struct FHorseRouteFields {
 
 } // namespace BotsAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-namespace LevelTypes = ForbocAI::Demo::Level;
-namespace BotSeedTypes = ForbocAI::Demo::Level::BotsAdapters;
+namespace LevelTypes = ForbocAI::Game::Level;
+namespace BotSeedTypes = ForbocAI::Game::Level::BotsAdapters;
 
 using ETownspersonInteractionIntent =
     LevelTypes::ETownspersonInteractionIntent;
@@ -83,17 +83,17 @@ JSON_SETTINGS_REGISTRY(FHorseRouteFields, Id, Name, bMountedRider,
 
 } // namespace JsonAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotsAdapters {
 namespace {
 
 struct FRouteLotsRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float EastLots;
   float NorthLots;
 };
@@ -102,18 +102,18 @@ typedef FLevelLocalPoint (*FRouteLotsProjector)(const FRouteLotsRequest &);
 
 struct FPatrolRouteFieldsRequest {
   TArray<TSharedPtr<FJsonValue>> Points;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FRouteLotsProjector ProjectLots;
 };
 
 struct FTownspersonBuildRequest {
   FTownspersonFields Fields;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FHorseRouteBuildRequest {
   FHorseRouteFields Fields;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 FLevelLocalPoint TownspersonRouteLots(const FRouteLotsRequest &Request) {
@@ -137,7 +137,7 @@ ETownspersonInteractionIntent InteractionIntentFromJson(
 
 TArray<FLevelLocalPoint>
 PatrolRouteFromFields(const FPatrolRouteFieldsRequest &Request) {
-  const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
+  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
       Request.Geometry;
   const FRouteLotsProjector ProjectLots = Request.ProjectLots;
   return func::map_array<FRoutePointFields, FLevelLocalPoint>(
@@ -211,5 +211,5 @@ TArray<FHorseRouteSeed> BuildHorseRouteSeed(
 
 } // namespace BotsAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

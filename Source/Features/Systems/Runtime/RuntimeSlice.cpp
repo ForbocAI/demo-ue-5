@@ -28,7 +28,7 @@
 #include "Features/Systems/UI/UISlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeSlice {
 namespace {
@@ -103,5 +103,5 @@ RequestLevelViewPayload() {
 
 } // namespace RuntimeSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

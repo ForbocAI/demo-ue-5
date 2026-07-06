@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/LevelGameModeView.h"
 
 #include "Core/ue_fp.hpp"
@@ -8,7 +13,7 @@
 #include "Views/PlayerRuntimeControllerView.h"
 #include "Views/RuntimeLevelView.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
 
 namespace {
 ARuntimeLevelView *FirstRuntimeLevelView(
@@ -34,6 +39,14 @@ FTransform LoadPlayerSpawnTransform() {
 ALevelGameModeView::ALevelGameModeView() : RuntimeLevelView(nullptr) {
   DefaultPawnClass = APlayerCharacterView::StaticClass();
   PlayerControllerClass = APlayerRuntimeControllerView::StaticClass();
+}
+
+void ALevelGameModeView::InitGame(const FString &MapName,
+                                  const FString &Options,
+                                  FString &ErrorMessage) {
+  DefaultPawnClass = APlayerCharacterView::StaticClass();
+  PlayerControllerClass = APlayerRuntimeControllerView::StaticClass();
+  Super::InitGame(MapName, Options, ErrorMessage);
 }
 
 void ALevelGameModeView::StartPlay() {

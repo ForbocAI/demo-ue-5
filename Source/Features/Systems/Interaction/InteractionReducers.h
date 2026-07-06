@@ -8,7 +8,7 @@
 #include "Features/Systems/Interaction/InteractionTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace InteractionReducers {
 
@@ -17,13 +17,13 @@ namespace InteractionReducers {
  * message.
  *
  * @signature FString ReduceNoTownspersonMessage(const
- * ForbocAI::Demo::Data::FInteractionSettings &Settings)
+ * ForbocAI::Game::Data::FInteractionSettings &Settings)
  *
  * User story: As a content author, the player-facing missing-target message
  * can change in JSON without view logic or reducer constants.
  */
 inline FString ReduceNoTownspersonMessage(
-    const ForbocAI::Demo::Data::FInteractionSettings &Settings) {
+    const ForbocAI::Game::Data::FInteractionSettings &Settings) {
   return Settings.NoTownspersonMessage;
 }
 
@@ -121,5 +121,5 @@ inline FInteractionState ReduceTownspersonCandidatesObserved(
 
 } // namespace InteractionReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

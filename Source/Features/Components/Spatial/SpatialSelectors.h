@@ -5,15 +5,15 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SpatialSelectors {
 
 float SelectTownLotWorldUnits(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 float SelectActorWorldUnitsFromFeet(const FLevelActorFeetRequest &Request);
 
 } // namespace SpatialSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

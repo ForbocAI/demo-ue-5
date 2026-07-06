@@ -3,11 +3,11 @@
 #include "Features/Components/Data/JsonValueAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-namespace LevelTypes = ForbocAI::Demo::Level;
+namespace LevelTypes = ForbocAI::Game::Level;
 
 using ELevelRetroTexture = LevelTypes::ELevelRetroTexture;
 using ELevelRuntimeAnchorMode = LevelTypes::ELevelRuntimeAnchorMode;
@@ -70,16 +70,16 @@ template <> struct TJsonTextValueRegistry<ELevelRetroTexture> {
 
 } // namespace JsonAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 namespace {
 
-namespace JsonText = ForbocAI::Demo::Data::JsonAdapters;
+namespace JsonText = ForbocAI::Game::Data::JsonAdapters;
 
 /**
  * @brief Logs one invalid runtime-layout enum field.
@@ -92,7 +92,7 @@ namespace JsonText = ForbocAI::Demo::Data::JsonAdapters;
 template <typename Output>
 func::Maybe<Output> LogInvalidEnum(
     const FLevelRuntimeEnumTextRequest &Request) {
-  ForbocAI::Demo::Data::JsonValueAdapters::LogInvalidField(
+  ForbocAI::Game::Data::JsonValueAdapters::LogInvalidField(
       {TSharedPtr<FJsonObject>(), Request.FieldName});
   return func::nothing<Output>();
 }
@@ -139,5 +139,5 @@ ParseTexture(const FLevelRuntimeEnumTextRequest &Request) {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

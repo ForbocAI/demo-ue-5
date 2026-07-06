@@ -4,7 +4,7 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace NatureReducers {
 
@@ -14,5 +14,5 @@ FNatureState ReduceNatureSeeded(
 
 } // namespace NatureReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

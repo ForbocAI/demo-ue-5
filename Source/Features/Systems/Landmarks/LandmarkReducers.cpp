@@ -3,7 +3,7 @@
 #include "Features/Systems/Landmarks/LandmarkAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LandmarkReducers {
 
@@ -20,5 +20,5 @@ ReduceLandmarksSeeded(const FLandmarkState &State,
 
 } // namespace LandmarkReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -4,7 +4,7 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace NatureActions {
 
@@ -12,5 +12,5 @@ const rtk::ActionCreator<TArray<FNatureFeatureSeed>> &NatureSeeded();
 
 } // namespace NatureActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

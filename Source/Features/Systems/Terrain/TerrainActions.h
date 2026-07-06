@@ -4,7 +4,7 @@
 #include "Features/Systems/Terrain/TerrainTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TerrainActions {
 
@@ -13,5 +13,5 @@ const rtk::ActionCreator<FTerrainMeshPayload> &TerrainMeshPayloadObserved();
 
 } // namespace TerrainActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

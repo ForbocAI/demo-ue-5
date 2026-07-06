@@ -6,7 +6,7 @@
 #include "Features/Systems/Rendering/RenderingTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RenderingSelectors {
 
@@ -14,7 +14,9 @@ const FLevelRetroRenderProfile &
 SelectRuntimeProfile(const FRenderingState &State);
 const TArray<FLevelRetroTextureSpec> &
 SelectTextureCatalog(const FRenderingState &State);
-const ForbocAI::Demo::Data::FRenderingRuntimeSettings &
+const TArray<FLevelDistanceLodStage> &
+SelectDistanceLodStages(const FRenderingState &State);
+const ForbocAI::Game::Data::FRenderingRuntimeSettings &
 SelectRenderingRuntimeSettings(const FRenderingState &State);
 const FRenderingAssetPaths &SelectRenderingAssetPaths(
     const FRenderingState &State);
@@ -25,5 +27,5 @@ SelectHorsePresentation(const FRenderingState &State);
 
 } // namespace RenderingSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

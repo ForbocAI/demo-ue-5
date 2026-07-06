@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FPlayerPayload {
@@ -43,6 +43,12 @@ struct FPlayerPresentationViewModel {
   float BrakingDecelerationFalling = 0.0f;
   FVector MeshRelativeLocation = FVector::ZeroVector;
   FRotator MeshRelativeRotation = FRotator::ZeroRotator;
+  int32 SkeletalMeshForcedLodModel = 0;
+  int32 SkeletalMeshMinLodModel = 0;
+  float MeshCullDistance = 0.0f;
+  bool bMeshCastShadow = false;
+  bool bMeshComponentTickEnabled = false;
+  bool bMeshUpdateRateOptimizationsEnabled = false;
   FString MeshPath;
   FString AnimationBlueprintClassPath;
   FString MoveActionPath;
@@ -127,6 +133,16 @@ inline bool operator==(const FPlayerPresentationViewModel &Left,
                               Right.BrakingDecelerationFalling) &&
          Left.MeshRelativeLocation == Right.MeshRelativeLocation &&
          Left.MeshRelativeRotation == Right.MeshRelativeRotation &&
+         Left.SkeletalMeshForcedLodModel ==
+             Right.SkeletalMeshForcedLodModel &&
+         Left.SkeletalMeshMinLodModel == Right.SkeletalMeshMinLodModel &&
+         FMath::IsNearlyEqual(Left.MeshCullDistance,
+                              Right.MeshCullDistance) &&
+         Left.bMeshCastShadow == Right.bMeshCastShadow &&
+         Left.bMeshComponentTickEnabled ==
+             Right.bMeshComponentTickEnabled &&
+         Left.bMeshUpdateRateOptimizationsEnabled ==
+             Right.bMeshUpdateRateOptimizationsEnabled &&
          Left.MeshPath == Right.MeshPath &&
          Left.AnimationBlueprintClassPath ==
              Right.AnimationBlueprintClassPath &&
@@ -159,5 +175,5 @@ inline bool operator!=(const FPlayerState &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

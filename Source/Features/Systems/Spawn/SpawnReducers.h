@@ -4,7 +4,7 @@
 #include "Features/Systems/Spawn/SpawnTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SpawnReducers {
 
@@ -14,5 +14,5 @@ ReducePlayerSpawnAnchored(const FSpawnState &State,
 
 } // namespace SpawnReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

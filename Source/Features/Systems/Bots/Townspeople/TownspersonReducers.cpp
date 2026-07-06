@@ -4,7 +4,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TownspersonReducers {
 namespace {
@@ -86,7 +86,7 @@ FTownspersonState ReduceInteractionOverlapObserved(
 }
 
 FTownspersonViewDefaults ReduceViewDefaults(
-    const ForbocAI::Demo::Data::FTownspersonDefaultsSettings &Settings) {
+    const ForbocAI::Game::Data::FTownspersonDefaultsSettings &Settings) {
   return {Settings.Id, Settings.Name, Settings.Role, Settings.Persona,
           Settings.InteractionPrompt, Settings.DefaultPlayerLine};
 }
@@ -122,5 +122,5 @@ TArray<FTownspersonSeed> ReduceByInteractionIntent(
 
 } // namespace TownspersonReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -7,7 +7,7 @@
 #include "Features/Systems/UI/UITypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace UISlice {
 
@@ -16,7 +16,7 @@ namespace UISlice {
  * @signature inline FUIState CreateInitialState()
  * @return UI state with no last action and the conversation surface hidden.
  *
- * User story: As a player entering the demo, conversation UI should start from
+ * User story: As a player entering the runtime, conversation UI should start from
  * deterministic reducer-owned state before ECS and view events project into it.
  */
 inline FUIState CreateInitialState() {
@@ -55,5 +55,5 @@ inline const rtk::Slice<FUIState> &GetSlice() {
 
 } // namespace UISlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

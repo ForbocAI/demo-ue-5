@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -22,7 +27,7 @@ struct FInputActionValue;
  * while the reusable movement semantics stay in RTK reducers/selectors.
  */
 UCLASS()
-class DEMOPROJECT_API APlayerCharacterView : public ACharacter {
+class FORBOCAIDEMO_API APlayerCharacterView : public ACharacter {
   GENERATED_BODY()
 
 public:
@@ -78,6 +83,12 @@ private:
 
   FVector MeshRelativeLocation;
   FRotator MeshRelativeRotation;
+  int32 CharacterForcedLodModel;
+  int32 CharacterMinLodModel;
+  float CharacterCullDistance;
+  bool bCharacterCastShadow;
+  bool bCharacterComponentTickEnabled;
+  bool bCharacterUpdateRateOptimizationsEnabled;
   FString CharacterMeshPath;
   FString CharacterAnimationBlueprintClassPath;
   FString MoveActionPath;

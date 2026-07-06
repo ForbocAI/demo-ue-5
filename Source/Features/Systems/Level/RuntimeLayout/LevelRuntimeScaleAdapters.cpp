@@ -4,7 +4,7 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeEnumAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
@@ -16,33 +16,33 @@ struct FWorldLocationFields {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
 JSON_REQUIRED_FIELD_REGISTRY(
-    ForbocAI::Demo::Level::RuntimeLayout::FWorldLocationFields, X, Y, Z);
+    ForbocAI::Game::Level::RuntimeLayout::FWorldLocationFields, X, Y, Z);
 
-JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Demo::Level::FLevelRuntimeScaleSeed,
+JSON_REQUIRED_FIELD_REGISTRY(ForbocAI::Game::Level::FLevelRuntimeScaleSeed,
                              WidthFeet, DepthFeet, HeightFeet, FrontageFeet,
                              Stories, LengthLots);
 
 } // namespace JsonValueAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 namespace {
 
-namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
+namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
 struct FLevelRuntimeScaleFieldDeclaration {
   ELevelRuntimeScaleMode Mode;
@@ -126,7 +126,7 @@ ScaleFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
 }
 
 func::Maybe<FLevelRuntimeScaleSeed>
-ReadScaleSeed(const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
+ReadScaleSeed(const ForbocAI::Game::Data::FJsonFieldRequest &Request) {
   return func::mbind(
       JsonValues::ReadRequiredObject(Request),
       [](const TSharedPtr<FJsonObject> &ScaleObject) {
@@ -136,5 +136,5 @@ ReadScaleSeed(const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

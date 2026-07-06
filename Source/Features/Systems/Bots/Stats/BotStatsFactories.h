@@ -7,7 +7,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotStatsFactories {
 
@@ -24,5 +24,5 @@ FromHorses(const TBotStatsFromSeedsRequest<FHorseRouteSeed> &Request);
 
 } // namespace BotStatsFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

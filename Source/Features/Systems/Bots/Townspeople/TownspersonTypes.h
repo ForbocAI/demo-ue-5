@@ -4,7 +4,7 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 enum class ETownspersonInteractionIntent : uint8 {
@@ -190,5 +190,5 @@ inline bool operator!=(const FTownspersonInteractionOverlapViewModel &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

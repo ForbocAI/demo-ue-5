@@ -5,7 +5,7 @@
 #include "Features/Systems/Runtime/RuntimeTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeThunks {
 
@@ -23,5 +23,5 @@ RequestLevelViewPayload();
 
 } // namespace RuntimeThunks
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

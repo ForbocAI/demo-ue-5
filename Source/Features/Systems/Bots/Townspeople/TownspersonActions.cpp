@@ -1,7 +1,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TownspersonActions {
 
@@ -45,5 +45,5 @@ InteractionOverlapObserved() {
 
 } // namespace TownspersonActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

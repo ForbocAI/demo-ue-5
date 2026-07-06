@@ -9,18 +9,17 @@
 namespace {
 constexpr const TCHAR *RuntimeMapPackage = TEXT("/Game/Map/Maps/Runtime");
 constexpr const TCHAR *RuntimeGameModeClass =
-    TEXT("/Game/Blueprints/BP_LevelGameMode.BP_LevelGameMode_C");
+    TEXT("/Script/ForbocAIDemo.LevelGameModeView");
 constexpr const TCHAR *RuntimePlayerControllerClass =
-    TEXT("/Game/Blueprints/BP_PlayerRuntimeController."
-         "BP_PlayerRuntimeController_C");
+    TEXT("/Script/ForbocAIDemo.PlayerRuntimeControllerView");
 constexpr const TCHAR *RuntimeLevelViewClass =
-    TEXT("/Game/Blueprints/BP_RuntimeLevelView.BP_RuntimeLevelView_C");
+    TEXT("/Script/ForbocAIDemo.RuntimeLevelView");
 constexpr const TCHAR *RuntimeTownspersonViewClass =
-    TEXT("/Game/Blueprints/BP_TownspersonView.BP_TownspersonView_C");
+    TEXT("/Script/ForbocAIDemo.TownspersonView");
 constexpr const TCHAR *RuntimeSpeechPresenterClass =
-    TEXT("/Game/Blueprints/BP_SpeechPresenter.BP_SpeechPresenter_C");
+    TEXT("/Script/ForbocAIDemo.RuntimeSpeechPresenterView");
 constexpr const TCHAR *RuntimeChatWidgetClass =
-    TEXT("/Game/UI/WBP_Chat.WBP_Chat_C");
+    TEXT("/Script/ForbocAIDemo.RuntimeChatWidget");
 constexpr const TCHAR *GameMapsSettingsSection =
     TEXT("/Script/EngineSettings.GameMapsSettings");
 
@@ -66,15 +65,15 @@ bool FContentAssetsProjectOwnedRuntimeSurface::RunTest(
            PackageExists(RuntimeMapPackage));
   TestTrue(TEXT("Default runtime game mode class loads"),
            ClassLoads(RuntimeGameModeClass));
-  TestTrue(TEXT("Runtime player controller Blueprint class loads"),
+  TestTrue(TEXT("Runtime player controller native class loads"),
            ClassLoads(RuntimePlayerControllerClass));
-  TestTrue(TEXT("Runtime level Blueprint class loads"),
+  TestTrue(TEXT("Runtime level native class loads"),
            ClassLoads(RuntimeLevelViewClass));
-  TestTrue(TEXT("Runtime townsperson Blueprint class loads"),
+  TestTrue(TEXT("Runtime townsperson native class loads"),
            ClassLoads(RuntimeTownspersonViewClass));
-  TestTrue(TEXT("Runtime speech presenter Blueprint class loads"),
+  TestTrue(TEXT("Runtime speech presenter native class loads"),
            ClassLoads(RuntimeSpeechPresenterClass));
-  TestTrue(TEXT("Runtime WBP_Chat widget class loads"),
+  TestTrue(TEXT("Runtime chat widget native class loads"),
            ClassLoads(RuntimeChatWidgetClass));
   TestTrue(TEXT("Runtime speech presenter owns USpeechComponent"),
            ActorClassHasSpeechComponent(RuntimeSpeechPresenterClass));
@@ -133,11 +132,11 @@ bool FContentAssetsProjectOwnedRuntimeSurface::RunTest(
            AssetLoads(TEXT("/Game/Characters/Horses/ClassicHorse/Rider/"
                            "Animations/Rider_Idle.Rider_Idle")));
 
-  TestFalse(TEXT("Legacy UE4 mannequin package is not tracked"),
+  TestFalse(TEXT("Old UE4 mannequin package is not tracked"),
             PackageExists(TEXT("/Game/Character/Mesh/SK_Mannequin")));
-  TestFalse(TEXT("Legacy ThirdPerson animation package is not tracked"),
+  TestFalse(TEXT("Old ThirdPerson animation package is not tracked"),
             PackageExists(TEXT("/Game/Animations/ThirdPerson_AnimBP")));
-  TestFalse(TEXT("Legacy ThirdPerson template mesh package is not tracked"),
+  TestFalse(TEXT("Old ThirdPerson template mesh package is not tracked"),
             PackageExists(
                 TEXT("/Game/ThirdPersonTemplate/Meshes/Ramp_StaticMesh")));
 

@@ -7,7 +7,7 @@
 #include "Features/Systems/Bots/Pipeline/BotPipelineTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPipelineReducers {
 
@@ -201,5 +201,5 @@ inline TArray<FBotPipelineOutputResult> ReduceMultiBotPipeline(
 
 } // namespace BotPipelineReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

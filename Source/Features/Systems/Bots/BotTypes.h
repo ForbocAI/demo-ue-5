@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 enum class EBotEntityKind : uint8 { Townsperson, Horse };
@@ -60,5 +60,5 @@ inline bool operator!=(const FBotState &Left, const FBotState &Right) {
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -8,7 +8,7 @@
 #include "Features/Systems/Terrain/TerrainTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TerrainSlice {
 
@@ -17,7 +17,7 @@ const rtk::Slice<FTerrainState> &GetSlice();
 inline FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
                         const FLevelOrthoData &OrthoData,
-                        const ForbocAI::Demo::Data::FLevelGeometrySettings
+                        const ForbocAI::Game::Data::FLevelGeometrySettings
                             &Geometry) {
   return TerrainReducers::BuildTerrainMeshPayload(TerrainData, OrthoData,
                                                   Geometry);
@@ -25,5 +25,5 @@ BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
 
 } // namespace TerrainSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -4,7 +4,7 @@
 #include "Features/Systems/UI/UITypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace UIActions {
 
@@ -42,5 +42,5 @@ inline const rtk::ActionCreator<FUIPayload> &ChatHistoryRendered() {
 
 } // namespace UIActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

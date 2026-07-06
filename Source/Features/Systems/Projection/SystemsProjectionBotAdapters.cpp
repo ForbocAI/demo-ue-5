@@ -5,7 +5,7 @@
 #include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace {
 
@@ -326,5 +326,5 @@ ecs::FWorld ProjectBotGoal(const FProjectBotGoalPayload &Payload) {
 
 } // namespace SystemsProjectionBotAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

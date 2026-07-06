@@ -3,7 +3,7 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
@@ -32,16 +32,16 @@ ScaleFromJson(const FLevelRuntimeJsonObjectRequest &Request);
 /**
  * @brief Reads and parses one required scale seed field.
  *
- * @signature func::Maybe<FLevelRuntimeScaleSeed> ReadScaleSeed(const ForbocAI::Demo::Data::FJsonFieldRequest &Request)
+ * @signature func::Maybe<FLevelRuntimeScaleSeed> ReadScaleSeed(const ForbocAI::Game::Data::FJsonFieldRequest &Request)
  *
  * User story: As a higher Level adapter, I can import downward into shared
  * JSON primitives while keeping scale parsing in the Level runtime-layout
  * subdomain.
  */
 func::Maybe<FLevelRuntimeScaleSeed>
-ReadScaleSeed(const ForbocAI::Demo::Data::FJsonFieldRequest &Request);
+ReadScaleSeed(const ForbocAI::Game::Data::FJsonFieldRequest &Request);
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

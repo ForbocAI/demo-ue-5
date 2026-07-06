@@ -9,7 +9,7 @@
 
 USpeechComponent::USpeechComponent() {
   RuntimeSettings =
-      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings()
+      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings()
           .SpeechRuntime;
   PrimaryComponentTick.bCanEverTick = RuntimeSettings.bCanEverTick;
   PrimaryComponentTick.bStartWithTickEnabled =
@@ -35,7 +35,7 @@ void USpeechComponent::SpeakText(const FString &Text) {
 
   EnsureVisemeMap();
 
-  ForbocAI::Demo::Data::FSpeechRuntimeSettings EffectiveSettings =
+  ForbocAI::Game::Data::FSpeechRuntimeSettings EffectiveSettings =
       RuntimeSettings;
   EffectiveSettings.EstimatedBasePhonemeSeconds =
       RuntimeSettings.EstimatedBasePhonemeSeconds / SpeechRate;

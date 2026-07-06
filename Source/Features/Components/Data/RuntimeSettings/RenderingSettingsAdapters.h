@@ -3,7 +3,7 @@
 #include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace RenderingSettingsAdapters {
 
@@ -60,7 +60,17 @@ ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &TextureSettings,
                              const TSharedPtr<FJsonObject> &ConsoleVariables,
                              const TSharedPtr<FJsonObject> &TexturePalettes);
 
+/**
+ * @brief Reads authored distance-based runtime LOD stages.
+ * @signature FRenderingDistanceLodSettings ReadRenderingDistanceLodSettings(const TSharedPtr<FJsonObject> &Object)
+ *
+ * User story: As a performance maintainer, distance LOD policy should be
+ * authored JSON that reduces into feature state before views render actors.
+ */
+FRenderingDistanceLodSettings
+ReadRenderingDistanceLodSettings(const TSharedPtr<FJsonObject> &Object);
+
 } // namespace RenderingSettingsAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

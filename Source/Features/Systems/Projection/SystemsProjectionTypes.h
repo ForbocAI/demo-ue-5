@@ -13,7 +13,7 @@
 #include "Features/Systems/Terrain/TerrainTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FRuntimeState;
@@ -135,5 +135,5 @@ struct FProjectRuntimePayload {
 };
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

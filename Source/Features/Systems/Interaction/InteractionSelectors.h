@@ -5,7 +5,7 @@
 #include "Features/Systems/Interaction/InteractionTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace InteractionSelectors {
 
@@ -35,5 +35,5 @@ SelectLastCandidates(const FInteractionState &State) {
 
 } // namespace InteractionSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

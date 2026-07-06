@@ -3,7 +3,7 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace NatureFactories {
 
@@ -11,5 +11,5 @@ FNatureState CreateInitialState();
 
 } // namespace NatureFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

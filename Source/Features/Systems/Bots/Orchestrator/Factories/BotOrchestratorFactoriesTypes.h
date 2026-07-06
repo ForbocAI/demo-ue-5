@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FBotOrchestratorFactoriesPayload {
@@ -29,5 +29,5 @@ inline bool operator!=(const FBotOrchestratorFactoriesState &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -4,13 +4,13 @@
 #include "Features/Systems/Bots/Core/BotCoreActions.h"
 #include "Features/Systems/Bots/Core/BotCoreReducers.h"
 
-using namespace ForbocAI::Demo::Level;
+using namespace ForbocAI::Game::Level;
 
 namespace {
-const ForbocAI::Demo::Data::FBotRuntimeSettings &
+const ForbocAI::Game::Data::FBotRuntimeSettings &
 BotFunctionalCoreRuntimeSettings() {
-  static const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
-      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
+  static const ForbocAI::Game::Data::FRuntimeSettings Settings =
+      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings();
   return Settings.BotRuntime;
 }
 

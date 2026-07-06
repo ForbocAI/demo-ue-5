@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Orchestrator/Factories/BotOrchestratorFactoriesTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotOrchestratorFactoriesReducers {
 
@@ -24,5 +24,5 @@ inline FBotOrchestratorFactoriesState ReduceFactoriesObserved(
 
 } // namespace BotOrchestratorFactoriesReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

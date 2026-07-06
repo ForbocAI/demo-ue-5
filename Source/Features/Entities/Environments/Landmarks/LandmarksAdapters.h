@@ -8,14 +8,14 @@
 #include "Features/Systems/Landmarks/LandmarkTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LandmarksAdapters {
 
 struct FLandmarkSeedBuildRequest {
   FString RelativeJsonPath;
   FLevelTerrainData TerrainData;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 TArray<FLandmark> BuildLandmarkSeed(
@@ -23,5 +23,5 @@ TArray<FLandmark> BuildLandmarkSeed(
 
 } // namespace LandmarksAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

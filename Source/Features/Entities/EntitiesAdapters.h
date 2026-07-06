@@ -10,7 +10,7 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace EntitiesAdapters {
 
@@ -60,5 +60,5 @@ ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload);
 
 } // namespace EntitiesAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

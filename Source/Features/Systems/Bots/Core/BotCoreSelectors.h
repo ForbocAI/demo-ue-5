@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Core/BotCoreTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotCoreSelectors {
 
@@ -39,5 +39,5 @@ inline func::Maybe<FString> SelectLastActionId(
 
 } // namespace BotCoreSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

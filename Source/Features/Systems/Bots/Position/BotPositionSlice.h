@@ -7,7 +7,7 @@
 #include "Features/Systems/Bots/Position/BotPositionTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPositionSlice {
 
@@ -15,5 +15,5 @@ const rtk::Slice<FBotPositionState> &GetSlice();
 
 } // namespace BotPositionSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

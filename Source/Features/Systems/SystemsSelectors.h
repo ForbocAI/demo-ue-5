@@ -5,7 +5,7 @@
 #include "Features/Systems/SystemsTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SystemsSelectors {
 
@@ -23,5 +23,5 @@ inline func::Maybe<FString> SelectLastActionId(
 
 } // namespace SystemsSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

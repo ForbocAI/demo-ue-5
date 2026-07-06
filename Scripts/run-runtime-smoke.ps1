@@ -1,8 +1,6 @@
 param(
   [string] $UnrealEditor = "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor.exe",
   [string] $MapPath = "/Game/Map/Maps/Runtime",
-  [int] $Width = 1280,
-  [int] $Height = 720,
   [int] $TimeoutSeconds = 120
 )
 
@@ -10,12 +8,12 @@ $ErrorActionPreference = "Stop"
 
 $ScriptRoot = Split-Path -Parent $PSCommandPath
 $ProjectRoot = Split-Path -Parent $ScriptRoot
-$ProjectPath = Join-Path $ProjectRoot "DemoProject.uproject"
+$ProjectPath = Join-Path $ProjectRoot "ForbocAIDemo.uproject"
 $LogDir = Join-Path $ProjectRoot "Saved\Automation"
 $LogPath = Join-Path $LogDir "RuntimeSmokeLog.txt"
 $RequiredMarkers = @(
   "LogLoad: LoadMap: /Game/Map/Maps/Runtime",
-  "LogForbocDemoRedux: Display: action terrain/loaded"
+  "LogForbocRuntimeRedux: Display: action terrain/loaded"
 )
 
 function Quote-ProcessArgument {
@@ -39,7 +37,7 @@ if (-not (Test-Path -LiteralPath $UnrealEditor)) {
 }
 
 if (-not (Test-Path -LiteralPath $ProjectPath)) {
-  throw "DemoProject.uproject was not found at $ProjectPath"
+  throw "ForbocAIDemo.uproject was not found at $ProjectPath"
 }
 
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
@@ -49,9 +47,6 @@ $Arguments = @(
   (Quote-ProcessArgument $ProjectPath),
   $MapPath,
   "-game",
-  "-windowed",
-  "-ResX=$Width",
-  "-ResY=$Height",
   (Quote-ProcessArgument "-AbsLog=$LogPath"),
   (Quote-ProcessArgument "-ExecCmds=Quit"),
   "-log",

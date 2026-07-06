@@ -18,14 +18,14 @@
 
 namespace {
 
-ForbocAI::Demo::Data::FSpeechRuntimeSettings LoadSpeechSettings() {
-  return ForbocAI::Demo::Data::RuntimeSettingsAdapters::
-      LoadDemoRuntimeSettings()
+ForbocAI::Game::Data::FSpeechRuntimeSettings LoadSpeechSettings() {
+  return ForbocAI::Game::Data::RuntimeSettingsAdapters::
+      LoadRuntimeSettings()
           .SpeechRuntime;
 }
 
 TMap<FString, FVisemeMapping> LoadVisemeMap(
-    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FSpeechRuntimeSettings &Settings) {
   return SpeechOps::VisemeMapFromSettings(Settings);
 }
 
@@ -38,7 +38,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) {
-  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+  const ForbocAI::Game::Data::FSpeechRuntimeSettings Settings =
       LoadSpeechSettings();
   const TArray<FPhonemeEvent> Phonemes =
       SpeechOps::EstimatePhonemesFromText(TEXT("Hello"), Settings);
@@ -76,7 +76,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechPhonemeWithSpaces::RunTest(const FString &Parameters) {
-  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+  const ForbocAI::Game::Data::FSpeechRuntimeSettings Settings =
       LoadSpeechSettings();
   const TArray<FPhonemeEvent> Phonemes =
       SpeechOps::EstimatePhonemesFromText(TEXT("Hi there"), Settings);
@@ -109,7 +109,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
-  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+  const ForbocAI::Game::Data::FSpeechRuntimeSettings Settings =
       LoadSpeechSettings();
   const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
 
@@ -122,7 +122,7 @@ bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
     return Idx >= Settings.VowelPhonemes.Num()
                ? void()
                : [&]() {
-                   const ForbocAI::Demo::Data::FSpeechVowelPhonemeSettings
+                   const ForbocAI::Game::Data::FSpeechVowelPhonemeSettings
                        Vowel = Settings.VowelPhonemes[Idx];
                    TestTrue(
                        FString::Printf(TEXT("Vowel %s mapped"),
@@ -143,7 +143,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
-  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+  const ForbocAI::Game::Data::FSpeechRuntimeSettings Settings =
       LoadSpeechSettings();
   const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
   const FVisemeMapping Rest = SpeechOps::RestViseme(Settings);
@@ -196,7 +196,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
         EAutomationTestFlags::EngineFilter)
 
 bool FSpeechVisemeLookup::RunTest(const FString &Parameters) {
-  const ForbocAI::Demo::Data::FSpeechRuntimeSettings Settings =
+  const ForbocAI::Game::Data::FSpeechRuntimeSettings Settings =
       LoadSpeechSettings();
   const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
 

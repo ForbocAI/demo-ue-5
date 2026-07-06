@@ -4,7 +4,7 @@
 #include "Features/Systems/Bots/Position/BotPositionFactories.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPositionReducers {
 namespace {
@@ -168,5 +168,5 @@ ReducePatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
 
 } // namespace BotPositionReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

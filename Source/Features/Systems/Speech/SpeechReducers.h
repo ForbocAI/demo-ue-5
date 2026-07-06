@@ -4,13 +4,13 @@
 #include "Features/Systems/Speech/SpeechTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SpeechReducers {
 
 inline FSpeechState ReduceRuntimeSettings(
     const FSpeechState &State,
-    const ForbocAI::Demo::Data::FSpeechRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FSpeechRuntimeSettings &Settings) {
   return (func::pipe(State) |
           [&Settings](FSpeechState Next) -> FSpeechState {
             Next.RuntimeSettings = Settings;
@@ -53,5 +53,5 @@ inline FSpeechState ReduceSpeechStopped(
 
 } // namespace SpeechReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

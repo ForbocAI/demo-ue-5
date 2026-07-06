@@ -5,7 +5,7 @@
 #include "Dom/JsonValue.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FJsonContentObjectRequest {
@@ -50,5 +50,5 @@ inline bool operator!=(const FJsonFieldRequest &Left,
 }
 
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

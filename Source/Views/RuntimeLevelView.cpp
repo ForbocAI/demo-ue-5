@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/RuntimeLevelView.h"
 
 #include "Components/StaticMeshComponent.h"
@@ -13,21 +18,29 @@
 #include "Store.h"
 #include "Views/TerrainMeshView.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
 
-DEFINE_LOG_CATEGORY_STATIC(LogForbocDemoRuntime, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntime, Log, All);
 
 namespace {
 
-struct FBlockLevelOfDetailRequest {
+struct FBlockLevelOfDetailApplyRequest {
   UStaticMeshComponent *Component;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Level::FLevelDistanceLodStage Lod;
 };
 
-void ApplyBlockLevelOfDetail(const FBlockLevelOfDetailRequest &Request) {
+void ApplyBlockLevelOfDetail(const FBlockLevelOfDetailApplyRequest &Request) {
   check(Request.Component);
-  Request.Component->SetForcedLodModel(Request.Geometry.BlockForcedLodModel);
-  Request.Component->SetCullDistance(Request.Geometry.BlockCullDistance);
+  Request.Component->SetForcedLodModel(
+      Request.Lod.StaticMeshForcedLodModel);
+  Request.Component->SetCullDistance(Request.Lod.CullDistance);
+  Request.Component->SetVisibility(Request.Lod.bStaticVisible);
+  Request.Component->SetHiddenInGame(!Request.Lod.bStaticVisible);
+  Request.Component->SetCollisionEnabled(Request.Lod.bCollisionEnabled
+                                             ? ECollisionEnabled::QueryOnly
+                                             : ECollisionEnabled::NoCollision);
+  Request.Component->SetCastShadow(Request.Lod.bCastShadow);
+  Request.Component->SetComponentTickEnabled(false);
 }
 
 } // namespace
@@ -51,15 +64,17 @@ ARuntimeLevelView::ARuntimeLevelView()
 
 void ARuntimeLevelView::BeginPlay() {
   Super::BeginPlay();
-  UE_LOG(LogForbocDemoRuntime, Display,
+  UE_LOG(LogForbocRuntime, Display,
          TEXT("Forboc runtime smoke: RuntimeLevelView BeginPlay"));
   bSpawnOnBeginPlay ? RenderLevel() : void();
 }
 
 void ARuntimeLevelView::RenderLevel() {
-  FG::RenderingSlice::ApplyRuntimeProfile(
+  const FG::FLevelRetroRenderProfile Profile =
       FG::RuntimeSelectors::SelectRuntimeProfile(
-          FG::Store::GetStore().getState()),
+          FG::Store::GetStore().getState());
+  FG::RenderingSlice::ApplyRuntimeProfile(
+      GetWorld(), Profile,
       FG::RuntimeSelectors::SelectRenderingRuntimeSettings(
           FG::Store::GetStore().getState()));
   auto Payload = FG::FRuntimeLevelViewPayload();
@@ -176,8 +191,8 @@ AStaticMeshActor *ARuntimeLevelView::RenderBlock(
                        check(MeshComponent);
                        Block->SetActorScale3D(BlockSpawn.Scale);
                        MeshComponent->SetStaticMesh(CubeMesh);
-                       ApplyBlockLevelOfDetail(
-                           {MeshComponent, LevelGeometrySettings});
+                       ApplyBlockLevelOfDetail({MeshComponent,
+                                                BlockSpawn.Lod});
                        FG::RenderingSlice::ApplyTexture(
                            {MeshComponent, BlockBaseMaterial,
                             BlockSpawn.Texture, TextureCatalog,
@@ -202,6 +217,12 @@ void ARuntimeLevelView::RenderLabel(
                      FText::FromString(LabelSpawn.Text)),
                  Label->GetTextRender()->SetHorizontalAlignment(EHTA_Center),
                  Label->GetTextRender()->SetWorldSize(LabelSpawn.WorldSize),
+                 Label->GetTextRender()->SetVisibility(
+                     LabelSpawn.Lod.bLabelsVisible),
+                 Label->GetTextRender()->SetHiddenInGame(
+                     !LabelSpawn.Lod.bLabelsVisible),
+                 Label->GetTextRender()->SetComponentTickEnabled(false),
+                 Label->SetActorTickEnabled(false),
                  true)
               : false;
       },
@@ -230,6 +251,7 @@ ATownspersonView *ARuntimeLevelView::RenderTownsperson(
         Config.DefaultPlayerLine = Spawn.DefaultPlayerLine;
         Config.PinnedResponse = Spawn.PinnedResponse;
         Config.PatrolRoute = Spawn.PatrolRoute;
+        Config.Lod = Spawn.Lod;
         return Townsperson ? (Townsperson->ConfigureTownsperson(Config),
                               Townsperson)
                            : nullptr;
@@ -253,6 +275,7 @@ AHorseView *ARuntimeLevelView::RenderHorse(
         Config.Name = Spawn.Name;
         Config.PatrolRoute = Spawn.PatrolRoute;
         Config.bMountedRider = Spawn.bMountedRider;
+        Config.Lod = Spawn.Lod;
         return Horse ? (Horse->ConfigureHorse(Config), Horse) : nullptr;
       },
       []() -> AHorseView * { return nullptr; });

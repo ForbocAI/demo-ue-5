@@ -1,7 +1,7 @@
 #include "Features/Components/Data/DataReducers.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace DataReducers {
 
@@ -19,5 +19,5 @@ ReduceDataLoaded(const FDataState &State,
 
 } // namespace DataReducers
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

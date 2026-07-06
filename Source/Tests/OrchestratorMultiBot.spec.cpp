@@ -13,7 +13,7 @@
 #include "Store.h"
 #include "Misc/AutomationTest.h"
 
-using namespace ForbocAI::Demo::Level;
+using namespace ForbocAI::Game::Level;
 
 DEFINE_SPEC(FOrchestratorMultiBotSpec, "ForbocAI.Bot.Orchestrator.MultiBot",
             EAutomationTestFlags::ProductFilter |

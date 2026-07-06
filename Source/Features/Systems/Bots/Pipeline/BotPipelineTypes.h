@@ -7,7 +7,7 @@
 class AActor;
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FBotPipelinePayload {
@@ -118,5 +118,5 @@ inline bool operator!=(const FBotPipelineState &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

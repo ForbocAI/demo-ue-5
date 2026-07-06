@@ -25,7 +25,7 @@
  * so I can read and write NPC state fields without C++ knowledge.
  */
 UCLASS()
-class DEMOPROJECT_API UGenericStateBlueprintLibrary
+class FORBOCAIDEMO_API UGenericStateBlueprintLibrary
     : public UBlueprintFunctionLibrary {
   GENERATED_BODY()
 

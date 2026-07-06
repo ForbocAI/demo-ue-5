@@ -4,7 +4,7 @@
 #include "Features/Components/ComponentsAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace {
 
@@ -378,5 +378,5 @@ ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload) {
 
 } // namespace EntitiesAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

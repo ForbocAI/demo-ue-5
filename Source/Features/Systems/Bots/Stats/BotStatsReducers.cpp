@@ -4,7 +4,7 @@
 #include "Features/Systems/Bots/Stats/BotStatsFactories.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotStatsReducers {
 
@@ -60,5 +60,5 @@ FBotStatsState ReduceHorsesSeeded(
 
 } // namespace BotStatsReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

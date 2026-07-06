@@ -4,7 +4,7 @@
 #include "Features/Systems/UI/UITypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace UISelectors {
 
@@ -22,26 +22,26 @@ inline bool SelectConversationVisible(const FUIState &State) {
 
 /**
  * @brief Selects the current runtime conversation view model.
- * @signature inline ForbocAI::Demo::UI::FRuntimeConversationViewModel SelectConversation(const FUIState &State)
+ * @signature inline ForbocAI::Game::UI::FRuntimeConversationViewModel SelectConversation(const FUIState &State)
  * @return The conversation view data derived by UI reducers.
  *
  * User story: As a player-facing widget, conversation headers and prompt text
  * should come from selector-derived RTK state rather than ad hoc ECS reads.
  */
-inline ForbocAI::Demo::UI::FRuntimeConversationViewModel SelectConversation(
+inline ForbocAI::Game::UI::FRuntimeConversationViewModel SelectConversation(
     const FUIState &State) {
   return State.Conversation;
 }
 
 /**
  * @brief Selects rendered chat message view models.
- * @signature inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel> SelectMessages(const FUIState &State)
+ * @signature inline TArray<ForbocAI::Game::UI::FChatMessageViewModel> SelectMessages(const FUIState &State)
  * @return The reducer-owned chat message list for view rendering.
  *
  * User story: As the chat view, message rows should be read as immutable
  * selector output after RTK reducers process dialogue actions.
  */
-inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel> SelectMessages(
+inline TArray<ForbocAI::Game::UI::FChatMessageViewModel> SelectMessages(
     const FUIState &State) {
   return State.Messages;
 }
@@ -49,12 +49,12 @@ inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel> SelectMessages(
 /**
  * @brief Selects authored UI runtime settings.
  */
-inline const ForbocAI::Demo::Data::FUIRuntimeSettings &
+inline const ForbocAI::Game::Data::FUIRuntimeSettings &
 SelectRuntimeSettings(const FUIState &State) {
   return State.RuntimeSettings;
 }
 
 } // namespace UISelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

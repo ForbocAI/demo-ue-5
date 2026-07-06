@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/BotSourceMapping.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotFactories {
 namespace {
@@ -69,5 +69,5 @@ TArray<FBotEntity> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
 
 } // namespace BotFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

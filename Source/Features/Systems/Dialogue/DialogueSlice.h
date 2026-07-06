@@ -8,7 +8,7 @@
 #include "Features/Systems/Dialogue/DialogueTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace DialogueSlice {
 
@@ -44,5 +44,5 @@ inline const rtk::Slice<FDialogueState> &GetSlice() {
 
 } // namespace DialogueSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

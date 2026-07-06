@@ -5,7 +5,7 @@
 #include "Features/Systems/Terrain/TerrainReducers.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TerrainSlice {
 
@@ -28,5 +28,5 @@ const rtk::Slice<FTerrainState> &GetSlice() {
 
 } // namespace TerrainSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

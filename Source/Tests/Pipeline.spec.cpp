@@ -6,15 +6,15 @@
 #include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineReducers.h"
 
-using namespace ForbocAI::Demo::Level;
-using namespace ForbocAI::Demo::Level::BotPipelineReducers;
+using namespace ForbocAI::Game::Level;
+using namespace ForbocAI::Game::Level::BotPipelineReducers;
 
 namespace {
 
-const ForbocAI::Demo::Data::FBotRuntimeSettings &
+const ForbocAI::Game::Data::FBotRuntimeSettings &
 PipelineBotRuntimeSettings() {
-  static const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
-      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
+  static const ForbocAI::Game::Data::FRuntimeSettings Settings =
+      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings();
   return Settings.BotRuntime;
 }
 

@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FTownspersonDefaultsSettings {
@@ -58,6 +58,8 @@ struct FBotRuntimeSettings {
   float ObservationIntervalSeconds;
   float InitialObservationTimeSeconds;
   bool bOrchestratorCanEverTick;
+  float PatrolTickIntervalSeconds;
+  float InitialPatrolPauseRemainingSeconds;
   bool bRegisteredBotActive;
   bool bPositionPayloadHasLocalLocation;
   bool bPositionPayloadHasWorldLocation;
@@ -180,6 +182,10 @@ inline bool operator==(const FBotRuntimeSettings &Left,
                               Right.InitialObservationTimeSeconds) &&
          Left.bOrchestratorCanEverTick ==
              Right.bOrchestratorCanEverTick &&
+         FMath::IsNearlyEqual(Left.PatrolTickIntervalSeconds,
+                              Right.PatrolTickIntervalSeconds) &&
+         FMath::IsNearlyEqual(Left.InitialPatrolPauseRemainingSeconds,
+                              Right.InitialPatrolPauseRemainingSeconds) &&
          Left.bRegisteredBotActive == Right.bRegisteredBotActive &&
          Left.bPositionPayloadHasLocalLocation ==
              Right.bPositionPayloadHasLocalLocation &&
@@ -203,5 +209,5 @@ inline bool operator!=(const FBotRuntimeSettings &Left,
 }
 
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

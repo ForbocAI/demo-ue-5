@@ -3,7 +3,7 @@
 #include "Features/Systems/Landmarks/LandmarkAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LandmarkFactories {
 
@@ -25,5 +25,5 @@ FLandmark Landmark(const FLandmarkSource &Source) {
 
 } // namespace LandmarkFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

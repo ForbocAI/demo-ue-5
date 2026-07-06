@@ -22,6 +22,55 @@
       "float_value": 0.0
     },
     {
+      "name": "r.VSync",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.DefaultFeature.AntiAliasing",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.DefaultFeature.AmbientOcclusion",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.DefaultFeature.Bloom",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.DefaultFeature.MotionBlur",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Upscale.Quality",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Tonemapper.Quality",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
       "name": "r.ScreenPercentage",
       "value_kind": "profile_float",
       "profile_field": "screen_percentage",
@@ -85,6 +134,13 @@
       "float_value": 0.0
     },
     {
+      "name": "r.ShadowQuality",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
       "name": "r.Shadow.CSM.MaxCascades",
       "value_kind": "profile_int",
       "profile_field": "shadow_cascades",
@@ -103,21 +159,91 @@
       "value_kind": "fixed_float",
       "profile_field": "",
       "int_value": 0,
-      "float_value": 0.02
+      "float_value": 0.08
+    },
+    {
+      "name": "r.Shadow.Virtual.Enable",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.DistanceFieldShadowing",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Fog",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 1,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.VolumetricFog",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Lumen.Reflections.Allow",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Lumen.DiffuseIndirect.Allow",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.Nanite",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.SkeletalMeshLODBias",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.ForceLOD",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.StaticMeshLODDistanceScale",
+      "value_kind": "fixed_float",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 1.0
     },
     {
       "name": "r.MipMapLODBias",
       "value_kind": "fixed_float",
       "profile_field": "",
       "int_value": 0,
-      "float_value": 2.0
+      "float_value": 3.0
     },
     {
       "name": "r.Streaming.MipBias",
       "value_kind": "fixed_float",
       "profile_field": "",
       "int_value": 0,
-      "float_value": 2.0
+      "float_value": 3.0
     }
   ]
 }

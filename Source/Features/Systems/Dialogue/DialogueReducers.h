@@ -6,13 +6,13 @@
 #include "Features/Systems/Dialogue/DialogueTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace DialogueReducers {
 
 inline FDialogueState ReduceRuntimeSettings(
     const FDialogueState &State,
-    const ForbocAI::Demo::Data::FDialogueRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FDialogueRuntimeSettings &Settings) {
   return (func::pipe(State) |
           [&Settings](FDialogueState Next) -> FDialogueState {
             Next.RuntimeSettings = Settings;
@@ -25,7 +25,7 @@ inline FDialogueState ReduceRuntimeSettings(
  * @brief Pure reducer helper that creates a local, deterministic NPC reply.
  *
  * @param Request Single request payload describing speaker and player line.
- * @return Reply text used by the gate-closed demo.
+ * @return Reply text used by the gate-closed runtime.
  *
  * User story: As a player, I can interact with townspeople offline while the
  * SDK/API path is feature-gated.
@@ -41,7 +41,7 @@ inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request) {
 inline FDialogueReplyPayload
 ReduceLocalReplyPayload(
     const FLocalDialogueReplyRequest &Request,
-    const ForbocAI::Demo::Data::FDialogueRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FDialogueRuntimeSettings &Settings) {
   FDialogueReplyPayload Payload;
   Payload.Id = frmt::RuntimeString(
       Settings.ReplyPayloadIdFormat,
@@ -88,5 +88,5 @@ inline FDialogueState ReduceLocalReplyResolved(
 
 } // namespace DialogueReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

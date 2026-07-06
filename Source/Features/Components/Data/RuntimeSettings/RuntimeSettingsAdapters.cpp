@@ -7,7 +7,7 @@
 #include "Features/Components/Data/RuntimeSettings/RenderingSettingsAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace RuntimeSettingsAdapters {
 
@@ -26,16 +26,28 @@ template <> struct TJsonSettingsRegistry<FRuntimeStatsOverlaySettings> {
                 FRuntimeStatsOverlaySettings, FramesPerSecondLabel,
                 StackDepthLabel, PolyCountLabel, LabelValueSeparator,
                 ValueFormat,
+                DebugMessageFormat, DebugMessageKey,
+                DebugMessageDurationSeconds,
                 ViewportLeft, ViewportTop, ViewportWidth, ViewportHeight,
-                PanelPadding, FramesPerSecondNumerator, MinimumDeltaSeconds,
+                PanelPadding, StatsRefreshIntervalSeconds,
+                PolyCountRefreshIntervalSeconds, BudgetLogIntervalSeconds,
+                IntervalResetElapsedSeconds, BudgetScreenshotIntervalSeconds,
+                BudgetScreenshotDisabledIntervalSeconds,
+                BudgetScreenshotIntervalCommandLineKey,
+                BudgetScreenshotDirectory, BudgetScreenshotFileNameFormat,
+                BudgetScreenshotInitialIndex, BudgetScreenshotIndexStep,
+                FramesPerSecondNumerator, MinimumDeltaSeconds,
                 InitialDeltaSeconds, InitialFramesPerSecond, EmptyStackDepth,
                 EmptyPolyCount, EmptyTriangleCount, MeshLodIndex,
+                ForcedLodAutomaticModel, LodModelIndexOffset,
                 ProcMeshFirstSectionIndex, ProcMeshSectionStep,
                 TriangleIndexDivisor, ZOrder, FontSize, bRemoveDpIScale,
-                bAutoWrapText, FramesPerSecondMediumThreshold,
-                FramesPerSecondHighThreshold, StackDepthMediumThreshold,
-                StackDepthHighThreshold, PolyCountMediumThreshold,
-                PolyCountHighThreshold),
+                bAutoWrapText, bBudgetScreenshotCreateDirectoryTree,
+                bBudgetScreenshotShowUI,
+                bBudgetScreenshotAddFilenameSuffix,
+                FramesPerSecondMediumThreshold, FramesPerSecondHighThreshold,
+                StackDepthMediumThreshold, StackDepthHighThreshold,
+                PolyCountMediumThreshold, PolyCountHighThreshold),
             JSON_OBJECT_SETTING_FIELDS(
                 FRuntimeStatsOverlaySettings,
                 RuntimeSettingsAdapters::ReadLinearColorSettings, PanelColor,
@@ -81,6 +93,9 @@ JSON_SETTINGS_REGISTRY(FRuntimeTextSettings, TownspersonNameRoleFormat,
                        RiderMissingMesh, StartupSdkEnabled,
                        StartupSdkDisabled);
 
+JSON_SETTINGS_REGISTRY(FRuntimeReduxLogSettings, SampleInterval,
+                       SampledActionTypes);
+
 template <> struct TJsonSettingsRegistry<FUIRuntimeSettings> {
   static const TArray<TJsonSettingsField<FUIRuntimeSettings>> &Fields() {
     static const TArray<TJsonSettingsField<FUIRuntimeSettings>>
@@ -105,15 +120,30 @@ template <> struct TJsonSettingsRegistry<FUIRuntimeSettings> {
                 ReadSettingsWith<FRuntimeStatsOverlaySettings>(
                     JSON_SETTINGS_ATOMS(
                         FramesPerSecondLabel, StackDepthLabel, PolyCountLabel,
-                        LabelValueSeparator, ValueFormat, ViewportLeft,
+                        LabelValueSeparator, ValueFormat,
+                        DebugMessageFormat, DebugMessageKey,
+                        DebugMessageDurationSeconds, ViewportLeft,
                         ViewportTop, ViewportWidth, ViewportHeight,
-                        PanelPadding, FramesPerSecondNumerator,
+                        PanelPadding, StatsRefreshIntervalSeconds,
+                        PolyCountRefreshIntervalSeconds,
+                        BudgetLogIntervalSeconds, IntervalResetElapsedSeconds,
+                        BudgetScreenshotIntervalSeconds,
+                        BudgetScreenshotDisabledIntervalSeconds,
+                        BudgetScreenshotIntervalCommandLineKey,
+                        BudgetScreenshotDirectory,
+                        BudgetScreenshotFileNameFormat,
+                        BudgetScreenshotInitialIndex,
+                        BudgetScreenshotIndexStep, FramesPerSecondNumerator,
                         MinimumDeltaSeconds, InitialDeltaSeconds,
                         InitialFramesPerSecond, EmptyStackDepth,
                         EmptyPolyCount, EmptyTriangleCount, MeshLodIndex,
+                        ForcedLodAutomaticModel, LodModelIndexOffset,
                         ProcMeshFirstSectionIndex, ProcMeshSectionStep,
                         TriangleIndexDivisor, ZOrder, FontSize,
                         bRemoveDpIScale, bAutoWrapText,
+                        bBudgetScreenshotCreateDirectoryTree,
+                        bBudgetScreenshotShowUI,
+                        bBudgetScreenshotAddFilenameSuffix,
                         FramesPerSecondMediumThreshold,
                         FramesPerSecondHighThreshold,
                         StackDepthMediumThreshold, StackDepthHighThreshold,
@@ -155,6 +185,8 @@ template <> struct TJsonSettingsRegistry<FBotRuntimeSettings> {
                                 ObservationIntervalSeconds,
                                 InitialObservationTimeSeconds,
                                 bOrchestratorCanEverTick,
+                                PatrolTickIntervalSeconds,
+                                InitialPatrolPauseRemainingSeconds,
                                 bRegisteredBotActive,
                                 bPositionPayloadHasLocalLocation,
                                 bPositionPayloadHasWorldLocation, StartLog,
@@ -261,7 +293,7 @@ const TArray<FRuntimeSettingsSourceGroup> &RuntimeSettingsSourceGroups() {
         "Speech", "UI", "Runtime"}},
       {"Rendering",
        {"RenderingAssets", "RenderingProfile", "RenderingRuntime",
-        "TextureCatalog"}},
+        "TextureCatalog", "RenderingDistanceLod"}},
       {"RenderingRuntime",
        {"TextureSettings", "ConsoleVariables", "TexturePalettes"}}};
   return Groups;
@@ -310,11 +342,11 @@ FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object) {
                       Float(TEXT("a")));
 }
 
-FDemoRuntimeSettings
-ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
+FRuntimeSettings
+ReadRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
   const FRuntimeSettingsSourceCatalog Sources =
       LoadRuntimeSettingsSources(Object);
-  FDemoRuntimeSettings Settings;
+  FRuntimeSettings Settings;
   Settings.PlayerPresentation = PlayerSettingsAdapters::
       ReadPlayerPresentationSettings(Json::ReadObjectField(
           RuntimeSettingsSource(Sources, "Player"), "PlayerPresentation"));
@@ -354,6 +386,11 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
                                 "TextureSettings"),
           RuntimeSettingsSource(Sources, "ConsoleVariables"),
           RuntimeSettingsSource(Sources, "TexturePalettes"));
+  Settings.RenderingDistanceLod =
+      RenderingSettingsAdapters::ReadRenderingDistanceLodSettings(
+          Json::ReadObjectField(RuntimeSettingsSource(
+                                    Sources, "RenderingDistanceLod"),
+                                "DistanceLod"));
   Settings.DialogueRuntime =
       Json::ReadSettingsWith<FDialogueRuntimeSettings>(
           JSON_SETTINGS_ATOMS(ReplyPayloadIdFormat))(
@@ -374,6 +411,7 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
           bPatrolGoalInitialCompleted, bActiveGoalComponentHasActiveGoal,
           TownspersonStats, HorseStats, ObservationIntervalSeconds,
           InitialObservationTimeSeconds, bOrchestratorCanEverTick,
+          PatrolTickIntervalSeconds, InitialPatrolPauseRemainingSeconds,
           bRegisteredBotActive, bPositionPayloadHasLocalLocation,
           bPositionPayloadHasWorldLocation, StartLog, RegisteredLogFormat,
           ProcessFailedLogFormat, ExecuteLogFormat, NullActorLabel,
@@ -423,6 +461,11 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
                           StartupSdkEnabled, StartupSdkDisabled))(
       Json::ReadObjectField(RuntimeSettingsSource(Sources, "Runtime"),
                             "RuntimeText"));
+  Settings.RuntimeReduxLog =
+      Json::ReadSettingsWith<FRuntimeReduxLogSettings>(
+          JSON_SETTINGS_ATOMS(SampleInterval, SampledActionTypes))(
+          Json::ReadObjectField(RuntimeSettingsSource(Sources, "Runtime"),
+                                "RuntimeReduxLog"));
   Settings.UIRuntime = Json::ReadSettingsWith<FUIRuntimeSettings>(
       JSON_SETTINGS_ATOMS(
           PlayerRoleLabel, SystemRoleLabel, NpcRoleLabel, UnknownRoleLabel,
@@ -450,12 +493,12 @@ ReadDemoRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
   return Settings;
 }
 
-FDemoRuntimeSettings LoadDemoRuntimeSettings() {
-  return ReadDemoRuntimeSettings(Json::LoadRequiredObjectFromContent(
-      {TEXT("Data/runtime_demo_settings.json")}));
+FRuntimeSettings LoadRuntimeSettings() {
+  return ReadRuntimeSettings(Json::LoadRequiredObjectFromContent(
+      {TEXT("Data/runtime_settings.json")}));
 }
 
 } // namespace RuntimeSettingsAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

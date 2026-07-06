@@ -6,15 +6,15 @@
 #include "Features/Systems/Terrain/TerrainTypes.h"
 
 struct FLevelOrthoDataLoadRequest {
-  ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources;
+  ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources;
 };
 
 struct FLevelTerrainDataLoadRequest {
-  ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
-class DEMOPROJECT_API FLevelOrthoData {
+class FORBOCAIDEMO_API FLevelOrthoData {
 public:
   bool LoadFromContent(const FLevelOrthoDataLoadRequest &Request);
   bool IsLoaded() const;
@@ -29,7 +29,7 @@ private:
   TArray<FColor> Colors;
 };
 
-class DEMOPROJECT_API FLevelTerrainData {
+class FORBOCAIDEMO_API FLevelTerrainData {
 public:
   bool LoadFromContent(const FLevelTerrainDataLoadRequest &Request);
   bool IsLoaded() const;

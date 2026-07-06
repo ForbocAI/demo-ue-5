@@ -28,7 +28,7 @@
 #include "Features/Systems/UI/UITypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 /**
@@ -53,6 +53,7 @@ struct FRuntimeTownspersonViewSpawn {
   FString DefaultPlayerLine;
   FString PinnedResponse;
   TArray<FVector> PatrolRoute;
+  FLevelDistanceLodStage Lod;
 };
 
 /**
@@ -62,6 +63,7 @@ struct FRuntimeHorseViewSpawn {
   FString Name;
   TArray<FVector> PatrolRoute;
   bool bMountedRider = false;
+  FLevelDistanceLodStage Lod;
 };
 
 /**
@@ -87,7 +89,7 @@ struct FRuntimeLevelViewPayloadRequest {
   const FLevelTerrainData *TerrainData = nullptr;
   const FLevelOrthoData *OrthoData = nullptr;
   const FLevelRuntimeLayoutSeed *RuntimeLayout = nullptr;
-  const ForbocAI::Demo::Data::FLevelGeometrySettings *Geometry = nullptr;
+  const ForbocAI::Game::Data::FLevelGeometrySettings *Geometry = nullptr;
 };
 
 /**
@@ -122,8 +124,8 @@ struct FRuntimeTownspersonInteractionPayload {
 
 struct FRuntimeTownspersonInteractionPayloadRequest {
   FRuntimeTownspersonInteractionRequest Request;
-  ForbocAI::Demo::Data::FDialogueRuntimeSettings DialogueSettings;
-  ForbocAI::Demo::Data::FUIRuntimeSettings UISettings;
+  ForbocAI::Game::Data::FDialogueRuntimeSettings DialogueSettings;
+  ForbocAI::Game::Data::FUIRuntimeSettings UISettings;
 };
 
 /**
@@ -154,7 +156,7 @@ inline bool operator==(const FRuntimeTownspersonViewSpawn &Left,
          Left.InteractionPrompt == Right.InteractionPrompt &&
          Left.DefaultPlayerLine == Right.DefaultPlayerLine &&
          Left.PinnedResponse == Right.PinnedResponse &&
-         Left.PatrolRoute == Right.PatrolRoute;
+         Left.PatrolRoute == Right.PatrolRoute && Left.Lod == Right.Lod;
 }
 
 inline bool operator!=(const FRuntimeTownspersonViewSpawn &Left,
@@ -165,7 +167,7 @@ inline bool operator!=(const FRuntimeTownspersonViewSpawn &Left,
 inline bool operator==(const FRuntimeHorseViewSpawn &Left,
                        const FRuntimeHorseViewSpawn &Right) {
   return Left.Name == Right.Name && Left.PatrolRoute == Right.PatrolRoute &&
-         Left.bMountedRider == Right.bMountedRider;
+         Left.bMountedRider == Right.bMountedRider && Left.Lod == Right.Lod;
 }
 
 inline bool operator!=(const FRuntimeHorseViewSpawn &Left,
@@ -236,18 +238,18 @@ inline bool operator!=(const FRuntimeLevelViewPayload &Left,
 }
 
 /**
- * @brief Root state for the single UE demo store.
+ * @brief Root state for the single UE runtime store.
  *
  * Architecture: RuntimeSlice composes every feature slice into this state.
  * Views dispatch actions/thunks and read selectors; reducers own mutations and
  * ECS projection keeps entity/component data inspectable without replacing RTK.
  */
 struct FRuntimeState {
-  ForbocAI::Demo::Data::FRuntimeObservationIdSettings RuntimeObservationIds;
-  ForbocAI::Demo::Data::FRuntimeDebugMessageSettings RuntimeDebugMessages;
-  ForbocAI::Demo::Data::FRuntimeViewNameSettings RuntimeViewNames;
-  ForbocAI::Demo::Data::FRuntimeTextSettings RuntimeText;
-  ForbocAI::Demo::Data::FBotRuntimeSettings BotRuntime;
+  ForbocAI::Game::Data::FRuntimeObservationIdSettings RuntimeObservationIds;
+  ForbocAI::Game::Data::FRuntimeDebugMessageSettings RuntimeDebugMessages;
+  ForbocAI::Game::Data::FRuntimeViewNameSettings RuntimeViewNames;
+  ForbocAI::Game::Data::FRuntimeTextSettings RuntimeText;
+  ForbocAI::Game::Data::FBotRuntimeSettings BotRuntime;
   FRuntimeEcsState Ecs;
   FRuntimeTownspersonInteractionRequest LastTownspersonInteractionRequest;
   FPlayerState Player;
@@ -312,5 +314,5 @@ inline bool operator!=(const FRuntimeState &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

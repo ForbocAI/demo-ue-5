@@ -4,7 +4,7 @@
 #include "Features/Systems/Bots/Position/BotPositionTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPositionActions {
 
@@ -18,5 +18,5 @@ const rtk::ActionCreator<FBotPatrolAdvanceRequest> &PatrolAdvanceObserved();
 
 } // namespace BotPositionActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

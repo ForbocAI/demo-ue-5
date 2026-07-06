@@ -1,8 +1,6 @@
 param(
-  [string] $UnrealEditor = "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor.exe",
+  [string] $UnrealEditor = "",
   [string] $MapPath = "/Game/Map/Maps/Runtime",
-  [int] $Width = 1280,
-  [int] $Height = 720,
   [bool] $Game = $true,
   [switch] $Wait,
   [string[]] $ExtraArgs = @()
@@ -12,7 +10,7 @@ $ErrorActionPreference = "Stop"
 
 $ScriptRoot = Split-Path -Parent $PSCommandPath
 $ProjectRoot = Split-Path -Parent $ScriptRoot
-$ProjectPath = Join-Path $ProjectRoot "DemoProject.uproject"
+$ProjectPath = Join-Path $ProjectRoot "ForbocAIDemo.uproject"
 
 function Quote-ProcessArgument {
   param([string] $Value)
@@ -30,21 +28,35 @@ function Optional-GameArgument {
   }
 }
 
+function Resolve-UnrealEditorPath {
+  param([string] $ExplicitPath)
+
+  if (-not [string]::IsNullOrWhiteSpace($ExplicitPath)) {
+    return $ExplicitPath
+  }
+
+  $Root = $env:UE_ROOT
+  if ([string]::IsNullOrWhiteSpace($Root)) {
+    $Root = "C:\Program Files\Epic Games\UE_5.7"
+  }
+
+  return Join-Path $Root "Engine\Binaries\Win64\UnrealEditor.exe"
+}
+
+$UnrealEditor = Resolve-UnrealEditorPath -ExplicitPath $UnrealEditor
+
 if (-not (Test-Path -LiteralPath $UnrealEditor)) {
   throw "UnrealEditor was not found at $UnrealEditor"
 }
 
 if (-not (Test-Path -LiteralPath $ProjectPath)) {
-  throw "DemoProject.uproject was not found at $ProjectPath"
+  throw "ForbocAIDemo.uproject was not found at $ProjectPath"
 }
 
 $Arguments = @(
   (Quote-ProcessArgument $ProjectPath),
   $MapPath,
   (Optional-GameArgument $Game),
-  "-windowed",
-  "-ResX=$Width",
-  "-ResY=$Height",
   "-log",
   "-stdout",
   "-FullStdOutLogOutput",

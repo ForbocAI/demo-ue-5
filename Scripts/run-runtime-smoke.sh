@@ -4,17 +4,17 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT_FILE="$PROJECT_ROOT/DemoProject.uproject"
+PROJECT_FILE="$PROJECT_ROOT/ForbocAIDemo.uproject"
 PROJECT_FILE_ARG="$PROJECT_FILE"
 MAP_PATH="${FORBOC_RUNTIME_SMOKE_MAP:-/Game/Map/Maps/Runtime}"
 LOG_FILE="$PROJECT_ROOT/Saved/Automation/RuntimeSmokeLog.txt"
 MAP_MARKER="LogLoad: LoadMap: /Game/Map/Maps/Runtime"
-TERRAIN_MARKER="LogForbocDemoRedux: Display: action terrain/loaded"
+TERRAIN_MARKER="LogForbocRuntimeRedux: Display: action terrain/loaded"
 TIMEOUT_SECONDS="${FORBOC_RUNTIME_SMOKE_TIMEOUT_SECONDS:-120}"
 UNREAL_EDITOR=""
 
 if [ ! -f "$PROJECT_FILE" ]; then
-  echo "Error: DemoProject.uproject not found at $PROJECT_FILE"
+  echo "Error: ForbocAIDemo.uproject not found at $PROJECT_FILE"
   exit 1
 fi
 

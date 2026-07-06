@@ -5,7 +5,7 @@
 #include "Features/Systems/Rendering/RenderingTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RenderingActions {
 
@@ -17,5 +17,5 @@ HorsePresentationRequested();
 
 } // namespace RenderingActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

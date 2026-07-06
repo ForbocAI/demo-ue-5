@@ -4,7 +4,7 @@
 #include "Features/Systems/Speech/SpeechTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SpeechActions {
 
@@ -30,5 +30,5 @@ inline const rtk::ActionCreator<FSpeechPayload> &SpeechStopped() {
 
 } // namespace SpeechActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

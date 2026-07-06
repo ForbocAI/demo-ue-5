@@ -6,7 +6,7 @@
 #include "Features/Entities/Characters/Player/PlayerTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace PlayerReducers {
 
@@ -44,14 +44,14 @@ inline FPlayerMovementInputViewModel ReduceMovementInput(
  * @brief Maps JSON-backed player presentation settings into selector state.
  *
  * @signature FPlayerPresentationViewModel ReducePlayerPresentation(const
- * ForbocAI::Demo::Data::FPlayerPresentationSettings &Settings)
+ * ForbocAI::Game::Data::FPlayerPresentationSettings &Settings)
  *
  * User story: As a player, camera, movement, mesh, and input assets can be
  * tuned from data while the Redux reducer remains the owner of presentation
  * state.
  */
 inline FPlayerPresentationViewModel ReducePlayerPresentation(
-    const ForbocAI::Demo::Data::FPlayerPresentationSettings &Settings) {
+    const ForbocAI::Game::Data::FPlayerPresentationSettings &Settings) {
   FPlayerPresentationViewModel Model;
   Model.CapsuleRadius = Settings.CapsuleRadius;
   Model.CapsuleHalfHeight = Settings.CapsuleHalfHeight;
@@ -65,6 +65,13 @@ inline FPlayerPresentationViewModel ReducePlayerPresentation(
   Model.BrakingDecelerationFalling = Settings.BrakingDecelerationFalling;
   Model.MeshRelativeLocation = Settings.MeshRelativeLocation;
   Model.MeshRelativeRotation = Settings.MeshRelativeRotation;
+  Model.SkeletalMeshForcedLodModel = Settings.SkeletalMeshForcedLodModel;
+  Model.SkeletalMeshMinLodModel = Settings.SkeletalMeshMinLodModel;
+  Model.MeshCullDistance = Settings.MeshCullDistance;
+  Model.bMeshCastShadow = Settings.bMeshCastShadow;
+  Model.bMeshComponentTickEnabled = Settings.bMeshComponentTickEnabled;
+  Model.bMeshUpdateRateOptimizationsEnabled =
+      Settings.bMeshUpdateRateOptimizationsEnabled;
   Model.MeshPath = Settings.MeshPath;
   Model.AnimationBlueprintClassPath = Settings.AnimationBlueprintClassPath;
   Model.MoveActionPath = Settings.MoveActionPath;
@@ -101,5 +108,5 @@ inline FPlayerState ReducePlayerPresentationRequested(
 
 } // namespace PlayerReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

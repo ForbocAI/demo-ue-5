@@ -14,13 +14,13 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotsAdapters {
 
 struct FBotSeedBuildRequest {
   FString RelativeJsonPath;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 TArray<FTownspersonSeed> BuildTownspersonSeed(
@@ -30,5 +30,5 @@ TArray<FHorseRouteSeed> BuildHorseRouteSeed(
 
 } // namespace BotsAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

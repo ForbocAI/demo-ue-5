@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,11 +12,11 @@
 class UProceduralMeshElement;
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 struct FTerrainMeshPayload;
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 /**
@@ -25,7 +30,7 @@ struct FTerrainMeshPayload;
  * store data without duplicating terrain decisions in the actor.
  */
 UCLASS()
-class DEMOPROJECT_API ATerrainMeshView : public AActor {
+class FORBOCAIDEMO_API ATerrainMeshView : public AActor {
   GENERATED_BODY()
 
 public:
@@ -37,7 +42,7 @@ public:
    * @return true when the mesh section was created.
    */
   bool ApplyTerrainMeshPayload(
-      const ForbocAI::Demo::Level::FTerrainMeshPayload &Payload);
+      const ForbocAI::Game::Level::FTerrainMeshPayload &Payload);
 
 private:
   UPROPERTY()

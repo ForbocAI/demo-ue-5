@@ -8,7 +8,7 @@
 #include "Features/Systems/Level/LevelTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LevelSystemSlice {
 
@@ -63,5 +63,5 @@ inline TArray<FVector> BuildWorldRoute(const FLevelWorldRouteRequest &Request) {
 
 } // namespace LevelSystemSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -5,7 +5,7 @@
 #include "Features/Systems/Level/LevelTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LevelSystemActions {
 
@@ -21,5 +21,5 @@ inline const rtk::ActionCreator<FLevelSystemPayload> &LevelObserved() {
 
 } // namespace LevelSystemActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

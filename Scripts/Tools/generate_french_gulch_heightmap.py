@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the French Gulch, CA terrain sample used by the runtime demo.
+"""Generate the French Gulch, CA terrain sample used by the runtime.
 
 The source is Mapzen/AWS Terrarium elevation tiles. Elevation is decoded in
 meters with:

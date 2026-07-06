@@ -4,7 +4,7 @@
 #include "Features/Systems/Landmarks/LandmarkTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LandmarkActions {
 
@@ -12,5 +12,5 @@ const rtk::ActionCreator<TArray<FLandmark>> &LandmarksSeeded();
 
 } // namespace LandmarkActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

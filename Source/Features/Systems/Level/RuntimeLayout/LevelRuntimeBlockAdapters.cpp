@@ -5,7 +5,7 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeScaleAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
@@ -16,48 +16,48 @@ struct FLevelRuntimeLotLocationFields {
 
 func::Maybe<ELevelRuntimeAnchorMode>
 ReadBlockAnchorModeField(
-    const ForbocAI::Demo::Data::FJsonFieldRequest &Request);
+    const ForbocAI::Game::Data::FJsonFieldRequest &Request);
 
 func::Maybe<ELevelRetroTexture>
-ReadTextureField(const ForbocAI::Demo::Data::FJsonFieldRequest &Request);
+ReadTextureField(const ForbocAI::Game::Data::FJsonFieldRequest &Request);
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
 JSON_REQUIRED_FIELD_REGISTRY(
-    ForbocAI::Demo::Level::RuntimeLayout::FLevelRuntimeLotLocationFields,
+    ForbocAI::Game::Level::RuntimeLayout::FLevelRuntimeLotLocationFields,
     EastLots, NorthLots);
 
 template <>
-struct TRequiredJsonFieldRegistry<ForbocAI::Demo::Level::FLevelRuntimeBlockSeed> {
+struct TRequiredJsonFieldRegistry<ForbocAI::Game::Level::FLevelRuntimeBlockSeed> {
   static const TArray<
       TRequiredJsonFieldDeclaration<
-          ForbocAI::Demo::Level::FLevelRuntimeBlockSeed>> &
+          ForbocAI::Game::Level::FLevelRuntimeBlockSeed>> &
   Fields() {
     static const TArray<
         TRequiredJsonFieldDeclaration<
-            ForbocAI::Demo::Level::FLevelRuntimeBlockSeed>>
+            ForbocAI::Game::Level::FLevelRuntimeBlockSeed>>
         RegisteredFields = {
-            JSON_REQUIRED_FIELDS(ForbocAI::Demo::Level::FLevelRuntimeBlockSeed,
+            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLevelRuntimeBlockSeed,
                                  Id, Name),
             JSON_REQUIRED_FIELD_READER(
-                ForbocAI::Demo::Level::FLevelRuntimeBlockSeed,
-                ForbocAI::Demo::Level::RuntimeLayout::
+                ForbocAI::Game::Level::FLevelRuntimeBlockSeed,
+                ForbocAI::Game::Level::RuntimeLayout::
                     ReadBlockAnchorModeField,
                 Anchor),
             JSON_REQUIRED_FIELD_READER(
-                ForbocAI::Demo::Level::FLevelRuntimeBlockSeed,
-                ForbocAI::Demo::Level::RuntimeLayout::ReadScaleSeed, Scale),
+                ForbocAI::Game::Level::FLevelRuntimeBlockSeed,
+                ForbocAI::Game::Level::RuntimeLayout::ReadScaleSeed, Scale),
             JSON_REQUIRED_FIELD_READER(
-                ForbocAI::Demo::Level::FLevelRuntimeBlockSeed,
-                ForbocAI::Demo::Level::RuntimeLayout::ReadTextureField,
+                ForbocAI::Game::Level::FLevelRuntimeBlockSeed,
+                ForbocAI::Game::Level::RuntimeLayout::ReadTextureField,
                 Texture)};
     return RegisteredFields;
   }
@@ -65,17 +65,17 @@ struct TRequiredJsonFieldRegistry<ForbocAI::Demo::Level::FLevelRuntimeBlockSeed>
 
 } // namespace JsonValueAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 namespace {
 
-namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
-using FJsonFieldRequest = ForbocAI::Demo::Data::FJsonFieldRequest;
+namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
+using FJsonFieldRequest = ForbocAI::Game::Data::FJsonFieldRequest;
 
 typedef func::Maybe<FLevelRuntimeBlockSeed> (*FBlockLocationReader)(
     const TSharedPtr<FJsonObject> &, const FLevelRuntimeBlockSeed &);
@@ -197,5 +197,5 @@ BlockFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

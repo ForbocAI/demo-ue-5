@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TownspersonReducers {
 
@@ -25,13 +25,13 @@ TArray<FTownspersonSeed> ReduceByInteractionIntent(
  * @brief Maps JSON-backed townsperson defaults into RTK state.
  *
  * @signature FTownspersonViewDefaults ReduceViewDefaults(const
- * ForbocAI::Demo::Data::FTownspersonDefaultsSettings &Settings)
+ * ForbocAI::Game::Data::FTownspersonDefaultsSettings &Settings)
  *
  * User story: As a content author, default NPC name, role, persona, prompt,
  * and player line can be edited in JSON without view constants.
  */
 FTownspersonViewDefaults ReduceViewDefaults(
-    const ForbocAI::Demo::Data::FTownspersonDefaultsSettings &Settings);
+    const ForbocAI::Game::Data::FTownspersonDefaultsSettings &Settings);
 
 /**
  * @brief Applies view-default overrides against the current reducer defaults.
@@ -49,5 +49,5 @@ FTownspersonInteractionOverlapViewModel ReduceInteractionOverlap(
 
 } // namespace TownspersonReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

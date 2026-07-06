@@ -3,7 +3,7 @@
 #include "Features/Components/Data/Json/JsonAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
@@ -70,5 +70,5 @@ ReadHorsePresentationSettings(const TSharedPtr<FJsonObject> &Object) {
 
 } // namespace BotSettingsAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -5,7 +5,7 @@
 #include "Features/Systems/Dialogue/DialogueTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace DialogueActions {
 
@@ -24,5 +24,5 @@ inline const rtk::ActionCreator<FDialoguePayload> &DialogueObserved() {
 
 } // namespace DialogueActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

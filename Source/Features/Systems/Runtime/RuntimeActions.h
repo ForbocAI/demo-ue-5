@@ -5,7 +5,7 @@
 #include "Features/Systems/Runtime/RuntimeTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeActions {
 
@@ -41,5 +41,5 @@ TownspersonInteractionSourceObserved() {
 
 } // namespace RuntimeActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

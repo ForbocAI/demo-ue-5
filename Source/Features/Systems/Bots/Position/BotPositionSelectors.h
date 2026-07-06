@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Position/BotPositionTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPositionSelectors {
 
@@ -21,5 +21,5 @@ SelectLastPatrolAdvance(const FBotPositionState &State);
 
 } // namespace BotPositionSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

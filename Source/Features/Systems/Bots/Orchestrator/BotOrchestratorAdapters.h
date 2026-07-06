@@ -6,7 +6,7 @@
 #include "BotOrchestratorAdapters.generated.h"
 
 /**
- * ABotOrchestratorAdapter - The central brain for the Demo's AI entities.
+ * ABotOrchestratorAdapter - The central brain for the Game's AI entities.
  *
  * Implements the Multi-Round Protocol loop asynchronously for all
  * registered bots. Runtime state flows through the RTK runtime store while
@@ -17,7 +17,7 @@
  * ticks and process through the SDK pipeline automatically.
  */
 UCLASS()
-class DEMOPROJECT_API ABotOrchestratorAdapter : public AActor {
+class FORBOCAIDEMO_API ABotOrchestratorAdapter : public AActor {
   GENERATED_BODY()
 
 public:

@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Pipeline/BotPipelineTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPipelineSelectors {
 
@@ -23,5 +23,5 @@ SelectLastActionId(const FBotPipelineState &State) {
 
 } // namespace BotPipelineSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

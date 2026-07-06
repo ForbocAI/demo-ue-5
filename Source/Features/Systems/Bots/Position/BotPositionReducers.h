@@ -6,7 +6,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPositionReducers {
 
@@ -39,5 +39,5 @@ ReducePatrolAdvance(const FBotPatrolAdvanceRequest &Request);
 
 } // namespace BotPositionReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

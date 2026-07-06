@@ -6,7 +6,7 @@
 #include "Serialization/JsonSerializer.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 namespace {
@@ -198,5 +198,5 @@ FJsonRotatorReader RotatorIn(const TSharedPtr<FJsonObject> &Object) {
 
 } // namespace JsonAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

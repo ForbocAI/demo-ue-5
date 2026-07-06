@@ -5,7 +5,7 @@
 #include "Features/Entities/Characters/Player/PlayerTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace PlayerActions {
 
@@ -45,5 +45,5 @@ PlayerPresentationRequested() {
 
 } // namespace PlayerActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

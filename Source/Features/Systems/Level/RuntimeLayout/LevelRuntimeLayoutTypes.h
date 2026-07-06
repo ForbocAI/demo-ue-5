@@ -5,7 +5,7 @@
 #include "Features/Systems/Level/LevelTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
@@ -36,5 +36,5 @@ struct FLevelRuntimeEnumTextRequest {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

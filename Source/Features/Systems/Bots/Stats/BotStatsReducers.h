@@ -7,20 +7,20 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotStatsReducers {
 
 struct FBotStatsTownspeopleSeededRequest {
   FBotStatsState State;
   TArray<FTownspersonSeed> Seeds;
-  ForbocAI::Demo::Data::FBotRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FBotRuntimeSettings RuntimeSettings;
 };
 
 struct FBotStatsHorsesSeededRequest {
   FBotStatsState State;
   TArray<FHorseRouteSeed> Seeds;
-  ForbocAI::Demo::Data::FBotRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FBotRuntimeSettings RuntimeSettings;
 };
 
 FBotStatsState ReduceBotStatsSeeded(
@@ -36,5 +36,5 @@ FBotStatsState ReduceHorsesSeeded(
 
 } // namespace BotStatsReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

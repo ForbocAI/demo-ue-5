@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Position/BotPositionAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPositionFactories {
 namespace {
@@ -58,5 +58,5 @@ FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
 
 } // namespace BotPositionFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

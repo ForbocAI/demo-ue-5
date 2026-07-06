@@ -4,7 +4,7 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace NatureAdapters {
 
@@ -12,5 +12,5 @@ const rtk::EntityAdapter<FNatureFeatureSeed> &NatureAdapter();
 
 } // namespace NatureAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -3,7 +3,7 @@
 #include "Core/ecs.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TerrainReducers {
 namespace {
@@ -25,13 +25,13 @@ struct FTerrainMeshBuildContext {
 
 struct FTerrainMeshReserveRequest {
   int32 LodGridSize;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FTerrainLodGridSizeRequest {
   int32 SourceGridSize;
   int32 LodStep;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 FTerrainMeshPayload
@@ -58,7 +58,7 @@ ReserveTerrainMeshPayload(const FTerrainMeshReserveRequest &Request) {
 }
 
 int32 SelectTerrainLodStep(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
   return FMath::Max(Geometry.TerrainLodStep, Geometry.TerrainMinimumLodStep);
 }
 
@@ -117,7 +117,7 @@ FTerrainMeshPayload AddTerrainQuadTriangles(
 
 FTerrainMeshPayload BuildLoadedTerrainMeshPayload(
     const FLevelTerrainData &TerrainData, const FLevelOrthoData &OrthoData,
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
   const int32 SourceGridSize = TerrainData.GetGridSize();
   const int32 LodStep = SelectTerrainLodStep(Geometry);
   const int32 LodGridSize =
@@ -182,7 +182,7 @@ FTerrainState ReduceTerrainMeshPayloadObserved(
 FTerrainMeshPayload
 BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
                         const FLevelOrthoData &OrthoData,
-                        const ForbocAI::Demo::Data::FLevelGeometrySettings
+                        const ForbocAI::Game::Data::FLevelGeometrySettings
                             &Geometry) {
   return TerrainData.IsLoaded()
              ? (OrthoData.IsLoaded()
@@ -209,5 +209,5 @@ ReduceTerrainMeshSectionViewModel(const FTerrainMeshPayload &Payload) {
 
 } // namespace TerrainReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

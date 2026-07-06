@@ -6,18 +6,18 @@
 #include "Features/Systems/Runtime/RuntimeTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeSelectors {
 
 const FPlayerState &SelectPlayerState(const FRuntimeState &State);
 const FSystemsState &SelectSystemsState(const FRuntimeState &State);
 const FLevelSystemState &SelectLevelState(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FLevelTerrainSourceSettings &
+const ForbocAI::Game::Data::FLevelTerrainSourceSettings &
 SelectLevelTerrainSources(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FLevelDataSourceSettings &
+const ForbocAI::Game::Data::FLevelDataSourceSettings &
 SelectLevelDataSources(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FLevelGeometrySettings &
+const ForbocAI::Game::Data::FLevelGeometrySettings &
 SelectLevelGeometry(const FRuntimeState &State);
 const FRenderingState &SelectRenderingState(const FRuntimeState &State);
 const FDialogueState &SelectDialogueState(const FRuntimeState &State);
@@ -57,7 +57,9 @@ const FLevelRetroRenderProfile &
 SelectRuntimeProfile(const FRuntimeState &State);
 const TArray<FLevelRetroTextureSpec> &
 SelectTextureCatalog(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FRenderingRuntimeSettings &
+const TArray<FLevelDistanceLodStage> &
+SelectDistanceLodStages(const FRuntimeState &State);
+const ForbocAI::Game::Data::FRenderingRuntimeSettings &
 SelectRenderingRuntimeSettings(const FRuntimeState &State);
 const FRenderingAssetPaths &
 SelectRenderingAssetPaths(const FRuntimeState &State);
@@ -70,23 +72,23 @@ const FTownspersonViewDefaults &
 SelectTownspersonViewDefaults(const FRuntimeState &State);
 const FTownspersonInteractionOverlapViewModel &
 SelectTownspersonInteractionOverlap(const FRuntimeState &State);
-ForbocAI::Demo::UI::FRuntimeConversationViewModel
+ForbocAI::Game::UI::FRuntimeConversationViewModel
 SelectRuntimeConversation(const FRuntimeState &State);
 const FTownspersonPresentationViewModel &
 SelectTownspersonPresentation(const FRuntimeState &State);
 const FHorsePresentationViewModel &
 SelectHorsePresentation(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &
+const ForbocAI::Game::Data::FRuntimeObservationIdSettings &
 SelectRuntimeObservationIds(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FRuntimeDebugMessageSettings &
+const ForbocAI::Game::Data::FRuntimeDebugMessageSettings &
 SelectRuntimeDebugMessages(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FRuntimeViewNameSettings &
+const ForbocAI::Game::Data::FRuntimeViewNameSettings &
 SelectRuntimeViewNames(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FRuntimeTextSettings &
+const ForbocAI::Game::Data::FRuntimeTextSettings &
 SelectRuntimeText(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FUIRuntimeSettings &
+const ForbocAI::Game::Data::FUIRuntimeSettings &
 SelectUIRuntimeSettings(const FRuntimeState &State);
-const ForbocAI::Demo::Data::FBotRuntimeSettings &
+const ForbocAI::Game::Data::FBotRuntimeSettings &
 SelectBotRuntimeSettings(const FRuntimeState &State);
 TArray<FBotEntity> SelectBots(const FRuntimeState &State);
 func::Maybe<FBotEntity> SelectBotById(const FRuntimeState &State,
@@ -119,5 +121,5 @@ SelectEntityInspection(const FRuntimeState &State,
 
 } // namespace RuntimeSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

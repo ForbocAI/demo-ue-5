@@ -5,7 +5,7 @@
 #include "Features/Systems/Level/LevelTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LevelAdapters {
 
@@ -22,5 +22,5 @@ FLevelRuntimeLayoutSeed LoadRuntimeLayoutSeed(const FString &RelativeJsonPath);
 
 } // namespace LevelAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

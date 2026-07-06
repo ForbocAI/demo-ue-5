@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""UE demo parameter-count compliance scanner.
+"""UE runtime parameter-count compliance scanner.
 
-Mirrors the Therapy 12 parameter discipline for this C++ demo: keep ordinary
+Mirrors the Therapy 12 parameter discipline for this C++ runtime: keep ordinary
 functions at two data parameters or fewer, group repeated scalar clusters into
 payload structs, and leave UE reflection/lifecycle callbacks in a separate
 engine-callback bucket.
@@ -112,7 +112,7 @@ def gather(root: pathlib.Path, max_params: int):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", default="Source/DemoProject/Features")
+    parser.add_argument("--root", default="Source/Features")
     parser.add_argument("--max", type=int, default=2)
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()

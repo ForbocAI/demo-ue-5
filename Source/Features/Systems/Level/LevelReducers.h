@@ -8,13 +8,13 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LevelSystemReducers {
 namespace detail {
 
 struct FGroundLotsRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float EastLots = 0.0f;
   float NorthLots = 0.0f;
   FVector Scale = FVector::OneVector;
@@ -23,36 +23,36 @@ struct FGroundLotsRequest {
 
 struct FScaleFromSeedRequest {
   FLevelRuntimeScaleSeed Seed;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLocalPointFromSeedRequest {
   FLevelRuntimeBlockSeed Seed;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FVector Scale = FVector::OneVector;
 };
 
 struct FWorldLocationFromSeedRequest {
   FLevelRuntimeBlockSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FVector Scale = FVector::OneVector;
 };
 
 struct FLabelHeightOffsetRequest {
   FLevelRuntimeLabelSeed Seed;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FVector ReferenceScale;
 };
 
 struct FLabelLocalPointRequest {
   FLevelRuntimeLabelSeed Seed;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLandmarkLabelLocationRequest {
   FLandmark Landmark;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 inline FLevelLocalPoint GroundLots(const FGroundLotsRequest &Request) {
@@ -334,5 +334,5 @@ ReduceLevelObserved(const FLevelSystemState &State,
 
 } // namespace LevelSystemReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

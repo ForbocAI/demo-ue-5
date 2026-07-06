@@ -8,7 +8,7 @@
 #include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace DataSlice {
 
@@ -16,5 +16,5 @@ const rtk::Slice<FDataState> &GetSlice();
 
 } // namespace DataSlice
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -3,7 +3,7 @@
 #include "Features/Systems/Bots/Stats/BotStatsReducers.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotStatsSlice {
 
@@ -25,5 +25,5 @@ const rtk::Slice<FBotStatsState> &GetSlice() {
 
 } // namespace BotStatsSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

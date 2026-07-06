@@ -4,7 +4,7 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 enum class ENatureFeatureKind {
@@ -49,5 +49,5 @@ inline bool operator!=(const FNatureState &Left, const FNatureState &Right) {
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

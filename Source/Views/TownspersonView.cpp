@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/TownspersonView.h"
 
 #include "Animation/AnimInstance.h"
@@ -13,7 +18,7 @@
 #include "GameFramework/Pawn.h"
 #include "Store.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
 
 namespace {
 
@@ -27,7 +32,7 @@ FG::FTownspersonViewDefaults ObserveTownspersonViewDefaults(
 
 FG::FTownspersonPresentationViewModel ObserveTownspersonPresentation() {
   const FG::FRuntimeState State = FG::Store::GetStore().getState();
-  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+  const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
   FG::Store::GetStore().dispatch(
       FG::RenderingActions::TownspersonPresentationRequested()(
@@ -70,9 +75,13 @@ ATownspersonView::ATownspersonView()
       PauseRemaining(0.0f), PatrolArrivalDistance(0.0f),
       bPlayerNearby(false) {
   PrimaryActorTick.bCanEverTick = true;
+  PrimaryActorTick.TickInterval =
+      FG::RuntimeSelectors::SelectBotRuntimeSettings(
+          FG::Store::GetStore().getState())
+          .PatrolTickIntervalSeconds;
   const FG::FTownspersonPresentationViewModel Presentation =
       ObserveTownspersonPresentation();
-  const ForbocAI::Demo::Data::FRuntimeViewNameSettings &ViewNames =
+  const ForbocAI::Game::Data::FRuntimeViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectRuntimeViewNames(
           FG::Store::GetStore().getState());
   WalkSpeed = Presentation.WalkSpeed;
@@ -132,7 +141,7 @@ ATownspersonView::ATownspersonView()
 
   ConfigureSampleCharacterAsset();
 
-  const ForbocAI::Demo::Level::FTownspersonViewDefaults Defaults =
+  const ForbocAI::Game::Level::FTownspersonViewDefaults Defaults =
       ObserveTownspersonViewDefaults({});
   TownspersonId = Defaults.Id;
   TownspersonName = Defaults.Name;
@@ -156,7 +165,7 @@ void ATownspersonView::BeginPlay() {
 
 void ATownspersonView::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
-  AdvancePatrol(DeltaTime);
+  CurrentLod.bPatrolEnabled ? AdvancePatrol(DeltaTime) : void();
 }
 
 void ATownspersonView::ConfigureTownsperson(
@@ -165,25 +174,61 @@ void ATownspersonView::ConfigureTownsperson(
   TownspersonName = Config.Name;
   TownspersonRole = Config.Role;
   Persona = Config.Persona;
-  const ForbocAI::Demo::Level::FTownspersonViewDefaults Defaults =
+  const ForbocAI::Game::Level::FTownspersonViewDefaults Defaults =
       ObserveTownspersonViewDefaults(
           {Config.InteractionPrompt, Config.DefaultPlayerLine});
   InteractionPrompt = Defaults.InteractionPrompt;
   DefaultPlayerLine = Defaults.DefaultPlayerLine;
   PinnedResponse = Config.PinnedResponse;
   PatrolRoute = Config.PatrolRoute;
-  PauseRemaining = 0.0f;
+  ApplyDistanceLod(Config.Lod);
+  PauseRemaining =
+      FG::RuntimeSelectors::SelectBotRuntimeSettings(
+          FG::Store::GetStore().getState())
+          .InitialPatrolPauseRemainingSeconds;
 
-  const ForbocAI::Demo::Level::FBotInitialPatrolLocationPayload Initial =
+  const ForbocAI::Game::Level::FBotInitialPatrolLocationPayload Initial =
       ObserveTownspersonInitialPatrol(PatrolRoute, PatrolIndex);
   Initial.bShouldMove ? (SetActorLocation(Initial.Location), void()) : void();
   RefreshText();
 }
 
+void ATownspersonView::ApplyDistanceLod(
+    const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) {
+  CurrentLod = Lod;
+  PrimaryActorTick.TickInterval = Lod.ActorTickIntervalSeconds;
+  SetActorTickEnabled(Lod.bPatrolEnabled);
+  CharacterMesh->SetForcedLOD(Lod.SkeletalMeshForcedLodModel);
+  CharacterMesh->OverrideMinLOD(Lod.SkeletalMeshMinLodModel);
+  CharacterMesh->SetCullDistance(Lod.CullDistance);
+  CharacterMesh->SetVisibility(Lod.bDynamicVisible);
+  CharacterMesh->SetHiddenInGame(!Lod.bDynamicVisible);
+  CharacterMesh->SetCollisionEnabled(Lod.bCollisionEnabled
+                                         ? ECollisionEnabled::QueryOnly
+                                         : ECollisionEnabled::NoCollision);
+  CharacterMesh->SetCastShadow(Lod.bCastShadow);
+  CharacterMesh->SetComponentTickEnabled(Lod.bAnimated);
+  CharacterMesh->bEnableUpdateRateOptimizations =
+      Lod.bUpdateRateOptimizationsEnabled;
+  InteractionSphere->SetCollisionEnabled(Lod.bCollisionEnabled
+                                             ? ECollisionEnabled::QueryOnly
+                                             : ECollisionEnabled::NoCollision);
+  NameText->SetVisibility(Lod.bDynamicVisible && Lod.bLabelsVisible);
+  NameText->SetHiddenInGame(!(Lod.bDynamicVisible && Lod.bLabelsVisible));
+  NameText->SetComponentTickEnabled(false);
+  PromptText->SetVisibility(false);
+  PromptText->SetHiddenInGame(!(Lod.bDynamicVisible && Lod.bLabelsVisible));
+  PromptText->SetComponentTickEnabled(false);
+  DialogueText->SetVisibility(false);
+  DialogueText->SetHiddenInGame(!(Lod.bDynamicVisible && Lod.bLabelsVisible));
+  DialogueText->SetComponentTickEnabled(false);
+}
+
 void ATownspersonView::ShowDialogueReply(const FString &Reply) {
   DialogueText->SetText(FText::FromString(Reply));
-  DialogueText->SetVisibility(true);
-  const ForbocAI::Demo::Data::FRuntimeTextSettings &Text =
+  DialogueText->SetVisibility(CurrentLod.bDynamicVisible &&
+                              CurrentLod.bLabelsVisible);
+  const ForbocAI::Game::Data::FRuntimeTextSettings &Text =
       FG::RuntimeSelectors::SelectRuntimeText(
           FG::Store::GetStore().getState());
   const FString ReplyLog =
@@ -211,7 +256,7 @@ FString ATownspersonView::GetDefaultPlayerLine() const {
 FString ATownspersonView::GetPinnedResponse() const { return PinnedResponse; }
 
 void ATownspersonView::AdvancePatrol(float DeltaTime) {
-  const ForbocAI::Demo::Level::FBotPatrolAdvancePayload Advance =
+  const ForbocAI::Game::Level::FBotPatrolAdvancePayload Advance =
       ObserveTownspersonPatrolAdvance(
           {PatrolRoute, PatrolIndex, PauseRemaining, PauseDuration, WalkSpeed,
            DeltaTime, GetActorLocation(), PatrolArrivalDistance});
@@ -233,7 +278,7 @@ void ATownspersonView::ConfigureSampleCharacterAsset() {
 }
 
 void ATownspersonView::RefreshText() {
-  const ForbocAI::Demo::Data::FRuntimeTextSettings &Text =
+  const ForbocAI::Game::Data::FRuntimeTextSettings &Text =
       FG::RuntimeSelectors::SelectRuntimeText(
           FG::Store::GetStore().getState());
   NameText->SetText(FText::FromString(frmt::RuntimeString(
@@ -249,25 +294,31 @@ void ATownspersonView::HandleInteractionBegin(
     UPrimitiveComponent *OverlappedComponent, AActor *OtherActor,
     UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep,
     const FHitResult &SweepResult) {
-  const ForbocAI::Demo::Level::FTownspersonInteractionOverlapViewModel Model =
+  const ForbocAI::Game::Level::FTownspersonInteractionOverlapViewModel Model =
       ObserveInteractionOverlap(
           {OtherActor != nullptr, OtherActor == this,
            OtherActor && OtherActor->IsA<APawn>(), true, bPlayerNearby});
   Model.bShouldApply
       ? (bPlayerNearby = Model.bPlayerNearby,
-         PromptText->SetVisibility(Model.bPromptVisible), void())
+         PromptText->SetVisibility(Model.bPromptVisible &&
+                                   CurrentLod.bDynamicVisible &&
+                                   CurrentLod.bLabelsVisible),
+         void())
       : void();
 }
 
 void ATownspersonView::HandleInteractionEnd(
     UPrimitiveComponent *OverlappedComponent, AActor *OtherActor,
     UPrimitiveComponent *OtherComp, int32 OtherBodyIndex) {
-  const ForbocAI::Demo::Level::FTownspersonInteractionOverlapViewModel Model =
+  const ForbocAI::Game::Level::FTownspersonInteractionOverlapViewModel Model =
       ObserveInteractionOverlap(
           {OtherActor != nullptr, OtherActor == this,
            OtherActor && OtherActor->IsA<APawn>(), false, bPlayerNearby});
   Model.bShouldApply
       ? (bPlayerNearby = Model.bPlayerNearby,
-         PromptText->SetVisibility(Model.bPromptVisible), void())
+         PromptText->SetVisibility(Model.bPromptVisible &&
+                                   CurrentLod.bDynamicVisible &&
+                                   CurrentLod.bLabelsVisible),
+         void())
       : void();
 }

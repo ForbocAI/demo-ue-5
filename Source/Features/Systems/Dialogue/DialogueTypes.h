@@ -4,7 +4,7 @@
 #include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 /**
@@ -46,7 +46,7 @@ struct FDialogueState {
   func::Maybe<FString> LastReply = func::nothing<FString>();
   func::Maybe<FString> LastSpeakerName = func::nothing<FString>();
   func::Maybe<FString> LastError = func::nothing<FString>();
-  ForbocAI::Demo::Data::FDialogueRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FDialogueRuntimeSettings RuntimeSettings;
   bool bReady = false;
 };
 
@@ -106,5 +106,5 @@ inline bool operator!=(const FDialogueReplyPayload &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

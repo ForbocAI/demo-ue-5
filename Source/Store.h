@@ -4,12 +4,12 @@
 #include "Features/Systems/Runtime/RuntimeTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace Store {
 
 /**
- * @brief Builds the single RTK-style runtime store for the UE demo.
+ * @brief Builds the single RTK-style runtime store for the UE runtime.
  *
  * @return EnhancedStore rooted at FRuntimeState and RuntimeSlice.
  *
@@ -35,5 +35,5 @@ rtk::EnhancedStore<FRuntimeState> &GetStore();
 
 } // namespace Store
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

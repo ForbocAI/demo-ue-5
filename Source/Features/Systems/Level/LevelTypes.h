@@ -9,7 +9,7 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 enum class ELevelRuntimeScaleMode {
@@ -81,12 +81,14 @@ struct FLevelBlockSpawn {
   FVector Location = FVector::ZeroVector;
   FVector Scale = FVector::OneVector;
   ELevelRetroTexture Texture = ELevelRetroTexture::MarkerPaint;
+  FLevelDistanceLodStage Lod;
 };
 
 struct FLevelLabelSpawn {
   FString Text;
   FVector Location = FVector::ZeroVector;
   float WorldSize = 42.0f;
+  FLevelDistanceLodStage Lod;
 };
 
 struct FLevelRuntimeSectionSpawn {
@@ -97,36 +99,36 @@ struct FLevelRuntimeSectionSpawn {
 struct FLevelRuntimeBlockSpawnRequest {
   FLevelRuntimeBlockSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelRuntimeLabelSpawnRequest {
   FLevelRuntimeLabelSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelRuntimeSectionSpawnRequest {
   FLevelRuntimeSectionSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelOverlaySectionSpawnRequest {
   FLevelRuntimeLayoutSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelNatureSectionSpawnRequest {
   TArray<FNatureFeatureSeed> Features;
   FLevelTerrainData TerrainData;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelLandmarkSectionSpawnRequest {
   TArray<FLandmark> Landmarks;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLevelWorldRouteRequest {
@@ -140,9 +142,9 @@ struct FLevelSystemPayload {
 
 struct FLevelSystemState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
-  ForbocAI::Demo::Data::FLevelTerrainSourceSettings TerrainSources;
-  ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelTerrainSourceSettings TerrainSources;
+  ForbocAI::Game::Data::FLevelDataSourceSettings DataSources;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   bool bReady = false;
 };
 
@@ -243,7 +245,8 @@ inline bool operator!=(const FLevelRuntimeLayoutSeed &Left,
 inline bool operator==(const FLevelBlockSpawn &Left,
                        const FLevelBlockSpawn &Right) {
   return Left.Name == Right.Name && Left.Location == Right.Location &&
-         Left.Scale == Right.Scale && Left.Texture == Right.Texture;
+         Left.Scale == Right.Scale && Left.Texture == Right.Texture &&
+         Left.Lod == Right.Lod;
 }
 
 inline bool operator!=(const FLevelBlockSpawn &Left,
@@ -254,7 +257,8 @@ inline bool operator!=(const FLevelBlockSpawn &Left,
 inline bool operator==(const FLevelLabelSpawn &Left,
                        const FLevelLabelSpawn &Right) {
   return Left.Text == Right.Text && Left.Location == Right.Location &&
-         FMath::IsNearlyEqual(Left.WorldSize, Right.WorldSize);
+         FMath::IsNearlyEqual(Left.WorldSize, Right.WorldSize) &&
+         Left.Lod == Right.Lod;
 }
 
 inline bool operator!=(const FLevelLabelSpawn &Left,
@@ -273,5 +277,5 @@ inline bool operator!=(const FLevelRuntimeSectionSpawn &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

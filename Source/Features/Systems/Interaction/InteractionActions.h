@@ -5,7 +5,7 @@
 #include "Features/Systems/Interaction/InteractionTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace InteractionActions {
 
@@ -26,5 +26,5 @@ TownspersonCandidatesObserved() {
 
 } // namespace InteractionActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

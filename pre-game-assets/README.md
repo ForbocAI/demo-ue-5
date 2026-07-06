@@ -1,4 +1,4 @@
-# UE Demo Pre-Game Assets
+# UE Runtime Pre-Game Assets
 
 This folder stages source/reference assets before they are converted into runtime
 Unreal assets. It follows the Therapy 4150 pattern: keep acquisition proof,

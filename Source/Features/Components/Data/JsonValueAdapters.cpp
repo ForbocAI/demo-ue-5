@@ -3,7 +3,7 @@
 #include "Features/Components/Data/Json/JsonAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
@@ -57,5 +57,5 @@ ReadArrayObject(const FJsonArrayValueObjectRequest &Request) {
 
 } // namespace JsonValueAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

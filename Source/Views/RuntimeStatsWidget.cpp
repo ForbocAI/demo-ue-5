@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/RuntimeStatsWidget.h"
 
 #include "Blueprint/WidgetTree.h"
@@ -9,8 +14,10 @@
 #include "Components/VerticalBox.h"
 #include "Core/frmt.hpp"
 #include "Core/ue_fp.hpp"
+#include "Engine/Engine.h"
 #include "Engine/SkinnedAsset.h"
 #include "Engine/StaticMesh.h"
+#include "Features/Systems/Rendering/RenderingSlice.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,12 +25,14 @@
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "Store.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
+
+DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeBudget, Log, All);
 
 namespace {
 
 using FRuntimeStatsOverlaySettings =
-    ForbocAI::Demo::Data::FRuntimeStatsOverlaySettings;
+    ForbocAI::Game::Data::FRuntimeStatsOverlaySettings;
 
 struct FRuntimeStatsViewModel {
   int32 FramesPerSecond;
@@ -53,6 +62,18 @@ struct FStatsValueUpdateRequest {
   const FRuntimeStatsOverlaySettings *Settings;
 };
 
+struct FRuntimeStatsLodIndexRequest {
+  int32 ForcedLodModel;
+  int32 AutomaticLodIndex;
+  const FRuntimeStatsOverlaySettings *Settings;
+};
+
+struct FRuntimeStatsLodClampRequest {
+  int32 LodIndex;
+  int32 LodCount;
+  const FRuntimeStatsOverlaySettings *Settings;
+};
+
 const FRuntimeStatsOverlaySettings &SelectStatsOverlaySettings() {
   return FG::RuntimeSelectors::SelectUIRuntimeSettings(
              FG::Store::GetStore().getState())
@@ -78,17 +99,42 @@ int32 SelectEcsStackDepth(const ecs::FWorld &World,
       });
 }
 
+int32 SelectRuntimeStatsLodIndex(const FRuntimeStatsLodIndexRequest &Request) {
+  check(Request.Settings);
+  return Request.ForcedLodModel > Request.Settings->ForcedLodAutomaticModel
+             ? Request.ForcedLodModel - Request.Settings->LodModelIndexOffset
+             : Request.AutomaticLodIndex;
+}
+
+int32 ClampRuntimeStatsLodIndex(const FRuntimeStatsLodClampRequest &Request) {
+  check(Request.Settings);
+  return FMath::Clamp(
+      Request.LodIndex, Request.Settings->ForcedLodAutomaticModel,
+      Request.LodCount - Request.Settings->LodModelIndexOffset);
+}
+
+bool ShouldCountPrimitiveComponent(UPrimitiveComponent *Component) {
+  return Component != nullptr && Component->IsVisible() &&
+         !Component->bHiddenInGame && Component->GetOwner() != nullptr &&
+         !Component->GetOwner()->IsHidden();
+}
+
 int64 CountStaticMeshTriangles(UStaticMeshComponent *Component,
                                const FRuntimeStatsOverlaySettings &Settings) {
   return func::match(
-      func::from_nullable_value(Component, Component != nullptr),
+      func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
+                                               Component)),
       [&Settings](UStaticMeshComponent *ComponentValue) {
         UStaticMesh *Mesh = ComponentValue->GetStaticMesh();
         return func::match(
             func::from_nullable_value(Mesh, Mesh != nullptr),
-            [&Settings](UStaticMesh *MeshValue) -> int64 {
-              return static_cast<int64>(
-                  MeshValue->GetNumTriangles(Settings.MeshLodIndex));
+            [ComponentValue, &Settings](UStaticMesh *MeshValue) -> int64 {
+              const int32 LodIndex = ClampRuntimeStatsLodIndex(
+                  {SelectRuntimeStatsLodIndex(
+                       {ComponentValue->GetForcedLodModel(),
+                        Settings.MeshLodIndex, &Settings}),
+                   MeshValue->GetNumLODs(), &Settings});
+              return static_cast<int64>(MeshValue->GetNumTriangles(LodIndex));
             },
             [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
       },
@@ -133,7 +179,8 @@ int64 CountProceduralMeshTriangles(
     UProceduralMeshComponent *Component,
     const FRuntimeStatsOverlaySettings &Settings) {
   return func::match(
-      func::from_nullable_value(Component, Component != nullptr),
+      func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
+                                               Component)),
       [&Settings](UProceduralMeshComponent *ComponentValue) -> int64 {
         return CountProceduralMeshSectionTriangles(
             *ComponentValue, Settings.ProcMeshFirstSectionIndex, Settings);
@@ -144,19 +191,29 @@ int64 CountProceduralMeshTriangles(
 int64 CountSkinnedMeshTriangles(USkinnedMeshComponent *Component,
                                 const FRuntimeStatsOverlaySettings &Settings) {
   return func::match(
-      func::from_nullable_value(Component, Component != nullptr),
+      func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
+                                               Component)),
       [&Settings](USkinnedMeshComponent *ComponentValue) {
         USkinnedAsset *Asset = ComponentValue->GetSkinnedAsset();
         return func::match(
             func::from_nullable_value(Asset, Asset != nullptr),
-            [&Settings](USkinnedAsset *AssetValue) -> int64 {
+            [ComponentValue, &Settings](USkinnedAsset *AssetValue) -> int64 {
               const FSkeletalMeshRenderData *RenderData =
                   AssetValue->GetResourceForRendering();
+              const int32 LodIndex =
+                  RenderData != nullptr
+                      ? ClampRuntimeStatsLodIndex(
+                            {SelectRuntimeStatsLodIndex(
+                                 {ComponentValue->GetForcedLOD(),
+                                  ComponentValue->GetPredictedLODLevel(),
+                                  &Settings}),
+                             RenderData->LODRenderData.Num(), &Settings})
+                      : Settings.MeshLodIndex;
               return RenderData != nullptr &&
                              RenderData->LODRenderData.IsValidIndex(
-                                 Settings.MeshLodIndex)
+                                 LodIndex)
                          ? static_cast<int64>(
-                               RenderData->LODRenderData[Settings.MeshLodIndex]
+                               RenderData->LODRenderData[LodIndex]
                                    .GetTotalFaces())
                          : static_cast<int64>(Settings.EmptyTriangleCount);
             },
@@ -215,12 +272,13 @@ int64 CountWorldTriangles(UWorld *World,
 
 FRuntimeStatsViewModel
 SelectRuntimeStats(UWorld *World, float DeltaSeconds,
-                   const FRuntimeStatsOverlaySettings &Settings) {
+                   const FRuntimeStatsOverlaySettings &Settings,
+                   int64 PolyCount) {
   const FG::FRuntimeState State = FG::Store::GetStore().getState();
   const ecs::FWorld &EcsWorld = FG::RuntimeSelectors::SelectWorld(State);
   return {SelectFramesPerSecond(DeltaSeconds, Settings),
           SelectEcsStackDepth(EcsWorld, Settings),
-          CountWorldTriangles(World, Settings)};
+          PolyCount};
 }
 
 FString FormatRuntimeStatsValue(int64 Value,
@@ -285,12 +343,56 @@ void ApplyStatsValue(const FStatsValueUpdateRequest &Request) {
       []() {});
 }
 
+void LogRuntimeBudgetSample(const FRuntimeStatsViewModel &Stats) {
+  UE_LOG(LogForbocRuntimeBudget, Display,
+         TEXT("runtime-budget sample fps=%d stack_depth=%d poly_count=%lld"),
+         Stats.FramesPerSecond, Stats.StackDepth, Stats.PolyCount);
+}
+
+FString FormatRuntimeStatsDebugMessage(
+    const FRuntimeStatsViewModel &Stats,
+    const FRuntimeStatsOverlaySettings &Settings) {
+  return frmt::RuntimeString(
+      Settings.DebugMessageFormat,
+      frmt::Args({frmt::Arg(Stats.FramesPerSecond),
+                  frmt::Arg(Stats.StackDepth), frmt::Arg(Stats.PolyCount)}));
+}
+
+void PresentRuntimeStatsDebugMessage(
+    const FRuntimeStatsViewModel &Stats,
+    const FRuntimeStatsOverlaySettings &Settings) {
+  GEngine ? (GEngine->AddOnScreenDebugMessage(
+                 Settings.DebugMessageKey,
+                 Settings.DebugMessageDurationSeconds,
+                 Settings.TextColor.ToFColor(true),
+                 FormatRuntimeStatsDebugMessage(Stats, Settings)),
+             void())
+          : void();
+}
+
+bool ShouldRunInterval(float ElapsedSeconds, float IntervalSeconds) {
+  return ElapsedSeconds >= IntervalSeconds;
+}
+
 } // namespace
 
 void URuntimeStatsWidget::NativeConstruct() {
   Super::NativeConstruct();
 
   const FRuntimeStatsOverlaySettings &Settings = SelectStatsOverlaySettings();
+  StatsRefreshElapsedSeconds = Settings.StatsRefreshIntervalSeconds;
+  PolyCountRefreshElapsedSeconds = Settings.PolyCountRefreshIntervalSeconds;
+  const double BudgetClockSeconds =
+      FG::RenderingSlice::SelectRuntimeBudgetClockSeconds();
+  LastFrameClockSeconds = BudgetClockSeconds;
+  BudgetLogLastSeconds = BudgetClockSeconds - Settings.BudgetLogIntervalSeconds;
+  BudgetScreenshotIntervalSeconds =
+      FG::RenderingSlice::SelectRuntimeBudgetScreenshotIntervalSeconds(
+          Settings);
+  BudgetScreenshotLastSeconds =
+      BudgetClockSeconds - BudgetScreenshotIntervalSeconds;
+  BudgetScreenshotIndex = Settings.BudgetScreenshotInitialIndex;
+  CachedPolyCount = Settings.EmptyPolyCount;
   SetPositionInViewport(FVector2D(Settings.ViewportLeft, Settings.ViewportTop),
                         Settings.bRemoveDpIScale);
   SetDesiredSizeInViewport(
@@ -324,8 +426,6 @@ void URuntimeStatsWidget::NativeConstruct() {
                &Settings}));
           WidgetTree->RootWidget = PanelElement;
         }(), void());
-
-  RefreshStats(Settings.InitialDeltaSeconds);
 }
 
 void URuntimeStatsWidget::NativeTick(const FGeometry &MyGeometry,
@@ -336,15 +436,64 @@ void URuntimeStatsWidget::NativeTick(const FGeometry &MyGeometry,
 
 void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
   const FRuntimeStatsOverlaySettings &Settings = SelectStatsOverlaySettings();
+  const double BudgetClockSeconds =
+      FG::RenderingSlice::SelectRuntimeBudgetClockSeconds();
+  const float WallDeltaSeconds =
+      static_cast<float>(BudgetClockSeconds - LastFrameClockSeconds);
+  LastFrameClockSeconds = BudgetClockSeconds;
+  StatsRefreshElapsedSeconds += WallDeltaSeconds;
+  PolyCountRefreshElapsedSeconds += WallDeltaSeconds;
+
+  const bool bRefreshPolyCount =
+      ShouldRunInterval(PolyCountRefreshElapsedSeconds,
+                        Settings.PolyCountRefreshIntervalSeconds);
+  CachedPolyCount =
+      bRefreshPolyCount ? CountWorldTriangles(GetWorld(), Settings)
+                        : CachedPolyCount;
+  PolyCountRefreshElapsedSeconds =
+      bRefreshPolyCount ? Settings.IntervalResetElapsedSeconds
+                        : PolyCountRefreshElapsedSeconds;
+
+  const bool bRefreshStats =
+      ShouldRunInterval(StatsRefreshElapsedSeconds,
+                        Settings.StatsRefreshIntervalSeconds);
   const FRuntimeStatsViewModel Stats =
-      SelectRuntimeStats(GetWorld(), DeltaSeconds, Settings);
-  ApplyStatsValue({FramesPerSecondValueTextElement, Stats.FramesPerSecond,
-                   Settings.FramesPerSecondMediumThreshold,
-                   Settings.FramesPerSecondHighThreshold, &Settings});
-  ApplyStatsValue({StackDepthValueTextElement, Stats.StackDepth,
-                   Settings.StackDepthMediumThreshold,
-                   Settings.StackDepthHighThreshold, &Settings});
-  ApplyStatsValue({PolyCountValueTextElement, Stats.PolyCount,
-                   Settings.PolyCountMediumThreshold,
-                   Settings.PolyCountHighThreshold, &Settings});
+      SelectRuntimeStats(GetWorld(), WallDeltaSeconds, Settings,
+                         CachedPolyCount);
+  bRefreshStats
+      ? (ApplyStatsValue({FramesPerSecondValueTextElement,
+                          Stats.FramesPerSecond,
+                          Settings.FramesPerSecondMediumThreshold,
+                          Settings.FramesPerSecondHighThreshold, &Settings}),
+         ApplyStatsValue({StackDepthValueTextElement, Stats.StackDepth,
+                          Settings.StackDepthMediumThreshold,
+                          Settings.StackDepthHighThreshold, &Settings}),
+         ApplyStatsValue({PolyCountValueTextElement, Stats.PolyCount,
+                          Settings.PolyCountMediumThreshold,
+                          Settings.PolyCountHighThreshold, &Settings}),
+         PresentRuntimeStatsDebugMessage(Stats, Settings),
+         StatsRefreshElapsedSeconds = Settings.IntervalResetElapsedSeconds,
+         void())
+      : void();
+
+  const bool bLogBudgetSample =
+      FG::RenderingSlice::ShouldRunRuntimeBudgetWallInterval(
+          BudgetClockSeconds, BudgetLogLastSeconds,
+          Settings.BudgetLogIntervalSeconds);
+  bLogBudgetSample ? (LogRuntimeBudgetSample(Stats),
+                      BudgetLogLastSeconds = BudgetClockSeconds,
+                      void())
+                   : void();
+
+  const bool bRequestBudgetScreenshot =
+      FG::RenderingSlice::ShouldRunRuntimeBudgetScreenshot(
+          BudgetClockSeconds, BudgetScreenshotLastSeconds,
+          BudgetScreenshotIntervalSeconds, Settings);
+  bRequestBudgetScreenshot
+      ? (BudgetScreenshotIndex += Settings.BudgetScreenshotIndexStep,
+         FG::RenderingSlice::RequestRuntimeBudgetScreenshot(
+             Settings, BudgetScreenshotIndex),
+         BudgetScreenshotLastSeconds = BudgetClockSeconds,
+         void())
+      : void();
 }

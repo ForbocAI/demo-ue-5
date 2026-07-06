@@ -3,7 +3,7 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
@@ -21,15 +21,15 @@ SectionFromJson(const FLevelRuntimeJsonObjectRequest &Request);
 /**
  * @brief Reads and parses one required runtime section field.
  *
- * @signature func::Maybe<FLevelRuntimeSectionSeed> ReadSection(const ForbocAI::Demo::Data::FJsonFieldRequest &Request)
+ * @signature func::Maybe<FLevelRuntimeSectionSeed> ReadSection(const ForbocAI::Game::Data::FJsonFieldRequest &Request)
  *
  * User story: As a runtime layout adapter, parent layout parsing imports
  * downward into the section parser instead of sibling helper logic.
  */
 func::Maybe<FLevelRuntimeSectionSeed>
-ReadSection(const ForbocAI::Demo::Data::FJsonFieldRequest &Request);
+ReadSection(const ForbocAI::Game::Data::FJsonFieldRequest &Request);
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,7 +14,7 @@ class ATownspersonView;
 class URuntimeChatWidget;
 class URuntimeStatsWidget;
 
-namespace ForbocAI::Demo::UI {
+namespace ForbocAI::Game::UI {
 struct FRuntimeConversationViewModel;
 }
 
@@ -17,15 +22,15 @@ struct FRuntimeConversationViewModel;
  * @brief Player-controller boundary that converts UE input into RTK events.
  *
  * Architecture: This view observes Unreal actors/input, dispatches action
- * creators or thunks, and reads selector output. Target selection, dialogue
- * request composition, UI payload composition, and state transitions belong to
- * reducers/thunks in the single runtime store, not to this controller.
+ * creators or thunks, and reads selector output. Feature reducers/thunks own
+ * target selection, dialogue request composition, UI payload composition, and
+ * state transitions in the single runtime store.
  *
  * User story: As a player, pressing the interaction key starts a one-way
  * action -> reducer/thunk -> selector -> view flow for the nearest NPC.
  */
 UCLASS(Blueprintable)
-class DEMOPROJECT_API APlayerRuntimeControllerView
+class FORBOCAIDEMO_API APlayerRuntimeControllerView
     : public APlayerController {
   GENERATED_BODY()
 
@@ -62,7 +67,7 @@ private:
    * @brief Applies reducer-owned conversation display data to the chat widget.
    */
   void PresentConversationViewModel(
-      const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation);
+      const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation);
 
   /**
    * @brief Ensures the runtime stats overlay is visible in the viewport.

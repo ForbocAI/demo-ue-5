@@ -15,7 +15,7 @@ ROOT_FILES = [
     '.gitattributes',
     '.gitignore',
     '.gitmodules',
-    'DemoProject.uproject',
+    'ForbocAIDemo.uproject',
     'README.md',
     'style-guide.md',
 ]
@@ -118,7 +118,7 @@ def file_line_counts(base_dir):
 
 def write_report(output_file, counts):
     with open(output_file, 'w', encoding='utf-8', newline='\n') as handle:
-        handle.write('# Unreal Demo Text Files by Line Number\n\n')
+        handle.write('# Unreal Runtime Text Files by Line Number\n\n')
         handle.write('| Lines | File Path |\n')
         handle.write('|-------|-----------|\n')
         for count, path in counts:

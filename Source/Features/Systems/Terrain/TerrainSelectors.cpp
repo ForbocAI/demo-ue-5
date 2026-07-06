@@ -1,7 +1,7 @@
 #include "Features/Systems/Terrain/TerrainSelectors.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TerrainSelectors {
 
@@ -18,5 +18,5 @@ SelectLastMeshSection(const FTerrainState &State) {
 
 } // namespace TerrainSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

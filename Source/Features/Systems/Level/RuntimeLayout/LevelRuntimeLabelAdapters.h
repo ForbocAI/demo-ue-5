@@ -4,7 +4,7 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
@@ -21,23 +21,23 @@ LabelFromJson(const FLevelRuntimeJsonObjectRequest &Request);
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
 template <>
-struct TRequiredJsonObjectMapper<ForbocAI::Demo::Level::FLevelRuntimeLabelSeed> {
-  static func::Maybe<ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>
+struct TRequiredJsonObjectMapper<ForbocAI::Game::Level::FLevelRuntimeLabelSeed> {
+  static func::Maybe<ForbocAI::Game::Level::FLevelRuntimeLabelSeed>
   Read(const TSharedPtr<FJsonObject> &Object) {
-    return ForbocAI::Demo::Level::RuntimeLayout::LabelFromJson({Object});
+    return ForbocAI::Game::Level::RuntimeLayout::LabelFromJson({Object});
   }
 };
 
 } // namespace JsonValueAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

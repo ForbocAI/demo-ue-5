@@ -8,7 +8,7 @@
 #include "Features/Systems/Bots/Orchestrator/Factories/BotOrchestratorFactoriesTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotOrchestratorFactoriesSlice {
 
@@ -44,5 +44,5 @@ inline const rtk::Slice<FBotOrchestratorFactoriesState> &GetSlice() {
 
 } // namespace BotOrchestratorFactoriesSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Horses/HorseTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace HorseSelectors {
 
@@ -13,5 +13,5 @@ TArray<FHorseRouteSeed> SelectAll(const FHorseState &State);
 
 } // namespace HorseSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

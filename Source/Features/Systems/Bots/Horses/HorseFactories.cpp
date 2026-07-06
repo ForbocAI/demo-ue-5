@@ -3,7 +3,7 @@
 #include "Features/Systems/Bots/Horses/HorseAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace HorseFactories {
 
@@ -15,5 +15,5 @@ FHorseState CreateInitialState() {
 
 } // namespace HorseFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

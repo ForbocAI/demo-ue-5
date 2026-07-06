@@ -3,7 +3,7 @@
 #include "Features/Systems/Bots/AI/BotAIAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotAISelectors {
 
@@ -23,5 +23,5 @@ int32 SelectTotal(const FBotAIState &State) {
 
 } // namespace BotAISelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

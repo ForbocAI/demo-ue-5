@@ -18,7 +18,7 @@
 #include "Features/Systems/UI/UISelectors.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeSelectors {
 
@@ -34,17 +34,17 @@ const FLevelSystemState &SelectLevelState(const FRuntimeState &State) {
   return State.Level;
 }
 
-const ForbocAI::Demo::Data::FLevelTerrainSourceSettings &
+const ForbocAI::Game::Data::FLevelTerrainSourceSettings &
 SelectLevelTerrainSources(const FRuntimeState &State) {
   return LevelSystemSelectors::SelectTerrainSources(State.Level);
 }
 
-const ForbocAI::Demo::Data::FLevelDataSourceSettings &
+const ForbocAI::Game::Data::FLevelDataSourceSettings &
 SelectLevelDataSources(const FRuntimeState &State) {
   return LevelSystemSelectors::SelectDataSources(State.Level);
 }
 
-const ForbocAI::Demo::Data::FLevelGeometrySettings &
+const ForbocAI::Game::Data::FLevelGeometrySettings &
 SelectLevelGeometry(const FRuntimeState &State) {
   return LevelSystemSelectors::SelectGeometry(State.Level);
 }
@@ -167,7 +167,12 @@ SelectTextureCatalog(const FRuntimeState &State) {
   return RenderingSelectors::SelectTextureCatalog(State.Rendering);
 }
 
-const ForbocAI::Demo::Data::FRenderingRuntimeSettings &
+const TArray<FLevelDistanceLodStage> &
+SelectDistanceLodStages(const FRuntimeState &State) {
+  return RenderingSelectors::SelectDistanceLodStages(State.Rendering);
+}
+
+const ForbocAI::Game::Data::FRenderingRuntimeSettings &
 SelectRenderingRuntimeSettings(const FRuntimeState &State) {
   return RenderingSelectors::SelectRenderingRuntimeSettings(State.Rendering);
 }
@@ -202,7 +207,7 @@ SelectTownspersonInteractionOverlap(const FRuntimeState &State) {
   return TownspersonSelectors::SelectLastInteractionOverlap(State.Townspeople);
 }
 
-ForbocAI::Demo::UI::FRuntimeConversationViewModel
+ForbocAI::Game::UI::FRuntimeConversationViewModel
 SelectRuntimeConversation(const FRuntimeState &State) {
   return UISelectors::SelectConversation(State.UI);
 }
@@ -217,32 +222,32 @@ SelectHorsePresentation(const FRuntimeState &State) {
   return RenderingSelectors::SelectHorsePresentation(State.Rendering);
 }
 
-const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &
+const ForbocAI::Game::Data::FRuntimeObservationIdSettings &
 SelectRuntimeObservationIds(const FRuntimeState &State) {
   return State.RuntimeObservationIds;
 }
 
-const ForbocAI::Demo::Data::FRuntimeDebugMessageSettings &
+const ForbocAI::Game::Data::FRuntimeDebugMessageSettings &
 SelectRuntimeDebugMessages(const FRuntimeState &State) {
   return State.RuntimeDebugMessages;
 }
 
-const ForbocAI::Demo::Data::FRuntimeViewNameSettings &
+const ForbocAI::Game::Data::FRuntimeViewNameSettings &
 SelectRuntimeViewNames(const FRuntimeState &State) {
   return State.RuntimeViewNames;
 }
 
-const ForbocAI::Demo::Data::FRuntimeTextSettings &
+const ForbocAI::Game::Data::FRuntimeTextSettings &
 SelectRuntimeText(const FRuntimeState &State) {
   return State.RuntimeText;
 }
 
-const ForbocAI::Demo::Data::FUIRuntimeSettings &
+const ForbocAI::Game::Data::FUIRuntimeSettings &
 SelectUIRuntimeSettings(const FRuntimeState &State) {
   return UISelectors::SelectRuntimeSettings(State.UI);
 }
 
-const ForbocAI::Demo::Data::FBotRuntimeSettings &
+const ForbocAI::Game::Data::FBotRuntimeSettings &
 SelectBotRuntimeSettings(const FRuntimeState &State) {
   return State.BotRuntime;
 }
@@ -324,5 +329,5 @@ SelectEntityInspection(const FRuntimeState &State,
 
 } // namespace RuntimeSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

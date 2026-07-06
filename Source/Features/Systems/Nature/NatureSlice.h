@@ -7,7 +7,7 @@
 #include "Features/Systems/Nature/NatureTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace NatureSlice {
 
@@ -15,5 +15,5 @@ const rtk::Slice<FNatureState> &GetSlice();
 
 } // namespace NatureSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FLevelTerrainSourceSettings {
@@ -163,5 +163,5 @@ inline bool operator!=(const FLevelGeometrySettings &Left,
 }
 
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

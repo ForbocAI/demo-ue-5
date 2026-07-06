@@ -9,7 +9,7 @@
 #include "Features/Systems/SystemsTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SystemsSlice {
 
@@ -39,5 +39,5 @@ inline const rtk::Slice<FSystemsState> &GetSlice() {
 
 } // namespace SystemsSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

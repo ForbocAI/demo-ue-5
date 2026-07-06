@@ -1,7 +1,7 @@
 #include "Features/Components/ComponentsAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace ComponentsAdapters {
 
@@ -257,5 +257,5 @@ TArray<ecs::FComponentValue> StringList(const TArray<FString> &Values) {
 
 } // namespace ComponentsAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

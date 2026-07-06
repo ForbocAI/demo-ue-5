@@ -3,7 +3,7 @@
 #include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace PlayerSettingsAdapters {
 
@@ -29,5 +29,5 @@ ReadInteractionSettings(const TSharedPtr<FJsonObject> &Object);
 
 } // namespace PlayerSettingsAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

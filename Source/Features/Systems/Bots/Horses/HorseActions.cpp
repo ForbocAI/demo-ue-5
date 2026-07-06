@@ -1,7 +1,7 @@
 #include "Features/Systems/Bots/Horses/HorseActions.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace HorseActions {
 
@@ -16,5 +16,5 @@ const rtk::ActionCreator<TArray<FHorseRouteSeed>> &HorsesSeeded() {
 
 } // namespace HorseActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# First-run setup for demo contributors.
+# First-run setup for runtime contributors.
 
 set -euo pipefail
 
@@ -20,7 +20,7 @@ sdk_source_windows_path() {
   wslpath -w "$SourcePath" 2>/dev/null || true
 }
 
-echo "=== ForbocAI UE demo setup ==="
+echo "=== ForbocAI UE runtime setup ==="
 if [ -d "$PROJECT_ROOT/Plugins/ForbocAI_SDK" ]; then
   echo "Unlocking SDK submodule for setup sync..."
   FORBOC_ALLOW_SDK_SUBMODULE_UNLOCK=setup-dev \
@@ -30,7 +30,7 @@ fi
 echo "Initializing SDK submodule..."
 git -C "$PROJECT_ROOT" submodule update --init --recursive
 
-echo "Activating demo git hooks..."
+echo "Activating runtime git hooks..."
 git -C "$PROJECT_ROOT" config core.hooksPath .githooks
 
 echo "Making guard scripts executable..."
@@ -53,7 +53,7 @@ cat <<MSG
 Setup complete.
 
 SDK rule:
-  Plugins/ForbocAI_SDK is OFF LIMITS and read-only in this demo checkout.
+  Plugins/ForbocAI_SDK is OFF LIMITS and read-only in this runtime checkout.
 
 To change SDK code:
   1. Edit and commit in $SDK_SOURCE_PATH
@@ -66,7 +66,7 @@ cat <<'MSG'
 
 For a nonstandard layout, set FORBOC_SDK_SOURCE_PATH to the real SDK source checkout.
 
-To work on demo code:
+To work on runtime code:
   Edit Source/, Content/, Config/, or Scripts/ as usual.
 
 MSG

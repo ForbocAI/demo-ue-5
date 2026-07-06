@@ -5,7 +5,7 @@
 #include "Features/Systems/Dialogue/DialogueTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace DialogueSelectors {
 
@@ -36,5 +36,5 @@ inline func::Maybe<FString> SelectLastReply(const FDialogueState &State) {
 
 } // namespace DialogueSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

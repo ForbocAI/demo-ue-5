@@ -7,7 +7,7 @@
 #include <initializer_list>
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
@@ -71,7 +71,7 @@ LoadObjectFromContent(const FJsonContentObjectRequest &Request);
  * @signature TSharedPtr<FJsonObject> LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request)
  *
  * User story: As a runtime data boundary, missing authored JSON should fail
- * before actions dispatch instead of producing fallback state.
+ * before actions dispatch instead of producing substitute state.
  */
 TSharedPtr<FJsonObject>
 LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request);
@@ -745,5 +745,5 @@ ReadSettingsObjectArrayField(const TSharedPtr<FJsonObject> &Object,
 
 } // namespace JsonAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

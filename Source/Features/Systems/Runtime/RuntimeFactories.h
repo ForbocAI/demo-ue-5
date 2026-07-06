@@ -3,7 +3,7 @@
 #include "Features/Systems/Runtime/RuntimeTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeFactories {
 
@@ -14,5 +14,5 @@ FRuntimeState CreateInitialState();
 
 } // namespace RuntimeFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

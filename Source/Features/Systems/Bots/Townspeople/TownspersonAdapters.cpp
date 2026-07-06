@@ -1,7 +1,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TownspersonAdapters {
 
@@ -18,5 +18,5 @@ const rtk::EntityAdapter<FTownspersonSeed> &TownspersonAdapter() {
 
 } // namespace TownspersonAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -8,7 +8,7 @@
 #include "Features/Entities/Characters/Player/PlayerTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace PlayerSlice {
 
@@ -44,5 +44,5 @@ inline const rtk::Slice<FPlayerState> &GetSlice() {
 
 } // namespace PlayerSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

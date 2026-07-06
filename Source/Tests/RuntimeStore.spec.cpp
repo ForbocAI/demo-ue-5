@@ -22,7 +22,7 @@
 #include "Misc/OutputDevice.h"
 #include "Store.h"
 
-using namespace ForbocAI::Demo::Level;
+using namespace ForbocAI::Game::Level;
 
 namespace {
 
@@ -36,7 +36,7 @@ struct FReduxLoggerLineSearchRequest {
 };
 
 /**
- * @brief Captures the demo redux logger category during automation tests.
+ * @brief Captures the runtime redux logger category during automation tests.
  */
 class FRuntimeReduxLoggerCaptureDevice final : public FOutputDevice {
 public:
@@ -80,7 +80,7 @@ public:
 
 private:
   void CaptureLine(const TCHAR *V, const FName &Category) {
-    Category == FName(TEXT("LogForbocDemoRedux"))
+    Category == FName(TEXT("LogForbocRuntimeRedux"))
         ? (Lines.Add(FString(V)), void())
         : void();
   }
@@ -135,19 +135,19 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
  * @param Parameters Automation test parameters supplied by Unreal.
  * @return true when the runtime store selectors and ECS projections match seeded data.
  *
- * User Story: As a demo maintainer, I need the runtime store to prove that
+ * User Story: As a runtime maintainer, I need the runtime store to prove that
  * reducers own gameplay state and ECS projection while views remain display-only.
  */
 bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
-  const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
-      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
-  const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
+  const ForbocAI::Game::Data::FRuntimeSettings Settings =
+      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings();
+  const ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources =
       Settings.LevelTerrainSources;
-  const ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources =
+  const ForbocAI::Game::Data::FLevelDataSourceSettings DataSources =
       Settings.LevelDataSources;
-  const ForbocAI::Demo::Data::FRuntimeValidationSettings Validation =
+  const ForbocAI::Game::Data::FRuntimeValidationSettings Validation =
       Settings.RuntimeValidation;
-  const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
+  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
       Settings.LevelGeometry;
   FLevelTerrainData TerrainData;
   FLevelOrthoData OrthoData;
@@ -392,8 +392,41 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
             RetroProfile.TimeOfDayHour, 15.0f);
   TestEqual(TEXT("Retro profile disables anti-aliasing"),
             RetroProfile.AntiAliasingMethod, 0);
-  TestTrue(TEXT("Retro profile keeps long readable vistas"),
-           RetroProfile.ViewDistanceScale >= 1.5f);
+  TestEqual(TEXT("Retro profile renders at native low resolution"),
+            RetroProfile.ScreenPercentage, 100.0f);
+  TestEqual(TEXT("Retro profile targets a 320px internal render width"),
+            RetroProfile.InternalRenderWidth, 320);
+  TestEqual(TEXT("Retro profile targets a 240px internal render height"),
+            RetroProfile.InternalRenderHeight, 240);
+  TestEqual(TEXT("Retro profile scales the internal render target up from JSON"),
+            RetroProfile.OutputScaleMultiplier, 4);
+  TestTrue(TEXT("Retro profile scales the internal render target fullscreen"),
+           RetroProfile.bFullscreenOutput);
+  TestTrue(TEXT("Retro profile keeps view distance strict for performance"),
+           RetroProfile.ViewDistanceScale <= 0.65f);
+  TestTrue(TEXT("Retro profile uses cheap fog as LOD cover"),
+           RetroProfile.bFogEnabled && RetroProfile.FogDensity >= 0.02f &&
+               RetroProfile.FogStartDistance <= 900.0f);
+  TestFalse(TEXT("Retro profile keeps volumetric fog disabled"),
+            RetroProfile.bVolumetricFogEnabled);
+
+  const TArray<FLevelDistanceLodStage> &DistanceLodStages =
+      RenderingSelectors::SelectDistanceLodStages(
+          RuntimeSelectors::SelectRenderingState(State));
+  TestEqual(TEXT("Runtime has five distance LOD stages"),
+            DistanceLodStages.Num(), 5);
+  TestTrue(TEXT("Nearest LOD keeps actors visible and active"),
+           DistanceLodStages[0].bStaticVisible &&
+               DistanceLodStages[0].bDynamicVisible &&
+               DistanceLodStages[0].bPatrolEnabled &&
+               DistanceLodStages[0].bAnimated);
+  TestTrue(TEXT("Far LOD stops labels, animation, and patrol"),
+           !DistanceLodStages[2].bLabelsVisible &&
+               !DistanceLodStages[2].bAnimated &&
+               !DistanceLodStages[2].bPatrolEnabled);
+  TestFalse(TEXT("Terminal LOD stage culls distant actors"),
+            DistanceLodStages[4].bStaticVisible ||
+                DistanceLodStages[4].bDynamicVisible);
 
   const TArray<FLevelRetroTextureSpec> &TextureCatalog =
       RenderingSelectors::SelectTextureCatalog(

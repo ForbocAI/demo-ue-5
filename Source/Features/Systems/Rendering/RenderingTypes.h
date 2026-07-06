@@ -9,7 +9,7 @@ class UMaterialInterface;
 class UStaticMeshComponent;
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FLevelRetroTextureApply {
@@ -17,21 +17,21 @@ struct FLevelRetroTextureApply {
   UMaterialInterface *BaseMaterial;
   ELevelRetroTexture Texture;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
-  ForbocAI::Demo::Data::FRenderingRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
 };
 
 struct FRenderingPayload {
   FString Id;
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
-  ForbocAI::Demo::Data::FRenderingRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
 };
 
 struct FRenderingPayloadRequest {
   FString Id;
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
-  ForbocAI::Demo::Data::FRenderingRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
 };
 
 struct FRenderingPresentationRequest {
@@ -49,13 +49,13 @@ struct FRenderingAssetPaths {
 };
 
 struct FTownspersonPresentationReduceRequest {
-  ForbocAI::Demo::Data::FTownspersonPresentationSettings Settings;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FTownspersonPresentationSettings Settings;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FHorsePresentationReduceRequest {
-  ForbocAI::Demo::Data::FHorsePresentationSettings Settings;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FHorsePresentationSettings Settings;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FTownspersonPresentationViewModel {
@@ -97,7 +97,8 @@ struct FRenderingState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
-  ForbocAI::Demo::Data::FRenderingRuntimeSettings RuntimeSettings;
+  TArray<FLevelDistanceLodStage> DistanceLodStages;
+  ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
   FRenderingAssetPaths AssetPaths;
   FTownspersonPresentationViewModel TownspersonPresentation;
   FHorsePresentationViewModel HorsePresentation;
@@ -221,6 +222,7 @@ inline bool operator==(const FRenderingState &Left,
           Left.LastActionId.value == Right.LastActionId.value) &&
          Left.RuntimeProfile == Right.RuntimeProfile &&
          Left.TextureCatalog == Right.TextureCatalog &&
+         Left.DistanceLodStages == Right.DistanceLodStages &&
          Left.RuntimeSettings == Right.RuntimeSettings &&
          Left.AssetPaths == Right.AssetPaths &&
          Left.TownspersonPresentation == Right.TownspersonPresentation &&
@@ -234,5 +236,5 @@ inline bool operator!=(const FRenderingState &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

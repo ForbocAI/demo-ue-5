@@ -1,0 +1,53 @@
+{
+  "runtime_budget": {
+    "id": "ps3-style-baseline",
+    "measurement_seconds": 30,
+    "start_timeout_seconds": 120,
+    "screenshot_interval_seconds": 10,
+    "screenshot_timeout_seconds": 20,
+    "screenshot_interval_command_line_key": "-forbocRuntimeBudgetScreenshotInterval=",
+    "screenshot_directory": "screenshots",
+    "screenshot_file_glob": "*.png",
+    "screenshot_search_max_depth": 1,
+    "minimum_sample_count": 10,
+    "minimum_average_fps": 20.0,
+    "minimum_lowest_fps": 12,
+    "maximum_stack_depth": 8,
+    "maximum_poly_count": 150000,
+    "output": {
+      "width": 320,
+      "height": 240,
+      "fullscreen": true
+    },
+    "markers": {
+      "map": "Forboc runtime smoke: RuntimeLevelView BeginPlay",
+      "terrain": "LogForbocRuntimeRedux: Display: action terrain/loaded",
+      "profile": "LogForbocRuntimeRedux: Display: action systems/rendering/profileObserved",
+      "sample": "runtime-budget sample",
+      "valid_sample_pattern": "runtime-budget sample fps=[1-9][0-9]*",
+      "fatal_error": "Fatal error"
+    },
+    "failure_guidance": [
+      "This performance test runs the normal Runtime map/game path. If it fails, address the normal game's performance instead of weakening the test or replacing it with a fake smoke path.",
+      "Review the low-budget targets: 320x240 fullscreen scaled output, no AA/post polish, nearest/retro textures, Quake/HROT/WRATH-style low-poly silhouettes, PS2/SotC-style fog-hidden distance, cheap non-volumetric fog for LOD cover, tighter cull/view distance, stricter static/skeletal LODs, hard poly limits, static terrain/buildings, only animals/people movable, runtime logging volume, GC pressure, stack depth/recursion, per-tick actor scans, and PSO/shader hitches.",
+      "Use the review screenshots captured every ten seconds to confirm that fog is covering the LOD boundary instead of drawing expensive distant detail."
+    ],
+    "profile_limits": {
+      "max_anti_aliasing_method": 0,
+      "max_post_process_aa_quality": 0,
+      "max_screen_percentage": 100.0,
+      "max_internal_render_width": 320,
+      "max_internal_render_height": 240,
+      "max_view_distance_scale": 0.65,
+      "max_foliage_density_scale": 0.0,
+      "max_grass_density_scale": 0.0,
+      "max_shadow_cascades": 0,
+      "max_shadow_max_resolution": 128,
+      "min_fog_density": 0.02,
+      "max_fog_density": 0.06,
+      "max_fog_start_distance": 900.0,
+      "max_fog_cutoff_distance": 3000.0,
+      "max_fog_max_opacity": 0.95
+    }
+  }
+}

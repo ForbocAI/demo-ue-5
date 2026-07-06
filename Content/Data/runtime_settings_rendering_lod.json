@@ -1,0 +1,91 @@
+{
+  "distance_lod": {
+    "stages": [
+      {
+        "id": "near",
+        "max_distance": 160.0,
+        "static_mesh_forced_lod_model": 1,
+        "skeletal_mesh_forced_lod_model": 3,
+        "skeletal_mesh_min_lod_model": 2,
+        "cull_distance": 220.0,
+        "actor_tick_interval_seconds": 0.1,
+        "static_visible": true,
+        "dynamic_visible": true,
+        "labels_visible": false,
+        "animated": true,
+        "update_rate_optimizations_enabled": true,
+        "patrol_enabled": true,
+        "collision_enabled": true,
+        "cast_shadow": false
+      },
+      {
+        "id": "mid",
+        "max_distance": 320.0,
+        "static_mesh_forced_lod_model": 3,
+        "skeletal_mesh_forced_lod_model": 4,
+        "skeletal_mesh_min_lod_model": 3,
+        "cull_distance": 360.0,
+        "actor_tick_interval_seconds": 0.2,
+        "static_visible": true,
+        "dynamic_visible": false,
+        "labels_visible": false,
+        "animated": false,
+        "update_rate_optimizations_enabled": true,
+        "patrol_enabled": false,
+        "collision_enabled": false,
+        "cast_shadow": false
+      },
+      {
+        "id": "far",
+        "max_distance": 560.0,
+        "static_mesh_forced_lod_model": 4,
+        "skeletal_mesh_forced_lod_model": 3,
+        "skeletal_mesh_min_lod_model": 2,
+        "cull_distance": 620.0,
+        "actor_tick_interval_seconds": 0.5,
+        "static_visible": true,
+        "dynamic_visible": false,
+        "labels_visible": false,
+        "animated": false,
+        "update_rate_optimizations_enabled": true,
+        "patrol_enabled": false,
+        "collision_enabled": false,
+        "cast_shadow": false
+      },
+      {
+        "id": "silhouette",
+        "max_distance": 820.0,
+        "static_mesh_forced_lod_model": 4,
+        "skeletal_mesh_forced_lod_model": 4,
+        "skeletal_mesh_min_lod_model": 3,
+        "cull_distance": 880.0,
+        "actor_tick_interval_seconds": 1.0,
+        "static_visible": true,
+        "dynamic_visible": false,
+        "labels_visible": false,
+        "animated": false,
+        "update_rate_optimizations_enabled": true,
+        "patrol_enabled": false,
+        "collision_enabled": false,
+        "cast_shadow": false
+      },
+      {
+        "id": "culled",
+        "max_distance": 999999.0,
+        "static_mesh_forced_lod_model": 4,
+        "skeletal_mesh_forced_lod_model": 4,
+        "skeletal_mesh_min_lod_model": 3,
+        "cull_distance": 1240.0,
+        "actor_tick_interval_seconds": 1.0,
+        "static_visible": false,
+        "dynamic_visible": false,
+        "labels_visible": false,
+        "animated": false,
+        "update_rate_optimizations_enabled": true,
+        "patrol_enabled": false,
+        "collision_enabled": false,
+        "cast_shadow": false
+      }
+    ]
+  }
+}

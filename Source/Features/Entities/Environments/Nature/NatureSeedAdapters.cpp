@@ -4,11 +4,11 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace NatureAdapters {
 
-namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
+namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
 enum class ENatureScaleMode { LongFeature, Pad };
 
@@ -38,14 +38,14 @@ struct FNatureFeatureFields {
 };
 
 struct FFeatureLotsRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float EastLots;
   float NorthLots;
   FVector Scale;
 };
 
 struct FScaleFieldsRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   TSharedPtr<FJsonObject> Object;
 };
 
@@ -63,22 +63,22 @@ struct FScaleProjectorDeclaration {
 };
 
 struct FFeatureBuildRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FNatureFeatureFields Fields;
 };
 
 } // namespace NatureAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-namespace LevelTypes = ForbocAI::Demo::Level;
-namespace NatureTypes = ForbocAI::Demo::Level::NatureAdapters;
+namespace LevelTypes = ForbocAI::Game::Level;
+namespace NatureTypes = ForbocAI::Game::Level::NatureAdapters;
 
 using ENatureFeatureKind = LevelTypes::ENatureFeatureKind;
 using ENatureScaleMode = NatureTypes::ENatureScaleMode;
@@ -123,11 +123,11 @@ JSON_SETTINGS_REGISTRY(FNatureFeatureFields, Id, Name, Kind, EastLots,
 
 } // namespace JsonAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace NatureAdapters {
 namespace {
@@ -233,5 +233,5 @@ TArray<FNatureFeatureSeed> BuildNatureSeed(
 
 } // namespace NatureAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

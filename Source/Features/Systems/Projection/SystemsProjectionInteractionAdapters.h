@@ -3,7 +3,7 @@
 #include "Features/Systems/Projection/SystemsProjectionTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SystemsProjectionInteractionAdapters {
 
@@ -19,5 +19,5 @@ ecs::FWorld ProjectInteraction(const FProjectInteractionPayload &Payload);
 
 } // namespace SystemsProjectionInteractionAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

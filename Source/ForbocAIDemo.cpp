@@ -1,18 +1,18 @@
-#include "DemoProject.h"
+#include "ForbocAIDemo.h"
 #include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "ForbocAILog.h"
 #include "Modules/ModuleManager.h"
 
-class FDemoProjectModule : public FDefaultGameModuleImpl {
+class FForbocAIDemoModule : public FDefaultGameModuleImpl {
 public:
   virtual void StartupModule() override {
     FDefaultGameModuleImpl::StartupModule();
-    const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
-        ForbocAI::Demo::Data::RuntimeSettingsAdapters::
-            LoadDemoRuntimeSettings();
+    const ForbocAI::Game::Data::FRuntimeSettings Settings =
+        ForbocAI::Game::Data::RuntimeSettingsAdapters::
+            LoadRuntimeSettings();
     UE_LOG(LogForbocAIRedux, Display, TEXT("%s"),
            *Settings.RuntimeText.StartupSdkEnabled);
   }
 };
 
-IMPLEMENT_PRIMARY_GAME_MODULE(FDemoProjectModule, DemoProject, "DemoProject");
+IMPLEMENT_PRIMARY_GAME_MODULE(FForbocAIDemoModule, ForbocAIDemo, "ForbocAIDemo");

@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FDialogueRuntimeSettings {
@@ -22,5 +22,5 @@ inline bool operator!=(const FDialogueRuntimeSettings &Left,
 }
 
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -1,6 +1,6 @@
 # French Gulch Reference Images
 
-This folder stores visual planning references for the UE demo. These files are
+This folder stores visual planning references for the UE runtime. These files are
 reference material only; do not treat third-party screenshots as production
 texture sources unless their rights and provenance are cleared.
 
@@ -17,7 +17,7 @@ texture sources unless their rights and provenance are cleared.
 ## Implementation Notes
 
 - Use the horse images as visual references for proportions and pacing only.
-- Keep runtime prototype horses in demo-owned primitive actors until the staged
+- Keep runtime prototype horses in project-owned primitive actors until the staged
   source horse assets in `pre-game-assets` are imported and licensed for use.
 - Use the Clear Creek image with the public USGS ortho/terrain outputs when
   planning the Water System, Foliage Tool, and PCG natural environment pass.

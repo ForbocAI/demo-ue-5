@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FRenderingAssetPathSettings {
@@ -17,6 +17,11 @@ struct FRenderingProfileSettings {
   int32 AntiAliasingMethod;
   int32 PostProcessAAQuality;
   float ScreenPercentage;
+  float MinimumScreenPercentage;
+  int32 InternalRenderWidth;
+  int32 InternalRenderHeight;
+  int32 OutputScaleMultiplier;
+  bool bFullscreenOutput;
   float ViewDistanceScale;
   float FoliageDensityScale;
   float GrassDensityScale;
@@ -26,6 +31,17 @@ struct FRenderingProfileSettings {
   float DirectionalLightSourceAngle;
   int32 ShadowCascades;
   int32 ShadowMaxResolution;
+  bool bFogEnabled;
+  bool bVolumetricFogEnabled;
+  float FogDensity;
+  float FogHeightFalloff;
+  float FogStartDistance;
+  float FogCutoffDistance;
+  float FogMaxOpacity;
+  float FogColorR;
+  float FogColorG;
+  float FogColorB;
+  float FogColorA;
 };
 
 
@@ -105,6 +121,28 @@ struct FRenderingRuntimeSettings {
   FRenderingTextureHashSettings TextureHash;
   TArray<FRenderingConsoleVariableSettings> ConsoleVariables;
   TArray<FRenderingTexturePaletteSettings> TexturePalettes;
+};
+
+struct FRenderingDistanceLodStageSettings {
+  FString Id;
+  float MaxDistance;
+  int32 StaticMeshForcedLodModel;
+  int32 SkeletalMeshForcedLodModel;
+  int32 SkeletalMeshMinLodModel;
+  float CullDistance;
+  float ActorTickIntervalSeconds;
+  bool bStaticVisible;
+  bool bDynamicVisible;
+  bool bLabelsVisible;
+  bool bAnimated;
+  bool bUpdateRateOptimizationsEnabled;
+  bool bPatrolEnabled;
+  bool bCollisionEnabled;
+  bool bCastShadow;
+};
+
+struct FRenderingDistanceLodSettings {
+  TArray<FRenderingDistanceLodStageSettings> Stages;
 };
 
 
@@ -209,6 +247,42 @@ inline bool operator!=(const FRenderingRuntimeSettings &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FRenderingDistanceLodStageSettings &Left,
+                       const FRenderingDistanceLodStageSettings &Right) {
+  return Left.Id == Right.Id &&
+         FMath::IsNearlyEqual(Left.MaxDistance, Right.MaxDistance) &&
+         Left.StaticMeshForcedLodModel == Right.StaticMeshForcedLodModel &&
+         Left.SkeletalMeshForcedLodModel == Right.SkeletalMeshForcedLodModel &&
+         Left.SkeletalMeshMinLodModel == Right.SkeletalMeshMinLodModel &&
+         FMath::IsNearlyEqual(Left.CullDistance, Right.CullDistance) &&
+         FMath::IsNearlyEqual(Left.ActorTickIntervalSeconds,
+                              Right.ActorTickIntervalSeconds) &&
+         Left.bStaticVisible == Right.bStaticVisible &&
+         Left.bDynamicVisible == Right.bDynamicVisible &&
+         Left.bLabelsVisible == Right.bLabelsVisible &&
+         Left.bAnimated == Right.bAnimated &&
+         Left.bUpdateRateOptimizationsEnabled ==
+             Right.bUpdateRateOptimizationsEnabled &&
+         Left.bPatrolEnabled == Right.bPatrolEnabled &&
+         Left.bCollisionEnabled == Right.bCollisionEnabled &&
+         Left.bCastShadow == Right.bCastShadow;
+}
+
+inline bool operator!=(const FRenderingDistanceLodStageSettings &Left,
+                       const FRenderingDistanceLodStageSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FRenderingDistanceLodSettings &Left,
+                       const FRenderingDistanceLodSettings &Right) {
+  return Left.Stages == Right.Stages;
+}
+
+inline bool operator!=(const FRenderingDistanceLodSettings &Left,
+                       const FRenderingDistanceLodSettings &Right) {
+  return !(Left == Right);
+}
+
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

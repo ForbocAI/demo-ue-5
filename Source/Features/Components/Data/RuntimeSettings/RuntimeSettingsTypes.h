@@ -1,9 +1,17 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Data/RuntimeSettings/BotSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/DialogueSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/InteractionSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/LevelSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/PlayerSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/RenderingSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/SpeechSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/UISettingsTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FRuntimeObservationIdSettings {
@@ -51,6 +59,37 @@ struct FRuntimeTextSettings {
   FString RiderMissingMesh;
   FString StartupSdkEnabled;
   FString StartupSdkDisabled;
+};
+
+struct FRuntimeReduxLogSettings {
+  int32 SampleInterval;
+  TArray<FString> SampledActionTypes;
+};
+
+struct FRuntimeSettings {
+  FPlayerPresentationSettings PlayerPresentation;
+  FInteractionSettings Interaction;
+  FTownspersonDefaultsSettings TownspersonDefaults;
+  FLevelTerrainSourceSettings LevelTerrainSources;
+  FLevelDataSourceSettings LevelDataSources;
+  FRuntimeValidationSettings RuntimeValidation;
+  FLevelGeometrySettings LevelGeometry;
+  FRenderingAssetPathSettings RenderingAssets;
+  FRenderingProfileSettings RenderingProfile;
+  TArray<FRenderingTextureSpecSettings> TextureCatalog;
+  FRenderingRuntimeSettings RenderingRuntime;
+  FRenderingDistanceLodSettings RenderingDistanceLod;
+  FDialogueRuntimeSettings DialogueRuntime;
+  FBotRuntimeSettings BotRuntime;
+  FUIRuntimeSettings UIRuntime;
+  FSpeechRuntimeSettings SpeechRuntime;
+  FTownspersonPresentationSettings TownspersonPresentation;
+  FHorsePresentationSettings HorsePresentation;
+  FRuntimeObservationIdSettings RuntimeObservationIds;
+  FRuntimeDebugMessageSettings RuntimeDebugMessages;
+  FRuntimeViewNameSettings RuntimeViewNames;
+  FRuntimeTextSettings RuntimeText;
+  FRuntimeReduxLogSettings RuntimeReduxLog;
 };
 
 
@@ -129,6 +168,17 @@ inline bool operator!=(const FRuntimeTextSettings &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FRuntimeReduxLogSettings &Left,
+                       const FRuntimeReduxLogSettings &Right) {
+  return Left.SampleInterval == Right.SampleInterval &&
+         Left.SampledActionTypes == Right.SampledActionTypes;
+}
+
+inline bool operator!=(const FRuntimeReduxLogSettings &Left,
+                       const FRuntimeReduxLogSettings &Right) {
+  return !(Left == Right);
+}
+
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

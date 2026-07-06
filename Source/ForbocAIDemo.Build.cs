@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using UnrealBuildTool;
 
-public class DemoProject : ModuleRules
+public class ForbocAIDemo : ModuleRules
 {
-	public DemoProject(ReadOnlyTargetRules Target) : base(Target)
+	public ForbocAIDemo(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
@@ -12,7 +12,7 @@ public class DemoProject : ModuleRules
 		string ProjectRoot = Path.GetFullPath(Path.Combine(ModuleDirectory, ".."));
 		string ForbocSdkPublicRoot = Path.Combine(ProjectRoot, "Plugins", "ForbocAI_SDK", "Source", "ForbocAI_SDK", "Public");
 
-		PublicDefinitions.Add("WITH_FORBOC_AI_SDK_DEMO=1");
+		PublicDefinitions.Add("WITH_FORBOC_AI_SDK_RUNTIME=1");
 		PublicIncludePaths.AddRange(new string[] { ModuleSourceRoot, ForbocSdkPublicRoot });
 		PrivateIncludePaths.AddRange(new string[] { ModuleSourceRoot, ForbocSdkPublicRoot });
 

@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/HorseView.h"
 
 #include "Animation/AnimSequence.h"
@@ -9,7 +14,7 @@
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Store.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
 
 namespace {
 
@@ -34,7 +39,7 @@ ObserveHorsePatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
 
 FG::FHorsePresentationViewModel ObserveHorsePresentation() {
   const FG::FRuntimeState State = FG::Store::GetStore().getState();
-  const ForbocAI::Demo::Data::FRuntimeObservationIdSettings &Ids =
+  const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
   FG::Store::GetStore().dispatch(
       FG::RenderingActions::HorsePresentationRequested()(
@@ -49,9 +54,13 @@ AHorseView::AHorseView()
       PauseRemaining(0.0f), PatrolArrivalDistance(0.0f),
       bMountedRider(false) {
   PrimaryActorTick.bCanEverTick = true;
+  PrimaryActorTick.TickInterval =
+      FG::RuntimeSelectors::SelectBotRuntimeSettings(
+          FG::Store::GetStore().getState())
+          .PatrolTickIntervalSeconds;
   const FG::FHorsePresentationViewModel Presentation =
       ObserveHorsePresentation();
-  const ForbocAI::Demo::Data::FRuntimeViewNameSettings &ViewNames =
+  const ForbocAI::Game::Data::FRuntimeViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectRuntimeViewNames(
           FG::Store::GetStore().getState());
   HorseName = Presentation.DefaultName;
@@ -97,23 +106,28 @@ AHorseView::AHorseView()
 
 void AHorseView::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
-  AdvancePatrol(DeltaTime);
+  CurrentLod.bPatrolEnabled ? AdvancePatrol(DeltaTime) : void();
 }
 
 void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   HorseName = Config.Name;
   bMountedRider = Config.bMountedRider;
   PatrolRoute = Config.PatrolRoute;
-  PauseRemaining = 0.0f;
-  const ForbocAI::Demo::Level::FBotInitialPatrolLocationPayload Initial =
+  CurrentLod = Config.Lod;
+  PauseRemaining =
+      FG::RuntimeSelectors::SelectBotRuntimeSettings(
+          FG::Store::GetStore().getState())
+          .InitialPatrolPauseRemainingSeconds;
+  const ForbocAI::Game::Level::FBotInitialPatrolLocationPayload Initial =
       ObserveHorseInitialPatrol(PatrolRoute, PatrolIndex);
   Initial.bShouldMove ? (SetActorLocation(Initial.Location), void()) : void();
   ConfigureImportedHorseAsset();
+  ApplyDistanceLod(Config.Lod);
   RefreshText();
 }
 
 void AHorseView::AdvancePatrol(float DeltaTime) {
-  const ForbocAI::Demo::Level::FBotPatrolAdvancePayload Advance =
+  const ForbocAI::Game::Level::FBotPatrolAdvancePayload Advance =
       ObserveHorsePatrolAdvance(
           {PatrolRoute, PatrolIndex, PauseRemaining, PauseDuration, WalkSpeed,
            DeltaTime, GetActorLocation(), PatrolArrivalDistance});
@@ -122,6 +136,40 @@ void AHorseView::AdvancePatrol(float DeltaTime) {
   Advance.bShouldMove ? (SetActorLocation(Advance.Location), void()) : void();
   Advance.bShouldRotate ? (SetActorRotation(Advance.Rotation), void())
                          : void();
+}
+
+void AHorseView::ApplyDistanceLod(
+    const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) {
+  CurrentLod = Lod;
+  PrimaryActorTick.TickInterval = Lod.ActorTickIntervalSeconds;
+  SetActorTickEnabled(Lod.bPatrolEnabled);
+  ImportedHorseMesh->SetForcedLOD(Lod.SkeletalMeshForcedLodModel);
+  ImportedHorseMesh->OverrideMinLOD(Lod.SkeletalMeshMinLodModel);
+  ImportedHorseMesh->SetCullDistance(Lod.CullDistance);
+  ImportedHorseMesh->SetVisibility(Lod.bDynamicVisible);
+  ImportedHorseMesh->SetHiddenInGame(!Lod.bDynamicVisible);
+  ImportedHorseMesh->SetCollisionEnabled(Lod.bCollisionEnabled
+                                             ? ECollisionEnabled::QueryOnly
+                                             : ECollisionEnabled::NoCollision);
+  ImportedHorseMesh->SetCastShadow(Lod.bCastShadow);
+  ImportedHorseMesh->SetComponentTickEnabled(Lod.bAnimated);
+  ImportedHorseMesh->bEnableUpdateRateOptimizations =
+      Lod.bUpdateRateOptimizationsEnabled;
+  MountedRiderMesh->SetForcedLOD(Lod.SkeletalMeshForcedLodModel);
+  MountedRiderMesh->OverrideMinLOD(Lod.SkeletalMeshMinLodModel);
+  MountedRiderMesh->SetCullDistance(Lod.CullDistance);
+  MountedRiderMesh->SetVisibility(Lod.bDynamicVisible && bMountedRider);
+  MountedRiderMesh->SetHiddenInGame(!(Lod.bDynamicVisible && bMountedRider));
+  MountedRiderMesh->SetCollisionEnabled(Lod.bCollisionEnabled
+                                            ? ECollisionEnabled::QueryOnly
+                                            : ECollisionEnabled::NoCollision);
+  MountedRiderMesh->SetCastShadow(Lod.bCastShadow);
+  MountedRiderMesh->SetComponentTickEnabled(Lod.bAnimated);
+  MountedRiderMesh->bEnableUpdateRateOptimizations =
+      Lod.bUpdateRateOptimizationsEnabled;
+  NameText->SetVisibility(Lod.bDynamicVisible && Lod.bLabelsVisible);
+  NameText->SetHiddenInGame(!(Lod.bDynamicVisible && Lod.bLabelsVisible));
+  NameText->SetComponentTickEnabled(false);
 }
 
 void AHorseView::ConfigureImportedHorseAsset() {
@@ -137,7 +185,9 @@ void AHorseView::ConfigureImportedHorseAsset() {
 
   ImportedHorseMesh->SetSkeletalMesh(ImportedMesh);
   ImportedHorseMesh->SetVisibility(true);
-  ImportedHorseMesh->PlayAnimation(WalkAnimation, true);
+  CurrentLod.bAnimated ? (ImportedHorseMesh->PlayAnimation(WalkAnimation, true),
+                          void())
+                       : void();
 
   bMountedRider
       ? ([this]() {
@@ -149,7 +199,10 @@ void AHorseView::ConfigureImportedHorseAsset() {
           check(RiderWalkAnimation);
           MountedRiderMesh->SetSkeletalMesh(RiderMesh);
           MountedRiderMesh->SetVisibility(true);
-          MountedRiderMesh->PlayAnimation(RiderWalkAnimation, true);
+          CurrentLod.bAnimated
+              ? (MountedRiderMesh->PlayAnimation(RiderWalkAnimation, true),
+                 void())
+              : void();
         }(), void())
       : (MountedRiderMesh->SetVisibility(false), void());
 }

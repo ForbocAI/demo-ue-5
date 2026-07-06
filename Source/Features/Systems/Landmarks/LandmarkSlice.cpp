@@ -5,7 +5,7 @@
 #include "Features/Systems/Landmarks/LandmarkReducers.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LandmarkSlice {
 
@@ -25,5 +25,5 @@ const rtk::Slice<FLandmarkState> &GetSlice() {
 
 } // namespace LandmarkSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -5,7 +5,7 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeScaleAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
@@ -15,74 +15,74 @@ struct FLevelRuntimeLabelExplicitHeightFields {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
 template <>
-func::Maybe<ForbocAI::Demo::Level::ELevelRuntimeAnchorMode>
-ReadRequiredValue<ForbocAI::Demo::Level::ELevelRuntimeAnchorMode>(
-    const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
+func::Maybe<ForbocAI::Game::Level::ELevelRuntimeAnchorMode>
+ReadRequiredValue<ForbocAI::Game::Level::ELevelRuntimeAnchorMode>(
+    const ForbocAI::Game::Data::FJsonFieldRequest &Request) {
   return func::mbind(ReadRequiredValue<FString>(Request),
                      [Request](const FString &Text) {
-                       return ForbocAI::Demo::Level::RuntimeLayout::
+                       return ForbocAI::Game::Level::RuntimeLayout::
                            ParseAnchorMode({Text, Request.FieldName});
                      });
 }
 
 template <>
-func::Maybe<ForbocAI::Demo::Level::ELevelRuntimeLabelHeightMode>
-ReadRequiredValue<ForbocAI::Demo::Level::ELevelRuntimeLabelHeightMode>(
-    const ForbocAI::Demo::Data::FJsonFieldRequest &Request) {
+func::Maybe<ForbocAI::Game::Level::ELevelRuntimeLabelHeightMode>
+ReadRequiredValue<ForbocAI::Game::Level::ELevelRuntimeLabelHeightMode>(
+    const ForbocAI::Game::Data::FJsonFieldRequest &Request) {
   return func::mbind(ReadRequiredValue<FString>(Request),
                      [Request](const FString &Text) {
-                       return ForbocAI::Demo::Level::RuntimeLayout::
+                       return ForbocAI::Game::Level::RuntimeLayout::
                            ParseLabelHeightMode({Text, Request.FieldName});
                      });
 }
 
 template <>
 struct TRequiredJsonFieldRegistry<
-    ForbocAI::Demo::Level::FLevelRuntimeLabelSeed> {
+    ForbocAI::Game::Level::FLevelRuntimeLabelSeed> {
   static const TArray<
       TRequiredJsonFieldDeclaration<
-          ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>> &
+          ForbocAI::Game::Level::FLevelRuntimeLabelSeed>> &
   Fields() {
     static const TArray<
         TRequiredJsonFieldDeclaration<
-            ForbocAI::Demo::Level::FLevelRuntimeLabelSeed>>
+            ForbocAI::Game::Level::FLevelRuntimeLabelSeed>>
         RegisteredFields = {
-            JSON_REQUIRED_FIELDS(ForbocAI::Demo::Level::FLevelRuntimeLabelSeed,
+            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLevelRuntimeLabelSeed,
                                  Id, Text, Anchor),
             {"HeightMode",
-             &ForbocAI::Demo::Level::FLevelRuntimeLabelSeed::Height},
-            JSON_REQUIRED_FIELDS(ForbocAI::Demo::Level::FLevelRuntimeLabelSeed,
+             &ForbocAI::Game::Level::FLevelRuntimeLabelSeed::Height},
+            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLevelRuntimeLabelSeed,
                                  EastLots, NorthLots, WorldSizeScale)};
     return RegisteredFields;
   }
 };
 
 JSON_REQUIRED_FIELD_REGISTRY(
-    ForbocAI::Demo::Level::RuntimeLayout::
+    ForbocAI::Game::Level::RuntimeLayout::
         FLevelRuntimeLabelExplicitHeightFields,
     HeightOffset);
 
 } // namespace JsonValueAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 namespace {
 
-namespace JsonValues = ForbocAI::Demo::Data::JsonValueAdapters;
+namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
 typedef func::Maybe<FLevelRuntimeLabelSeed> (*FLabelHeightReader)(
     const TSharedPtr<FJsonObject> &, const FLevelRuntimeLabelSeed &);
@@ -184,5 +184,5 @@ LabelFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

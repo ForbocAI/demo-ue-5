@@ -4,7 +4,7 @@
 #include "Features/Systems/Bots/Horses/HorseTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace HorseReducers {
 
@@ -14,5 +14,5 @@ FHorseState ReduceHorsesSeeded(
 
 } // namespace HorseReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

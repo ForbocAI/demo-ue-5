@@ -3,7 +3,7 @@ param(
   [string] $MapPath = "/Game/Map/Maps/Runtime",
   [int] $Width = 1280,
   [int] $Height = 720,
-  [string] $OutputName = "ue-demo-runtime-first-run.png",
+  [string] $OutputName = "ue-runtime-first-run.png",
   [int] $TimeoutSeconds = 120
 )
 
@@ -11,7 +11,7 @@ $ErrorActionPreference = "Stop"
 
 $ScriptRoot = Split-Path -Parent $PSCommandPath
 $ProjectRoot = Split-Path -Parent $ScriptRoot
-$ProjectPath = Join-Path $ProjectRoot "DemoProject.uproject"
+$ProjectPath = Join-Path $ProjectRoot "ForbocAIDemo.uproject"
 $OutputDir = Join-Path $ProjectRoot "screenshots"
 $OutputPath = Join-Path $OutputDir $OutputName
 $GeneratedScreenshotRoot = Join-Path $ProjectRoot "Saved\Screenshots"
@@ -42,9 +42,6 @@ $Arguments = @(
   (Quote-ProcessArgument $ProjectPath),
   $MapPath,
   "-game",
-  "-windowed",
-  "-ResX=$Width",
-  "-ResY=$Height",
   (Quote-ProcessArgument "-ExecCmds=$ExecCmds"),
   "-stdout",
   "-FullStdOutLogOutput",

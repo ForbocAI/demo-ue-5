@@ -107,6 +107,8 @@
     "observation_interval_seconds": 5.0,
     "initial_observation_time_seconds": 0.0,
     "orchestrator_can_ever_tick": true,
+    "patrol_tick_interval_seconds": 0.1,
+    "initial_patrol_pause_remaining_seconds": 0.0,
     "registered_bot_active": true,
     "position_payload_has_local_location": true,
     "position_payload_has_world_location": true,

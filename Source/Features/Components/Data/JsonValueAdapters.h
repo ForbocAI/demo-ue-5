@@ -8,7 +8,7 @@
 #include <initializer_list>
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
@@ -346,5 +346,5 @@ func::Maybe<State> ReadRequiredFields(
 
 } // namespace JsonValueAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

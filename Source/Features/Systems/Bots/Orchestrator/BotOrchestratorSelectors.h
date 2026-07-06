@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotOrchestratorSelectors {
 
@@ -23,5 +23,5 @@ SelectLastActionId(const FBotOrchestratorState &State) {
 
 } // namespace BotOrchestratorSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

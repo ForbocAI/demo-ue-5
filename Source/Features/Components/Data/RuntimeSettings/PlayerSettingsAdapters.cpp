@@ -3,7 +3,7 @@
 #include "Features/Components/Data/Json/JsonAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
@@ -12,7 +12,11 @@ JSON_SETTINGS_REGISTRY(FPlayerPresentationSettings, CapsuleRadius,
                        RotationRateYaw, JumpZVelocity, AirControl,
                        MaxWalkSpeed, MinAnalogWalkSpeed,
                        BrakingDecelerationWalking, BrakingDecelerationFalling,
-                       MeshRelativeLocation, MeshRelativeRotation, MeshPath,
+                       MeshRelativeLocation, MeshRelativeRotation,
+                       SkeletalMeshForcedLodModel, SkeletalMeshMinLodModel,
+                       MeshCullDistance, bMeshCastShadow,
+                       bMeshComponentTickEnabled,
+                       bMeshUpdateRateOptimizationsEnabled, MeshPath,
                        AnimationBlueprintClassPath, MoveActionPath,
                        LookActionPath, MouseLookActionPath, JumpActionPath,
                        DefaultMappingContextPath, MouseMappingContextPath);
@@ -34,6 +38,10 @@ ReadPlayerPresentationSettings(const TSharedPtr<FJsonObject> &Object) {
                                   BrakingDecelerationWalking,
                                   BrakingDecelerationFalling,
                                   MeshRelativeLocation, MeshRelativeRotation,
+                                  SkeletalMeshForcedLodModel,
+                                  SkeletalMeshMinLodModel, MeshCullDistance,
+                                  bMeshCastShadow, bMeshComponentTickEnabled,
+                                  bMeshUpdateRateOptimizationsEnabled,
                                   MeshPath, AnimationBlueprintClassPath,
                                   MoveActionPath, LookActionPath,
                                   MouseLookActionPath, JumpActionPath,
@@ -50,5 +58,5 @@ ReadInteractionSettings(const TSharedPtr<FJsonObject> &Object) {
 
 } // namespace PlayerSettingsAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

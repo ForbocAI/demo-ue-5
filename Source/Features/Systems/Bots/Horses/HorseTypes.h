@@ -4,7 +4,7 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FHorseRouteSeed {
@@ -39,5 +39,5 @@ inline bool operator!=(const FHorseState &Left, const FHorseState &Right) {
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

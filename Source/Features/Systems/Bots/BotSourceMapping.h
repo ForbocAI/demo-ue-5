@@ -4,7 +4,7 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotSourceMapping {
 
@@ -67,5 +67,5 @@ TArray<Component> MapSeedRuntimeComponents(
 
 } // namespace BotSourceMapping
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

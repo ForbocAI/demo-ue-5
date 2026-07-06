@@ -9,11 +9,11 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
-  const ForbocAI::Demo::Data::FUIRuntimeSettings UISettings =
-      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings()
+  const ForbocAI::Game::Data::FUIRuntimeSettings UISettings =
+      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings()
           .UIRuntime;
-  const ForbocAI::Demo::UI::FChatMessageViewModel PlayerMessage =
-      ForbocAI::Demo::Level::UIReducers::ReduceChatMessageViewModel(
+  const ForbocAI::Game::UI::FChatMessageViewModel PlayerMessage =
+      ForbocAI::Game::Level::UIReducers::ReduceChatMessageViewModel(
           {TEXT("Player"), TEXT("Hello")}, UISettings);
   TestEqual(TEXT("Player message is role-prefixed"), PlayerMessage.Text,
             FString(TEXT("[Player] Hello")));
@@ -22,8 +22,8 @@ bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
 
   const TArray<FString> History = {TEXT("NPC: Welcome back"),
                                    TEXT("Unlabeled message")};
-  const TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Messages =
-      ForbocAI::Demo::Level::UIReducers::ReduceChatHistoryViewModels(
+  const TArray<ForbocAI::Game::UI::FChatMessageViewModel> Messages =
+      ForbocAI::Game::Level::UIReducers::ReduceChatHistoryViewModels(
           {History}, UISettings);
   TestEqual(TEXT("History produces view models"), Messages.Num(), 2);
   TestEqual(TEXT("Tagged history keeps role"), Messages[0].Text,
@@ -32,14 +32,14 @@ bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
             FString(TEXT("[Unknown] Unlabeled message")));
 
   TestEqual(TEXT("Submitted text is trimmed"),
-            ForbocAI::Demo::Level::UIReducers::
+            ForbocAI::Game::Level::UIReducers::
                 ReduceNormalizedSubmittedChatText(
                     {FText::FromString(TEXT("  Ask around  ")),
                      ETextCommit::OnEnter, true}),
             FString(TEXT("Ask around")));
 
-  const ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation =
-      ForbocAI::Demo::Level::UIReducers::ReduceRuntimeConversationViewModel(
+  const ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation =
+      ForbocAI::Game::Level::UIReducers::ReduceRuntimeConversationViewModel(
           {TEXT("Clara Bell"), TEXT("Postmaster"), TEXT("Any mail?"),
            TEXT("Only dust today.")},
           UISettings);

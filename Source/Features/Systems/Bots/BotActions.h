@@ -4,7 +4,7 @@
 #include "Features/Systems/Bots/BotTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotActions {
 
@@ -13,5 +13,5 @@ const rtk::ActionCreator<FBotEntity> &BotUpserted();
 
 } // namespace BotActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/TerrainMeshView.h"
 
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
@@ -6,7 +11,7 @@
 #include "Views/ProceduralMeshElement.h"
 #include "UObject/ConstructorHelpers.h"
 
-namespace FG = ForbocAI::Demo::Level;
+namespace FG = ForbocAI::Game::Level;
 
 ATerrainMeshView::ATerrainMeshView() {
   PrimaryActorTick.bCanEverTick = false;
@@ -28,7 +33,7 @@ ATerrainMeshView::ATerrainMeshView() {
 }
 
 bool ATerrainMeshView::ApplyTerrainMeshPayload(
-    const ForbocAI::Demo::Level::FTerrainMeshPayload &Payload) {
+    const ForbocAI::Game::Level::FTerrainMeshPayload &Payload) {
   FG::Store::GetStore().dispatch(
       FG::TerrainActions::TerrainMeshPayloadObserved()(Payload));
   const FG::FTerrainMeshSectionViewModel Model =

@@ -34,13 +34,13 @@
 #include "Features/Systems/Interaction/InteractionReducers.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeFactories {
 
 FRuntimeState CreateInitialState() {
-  const ForbocAI::Demo::Data::FDemoRuntimeSettings Settings =
-      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings();
+  const ForbocAI::Game::Data::FRuntimeSettings Settings =
+      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings();
   FRuntimeState State;
   State.Player = PlayerSlice::CreateInitialState();
   State.Systems = SystemsSlice::CreateInitialState();
@@ -89,6 +89,9 @@ FRuntimeState CreateInitialState() {
       RenderingReducers::ReduceRuntimeProfile(Settings.RenderingProfile);
   State.Rendering.TextureCatalog =
       RenderingReducers::ReduceTextureCatalog(Settings.TextureCatalog);
+  State.Rendering.DistanceLodStages =
+      RenderingReducers::ReduceDistanceLodStages(
+          Settings.RenderingDistanceLod);
   State.Rendering.RuntimeSettings = Settings.RenderingRuntime;
   State.Rendering.AssetPaths =
       RenderingReducers::ReduceRenderingAssetPaths(Settings.RenderingAssets);
@@ -113,5 +116,5 @@ FRuntimeState CreateInitialState() {
 
 } // namespace RuntimeFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DEMO_PROJECT_CORE_ECS_HPP
-#define DEMO_PROJECT_CORE_ECS_HPP
+#ifndef FORBOC_AI_GAME_CORE_ECS_HPP
+#define FORBOC_AI_GAME_CORE_ECS_HPP
 
 #include "CoreMinimal.h"
 #include "Core/ue_fp.hpp"
@@ -9,7 +9,7 @@
 
 /**
  * @file ecs.hpp
- * @brief Demo-project ECS primitives that depend on FP only and never on RTK.
+ * @brief Game-project ECS primitives that depend on FP only and never on RTK.
  *
  * User Stories:
  * - As a gameplay feature author, I need neutral Components / Entities /
@@ -17,7 +17,7 @@
  *   Rust and GDScript game projects.
  * - As a reducer author, I need ECS worlds to be plain value structs so project
  *   files can compose ECS transitions with RTK state without ECS importing RTK.
- * - As a maintainer, I need this demo header outside the SDK core because the
+ * - As a maintainer, I need this runtime header outside the SDK core because the
  *   SDK should not own game-project ECS primitives.
  *
  * Functional-core cookbook boundary:
@@ -3387,4 +3387,4 @@ inline FEntityInspection inspectEntity(const FWorld &World, const EntityKey &Ent
 
 } // namespace ecs
 
-#endif // DEMO_PROJECT_CORE_ECS_HPP
+#endif // FORBOC_AI_GAME_CORE_ECS_HPP

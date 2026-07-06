@@ -5,11 +5,11 @@
 #include "Features/Systems/Landmarks/LandmarkFactories.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LandmarksAdapters {
 
-namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
+namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
 struct FLandmarkFields {
   FString Id;
@@ -24,16 +24,16 @@ struct FLandmarkFields {
 
 } // namespace LandmarksAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-namespace LevelTypes = ForbocAI::Demo::Level;
-namespace LandmarkTypes = ForbocAI::Demo::Level::LandmarksAdapters;
+namespace LevelTypes = ForbocAI::Game::Level;
+namespace LandmarkTypes = ForbocAI::Game::Level::LandmarksAdapters;
 
 using ELandmarkKind = LevelTypes::ELandmarkKind;
 using FLandmarkFields = LandmarkTypes::FLandmarkFields;
@@ -57,18 +57,18 @@ JSON_SETTINGS_REGISTRY(FLandmarkFields, Id, Label, Kind, EastLots, NorthLots,
 
 } // namespace JsonAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LandmarksAdapters {
 namespace {
 
 struct FLandmarkBuildRequest {
   const FLevelTerrainData *TerrainData;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FLandmarkFields Fields;
 };
 
@@ -113,5 +113,5 @@ BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
 
 } // namespace LandmarksAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

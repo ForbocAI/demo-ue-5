@@ -5,7 +5,7 @@
 #include "Features/Systems/Runtime/RuntimeTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeReducers {
 
@@ -36,7 +36,7 @@ FLocalDialogueReplyRequest ReduceLocalDialogueReplyRequest(
     const FRuntimeTownspersonInteractionRequest &Request);
 FUIPayload ReduceConversationPresentedPayload(
     const FDialogueReplyPayload &DialogueReply,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &UISettings);
+    const ForbocAI::Game::Data::FUIRuntimeSettings &UISettings);
 
 /**
  * @brief Reduces an interaction request into dialogue and UI payloads.
@@ -69,5 +69,5 @@ inline FRuntimeState ReduceRuntimeHydrated(
 
 } // namespace RuntimeReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

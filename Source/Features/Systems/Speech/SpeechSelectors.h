@@ -4,7 +4,7 @@
 #include "Features/Systems/Speech/SpeechTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SpeechSelectors {
 
@@ -60,5 +60,5 @@ inline TArray<FPhonemeEvent> SelectActivePhonemes(
 
 } // namespace SpeechSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

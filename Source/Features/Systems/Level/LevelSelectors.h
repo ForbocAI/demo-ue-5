@@ -5,7 +5,7 @@
 #include "Features/Systems/Level/LevelTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LevelSystemSelectors {
 
@@ -21,22 +21,22 @@ SelectLastActionId(const FLevelSystemState &State) {
   return State.LastActionId;
 }
 
-inline const ForbocAI::Demo::Data::FLevelTerrainSourceSettings &
+inline const ForbocAI::Game::Data::FLevelTerrainSourceSettings &
 SelectTerrainSources(const FLevelSystemState &State) {
   return State.TerrainSources;
 }
 
-inline const ForbocAI::Demo::Data::FLevelDataSourceSettings &
+inline const ForbocAI::Game::Data::FLevelDataSourceSettings &
 SelectDataSources(const FLevelSystemState &State) {
   return State.DataSources;
 }
 
-inline const ForbocAI::Demo::Data::FLevelGeometrySettings &
+inline const ForbocAI::Game::Data::FLevelGeometrySettings &
 SelectGeometry(const FLevelSystemState &State) {
   return State.Geometry;
 }
 
 } // namespace LevelSystemSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

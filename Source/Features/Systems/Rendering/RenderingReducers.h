@@ -6,7 +6,7 @@
 #include "Features/Systems/Rendering/RenderingTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RenderingReducers {
 
@@ -17,38 +17,50 @@ NormalizeTextureApply(const FLevelRetroTextureApply &Input);
  * @brief Maps JSON-backed runtime rendering settings into RTK state.
  *
  * @signature FLevelRetroRenderProfile ReduceRuntimeProfile(const
- * ForbocAI::Demo::Data::FRenderingProfileSettings &Settings)
+ * ForbocAI::Game::Data::FRenderingProfileSettings &Settings)
  *
- * User story: As a demo operator, runtime rendering quality can be tuned from
+ * User story: As a runtime operator, runtime rendering quality can be tuned from
  * data while the rendering slice remains the owner of store semantics.
  */
 FLevelRetroRenderProfile ReduceRuntimeProfile(
-    const ForbocAI::Demo::Data::FRenderingProfileSettings &Settings);
+    const ForbocAI::Game::Data::FRenderingProfileSettings &Settings);
 
 /**
  * @brief Maps JSON-backed texture records into rendering texture specs.
  *
  * @signature TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(const
- * TArray<ForbocAI::Demo::Data::FRenderingTextureSpecSettings> &Settings)
+ * TArray<ForbocAI::Game::Data::FRenderingTextureSpecSettings> &Settings)
  *
  * User story: As an environment artist, prototype material labels and sizes
  * can be changed in JSON without adding view logic.
  */
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
-    const TArray<ForbocAI::Demo::Data::FRenderingTextureSpecSettings>
+    const TArray<ForbocAI::Game::Data::FRenderingTextureSpecSettings>
         &Settings);
+
+/**
+ * @brief Maps authored distance LOD settings into feature-owned stages.
+ */
+TArray<FLevelDistanceLodStage> ReduceDistanceLodStages(
+    const ForbocAI::Game::Data::FRenderingDistanceLodSettings &Settings);
+
+/**
+ * @brief Selects the authored LOD stage for one world-space location.
+ */
+FLevelDistanceLodStage
+ReduceDistanceLodStage(const FLevelDistanceLodStageRequest &Request);
 
 /**
  * @brief Maps JSON-backed asset path settings into rendering state.
  *
  * @signature FRenderingAssetPaths ReduceRenderingAssetPaths(const
- * ForbocAI::Demo::Data::FRenderingAssetPathSettings &Settings)
+ * ForbocAI::Game::Data::FRenderingAssetPathSettings &Settings)
  *
  * User story: As a level-view maintainer, mesh/material references stay in
  * store-owned data instead of view constructors.
  */
 FRenderingAssetPaths ReduceRenderingAssetPaths(
-    const ForbocAI::Demo::Data::FRenderingAssetPathSettings &Settings);
+    const ForbocAI::Game::Data::FRenderingAssetPathSettings &Settings);
 
 ELevelRetroTexture ReduceTextureKind(const FString &Texture);
 
@@ -97,5 +109,5 @@ FHorsePresentationViewModel ReduceHorsePresentation(
 
 } // namespace RenderingReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Enforces that the demo consumes ForbocAI_SDK as an immutable submodule.
+# Enforces that the runtime consumes ForbocAI_SDK as an immutable submodule.
 
 set -euo pipefail
 
@@ -44,7 +44,7 @@ print_sdk_policy() {
   SourceWindowsPath="$(sdk_source_windows_path)"
   cat <<POLICY
 ========================================================================
-SDK SUBMODULE OFF LIMITS IN THIS DEMO CHECKOUT
+SDK SUBMODULE OFF LIMITS IN THIS RUNTIME CHECKOUT
 
 Do not edit, chmod, rename, stage, or commit SDK source files under:
   Plugins/ForbocAI_SDK
@@ -64,10 +64,10 @@ POLICY
 
 For a nonstandard layout, set FORBOC_SDK_SOURCE_PATH to the real SDK source checkout.
 
-Then commit there and update this demo from here with:
+Then commit there and update this runtime from here with:
   bash Scripts/update-sdk.sh
 
-This demo path is a locked submodule consumer, not the SDK source checkout.
+This runtime path is a locked submodule consumer, not the SDK source checkout.
 ========================================================================
 POLICY
 }

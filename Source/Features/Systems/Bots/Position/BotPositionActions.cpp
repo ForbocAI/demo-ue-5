@@ -1,7 +1,7 @@
 #include "Features/Systems/Bots/Position/BotPositionActions.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPositionActions {
 
@@ -62,5 +62,5 @@ PatrolAdvanceObserved() {
 
 } // namespace BotPositionActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -19,7 +19,7 @@
 #include "Features/Systems/Terrain/TerrainFactories.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeThunks {
 namespace {
@@ -30,23 +30,23 @@ using FRuntimeDispatch =
 struct FRuntimeDataLoadRequest {
   FLevelTerrainData &TerrainData;
   FLevelOrthoData &OrthoData;
-  ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FRuntimeSeedDispatchRequest {
   const FRuntimeDispatch &Dispatch;
   const FLevelTerrainData &TerrainData;
   const FLevelOrthoData &OrthoData;
-  ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelDataSourceSettings DataSources;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FRuntimeSeedSource {
   const FLevelTerrainData &TerrainData;
   const FLevelOrthoData &OrthoData;
-  ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources;
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelDataSourceSettings DataSources;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 using FRuntimeSeedActionBuilder =
@@ -172,11 +172,11 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
           FLevelTerrainData TerrainData;
           FLevelOrthoData OrthoData;
           const FRuntimeState State = GetState();
-          const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
+          const ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources =
               RuntimeSelectors::SelectLevelTerrainSources(State);
-          const ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources =
+          const ForbocAI::Game::Data::FLevelDataSourceSettings DataSources =
               RuntimeSelectors::SelectLevelDataSources(State);
-          const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
+          const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
               RuntimeSelectors::SelectLevelGeometry(State);
           LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
           DispatchRuntimeSeeded(
@@ -199,11 +199,11 @@ RequestLevelViewPayload() {
           FLevelTerrainData TerrainData;
           FLevelOrthoData OrthoData;
           const FRuntimeState State = GetState();
-          const ForbocAI::Demo::Data::FLevelTerrainSourceSettings Sources =
+          const ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources =
               RuntimeSelectors::SelectLevelTerrainSources(State);
-          const ForbocAI::Demo::Data::FLevelDataSourceSettings DataSources =
+          const ForbocAI::Game::Data::FLevelDataSourceSettings DataSources =
               RuntimeSelectors::SelectLevelDataSources(State);
-          const ForbocAI::Demo::Data::FLevelGeometrySettings Geometry =
+          const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
               RuntimeSelectors::SelectLevelGeometry(State);
           LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
           const FLevelRuntimeLayoutSeed RuntimeLayout =
@@ -223,5 +223,5 @@ RequestLevelViewPayload() {
 
 } // namespace RuntimeThunks
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

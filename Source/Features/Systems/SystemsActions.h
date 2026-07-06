@@ -5,7 +5,7 @@
 #include "Features/Systems/SystemsTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SystemsActions {
 
@@ -21,5 +21,5 @@ inline const rtk::ActionCreator<FSystemsPayload> &SystemsObserved() {
 
 } // namespace SystemsActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

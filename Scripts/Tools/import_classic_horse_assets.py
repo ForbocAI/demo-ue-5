@@ -2,7 +2,7 @@
 
 Run through UnrealEditor-Cmd from the project root:
 
-  UnrealEditor-Cmd.exe DemoProject.uproject -run=pythonscript -script=Scripts/Tools/import_classic_horse_assets.py
+  UnrealEditor-Cmd.exe ForbocAIDemo.uproject -run=pythonscript -script=Scripts/Tools/import_classic_horse_assets.py
 
 The extracted source package stays in `pre-game-assets`; selected import sources
 are copied to temporary, normalized filenames under `Intermediate`.

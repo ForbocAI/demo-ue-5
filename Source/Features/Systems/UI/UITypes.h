@@ -5,7 +5,7 @@
 #include "Types/SlateEnums.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace UI {
 
 /**
@@ -49,11 +49,11 @@ struct FRuntimeConversationViewModel {
 };
 
 } // namespace UI
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 /**
@@ -103,19 +103,19 @@ struct FUIDialogueResponseViewModelRequest {
 struct FUIBindDialogueViewModel {
   bool bBound = false;
   FString Persona;
-  ForbocAI::Demo::UI::FChatMessageViewModel ConnectionMessage;
-  TArray<ForbocAI::Demo::UI::FChatMessageViewModel> HistoryMessages;
+  ForbocAI::Game::UI::FChatMessageViewModel ConnectionMessage;
+  TArray<ForbocAI::Game::UI::FChatMessageViewModel> HistoryMessages;
 };
 
 struct FUIChatInputViewModel {
   bool bShouldSend = false;
   FString InputText;
-  ForbocAI::Demo::UI::FChatMessageViewModel PlayerMessage;
-  ForbocAI::Demo::UI::FChatMessageViewModel ErrorMessage;
+  ForbocAI::Game::UI::FChatMessageViewModel PlayerMessage;
+  ForbocAI::Game::UI::FChatMessageViewModel ErrorMessage;
 };
 
 struct FUIDialogueResponseViewModel {
-  ForbocAI::Demo::UI::FChatMessageViewModel Message;
+  ForbocAI::Game::UI::FChatMessageViewModel Message;
 };
 
 /**
@@ -126,8 +126,8 @@ struct FUIDialogueResponseViewModel {
  */
 struct FUIPayload {
   FString Id;
-  ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation;
-  TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Messages;
+  ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation;
+  TArray<ForbocAI::Game::UI::FChatMessageViewModel> Messages;
 };
 
 /**
@@ -138,15 +138,15 @@ struct FUIPayload {
  */
 struct FUIState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
-  ForbocAI::Demo::Data::FUIRuntimeSettings RuntimeSettings;
-  ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation;
-  TArray<ForbocAI::Demo::UI::FChatMessageViewModel> Messages;
+  ForbocAI::Game::Data::FUIRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation;
+  TArray<ForbocAI::Game::UI::FChatMessageViewModel> Messages;
   bool bConversationVisible = false;
 };
 
 inline bool operator==(
-    const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Left,
-    const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Right) {
+    const ForbocAI::Game::UI::FRuntimeConversationViewModel &Left,
+    const ForbocAI::Game::UI::FRuntimeConversationViewModel &Right) {
   return Left.Title == Right.Title && Left.PlayerLine == Right.PlayerLine &&
          Left.NpcReply == Right.NpcReply &&
          Left.PanelColor == Right.PanelColor &&
@@ -159,8 +159,8 @@ inline bool operator==(
 }
 
 inline bool operator!=(
-    const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Left,
-    const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Right) {
+    const ForbocAI::Game::UI::FRuntimeConversationViewModel &Left,
+    const ForbocAI::Game::UI::FRuntimeConversationViewModel &Right) {
   return !(Left == Right);
 }
 
@@ -192,5 +192,5 @@ inline bool operator!=(const FUIPayload &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

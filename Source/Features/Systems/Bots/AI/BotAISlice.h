@@ -7,7 +7,7 @@
 #include "Features/Systems/Bots/AI/BotAITypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotAISlice {
 
@@ -15,5 +15,5 @@ const rtk::Slice<FBotAIState> &GetSlice();
 
 } // namespace BotAISlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -6,7 +6,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotReducers {
 
@@ -23,5 +23,5 @@ FBotState ReduceHorsesSeeded(
 
 } // namespace BotReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

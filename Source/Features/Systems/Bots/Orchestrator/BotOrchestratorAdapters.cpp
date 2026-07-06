@@ -10,11 +10,11 @@
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Store.h"
 
-using namespace ForbocAI::Demo::Level;
+using namespace ForbocAI::Game::Level;
 
 namespace {
 
-using FBotRuntimeSettings = ForbocAI::Demo::Data::FBotRuntimeSettings;
+using FBotRuntimeSettings = ForbocAI::Game::Data::FBotRuntimeSettings;
 
 struct FBotPositionPayloadSource {
   FString Id;
@@ -290,7 +290,7 @@ FString BotStateObservation(const FBotObservationSource &Source) {
 
 ABotOrchestratorAdapter::ABotOrchestratorAdapter() {
   PrimaryActorTick.bCanEverTick =
-      ForbocAI::Demo::Data::RuntimeSettingsAdapters::LoadDemoRuntimeSettings()
+      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings()
           .BotRuntime.bOrchestratorCanEverTick;
 }
 

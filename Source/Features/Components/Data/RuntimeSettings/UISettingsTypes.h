@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FRuntimeStatsOverlaySettings {
@@ -12,11 +12,25 @@ struct FRuntimeStatsOverlaySettings {
   FString PolyCountLabel;
   FString LabelValueSeparator;
   FString ValueFormat;
+  FString DebugMessageFormat;
+  int32 DebugMessageKey;
+  float DebugMessageDurationSeconds;
   float ViewportLeft;
   float ViewportTop;
   float ViewportWidth;
   float ViewportHeight;
   float PanelPadding;
+  float StatsRefreshIntervalSeconds;
+  float PolyCountRefreshIntervalSeconds;
+  float BudgetLogIntervalSeconds;
+  float IntervalResetElapsedSeconds;
+  float BudgetScreenshotIntervalSeconds;
+  float BudgetScreenshotDisabledIntervalSeconds;
+  FString BudgetScreenshotIntervalCommandLineKey;
+  FString BudgetScreenshotDirectory;
+  FString BudgetScreenshotFileNameFormat;
+  int32 BudgetScreenshotInitialIndex;
+  int32 BudgetScreenshotIndexStep;
   float FramesPerSecondNumerator;
   float MinimumDeltaSeconds;
   float InitialDeltaSeconds;
@@ -25,6 +39,8 @@ struct FRuntimeStatsOverlaySettings {
   int32 EmptyPolyCount;
   int32 EmptyTriangleCount;
   int32 MeshLodIndex;
+  int32 ForcedLodAutomaticModel;
+  int32 LodModelIndexOffset;
   int32 ProcMeshFirstSectionIndex;
   int32 ProcMeshSectionStep;
   int32 TriangleIndexDivisor;
@@ -38,6 +54,9 @@ struct FRuntimeStatsOverlaySettings {
   int32 PolyCountHighThreshold;
   bool bRemoveDpIScale;
   bool bAutoWrapText;
+  bool bBudgetScreenshotCreateDirectoryTree;
+  bool bBudgetScreenshotShowUI;
+  bool bBudgetScreenshotAddFilenameSuffix;
   FLinearColor PanelColor;
   FLinearColor TextColor;
   FLinearColor LowValueColor;
@@ -83,11 +102,36 @@ inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
          Left.PolyCountLabel == Right.PolyCountLabel &&
          Left.LabelValueSeparator == Right.LabelValueSeparator &&
          Left.ValueFormat == Right.ValueFormat &&
+         Left.DebugMessageFormat == Right.DebugMessageFormat &&
+         Left.DebugMessageKey == Right.DebugMessageKey &&
+         FMath::IsNearlyEqual(Left.DebugMessageDurationSeconds,
+                              Right.DebugMessageDurationSeconds) &&
          FMath::IsNearlyEqual(Left.ViewportLeft, Right.ViewportLeft) &&
          FMath::IsNearlyEqual(Left.ViewportTop, Right.ViewportTop) &&
          FMath::IsNearlyEqual(Left.ViewportWidth, Right.ViewportWidth) &&
          FMath::IsNearlyEqual(Left.ViewportHeight, Right.ViewportHeight) &&
          FMath::IsNearlyEqual(Left.PanelPadding, Right.PanelPadding) &&
+         FMath::IsNearlyEqual(Left.StatsRefreshIntervalSeconds,
+                              Right.StatsRefreshIntervalSeconds) &&
+         FMath::IsNearlyEqual(Left.PolyCountRefreshIntervalSeconds,
+                              Right.PolyCountRefreshIntervalSeconds) &&
+         FMath::IsNearlyEqual(Left.BudgetLogIntervalSeconds,
+                              Right.BudgetLogIntervalSeconds) &&
+         FMath::IsNearlyEqual(Left.IntervalResetElapsedSeconds,
+                              Right.IntervalResetElapsedSeconds) &&
+         FMath::IsNearlyEqual(Left.BudgetScreenshotIntervalSeconds,
+                              Right.BudgetScreenshotIntervalSeconds) &&
+         FMath::IsNearlyEqual(
+             Left.BudgetScreenshotDisabledIntervalSeconds,
+             Right.BudgetScreenshotDisabledIntervalSeconds) &&
+         Left.BudgetScreenshotIntervalCommandLineKey ==
+             Right.BudgetScreenshotIntervalCommandLineKey &&
+         Left.BudgetScreenshotDirectory == Right.BudgetScreenshotDirectory &&
+         Left.BudgetScreenshotFileNameFormat ==
+             Right.BudgetScreenshotFileNameFormat &&
+         Left.BudgetScreenshotInitialIndex ==
+             Right.BudgetScreenshotInitialIndex &&
+         Left.BudgetScreenshotIndexStep == Right.BudgetScreenshotIndexStep &&
          FMath::IsNearlyEqual(Left.FramesPerSecondNumerator,
                               Right.FramesPerSecondNumerator) &&
          FMath::IsNearlyEqual(Left.MinimumDeltaSeconds,
@@ -99,6 +143,8 @@ inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
          Left.EmptyPolyCount == Right.EmptyPolyCount &&
          Left.EmptyTriangleCount == Right.EmptyTriangleCount &&
          Left.MeshLodIndex == Right.MeshLodIndex &&
+         Left.ForcedLodAutomaticModel == Right.ForcedLodAutomaticModel &&
+         Left.LodModelIndexOffset == Right.LodModelIndexOffset &&
          Left.ProcMeshFirstSectionIndex == Right.ProcMeshFirstSectionIndex &&
          Left.ProcMeshSectionStep == Right.ProcMeshSectionStep &&
          Left.TriangleIndexDivisor == Right.TriangleIndexDivisor &&
@@ -113,6 +159,11 @@ inline bool operator==(const FRuntimeStatsOverlaySettings &Left,
          Left.PolyCountHighThreshold == Right.PolyCountHighThreshold &&
          Left.bRemoveDpIScale == Right.bRemoveDpIScale &&
          Left.bAutoWrapText == Right.bAutoWrapText &&
+         Left.bBudgetScreenshotCreateDirectoryTree ==
+             Right.bBudgetScreenshotCreateDirectoryTree &&
+         Left.bBudgetScreenshotShowUI == Right.bBudgetScreenshotShowUI &&
+         Left.bBudgetScreenshotAddFilenameSuffix ==
+             Right.bBudgetScreenshotAddFilenameSuffix &&
          Left.PanelColor == Right.PanelColor &&
          Left.TextColor == Right.TextColor &&
          Left.LowValueColor == Right.LowValueColor &&
@@ -163,5 +214,5 @@ inline bool operator!=(const FUIRuntimeSettings &Left,
 }
 
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

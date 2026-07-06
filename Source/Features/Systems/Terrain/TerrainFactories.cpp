@@ -1,7 +1,7 @@
 #include "Features/Systems/Terrain/TerrainFactories.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TerrainFactories {
 
@@ -26,5 +26,5 @@ FTerrainLoadedPayload LoadedPayload(const FTerrainLoadedSource &Source) {
 
 } // namespace TerrainFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

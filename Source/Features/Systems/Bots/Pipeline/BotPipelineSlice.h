@@ -8,7 +8,7 @@
 #include "Features/Systems/Bots/Pipeline/BotPipelineTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPipelineSlice {
 
@@ -39,5 +39,5 @@ inline const rtk::Slice<FBotPipelineState> &GetSlice() {
 
 } // namespace BotPipelineSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

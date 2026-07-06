@@ -4,11 +4,11 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LevelAdapters {
 
-namespace JsonAdapters = ForbocAI::Demo::Data::JsonAdapters;
+namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
 FLevelRuntimeLayoutSeed LoadRuntimeLayoutSeed(const FString &RelativeJsonPath) {
   const TSharedPtr<FJsonObject> Root =
@@ -22,5 +22,5 @@ FLevelRuntimeLayoutSeed LoadRuntimeLayoutSeed(const FString &RelativeJsonPath) {
 
 } // namespace LevelAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

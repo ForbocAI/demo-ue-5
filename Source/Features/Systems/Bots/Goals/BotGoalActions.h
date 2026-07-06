@@ -4,7 +4,7 @@
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotGoalActions {
 
@@ -14,5 +14,5 @@ const rtk::ActionCreator<FBotGoalCompleted> &BotGoalCompleted();
 
 } // namespace BotGoalActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

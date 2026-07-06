@@ -6,19 +6,19 @@
 #include "Features/Systems/UI/UITypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace UIReducers {
 namespace detail {
 
 using FChatMessageViewModel =
-    ForbocAI::Demo::UI::FChatMessageViewModel;
+    ForbocAI::Game::UI::FChatMessageViewModel;
 using FChatMessageViewModels =
-    TArray<ForbocAI::Demo::UI::FChatMessageViewModel>;
+    TArray<ForbocAI::Game::UI::FChatMessageViewModel>;
 using FRuntimeConversationViewModel =
-    ForbocAI::Demo::UI::FRuntimeConversationViewModel;
+    ForbocAI::Game::UI::FRuntimeConversationViewModel;
 using FUIRuntimeSettings =
-    ForbocAI::Demo::Data::FUIRuntimeSettings;
+    ForbocAI::Game::Data::FUIRuntimeSettings;
 
 struct FUIRuntimeConversationText {
   FString Title;
@@ -214,19 +214,19 @@ inline FUIState ReduceChatHistoryRendered(
 /**
  * @brief Pure reducer helper for turning role/text into one view model.
  */
-inline ForbocAI::Demo::UI::FChatMessageViewModel ReduceChatMessageViewModel(
+inline ForbocAI::Game::UI::FChatMessageViewModel ReduceChatMessageViewModel(
     const FUIChatMessageViewModelRequest &Request,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FUIRuntimeSettings &Settings) {
   return detail::ReduceChatMessageViewModel(Request, Settings);
 }
 
 /**
  * @brief Pure reducer helper for converting history entries into view models.
  */
-inline TArray<ForbocAI::Demo::UI::FChatMessageViewModel>
+inline TArray<ForbocAI::Game::UI::FChatMessageViewModel>
 ReduceChatHistoryViewModels(
     const FUIChatHistoryViewModelsRequest &Request,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FUIRuntimeSettings &Settings) {
   return detail::MapWithContext<FString, detail::FChatMessageViewModel,
                                 detail::FUIRuntimeSettings>(
       Request.History, Settings, detail::ReduceHistoryEntryViewModel);
@@ -244,9 +244,9 @@ inline FString ReduceNormalizedSubmittedChatText(
  * @brief Pure reducer helper that returns the default hidden conversation
  * model.
  */
-inline ForbocAI::Demo::UI::FRuntimeConversationViewModel
+inline ForbocAI::Game::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationPlaceholder(
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FUIRuntimeSettings &Settings) {
   return detail::ReduceRuntimeConversationViewModel(
       {Settings.PlaceholderTitle, Settings.PlaceholderPlayerLine,
        Settings.PlaceholderNpcReply},
@@ -256,10 +256,10 @@ ReduceRuntimeConversationPlaceholder(
 /**
  * @brief Pure reducer helper that composes the runtime conversation model.
  */
-inline ForbocAI::Demo::UI::FRuntimeConversationViewModel
+inline ForbocAI::Game::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationViewModel(
     const FUIRuntimeConversationViewModelRequest &Request,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FUIRuntimeSettings &Settings) {
   return detail::ReduceRuntimeConversationViewModel(
       {frmt::RuntimeString(
            Settings.ConversationTitleFormat,
@@ -279,7 +279,7 @@ ReduceRuntimeConversationViewModel(
 
 inline FUIBindDialogueViewModel ReduceBindDialogueViewModel(
     const FUIBindDialogueViewModelRequest &Request,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FUIRuntimeSettings &Settings) {
   FUIBindDialogueViewModel Model;
   Model.bBound = Request.bBound;
   Model.Persona = Request.Persona;
@@ -297,7 +297,7 @@ inline FUIBindDialogueViewModel ReduceBindDialogueViewModel(
 
 inline FUIChatInputViewModel ReduceChatInputViewModel(
     const FUIChatInputViewModelRequest &Request,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FUIRuntimeSettings &Settings) {
   const FString InputText = ReduceNormalizedSubmittedChatText(Request);
   FUIChatInputViewModel Model;
   Model.bShouldSend =
@@ -315,7 +315,7 @@ inline FUIChatInputViewModel ReduceChatInputViewModel(
 
 inline FUIDialogueResponseViewModel ReduceDialogueResponseViewModel(
     const FUIDialogueResponseViewModelRequest &Request,
-    const ForbocAI::Demo::Data::FUIRuntimeSettings &Settings) {
+    const ForbocAI::Game::Data::FUIRuntimeSettings &Settings) {
   FUIDialogueResponseViewModel Model;
   Model.Message = ReduceChatMessageViewModel(
       {Settings.NpcRoleLabel, Request.NPCText}, Settings);
@@ -324,5 +324,5 @@ inline FUIDialogueResponseViewModel ReduceDialogueResponseViewModel(
 
 } // namespace UIReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

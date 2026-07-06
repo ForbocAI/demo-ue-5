@@ -5,7 +5,7 @@
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 enum class EBotGoalType : uint8 { Patrol, Converse, Travel, Idle };
@@ -128,5 +128,5 @@ inline bool operator!=(const FBotGoalState &Left,
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

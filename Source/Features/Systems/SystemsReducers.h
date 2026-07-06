@@ -5,7 +5,7 @@
 #include "Features/Systems/SystemsTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SystemsReducers {
 
@@ -23,5 +23,5 @@ ReduceSystemsObserved(const FSystemsState &State,
 
 } // namespace SystemsReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

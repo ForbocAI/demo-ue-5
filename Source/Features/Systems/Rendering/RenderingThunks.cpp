@@ -1,20 +1,31 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
+#include "Components/ExponentialHeightFogComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/frmt.hpp"
 #include "Core/ue_fp.hpp"
+#include "Engine/Engine.h"
+#include "Engine/ExponentialHeightFog.h"
+#include "Engine/GameViewportClient.h"
 #include "Engine/Texture2D.h"
 #include "Features/Systems/Rendering/RenderingActions.h"
 #include "Features/Systems/Rendering/RenderingReducers.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
+#include "GameFramework/GameUserSettings.h"
+#include "HAL/FileManager.h"
 #include "HAL/IConsoleManager.h"
+#include "HAL/PlatformTime.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "Misc/Paths.h"
+#include "UnrealClient.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogForbocRendering, Log, All);
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RenderingThunks {
 namespace {
@@ -23,31 +34,41 @@ struct FRetroTextureCell {
   ELevelRetroTexture Texture;
   int32 X;
   int32 Y;
-  const ForbocAI::Demo::Data::FRenderingRuntimeSettings *RuntimeSettings;
+  const ForbocAI::Game::Data::FRenderingRuntimeSettings *RuntimeSettings;
 };
 
 struct FRetroHashCell {
   int32 X;
   int32 Y;
   int32 Salt;
-  const ForbocAI::Demo::Data::FRenderingTextureHashSettings *Hash;
+  const ForbocAI::Game::Data::FRenderingTextureHashSettings *Hash;
 };
 
 struct FRetroPredicateEval {
-  ForbocAI::Demo::Data::FRenderingTexturePredicateSettings Predicate;
+  ForbocAI::Game::Data::FRenderingTexturePredicateSettings Predicate;
   int32 X;
   int32 Y;
   int32 Noise;
 };
 
 struct FRetroResultEval {
-  ForbocAI::Demo::Data::FRenderingTextureColorResultSettings Result;
+  ForbocAI::Game::Data::FRenderingTextureColorResultSettings Result;
   int32 Noise;
   int32 Alpha;
 };
 
 struct FRetroCVarEval {
-  ForbocAI::Demo::Data::FRenderingConsoleVariableSettings Setting;
+  ForbocAI::Game::Data::FRenderingConsoleVariableSettings Setting;
+  FLevelRetroRenderProfile Profile;
+};
+
+struct FRetroRuntimeFogEval {
+  UWorld *World;
+  FLevelRetroRenderProfile Profile;
+};
+
+struct FRetroRuntimeOutputEval {
+  UWorld *World;
   FLevelRetroRenderProfile Profile;
 };
 
@@ -96,6 +117,8 @@ void ApplyFixedIntCVar(const FRetroCVarEval &Eval);
 void ApplyProfileIntCVar(const FRetroCVarEval &Eval);
 void ApplyFixedFloatCVar(const FRetroCVarEval &Eval);
 void ApplyProfileFloatCVar(const FRetroCVarEval &Eval);
+void ApplyRuntimeFog(const FRetroRuntimeFogEval &Eval);
+void ApplyRuntimeOutput(const FRetroRuntimeOutputEval &Eval);
 bool AlwaysPredicate(const FRetroPredicateEval &Eval, int32 Term);
 bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term);
 bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term);
@@ -177,7 +200,7 @@ Declaration RequiredRenderingDeclaration(const FString &Name) {
  * @brief Finds a runtime console variable without asserting on platform gaps.
  * @signature func::Maybe<IConsoleVariable *> FindRenderingConsoleVariable(const FString &Name)
  *
- * User Story: As first-run demo rendering, I need optional engine CVars to skip
+ * User Story: As first-run runtime rendering, I need optional engine CVars to skip
  * cleanly when a target runtime does not register them.
  */
 func::Maybe<IConsoleVariable *>
@@ -269,7 +292,161 @@ void ApplyConsoleVariable(const FRetroCVarEval &Eval) {
       .Run(Eval);
 }
 
-FColor Color(const ForbocAI::Demo::Data::FRenderingRgbSettings &Rgb,
+FLinearColor FogColor(const FLevelRetroRenderProfile &Profile) {
+  return FLinearColor(Profile.FogColorR, Profile.FogColorG, Profile.FogColorB,
+                      Profile.FogColorA);
+}
+
+void ApplyRuntimeFogComponent(UExponentialHeightFogComponent *Component,
+                              const FLevelRetroRenderProfile &Profile) {
+  check(Component);
+  Component->SetVisibility(Profile.bFogEnabled);
+  Component->SetFogDensity(Profile.FogDensity);
+  Component->SetFogHeightFalloff(Profile.FogHeightFalloff);
+  Component->SetStartDistance(Profile.FogStartDistance);
+  Component->SetFogCutoffDistance(Profile.FogCutoffDistance);
+  Component->SetFogMaxOpacity(Profile.FogMaxOpacity);
+  Component->SetFogInscatteringColor(FogColor(Profile));
+  Component->SetVolumetricFog(Profile.bVolumetricFogEnabled);
+}
+
+void ApplyRuntimeFog(const FRetroRuntimeFogEval &Eval) {
+  func::match(
+      func::from_nullable_value(Eval.World, Eval.World != nullptr),
+      [&Eval](UWorld *WorldValue) {
+        AExponentialHeightFog *Fog =
+            WorldValue->SpawnActor<AExponentialHeightFog>(
+                FVector::ZeroVector, FRotator::ZeroRotator);
+        Fog ? (ApplyRuntimeFogComponent(Fog->GetComponent(), Eval.Profile),
+               true)
+            : false;
+      },
+      []() {});
+}
+
+bool ShouldRunInterval(float ElapsedSeconds, float IntervalSeconds) {
+  return ElapsedSeconds >= IntervalSeconds;
+}
+
+float SelectCommandLineFloat(const FString &Key, float DefaultValue) {
+  float Value = DefaultValue;
+  const bool bHasValue = FParse::Value(FCommandLine::Get(), *Key, Value);
+  return bHasValue ? Value : DefaultValue;
+}
+
+FIntPoint SelectViewportSize(UWorld *World) {
+  return func::match(
+      func::from_nullable_value(World, World != nullptr),
+      [](UWorld *WorldValue) {
+        UGameViewportClient *Viewport = WorldValue->GetGameViewport();
+        return func::match(
+            func::from_nullable_value(Viewport, Viewport != nullptr),
+            [](UGameViewportClient *ViewportValue) {
+              FVector2D Size = FVector2D::ZeroVector;
+              ViewportValue->GetViewportSize(Size);
+              return FIntPoint(FMath::RoundToInt(Size.X),
+                               FMath::RoundToInt(Size.Y));
+            },
+            []() { return FIntPoint::ZeroValue; });
+      },
+      []() { return FIntPoint::ZeroValue; });
+}
+
+float SelectInternalRenderScreenPercentage(
+    const FLevelRetroRenderProfile &Profile, const FIntPoint &ViewportSize) {
+  const bool bCanScale = Profile.InternalRenderWidth > 0 &&
+                         Profile.InternalRenderHeight > 0 &&
+                         ViewportSize.X > 0 && ViewportSize.Y > 0;
+  const float WidthScale =
+      bCanScale ? (static_cast<float>(Profile.InternalRenderWidth) /
+                   static_cast<float>(ViewportSize.X)) *
+                      Profile.ScreenPercentage
+                : Profile.ScreenPercentage;
+  const float HeightScale =
+      bCanScale ? (static_cast<float>(Profile.InternalRenderHeight) /
+                   static_cast<float>(ViewportSize.Y)) *
+                      Profile.ScreenPercentage
+                : Profile.ScreenPercentage;
+  return FMath::Clamp(FMath::Min(WidthScale, HeightScale),
+                      Profile.MinimumScreenPercentage,
+                      Profile.ScreenPercentage);
+}
+
+FIntPoint ProfileInternalRenderSize(const FLevelRetroRenderProfile &Profile) {
+  return FIntPoint(Profile.InternalRenderWidth, Profile.InternalRenderHeight);
+}
+
+FIntPoint ProfileOutputRenderSize(const FLevelRetroRenderProfile &Profile) {
+  check(Profile.OutputScaleMultiplier > 0);
+  return FIntPoint(Profile.InternalRenderWidth * Profile.OutputScaleMultiplier,
+                   Profile.InternalRenderHeight * Profile.OutputScaleMultiplier);
+}
+
+FString RuntimeResolutionCommand(const FLevelRetroRenderProfile &Profile) {
+  const FIntPoint OutputSize = ProfileOutputRenderSize(Profile);
+  return FString::Printf(TEXT("r.SetRes %dx%d%s"),
+                         OutputSize.X,
+                         OutputSize.Y,
+                         Profile.bFullscreenOutput ? TEXT("f") : TEXT("w"));
+}
+
+void ApplyRuntimeResolutionCommand(
+    UWorld *World, const FLevelRetroRenderProfile &Profile) {
+  GEngine ? GEngine->Exec(World, *RuntimeResolutionCommand(Profile)) : false;
+}
+
+void ApplyRuntimeVideoSettings(const FLevelRetroRenderProfile &Profile) {
+  UGameUserSettings *Settings =
+      GEngine != nullptr ? GEngine->GetGameUserSettings() : nullptr;
+  Settings
+      ? (Settings->SetScreenResolution(ProfileOutputRenderSize(Profile)),
+         Settings->SetFullscreenMode(Profile.bFullscreenOutput
+                                         ? EWindowMode::Fullscreen
+                                         : EWindowMode::Windowed),
+         Settings->ApplyResolutionSettings(false),
+         Settings->ApplySettings(false), void())
+      : void();
+}
+
+void ApplyRuntimeOutput(const FRetroRuntimeOutputEval &Eval) {
+  ApplyRuntimeVideoSettings(Eval.Profile);
+  ApplyRuntimeResolutionCommand(Eval.World, Eval.Profile);
+  const FIntPoint OutputSize = ProfileOutputRenderSize(Eval.Profile);
+  const FIntPoint EffectiveViewportSize =
+      OutputSize == FIntPoint::ZeroValue
+          ? SelectViewportSize(Eval.World)
+          : OutputSize;
+  const float EffectiveScreenPercentage =
+      SelectInternalRenderScreenPercentage(Eval.Profile,
+                                           EffectiveViewportSize);
+  SetCVarFloat(TEXT("r.ScreenPercentage"), EffectiveScreenPercentage);
+  UE_LOG(LogForbocRendering, Display,
+         TEXT("runtime render output internal=%dx%d output=%dx%d viewport=%dx%d "
+              "screen_percentage=%.2f fullscreen=%d"),
+         Eval.Profile.InternalRenderWidth, Eval.Profile.InternalRenderHeight,
+         OutputSize.X,
+         OutputSize.Y,
+         EffectiveViewportSize.X, EffectiveViewportSize.Y,
+         EffectiveScreenPercentage,
+         Eval.Profile.bFullscreenOutput ? 1 : 0);
+}
+
+FString RuntimeBudgetScreenshotDirectory(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return FPaths::Combine(FPaths::ProjectDir(),
+                         Settings.BudgetScreenshotDirectory);
+}
+
+FString RuntimeBudgetScreenshotPath(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings,
+    int32 Index) {
+  return FPaths::Combine(
+      RuntimeBudgetScreenshotDirectory(Settings),
+      frmt::RuntimeString(Settings.BudgetScreenshotFileNameFormat,
+                          frmt::Args({frmt::Arg(Index)})));
+}
+
+FColor Color(const ForbocAI::Game::Data::FRenderingRgbSettings &Rgb,
              int32 Alpha) {
   return FColor(static_cast<uint8>(Rgb.R), static_cast<uint8>(Rgb.G),
                 static_cast<uint8>(Rgb.B), static_cast<uint8>(Alpha));
@@ -339,15 +516,15 @@ FColor ResolveColor(const FRetroResultEval &Eval) {
       .Run(Eval);
 }
 
-ForbocAI::Demo::Data::FRenderingTexturePaletteSettings
+ForbocAI::Game::Data::FRenderingTexturePaletteSettings
 RequiredPalette(const FRetroTextureCell &Cell) {
   check(Cell.RuntimeSettings);
-  const func::Maybe<ForbocAI::Demo::Data::FRenderingTexturePaletteSettings>
+  const func::Maybe<ForbocAI::Game::Data::FRenderingTexturePaletteSettings>
       Palette = func::find_indexed(
           Cell.RuntimeSettings->TexturePalettes,
           static_cast<size_t>(Cell.RuntimeSettings->TexturePalettes.Num()),
           [&Cell](
-              const ForbocAI::Demo::Data::FRenderingTexturePaletteSettings
+              const ForbocAI::Game::Data::FRenderingTexturePaletteSettings
                   &Candidate) {
             return RenderingReducers::ReduceTextureKind(Candidate.Texture) ==
                    Cell.Texture;
@@ -361,13 +538,13 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
   const int32 Noise =
       HashCell({Cell.X, Cell.Y, static_cast<int32>(Cell.Texture),
                 &Cell.RuntimeSettings->TextureHash});
-  const ForbocAI::Demo::Data::FRenderingTexturePaletteSettings Palette =
+  const ForbocAI::Game::Data::FRenderingTexturePaletteSettings Palette =
       RequiredPalette(Cell);
-  const func::Maybe<ForbocAI::Demo::Data::FRenderingTextureRuleSettings> Rule =
+  const func::Maybe<ForbocAI::Game::Data::FRenderingTextureRuleSettings> Rule =
       func::find_indexed(
           Palette.Rules, static_cast<size_t>(Palette.Rules.Num()),
           [&Cell, Noise](
-              const ForbocAI::Demo::Data::FRenderingTextureRuleSettings
+              const ForbocAI::Game::Data::FRenderingTextureRuleSettings
                   &Candidate) {
             return PredicateMatches(
                 {Candidate.Predicate, Cell.X, Cell.Y, Noise});
@@ -379,7 +556,7 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
 
 FString TextureCacheKey(
     const FLevelRetroTextureSpec &Spec,
-    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+    const ForbocAI::Game::Data::FRenderingRuntimeSettings &RuntimeSettings) {
   return frmt::RuntimeString(
       RuntimeSettings.TextureCacheKeyFormat,
       frmt::Args(
@@ -390,7 +567,7 @@ FString TextureCacheKey(
 
 UTexture2D *CreateRetroTexture(
     const FLevelRetroTextureSpec &Spec,
-    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+    const ForbocAI::Game::Data::FRenderingRuntimeSettings &RuntimeSettings) {
   check(Spec.Size.X > 0);
   check(Spec.Size.Y > 0);
 
@@ -430,7 +607,7 @@ UTexture2D *CreateRetroTexture(
 
 UTexture2D *TextureFor(
     const FLevelRetroTextureSpec &Spec,
-    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+    const ForbocAI::Game::Data::FRenderingRuntimeSettings &RuntimeSettings) {
   static TMap<FString, UTexture2D *> TextureCache;
   const FString Key = TextureCacheKey(Spec, RuntimeSettings);
   UTexture2D **Cached = TextureCache.Find(Key);
@@ -465,14 +642,55 @@ ObserveRuntimeProfile(const FString &Id) {
 }
 
 void ApplyRuntimeProfile(
+    UWorld *World,
     const FLevelRetroRenderProfile &Profile,
-    const ForbocAI::Demo::Data::FRenderingRuntimeSettings &RuntimeSettings) {
+    const ForbocAI::Game::Data::FRenderingRuntimeSettings &RuntimeSettings) {
   func::for_each_indexed(
       RuntimeSettings.ConsoleVariables,
       static_cast<size_t>(RuntimeSettings.ConsoleVariables.Num()),
       [&Profile](
-          const ForbocAI::Demo::Data::FRenderingConsoleVariableSettings
+          const ForbocAI::Game::Data::FRenderingConsoleVariableSettings
               &Setting) { ApplyConsoleVariable({Setting, Profile}); });
+  ApplyRuntimeOutput({World, Profile});
+  ApplyRuntimeFog({World, Profile});
+}
+
+float SelectRuntimeBudgetScreenshotIntervalSeconds(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return SelectCommandLineFloat(
+      Settings.BudgetScreenshotIntervalCommandLineKey,
+      Settings.BudgetScreenshotIntervalSeconds);
+}
+
+double SelectRuntimeBudgetClockSeconds() { return FPlatformTime::Seconds(); }
+
+bool ShouldRunRuntimeBudgetWallInterval(double CurrentSeconds,
+                                        double LastSeconds,
+                                        float IntervalSeconds) {
+  return IntervalSeconds > 0.0f &&
+         CurrentSeconds - LastSeconds >= IntervalSeconds;
+}
+
+bool ShouldRunRuntimeBudgetScreenshot(
+    double CurrentSeconds, double LastSeconds, float IntervalSeconds,
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
+  return IntervalSeconds > Settings.BudgetScreenshotDisabledIntervalSeconds &&
+         ShouldRunRuntimeBudgetWallInterval(CurrentSeconds, LastSeconds,
+                                            IntervalSeconds);
+}
+
+void RequestRuntimeBudgetScreenshot(
+    const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings,
+    int32 Index) {
+  const FString Directory = RuntimeBudgetScreenshotDirectory(Settings);
+  IFileManager::Get().MakeDirectory(
+      *Directory, Settings.bBudgetScreenshotCreateDirectoryTree);
+  const FString Path = RuntimeBudgetScreenshotPath(Settings, Index);
+  FScreenshotRequest::RequestScreenshot(
+      Path, Settings.bBudgetScreenshotShowUI,
+      Settings.bBudgetScreenshotAddFilenameSuffix);
+  UE_LOG(LogForbocRendering, Display,
+         TEXT("runtime-budget screenshot requested path=%s"), *Path);
 }
 
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path) {
@@ -499,5 +717,5 @@ void ApplyTexture(const FLevelRetroTextureApply &Request) {
 
 } // namespace RenderingThunks
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -3,7 +3,7 @@
 #include "Features/Systems/Level/RuntimeLayout/LevelRuntimeLayoutTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RuntimeLayout {
 
@@ -20,5 +20,5 @@ LayoutFromJson(const FLevelRuntimeJsonObjectRequest &Request);
 
 } // namespace RuntimeLayout
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -5,7 +5,7 @@
 class AActor;
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FBotTickPayload {
@@ -99,5 +99,5 @@ BotFleeRequested() {
 
 } // namespace BotCoreActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

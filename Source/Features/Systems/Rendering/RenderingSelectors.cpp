@@ -1,7 +1,7 @@
 #include "Features/Systems/Rendering/RenderingSelectors.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RenderingSelectors {
 
@@ -15,7 +15,12 @@ SelectTextureCatalog(const FRenderingState &State) {
   return State.TextureCatalog;
 }
 
-const ForbocAI::Demo::Data::FRenderingRuntimeSettings &
+const TArray<FLevelDistanceLodStage> &
+SelectDistanceLodStages(const FRenderingState &State) {
+  return State.DistanceLodStages;
+}
+
+const ForbocAI::Game::Data::FRenderingRuntimeSettings &
 SelectRenderingRuntimeSettings(const FRenderingState &State) {
   return State.RuntimeSettings;
 }
@@ -37,5 +42,5 @@ SelectHorsePresentation(const FRenderingState &State) {
 
 } // namespace RenderingSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

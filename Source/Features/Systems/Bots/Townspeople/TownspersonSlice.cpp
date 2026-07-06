@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspersonReducers.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TownspersonSlice {
 
@@ -31,5 +31,5 @@ const rtk::Slice<FTownspersonState> &GetSlice() {
 
 } // namespace TownspersonSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

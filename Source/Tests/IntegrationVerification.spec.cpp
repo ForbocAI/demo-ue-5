@@ -3,7 +3,7 @@
  *
  * SDK/API integration verification is quarantined while the UE SDK feature
  * gate is closed. Re-enable real live protocol tests here after the API,
- * TS SDK, and UE SDK contracts are synced and FORBOC_DEMO_WITH_SDK=1 is
+ * TS SDK, and UE SDK contracts are synced and FORBOC_RUNTIME_WITH_SDK=1 is
  * ready for normal validation.
  */
 

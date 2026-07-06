@@ -4,18 +4,18 @@
 #include "Features/Components/Spatial/SpatialSelectors.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace RenderingReducers {
 namespace {
 
-float WorldFeet(const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry,
+float WorldFeet(const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry,
                 float Feet) {
   return SpatialSelectors::SelectActorWorldUnitsFromFeet({Geometry, Feet});
 }
 
 FVector ReduceWorldFeetVector(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry,
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry,
     const FVector &Feet) {
   return FVector(WorldFeet(Geometry, Feet.X), WorldFeet(Geometry, Feet.Y),
                  WorldFeet(Geometry, Feet.Z));
@@ -88,9 +88,33 @@ Item RequireRenderingCatalogItem(const TArray<Item> &Catalog,
 }
 
 FLevelRetroTextureSpec ReduceTextureCatalogItem(
-    const ForbocAI::Demo::Data::FRenderingTextureSpecSettings &Settings) {
+    const ForbocAI::Game::Data::FRenderingTextureSpecSettings &Settings) {
   return {ReduceTextureKind(Settings.Texture), Settings.Name, Settings.Use,
           FIntPoint(Settings.Size, Settings.Size)};
+}
+
+FLevelDistanceLodStage ReduceDistanceLodStageSettings(
+    const ForbocAI::Game::Data::FRenderingDistanceLodStageSettings &Settings) {
+  return {Settings.Id,
+          Settings.MaxDistance,
+          Settings.StaticMeshForcedLodModel,
+          Settings.SkeletalMeshForcedLodModel,
+          Settings.SkeletalMeshMinLodModel,
+          Settings.CullDistance,
+          Settings.ActorTickIntervalSeconds,
+          Settings.bStaticVisible,
+          Settings.bDynamicVisible,
+          Settings.bLabelsVisible,
+          Settings.bAnimated,
+          Settings.bUpdateRateOptimizationsEnabled,
+          Settings.bPatrolEnabled,
+          Settings.bCollisionEnabled,
+          Settings.bCastShadow};
+}
+
+bool DistanceWithinStage(float Distance,
+                         const FLevelDistanceLodStage &Stage) {
+  return Distance <= Stage.MaxDistance;
 }
 
 } // namespace
@@ -109,11 +133,16 @@ ELevelRetroTexture ReduceTextureKind(const FString &Texture) {
 }
 
 FLevelRetroRenderProfile ReduceRuntimeProfile(
-    const ForbocAI::Demo::Data::FRenderingProfileSettings &Settings) {
+    const ForbocAI::Game::Data::FRenderingProfileSettings &Settings) {
   return {Settings.TimeOfDayHour,
           Settings.AntiAliasingMethod,
           Settings.PostProcessAAQuality,
           Settings.ScreenPercentage,
+          Settings.MinimumScreenPercentage,
+          Settings.InternalRenderWidth,
+          Settings.InternalRenderHeight,
+          Settings.OutputScaleMultiplier,
+          Settings.bFullscreenOutput,
           Settings.ViewDistanceScale,
           Settings.FoliageDensityScale,
           Settings.GrassDensityScale,
@@ -122,19 +151,50 @@ FLevelRetroRenderProfile ReduceRuntimeProfile(
           Settings.DirectionalLightIntensity,
           Settings.DirectionalLightSourceAngle,
           Settings.ShadowCascades,
-          Settings.ShadowMaxResolution};
+          Settings.ShadowMaxResolution,
+          Settings.bFogEnabled,
+          Settings.bVolumetricFogEnabled,
+          Settings.FogDensity,
+          Settings.FogHeightFalloff,
+          Settings.FogStartDistance,
+          Settings.FogCutoffDistance,
+          Settings.FogMaxOpacity,
+          Settings.FogColorR,
+          Settings.FogColorG,
+          Settings.FogColorB,
+          Settings.FogColorA};
 }
 
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
-    const TArray<ForbocAI::Demo::Data::FRenderingTextureSpecSettings>
+    const TArray<ForbocAI::Game::Data::FRenderingTextureSpecSettings>
         &Settings) {
   return func::map_array<
-      ForbocAI::Demo::Data::FRenderingTextureSpecSettings,
+      ForbocAI::Game::Data::FRenderingTextureSpecSettings,
       FLevelRetroTextureSpec>(Settings, ReduceTextureCatalogItem);
 }
 
+TArray<FLevelDistanceLodStage> ReduceDistanceLodStages(
+    const ForbocAI::Game::Data::FRenderingDistanceLodSettings &Settings) {
+  return func::map_array<
+      ForbocAI::Game::Data::FRenderingDistanceLodStageSettings,
+      FLevelDistanceLodStage>(Settings.Stages, ReduceDistanceLodStageSettings);
+}
+
+FLevelDistanceLodStage
+ReduceDistanceLodStage(const FLevelDistanceLodStageRequest &Request) {
+  check(!Request.Stages.IsEmpty());
+  const float Distance = FVector::Dist2D(Request.Origin, Request.Location);
+  const func::Maybe<FLevelDistanceLodStage> Stage =
+      func::find_array<FLevelDistanceLodStage>(
+          Request.Stages, [Distance](const FLevelDistanceLodStage &Candidate) {
+            return DistanceWithinStage(Distance, Candidate);
+          });
+  check(Stage.hasValue);
+  return Stage.value;
+}
+
 FRenderingAssetPaths ReduceRenderingAssetPaths(
-    const ForbocAI::Demo::Data::FRenderingAssetPathSettings &Settings) {
+    const ForbocAI::Game::Data::FRenderingAssetPathSettings &Settings) {
   return {Settings.LevelCubeMeshPath, Settings.BlockoutMaterialPath};
 }
 
@@ -192,9 +252,9 @@ FRenderingState ReduceHorsePresentationRequested(
 
 FTownspersonPresentationViewModel ReduceTownspersonPresentation(
     const FTownspersonPresentationReduceRequest &Request) {
-  const ForbocAI::Demo::Data::FTownspersonPresentationSettings &Settings =
+  const ForbocAI::Game::Data::FTownspersonPresentationSettings &Settings =
       Request.Settings;
-  const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry =
+  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry =
       Request.Geometry;
   const float CharacterHeight = WorldFeet(Geometry, Settings.CharacterHeightFeet);
   const float PromptTextZ =
@@ -237,9 +297,9 @@ FTownspersonPresentationViewModel ReduceTownspersonPresentation(
 
 FHorsePresentationViewModel ReduceHorsePresentation(
     const FHorsePresentationReduceRequest &Request) {
-  const ForbocAI::Demo::Data::FHorsePresentationSettings &Settings =
+  const ForbocAI::Game::Data::FHorsePresentationSettings &Settings =
       Request.Settings;
-  const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry =
+  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry =
       Request.Geometry;
   FHorsePresentationViewModel Model;
   Model.DefaultName = Settings.DefaultName;
@@ -278,5 +338,5 @@ FHorsePresentationViewModel ReduceHorsePresentation(
 
 } // namespace RenderingReducers
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

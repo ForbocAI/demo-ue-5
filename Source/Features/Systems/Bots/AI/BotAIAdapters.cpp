@@ -1,7 +1,7 @@
 #include "Features/Systems/Bots/AI/BotAIAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotAIAdapters {
 
@@ -16,5 +16,5 @@ const rtk::EntityAdapter<FBotAIComponent> &BotAIAdapter() {
 
 } // namespace BotAIAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

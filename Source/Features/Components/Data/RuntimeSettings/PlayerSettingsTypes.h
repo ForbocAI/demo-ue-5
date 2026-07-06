@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 
 struct FPlayerPresentationSettings {
@@ -19,6 +19,12 @@ struct FPlayerPresentationSettings {
   float BrakingDecelerationFalling;
   FVector MeshRelativeLocation;
   FRotator MeshRelativeRotation;
+  int32 SkeletalMeshForcedLodModel;
+  int32 SkeletalMeshMinLodModel;
+  float MeshCullDistance;
+  bool bMeshCastShadow;
+  bool bMeshComponentTickEnabled;
+  bool bMeshUpdateRateOptimizationsEnabled;
   FString MeshPath;
   FString AnimationBlueprintClassPath;
   FString MoveActionPath;
@@ -30,5 +36,5 @@ struct FPlayerPresentationSettings {
 };
 
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

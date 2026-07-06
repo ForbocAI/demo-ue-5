@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/AI/BotAIAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotAIFactories {
 namespace {
@@ -63,5 +63,5 @@ TArray<FBotAIComponent> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
 
 } // namespace BotAIFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

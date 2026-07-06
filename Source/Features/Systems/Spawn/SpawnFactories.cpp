@@ -1,7 +1,7 @@
 #include "Features/Systems/Spawn/SpawnFactories.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SpawnFactories {
 
@@ -23,5 +23,5 @@ FSpawnPointPayload SpawnPointPayload(const FSpawnPointSource &Source) {
 
 } // namespace SpawnFactories
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

@@ -1,7 +1,7 @@
 #include "Features/Components/Data/DataActions.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace DataActions {
 
@@ -16,5 +16,5 @@ const rtk::ActionCreator<FDataLoadedPayload> &DataLoaded() {
 
 } // namespace DataActions
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

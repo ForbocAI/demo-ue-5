@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotGoalSelectors {
 
@@ -18,5 +18,5 @@ int32 SelectTotal(const FBotGoalState &State);
 
 } // namespace BotGoalSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

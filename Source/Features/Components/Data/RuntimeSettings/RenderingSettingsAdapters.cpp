@@ -3,7 +3,7 @@
 #include "Features/Components/Data/Json/JsonAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
@@ -14,6 +14,14 @@ JSON_SETTINGS_REGISTRY(FRenderingTextureHashSettings, XMultiplier,
 
 JSON_SETTINGS_REGISTRY(FRenderingConsoleVariableSettings, Name, ValueKind,
                        ProfileField, IntValue, FloatValue);
+
+JSON_SETTINGS_REGISTRY(FRenderingDistanceLodStageSettings, Id, MaxDistance,
+                       StaticMeshForcedLodModel, SkeletalMeshForcedLodModel,
+                       SkeletalMeshMinLodModel, CullDistance,
+                       ActorTickIntervalSeconds, bStaticVisible,
+                       bDynamicVisible, bLabelsVisible, bAnimated,
+                       bUpdateRateOptimizationsEnabled,
+                       bPatrolEnabled, bCollisionEnabled, bCastShadow);
 
 JSON_SETTINGS_REGISTRY(FRenderingTexturePredicateSettings, Kind, XMultiplier,
                        YMultiplier, NoiseMultiplier, XDivisor, YDivisor,
@@ -80,11 +88,16 @@ JSON_SETTINGS_REGISTRY(FRenderingAssetPathSettings, LevelCubeMeshPath,
 
 JSON_SETTINGS_REGISTRY(FRenderingProfileSettings, TimeOfDayHour,
                        AntiAliasingMethod, PostProcessAAQuality,
-                       ScreenPercentage, ViewDistanceScale,
+                       ScreenPercentage, MinimumScreenPercentage,
+                       InternalRenderWidth, InternalRenderHeight,
+                       OutputScaleMultiplier, bFullscreenOutput, ViewDistanceScale,
                        FoliageDensityScale, GrassDensityScale,
                        SunPitchDegrees, SunYawDegrees,
                        DirectionalLightIntensity, DirectionalLightSourceAngle,
-                       ShadowCascades, ShadowMaxResolution);
+                       ShadowCascades, ShadowMaxResolution, bFogEnabled,
+                       bVolumetricFogEnabled, FogDensity, FogHeightFalloff,
+                       FogStartDistance, FogCutoffDistance, FogMaxOpacity,
+                       FogColorR, FogColorG, FogColorB, FogColorA);
 
 JSON_SETTINGS_REGISTRY(FRenderingTextureSpecSettings, Texture, Name, Use, Size);
 
@@ -101,6 +114,25 @@ template <> struct TJsonSettingsRegistry<FRenderingRuntimeSettings> {
                     JSON_SETTINGS_ATOMS(XMultiplier, YMultiplier,
                                         SaltMultiplier, XorShift)),
                 TextureHash)};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TJsonSettingsRegistry<FRenderingDistanceLodSettings> {
+  static const TArray<TJsonSettingsField<FRenderingDistanceLodSettings>>
+      &Fields() {
+    static const TArray<TJsonSettingsField<FRenderingDistanceLodSettings>>
+        RegisteredFields = {JSON_OBJECT_ARRAY_SETTING_FIELD(
+            FRenderingDistanceLodSettings,
+                ReadSettingsWith<FRenderingDistanceLodStageSettings>(
+                    JSON_SETTINGS_ATOMS(Id, MaxDistance, StaticMeshForcedLodModel,
+                                    SkeletalMeshForcedLodModel,
+                                    SkeletalMeshMinLodModel, CullDistance,
+                                    ActorTickIntervalSeconds, bStaticVisible,
+                                    bDynamicVisible, bLabelsVisible, bAnimated,
+                                    bPatrolEnabled, bUpdateRateOptimizationsEnabled,
+                                    bCollisionEnabled, bCastShadow)),
+            Stages)};
     return RegisteredFields;
   }
 };
@@ -138,11 +170,18 @@ ReadRenderingProfileSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FRenderingProfileSettings>(
       Object, JSON_SETTINGS_ATOMS(TimeOfDayHour, AntiAliasingMethod,
                                   PostProcessAAQuality, ScreenPercentage,
+                                  MinimumScreenPercentage, InternalRenderWidth,
+                                  InternalRenderHeight, OutputScaleMultiplier,
+                                  bFullscreenOutput,
                                   ViewDistanceScale, FoliageDensityScale,
                                   GrassDensityScale, SunPitchDegrees,
                                   SunYawDegrees, DirectionalLightIntensity,
                                   DirectionalLightSourceAngle, ShadowCascades,
-                                  ShadowMaxResolution));
+                                  ShadowMaxResolution, bFogEnabled,
+                                  bVolumetricFogEnabled, FogDensity,
+                                  FogHeightFalloff, FogStartDistance,
+                                  FogCutoffDistance, FogMaxOpacity, FogColorR,
+                                  FogColorG, FogColorB, FogColorA));
 }
 
 FRenderingTextureSpecSettings
@@ -177,7 +216,13 @@ ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &TextureSettings,
   return Settings;
 }
 
+FRenderingDistanceLodSettings
+ReadRenderingDistanceLodSettings(const TSharedPtr<FJsonObject> &Object) {
+  return Json::ReadSettingsFields<FRenderingDistanceLodSettings>(
+      Object, JSON_SETTINGS_ATOMS(Stages));
+}
+
 } // namespace RenderingSettingsAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

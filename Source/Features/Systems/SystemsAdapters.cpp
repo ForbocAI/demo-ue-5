@@ -8,7 +8,7 @@
 #include "Features/Systems/Projection/SystemsProjectionTerrainAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace SystemsAdapters {
 
@@ -51,5 +51,5 @@ ProjectRuntimeWorld(const FProjectRuntimePayload &Payload) {
 
 } // namespace SystemsAdapters
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

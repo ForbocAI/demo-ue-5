@@ -7,7 +7,7 @@
 #include "Features/Systems/Bots/Goals/BotGoalTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotGoalSlice {
 
@@ -15,5 +15,5 @@ const rtk::Slice<FBotGoalState> &GetSlice();
 
 } // namespace BotGoalSlice
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

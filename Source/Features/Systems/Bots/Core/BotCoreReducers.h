@@ -6,7 +6,7 @@
 #include "Features/Systems/Bots/Core/BotCoreRuntimeTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 namespace BotCoreReducers {
@@ -124,5 +124,5 @@ ReduceBotCoreRuntime(const FBotCoreRuntimeState &State,
 } // namespace BotCoreReducers
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

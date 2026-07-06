@@ -5,7 +5,7 @@
 #include "Features/Components/Level/LevelTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FLevelLocalPoint {
@@ -15,7 +15,7 @@ struct FLevelLocalPoint {
 };
 
 struct FLevelLayoutLotsRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float EastLots = 0.0f;
   float NorthLots = 0.0f;
   float HeightOffset = 0.0f;
@@ -28,44 +28,44 @@ struct FLevelLayoutPointRequest {
 };
 
 struct FLevelCenteredOnGroundRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FLevelLocalPoint Point;
   FVector Scale = FVector::OneVector;
   float GroundClearance = 0.0f;
 };
 
 struct FLevelAboveBlockRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FLevelLocalPoint Point;
   FVector Scale = FVector::OneVector;
 };
 
 struct FLevelLabelHeightRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FVector Scale = FVector::OneVector;
 };
 
 struct FLevelActorFeetRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float Feet = 0.0f;
 };
 
 struct FLevelBuildingScaleRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float FrontageFeet = 0.0f;
   float DepthFeet = 0.0f;
   float Stories = 0.0f;
 };
 
 struct FLevelLongFeatureScaleRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float WidthFeet = 0.0f;
   float LengthLots = 0.0f;
   float HeightFeet = 0.0f;
 };
 
 struct FLevelPadScaleRequest {
-  ForbocAI::Demo::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float WidthFeet = 0.0f;
   float DepthFeet = 0.0f;
   float HeightFeet = 0.0f;
@@ -90,15 +90,15 @@ inline bool operator!=(const FLevelLocalPoint &Left,
 
 namespace LevelLayoutSlice {
 float TownLotWorldUnits(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 float CubeHalfExtent(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 float BuildingFoundationHeight(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 float RoadSurfaceClearance(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 float CharacterHeightOffset(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 float LabelHeightForScale(const FLevelLabelHeightRequest &Request);
 float ActorWorldUnitsFromFeet(const FLevelActorFeetRequest &Request);
 float ActorMeshScaleFromFeet(const FLevelActorFeetRequest &Request);
@@ -114,13 +114,13 @@ FLevelLocalPoint AboveBlock(const FLevelAboveBlockRequest &Request);
 FVector ToWorld(const FLevelToWorldRequest &Request);
 
 FLevelLocalPoint PlayerSpawnPoint(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 FRotator PlayerSpawnRotation(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 FString PlayerSpawnAnchorLabel(
-    const ForbocAI::Demo::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
 } // namespace LevelLayoutSlice
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

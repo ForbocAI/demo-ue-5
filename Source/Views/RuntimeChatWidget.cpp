@@ -1,3 +1,8 @@
+// View boundary: keep this file equivalent to markup/html/jsx presentation.
+// Put runtime decisions, data derivation, and business logic in Features using
+// Redux/RTK skills: actions, slices, reducers, selectors, thunks/listeners,
+// adapters, and ECS/domain systems. Views consume feature-prepared payloads.
+
 #include "Views/RuntimeChatWidget.h"
 
 #include "Blueprint/WidgetTree.h"
@@ -19,9 +24,9 @@ void URuntimeChatWidget::NativeConstruct() {
     UVerticalBox *StackElement =
         WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
 
-    const ForbocAI::Demo::UI::FRuntimeConversationViewModel Conversation =
-        ForbocAI::Demo::Level::RuntimeSelectors::SelectRuntimeConversation(
-            ForbocAI::Demo::Level::Store::GetStore().getState());
+    const ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation =
+        ForbocAI::Game::Level::RuntimeSelectors::SelectRuntimeConversation(
+            ForbocAI::Game::Level::Store::GetStore().getState());
 
     TitleTextElement = BuildTextElement(Conversation.Title,
                                         Conversation.TitleColor,
@@ -44,13 +49,13 @@ void URuntimeChatWidget::NativeConstruct() {
 }
 
 void URuntimeChatWidget::ShowConversationViewModel(
-    const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation) {
+    const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) {
   SetVisibility(ESlateVisibility::Visible);
   ApplyConversationViewModel(Conversation);
 }
 
 void URuntimeChatWidget::ApplyConversationViewModel(
-    const ForbocAI::Demo::UI::FRuntimeConversationViewModel &Conversation) {
+    const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) {
   check(TitleTextElement);
   check(PlayerTextElement);
   check(ReplyTextElement);

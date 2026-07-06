@@ -1,7 +1,7 @@
 #include "Features/Systems/Terrain/TerrainActions.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace TerrainActions {
 
@@ -27,5 +27,5 @@ TerrainMeshPayloadObserved() {
 
 } // namespace TerrainActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

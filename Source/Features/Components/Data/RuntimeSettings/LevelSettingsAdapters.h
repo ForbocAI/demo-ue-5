@@ -3,7 +3,7 @@
 #include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Data {
 namespace LevelSettingsAdapters {
 
@@ -49,5 +49,5 @@ ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object);
 
 } // namespace LevelSettingsAdapters
 } // namespace Data
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

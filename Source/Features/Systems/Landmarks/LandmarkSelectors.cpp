@@ -3,7 +3,7 @@
 #include "Features/Systems/Landmarks/LandmarkAdapters.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace LandmarkSelectors {
 
@@ -20,5 +20,5 @@ func::Maybe<FLandmark> SelectById(const FLandmarkState &State,
 
 } // namespace LandmarkSelectors
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

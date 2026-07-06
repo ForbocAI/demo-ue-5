@@ -5,7 +5,7 @@
 #include "Features/Systems/Bots/Pipeline/BotPipelineTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 namespace BotPipelineActions {
 
@@ -22,5 +22,5 @@ PipelineObserved() {
 
 } // namespace BotPipelineActions
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

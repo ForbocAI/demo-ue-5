@@ -4,7 +4,7 @@
 #include "Features/Components/Data/DataTypes.h"
 
 namespace ForbocAI {
-namespace Demo {
+namespace Game {
 namespace Level {
 
 struct FBotCoreStats {
@@ -33,7 +33,7 @@ struct FBotCoreRuntimeState {
 
   FBotCoreStats Stats;
   FBotCoreMemory Memory;
-  ForbocAI::Demo::Data::FBotRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FBotRuntimeSettings RuntimeSettings;
 
   EBotCorePhase Phase;
 
@@ -42,18 +42,18 @@ struct FBotCoreRuntimeState {
 
 struct FBotCoreRuntimeInitialStateRequest {
   FString Name;
-  ForbocAI::Demo::Data::FBotRuntimeSettings RuntimeSettings;
+  ForbocAI::Game::Data::FBotRuntimeSettings RuntimeSettings;
 };
 
 inline FBotCoreStats
-CreateBotCoreStats(const ForbocAI::Demo::Data::FBotRuntimeSettings &Settings) {
+CreateBotCoreStats(const ForbocAI::Game::Data::FBotRuntimeSettings &Settings) {
   return {Settings.InitialHealth, Settings.InitialMaxHealth,
           Settings.InitialMana, Settings.InitialMaxMana,
           Settings.InitialStamina, Settings.InitialMaxStamina};
 }
 
 inline FBotCoreMemory
-CreateBotCoreMemory(const ForbocAI::Demo::Data::FBotRuntimeSettings &Settings) {
+CreateBotCoreMemory(const ForbocAI::Game::Data::FBotRuntimeSettings &Settings) {
   return {Settings.InitialLastKnownPlayerPosition,
           Settings.InitialTimeSinceLastSeenPlayer, Settings.bInitialHasAggro};
 }
@@ -77,5 +77,5 @@ CreateBotCoreRuntimeInitialState(
 }
 
 } // namespace Level
-} // namespace Demo
+} // namespace Game
 } // namespace ForbocAI

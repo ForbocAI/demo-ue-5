@@ -1,9 +1,9 @@
-"""Create the tracked Blueprint and UMG assets for the runtime demo.
+"""Rebuild the tracked Blueprint and UMG assets for the runtime.
 
 Run from the project root through UnrealEditor-Cmd after building the editor
 module:
 
-  UnrealEditor-Cmd.exe DemoProject.uproject -run=pythonscript -script=Scripts/Tools/create_demo_blueprint_assets.py
+  UnrealEditor-Cmd.exe ForbocAIDemo.uproject -run=pythonscript -script=Scripts/Tools/create_blueprint_assets.py
 """
 
 import unreal
@@ -12,12 +12,12 @@ import unreal
 BLUEPRINT_ROOT = "/Game/Blueprints"
 UI_ROOT = "/Game/UI"
 
-LEVEL_GAME_MODE_CLASS = "/Script/DemoProject.LevelGameModeView"
-PLAYER_CONTROLLER_CLASS = "/Script/DemoProject.PlayerRuntimeControllerView"
-RUNTIME_LEVEL_CLASS = "/Script/DemoProject.RuntimeLevelView"
-TOWNSPERSON_CLASS = "/Script/DemoProject.TownspersonView"
-SPEECH_PRESENTER_CLASS = "/Script/DemoProject.RuntimeSpeechPresenterView"
-RUNTIME_CHAT_WIDGET_CLASS = "/Script/DemoProject.RuntimeChatWidget"
+LEVEL_GAME_MODE_CLASS = "/Script/ForbocAIDemo.LevelGameModeView"
+PLAYER_CONTROLLER_CLASS = "/Script/ForbocAIDemo.PlayerRuntimeControllerView"
+RUNTIME_LEVEL_CLASS = "/Script/ForbocAIDemo.RuntimeLevelView"
+TOWNSPERSON_CLASS = "/Script/ForbocAIDemo.TownspersonView"
+SPEECH_PRESENTER_CLASS = "/Script/ForbocAIDemo.RuntimeSpeechPresenterView"
+RUNTIME_CHAT_WIDGET_CLASS = "/Script/ForbocAIDemo.RuntimeChatWidget"
 
 BP_LEVEL_GAME_MODE = f"{BLUEPRINT_ROOT}/BP_LevelGameMode"
 BP_PLAYER_CONTROLLER = f"{BLUEPRINT_ROOT}/BP_PlayerRuntimeController"
@@ -25,10 +25,18 @@ BP_RUNTIME_LEVEL = f"{BLUEPRINT_ROOT}/BP_RuntimeLevelView"
 BP_TOWNSPERSON = f"{BLUEPRINT_ROOT}/BP_TownspersonView"
 BP_SPEECH_PRESENTER = f"{BLUEPRINT_ROOT}/BP_SpeechPresenter"
 WBP_CHAT = f"{UI_ROOT}/WBP_Chat"
+GENERATED_ASSET_PATHS = (
+    BP_LEVEL_GAME_MODE,
+    BP_SPEECH_PRESENTER,
+    BP_TOWNSPERSON,
+    BP_RUNTIME_LEVEL,
+    BP_PLAYER_CONTROLLER,
+    WBP_CHAT,
+)
 
 
 def log(message: str) -> None:
-    unreal.log(f"DemoBlueprintAssets: {message}")
+    unreal.log(f"BlueprintAssets: {message}")
 
 
 def ensure_directory(path: str) -> None:
@@ -70,12 +78,20 @@ def set_optional_editor_property(
     )
 
 
-def create_or_load_blueprint(path: str, parent_class_path: str):
-    ensure_directory(BLUEPRINT_ROOT)
+def delete_asset_if_exists(path: str) -> None:
     if unreal.EditorAssetLibrary.does_asset_exist(path):
-        log(f"Loading {path}")
-        return unreal.EditorAssetLibrary.load_asset(path)
+        log(f"Deleting {path}")
+        if not unreal.EditorAssetLibrary.delete_asset(path):
+            raise RuntimeError(f"Unable to delete generated asset {path}")
 
+
+def delete_generated_assets() -> None:
+    for path in GENERATED_ASSET_PATHS:
+        delete_asset_if_exists(path)
+
+
+def create_blueprint(path: str, parent_class_path: str):
+    ensure_directory(BLUEPRINT_ROOT)
     folder, asset_name = split_asset_path(path)
     parent_class = load_required_class(parent_class_path)
     factory = unreal.BlueprintFactory()
@@ -91,12 +107,8 @@ def create_or_load_blueprint(path: str, parent_class_path: str):
     return asset
 
 
-def create_or_load_widget_blueprint(path: str, parent_class_path: str):
+def create_widget_blueprint(path: str, parent_class_path: str):
     ensure_directory(UI_ROOT)
-    if unreal.EditorAssetLibrary.does_asset_exist(path):
-        log(f"Loading {path}")
-        return unreal.EditorAssetLibrary.load_asset(path)
-
     folder, asset_name = split_asset_path(path)
     parent_class = load_required_class(parent_class_path)
     factory = unreal.WidgetBlueprintFactory()
@@ -156,18 +168,14 @@ def wire_game_mode(game_mode, player_controller) -> None:
 
 
 def create_assets() -> list[object]:
-    chat_widget = create_or_load_widget_blueprint(
-        WBP_CHAT, RUNTIME_CHAT_WIDGET_CLASS
-    )
-    player_controller = create_or_load_blueprint(
-        BP_PLAYER_CONTROLLER, PLAYER_CONTROLLER_CLASS
-    )
-    game_mode = create_or_load_blueprint(BP_LEVEL_GAME_MODE, LEVEL_GAME_MODE_CLASS)
-    runtime_level = create_or_load_blueprint(BP_RUNTIME_LEVEL, RUNTIME_LEVEL_CLASS)
-    townsperson = create_or_load_blueprint(BP_TOWNSPERSON, TOWNSPERSON_CLASS)
-    speech_presenter = create_or_load_blueprint(
-        BP_SPEECH_PRESENTER, SPEECH_PRESENTER_CLASS
-    )
+    delete_generated_assets()
+
+    chat_widget = create_widget_blueprint(WBP_CHAT, RUNTIME_CHAT_WIDGET_CLASS)
+    player_controller = create_blueprint(BP_PLAYER_CONTROLLER, PLAYER_CONTROLLER_CLASS)
+    game_mode = create_blueprint(BP_LEVEL_GAME_MODE, LEVEL_GAME_MODE_CLASS)
+    runtime_level = create_blueprint(BP_RUNTIME_LEVEL, RUNTIME_LEVEL_CLASS)
+    townsperson = create_blueprint(BP_TOWNSPERSON, TOWNSPERSON_CLASS)
+    speech_presenter = create_blueprint(BP_SPEECH_PRESENTER, SPEECH_PRESENTER_CLASS)
 
     assets = [
         chat_widget,
@@ -197,5 +205,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as exc:
-        unreal.log_error(f"DemoBlueprintAssets: {exc}")
+        unreal.log_error(f"BlueprintAssets: {exc}")
         raise SystemExit(1)
