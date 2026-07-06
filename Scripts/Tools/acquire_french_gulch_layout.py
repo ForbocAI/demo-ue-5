@@ -14,7 +14,9 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT / "Content" / "Data"
 SOURCE_DIR = DATA_DIR / "Source"
-OVERPASS_PATH = SOURCE_DIR / "french_gulch_osm_overpass.json"
+OVERPASS_LANDMARKS_PATH = SOURCE_DIR / "french_gulch_osm_overpass_landmarks.json"
+OVERPASS_LEVEL_PATH = SOURCE_DIR / "french_gulch_osm_overpass_level.json"
+OVERPASS_NATURE_PATH = SOURCE_DIR / "french_gulch_osm_overpass_nature.json"
 METADATA_PATH = SOURCE_DIR / "french_gulch_layout_metadata.json"
 RUNTIME_LEVEL_PATH = DATA_DIR / "french_gulch_runtime_level.json"
 LANDMARKS_PATH = DATA_DIR / "french_gulch_landmarks.json"
@@ -77,10 +79,59 @@ def fetch_overpass() -> dict:
 
 
 def acquire_overpass(force: bool) -> dict:
-    if OVERPASS_PATH.exists() and not force:
-        return load_json(OVERPASS_PATH)
+    if OVERPASS_LANDMARKS_PATH.exists() and OVERPASS_LEVEL_PATH.exists() and OVERPASS_NATURE_PATH.exists() and not force:
+        landmarks = load_json(OVERPASS_LANDMARKS_PATH)
+        level = load_json(OVERPASS_LEVEL_PATH)
+        nature = load_json(OVERPASS_NATURE_PATH)
+        
+        combined_elements = []
+        seen = set()
+        for el in landmarks.get("elements", []) + level.get("elements", []) + nature.get("elements", []):
+            if el["id"] not in seen:
+                combined_elements.append(el)
+                seen.add(el["id"])
+        
+        landmarks["elements"] = combined_elements
+        return landmarks
+
     data = fetch_overpass()
-    write_json(OVERPASS_PATH, data)
+    
+    # Split and write
+    nodes = {el["id"]: el for el in data.get("elements", []) if el["type"] == "node"}
+    buildings = []
+    highways = []
+    nature_els = []
+    
+    for el in data.get("elements", []):
+        if el["type"] == "node" and not el.get("tags"): continue
+        tags = el.get("tags", {})
+        if "building" in tags:
+            buildings.append(el)
+        elif "highway" in tags:
+            highways.append(el)
+        elif "natural" in tags or "waterway" in tags or "water" in tags:
+            nature_els.append(el)
+            
+    def save_sub(path, els):
+        if not els: return
+        ref_nodes = set()
+        for el in els:
+            if el["type"] == "way":
+                for nid in el.get("nodes", []):
+                    ref_nodes.add(nid)
+        final_els = [nodes[nid] for nid in ref_nodes if nid in nodes] + els
+        out_data = {
+            "version": data.get("version"),
+            "generator": data.get("generator"),
+            "osm3s": data.get("osm3s"),
+            "elements": final_els
+        }
+        write_json(path, out_data)
+
+    save_sub(OVERPASS_LANDMARKS_PATH, buildings)
+    save_sub(OVERPASS_LEVEL_PATH, highways)
+    save_sub(OVERPASS_NATURE_PATH, nature_els)
+    
     return data
 
 
