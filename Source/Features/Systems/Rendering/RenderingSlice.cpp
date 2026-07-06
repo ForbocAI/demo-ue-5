@@ -53,18 +53,14 @@ double SelectRuntimeBudgetClockSeconds() {
   return RenderingThunks::SelectRuntimeBudgetClockSeconds();
 }
 
-bool ShouldRunRuntimeBudgetWallInterval(double CurrentSeconds,
-                                        double LastSeconds,
-                                        float IntervalSeconds) {
-  return RenderingThunks::ShouldRunRuntimeBudgetWallInterval(
-      CurrentSeconds, LastSeconds, IntervalSeconds);
+bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params) {
+  return RenderingThunks::ShouldRunRuntimeBudgetWallInterval(Params);
 }
 
 bool ShouldRunRuntimeBudgetScreenshot(
-    double CurrentSeconds, double LastSeconds, float IntervalSeconds,
+    const FBudgetCheckParams &Params,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return RenderingThunks::ShouldRunRuntimeBudgetScreenshot(
-      CurrentSeconds, LastSeconds, IntervalSeconds, Settings);
+  return RenderingThunks::ShouldRunRuntimeBudgetScreenshot(Params, Settings);
 }
 
 void RequestRuntimeBudgetScreenshot(

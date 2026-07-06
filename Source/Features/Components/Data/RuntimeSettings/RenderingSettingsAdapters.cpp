@@ -287,26 +287,24 @@ ReadRenderingTextureSpecSettings(const TSharedPtr<FJsonObject> &Object) {
 TArray<FRenderingTextureSpecSettings>
 ReadTextureCatalogSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadObjectArrayField<FRenderingTextureSpecSettings>(
-      Object, "TextureCatalog", ReadRenderingTextureSpecSettings);
+      {Object, "TextureCatalog"}, ReadRenderingTextureSpecSettings);
 }
 
 FRenderingRuntimeSettings
-ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &TextureSettings,
-                             const TSharedPtr<FJsonObject> &ConsoleVariables,
-                             const TSharedPtr<FJsonObject> &TexturePalettes) {
+ReadRenderingRuntimeSettings(const FRenderingRuntimeSettingsRequest &Request) {
   FRenderingRuntimeSettings Settings =
       Json::ReadSettingsFields<FRenderingRuntimeSettings>(
-          TextureSettings,
+          Request.TextureSettings,
           JSON_SETTINGS_ATOMS(TextureChannels, TextureAlpha,
                               TextureCacheKeyFormat, MaterialTextureParameter,
                               TextureHash));
   Settings.ConsoleVariables =
       Json::ReadObjectArrayField<FRenderingConsoleVariableSettings>(
-          ConsoleVariables, "ConsoleVariables",
+          {Request.ConsoleVariables, "ConsoleVariables"},
           Json::ReadSettingsWith<FRenderingConsoleVariableSettings>(
               JSON_SETTINGS_ATOMS(Name, ValueKind, ProfileField, IntValue,
                                   FloatValue)));
-  Settings.TexturePalettes = ReadRenderingTexturePaletteSources(TexturePalettes);
+  Settings.TexturePalettes = ReadRenderingTexturePaletteSources(Request.TexturePalettes);
   return Settings;
 }
 

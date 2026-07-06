@@ -530,8 +530,8 @@ void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
 
   const bool bLogBudgetSample =
       FG::RenderingSlice::ShouldRunRuntimeBudgetWallInterval(
-          BudgetClockSeconds, BudgetLogLastSeconds,
-          Settings.BudgetLogIntervalSeconds);
+          {BudgetClockSeconds, BudgetLogLastSeconds,
+           Settings.BudgetLogIntervalSeconds});
   bLogBudgetSample ? (LogRuntimeBudgetSample(Stats),
                       BudgetLogLastSeconds = BudgetClockSeconds,
                       void())
@@ -539,8 +539,8 @@ void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
 
   const bool bRequestBudgetScreenshot =
       FG::RenderingSlice::ShouldRunRuntimeBudgetScreenshot(
-          BudgetClockSeconds, BudgetScreenshotLastSeconds,
-          BudgetScreenshotIntervalSeconds, Settings);
+          {BudgetClockSeconds, BudgetScreenshotLastSeconds,
+           BudgetScreenshotIntervalSeconds}, Settings);
   bRequestBudgetScreenshot
       ? (BudgetScreenshotIndex += Settings.BudgetScreenshotIndexStep,
          FG::RenderingSlice::RequestRuntimeBudgetScreenshot(

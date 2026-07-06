@@ -34,6 +34,11 @@ struct FTerrainLodGridSizeRequest {
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
+struct FTerrainGridIndex {
+  int32 Row;
+  int32 Column;
+};
+
 FTerrainMeshPayload
 ReserveTerrainMeshPayload(const FTerrainMeshReserveRequest &Request) {
   return (func::pipe(FTerrainMeshPayload{}) |
@@ -80,33 +85,33 @@ int32 SelectTerrainSourceGridIndex(const FTerrainMeshBuildContext &Context,
              : LodIndex * Context.LodStep;
 }
 
-FColor TerrainVertexColor(const FTerrainMeshBuildContext &Context, int32 Row,
-                          int32 Column) {
-  return Context.OrthoData.GetColorAt(Row, Column);
+FColor TerrainVertexColor(const FTerrainMeshBuildContext &Context,
+                          const FTerrainGridIndex &GridIndex) {
+  return Context.OrthoData.GetColorAt(GridIndex.Row, GridIndex.Column);
 }
 
-FTerrainMeshPayload AddTerrainVertex(const FTerrainMeshBuildContext &Context,
-                                     int32 Row, int32 Column,
-                                     FTerrainMeshPayload Payload) {
-  const int32 SourceRow = SelectTerrainSourceGridIndex(Context, Row);
-  const int32 SourceColumn = SelectTerrainSourceGridIndex(Context, Column);
+FTerrainMeshPayload ReduceTerrainVertex(FTerrainMeshPayload Payload,
+                                        const FTerrainMeshBuildContext &Context,
+                                     const FTerrainGridIndex &GridIndex) {
+  const int32 SourceRow = SelectTerrainSourceGridIndex(Context, GridIndex.Row);
+  const int32 SourceColumn = SelectTerrainSourceGridIndex(Context, GridIndex.Column);
   const float NorthSouth = Context.HalfSize - Context.Step * SourceRow;
   const float EastWest = -Context.HalfSize + Context.Step * SourceColumn;
-  Payload.Vertices.Add(Context.TerrainData.ToWorld(
-      EastWest, NorthSouth, Context.VertexHeightOffset));
+  Payload.Vertices.Add(Context.TerrainData.ToWorld(FVector2D(EastWest, NorthSouth), Context.VertexHeightOffset));
   Payload.Normals.Add(FVector::UpVector);
   Payload.UVs.Add(FVector2D(
       static_cast<float>(SourceColumn) / Context.SourceGridLastIndex,
       static_cast<float>(SourceRow) / Context.SourceGridLastIndex));
-  Payload.VertexColors.Add(TerrainVertexColor(Context, SourceRow,
-                                              SourceColumn));
+  Payload.VertexColors.Add(TerrainVertexColor(Context,
+                                              {SourceRow, SourceColumn}));
   return Payload;
 }
 
-FTerrainMeshPayload AddTerrainQuadTriangles(
-    const FTerrainMeshBuildContext &Context, int32 Row, int32 Column,
-    FTerrainMeshPayload Payload) {
-  const int32 A = Row * Context.LodGridSize + Column;
+FTerrainMeshPayload ReduceTerrainQuadTriangles(
+    FTerrainMeshPayload Payload,
+    const FTerrainMeshBuildContext &Context,
+    const FTerrainGridIndex &GridIndex) {
+  const int32 A = GridIndex.Row * Context.LodGridSize + GridIndex.Column;
   const int32 B = A + Context.QuadColumnStep;
   const int32 C = A + Context.LodGridSize * Context.QuadRowStep;
   const int32 D = C + Context.QuadColumnStep;
@@ -119,9 +124,12 @@ FTerrainMeshPayload AddTerrainQuadTriangles(
   return Payload;
 }
 
+
 FTerrainMeshPayload BuildLoadedTerrainMeshPayload(
-    const FLevelTerrainData &TerrainData, const FLevelOrthoData &OrthoData,
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const FTerrainMeshBuildRequest &Request) {
+  const FLevelTerrainData &TerrainData = Request.TerrainData;
+  const FLevelOrthoData &OrthoData = Request.OrthoData;
+  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry = Request.Geometry;
   const int32 SourceGridSize = TerrainData.GetGridSize();
   const int32 LodStep = SelectTerrainLodStep(Geometry);
   const int32 LodGridSize =
@@ -142,16 +150,17 @@ FTerrainMeshPayload BuildLoadedTerrainMeshPayload(
           ReserveTerrainMeshPayload({LodGridSize, Geometry}),
           [&Context](const FTerrainMeshPayload &Payload,
                      const func::GridIndex &Index) {
-            return AddTerrainVertex(Context, static_cast<int32>(Index.Row),
-                                    static_cast<int32>(Index.Column), Payload);
+            return ReduceTerrainVertex(Payload, Context,
+                                       {static_cast<int32>(Index.Row),
+                                        static_cast<int32>(Index.Column)});
           });
   return func::fold_grid_range<FTerrainMeshPayload>(
       Context.LodGridLastIndex, Context.LodGridLastIndex, WithVertices,
       [&Context](const FTerrainMeshPayload &Payload,
                  const func::GridIndex &Index) {
-        return AddTerrainQuadTriangles(Context, static_cast<int32>(Index.Row),
-                                       static_cast<int32>(Index.Column),
-                                       Payload);
+        return ReduceTerrainQuadTriangles(Payload, Context,
+                                          {static_cast<int32>(Index.Row),
+                                           static_cast<int32>(Index.Column)});
       });
 }
 
@@ -172,14 +181,10 @@ ReduceTerrainLoaded(const FTerrainState &State,
 }
 
 FTerrainMeshPayload
-BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
-                        const FLevelOrthoData &OrthoData,
-                        const ForbocAI::Game::Data::FLevelGeometrySettings
-                            &Geometry) {
-  return TerrainData.IsLoaded()
-             ? (OrthoData.IsLoaded()
-                    ? BuildLoadedTerrainMeshPayload(TerrainData, OrthoData,
-                                                    Geometry)
+BuildTerrainMeshPayload(const FTerrainMeshBuildRequest &Request) {
+  return Request.TerrainData.IsLoaded()
+             ? (Request.OrthoData.IsLoaded()
+                    ? BuildLoadedTerrainMeshPayload(Request)
                     : FTerrainMeshPayload{})
              : FTerrainMeshPayload{};
 }

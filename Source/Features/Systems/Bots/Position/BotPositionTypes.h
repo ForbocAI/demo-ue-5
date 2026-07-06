@@ -42,6 +42,11 @@ struct FBotPatrolAdvanceRequest {
   float ArrivalDistance = 0.0f;
 };
 
+struct FBotPatrolMovementDelta {
+  FVector Delta = FVector::ZeroVector;
+  float Distance = 0.0f;
+};
+
 struct FBotPatrolAdvancePayload {
   FVector Location = FVector::ZeroVector;
   FRotator Rotation = FRotator::ZeroRotator;

@@ -41,22 +41,20 @@ FLevelLocalPoint FirstRoutePoint(const TArray<FLevelLocalPoint> &Route,
   return FirstRoutePointOr(Route, InitialRuntimePoint(Settings));
 }
 
-template <typename Seed, typename Source, typename Component,
-          typename BuildSource, typename BuildComponent>
+template <typename Seed, typename Source, typename Component>
 TArray<Component> MapSeedComponents(const TArray<Seed> &Seeds,
-                                    BuildSource BuildSourceValue,
-                                    BuildComponent BuildComponentValue) {
+                                    TFunctionRef<Source(const Seed &)> BuildSourceValue,
+                                    TFunctionRef<Component(const Source &)> BuildComponentValue) {
   return func::map_array<Seed, Component>(
       Seeds, [BuildSourceValue, BuildComponentValue](const Seed &SeedValue) {
         return BuildComponentValue(BuildSourceValue(SeedValue));
       });
 }
 
-template <typename Request, typename Seed, typename Source, typename Component,
-          typename BuildSource, typename BuildComponent>
+template <typename Request, typename Seed, typename Source, typename Component>
 TArray<Component> MapSeedRuntimeComponents(
-    const Request &RequestValue, BuildSource BuildSourceValue,
-    BuildComponent BuildComponentValue) {
+    const Request &RequestValue, TFunctionRef<Source(const Seed &)> BuildSourceValue,
+    TFunctionRef<Component(const Source &)> BuildComponentValue) {
   return MapSeedComponents<Seed, Source, Component>(
       RequestValue.Seeds,
       [&RequestValue, BuildSourceValue](const Seed &SeedValue) {

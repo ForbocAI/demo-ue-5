@@ -13,11 +13,18 @@ FTerrainState
 ReduceTerrainLoaded(const FTerrainState &State,
                     const rtk::PayloadAction<FTerrainLoadedPayload> &Action);
 
+/**
+ * Groups the source data needed to build a terrain mesh.
+ * Pure data — no behavior.
+ */
+struct FTerrainMeshBuildRequest {
+  const FLevelTerrainData &TerrainData;
+  const FLevelOrthoData &OrthoData;
+  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry;
+};
+
 FTerrainMeshPayload
-BuildTerrainMeshPayload(const FLevelTerrainData &TerrainData,
-                        const FLevelOrthoData &OrthoData,
-                        const ForbocAI::Game::Data::FLevelGeometrySettings
-                            &Geometry);
+BuildTerrainMeshPayload(const FTerrainMeshBuildRequest &Request);
 
 } // namespace TerrainReducers
 } // namespace Level

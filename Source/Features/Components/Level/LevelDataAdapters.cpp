@@ -242,10 +242,9 @@ float FLevelTerrainData::GetTerrainZAtWorld(float EastWest,
          ElevationScale;
 }
 
-FVector FLevelTerrainData::ToWorld(float EastWest, float NorthSouth,
-                                   float HeightOffset) const {
-  return FVector(EastWest, NorthSouth,
-                 GetTerrainZAtWorld(EastWest, NorthSouth) + HeightOffset);
+FVector FLevelTerrainData::ToWorld(FVector2D Location, float HeightOffset) const {
+  return FVector(Location.X, Location.Y,
+                 GetTerrainZAtWorld(Location.X, Location.Y) + HeightOffset);
 }
 
 int32 FLevelTerrainData::GetGridSize() const { return GridSize; }

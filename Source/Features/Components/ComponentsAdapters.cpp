@@ -130,9 +130,8 @@ DomainSteps(const ecs::EntityKey &Entity,
 }
 
 FComponentProjectionStep ComponentStep(const ecs::EntityKey &Entity,
-                                       const ecs::ComponentType &Type,
-                                       const ecs::FComponentValue &Value) {
-  return {Entity, Type, Value};
+                                       const FComponentProjectionBinding &Binding) {
+  return {Entity, Binding.Type, Binding.Value};
 }
 
 TArray<FComponentProjectionStep>
@@ -140,7 +139,7 @@ ComponentSteps(const ecs::EntityKey &Entity,
                const TArray<FComponentProjectionBinding> &Bindings) {
   return func::map_array<FComponentProjectionBinding, FComponentProjectionStep>(
       Bindings, [&Entity](const FComponentProjectionBinding &Binding) {
-        return ComponentStep(Entity, Binding.Type, Binding.Value);
+        return ComponentStep(Entity, Binding);
       });
 }
 

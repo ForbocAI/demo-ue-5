@@ -73,10 +73,9 @@ double SelectRuntimeMilliseconds(
 }
 
 double SelectRuntimeElapsedMilliseconds(
-    double StartedSeconds,
-    double FinishedSeconds,
+    const FTimeInterval &Interval,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return SelectRuntimeMilliseconds(FinishedSeconds - StartedSeconds, Settings);
+  return SelectRuntimeMilliseconds(Interval.FinishedSeconds - Interval.StartedSeconds, Settings);
 }
 
 int32 SelectRuntimeStatsFramesPerSecond(
@@ -101,18 +100,18 @@ int32 SelectRuntimeStatsStackDepth(
 }
 
 int32 SelectRuntimeStatsLodIndex(
-    int32 ForcedLodModel, int32 AutomaticLodIndex,
+    const FLodModelQuery &Query,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return ForcedLodModel > Settings.ForcedLodAutomaticModel
-             ? ForcedLodModel - Settings.LodModelIndexOffset
-             : AutomaticLodIndex;
+  return Query.ForcedLodModel > Settings.ForcedLodAutomaticModel
+             ? Query.ForcedLodModel - Settings.LodModelIndexOffset
+             : Query.AutomaticLodIndex;
 }
 
 int32 ClampRuntimeStatsLodIndex(
-    int32 LodIndex, int32 LodCount,
+    const FLodClampRange &Range,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return FMath::Clamp(LodIndex, Settings.ForcedLodAutomaticModel,
-                      LodCount - Settings.LodModelIndexOffset);
+  return FMath::Clamp(Range.LodIndex, Settings.ForcedLodAutomaticModel,
+                      Range.LodCount - Settings.LodModelIndexOffset);
 }
 
 bool ShouldCountPrimitiveComponent(UPrimitiveComponent *Component) {
@@ -133,10 +132,10 @@ int64 CountStaticMeshTriangles(
             func::from_nullable_value(Mesh, Mesh != nullptr),
             [ComponentValue, &Settings](UStaticMesh *MeshValue) -> int64 {
               const int32 LodIndex = ClampRuntimeStatsLodIndex(
-                  SelectRuntimeStatsLodIndex(
-                      ComponentValue->GetForcedLodModel(),
-                      Settings.MeshLodIndex, Settings),
-                  MeshValue->GetNumLODs(), Settings);
+                  {SelectRuntimeStatsLodIndex(
+                       {ComponentValue->GetForcedLodModel(),
+                        Settings.MeshLodIndex}, Settings),
+                   MeshValue->GetNumLODs()}, Settings);
               return static_cast<int64>(MeshValue->GetNumTriangles(LodIndex));
             },
             [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
@@ -207,11 +206,10 @@ int64 CountSkinnedMeshTriangles(
               const int32 LodIndex =
                   RenderData != nullptr
                       ? ClampRuntimeStatsLodIndex(
-                            SelectRuntimeStatsLodIndex(
-                                ComponentValue->GetForcedLOD(),
-                                ComponentValue->GetPredictedLODLevel(),
-                                Settings),
-                            RenderData->LODRenderData.Num(), Settings)
+                            {SelectRuntimeStatsLodIndex(
+                                 {ComponentValue->GetForcedLOD(),
+                                  ComponentValue->GetPredictedLODLevel()}, Settings),
+                             RenderData->LODRenderData.Num()}, Settings)
                       : Settings.MeshLodIndex;
               return RenderData != nullptr &&
                              RenderData->LODRenderData.IsValidIndex(
@@ -318,16 +316,15 @@ int32 SelectRuntimeGpuIndex(
 }
 
 FRuntimeFramePacingStats SelectRuntimeFramePacingStats(
-    float DeltaSeconds, double WallDeltaSeconds,
-    double StatsSelectionMilliseconds, double PolyCountMilliseconds,
+    const FFramePacingQuery &Query,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
   UGameUserSettings *GameUserSettings =
       GEngine != nullptr ? GEngine->GetGameUserSettings() : nullptr;
   return {
-      SelectRuntimeMilliseconds(WallDeltaSeconds, Settings),
-      SelectRuntimeMilliseconds(DeltaSeconds, Settings),
-      StatsSelectionMilliseconds,
-      PolyCountMilliseconds,
+      SelectRuntimeMilliseconds(Query.WallDeltaSeconds, Settings),
+      SelectRuntimeMilliseconds(Query.DeltaSeconds, Settings),
+      Query.StatsSelectionMilliseconds,
+      Query.PolyCountMilliseconds,
       SelectRuntimeMilliseconds(FApp::GetIdleTime(), Settings),
       SelectRuntimeMilliseconds(FApp::GetIdleTimeOvershoot(), Settings),
       SelectConsoleVariableFloat(Settings.MaxFpsCVarName,
@@ -337,7 +334,7 @@ FRuntimeFramePacingStats SelectRuntimeFramePacingStats(
           : Settings.DiagnosticDefaultFloatValue,
       GEngine != nullptr
           ? GEngine->GetMaxTickRate(
-                DeltaSeconds, Settings.bDiagnosticAllowFrameRateSmoothing)
+                Query.DeltaSeconds, Settings.bDiagnosticAllowFrameRateSmoothing)
           : Settings.DiagnosticDefaultFloatValue,
       SelectIntFromBool(GEngine != nullptr && GEngine->bUseFixedFrameRate,
                         Settings),
@@ -367,19 +364,16 @@ float SelectRuntimeBudgetScreenshotIntervalSeconds(
 
 double SelectRuntimeBudgetClockSeconds() { return FPlatformTime::Seconds(); }
 
-bool ShouldRunRuntimeBudgetWallInterval(double CurrentSeconds,
-                                        double LastSeconds,
-                                        float IntervalSeconds) {
-  return IntervalSeconds > 0.0f &&
-         CurrentSeconds - LastSeconds >= IntervalSeconds;
+bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params) {
+  return Params.IntervalSeconds > 0.0f &&
+         Params.CurrentSeconds - Params.LastSeconds >= Params.IntervalSeconds;
 }
 
 bool ShouldRunRuntimeBudgetScreenshot(
-    double CurrentSeconds, double LastSeconds, float IntervalSeconds,
+    const FBudgetCheckParams &Params,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return IntervalSeconds > Settings.BudgetScreenshotDisabledIntervalSeconds &&
-         ShouldRunRuntimeBudgetWallInterval(CurrentSeconds, LastSeconds,
-                                            IntervalSeconds);
+  return Params.IntervalSeconds > Settings.BudgetScreenshotDisabledIntervalSeconds &&
+         ShouldRunRuntimeBudgetWallInterval(Params);
 }
 
 FRuntimeMemoryStats SelectRuntimeMemoryStats(
@@ -406,9 +400,8 @@ FRuntimePolyCountStats SelectRuntimePolyCountStats(
   const double StartedSeconds = SelectRuntimeBudgetClockSeconds();
   const int64 PolyCount = CountWorldTriangles(World, Settings);
   const double FinishedSeconds = SelectRuntimeBudgetClockSeconds();
-  return {PolyCount, SelectRuntimeElapsedMilliseconds(StartedSeconds,
-                                                      FinishedSeconds,
-                                                      Settings)};
+  return {PolyCount, SelectRuntimeElapsedMilliseconds(
+                         {StartedSeconds, FinishedSeconds}, Settings)};
 }
 
 FRuntimeStatsViewModel SelectRuntimeStats(
@@ -425,11 +418,11 @@ FRuntimeStatsViewModel SelectRuntimeStats(
       SelectRuntimeFrameTimingStats(Settings);
   const double SelectedSeconds = SelectRuntimeBudgetClockSeconds();
   const double StatsSelectionMilliseconds =
-      SelectRuntimeElapsedMilliseconds(StartedSeconds, SelectedSeconds,
-                                       Settings);
+      SelectRuntimeElapsedMilliseconds(
+          {StartedSeconds, SelectedSeconds}, Settings);
   const FRuntimeFramePacingStats PacingStats = SelectRuntimeFramePacingStats(
-      DeltaSeconds, WallDeltaSeconds, StatsSelectionMilliseconds,
-      PolyCountMilliseconds, Settings);
+      {DeltaSeconds, WallDeltaSeconds, StatsSelectionMilliseconds,
+       PolyCountMilliseconds}, Settings);
   return {SelectRuntimeStatsFramesPerSecond(WallDeltaSeconds, Settings),
           SelectRuntimeStatsStackDepth(EcsWorld, Settings),
           PolyCount,

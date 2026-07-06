@@ -36,13 +36,13 @@ ReduceArrivedPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
 
 FBotPatrolAdvancePayload
 ReduceMovingPatrolAdvance(const FBotPatrolAdvanceRequest &Request,
-                          const FVector &Delta, float Distance) {
+                          const FBotPatrolMovementDelta &Movement) {
   FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
   Payload.Location =
       Request.CurrentLocation +
-      Delta.GetSafeNormal() *
-          FMath::Min(Distance, Request.WalkSpeed * Request.DeltaTime);
-  Payload.Rotation = Delta.Rotation();
+      Movement.Delta.GetSafeNormal() *
+          FMath::Min(Movement.Distance, Request.WalkSpeed * Request.DeltaTime);
+  Payload.Rotation = Movement.Delta.Rotation();
   Payload.bShouldMove = true;
   Payload.bShouldRotate = true;
   return Payload;
@@ -159,10 +159,11 @@ ReducePatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
                            Request.PatrolRoute[Request.PatrolIndex];
                        const FVector Delta = Target - Request.CurrentLocation;
                        const float Distance = Delta.Size();
+                       const FBotPatrolMovementDelta Movement{Delta, Distance};
                        return Distance < Request.ArrivalDistance
                                   ? ReduceArrivedPatrolAdvance(Request)
-                                  : ReduceMovingPatrolAdvance(Request, Delta,
-                                                              Distance);
+                                  : ReduceMovingPatrolAdvance(Request,
+                                                              Movement);
                      }();
 }
 

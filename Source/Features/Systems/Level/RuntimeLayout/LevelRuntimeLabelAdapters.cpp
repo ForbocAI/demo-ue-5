@@ -118,8 +118,7 @@ func::Maybe<FLevelRuntimeLabelSeed>
 ReadExplicitHeightLabelSeed(const TSharedPtr<FJsonObject> &Object,
                             const FLevelRuntimeLabelSeed &Seed) {
   return func::fmap(
-      JsonValues::ReadRequiredFields<FLevelRuntimeLabelExplicitHeightFields>(
-          Object, JSON_REQUIRED_ATOMS(HeightOffset)),
+      JsonValues::ReduceRequiredFields<FLevelRuntimeLabelExplicitHeightFields>(FLevelRuntimeLabelExplicitHeightFields(), Object, JSON_REQUIRED_ATOMS(HeightOffset)),
       [Seed](const FLevelRuntimeLabelExplicitHeightFields &Fields) {
         return AssignExplicitHeight(Seed, Fields);
       });
@@ -166,8 +165,7 @@ CompleteLabelHeight(const TSharedPtr<FJsonObject> &Object,
 
 func::Maybe<FLevelRuntimeLabelSeed>
 ReadLabelSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
-  return JsonValues::ReadRequiredFields<FLevelRuntimeLabelSeed>(
-      Request.Object, JSON_REQUIRED_ATOMS(Id, Text, Anchor, HeightMode,
+  return JsonValues::ReduceRequiredFields<FLevelRuntimeLabelSeed>(FLevelRuntimeLabelSeed(), Request.Object, JSON_REQUIRED_ATOMS(Id, Text, Anchor, HeightMode,
                                           EastLots, NorthLots, WorldSizeScale));
 }
 

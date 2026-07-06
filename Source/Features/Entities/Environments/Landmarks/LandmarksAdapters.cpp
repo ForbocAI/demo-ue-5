@@ -104,7 +104,7 @@ BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FLandmarkFields, FLandmark>(
       JsonAdapters::ReadSettingsObjectArrayField<FLandmarkFields>(
-          Root, "Landmarks",
+          {Root, "Landmarks"},
           JSON_SETTINGS_ATOMS(Id, Label, Kind, EastLots, NorthLots,
                               YawDegrees, FrontageFeet, DepthFeet, Stories)),
       [&Request](const FLandmarkFields &Fields) {

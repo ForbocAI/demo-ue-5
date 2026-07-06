@@ -33,8 +33,7 @@ namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
 func::Maybe<FLevelRuntimeLayoutSeed>
 LayoutFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
-  return JsonValues::ReadRequiredFields<FLevelRuntimeLayoutSeed>(
-      Request.Object, JSON_REQUIRED_ATOMS(Terrain, Town, Mine, OverlayLabels));
+  return JsonValues::ReduceRequiredFields<FLevelRuntimeLayoutSeed>(FLevelRuntimeLayoutSeed(), Request.Object, JSON_REQUIRED_ATOMS(Terrain, Town, Mine, OverlayLabels));
 }
 
 } // namespace RuntimeLayout

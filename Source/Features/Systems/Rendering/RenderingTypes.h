@@ -87,6 +87,39 @@ struct FRuntimePolyCountStats {
   double MeasurementMilliseconds;
 };
 
+// Groups a start/finish pair for elapsed-time selectors.
+struct FTimeInterval {
+  double StartedSeconds;
+  double FinishedSeconds;
+};
+
+// Groups the two LOD model inputs for SelectRuntimeStatsLodIndex.
+struct FLodModelQuery {
+  int32 ForcedLodModel;
+  int32 AutomaticLodIndex;
+};
+
+// Groups the LOD index and count for ClampRuntimeStatsLodIndex.
+struct FLodClampRange {
+  int32 LodIndex;
+  int32 LodCount;
+};
+
+// Groups the 4 timing inputs for SelectRuntimeFramePacingStats.
+struct FFramePacingQuery {
+  float DeltaSeconds;
+  double WallDeltaSeconds;
+  double StatsSelectionMilliseconds;
+  double PolyCountMilliseconds;
+};
+
+// Groups the wall-clock interval parameters for budget checks.
+struct FBudgetCheckParams {
+  double CurrentSeconds;
+  double LastSeconds;
+  float IntervalSeconds;
+};
+
 struct FRuntimeStatsViewModel {
   int32 FramesPerSecond;
   int32 StackDepth;

@@ -10,6 +10,18 @@ namespace Game {
 namespace Level {
 namespace RuntimeSelectors {
 
+// Groups an entity key + component type for SelectComponent lookups.
+struct FEntityComponentLookup {
+  ecs::EntityKey Entity;
+  ecs::ComponentType Type;
+};
+
+// Groups an entity key + domain path key for SelectEntityInDomain lookups.
+struct FEntityDomainLookup {
+  ecs::EntityKey Entity;
+  ecs::DomainPathKey Domain;
+};
+
 const FPlayerState &SelectPlayerState(const FRuntimeState &State);
 const FSystemsState &SelectSystemsState(const FRuntimeState &State);
 const FLevelSystemState &SelectLevelState(const FRuntimeState &State);
@@ -110,11 +122,10 @@ const TMap<FString, FBotStrategicGoal> &
 SelectBotActiveGoalsById(const FRuntimeState &State);
 const ecs::FWorld &SelectWorld(const FRuntimeState &State);
 func::Maybe<ecs::FComponentValue>
-SelectComponent(const FRuntimeState &State, const ecs::EntityKey &Entity,
-                   const ecs::ComponentType &Type);
+SelectComponent(const FRuntimeState &State,
+                   const FEntityComponentLookup &Lookup);
 bool SelectEntityInDomain(const FRuntimeState &State,
-                             const ecs::EntityKey &Entity,
-                             const ecs::DomainPathKey &Domain);
+                             const FEntityDomainLookup &Lookup);
 ecs::FEntityInspection
 SelectEntityInspection(const FRuntimeState &State,
                           const ecs::EntityKey &Entity);

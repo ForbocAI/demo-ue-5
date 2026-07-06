@@ -296,6 +296,47 @@ TArray<FBotGoalComponent> SelectBotGoals(const FRuntimeState &State) {
 func::Maybe<FBotGoalComponent> SelectBotGoalById(
     const FRuntimeState &State, const FString &Id) {
   return BotGoalSelectors::SelectById(State.BotGoals, Id);
+
+func::Maybe<FBotEntity> SelectBotById(const FRuntimeState &State,
+                                      const FString &Id) {
+  return BotSelectors::SelectById(State.Bots, Id);
+}
+
+TArray<FBotStatsComponent> SelectBotStats(const FRuntimeState &State) {
+  return BotStatsSelectors::SelectAll(State.BotStats);
+}
+
+func::Maybe<FBotStatsComponent>
+SelectBotStatsById(const FRuntimeState &State, const FString &Id) {
+  return BotStatsSelectors::SelectById(State.BotStats, Id);
+}
+
+TArray<FBotPositionComponent> SelectBotPositions(
+    const FRuntimeState &State) {
+  return BotPositionSelectors::SelectAll(State.BotPosition);
+}
+
+func::Maybe<FBotPositionComponent>
+SelectBotPositionById(const FRuntimeState &State, const FString &Id) {
+  return BotPositionSelectors::SelectById(State.BotPosition, Id);
+}
+
+TArray<FBotAIComponent> SelectBotAI(const FRuntimeState &State) {
+  return BotAISelectors::SelectAll(State.BotAI);
+}
+
+func::Maybe<FBotAIComponent> SelectBotAIById(const FRuntimeState &State,
+                                             const FString &Id) {
+  return BotAISelectors::SelectById(State.BotAI, Id);
+}
+
+TArray<FBotGoalComponent> SelectBotGoals(const FRuntimeState &State) {
+  return BotGoalSelectors::SelectAll(State.BotGoals);
+}
+
+func::Maybe<FBotGoalComponent> SelectBotGoalById(
+    const FRuntimeState &State, const FString &Id) {
+  return BotGoalSelectors::SelectById(State.BotGoals, Id);
 }
 
 const TMap<FString, FBotStrategicGoal> &
@@ -308,17 +349,17 @@ const ecs::FWorld &SelectWorld(const FRuntimeState &State) {
 }
 
 func::Maybe<ecs::FComponentValue>
-SelectComponent(const FRuntimeState &State, const ecs::EntityKey &Entity,
-                   const ecs::ComponentType &Type) {
+SelectComponent(const FRuntimeState &State,
+                   const FEntityComponentLookup &Lookup) {
   return ecs::getComponent(
-      ecs::createGetComponentRequest(SelectWorld(State), Entity, Type));
+      ecs::createGetComponentRequest(SelectWorld(State), Lookup.Entity,
+                                     Lookup.Type));
 }
 
 bool SelectEntityInDomain(const FRuntimeState &State,
-                             const ecs::EntityKey &Entity,
-                             const ecs::DomainPathKey &Domain) {
+                             const FEntityDomainLookup &Lookup) {
   return ecs::isEntityInDomain(ecs::createEntityInDomainRequest(
-      SelectWorld(State), Entity, Domain));
+      SelectWorld(State), Lookup.Entity, Lookup.Domain));
 }
 
 ecs::FEntityInspection

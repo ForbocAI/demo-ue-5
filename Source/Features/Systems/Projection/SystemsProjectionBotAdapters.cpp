@@ -239,92 +239,109 @@ BuildBotProjectionDomains(const FString &BotSystemDomain) {
               {"Systems", "Projection", "Bots"}, BotSystemDomain)};
 }
 
-template <typename Payload, typename SelectId, typename SelectSource,
-          typename ComponentCatalog>
+template <typename ComponentCatalog>
+struct FBotProjectionRequest {
+  FString BotSystemDomain;
+  ComponentCatalog Components;
+};
+
+template <typename ComponentCatalog>
+FBotProjectionRequest<ComponentCatalog>
+MakeBotProjectionRequest(const FString &BotSystemDomain,
+                         const ComponentCatalog &Components) {
+  return {BotSystemDomain, Components};
+}
+
+template <typename Payload, typename ComponentCatalog, typename Component>
 ecs::FWorld ProjectBotPayload(const Payload &PayloadValue,
-                              const FString &BotSystemDomain,
-                              SelectId SelectIdValue,
-                              SelectSource SelectSourceValue,
-                              const ComponentCatalog &Components) {
+                              const FBotProjectionRequest<ComponentCatalog> &Request,
+                              TFunctionRef<FString(const Payload &)> SelectIdValue,
+                              TFunctionRef<const Component &(const Payload &)> SelectSourceValue) {
   return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       PayloadValue,
       [SelectIdValue](const Payload &SelectedPayload) {
         return EntitiesAdapters::BotEntityKey(SelectIdValue(SelectedPayload));
       },
       func::constant<TArray<TArray<FString>>>(
-          BuildBotProjectionDomains(BotSystemDomain)),
-      SelectSourceValue, Components);
+          BuildBotProjectionDomains(Request.BotSystemDomain)),
+      SelectSourceValue, Request.Components);
 }
 
 } // namespace
 
 ecs::FWorld ProjectBotStats(const FProjectBotStatsPayload &Payload) {
   return ProjectBotPayload(
-      Payload, ComponentsAdapters::ComponentAtom("Stats"),
-      [](const FProjectBotStatsPayload &PayloadValue) {
-        return PayloadValue.Stats.Id;
-      },
-      [](const FProjectBotStatsPayload &PayloadValue) -> const FBotStatsComponent & {
-        return PayloadValue.Stats;
-      },
-      RegisteredComponentGroups<FBotStatsComponent>(
-          {{"Components/Stats", {"MoveSpeed", "AwarenessRange", "Resolve"}},
-           {"Components/Bots", {"CanTalk", "MountedRider"}}}));
+      Payload,
+      MakeBotProjectionRequest(
+          ComponentsAdapters::ComponentAtom("Stats"),
+          RegisteredComponentGroups<FBotStatsComponent>(
+              {{"Components/Stats", {"MoveSpeed", "AwarenessRange", "Resolve"}},
+               {"Components/Bots", {"CanTalk", "MountedRider"}}})),
+          [](const FProjectBotStatsPayload &PayloadValue) {
+            return PayloadValue.Stats.Id;
+          },
+          [](const FProjectBotStatsPayload &PayloadValue) -> const FBotStatsComponent & {
+            return PayloadValue.Stats;
+          });
 }
 
 ecs::FWorld
 ProjectBotPosition(const FProjectBotPositionPayload &Payload) {
   return ProjectBotPayload(
-      Payload, ComponentsAdapters::ComponentAtom("Position"),
-      [](const FProjectBotPositionPayload &PayloadValue) {
-        return PayloadValue.Position.Id;
-      },
-      [](const FProjectBotPositionPayload &PayloadValue)
-          -> const FBotPositionComponent & {
-        return PayloadValue.Position;
-      },
-      RegisteredComponentGroups<FBotPositionComponent>(
-          {{"Components/Spatial",
-            {"LocalLocation", "WorldLocation", "HasWorldLocation"}},
-           {"Components/Rendering", {"FacingRight"}}}));
+      Payload,
+      MakeBotProjectionRequest(
+          ComponentsAdapters::ComponentAtom("Position"),
+          RegisteredComponentGroups<FBotPositionComponent>(
+              {{"Components/Spatial",
+                {"LocalLocation", "WorldLocation", "HasWorldLocation"}},
+               {"Components/Rendering", {"FacingRight"}}})),
+          [](const FProjectBotPositionPayload &PayloadValue) {
+            return PayloadValue.Position.Id;
+          },
+          [](const FProjectBotPositionPayload &PayloadValue)
+              -> const FBotPositionComponent & {
+            return PayloadValue.Position;
+          });
 }
 
 ecs::FWorld ProjectBotAI(const FProjectBotAIPayload &Payload) {
   return ProjectBotPayload(
-      Payload, ComponentsAdapters::ComponentAtom("AI"),
-      [](const FProjectBotAIPayload &PayloadValue) {
-        return PayloadValue.AI.Id;
-      },
-      [](const FProjectBotAIPayload &PayloadValue) -> const FBotAIComponent & {
-        return PayloadValue.AI;
-      },
-      RegisteredComponentGroups<FBotAIComponent>(
-          {{"Components/Bots",
-            {"BehaviorState", "TargetEntityId", "TargetLocation",
-             "HasTargetLocation", "PatrolIndex"}},
-           {"Components/Spatial", {"PatrolRoute"}}}));
+      Payload,
+      MakeBotProjectionRequest(
+          ComponentsAdapters::ComponentAtom("AI"),
+          RegisteredComponentGroups<FBotAIComponent>(
+              {{"Components/Bots",
+                {"BehaviorState", "TargetEntityId", "TargetLocation",
+                 "HasTargetLocation", "PatrolIndex"}},
+               {"Components/Spatial", {"PatrolRoute"}}})),
+          [](const FProjectBotAIPayload &PayloadValue) {
+            return PayloadValue.AI.Id;
+          },
+          [](const FProjectBotAIPayload &PayloadValue) -> const FBotAIComponent & {
+            return PayloadValue.AI;
+          });
 }
 
 ecs::FWorld ProjectBotGoal(const FProjectBotGoalPayload &Payload) {
   return ProjectBotPayload(
-      Payload, ComponentsAdapters::ComponentAtom("Goals"),
-      [](const FProjectBotGoalPayload &PayloadValue) {
-        return PayloadValue.Goal.Id;
-      },
-      [](const FProjectBotGoalPayload &PayloadValue)
-          -> const FBotGoalComponent & {
-        return PayloadValue.Goal;
-      },
-      RegisteredComponentGroups<FBotGoalComponent>(
-          {{"Components/Bots",
-            {"HasActiveGoal",
-             "ActiveGoal",
-             "GoalQueue",
-             {"KnownLandmarkIds", {"Knowledge", "KnownLandmarkIds"}},
-             {"KnownBotIds", {"Knowledge", "KnownBotIds"}}}}}));
+      Payload,
+      MakeBotProjectionRequest(
+          ComponentsAdapters::ComponentAtom("Goals"),
+          RegisteredComponentGroups<FBotGoalComponent>(
+              {{"Components/Bots",
+                {"HasActiveGoal",
+                 "ActiveGoal",
+                 "GoalQueue",
+                 {"KnownLandmarkIds", {"Knowledge", "KnownLandmarkIds"}},
+                 {"KnownBotIds", {"Knowledge", "KnownBotIds"}}}}})),
+          [](const FProjectBotGoalPayload &PayloadValue) {
+            return PayloadValue.Goal.Id;
+          },
+          [](const FProjectBotGoalPayload &PayloadValue) -> const FBotGoalComponent & {
+            return PayloadValue.Goal;
+          });
 }
 
 } // namespace SystemsProjectionBotAdapters
 } // namespace Level
 } // namespace Game
-} // namespace ForbocAI

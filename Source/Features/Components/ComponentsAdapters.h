@@ -454,15 +454,26 @@ ecs::FWorld ProjectEntity(const FProjectEntityPayload &Payload);
 
 template <typename Payload, typename SelectEntity, typename SelectDomains,
           typename SelectSource, typename ComponentCatalog>
+struct TEntityCatalogProjection {
+  SelectEntity SelectEntityValue;
+  SelectDomains SelectDomainValues;
+  SelectSource SelectSourceValue;
+  ComponentCatalog Components;
+};
+
+template <typename Payload, typename SelectEntity, typename SelectDomains,
+          typename SelectSource, typename ComponentCatalog>
 ecs::FWorld ProjectPayloadEntityCatalogWith(
-    const Payload &PayloadValue, SelectEntity SelectEntityValue,
-    SelectDomains SelectDomainValues, SelectSource SelectSourceValue,
-    const ComponentCatalog &Components) {
-  const ecs::EntityKey Entity = SelectEntityValue(PayloadValue);
-  return ProjectEntity({PayloadValue.World, Entity,
-                        SelectDomainValues(PayloadValue),
-                        ProjectComponentBindings(SelectSourceValue(PayloadValue),
-                                                 Components)});
+    const Payload &PayloadValue,
+    const TEntityCatalogProjection<Payload, SelectEntity, SelectDomains,
+                                   SelectSource, ComponentCatalog>
+        &Projection) {
+  const ecs::EntityKey Entity = Projection.SelectEntityValue(PayloadValue);
+  return ProjectEntity(
+      {PayloadValue.World, Entity,
+       Projection.SelectDomainValues(PayloadValue),
+       ProjectComponentBindings(Projection.SelectSourceValue(PayloadValue),
+                                Projection.Components)});
 }
 
 ecs::FComponentValue LocalPointValue(const FLevelLocalPoint &Point);

@@ -78,32 +78,52 @@ inline func::Maybe<FLinearColor> FindRoleColor(
       });
 }
 
+/**
+ * Groups the payload and field declarations for a reduce-payload-fields call.
+ * Pure data — no behavior.
+ */
+template <typename Value>
+struct TReducePayloadFieldsRequest {
+  const FUIPayload &Payload;
+  const TArray<TUIStatePayloadFieldDeclaration<Value>> &Declarations;
+};
+
 template <typename Value>
 FUIState ReducePayloadFields(
-    const FUIState &State, const FUIPayload &Payload,
-    const TArray<TUIStatePayloadFieldDeclaration<Value>> &Declarations) {
+    const FUIState &State,
+    const TReducePayloadFieldsRequest<Value> &Request) {
   return func::fold_array<TUIStatePayloadFieldDeclaration<Value>, FUIState>(
-      Declarations, State,
-      [&Payload](const FUIState &Acc,
+      Request.Declarations, State,
+      [&Request](const FUIState &Acc,
                  const TUIStatePayloadFieldDeclaration<Value> &Declaration) {
         FUIState Next = Acc;
-        Next.*(Declaration.StateField) = Payload.*(Declaration.PayloadField);
+        Next.*(Declaration.StateField) = Request.Payload.*(Declaration.PayloadField);
         return Next;
       });
 }
 
+/**
+ * Groups the action and field declarations for a reduce-payload-action-fields call.
+ * Pure data — no behavior.
+ */
+template <typename Value>
+struct TReducePayloadActionFieldsRequest {
+  const rtk::PayloadAction<FUIPayload> &Action;
+  const TArray<TUIStatePayloadFieldDeclaration<Value>> &Declarations;
+};
+
 template <typename Value>
 FUIState ReducePayloadActionFields(
-    const FUIState &State, const rtk::PayloadAction<FUIPayload> &Action,
-    const TArray<TUIStatePayloadFieldDeclaration<Value>> &Declarations) {
+    const FUIState &State,
+    const TReducePayloadActionFieldsRequest<Value> &Request) {
   return (func::pipe(State) |
-          [&Action](FUIState Next) -> FUIState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+          [&Request](FUIState Next) -> FUIState {
+            Next.LastActionId = func::just(Request.Action.PayloadValue.Id);
             return Next;
           } |
-          [&Action, &Declarations](const FUIState &Next) -> FUIState {
-            return ReducePayloadFields<Value>(Next, Action.PayloadValue,
-                                              Declarations);
+          [&Request](const FUIState &Next) -> FUIState {
+            return ReducePayloadFields<Value>(Next,
+                {Request.Action.PayloadValue, Request.Declarations});
           })
       .val;
 }
@@ -145,12 +165,9 @@ inline FString ReduceSubmittedChatText(const FText &Text) {
 }
 
 template <typename Source, typename Output, typename Context>
-using FUIMapWithContext = Output (*)(const Source &, const Context &);
-
-template <typename Source, typename Output, typename Context>
 TArray<Output> MapWithContext(const TArray<Source> &Values,
                               const Context &ContextValue,
-                              FUIMapWithContext<Source, Output, Context> Map) {
+                              TFunctionRef<Output(const Source &, const Context &)> Map) {
   return func::map_array<Source, Output>(
       Values, [&ContextValue, Map](const Source &Value) {
         return Map(Value, ContextValue);
@@ -206,9 +223,10 @@ inline FUIState ReduceChatHistoryRendered(
     const FUIState &State,
     const rtk::PayloadAction<FUIPayload> &Action) {
   return detail::ReducePayloadActionFields<detail::FChatMessageViewModels>(
-      State, Action,
-      detail::TUIReducerRegistry<
-          detail::FUIChatHistoryRenderedDeclaration>::Declarations());
+      State,
+      {Action,
+       detail::TUIReducerRegistry<
+           detail::FUIChatHistoryRenderedDeclaration>::Declarations()});
 }
 
 /**

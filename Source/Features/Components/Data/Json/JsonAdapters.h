@@ -236,14 +236,13 @@ inline FString AppendJsonSettingsFieldChar(const FString &Value, TCHAR Char) {
   return Next;
 }
 
-inline FString AppendJsonSettingsFieldCharWhen(const FString &Value,
+inline FString ReduceJsonSettingsFieldCharWhen(FString Value,
                                                bool bAppend, TCHAR Char) {
   return bAppend ? AppendJsonSettingsFieldChar(Value, Char) : Value;
 }
 
-inline FString NormalizeSettingsFieldAtomFrom(const FString &Atom, int32 Index,
-                                              int32 StartIndex,
-                                              const FString &Acc) {
+inline FString ReduceSettingsFieldAtomFrom(FString Acc, const FString &Atom, int32 Index,
+                                              int32 StartIndex) {
   const TCHAR Current = Index < Atom.Len() ? Atom[Index] : TCHAR('\0');
   const bool bUpper = FChar::IsUpper(Current);
   const bool bPreviousLowerOrDigit =
@@ -255,28 +254,28 @@ inline FString NormalizeSettingsFieldAtomFrom(const FString &Atom, int32 Index,
       bUpper && Index > StartIndex && (bPreviousLowerOrDigit || bNextLower);
   return Index >= Atom.Len()
              ? Acc
-             : NormalizeSettingsFieldAtomFrom(
-                   Atom, Index + 1, StartIndex,
-                   AppendJsonSettingsFieldChar(
-                       AppendJsonSettingsFieldCharWhen(Acc, bSeparate,
+             : ReduceSettingsFieldAtomFrom(
+                   ReduceJsonSettingsFieldCharWhen(
+                       ReduceJsonSettingsFieldCharWhen(std::move(Acc), bSeparate,
                                                        TCHAR('_')),
-                       FChar::ToLower(Current)));
+                       true, FChar::ToLower(Current)),
+                   Atom, Index + 1, StartIndex);
 }
 
-inline FString NormalizeSettingsFieldAtom(const FString &Atom) {
+inline FString ReduceSettingsFieldAtom(FString Acc, const FString &Atom) {
   const int32 StartIndex =
-      Atom.Len() > 1 && Atom[0] == TCHAR('b') && FChar::IsUpper(Atom[1]) ? 1
-                                                                          : 0;
-  return NormalizeSettingsFieldAtomFrom(Atom, StartIndex, StartIndex,
-                                        FString());
+      Atom.StartsWith(TEXT("b")) && Atom.Len() > 1 && FChar::IsUpper(Atom[1])
+          ? 1
+          : 0;
+  return ReduceSettingsFieldAtomFrom(std::move(Acc), Atom, StartIndex, StartIndex);
 }
 
 inline FString SettingsFieldName(const TCHAR *Atom) {
-  return NormalizeSettingsFieldAtom(FString(Atom));
+  return ReduceSettingsFieldAtom(FString(TEXT("")), Atom);
 }
 
 inline FString SettingsFieldName(const char *Atom) {
-  return NormalizeSettingsFieldAtom(FString(UTF8_TO_TCHAR(Atom)));
+  return ReduceSettingsFieldAtom(FString(TEXT("")), UTF8_TO_TCHAR(Atom));
 }
 
 template <typename Value> Value ReadFieldValue(const FJsonFieldRequest &Request);
@@ -385,7 +384,7 @@ template <typename Output>
 TArray<Output>
 ReadObjectArrayField(const TSharedPtr<FJsonObject> &Object,
                      const char *FieldAtom,
-                     Output (*MapValue)(const TSharedPtr<FJsonObject> &)) {
+                     TFunctionRef<Output(const TSharedPtr<FJsonObject> &)> MapValue) {
   return MapJsonValues<Output>(ReadArray(Field(Object, *SettingsFieldName(FieldAtom))),
                                MapValue);
 }
@@ -394,7 +393,7 @@ template <typename Output>
 TArray<Output>
 ReadObjectArrayField(const TSharedPtr<FJsonObject> &Object,
                      const char *FieldAtom,
-                     TJsonObjectSettingsReader<Output> MapValue) {
+                     TFunctionRef<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue) {
   return MapJsonValues<Output>(
       ReadArray(Field(Object, *SettingsFieldName(FieldAtom))), MapValue);
 }
@@ -735,12 +734,16 @@ MapSettingsJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values,
 }
 
 template <typename Settings>
-TArray<Settings>
-ReadSettingsObjectArrayField(const TSharedPtr<FJsonObject> &Object,
-                             const char *FieldAtom,
-                             std::initializer_list<const char *> FieldAtoms) {
-  return MapSettingsJsonValues<Settings>(
-      ReadArray(Field(Object, *SettingsFieldName(FieldAtom))), FieldAtoms);
+std::function<TArray<Settings>(const TSharedPtr<FJsonObject> &)>
+ReadSettingsObjectArrayField(const char *FieldAtom, std::initializer_list<const char *> FieldAtoms) {
+  // Store FieldAtom in a string to capture safely
+  FString AtomStr(FieldAtom);
+  TArray<const char *> AtomsArray(FieldAtoms);
+  return [AtomStr, AtomsArray](const TSharedPtr<FJsonObject> &Object) {
+    return MapSettingsJsonValues<Settings>(
+        ReadArray(Field(Object, *SettingsFieldName(*AtomStr))),
+        std::initializer_list<const char *>(AtomsArray.GetData(), AtomsArray.GetData() + AtomsArray.Num()));
+  };
 }
 
 } // namespace JsonAdapters

@@ -237,10 +237,9 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
 };
 
 template <typename State>
-func::Maybe<State> ReadRequiredFields(
-    const TSharedPtr<FJsonObject> &Object,
-    const TArray<TRequiredJsonFieldDeclaration<State>> &Fields,
-    const State &Initial = State()) {
+func::Maybe<State> ReduceRequiredFields(
+    State Initial, const TSharedPtr<FJsonObject> &Object,
+    const TArray<TRequiredJsonFieldDeclaration<State>> &Fields) {
   return func::fold_array<TRequiredJsonFieldDeclaration<State>,
                           func::Maybe<State>>(
       Fields, func::just<State>(Initial),
@@ -253,12 +252,10 @@ func::Maybe<State> ReadRequiredFields(
 }
 
 template <typename State>
-func::Maybe<State> ReadRequiredFields(
-    const TSharedPtr<FJsonObject> &Object,
-    std::initializer_list<TRequiredJsonFieldDeclaration<State>> Fields,
-    const State &Initial = State()) {
-  return ReadRequiredFields<State>(
-      Object, TArray<TRequiredJsonFieldDeclaration<State>>(Fields), Initial);
+func::Maybe<State> ReduceRequiredFields(
+    State Initial, const TSharedPtr<FJsonObject> &Object,
+    std::initializer_list<TRequiredJsonFieldDeclaration<State>> Fields) {
+  return ReduceRequiredFields<State>(std::move(Initial), Object, TArray<TRequiredJsonFieldDeclaration<State>>(Fields));
 }
 
 #define JSON_REQUIRED_FIELD(Type, Field) {#Field, &Type::Field}
@@ -320,9 +317,9 @@ FindRequiredJsonField(const char *FieldAtom) {
 }
 
 template <typename State>
-func::Maybe<State> ReadRequiredFields(
-    const TSharedPtr<FJsonObject> &Object,
-    const TArray<const char *> &FieldAtoms, const State &Initial = State()) {
+func::Maybe<State> ReduceRequiredFields(
+    State Initial, const TSharedPtr<FJsonObject> &Object,
+    const TArray<const char *> &FieldAtoms) {
   return func::fold_array<const char *, func::Maybe<State>>(
       FieldAtoms, func::just<State>(Initial),
       [Object](const func::Maybe<State> &Current, const char *FieldAtom) {
@@ -336,12 +333,10 @@ func::Maybe<State> ReadRequiredFields(
 }
 
 template <typename State>
-func::Maybe<State> ReadRequiredFields(
-    const TSharedPtr<FJsonObject> &Object,
-    std::initializer_list<const char *> FieldAtoms,
-    const State &Initial = State()) {
-  return ReadRequiredFields<State>(Object, TArray<const char *>(FieldAtoms),
-                                   Initial);
+func::Maybe<State> ReduceRequiredFields(
+    State Initial, const TSharedPtr<FJsonObject> &Object,
+    std::initializer_list<const char *> FieldAtoms) {
+  return ReduceRequiredFields<State>(std::move(Initial), Object, TArray<const char *>(FieldAtoms));
 }
 
 } // namespace JsonValueAdapters

@@ -22,11 +22,9 @@ void ApplyRuntimeProfile(const FRuntimeProfileApplyRequest &Request);
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings);
 double SelectRuntimeBudgetClockSeconds();
-bool ShouldRunRuntimeBudgetWallInterval(double CurrentSeconds,
-                                        double LastSeconds,
-                                        float IntervalSeconds);
+bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params);
 bool ShouldRunRuntimeBudgetScreenshot(
-    double CurrentSeconds, double LastSeconds, float IntervalSeconds,
+    const FBudgetCheckParams &Params,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings);
 void RequestRuntimeBudgetScreenshot(
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings,

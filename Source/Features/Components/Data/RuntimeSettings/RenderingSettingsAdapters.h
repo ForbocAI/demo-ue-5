@@ -56,9 +56,7 @@ ReadTextureCatalogSettings(const TSharedPtr<FJsonObject> &Object);
  * rendering code only interprets typed data.
  */
 FRenderingRuntimeSettings
-ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &TextureSettings,
-                             const TSharedPtr<FJsonObject> &ConsoleVariables,
-                             const TSharedPtr<FJsonObject> &TexturePalettes);
+ReadRenderingRuntimeSettings(const FRenderingRuntimeSettingsRequest &Request);
 
 /**
  * @brief Reads authored distance-based runtime LOD stages.

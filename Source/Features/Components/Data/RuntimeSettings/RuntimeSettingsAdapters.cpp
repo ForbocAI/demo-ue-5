@@ -439,12 +439,12 @@ ReadRuntimeSettings(const TSharedPtr<FJsonObject> &Object) {
       ReadTextureCatalogSettings(RuntimeSettingsSource(Sources,
                                                        "TextureCatalog"));
   Settings.RenderingRuntime =
-      RenderingSettingsAdapters::ReadRenderingRuntimeSettings(
+      RenderingSettingsAdapters::ReadRenderingRuntimeSettings({
           Json::ReadObjectField(RuntimeSettingsSource(Sources,
                                                       "TextureSettings"),
                                 "TextureSettings"),
           RuntimeSettingsSource(Sources, "ConsoleVariables"),
-          RuntimeSettingsSource(Sources, "TexturePalettes"));
+          RuntimeSettingsSource(Sources, "TexturePalettes")});
   Settings.RenderingDistanceLod =
       RenderingSettingsAdapters::ReadRenderingDistanceLodSettings(
           Json::ReadObjectField(RuntimeSettingsSource(

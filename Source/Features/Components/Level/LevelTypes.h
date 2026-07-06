@@ -36,8 +36,7 @@ public:
 
   float GetElevationMetersAt(int32 Row, int32 Column) const;
   float GetTerrainZAtWorld(float EastWest, float NorthSouth) const;
-  FVector ToWorld(float EastWest, float NorthSouth,
-                  float HeightOffset = 0.0f) const;
+  FVector ToWorld(FVector2D Location, float HeightOffset = 0.0f) const;
 
   int32 GetGridSize() const;
   float GetMinElevationMeters() const;

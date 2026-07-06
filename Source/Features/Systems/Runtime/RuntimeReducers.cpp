@@ -170,11 +170,10 @@ FRuntimeHorseViewSpawn ReduceHorseDistanceLod(
 
 template <typename Payload>
 func::Maybe<FRuntimeState> ReduceExtractedPayloadAction(
-    const FRuntimeState &State, const rtk::AnyAction &Action,
-    const Payload &PayloadValue,
+    FRuntimeState State,
+    const rtk::PayloadAction<Payload> &PayloadAct,
     TRuntimePayloadReducer<Payload> Reduce) {
-  return func::just(
-      Reduce(State, rtk::PayloadAction<Payload>{Action.Type, PayloadValue}));
+  return func::just(Reduce(State, PayloadAct));
 }
 
 template <typename Payload>
@@ -186,8 +185,10 @@ FRuntimeActionReducerDeclaration RuntimePayloadReducer(
     return func::mbind(
         Creator.extract(Action),
         [&State, &Action, Reduce](const Payload &PayloadValue) {
-          return ReduceExtractedPayloadAction(State, Action, PayloadValue,
-                                              Reduce);
+          return ReduceExtractedPayloadAction(
+              State,
+              rtk::PayloadAction<Payload>{Action.Type, PayloadValue},
+              Reduce);
         });
   }};
 }
@@ -323,7 +324,7 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
 
   FRuntimeLevelViewPayload Payload;
   Payload.TerrainMesh = TerrainReducers::BuildTerrainMeshPayload(
-      *Request.TerrainData, *Request.OrthoData, *Request.Geometry);
+      {*Request.TerrainData, *Request.OrthoData, *Request.Geometry});
   Payload.bTerrainMeshLoaded = Payload.TerrainMesh.bLoaded;
   const FRuntimeDistanceLodReduceRequest LodRequest = {
       State.Spawn.PlayerSpawn.Location, State.Rendering.DistanceLodStages,

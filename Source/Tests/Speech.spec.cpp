@@ -163,26 +163,26 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
 
   // At t=0.05, should be in AA -> viseme_aa
   const FVisemeMapping V1 =
-      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.05f, Map, Rest);
+      SpeechOps::ActiveVisemeAtTime(Phonemes, {0.05f, Map, Rest});
   TestEqual(TEXT("At 0.05s: viseme_aa"), V1.MorphTargetName,
             ExpectedAa.MorphTargetName);
   TestTrue(TEXT("At 0.05s: weight > 0"), V1.BlendWeight > 0.0f);
 
   // At t=0.12, should be in SIL -> viseme_sil
   const FVisemeMapping V2 =
-      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.12f, Map, Rest);
+      SpeechOps::ActiveVisemeAtTime(Phonemes, {0.12f, Map, Rest});
   TestEqual(TEXT("At 0.12s: viseme_sil"), V2.MorphTargetName,
             ExpectedSilence.MorphTargetName);
 
   // At t=0.20, should be in EH -> viseme_E
   const FVisemeMapping V3 =
-      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.20f, Map, Rest);
+      SpeechOps::ActiveVisemeAtTime(Phonemes, {0.20f, Map, Rest});
   TestEqual(TEXT("At 0.20s: viseme_E"), V3.MorphTargetName,
             ExpectedEh.MorphTargetName);
 
   // At t=0.30 (past all phonemes), should be silence
   const FVisemeMapping V4 =
-      SpeechOps::ActiveVisemeAtTime(Phonemes, 0.30f, Map, Rest);
+      SpeechOps::ActiveVisemeAtTime(Phonemes, {0.30f, Map, Rest});
   TestEqual(TEXT("At 0.30s: silence"), V4.MorphTargetName,
             Rest.MorphTargetName);
 

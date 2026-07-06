@@ -93,9 +93,7 @@ ReadScaleSeedForMode(const TSharedPtr<FJsonObject> &Object,
   return func::match(
       FindScaleFieldDeclaration(Mode),
       [Object](const FLevelRuntimeScaleFieldDeclaration &Declaration) {
-        return JsonValues::ReadRequiredFields<FLevelRuntimeScaleSeed>(
-            Object, Declaration.FieldAtoms,
-            ScaleSeedWithMode(Declaration.Mode));
+        return JsonValues::ReduceRequiredFields<FLevelRuntimeScaleSeed>(FLevelRuntimeScaleSeed(), Object, ScaleSeedWithMode(Declaration.Mode), Declaration.FieldAtoms);
       },
       []() { return func::nothing<FLevelRuntimeScaleSeed>(); });
 }
@@ -105,8 +103,7 @@ ReadScaleSeedForMode(const TSharedPtr<FJsonObject> &Object,
 func::Maybe<FVector>
 WorldLocationFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
   return func::fmap(
-      JsonValues::ReadRequiredFields<FWorldLocationFields>(
-          Request.Object, JSON_REQUIRED_ATOMS(X, Y, Z)),
+      JsonValues::ReduceRequiredFields<FWorldLocationFields>(FWorldLocationFields(), Request.Object, JSON_REQUIRED_ATOMS(X, Y, Z)),
       WorldLocationFromFields);
 }
 

@@ -222,7 +222,7 @@ TArray<FNatureFeatureSeed> BuildNatureSeed(
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FNatureFeatureFields, FNatureFeatureSeed>(
       JsonAdapters::ReadObjectArrayField<FNatureFeatureFields>(
-          Root, "Features",
+          {Root, "Features"},
           JsonAdapters::ReadSettingsWith<FNatureFeatureFields>(
               JSON_SETTINGS_ATOMS(Id, Name, Kind, EastLots, NorthLots,
                                   Scale))),

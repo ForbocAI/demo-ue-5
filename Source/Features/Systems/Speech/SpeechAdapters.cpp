@@ -130,8 +130,8 @@ void USpeechComponent::TickComponent(
         : ([this]() {
             EnsureVisemeMap();
             const FVisemeMapping Viseme = SpeechOps::ActiveVisemeAtTime(
-                ActivePhonemes, PlaybackTime, VisemeMap,
-                SpeechOps::RestViseme(RuntimeSettings));
+                ActivePhonemes, {PlaybackTime, VisemeMap,
+                SpeechOps::RestViseme(RuntimeSettings)});
             const bool bChanged =
                 Viseme.MorphTargetName != CurrentVisemeName ||
                 FMath::Abs(Viseme.BlendWeight - CurrentVisemeWeight) >

@@ -69,9 +69,9 @@ inline bool ReduceCandidateIsCloser(float CandidateDistanceSquared,
 }
 
 inline FInteractionSelection ReduceCloserCandidate(
+    FInteractionSelection Current,
     const FInteractionNearestCandidateRequest &Request,
-    const FInteractionCandidate &Candidate,
-    FInteractionSelection Current) {
+    const FInteractionCandidate &Candidate) {
   const float CandidateDistanceSquared =
       ReduceDistanceSquared(Request.Observation, Candidate);
   const bool bSelected =
@@ -95,7 +95,7 @@ inline FInteractionSelection ReduceNearestCandidate(
       ReduceEmptySelection(Request.MissingMessage),
       [&Request](const FInteractionSelection &Current,
                  const FInteractionCandidate &Candidate) {
-        return ReduceCloserCandidate(Request, Candidate, Current);
+        return ReduceCloserCandidate(Current, Request, Candidate);
       });
 }
 

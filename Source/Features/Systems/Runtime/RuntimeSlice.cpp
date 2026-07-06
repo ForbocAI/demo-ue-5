@@ -34,15 +34,16 @@ namespace Level {
 namespace RuntimeSlice {
 namespace {
 
-double RuntimeMilliseconds(double StartedSeconds, double FinishedSeconds,
+double RuntimeMilliseconds(double ElapsedSeconds,
                            const FRuntimeState &State) {
-  return (FinishedSeconds - StartedSeconds) *
+  return ElapsedSeconds *
          State.UI.RuntimeSettings.StatsOverlay.SecondsToMilliseconds;
 }
 
 FRuntimeState ReduceRootWithDiagnostics(
+    FRuntimeState State,
     const rtk::CaseReducer<FRuntimeState> &CombinedReducers,
-    const FRuntimeState &State, const rtk::AnyAction &Action) {
+    const rtk::AnyAction &Action) {
   const double RootStartedSeconds = FPlatformTime::Seconds();
   const double CombinedStartedSeconds = FPlatformTime::Seconds();
   FRuntimeState Combined = CombinedReducers(State, Action);
@@ -62,11 +63,11 @@ FRuntimeState ReduceRootWithDiagnostics(
       ecs::inspectWorld(Projected.Ecs.World);
   Projected.ReducerDiagnostics = {
       Action.Type,
-      RuntimeMilliseconds(CombinedStartedSeconds, CombinedFinishedSeconds,
+      RuntimeMilliseconds(CombinedFinishedSeconds - CombinedStartedSeconds,
                           Projected),
-      RuntimeMilliseconds(ProjectionStartedSeconds, ProjectionFinishedSeconds,
+      RuntimeMilliseconds(ProjectionFinishedSeconds - ProjectionStartedSeconds,
                           Projected),
-      RuntimeMilliseconds(RootStartedSeconds, RootFinishedSeconds, Projected),
+      RuntimeMilliseconds(RootFinishedSeconds - RootStartedSeconds, Projected),
       Inspection.EntityCount,
       Inspection.ComponentTypeCount};
   return Projected;
@@ -110,7 +111,7 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
         rtk::combineReducers(Reducers);
     return [CombinedReducers](const FRuntimeState &State,
                               const rtk::AnyAction &Action) -> FRuntimeState {
-      return ReduceRootWithDiagnostics(CombinedReducers, State, Action);
+      return ReduceRootWithDiagnostics(State, CombinedReducers, Action);
     };
   }();
   return Reducer;

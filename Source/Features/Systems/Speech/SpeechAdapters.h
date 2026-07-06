@@ -333,6 +333,16 @@ inline FVisemeMapping RequiredVisemeForPhoneme(
 }
 
 /**
+ * Groups the lookup parameters for a viseme timeline query.
+ * Pure data — no behavior.
+ */
+struct FVisemeQuery {
+  float CurrentTime;
+  const TMap<FString, FVisemeMapping> &VisemeMap;
+  const FVisemeMapping &Rest;
+};
+
+/**
  * Compute the active viseme at a given time in the phoneme timeline.
  * Pure function — scans the timeline recursively.
  *
@@ -341,19 +351,17 @@ inline FVisemeMapping RequiredVisemeForPhoneme(
  */
 inline FVisemeMapping ActiveVisemeAtTime(
     const TArray<FPhonemeEvent> &Phonemes,
-    float CurrentTime,
-    const TMap<FString, FVisemeMapping> &VisemeMap,
-    const FVisemeMapping &Rest) {
+    const FVisemeQuery &Query) {
   return func::match(
       func::find_array<FPhonemeEvent>(
-          Phonemes, [CurrentTime](const FPhonemeEvent &Phoneme) {
-            return CurrentTime >= Phoneme.StartTime &&
-                   CurrentTime < Phoneme.StartTime + Phoneme.Duration;
+          Phonemes, [&Query](const FPhonemeEvent &Phoneme) {
+            return Query.CurrentTime >= Phoneme.StartTime &&
+                   Query.CurrentTime < Phoneme.StartTime + Phoneme.Duration;
           }),
-      [&VisemeMap](const FPhonemeEvent &Phoneme) {
-        return RequiredVisemeForPhoneme(Phoneme.Phoneme, VisemeMap);
+      [&Query](const FPhonemeEvent &Phoneme) {
+        return RequiredVisemeForPhoneme(Phoneme.Phoneme, Query.VisemeMap);
       },
-      [&Rest]() { return Rest; });
+      [&Query]() { return Query.Rest; });
 }
 
 struct FPhonemeEstimateState {

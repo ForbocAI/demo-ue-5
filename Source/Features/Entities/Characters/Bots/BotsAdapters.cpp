@@ -188,7 +188,7 @@ TArray<FTownspersonSeed> BuildTownspersonSeed(
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FTownspersonFields, FTownspersonSeed>(
       JsonAdapters::ReadSettingsObjectArrayField<FTownspersonFields>(
-          Root, "Townspeople",
+          {Root, "Townspeople"},
           JSON_SETTINGS_ATOMS(Id, Name, Role, Persona, Interaction,
                               PatrolRoute)),
       [&Request](const FTownspersonFields &Fields) {
@@ -202,7 +202,7 @@ TArray<FHorseRouteSeed> BuildHorseRouteSeed(
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FHorseRouteFields, FHorseRouteSeed>(
       JsonAdapters::ReadSettingsObjectArrayField<FHorseRouteFields>(
-          Root, "Horses",
+          {Root, "Horses"},
           JSON_SETTINGS_ATOMS(Id, Name, bMountedRider, PatrolRoute)),
       [&Request](const FHorseRouteFields &Fields) {
         return HorseRouteFromFields({Fields, Request.Geometry});
