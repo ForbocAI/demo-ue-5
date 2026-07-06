@@ -8,11 +8,13 @@
 #include "Features/Entities/Environments/Landmarks/LandmarksAdapters.h"
 #include "Features/Systems/Level/LevelAdapters.h"
 #include "Features/Systems/Bots/Horses/HorseSlice.h"
+#include "Features/Systems/Bots/Position/BotPositionActions.h"
 #include "Features/Systems/Landmarks/LandmarkSlice.h"
 #include "Features/Systems/Nature/NatureSlice.h"
 #include "Features/Systems/Rendering/RenderingSelectors.h"
 #include "Features/Systems/Runtime/RuntimeActions.h"
 #include "Features/Systems/Runtime/RuntimeFactories.h"
+#include "Features/Systems/Runtime/RuntimeReducers.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
 #include "Features/Systems/Spawn/SpawnSlice.h"
@@ -388,8 +390,15 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FLevelRetroRenderProfile &RetroProfile =
       RenderingSelectors::SelectRuntimeProfile(
           RuntimeSelectors::SelectRenderingState(State));
-  TestEqual(TEXT("Retro profile is set to 3pm"),
-            RetroProfile.TimeOfDayHour, 15.0f);
+  TestEqual(TEXT("Retro profile is set to 11pm"),
+            RetroProfile.TimeOfDayHour, 23.0f);
+  TestEqual(TEXT("Retro profile applies authored full-moon saturation"),
+            RetroProfile.PostProcessSaturationMultiplier, 0.72f);
+  TestEqual(TEXT("Retro profile applies authored full-moon contrast"),
+            RetroProfile.PostProcessContrastMultiplier, 1.14f);
+  TestTrue(TEXT("Retro profile uses desaturated full-moon light"),
+           RetroProfile.DirectionalLightColorR >=
+               RetroProfile.DirectionalLightColorB);
   TestEqual(TEXT("Retro profile disables anti-aliasing"),
             RetroProfile.AntiAliasingMethod, 0);
   TestEqual(TEXT("Retro profile renders at native low resolution"),
@@ -402,11 +411,28 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
             RetroProfile.OutputScaleMultiplier, 4);
   TestTrue(TEXT("Retro profile scales the internal render target fullscreen"),
            RetroProfile.bFullscreenOutput);
-  TestTrue(TEXT("Retro profile keeps view distance strict for performance"),
+  TestTrue(TEXT("Retro profile keeps view distance bounded for performance"),
            RetroProfile.ViewDistanceScale <= 0.65f);
-  TestTrue(TEXT("Retro profile uses cheap fog as LOD cover"),
-           RetroProfile.bFogEnabled && RetroProfile.FogDensity >= 0.02f &&
-               RetroProfile.FogStartDistance <= 900.0f);
+  TestTrue(TEXT("Retro profile uses a built-in night sky dome"),
+           RetroProfile.bSkyDomeEnabled &&
+               RetroProfile.SkyDomeMeshPath.Contains(TEXT("/Engine/")) &&
+               RetroProfile.SkyDomeMaterialPath.Contains(TEXT("Night")));
+  TestTrue(TEXT("Retro profile uses a dark-blue reference night sky"),
+           RetroProfile.SkyDomeHorizonColorB >
+                   RetroProfile.SkyDomeZenithColorB &&
+               RetroProfile.SkyDomeSkyBrightness >= 0.4f);
+  TestTrue(TEXT("Retro profile drives bright point stars from JSON"),
+           RetroProfile.SkyDomeStarColorR > 10.0f &&
+               RetroProfile.SkyDomeStarColorB >
+                   RetroProfile.SkyDomeHorizonColorB);
+  TestTrue(TEXT("Retro profile uses procedural moon pixel geometry"),
+           RetroProfile.bMoonDiscEnabled &&
+               RetroProfile.MoonDiscMeshPath.Contains(TEXT("Cube")) &&
+               RetroProfile.MoonDiscMaterialPath.Contains(TEXT("Unlit")));
+  TestTrue(TEXT("Retro profile keeps reference haze light and blue"),
+           RetroProfile.bFogEnabled && RetroProfile.FogDensity <= 0.006f &&
+               RetroProfile.FogMaxOpacity <= 0.28f &&
+               RetroProfile.FogColorB > RetroProfile.FogColorR);
   TestFalse(TEXT("Retro profile keeps volumetric fog disabled"),
             RetroProfile.bVolumetricFogEnabled);
 
@@ -427,6 +453,10 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestFalse(TEXT("Terminal LOD stage culls distant actors"),
             DistanceLodStages[4].bStaticVisible ||
                 DistanceLodStages[4].bDynamicVisible);
+  TestTrue(TEXT("Silhouette LOD keeps dynamic models visible as low-cost shapes"),
+           DistanceLodStages[3].bDynamicVisible &&
+               !DistanceLodStages[3].bAnimated &&
+               !DistanceLodStages[3].bPatrolEnabled);
 
   const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &StatsOverlay =
       RuntimeSelectors::SelectUIRuntimeSettings(State).StatsOverlay;
@@ -479,6 +509,47 @@ bool FRuntimeStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
                {&CapturedLines, TEXT("action runtime/hydrated"), 0}));
   TestTrue(TEXT("Redux logger writes action payload row to UE automation output"),
            ContainsReduxLoggerLine({&CapturedLines, TEXT("action    "), 0}));
+
+  return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FRuntimeStoreProjectionGate,
+    "ForbocAI.Runtime.Store.ProjectionGate",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+/**
+ * @brief Verifies high-frequency patrol observation actions do not rebuild ECS.
+ * @signature bool FRuntimeStoreProjectionGate::RunTest(const FString &Parameters)
+ * @param Parameters Automation test parameters supplied by Unreal.
+ * @return true when projected ECS input actions are gated separately from view-only patrol calculations.
+ *
+ * User Story: As a runtime maintainer, I need RTK reducers to update hot
+ * observation state without rebuilding ECS unless the dispatched action mutates
+ * a slice selected by the ECS projection.
+ */
+bool FRuntimeStoreProjectionGate::RunTest(const FString &Parameters) {
+  (void)Parameters;
+
+  FBotPositionMoved MovePayload;
+  FBotPatrolAdvanceRequest PatrolRequest;
+  TestTrue(TEXT("Bot movement actions are ECS projection inputs"),
+           RuntimeReducers::ShouldProjectRuntimeAction(
+               BotPositionActions::BotPositionMoved()(MovePayload)));
+  TestFalse(TEXT("Patrol advance observations are not ECS projection inputs"),
+            RuntimeReducers::ShouldProjectRuntimeAction(
+                BotPositionActions::PatrolAdvanceObserved()(PatrolRequest)));
+
+  rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
+      Store::ConfigureStore();
+  const int64 ProjectedGeneration =
+      RuntimeSelectors::SelectWorld(EnhancedStoreValue.getState()).Generation;
+  EnhancedStoreValue.dispatch(
+      BotPositionActions::PatrolAdvanceObserved()(PatrolRequest));
+  const int64 ObservedGeneration =
+      RuntimeSelectors::SelectWorld(EnhancedStoreValue.getState()).Generation;
+  TestEqual(TEXT("Patrol advance observation keeps current ECS projection"),
+            ObservedGeneration, ProjectedGeneration);
 
   return true;
 }

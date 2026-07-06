@@ -44,10 +44,89 @@ struct FLevelRetroRenderProfile {
   float GrassDensityScale;
   float SunPitchDegrees;
   float SunYawDegrees;
+  float SunRollDegrees;
   float DirectionalLightIntensity;
   float DirectionalLightSourceAngle;
+  float DirectionalLightColorR;
+  float DirectionalLightColorG;
+  float DirectionalLightColorB;
+  float DirectionalLightColorA;
   int32 ShadowCascades;
   int32 ShadowMaxResolution;
+  float PostProcessPriority;
+  float PostProcessBlendRadius;
+  float PostProcessBlendWeight;
+  float PostProcessSaturationMultiplier;
+  float PostProcessContrastMultiplier;
+  float PostProcessGainR;
+  float PostProcessGainG;
+  float PostProcessGainB;
+  float PostProcessGainA;
+  float PostProcessSceneTintR;
+  float PostProcessSceneTintG;
+  float PostProcessSceneTintB;
+  float PostProcessSceneTintA;
+  float SkyAtmosphereSkyLuminanceR;
+  float SkyAtmosphereSkyLuminanceG;
+  float SkyAtmosphereSkyLuminanceB;
+  float SkyAtmosphereSkyLuminanceA;
+  float SkyAtmosphereAerialLuminanceR;
+  float SkyAtmosphereAerialLuminanceG;
+  float SkyAtmosphereAerialLuminanceB;
+  float SkyAtmosphereAerialLuminanceA;
+  float SkyAtmosphereHeightFogContribution;
+  float SkyLightIntensity;
+  float SkyLightColorR;
+  float SkyLightColorG;
+  float SkyLightColorB;
+  float SkyLightColorA;
+  bool bSkyLightRealTimeCapture;
+  bool bSkyDomeEnabled;
+  FString SkyDomeMeshPath;
+  FString SkyDomeMaterialPath;
+  float SkyDomeScale;
+  float SkyDomeZOffset;
+  float SkyDomeSkyBrightness;
+  float SkyDomeCloudBrightness;
+  float SkyDomeCloudDarkness;
+  float SkyDomeRimBrightness;
+  float SkyDomeStarColorR;
+  float SkyDomeStarColorG;
+  float SkyDomeStarColorB;
+  float SkyDomeStarColorA;
+  float SkyDomeHorizonColorR;
+  float SkyDomeHorizonColorG;
+  float SkyDomeHorizonColorB;
+  float SkyDomeHorizonColorA;
+  float SkyDomeZenithColorR;
+  float SkyDomeZenithColorG;
+  float SkyDomeZenithColorB;
+  float SkyDomeZenithColorA;
+  bool bMoonDiscEnabled;
+  FString MoonDiscMeshPath;
+  FString MoonDiscMaterialPath;
+  float MoonDiscDistance;
+  float MoonDiscScale;
+  float MoonDiscPitchDegrees;
+  float MoonDiscYawDegrees;
+  float MoonDiscRollDegrees;
+  float MoonDiscColorR;
+  float MoonDiscColorG;
+  float MoonDiscColorB;
+  float MoonDiscColorA;
+  int32 MoonPixelGridSize;
+  float MoonDiscWorldUnitsPerScale;
+  float MoonPixelOverlapMultiplier;
+  int32 PointStarCount;
+  float PointStarYawHashSalt;
+  float PointStarYawSpanDegrees;
+  float PointStarPitchHashSalt;
+  float PointStarPitchMinDegrees;
+  float PointStarPitchSpanDegrees;
+  float PointStarDistanceMultiplier;
+  float PointStarSizeHashSalt;
+  float PointStarWorldSizeMin;
+  float PointStarWorldSizeJitter;
   bool bFogEnabled;
   bool bVolumetricFogEnabled;
   float FogDensity;
@@ -116,12 +195,145 @@ inline bool operator==(const FLevelRetroRenderProfile &Left,
                               Right.GrassDensityScale) &&
          FMath::IsNearlyEqual(Left.SunPitchDegrees, Right.SunPitchDegrees) &&
          FMath::IsNearlyEqual(Left.SunYawDegrees, Right.SunYawDegrees) &&
+         FMath::IsNearlyEqual(Left.SunRollDegrees, Right.SunRollDegrees) &&
          FMath::IsNearlyEqual(Left.DirectionalLightIntensity,
                               Right.DirectionalLightIntensity) &&
          FMath::IsNearlyEqual(Left.DirectionalLightSourceAngle,
                               Right.DirectionalLightSourceAngle) &&
+         FMath::IsNearlyEqual(Left.DirectionalLightColorR,
+                              Right.DirectionalLightColorR) &&
+         FMath::IsNearlyEqual(Left.DirectionalLightColorG,
+                              Right.DirectionalLightColorG) &&
+         FMath::IsNearlyEqual(Left.DirectionalLightColorB,
+                              Right.DirectionalLightColorB) &&
+         FMath::IsNearlyEqual(Left.DirectionalLightColorA,
+                              Right.DirectionalLightColorA) &&
          Left.ShadowCascades == Right.ShadowCascades &&
          Left.ShadowMaxResolution == Right.ShadowMaxResolution &&
+         FMath::IsNearlyEqual(Left.PostProcessPriority,
+                              Right.PostProcessPriority) &&
+         FMath::IsNearlyEqual(Left.PostProcessBlendRadius,
+                              Right.PostProcessBlendRadius) &&
+         FMath::IsNearlyEqual(Left.PostProcessBlendWeight,
+                              Right.PostProcessBlendWeight) &&
+         FMath::IsNearlyEqual(Left.PostProcessSaturationMultiplier,
+                              Right.PostProcessSaturationMultiplier) &&
+         FMath::IsNearlyEqual(Left.PostProcessContrastMultiplier,
+                              Right.PostProcessContrastMultiplier) &&
+         FMath::IsNearlyEqual(Left.PostProcessGainR, Right.PostProcessGainR) &&
+         FMath::IsNearlyEqual(Left.PostProcessGainG, Right.PostProcessGainG) &&
+         FMath::IsNearlyEqual(Left.PostProcessGainB, Right.PostProcessGainB) &&
+         FMath::IsNearlyEqual(Left.PostProcessGainA, Right.PostProcessGainA) &&
+         FMath::IsNearlyEqual(Left.PostProcessSceneTintR,
+                              Right.PostProcessSceneTintR) &&
+         FMath::IsNearlyEqual(Left.PostProcessSceneTintG,
+                              Right.PostProcessSceneTintG) &&
+         FMath::IsNearlyEqual(Left.PostProcessSceneTintB,
+                              Right.PostProcessSceneTintB) &&
+         FMath::IsNearlyEqual(Left.PostProcessSceneTintA,
+                              Right.PostProcessSceneTintA) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereSkyLuminanceR,
+                              Right.SkyAtmosphereSkyLuminanceR) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereSkyLuminanceG,
+                              Right.SkyAtmosphereSkyLuminanceG) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereSkyLuminanceB,
+                              Right.SkyAtmosphereSkyLuminanceB) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereSkyLuminanceA,
+                              Right.SkyAtmosphereSkyLuminanceA) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereAerialLuminanceR,
+                              Right.SkyAtmosphereAerialLuminanceR) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereAerialLuminanceG,
+                              Right.SkyAtmosphereAerialLuminanceG) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereAerialLuminanceB,
+                              Right.SkyAtmosphereAerialLuminanceB) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereAerialLuminanceA,
+                              Right.SkyAtmosphereAerialLuminanceA) &&
+         FMath::IsNearlyEqual(Left.SkyAtmosphereHeightFogContribution,
+                              Right.SkyAtmosphereHeightFogContribution) &&
+         FMath::IsNearlyEqual(Left.SkyLightIntensity,
+                              Right.SkyLightIntensity) &&
+         FMath::IsNearlyEqual(Left.SkyLightColorR, Right.SkyLightColorR) &&
+         FMath::IsNearlyEqual(Left.SkyLightColorG, Right.SkyLightColorG) &&
+         FMath::IsNearlyEqual(Left.SkyLightColorB, Right.SkyLightColorB) &&
+         FMath::IsNearlyEqual(Left.SkyLightColorA, Right.SkyLightColorA) &&
+         Left.bSkyLightRealTimeCapture == Right.bSkyLightRealTimeCapture &&
+         Left.bSkyDomeEnabled == Right.bSkyDomeEnabled &&
+         Left.SkyDomeMeshPath == Right.SkyDomeMeshPath &&
+         Left.SkyDomeMaterialPath == Right.SkyDomeMaterialPath &&
+         FMath::IsNearlyEqual(Left.SkyDomeScale, Right.SkyDomeScale) &&
+         FMath::IsNearlyEqual(Left.SkyDomeZOffset, Right.SkyDomeZOffset) &&
+         FMath::IsNearlyEqual(Left.SkyDomeSkyBrightness,
+                              Right.SkyDomeSkyBrightness) &&
+         FMath::IsNearlyEqual(Left.SkyDomeCloudBrightness,
+                              Right.SkyDomeCloudBrightness) &&
+         FMath::IsNearlyEqual(Left.SkyDomeCloudDarkness,
+                              Right.SkyDomeCloudDarkness) &&
+         FMath::IsNearlyEqual(Left.SkyDomeRimBrightness,
+                              Right.SkyDomeRimBrightness) &&
+         FMath::IsNearlyEqual(Left.SkyDomeStarColorR,
+                              Right.SkyDomeStarColorR) &&
+         FMath::IsNearlyEqual(Left.SkyDomeStarColorG,
+                              Right.SkyDomeStarColorG) &&
+         FMath::IsNearlyEqual(Left.SkyDomeStarColorB,
+                              Right.SkyDomeStarColorB) &&
+         FMath::IsNearlyEqual(Left.SkyDomeStarColorA,
+                              Right.SkyDomeStarColorA) &&
+         FMath::IsNearlyEqual(Left.SkyDomeHorizonColorR,
+                              Right.SkyDomeHorizonColorR) &&
+         FMath::IsNearlyEqual(Left.SkyDomeHorizonColorG,
+                              Right.SkyDomeHorizonColorG) &&
+         FMath::IsNearlyEqual(Left.SkyDomeHorizonColorB,
+                              Right.SkyDomeHorizonColorB) &&
+         FMath::IsNearlyEqual(Left.SkyDomeHorizonColorA,
+                              Right.SkyDomeHorizonColorA) &&
+         FMath::IsNearlyEqual(Left.SkyDomeZenithColorR,
+                              Right.SkyDomeZenithColorR) &&
+         FMath::IsNearlyEqual(Left.SkyDomeZenithColorG,
+                              Right.SkyDomeZenithColorG) &&
+         FMath::IsNearlyEqual(Left.SkyDomeZenithColorB,
+                              Right.SkyDomeZenithColorB) &&
+         FMath::IsNearlyEqual(Left.SkyDomeZenithColorA,
+                              Right.SkyDomeZenithColorA) &&
+         Left.bMoonDiscEnabled == Right.bMoonDiscEnabled &&
+         Left.MoonDiscMeshPath == Right.MoonDiscMeshPath &&
+         Left.MoonDiscMaterialPath == Right.MoonDiscMaterialPath &&
+         FMath::IsNearlyEqual(Left.MoonDiscDistance,
+                              Right.MoonDiscDistance) &&
+         FMath::IsNearlyEqual(Left.MoonDiscScale, Right.MoonDiscScale) &&
+         FMath::IsNearlyEqual(Left.MoonDiscPitchDegrees,
+                              Right.MoonDiscPitchDegrees) &&
+         FMath::IsNearlyEqual(Left.MoonDiscYawDegrees,
+                              Right.MoonDiscYawDegrees) &&
+         FMath::IsNearlyEqual(Left.MoonDiscRollDegrees,
+                              Right.MoonDiscRollDegrees) &&
+         FMath::IsNearlyEqual(Left.MoonDiscColorR, Right.MoonDiscColorR) &&
+         FMath::IsNearlyEqual(Left.MoonDiscColorG, Right.MoonDiscColorG) &&
+         FMath::IsNearlyEqual(Left.MoonDiscColorB, Right.MoonDiscColorB) &&
+         FMath::IsNearlyEqual(Left.MoonDiscColorA, Right.MoonDiscColorA) &&
+         Left.MoonPixelGridSize == Right.MoonPixelGridSize &&
+         FMath::IsNearlyEqual(Left.MoonDiscWorldUnitsPerScale,
+                              Right.MoonDiscWorldUnitsPerScale) &&
+         FMath::IsNearlyEqual(Left.MoonPixelOverlapMultiplier,
+                              Right.MoonPixelOverlapMultiplier) &&
+         Left.PointStarCount == Right.PointStarCount &&
+         FMath::IsNearlyEqual(Left.PointStarYawHashSalt,
+                              Right.PointStarYawHashSalt) &&
+         FMath::IsNearlyEqual(Left.PointStarYawSpanDegrees,
+                              Right.PointStarYawSpanDegrees) &&
+         FMath::IsNearlyEqual(Left.PointStarPitchHashSalt,
+                              Right.PointStarPitchHashSalt) &&
+         FMath::IsNearlyEqual(Left.PointStarPitchMinDegrees,
+                              Right.PointStarPitchMinDegrees) &&
+         FMath::IsNearlyEqual(Left.PointStarPitchSpanDegrees,
+                              Right.PointStarPitchSpanDegrees) &&
+         FMath::IsNearlyEqual(Left.PointStarDistanceMultiplier,
+                              Right.PointStarDistanceMultiplier) &&
+         FMath::IsNearlyEqual(Left.PointStarSizeHashSalt,
+                              Right.PointStarSizeHashSalt) &&
+         FMath::IsNearlyEqual(Left.PointStarWorldSizeMin,
+                              Right.PointStarWorldSizeMin) &&
+         FMath::IsNearlyEqual(Left.PointStarWorldSizeJitter,
+                              Right.PointStarWorldSizeJitter) &&
          Left.bFogEnabled == Right.bFogEnabled &&
          Left.bVolumetricFogEnabled == Right.bVolumetricFogEnabled &&
          FMath::IsNearlyEqual(Left.FogDensity, Right.FogDensity) &&

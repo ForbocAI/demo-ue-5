@@ -264,12 +264,11 @@ void URuntimeStatsWidget::NativeConstruct() {
   const double BudgetClockSeconds =
       FG::RenderingSlice::SelectRuntimeBudgetClockSeconds();
   LastFrameClockSeconds = BudgetClockSeconds;
-  BudgetLogLastSeconds = BudgetClockSeconds - Settings.BudgetLogIntervalSeconds;
+  BudgetLogLastSeconds = BudgetClockSeconds;
   BudgetScreenshotIntervalSeconds =
       FG::RenderingSlice::SelectRuntimeBudgetScreenshotIntervalSeconds(
           Settings);
-  BudgetScreenshotLastSeconds =
-      BudgetClockSeconds - BudgetScreenshotIntervalSeconds;
+  BudgetScreenshotLastSeconds = BudgetClockSeconds;
   BudgetScreenshotIndex = Settings.BudgetScreenshotInitialIndex;
   CachedPolyCount = Settings.EmptyPolyCount;
   CachedPolyCountMilliseconds = Settings.DiagnosticDefaultFloatValue;

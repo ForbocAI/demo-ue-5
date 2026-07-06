@@ -1,0 +1,18 @@
+{
+  "skeletal_lod_generation": {
+    "regenerate_even_if_imported": true,
+    "generate_base_lod": false,
+    "assets": [
+      {
+        "id": "classic_horse",
+        "asset_path": "/Game/Characters/Horses/ClassicHorse/SkeletalMesh/ClassicHorse_Equipment_A.ClassicHorse_Equipment_A",
+        "lod_count": 5
+      },
+      {
+        "id": "mounted_rider",
+        "asset_path": "/Game/Characters/Horses/ClassicHorse/Rider/SkeletalMesh/Rider_SkeletalMesh.Rider_SkeletalMesh",
+        "lod_count": 5
+      }
+    ]
+  }
+}

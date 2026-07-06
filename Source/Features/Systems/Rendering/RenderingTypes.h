@@ -25,6 +25,7 @@ struct FRenderingPayload {
   FString Id;
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
+  TArray<FLevelDistanceLodStage> DistanceLodStages;
   ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
 };
 
@@ -32,6 +33,7 @@ struct FRenderingPayloadRequest {
   FString Id;
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
+  TArray<FLevelDistanceLodStage> DistanceLodStages;
   ForbocAI::Game::Data::FRenderingRuntimeSettings RuntimeSettings;
 };
 
@@ -189,6 +191,7 @@ inline bool operator==(const FRenderingPayload &Left,
                        const FRenderingPayload &Right) {
   return Left.Id == Right.Id && Left.RuntimeProfile == Right.RuntimeProfile &&
          Left.TextureCatalog == Right.TextureCatalog &&
+         Left.DistanceLodStages == Right.DistanceLodStages &&
          Left.RuntimeSettings == Right.RuntimeSettings;
 }
 
@@ -201,6 +204,7 @@ inline bool operator==(const FRenderingPayloadRequest &Left,
                        const FRenderingPayloadRequest &Right) {
   return Left.Id == Right.Id && Left.RuntimeProfile == Right.RuntimeProfile &&
          Left.TextureCatalog == Right.TextureCatalog &&
+         Left.DistanceLodStages == Right.DistanceLodStages &&
          Left.RuntimeSettings == Right.RuntimeSettings;
 }
 

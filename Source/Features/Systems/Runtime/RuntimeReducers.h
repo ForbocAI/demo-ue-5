@@ -15,6 +15,11 @@ namespace RuntimeReducers {
 FRuntimeState ReduceRuntimeProjected(const FRuntimeState &State);
 
 /**
+ * @brief Reports whether an action mutates state selected by ECS projection.
+ */
+bool ShouldProjectRuntimeAction(const rtk::AnyAction &Action);
+
+/**
  * @brief Reduces a UE-observed interaction source into a dialogue request.
  */
 FRuntimeTownspersonInteractionRequest

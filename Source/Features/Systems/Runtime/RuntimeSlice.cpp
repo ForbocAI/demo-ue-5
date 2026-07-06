@@ -49,9 +49,13 @@ FRuntimeState ReduceRootWithDiagnostics(
   const double CombinedFinishedSeconds = FPlatformTime::Seconds();
   FRuntimeState RuntimeReduced =
       RuntimeReducers::ReduceRuntimeAction(Combined, Action);
+  const bool bProjectRuntimeWorld =
+      RuntimeReducers::ShouldProjectRuntimeAction(Action);
   const double ProjectionStartedSeconds = FPlatformTime::Seconds();
   FRuntimeState Projected =
-      RuntimeReducers::ReduceRuntimeProjected(RuntimeReduced);
+      bProjectRuntimeWorld
+          ? RuntimeReducers::ReduceRuntimeProjected(RuntimeReduced)
+          : RuntimeReduced;
   const double ProjectionFinishedSeconds = FPlatformTime::Seconds();
   const double RootFinishedSeconds = FPlatformTime::Seconds();
   const ecs::FWorldInspection Inspection =

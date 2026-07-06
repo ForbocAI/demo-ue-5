@@ -120,6 +120,20 @@
       "float_value": 0.0
     },
     {
+      "name": "r.DefaultFeature.AutoExposure",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
+      "name": "r.EyeAdaptationQuality",
+      "value_kind": "fixed_int",
+      "profile_field": "",
+      "int_value": 0,
+      "float_value": 0.0
+    },
+    {
       "name": "r.AmbientOcclusionLevels",
       "value_kind": "fixed_int",
       "profile_field": "",

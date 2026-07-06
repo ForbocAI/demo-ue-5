@@ -191,6 +191,12 @@ screenshot timing flags; normal render size, visual profile, HUD labels, LOD,
 and performance thresholds are authored in `Content/Data/*.json` and read by
 feature code.
 
+Native UE rendering APIs are used at the effect boundary: component LOD/cull
+calls for visible actors, native SkyAtmosphere/SkyLight/DirectionalLight/Fog
+and PostProcess for the night profile, and built-in engine sky assets for the
+starfield. Static-world HLOD can be built with `Scripts/build-hlod.ps1` or
+`Scripts/build-hlod.sh` after the static world is authored into the map.
+
 Use the runtime HUD and budget log to diagnose the source of slowness. High
 game/wall/input delta with low render/RHI/GPU time points at game-thread work or
 frame pacing. The HUD also reports memory, poly count, poly-count timing, stats
