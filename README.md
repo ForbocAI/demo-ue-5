@@ -1,13 +1,8 @@
-# ForbocAIDemo Runtime Project (UE 5.7)
+# Forboc AI — UE 5.7 Demo Project
 
-ForbocAIDemo is a working Unreal Engine 5.7 project for the ForbocAI runtime.
-It boots into the tracked French Gulch runtime prototype with source-controlled
-Blueprint, UMG, C++, and authored JSON settings.
-
-Use it as a reference for project layout, runtime state flow, gameplay
-presentation boundaries, and SDK-gated integration. Copy the patterns into your
-own project rather than treating every runtime-specific file as reusable SDK
-code.
+A working Unreal Engine 5.7 project that demonstrates how to integrate
+**Forboc AI NPCs** into your game. Clone it, press Play, and talk to AI-driven
+townspeople — then copy the integration patterns into your own project.
 
 ---
 
@@ -20,55 +15,11 @@ code.
 | Xcode | 15+ (macOS) |
 | Clang | 16+ (Linux) |
 
-The runtime module builds against `ForbocAI_SDK`; runtime behavior stays owned by
-the project features, reducers, selectors, thunks, and authored JSON settings.
-
 ---
 
-## UE SDK Runtime Path
+## Quick Start
 
-Build and test normally:
-
-```bash
-bash Scripts/run-tests.sh
-```
-
-`Source/ForbocAIDemo.Build.cs` defines `WITH_FORBOC_AI_SDK_RUNTIME=1` and links
-the SDK plugin. Runtime decisions should remain in `Source/Features` using the
-RTK-style action, reducer, selector, thunk, adapter, and ECS patterns. Views stay
-as the Unreal display and effect boundary.
-
-## SDK submodule updates
-
-`Plugins/ForbocAI_SDK` is consumed as an immutable SDK submodule. Do not edit
-SDK files from inside the runtime repo.
-
-Make SDK changes in `../sdk-ue-5.7`, commit them there, then bump the runtime's
-submodule pointer with:
-
-```bash
-bash Scripts/update-sdk.sh
-```
-
-The runtime locks the SDK submodule read-only with
-`Scripts/lock_sdk_submodule.sh`. `Scripts/update-sdk.sh` is the only approved
-path that unlocks the submodule, pulls the SDK, records the gitlink bump, and
-locks it again.
-
-The runtime test runner and hooks run `Scripts/check_sdk_submodule_guard.sh`,
-which rejects direct edits inside the submodule and rejects manual SDK pointer
-changes. To activate the local hooks:
-
-```bash
-git config core.hooksPath .githooks
-bash Scripts/lock_sdk_submodule.sh --lock
-```
-
----
-
-## Setup
-
-1. **Clone** the `demo-ue-5.7` repository.
+1. **Clone** (include the SDK submodule):
 
    ```bash
    git clone --recurse-submodules https://github.com/ForbocAI/demo-ue-5.7.git
@@ -80,195 +31,101 @@ bash Scripts/lock_sdk_submodule.sh --lock
    git submodule update --init --recursive
    ```
 
-2. **Run first-time developer setup**
+2. **Run first-time setup:**
 
    ```bash
    bash Scripts/setup-dev.sh
    ```
 
-   This activates the runtime hooks and locks `Plugins/ForbocAI_SDK` read-only
-   so SDK edits happen in `../sdk-ue-5.7`, not inside the runtime submodule
-   copy.
-
-3. **Generate project files**
-   - **Windows**: right-click `ForbocAIDemo.uproject` and choose *Generate Visual Studio Project Files*.
-   - **macOS**: right-click `ForbocAIDemo.uproject` and choose *Generate Xcode Project*.
-   - **Linux**: run `UnrealEditor.sh -projectfiles -project="$PWD/ForbocAIDemo.uproject"`.
+3. **Generate project files:**
+   - **Windows** — right-click `ForbocAIDemo.uproject` → *Generate Visual Studio Project Files*.
+   - **macOS** — right-click `ForbocAIDemo.uproject` → *Generate Xcode Project*.
+   - **Linux** — `UnrealEditor.sh -projectfiles -project="$PWD/ForbocAIDemo.uproject"`.
 
 4. **Build** the `Development Editor` configuration.
 
-5. **Launch** the editor from your IDE or by double-clicking `ForbocAIDemo.uproject`.
-   The project opens `/Game/Map/Maps/Runtime`, the default French Gulch runtime
-   map configured in `Config/DefaultEngine.ini`.
-
-6. **Press Play** to enter the runtime prototype. The player and townspeople use
-   the project-owned Manny assets under `Content/Characters/Mannequins`; mounted
-   encounters use the committed Classic Horse and rider assets under
-   `Content/Characters/Horses/ClassicHorse`.
+5. **Launch** the editor and **Press Play**. You'll spawn into a small town with
+   AI-driven NPCs you can walk up to and talk with.
 
 ---
 
-## What's in the box
+## What's in the Box
 
-| Scene / Component | What it shows |
-|---|---|
-| `/Game/Map/Maps/Runtime` | First-run 1899 French Gulch runtime map with talkable townspeople |
-| `Source/Core/ecs.hpp` | Neutral ECS primitives and request-object transforms |
-| `Source/Store.*` | Single configured runtime store for the playable runtime |
-| `Source/Features` | RTK-style feature domains: actions, reducers, selectors, thunks, adapters, factories, and slices |
-| `Source/Views` | Unreal display/effect boundary for actors, widgets, input binding, and mesh application |
-| `Content/Characters/Mannequins` | Project-owned UE mannequin meshes, materials, rigs, and animation assets |
-| `Content/Characters/Horses/ClassicHorse` | Project-owned horse, mounted rider, animation, and texture assets |
-| `Scripts/Tools/acquire_french_gulch_layout.py` | Pulls public OpenStreetMap layout data and regenerates the French Gulch runtime blockout JSON |
-| `Content/Data/Source/french_gulch_*` | Cached public source data and metadata for the runtime layout generation step |
-| `Content/Data/runtime_settings_level.json` | Authored terrain size, blockout foot/story scale, terrain sampling, and runtime spawn settings |
-| `Content/Data/runtime_settings_bots.json` | Authored townsperson/horse presentation, including mounted-rider scale and seat offset |
-| `Content/Data/runtime_settings_rendering_*.json` | Authored visual profile, distance LOD stages, console variables, and skeletal LOD generation inputs |
-| `Systems/Bots` | Multi-bot feature state backed by normalized RTK-style reducers/selectors |
-| `Systems/Dialogue` | Dialogue actions, reducers, selectors, and thunks for gate-closed runtime interaction |
-| `SpeechComponent` | TTS + viseme blending hooks |
-| `/Game/UI/WBP_Chat` | Source-controlled UMG conversation UI parented to `RuntimeChatWidget` |
+This demo is a complete, playable project. The parts most relevant to your own
+Forboc AI integration are:
 
-## Runtime architecture
+| Component | Path | What It Shows |
+|---|---|---|
+| **SDK plugin** | `Plugins/ForbocAI_SDK` | The Forboc AI SDK, consumed as a Git submodule |
+| **Dialogue system** | `Source/Features/Systems/Dialogue` | Actions, reducers, selectors, and thunks that manage NPC conversation state |
+| **Bot management** | `Source/Features/Systems/Bots` | Multi-bot orchestration — spawning, tracking, and updating many NPCs at once |
+| **Speech component** | `Source/Features/Systems/Speech` | Text-to-speech playback with viseme-driven facial blending |
+| **Interaction system** | `Source/Features/Systems/Interaction` | Proximity triggers and player-to-NPC interaction flow |
+| **Conversation UI** | `Content/UI/WBP_Chat` | A ready-made UMG chat widget driven by the dialogue state |
+| **Store** | `Source/Store.*` | Single runtime store that wires all feature slices together |
+| **ECS layer** | `Source/Core/ecs.hpp` | Lightweight ECS primitives used for entity/component management |
+| **RTK core** | via `Plugins/ForbocAI_SDK` | Redux Toolkit–style state management: actions, reducers, selectors, thunks |
 
-The runtime uses one unidirectional runtime state path:
+---
+
+## SDK Integration Pattern
+
+The demo follows a strict unidirectional data flow. Every NPC interaction
+follows this path:
 
 ```text
-UE event / tick / overlap
-  -> RTK-style action or thunk
-  -> reducer-owned state transition
-  -> selector
-  -> UE view applies selected state
+UE event (overlap, input, tick)
+  → action or thunk          (describe what happened)
+  → reducer                  (update state)
+  → selector                 (read derived state)
+  → UE view                  (render the result)
 ```
 
-`Source/Features` owns durable gameplay state and semantics. Feature code uses
-Redux Toolkit-style terms from the SDK `Core/rtk.hpp`: actions describe events,
-reducers own transitions, selectors own reads, thunks own imperative workflows,
-entity adapters own normalized collections, and `Source/Store.*` owns the single
-configured store.
+**In practice, a dialogue interaction looks like this:**
 
-`Source/Core/ecs.hpp` is the neutral ECS layer for entity IDs, component/tag
-projection, and request-object transforms. `Core/ue_fp.hpp` is used
-for pure composition, lazy values, and small unary transforms; it is not used as
-a substitute action/store model.
+1. Player overlaps an NPC trigger → dispatches a `StartDialogue` action.
+2. A thunk calls the Forboc AI service and dispatches response actions.
+3. The dialogue reducer updates conversation state.
+4. Selectors derive the current dialogue text, speech audio, and viseme data.
+5. `WBP_Chat` and the speech component read selected state and update the UI
+   and facial animation.
 
-`Source/Views` is display/effect code. Views may bind Unreal input, spawn or
-attach actors/widgets, create procedural meshes through `ProceduralMeshElement`,
-and apply selected transforms/text. Decisions belong in reducers, selectors,
-thunks, or ECS helpers.
+Gameplay decisions live in **reducers and thunks** (`Source/Features`).
+Display and effects live in **views** (`Source/Views`). This separation keeps
+your AI integration testable and portable.
 
 ---
 
-## Blueprint and UMG usage
+## SDK Submodule
 
-The happy-path runtime runs from source-controlled content. Do not create
-local-only Blueprint or UMG assets for the first-run experience.
+`Plugins/ForbocAI_SDK` is consumed as a **read-only Git submodule**. Do not edit
+SDK files from inside this repo.
 
-The shipped runtime map uses `/Game/Blueprints/BP_LevelGameMode`, which wires
-`/Game/Blueprints/BP_PlayerRuntimeController` to `/Game/UI/WBP_Chat`.
-`/Game/Blueprints/BP_RuntimeLevelView`, `/Game/Blueprints/BP_TownspersonView`,
-and `/Game/Blueprints/BP_SpeechPresenter` provide the tracked editor-facing
-presentation assets for the level, dialogue actors, and speech component.
-
-`WBP_Chat` receives selected view models from the single runtime store through
-`RuntimeChatWidget`. Dialogue, speech, and interaction decisions belong in
-actions, reducers, thunks, selectors, and ECS helpers, not in widget graphs.
-
----
-
-## Real-world layout data
-
-The French Gulch runtime layout is generated from public data, then committed as
-reviewable JSON. Run the acquisition step when the map layout needs to be
-refreshed:
+To pull the latest SDK version:
 
 ```bash
-python3 Scripts/Tools/acquire_french_gulch_layout.py
+bash Scripts/update-sdk.sh
 ```
 
-The script queries OpenStreetMap through Overpass around the U.S. Post Office /
-14200 Trinity Mountain Rd anchor, caches the raw response under
-`Content/Data/Source`, and regenerates `french_gulch_runtime_level.json`,
-`french_gulch_landmarks.json`, `french_gulch_nature.json`, and the shared
-world-scale values in `runtime_settings_level.json`.
+To activate the submodule guard hooks (recommended):
 
-`Content/Data/Source/french_gulch_layout_metadata.json` records the source
-anchor, query radius, generated object counts, and acquired player-spawn facts.
-The player spawn is written back to `runtime_settings_level.json` as
-`player_spawn_east_lots`, `player_spawn_north_lots`, and
-`main_street_facing_yaw_degrees` so code reads a data-backed road anchor instead
-of a copied world-space coordinate.
+```bash
+git config core.hooksPath .githooks
+bash Scripts/lock_sdk_submodule.sh --lock
+```
 
-Terrain and ortho samples remain generated from the existing public terrain
-pipeline. Google Maps or Street View screenshots are visual references only;
-they are not committed source data.
+These hooks prevent accidental edits inside the submodule directory.
 
 ---
 
-## Runtime budget and diagnostics
+## Running Tests
 
-Run the normal playable map from Windows with:
-
-```powershell
-.\Scripts\run-game.bat
+```bash
+bash Scripts/run-tests.sh
 ```
 
-Run the real performance budget with:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Scripts\run-runtime-budget.ps1
-```
-
-The budget script launches the normal Runtime map, measures the JSON-authored
-duration, and saves review screenshots under `screenshots`. Scripts may pass
-screenshot timing flags; normal render size, visual profile, HUD labels, LOD,
-and performance thresholds are authored in `Content/Data/*.json` and read by
-feature code.
-
-The baseline budget can ignore a configured number of warmup samples and filter
-screenshot-write stalls where wall time jumps while game/input time stays
-normal. Those values live in
-`Content/Data/runtime_performance_budget_ps3_baseline.json` and are applied by
-both the PowerShell runner and `Scripts/validate-runtime-budget.py`.
-
-`Scripts/run-tests.sh` also runs a rendering tuning guard. The guard rejects
-hard-coded numeric moon/star helper values in the runtime rendering profile
-helpers and points contributors back to
-`Content/Data/runtime_settings_rendering_profile.json`.
-
-`Content/Data/runtime_settings_level.json` owns the shared world proportion
-contract: terrain world size, town lots, blockout feet, story height, actor-foot
-conversion, terrain mesh sampling, and runtime spawn toggles stay in JSON.
-Runtime store tests assert that blockout feet match actor feet so buildings,
-terrain anchors, horses, and people keep the same scale.
-
-Native UE rendering APIs are used at the effect boundary: component LOD/cull
-calls for visible actors, native SkyAtmosphere/SkyLight/DirectionalLight/Fog
-and PostProcess for the night profile, a tagged sky dome for the background
-sky, and procedural unlit pixel meshes for the moon and point stars.
-`Content/Data/runtime_settings_rendering_profile.json` owns output size, night
-lighting, fog, post-process, moon placement, and moon/star pixel tuning.
-`Content/Data/runtime_settings_rendering_lod.json` owns static blockout and
-dynamic actor distance LOD stages.
-
-The runtime applies dynamic actor LOD through native skeletal mesh APIs and
-clamps forced/minimum skeletal LOD requests to the LODs that exist on the
-imported mesh. That keeps townspeople, horses, and riders visible when JSON LOD
-stages reach the far/silhouette ranges.
-
-For optional asset maintenance, regenerate committed skeletal mesh LODs with
-`Scripts/generate-skeletal-lods.ps1` or `Scripts/generate-skeletal-lods.sh`.
-Static-world HLOD can be built with `Scripts/build-hlod.ps1` or
-`Scripts/build-hlod.sh` after static world geometry is authored into the map;
-runtime-spawned dynamic actors still use native component LOD/cull calls.
-
-Use the runtime HUD and budget log to diagnose the source of slowness. High
-game/wall/input delta with low render/RHI/GPU time points at game-thread work or
-frame pacing. The HUD also reports memory, poly count, poly-count timing, stats
-selection timing, engine idle wait, fixed-frame/fixed-timestep state, frame
-caps, VSync, foreground focus, CPU throttle, hidden window state, root reducer
-time, combined reducer time, ECS projection time, projected entity count, and
-projected component type count.
+This runs the project's C++ test suite, including store/reducer round-trip
+tests and SDK integration checks.
 
 ---
 
@@ -276,16 +133,18 @@ projected component type count.
 
 | Problem | Fix |
 |---|---|
-| `Plugin 'ForbocAI_SDK' failed to load` | Sync the SDK submodule and rebuild |
+| `Plugin 'ForbocAI_SDK' failed to load` | Run `git submodule update --init --recursive`, then rebuild |
 | Linker errors after C++ changes | Regenerate project files from `.uproject` |
+| NPCs don't respond to dialogue | Check the editor Output Log for SDK connection errors; verify your API key in project settings |
+| Speech audio plays but no lip sync | Ensure the NPC skeletal mesh has morph targets for the viseme set defined in `SpeechComponent` |
 
 ---
 
-## Going further
+## Going Further
 
-- SDK reference, tutorials, protocol docs: <https://docs.forboc.ai>
-- SDK source: <https://github.com/ForbocAI/sdk-ue-5.7>
-- Issues: <https://github.com/ForbocAI/demo-ue-5.7/issues>
+- **SDK reference & tutorials:** <https://docs.forboc.ai>
+- **SDK source:** <https://github.com/ForbocAI/sdk-ue-5.7>
+- **Issues & questions:** <https://github.com/ForbocAI/demo-ue-5.7/issues>
 
 ---
 
