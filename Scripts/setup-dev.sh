@@ -9,7 +9,7 @@ sdk_source_path() {
   if [ -n "${FORBOC_SDK_SOURCE_PATH:-}" ]; then
     printf '%s\n' "$FORBOC_SDK_SOURCE_PATH"
   else
-    printf '%s\n' "$(cd "$PROJECT_ROOT/.." && pwd)/sdk-ue-5.7"
+    printf '%s\n' "$(cd "$PROJECT_ROOT/.." && pwd)/sdk-ue-5"
   fi
 }
 

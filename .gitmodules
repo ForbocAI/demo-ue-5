@@ -1,4 +1,4 @@
 [submodule "Plugins/ForbocAI_SDK"]
 	path = Plugins/ForbocAI_SDK
-	url = https://github.com/ForbocAI/sdk-ue-5.7.git
+	url = https://github.com/ForbocAI/sdk-ue-5.git
 	branch = main

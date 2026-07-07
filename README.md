@@ -22,7 +22,7 @@ townspeople — then copy the integration patterns into your own project.
 1. **Clone** (include the SDK submodule):
 
    ```bash
-   git clone --recurse-submodules https://github.com/ForbocAI/demo-ue-5.7.git
+   git clone --recurse-submodules https://github.com/ForbocAI/demo-ue-5.git
    ```
 
    If you cloned without `--recurse-submodules`:
@@ -163,8 +163,8 @@ collision, shadows, and other expensive behavior.
 ## Going Further
 
 - **SDK reference & tutorials:** <https://docs.forboc.ai>
-- **SDK source:** <https://github.com/ForbocAI/sdk-ue-5.7>
-- **Issues & questions:** <https://github.com/ForbocAI/demo-ue-5.7/issues>
+- **SDK source:** <https://github.com/ForbocAI/sdk-ue-5>
+- **Issues & questions:** <https://github.com/ForbocAI/demo-ue-5/issues>
 
 ---
 
