@@ -8,6 +8,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Templates/SubclassOf.h"
+#include "TimerManager.h"
 #include "PlayerRuntimeControllerView.generated.h"
 
 class ATownspersonView;
@@ -37,8 +38,12 @@ class FORBOCAIDEMO_API APlayerRuntimeControllerView
 public:
   APlayerRuntimeControllerView();
 
+  UFUNCTION(Exec, BlueprintCallable, Category = "Level|Debug")
+  void ToggleRuntimeFlyMode();
+
 protected:
   virtual void BeginPlay() override;
+  virtual void PlayerTick(float DeltaTime) override;
   virtual void SetupInputComponent() override;
 
 private:
@@ -57,6 +62,39 @@ private:
   UPROPERTY()
   URuntimeStatsWidget *RuntimeStatsWidget;
 
+  float FlyModeSpeed;
+  bool bRuntimeFlyModeEnabled;
+  bool bFlyAscending;
+  bool bFlyDescending;
+  uint8 PreviousMovementMode;
+  uint8 PreviousCustomMovementMode;
+  float PreviousMaxFlySpeed;
+  float PreviousGravityScale;
+
+  bool bScaleAuditCaptureEnabled;
+  bool bScaleAuditQuitWhenDone;
+  bool bScaleAuditCameraStateCached;
+  bool bScaleAuditMeshStateCached;
+  bool bPreviousPlayerMeshHiddenInGame;
+  int32 ScaleAuditCaptureIndex;
+  int32 PreviousProjectionMode;
+  FString ScaleAuditOutputDirectory;
+  FString ScaleAuditCurrentOutputName;
+  float ScaleAuditInitialDelaySeconds;
+  float ScaleAuditSettleSeconds;
+  float ScaleAuditBetweenSeconds;
+  float ScaleAuditWholeOrthoWidth;
+  float ScaleAuditTownOrthoWidth;
+  float ScaleAuditActorsOrthoWidth;
+  float ScaleAuditWholeCaptureHeight;
+  float ScaleAuditTownCaptureHeight;
+  float ScaleAuditActorsCaptureHeight;
+  float PreviousFieldOfView;
+  float PreviousOrthoWidth;
+  float PreviousSpringArmLength;
+  FTimerHandle ScaleAuditCaptureTimer;
+  FTimerHandle ScaleAuditScreenshotTimer;
+
   /**
    * @brief Observes nearby townsperson actors and dispatches the interaction
    * candidate action/thunk workflow.
@@ -73,4 +111,16 @@ private:
    * @brief Ensures the runtime stats overlay is visible in the viewport.
    */
   void PresentRuntimeStatsWidget();
+  void SetFlyAscendingPressed();
+  void SetFlyAscendingReleased();
+  void SetFlyDescendingPressed();
+  void SetFlyDescendingReleased();
+  void ApplyRuntimeFlyModeEnabled();
+  void ApplyRuntimeFlyModeDisabled();
+  void ApplyRuntimeFlyVerticalInput();
+  void StartScaleAuditCaptureIfRequested();
+  void ConfigureScaleAuditCapture();
+  void RunScaleAuditCaptureStep();
+  void RequestScaleAuditScreenshot();
+  void CompleteScaleAuditCapture();
 };

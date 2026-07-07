@@ -163,6 +163,14 @@ void APlayerCharacterView::DoJumpStart() { Jump(); }
 
 void APlayerCharacterView::DoJumpEnd() { StopJumping(); }
 
+UCameraComponent *APlayerCharacterView::GetRuntimeFollowCamera() const {
+  return FollowCamera;
+}
+
+USpringArmComponent *APlayerCharacterView::GetRuntimeCameraBoom() const {
+  return CameraBoom;
+}
+
 void APlayerCharacterView::ConfigureTemplateCharacter() {
   USkeletalMesh *CharacterMesh =
       LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath);

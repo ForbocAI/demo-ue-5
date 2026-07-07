@@ -38,6 +38,7 @@ struct FPlayerPresentationViewModel {
   float JumpZVelocity = 0.0f;
   float AirControl = 0.0f;
   float MaxWalkSpeed = 0.0f;
+  float FlyModeSpeed = 0.0f;
   float MinAnalogWalkSpeed = 0.0f;
   float BrakingDecelerationWalking = 0.0f;
   float BrakingDecelerationFalling = 0.0f;
@@ -124,6 +125,7 @@ inline bool operator==(const FPlayerPresentationViewModel &Left,
          FMath::IsNearlyEqual(Left.JumpZVelocity, Right.JumpZVelocity) &&
          FMath::IsNearlyEqual(Left.AirControl, Right.AirControl) &&
          FMath::IsNearlyEqual(Left.MaxWalkSpeed, Right.MaxWalkSpeed) &&
+         FMath::IsNearlyEqual(Left.FlyModeSpeed, Right.FlyModeSpeed) &&
          FMath::IsNearlyEqual(Left.MinAnalogWalkSpeed,
                               Right.MinAnalogWalkSpeed) &&
          FMath::IsNearlyEqual(Left.BrakingDecelerationWalking,

@@ -5,21 +5,59 @@
 
 #include "Views/PlayerRuntimeControllerView.h"
 
+#include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "EngineUtils.h"
+#include "Features/Components/Spatial/LevelLayoutSlice.h"
 #include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Runtime/RuntimeActions.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "HAL/FileManager.h"
 #include "InputCoreTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "Misc/Paths.h"
+#include "UnrealClient.h"
+#include "Views/PlayerCharacterView.h"
 #include "Views/RuntimeChatWidget.h"
 #include "Views/RuntimeStatsWidget.h"
 #include "Views/TownspersonView.h"
 
 namespace FG = ForbocAI::Game::Level;
 
+DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeController, Log, All);
+
 namespace {
+
+struct FLocalRouteBounds {
+  FVector2D Min = FVector2D::ZeroVector;
+  FVector2D Max = FVector2D::ZeroVector;
+  bool bValid = false;
+};
+
+struct FScaleAuditCaptureView {
+  FString OutputName;
+  FVector Location = FVector::ZeroVector;
+  FRotator ControlRotation = FRotator::ZeroRotator;
+  float OrthoWidth = 0.0f;
+};
+
+struct FScaleAuditCaptureViewsRequest {
+  UWorld *World = nullptr;
+  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  float WholeOrthoWidth = 0.0f;
+  float TownOrthoWidth = 0.0f;
+  float ActorsOrthoWidth = 0.0f;
+  float WholeCaptureHeight = 0.0f;
+  float TownCaptureHeight = 0.0f;
+  float ActorsCaptureHeight = 0.0f;
+};
 
 FG::FInteractionCandidatesObserved ObserveTownspersonCandidates(
     const APlayerRuntimeControllerView &Controller, float InteractionDistance,
@@ -69,6 +107,101 @@ void PresentMissingInteraction(const FString &Message) {
                                    Debug.Color, Message);
 }
 
+float CommandLineFloat(const TCHAR *Key, float Fallback) {
+  float Value = Fallback;
+  FParse::Value(FCommandLine::Get(), Key, Value);
+  return Value;
+}
+
+FString CommandLineString(const TCHAR *Key, const FString &Fallback) {
+  FString Value = Fallback;
+  FParse::Value(FCommandLine::Get(), Key, Value);
+  return Value;
+}
+
+FLocalRouteBounds InitialRouteBounds(const FG::FLevelLocalPoint &Point) {
+  return {FVector2D(Point.EastWest, Point.NorthSouth),
+          FVector2D(Point.EastWest, Point.NorthSouth), true};
+}
+
+FLocalRouteBounds ExtendRouteBounds(const FLocalRouteBounds &Bounds,
+                                    const FG::FLevelLocalPoint &Point) {
+  return {FVector2D(FMath::Min(Bounds.Min.X, Point.EastWest),
+                    FMath::Min(Bounds.Min.Y, Point.NorthSouth)),
+          FVector2D(FMath::Max(Bounds.Max.X, Point.EastWest),
+                    FMath::Max(Bounds.Max.Y, Point.NorthSouth)),
+          true};
+}
+
+FLocalRouteBounds ReduceRoutePointBounds(FLocalRouteBounds Bounds,
+                                         const FG::FLevelLocalPoint &Point) {
+  return Bounds.bValid ? ExtendRouteBounds(Bounds, Point)
+                       : InitialRouteBounds(Point);
+}
+
+FLocalRouteBounds ReduceTownspersonBounds(
+    FLocalRouteBounds Bounds, const FG::FTownspersonSeed &Seed) {
+  return func::fold_indexed(Seed.PatrolRoute,
+                            static_cast<size_t>(Seed.PatrolRoute.Num()),
+                            Bounds, ReduceRoutePointBounds);
+}
+
+FLocalRouteBounds ReduceHorseBounds(FLocalRouteBounds Bounds,
+                                    const FG::FHorseRouteSeed &Seed) {
+  return func::fold_indexed(Seed.PatrolRoute,
+                            static_cast<size_t>(Seed.PatrolRoute.Num()),
+                            Bounds, ReduceRoutePointBounds);
+}
+
+FLocalRouteBounds DynamicRouteBounds(const FG::FRuntimeState &State) {
+  const FLocalRouteBounds TownspersonBounds = func::fold_indexed(
+      FG::RuntimeSelectors::SelectTownspeople(State),
+      static_cast<size_t>(FG::RuntimeSelectors::SelectTownspeople(State).Num()),
+      FLocalRouteBounds{}, ReduceTownspersonBounds);
+  return func::fold_indexed(
+      FG::RuntimeSelectors::SelectHorses(State),
+      static_cast<size_t>(FG::RuntimeSelectors::SelectHorses(State).Num()),
+      TownspersonBounds, ReduceHorseBounds);
+}
+
+FVector RouteBoundsCenter(const FLocalRouteBounds &Bounds,
+                          const FVector &Fallback) {
+  return Bounds.bValid
+             ? FVector((Bounds.Min.X + Bounds.Max.X) * 0.5f,
+                       (Bounds.Min.Y + Bounds.Max.Y) * 0.5f, 0.0f)
+             : Fallback;
+}
+
+FVector PostOfficeWorldCenter(
+    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+  const FG::FLevelLocalPoint Point =
+      FG::LevelLayoutSlice::FromPostOfficeLots({Geometry, 0.0f, 0.0f, 0.0f});
+  return FVector(Point.EastWest, Point.NorthSouth, 0.0f);
+}
+
+FVector TopDownCameraLocation(const FVector &Center, float Height) {
+  return FVector(Center.X, Center.Y, Height);
+}
+
+TArray<FScaleAuditCaptureView>
+ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request) {
+  check(Request.World);
+  const FVector TerrainCenter = FVector::ZeroVector;
+  const FVector TownCenter = PostOfficeWorldCenter(Request.Geometry);
+  const FVector ActorCenter = RouteBoundsCenter(
+      DynamicRouteBounds(FG::RuntimeSelectors::SelectState()), TownCenter);
+  const FRotator TopDownRotation = FRotator(-90.0f, 0.0f, 0.0f);
+  return {{TEXT("scale-audit-ingame-whole-level.png"),
+           TopDownCameraLocation(TerrainCenter, Request.WholeCaptureHeight),
+           TopDownRotation, Request.WholeOrthoWidth},
+          {TEXT("scale-audit-ingame-town.png"),
+           TopDownCameraLocation(TownCenter, Request.TownCaptureHeight),
+           TopDownRotation, Request.TownOrthoWidth},
+          {TEXT("scale-audit-ingame-people-horses.png"),
+           TopDownCameraLocation(ActorCenter, Request.ActorsCaptureHeight),
+           TopDownRotation, Request.ActorsOrthoWidth}};
+}
+
 } // namespace
 
 APlayerRuntimeControllerView::APlayerRuntimeControllerView()
@@ -78,11 +211,34 @@ APlayerRuntimeControllerView::APlayerRuntimeControllerView()
       RuntimeConversationWidgetClass(URuntimeChatWidget::StaticClass()),
       RuntimeConversationWidget(nullptr),
       RuntimeStatsWidgetClass(URuntimeStatsWidget::StaticClass()),
-      RuntimeStatsWidget(nullptr) {}
+      RuntimeStatsWidget(nullptr),
+      FlyModeSpeed(FG::RuntimeSelectors::SelectPlayerPresentation(
+                       FG::RuntimeSelectors::SelectState())
+                       .FlyModeSpeed),
+      bRuntimeFlyModeEnabled(false), bFlyAscending(false),
+      bFlyDescending(false), PreviousMovementMode(MOVE_Walking),
+      PreviousCustomMovementMode(0), PreviousMaxFlySpeed(0.0f),
+      PreviousGravityScale(1.0f), bScaleAuditCaptureEnabled(false),
+      bScaleAuditQuitWhenDone(false), bScaleAuditCameraStateCached(false),
+      bScaleAuditMeshStateCached(false),
+      bPreviousPlayerMeshHiddenInGame(false), ScaleAuditCaptureIndex(0),
+      PreviousProjectionMode(ECameraProjectionMode::Perspective),
+      ScaleAuditInitialDelaySeconds(0.0f), ScaleAuditSettleSeconds(0.0f),
+      ScaleAuditBetweenSeconds(0.0f), ScaleAuditWholeOrthoWidth(0.0f),
+      ScaleAuditTownOrthoWidth(0.0f), ScaleAuditActorsOrthoWidth(0.0f),
+      ScaleAuditWholeCaptureHeight(0.0f), ScaleAuditTownCaptureHeight(0.0f),
+      ScaleAuditActorsCaptureHeight(0.0f), PreviousFieldOfView(0.0f),
+      PreviousOrthoWidth(0.0f), PreviousSpringArmLength(0.0f) {}
 
 void APlayerRuntimeControllerView::BeginPlay() {
   Super::BeginPlay();
   PresentRuntimeStatsWidget();
+  StartScaleAuditCaptureIfRequested();
+}
+
+void APlayerRuntimeControllerView::PlayerTick(float DeltaTime) {
+  Super::PlayerTick(DeltaTime);
+  ApplyRuntimeFlyVerticalInput();
 }
 
 void APlayerRuntimeControllerView::SetupInputComponent() {
@@ -91,6 +247,26 @@ void APlayerRuntimeControllerView::SetupInputComponent() {
   InputComponent->BindKey(
       EKeys::E, IE_Pressed, this,
       &APlayerRuntimeControllerView::InteractWithNearestTownsperson);
+  InputComponent->BindKey(EKeys::F, IE_Pressed, this,
+                          &APlayerRuntimeControllerView::ToggleRuntimeFlyMode);
+  InputComponent->BindKey(
+      EKeys::SpaceBar, IE_Pressed, this,
+      &APlayerRuntimeControllerView::SetFlyAscendingPressed);
+  InputComponent->BindKey(
+      EKeys::SpaceBar, IE_Released, this,
+      &APlayerRuntimeControllerView::SetFlyAscendingReleased);
+  InputComponent->BindKey(
+      EKeys::C, IE_Pressed, this,
+      &APlayerRuntimeControllerView::SetFlyDescendingPressed);
+  InputComponent->BindKey(
+      EKeys::C, IE_Released, this,
+      &APlayerRuntimeControllerView::SetFlyDescendingReleased);
+  InputComponent->BindKey(
+      EKeys::LeftControl, IE_Pressed, this,
+      &APlayerRuntimeControllerView::SetFlyDescendingPressed);
+  InputComponent->BindKey(
+      EKeys::LeftControl, IE_Released, this,
+      &APlayerRuntimeControllerView::SetFlyDescendingReleased);
 }
 
 void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
@@ -148,4 +324,207 @@ void APlayerRuntimeControllerView::PresentRuntimeStatsWidget() {
                   FG::RuntimeSelectors::SelectState())
                   .StatsOverlay.ZOrder);
         }(), void());
+}
+
+void APlayerRuntimeControllerView::ToggleRuntimeFlyMode() {
+  bRuntimeFlyModeEnabled ? ApplyRuntimeFlyModeDisabled()
+                         : ApplyRuntimeFlyModeEnabled();
+}
+
+void APlayerRuntimeControllerView::SetFlyAscendingPressed() {
+  bFlyAscending = true;
+}
+
+void APlayerRuntimeControllerView::SetFlyAscendingReleased() {
+  bFlyAscending = false;
+}
+
+void APlayerRuntimeControllerView::SetFlyDescendingPressed() {
+  bFlyDescending = true;
+}
+
+void APlayerRuntimeControllerView::SetFlyDescendingReleased() {
+  bFlyDescending = false;
+}
+
+void APlayerRuntimeControllerView::ApplyRuntimeFlyModeEnabled() {
+  APlayerCharacterView *RuntimeCharacter =
+      Cast<APlayerCharacterView>(GetPawn());
+  check(RuntimeCharacter);
+  UCharacterMovementComponent *Movement =
+      RuntimeCharacter->GetCharacterMovement();
+  check(Movement);
+  PreviousMovementMode = static_cast<uint8>(Movement->MovementMode);
+  PreviousCustomMovementMode = Movement->CustomMovementMode;
+  PreviousMaxFlySpeed = Movement->MaxFlySpeed;
+  PreviousGravityScale = Movement->GravityScale;
+  Movement->MaxFlySpeed = FlyModeSpeed;
+  Movement->GravityScale = 0.0f;
+  Movement->SetMovementMode(MOVE_Flying);
+  bRuntimeFlyModeEnabled = true;
+  PresentMissingInteraction(
+      TEXT("Fly mode on: WASD/mouse, Space up, C/Ctrl down, F off"));
+}
+
+void APlayerRuntimeControllerView::ApplyRuntimeFlyModeDisabled() {
+  APlayerCharacterView *RuntimeCharacter =
+      Cast<APlayerCharacterView>(GetPawn());
+  check(RuntimeCharacter);
+  UCharacterMovementComponent *Movement =
+      RuntimeCharacter->GetCharacterMovement();
+  check(Movement);
+  Movement->MaxFlySpeed = PreviousMaxFlySpeed;
+  Movement->GravityScale = PreviousGravityScale;
+  Movement->SetMovementMode(static_cast<EMovementMode>(PreviousMovementMode),
+                            PreviousCustomMovementMode);
+  bRuntimeFlyModeEnabled = false;
+  bFlyAscending = false;
+  bFlyDescending = false;
+  PresentMissingInteraction(TEXT("Fly mode off"));
+}
+
+void APlayerRuntimeControllerView::ApplyRuntimeFlyVerticalInput() {
+  APawn *ControlledPawn = GetPawn();
+  const float UpScale =
+      (bFlyAscending ? 1.0f : 0.0f) - (bFlyDescending ? 1.0f : 0.0f);
+  bRuntimeFlyModeEnabled && ControlledPawn && !FMath::IsNearlyZero(UpScale)
+      ? (ControlledPawn->AddMovementInput(FVector::UpVector, UpScale), void())
+      : void();
+}
+
+void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
+  bScaleAuditCaptureEnabled =
+      FParse::Param(FCommandLine::Get(), TEXT("forbocScaleAuditCapture"));
+  bScaleAuditCaptureEnabled ? (ConfigureScaleAuditCapture(), void()) : void();
+  UWorld *World = GetWorld();
+  bScaleAuditCaptureEnabled && World
+      ? (World->GetTimerManager().SetTimer(
+             ScaleAuditCaptureTimer, this,
+             &APlayerRuntimeControllerView::RunScaleAuditCaptureStep,
+             ScaleAuditInitialDelaySeconds, false),
+         void())
+      : void();
+}
+
+void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() {
+  const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
+  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry =
+      FG::RuntimeSelectors::SelectLevelGeometry(State);
+  const FString DefaultOutputDirectory = FPaths::ConvertRelativePathToFull(
+      FPaths::Combine(FPaths::ProjectDir(), TEXT("screenshots")));
+  bScaleAuditQuitWhenDone =
+      FParse::Param(FCommandLine::Get(), TEXT("forbocScaleAuditQuitWhenDone"));
+  ScaleAuditOutputDirectory = CommandLineString(
+      TEXT("forbocScaleAuditOutputDir="), DefaultOutputDirectory);
+  ScaleAuditInitialDelaySeconds = CommandLineFloat(
+      TEXT("forbocScaleAuditInitialDelaySeconds="), 0.0f);
+  ScaleAuditSettleSeconds =
+      CommandLineFloat(TEXT("forbocScaleAuditSettleSeconds="), 0.0f);
+  ScaleAuditBetweenSeconds =
+      CommandLineFloat(TEXT("forbocScaleAuditBetweenSeconds="), 0.0f);
+  ScaleAuditWholeOrthoWidth = CommandLineFloat(
+      TEXT("forbocScaleAuditWholeOrthoWidth="), Geometry.TerrainWorldSize);
+  ScaleAuditTownOrthoWidth = CommandLineFloat(
+      TEXT("forbocScaleAuditTownOrthoWidth="), Geometry.TerrainWorldSize);
+  ScaleAuditActorsOrthoWidth = CommandLineFloat(
+      TEXT("forbocScaleAuditActorsOrthoWidth="), Geometry.TerrainWorldSize);
+  ScaleAuditWholeCaptureHeight = CommandLineFloat(
+      TEXT("forbocScaleAuditWholeCaptureHeight="),
+      Geometry.TerrainWorldSize);
+  ScaleAuditTownCaptureHeight = CommandLineFloat(
+      TEXT("forbocScaleAuditTownCaptureHeight="), ScaleAuditTownOrthoWidth);
+  ScaleAuditActorsCaptureHeight = CommandLineFloat(
+      TEXT("forbocScaleAuditActorsCaptureHeight="),
+      ScaleAuditActorsOrthoWidth);
+  ScaleAuditCaptureIndex = 0;
+  IFileManager::Get().MakeDirectory(*ScaleAuditOutputDirectory, true);
+}
+
+void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() {
+  UWorld *World = GetWorld();
+  check(World);
+  APlayerCharacterView *RuntimeCharacter =
+      Cast<APlayerCharacterView>(GetPawn());
+  check(RuntimeCharacter);
+  UCameraComponent *Camera = RuntimeCharacter->GetRuntimeFollowCamera();
+  USpringArmComponent *CameraBoom = RuntimeCharacter->GetRuntimeCameraBoom();
+  USkeletalMeshComponent *PlayerMesh = RuntimeCharacter->GetMesh();
+  check(Camera);
+  check(CameraBoom);
+  check(PlayerMesh);
+  const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
+  const TArray<FScaleAuditCaptureView> Views = ScaleAuditCaptureViews(
+      {World, FG::RuntimeSelectors::SelectLevelGeometry(State),
+       ScaleAuditWholeOrthoWidth, ScaleAuditTownOrthoWidth,
+       ScaleAuditActorsOrthoWidth, ScaleAuditWholeCaptureHeight,
+       ScaleAuditTownCaptureHeight, ScaleAuditActorsCaptureHeight});
+  Views.IsValidIndex(ScaleAuditCaptureIndex)
+      ? (bScaleAuditCameraStateCached
+             ? void()
+             : (PreviousProjectionMode = Camera->ProjectionMode,
+                PreviousFieldOfView = Camera->FieldOfView,
+                PreviousOrthoWidth = Camera->OrthoWidth,
+                PreviousSpringArmLength = CameraBoom->TargetArmLength,
+                bScaleAuditCameraStateCached = true, void()),
+         bScaleAuditMeshStateCached
+             ? void()
+             : (bPreviousPlayerMeshHiddenInGame = PlayerMesh->bHiddenInGame,
+                bScaleAuditMeshStateCached = true, void()),
+         ScaleAuditCurrentOutputName =
+             Views[ScaleAuditCaptureIndex].OutputName,
+         PlayerMesh->SetHiddenInGame(true),
+         CameraBoom->TargetArmLength = 0.0f,
+         Camera->ProjectionMode = ECameraProjectionMode::Orthographic,
+         Camera->SetOrthoWidth(Views[ScaleAuditCaptureIndex].OrthoWidth),
+         RuntimeCharacter->SetActorLocation(
+             Views[ScaleAuditCaptureIndex].Location, false, nullptr,
+             ETeleportType::TeleportPhysics),
+         SetControlRotation(Views[ScaleAuditCaptureIndex].ControlRotation),
+         World->GetTimerManager().SetTimer(
+             ScaleAuditScreenshotTimer, this,
+             &APlayerRuntimeControllerView::RequestScaleAuditScreenshot,
+             ScaleAuditSettleSeconds, false),
+         void())
+      : CompleteScaleAuditCapture();
+}
+
+void APlayerRuntimeControllerView::RequestScaleAuditScreenshot() {
+  const FString OutputPath =
+      FPaths::Combine(ScaleAuditOutputDirectory, ScaleAuditCurrentOutputName);
+  FScreenshotRequest::RequestScreenshot(OutputPath, false, false);
+  UE_LOG(LogForbocRuntimeController, Display,
+         TEXT("Scale audit screenshot requested: %s"), *OutputPath);
+  ScaleAuditCaptureIndex = ScaleAuditCaptureIndex + 1;
+  UWorld *World = GetWorld();
+  check(World);
+  World->GetTimerManager().SetTimer(
+      ScaleAuditCaptureTimer, this,
+      &APlayerRuntimeControllerView::RunScaleAuditCaptureStep,
+      ScaleAuditBetweenSeconds, false);
+}
+
+void APlayerRuntimeControllerView::CompleteScaleAuditCapture() {
+  APlayerCharacterView *RuntimeCharacter =
+      Cast<APlayerCharacterView>(GetPawn());
+  UCameraComponent *Camera =
+      RuntimeCharacter ? RuntimeCharacter->GetRuntimeFollowCamera() : nullptr;
+  USpringArmComponent *CameraBoom =
+      RuntimeCharacter ? RuntimeCharacter->GetRuntimeCameraBoom() : nullptr;
+  USkeletalMeshComponent *PlayerMesh =
+      RuntimeCharacter ? RuntimeCharacter->GetMesh() : nullptr;
+  Camera && bScaleAuditCameraStateCached
+      ? (Camera->ProjectionMode =
+             static_cast<ECameraProjectionMode::Type>(PreviousProjectionMode),
+         Camera->SetFieldOfView(PreviousFieldOfView),
+         Camera->SetOrthoWidth(PreviousOrthoWidth), void())
+      : void();
+  CameraBoom && bScaleAuditCameraStateCached
+      ? (CameraBoom->TargetArmLength = PreviousSpringArmLength, void())
+      : void();
+  PlayerMesh && bScaleAuditMeshStateCached
+      ? (PlayerMesh->SetHiddenInGame(bPreviousPlayerMeshHiddenInGame), void())
+      : void();
+  bScaleAuditCameraStateCached = false;
+  bScaleAuditMeshStateCached = false;
+  bScaleAuditQuitWhenDone ? (ConsoleCommand(TEXT("Quit")), void()) : void();
 }

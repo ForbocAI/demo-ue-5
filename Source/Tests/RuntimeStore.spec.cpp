@@ -470,9 +470,15 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            !DistanceLodStages[2].bLabelsVisible &&
                !DistanceLodStages[2].bAnimated &&
                !DistanceLodStages[2].bPatrolEnabled);
-  TestFalse(TEXT("Terminal LOD stage culls distant actors"),
-            DistanceLodStages[4].bStaticVisible ||
-                DistanceLodStages[4].bDynamicVisible);
+  TestTrue(TEXT("Terminal LOD keeps distant assets visible at minimum detail"),
+           DistanceLodStages[4].bStaticVisible &&
+               DistanceLodStages[4].bDynamicVisible &&
+               DistanceLodStages[4].CullDistance <= 0.0f &&
+               !DistanceLodStages[4].bLabelsVisible &&
+               !DistanceLodStages[4].bAnimated &&
+               !DistanceLodStages[4].bPatrolEnabled &&
+               !DistanceLodStages[4].bCollisionEnabled &&
+               !DistanceLodStages[4].bCastShadow);
   TestTrue(TEXT("Silhouette LOD keeps dynamic models visible as low-cost shapes"),
            DistanceLodStages[3].bDynamicVisible &&
                !DistanceLodStages[3].bAnimated &&

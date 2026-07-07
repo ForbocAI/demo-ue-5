@@ -60,6 +60,7 @@ inline FPlayerPresentationViewModel ReducePlayerPresentation(
   Model.JumpZVelocity = Settings.JumpZVelocity;
   Model.AirControl = Settings.AirControl;
   Model.MaxWalkSpeed = Settings.MaxWalkSpeed;
+  Model.FlyModeSpeed = Settings.FlyModeSpeed;
   Model.MinAnalogWalkSpeed = Settings.MinAnalogWalkSpeed;
   Model.BrakingDecelerationWalking = Settings.BrakingDecelerationWalking;
   Model.BrakingDecelerationFalling = Settings.BrakingDecelerationFalling;

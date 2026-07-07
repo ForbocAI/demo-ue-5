@@ -14,6 +14,7 @@ struct FPlayerPresentationSettings {
   float JumpZVelocity;
   float AirControl;
   float MaxWalkSpeed;
+  float FlyModeSpeed;
   float MinAnalogWalkSpeed;
   float BrakingDecelerationWalking;
   float BrakingDecelerationFalling;

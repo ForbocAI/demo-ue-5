@@ -127,6 +127,26 @@ bash Scripts/run-tests.sh
 This runs the project's C++ test suite, including store/reducer round-trip
 tests and SDK integration checks.
 
+## Runtime Map Tools
+
+Press `F` during play to toggle fly mode for scale and layout inspection.
+
+To capture reusable in-game scale evidence with the real player camera, run:
+
+```bash
+bash Scripts/capture-scale-audit.sh
+```
+
+The script launches `/Game/Map/Maps/Runtime` in game mode and writes:
+
+- `screenshots/scale-audit-ingame-whole-level.png`
+- `screenshots/scale-audit-ingame-town.png`
+- `screenshots/scale-audit-ingame-people-horses.png`
+
+Distance LOD should reduce detail and runtime cost, not hide the level. Distant
+assets stay visible while lower LODs disable labels, animation, patrol,
+collision, shadows, and other expensive behavior.
+
 ---
 
 ## Troubleshooting

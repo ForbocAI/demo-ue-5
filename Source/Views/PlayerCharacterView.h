@@ -56,6 +56,9 @@ public:
   UFUNCTION(BlueprintCallable, Category = "Level|Input")
   void DoJumpEnd();
 
+  UCameraComponent *GetRuntimeFollowCamera() const;
+  USpringArmComponent *GetRuntimeCameraBoom() const;
+
 private:
   UPROPERTY(VisibleAnywhere, Category = "Level|Camera")
   USpringArmComponent *CameraBoom;
