@@ -161,63 +161,89 @@ void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
 
 } // namespace
 
+FString RequestPlayerSpawnTypePrefix() {
+  return TEXT("runtime/requestPlayerSpawn");
+}
+
+FString RequestLevelViewPayloadTypePrefix() {
+  return TEXT("runtime/requestLevelViewPayload");
+}
+
+// Runtime bootstrap workflows use rtk::createAsyncThunk so each imperative
+// load/seed run carries a pending/fulfilled/rejected lifecycle and dispatches
+// a rejected action on failure instead of swallowing the error. The public
+// signature stays a ThunkAction (the config's operator()), so callers and the
+// EnhancedStore thunk-dispatch path are unchanged.
 rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
-  return [](std::function<rtk::AnyAction(const rtk::AnyAction &)> Dispatch,
-            std::function<const FRuntimeState &()> GetState)
-             -> func::AsyncResult<FSpawnPointPayload> {
-    return func::createAsyncResult<FSpawnPointPayload>(
-        [Dispatch, GetState](std::function<void(FSpawnPointPayload)> Resolve,
-                             std::function<void(std::string)> Reject) {
-          (void)Reject;
-          FLevelTerrainData TerrainData;
-          FLevelOrthoData OrthoData;
-          const FRuntimeState &State = GetState();
-          const ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources =
-              RuntimeSelectors::SelectLevelTerrainSources(State);
-          const ForbocAI::Game::Data::FLevelDataSourceSettings DataSources =
-              RuntimeSelectors::SelectLevelDataSources(State);
-          const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
-              RuntimeSelectors::SelectLevelGeometry(State);
-          LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
-          DispatchRuntimeSeeded(
-              {Dispatch, TerrainData, OrthoData, DataSources, Geometry});
-          Resolve(RuntimeSelectors::SelectPlayerSpawn(GetState()));
-        });
-  };
+  static const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
+                                     FRuntimeState>
+      Config = rtk::createAsyncThunk<FSpawnPointPayload, rtk::FEmptyPayload,
+                                     FRuntimeState>(
+          RequestPlayerSpawnTypePrefix(),
+          [](const rtk::FEmptyPayload &,
+             const rtk::ThunkApi<FRuntimeState> &Api)
+              -> func::AsyncResult<FSpawnPointPayload> {
+            return func::createAsyncResult<FSpawnPointPayload>(
+                [Api](std::function<void(FSpawnPointPayload)> Resolve,
+                      std::function<void(std::string)>) {
+                  FLevelTerrainData TerrainData;
+                  FLevelOrthoData OrthoData;
+                  const FRuntimeState &State = Api.getState();
+                  const ForbocAI::Game::Data::FLevelTerrainSourceSettings
+                      Sources =
+                          RuntimeSelectors::SelectLevelTerrainSources(State);
+                  const ForbocAI::Game::Data::FLevelDataSourceSettings
+                      DataSources =
+                          RuntimeSelectors::SelectLevelDataSources(State);
+                  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
+                      RuntimeSelectors::SelectLevelGeometry(State);
+                  LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
+                  DispatchRuntimeSeeded({Api.dispatch, TerrainData, OrthoData,
+                                         DataSources, Geometry});
+                  Resolve(RuntimeSelectors::SelectPlayerSpawn(Api.getState()));
+                });
+          });
+  return Config(rtk::FEmptyPayload{});
 }
 
 rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
 RequestLevelViewPayload() {
-  return [](std::function<rtk::AnyAction(const rtk::AnyAction &)> Dispatch,
-            std::function<const FRuntimeState &()> GetState)
-             -> func::AsyncResult<FRuntimeLevelViewPayload> {
-    return func::createAsyncResult<FRuntimeLevelViewPayload>(
-        [Dispatch, GetState](
-            std::function<void(FRuntimeLevelViewPayload)> Resolve,
-            std::function<void(std::string)> Reject) {
-          (void)Reject;
-          FLevelTerrainData TerrainData;
-          FLevelOrthoData OrthoData;
-          const FRuntimeState &State = GetState();
-          const ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources =
-              RuntimeSelectors::SelectLevelTerrainSources(State);
-          const ForbocAI::Game::Data::FLevelDataSourceSettings DataSources =
-              RuntimeSelectors::SelectLevelDataSources(State);
-          const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
-              RuntimeSelectors::SelectLevelGeometry(State);
-          LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
-          const FLevelRuntimeLayoutSeed RuntimeLayout =
-              LevelAdapters::LoadRuntimeLayoutSeed(DataSources);
-          DispatchRuntimeSeeded(
-              {Dispatch, TerrainData, OrthoData, DataSources, Geometry});
-          func::executeAsync(RenderingThunks::ObserveRuntimeProfile(
-                                 TEXT("runtime/rendering/profileObserved"))(
-              Dispatch, GetState));
-          Resolve(RuntimeReducers::ReduceLevelViewPayload(
-              GetState(), {&TerrainData, &OrthoData, &RuntimeLayout,
-                           &Geometry}));
-        });
-  };
+  static const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload,
+                                     rtk::FEmptyPayload, FRuntimeState>
+      Config = rtk::createAsyncThunk<FRuntimeLevelViewPayload,
+                                     rtk::FEmptyPayload, FRuntimeState>(
+          RequestLevelViewPayloadTypePrefix(),
+          [](const rtk::FEmptyPayload &,
+             const rtk::ThunkApi<FRuntimeState> &Api)
+              -> func::AsyncResult<FRuntimeLevelViewPayload> {
+            return func::createAsyncResult<FRuntimeLevelViewPayload>(
+                [Api](std::function<void(FRuntimeLevelViewPayload)> Resolve,
+                      std::function<void(std::string)>) {
+                  FLevelTerrainData TerrainData;
+                  FLevelOrthoData OrthoData;
+                  const FRuntimeState &State = Api.getState();
+                  const ForbocAI::Game::Data::FLevelTerrainSourceSettings
+                      Sources =
+                          RuntimeSelectors::SelectLevelTerrainSources(State);
+                  const ForbocAI::Game::Data::FLevelDataSourceSettings
+                      DataSources =
+                          RuntimeSelectors::SelectLevelDataSources(State);
+                  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
+                      RuntimeSelectors::SelectLevelGeometry(State);
+                  LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
+                  const FLevelRuntimeLayoutSeed RuntimeLayout =
+                      LevelAdapters::LoadRuntimeLayoutSeed(DataSources);
+                  DispatchRuntimeSeeded({Api.dispatch, TerrainData, OrthoData,
+                                         DataSources, Geometry});
+                  func::executeAsync(RenderingThunks::ObserveRuntimeProfile(
+                      TEXT("runtime/rendering/profileObserved"))(Api.dispatch,
+                                                                 Api.getState));
+                  Resolve(RuntimeReducers::ReduceLevelViewPayload(
+                      Api.getState(), {&TerrainData, &OrthoData, &RuntimeLayout,
+                                       &Geometry}));
+                });
+          });
+  return Config(rtk::FEmptyPayload{});
 }
 
 } // namespace RuntimeThunks

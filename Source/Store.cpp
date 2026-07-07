@@ -3,6 +3,7 @@
 #include "Core/redux_logger.hpp"
 #include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Systems/Runtime/RuntimeFactories.h"
+#include "Features/Systems/Runtime/RuntimeListeners.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
 
 #include <vector>
@@ -92,7 +93,10 @@ rtk::logger::ReduxLoggerOptions<FRuntimeState> CreateReduxLoggerOptions() {
  * dispatch through RTK middleware while reducers remain the only state writers.
  */
 std::vector<rtk::Middleware<FRuntimeState>> CreateRuntimeMiddleware() {
+  // Listener middleware is prepended (outermost) so reactive effects observe
+  // post-reducer state, ahead of the redux-logger instrumentation.
   return std::vector<rtk::Middleware<FRuntimeState>>{
+      RuntimeListeners::CreateRuntimeListenerMiddleware(),
       rtk::logger::createLogger<FRuntimeState>(CreateReduxLoggerOptions())};
 }
 
