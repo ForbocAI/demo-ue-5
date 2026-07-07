@@ -1,6 +1,6 @@
 #include "Features/Components/Data/RuntimeSettings/RenderingSettingsAdapters.h"
 
-#include "Features/Components/Data/Json/JsonAdapters.h"
+#include "Features/Components/Data/Json/JsonSettingsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -287,7 +287,7 @@ ReadRenderingTextureSpecSettings(const TSharedPtr<FJsonObject> &Object) {
 TArray<FRenderingTextureSpecSettings>
 ReadTextureCatalogSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadObjectArrayField<FRenderingTextureSpecSettings>(
-      {Object, "TextureCatalog"}, ReadRenderingTextureSpecSettings);
+      Object, "TextureCatalog", ReadRenderingTextureSpecSettings);
 }
 
 FRenderingRuntimeSettings
@@ -300,7 +300,7 @@ ReadRenderingRuntimeSettings(const FRenderingRuntimeSettingsRequest &Request) {
                               TextureHash));
   Settings.ConsoleVariables =
       Json::ReadObjectArrayField<FRenderingConsoleVariableSettings>(
-          {Request.ConsoleVariables, "ConsoleVariables"},
+          Request.ConsoleVariables, "ConsoleVariables",
           Json::ReadSettingsWith<FRenderingConsoleVariableSettings>(
               JSON_SETTINGS_ATOMS(Name, ValueKind, ProfileField, IntValue,
                                   FloatValue)));

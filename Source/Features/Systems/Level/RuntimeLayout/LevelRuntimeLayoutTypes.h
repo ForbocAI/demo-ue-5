@@ -21,6 +21,13 @@ struct FLevelRuntimeJsonObjectRequest {
   TSharedPtr<FJsonObject> Object;
 };
 
+struct FLevelRuntimeLayoutRoots {
+  TSharedPtr<FJsonObject> TerrainRoot;
+  TSharedPtr<FJsonObject> TownRoot;
+  TSharedPtr<FJsonObject> MineRoot;
+  TSharedPtr<FJsonObject> OverlayRoot;
+};
+
 /**
  * @brief Request for parsing one authored enum text field.
  *

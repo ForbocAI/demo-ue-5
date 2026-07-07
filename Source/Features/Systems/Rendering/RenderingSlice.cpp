@@ -1,5 +1,7 @@
 #include "Features/Systems/Rendering/RenderingSlice.h"
 
+#include "Features/Systems/Rendering/RenderingDiagnosticsAdapters.h"
+#include "Features/Systems/Rendering/RenderingDiagnosticsSelectors.h"
 #include "Features/Systems/Rendering/RenderingReducers.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
@@ -34,6 +36,9 @@ const rtk::Slice<FRenderingState> &GetSlice() {
               Builder.addCase(
                   RenderingActions::HorsePresentationRequested(),
                   RenderingReducers::ReduceHorsePresentationRequested);
+              Builder.addCase(
+                  RenderingActions::RuntimeStatsSampled(),
+                  RenderingReducers::ReduceRuntimeStatsSampled);
             });
       });
   return func::eval(Slice);
@@ -45,51 +50,51 @@ void ApplyRuntimeProfile(const FRuntimeProfileApplyRequest &Request) {
 
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return RenderingThunks::SelectRuntimeBudgetScreenshotIntervalSeconds(
+  return RenderingAdapters::SelectRuntimeBudgetScreenshotIntervalSeconds(
       Settings);
 }
 
 double SelectRuntimeBudgetClockSeconds() {
-  return RenderingThunks::SelectRuntimeBudgetClockSeconds();
+  return RenderingAdapters::SelectRuntimeBudgetClockSeconds();
 }
 
 bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params) {
-  return RenderingThunks::ShouldRunRuntimeBudgetWallInterval(Params);
+  return RenderingSelectors::ShouldRunRuntimeBudgetWallInterval(Params);
 }
 
 bool ShouldRunRuntimeBudgetScreenshot(
     const FBudgetCheckParams &Params,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return RenderingThunks::ShouldRunRuntimeBudgetScreenshot(Params, Settings);
+  return RenderingSelectors::ShouldRunRuntimeBudgetScreenshot(Params, Settings);
 }
 
 void RequestRuntimeBudgetScreenshot(
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings,
     int32 Index) {
-  RenderingThunks::RequestRuntimeBudgetScreenshot(Settings, Index);
+  RenderingAdapters::RequestRuntimeBudgetScreenshot(Settings, Index);
 }
 
 FRuntimeMemoryStats SelectRuntimeMemoryStats(
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return RenderingThunks::SelectRuntimeMemoryStats(Settings);
+  return RenderingAdapters::SelectRuntimeMemoryStats(Settings);
 }
 
 FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return RenderingThunks::SelectRuntimeFrameTimingStats(Settings);
+  return RenderingAdapters::SelectRuntimeFrameTimingStats(Settings);
 }
 
 FRuntimePolyCountStats SelectRuntimePolyCountStats(
     UWorld *World,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return RenderingThunks::SelectRuntimePolyCountStats(World, Settings);
+  return RenderingAdapters::SelectRuntimePolyCountStats(World, Settings);
 }
 
 FRuntimeStatsViewModel SelectRuntimeStats(
     UWorld *World, float DeltaSeconds, double WallDeltaSeconds,
     int64 PolyCount, double PolyCountMilliseconds,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
-  return RenderingThunks::SelectRuntimeStats(
+  return RenderingAdapters::SelectRuntimeStats(
       World, DeltaSeconds, WallDeltaSeconds, PolyCount,
       PolyCountMilliseconds, Settings);
 }

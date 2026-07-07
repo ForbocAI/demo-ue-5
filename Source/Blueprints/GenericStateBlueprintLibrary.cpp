@@ -1,7 +1,7 @@
 #include "Blueprints/GenericStateBlueprintLibrary.h"
 
 #include "Core/ue_fp.hpp"
-#include "Features/Components/Data/Json/JsonAdapters.h"
+#include "Features/Components/Data/Json/JsonReadAdapters.h"
 
 namespace {
 

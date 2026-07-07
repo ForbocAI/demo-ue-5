@@ -47,9 +47,15 @@ ReadRenderingTextureSpecSettings(const TSharedPtr<FJsonObject> &Object);
 TArray<FRenderingTextureSpecSettings>
 ReadTextureCatalogSettings(const TSharedPtr<FJsonObject> &Object);
 
+struct FRenderingRuntimeSettingsRequest {
+  const TSharedPtr<FJsonObject> TextureSettings;
+  const TSharedPtr<FJsonObject> ConsoleVariables;
+  const TSharedPtr<FJsonObject> TexturePalettes;
+};
+
 /**
  * @brief Reads rendering runtime style settings from nested runtime JSON objects.
- * @signature FRenderingRuntimeSettings ReadRenderingRuntimeSettings(const TSharedPtr<FJsonObject> &TextureSettings, const TSharedPtr<FJsonObject> &ConsoleVariables, const TSharedPtr<FJsonObject> &TexturePalettes)
+ * @signature FRenderingRuntimeSettings ReadRenderingRuntimeSettings(const FRenderingRuntimeSettingsRequest &Request)
  *
  * User story: As a rendering maintainer, authored CVar mappings, palette
  * rules, hash parameters, and material parameter names live in JSON while

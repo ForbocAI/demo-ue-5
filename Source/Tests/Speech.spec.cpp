@@ -14,7 +14,7 @@
 
 #include "Misc/AutomationTest.h"
 #include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
-#include "Features/Systems/Speech/SpeechAdapters.h"
+#include "Features/Systems/Speech/SpeechAdaptersReducers.h"
 
 namespace {
 

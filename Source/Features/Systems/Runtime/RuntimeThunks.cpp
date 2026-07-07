@@ -207,8 +207,7 @@ RequestLevelViewPayload() {
               RuntimeSelectors::SelectLevelGeometry(State);
           LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
           const FLevelRuntimeLayoutSeed RuntimeLayout =
-              LevelAdapters::LoadRuntimeLayoutSeed(
-                  DataSources.RuntimeLayoutJsonPath);
+              LevelAdapters::LoadRuntimeLayoutSeed(DataSources);
           DispatchRuntimeSeeded(
               {Dispatch, TerrainData, OrthoData, DataSources, Geometry});
           func::executeAsync(RenderingThunks::ObserveRuntimeProfile(

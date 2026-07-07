@@ -1,0 +1,58 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-07-06T18:31:30Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "way",
+      "id": 1125709150,
+      "bounds": {
+        "minlat": 40.6985512,
+        "minlon": -122.637655,
+        "maxlat": 40.6987256,
+        "maxlon": -122.6375538
+      },
+      "nodes": [
+        10294011566,
+        10294011567,
+        10294011568,
+        10294011569,
+        10294011566
+      ],
+      "geometry": [
+        {
+          "lat": 40.6987249,
+          "lon": -122.637655
+        },
+        {
+          "lat": 40.6985512,
+          "lon": -122.6376529
+        },
+        {
+          "lat": 40.6985519,
+          "lon": -122.6375538
+        },
+        {
+          "lat": 40.6987256,
+          "lon": -122.6375559
+        },
+        {
+          "lat": 40.6987249,
+          "lon": -122.637655
+        }
+      ],
+      "tags": {
+        "addr:city": "French Gulch",
+        "addr:postcode": "96033",
+        "addr:state": "CA",
+        "addr:street": "Main Street",
+        "building": "yes",
+        "clli": "FRGLCA11",
+        "telecom": "exchange"
+      }
+    }
+  ]
+}

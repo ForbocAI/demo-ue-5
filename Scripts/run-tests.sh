@@ -104,7 +104,7 @@ if [ -n "$UNREAL_BUILD" ]; then
   echo "Ensuring ForbocAIDemoEditor is built..."
   set +e
   if [ "$BUILD_VIA_CMD" -eq 1 ]; then
-    powershell.exe -NoProfile -Command "& { & '$UNREAL_BUILD_ARG' 'ForbocAIDemoEditor' 'Win64' 'Development' '-Project=$PROJECT_FILE_ARG' '-WaitMutex' '-NoHotReloadFromIDE'; exit \$LASTEXITCODE }"
+    powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { & '$UNREAL_BUILD_ARG' 'ForbocAIDemoEditor' 'Win64' 'Development' '-Project=$PROJECT_FILE_ARG' '-WaitMutex' '-NoHotReloadFromIDE'; exit \$LASTEXITCODE }" < /dev/null
   else
     "$UNREAL_BUILD" ForbocAIDemoEditor Win64 Development "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE
   fi
@@ -151,7 +151,7 @@ else
   fi
   echo "Running 30-second Runtime map performance budget test..."
   if [ "$RUNTIME_BUDGET_VIA_POWERSHELL" -eq 1 ]; then
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$RUNTIME_BUDGET_POWERSHELL_ARG"
+    powershell.exe -NoProfile -NonInteractive -InputFormat None -ExecutionPolicy Bypass -File "$RUNTIME_BUDGET_POWERSHELL_ARG" < /dev/null
   else
     bash "$RUNTIME_BUDGET_SCRIPT"
   fi

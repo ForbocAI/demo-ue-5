@@ -99,19 +99,21 @@ ecs::FWorld
 ProjectInteraction(const FProjectInteractionPayload &Payload) {
   return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
-      func::constant<ecs::EntityKey>(InteractionEntityKey()),
-      func::constant<TArray<TArray<FString>>>(BuildInteractionDomains()),
-      [](const FProjectInteractionPayload &PayloadValue)
-          -> const FInteractionState & {
-        return PayloadValue.Interaction;
-      },
-      RegisteredComponentGroups<FInteractionState>(
-          {{"Components/Spatial", {"Origin", "MaxDistance"}},
-           {"Components/Interaction",
-            {"Candidates",
-             {"Found", {"SelectedCandidate", "Found"}},
-             {"EntityId", {"SelectedCandidate", "EntityId"}},
-             {"CandidateIndex", {"SelectedCandidate", "CandidateIndex"}}}}}));
+      ComponentsAdapters::TEntityCatalogProjection{
+          func::constant<ecs::EntityKey>(InteractionEntityKey()),
+          func::constant<TArray<TArray<FString>>>(BuildInteractionDomains()),
+          [](const FProjectInteractionPayload &PayloadValue)
+              -> const FInteractionState & {
+            return PayloadValue.Interaction;
+          },
+          RegisteredComponentGroups<FInteractionState>(
+              {{"Components/Spatial", {"Origin", "MaxDistance"}},
+               {"Components/Interaction",
+                {"Candidates",
+                 {"Found", {"SelectedCandidate", "Found"}},
+                 {"EntityId", {"SelectedCandidate", "EntityId"}},
+                 {"CandidateIndex", {"SelectedCandidate", "CandidateIndex"}}}}
+              })});
 }
 
 } // namespace SystemsProjectionInteractionAdapters

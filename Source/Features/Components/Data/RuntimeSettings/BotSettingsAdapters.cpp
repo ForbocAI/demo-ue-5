@@ -1,6 +1,6 @@
 #include "Features/Components/Data/RuntimeSettings/BotSettingsAdapters.h"
 
-#include "Features/Components/Data/Json/JsonAdapters.h"
+#include "Features/Components/Data/Json/JsonSettingsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

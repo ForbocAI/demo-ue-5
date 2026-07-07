@@ -1,6 +1,6 @@
 #include "Features/Components/Data/JsonValueAdapters.h"
 
-#include "Features/Components/Data/Json/JsonAdapters.h"
+#include "Features/Components/Data/Json/JsonReadAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

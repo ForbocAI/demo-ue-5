@@ -3,7 +3,7 @@
 #include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/DataTypes.h"
-#include "Features/Components/Data/Json/JsonAdapters.h"
+#include "Features/Components/Data/Json/JsonReadAdapters.h"
 
 #include <initializer_list>
 
@@ -14,67 +14,12 @@ namespace JsonValueAdapters {
 
 void LogInvalidField(const FJsonFieldRequest &Request);
 
-/**
- * @brief Reads a required string field as a Maybe value.
- *
- * @signature func::Maybe<FString> ReadRequiredString(const FJsonFieldRequest &Request)
- *
- * User story: As a thunk or adapter author, I can reject incomplete authored
- * JSON before dispatching RTK actions into the single store.
- */
 func::Maybe<FString> ReadRequiredString(const FJsonFieldRequest &Request);
-
-/**
- * @brief Reads a required float field as a Maybe value.
- *
- * @signature func::Maybe<float> ReadRequiredFloat(const FJsonFieldRequest &Request)
- *
- * User story: As an ECS system adapter, numeric authored fields remain explicit
- * payload data instead of implicit hidden constants.
- */
 func::Maybe<float> ReadRequiredFloat(const FJsonFieldRequest &Request);
+func::Maybe<TSharedPtr<FJsonObject>> ReadRequiredObject(const FJsonFieldRequest &Request);
+func::Maybe<TArray<TSharedPtr<FJsonValue>>> ReadRequiredArray(const FJsonFieldRequest &Request);
+func::Maybe<TSharedPtr<FJsonObject>> ReadArrayObject(const FJsonArrayValueObjectRequest &Request);
 
-/**
- * @brief Reads a required child JSON object field.
- *
- * @signature func::Maybe<TSharedPtr<FJsonObject>> ReadRequiredObject(const FJsonFieldRequest &Request)
- *
- * User story: As a feature adapter author, nested JSON ownership stays below
- * reducers while missing required objects short-circuit cleanly.
- */
-func::Maybe<TSharedPtr<FJsonObject>>
-ReadRequiredObject(const FJsonFieldRequest &Request);
-
-/**
- * @brief Reads a required JSON array field.
- *
- * @signature func::Maybe<TArray<TSharedPtr<FJsonValue>>> ReadRequiredArray(const FJsonFieldRequest &Request)
- *
- * User story: As a feature adapter author, repeated authored records enter RTK
- * flows as validated payloads rather than view-time parsing.
- */
-func::Maybe<TArray<TSharedPtr<FJsonValue>>>
-ReadRequiredArray(const FJsonFieldRequest &Request);
-
-/**
- * @brief Converts one JSON array value into a required object.
- *
- * @signature func::Maybe<TSharedPtr<FJsonObject>> ReadArrayObject(const FJsonArrayValueObjectRequest &Request)
- *
- * User story: As a data adapter author, array object validation is a neutral
- * primitive reusable by higher gameplay domains.
- */
-func::Maybe<TSharedPtr<FJsonObject>>
-ReadArrayObject(const FJsonArrayValueObjectRequest &Request);
-
-/**
- * @brief Creates a unary mapper for required JSON object arrays.
- *
- * @signature template <typename Output> TFunction<func::Maybe<TArray<Output>>(const TArray<TSharedPtr<FJsonValue>> &)> MapRequiredJsonValuesWith(const FString &FieldName, TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue)
- *
- * User story: As a feature adapter author, repeated authored ECS seed data can
- * be transformed by a captured parser and fail before reducer dispatch.
- */
 template <typename Output>
 TFunction<func::Maybe<TArray<Output>>(
     const TArray<TSharedPtr<FJsonValue>> &)>
@@ -237,13 +182,19 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
 };
 
 template <typename State>
-func::Maybe<State> ReduceRequiredFields(
-    State Initial, const TSharedPtr<FJsonObject> &Object,
+struct FJsonReadStateRequest {
+  State Initial;
+  const TSharedPtr<FJsonObject> &Object;
+};
+
+template <typename State>
+func::Maybe<State> ReadRequiredFields(
+    const FJsonReadStateRequest<State> &Request,
     const TArray<TRequiredJsonFieldDeclaration<State>> &Fields) {
   return func::fold_array<TRequiredJsonFieldDeclaration<State>,
                           func::Maybe<State>>(
-      Fields, func::just<State>(Initial),
-      [Object](const func::Maybe<State> &Current,
+      Fields, func::just<State>(Request.Initial),
+      [Object = Request.Object](const func::Maybe<State> &Current,
                const TRequiredJsonFieldDeclaration<State> &Field) {
         return func::mbind(Current, [Object, Field](const State &Value) {
           return Field.Apply({Object, Field.FieldName}, Value);
@@ -252,10 +203,10 @@ func::Maybe<State> ReduceRequiredFields(
 }
 
 template <typename State>
-func::Maybe<State> ReduceRequiredFields(
-    State Initial, const TSharedPtr<FJsonObject> &Object,
+func::Maybe<State> ReadRequiredFields(
+    const FJsonReadStateRequest<State> &Request,
     std::initializer_list<TRequiredJsonFieldDeclaration<State>> Fields) {
-  return ReduceRequiredFields<State>(std::move(Initial), Object, TArray<TRequiredJsonFieldDeclaration<State>>(Fields));
+  return ReadRequiredFields<State>(Request, TArray<TRequiredJsonFieldDeclaration<State>>(Fields));
 }
 
 #define JSON_REQUIRED_FIELD(Type, Field) {#Field, &Type::Field}
@@ -317,12 +268,12 @@ FindRequiredJsonField(const char *FieldAtom) {
 }
 
 template <typename State>
-func::Maybe<State> ReduceRequiredFields(
-    State Initial, const TSharedPtr<FJsonObject> &Object,
+func::Maybe<State> ReadRequiredFields(
+    const FJsonReadStateRequest<State> &Request,
     const TArray<const char *> &FieldAtoms) {
   return func::fold_array<const char *, func::Maybe<State>>(
-      FieldAtoms, func::just<State>(Initial),
-      [Object](const func::Maybe<State> &Current, const char *FieldAtom) {
+      FieldAtoms, func::just<State>(Request.Initial),
+      [Object = Request.Object](const func::Maybe<State> &Current, const char *FieldAtom) {
         return func::mbind(Current, [Object, FieldAtom](const State &Value) {
           const func::Maybe<TRequiredJsonFieldDeclaration<State>> Field =
               FindRequiredJsonField<State>(FieldAtom);
@@ -333,10 +284,10 @@ func::Maybe<State> ReduceRequiredFields(
 }
 
 template <typename State>
-func::Maybe<State> ReduceRequiredFields(
-    State Initial, const TSharedPtr<FJsonObject> &Object,
+func::Maybe<State> ReadRequiredFields(
+    const FJsonReadStateRequest<State> &Request,
     std::initializer_list<const char *> FieldAtoms) {
-  return ReduceRequiredFields<State>(std::move(Initial), Object, TArray<const char *>(FieldAtoms));
+  return ReadRequiredFields<State>(Request, TArray<const char *>(FieldAtoms));
 }
 
 } // namespace JsonValueAdapters

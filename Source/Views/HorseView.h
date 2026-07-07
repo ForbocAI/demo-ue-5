@@ -6,7 +6,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Features/Components/Rendering/RenderingTypes.h"
+#include "Features/Components/Rendering/RenderingDistanceLodTypes.h"
 #include "GameFramework/Actor.h"
 #include "HorseView.generated.h"
 

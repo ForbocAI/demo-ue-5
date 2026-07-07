@@ -184,7 +184,7 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
                    {Geometry, CharacterHeightFeet}));
 
   const FLevelRuntimeLayoutSeed RuntimeLayout =
-      LevelAdapters::LoadRuntimeLayoutSeed(DataSources.RuntimeLayoutJsonPath);
+      LevelAdapters::LoadRuntimeLayoutSeed(DataSources);
   TestEqual(TEXT("Runtime layout loads town labels"),
             RuntimeLayout.Town.Labels.Num(), 1);
   check(RuntimeLayout.Town.Labels.Num() > 0);
@@ -263,9 +263,9 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
                                       TEXT("Bots")}))));
   TestTrue(TEXT("Terrain entity is projected through Systems/Projection/Terrain"),
            RuntimeSelectors::SelectEntityInDomain(
-               State, TEXT("level:terrain"),
+               State, {TEXT("level:terrain"),
                ecs::createDomainPathKey(ecs::createDomainPath(
-                   {TEXT("Systems"), TEXT("Projection"), TEXT("Terrain")}))));
+                   {TEXT("Systems"), TEXT("Projection"), TEXT("Terrain")}))}));
   TestEqual(TEXT("RTK entity adapter stores seeded landmarks"),
             RuntimeSelectors::SelectLandmarks(State).Num(),
             Landmarks.Num());
@@ -352,13 +352,13 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            Clara.value.Alignment == EBotAlignment::Friendly);
   TestTrue(TEXT("Clara is projected into the ECS townspeople domain"),
            RuntimeSelectors::SelectEntityInDomain(
-               State, TEXT("bot:clara-bell"),
+               State, {TEXT("bot:clara-bell"),
                ecs::createDomainPathKey(ecs::createDomainPath(
                    {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
-                    TEXT("Townspeople")}))));
+                    TEXT("Townspeople")}))}));
   const func::Maybe<ecs::FComponentValue> ClaraRole =
       RuntimeSelectors::SelectComponent(
-          State, TEXT("bot:clara-bell"), TEXT("Components/Bots/Role"));
+          State, {TEXT("bot:clara-bell"), TEXT("Components/Bots/Role")});
   TestTrue(TEXT("Clara role is projected as an ECS component"),
            ClaraRole.hasValue);
   check(ClaraRole.hasValue);
@@ -375,14 +375,14 @@ bool FRuntimeStoreDataBackedMap::RunTest(const FString &Parameters) {
            SorrelStats.value.MoveSpeed > 0.0f);
   TestTrue(TEXT("Sorrel is projected into the ECS horse domain"),
            RuntimeSelectors::SelectEntityInDomain(
-               State, TEXT("bot:sorrel-at-livery"),
+               State, {TEXT("bot:sorrel-at-livery"),
                ecs::createDomainPathKey(ecs::createDomainPath(
                    {TEXT("Entities"), TEXT("Characters"), TEXT("Bots"),
-                    TEXT("Horses")}))));
+                    TEXT("Horses")}))}));
   const func::Maybe<ecs::FComponentValue> SorrelMoveSpeed =
       RuntimeSelectors::SelectComponent(
-          State, TEXT("bot:sorrel-at-livery"),
-          TEXT("Components/Stats/MoveSpeed"));
+          State, {TEXT("bot:sorrel-at-livery"),
+          TEXT("Components/Stats/MoveSpeed")});
   TestTrue(TEXT("Sorrel move speed is projected as an ECS component"),
            SorrelMoveSpeed.hasValue);
   check(SorrelMoveSpeed.hasValue);

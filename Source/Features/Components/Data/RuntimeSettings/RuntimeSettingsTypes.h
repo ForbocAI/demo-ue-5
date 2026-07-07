@@ -6,7 +6,9 @@
 #include "Features/Components/Data/RuntimeSettings/InteractionSettingsTypes.h"
 #include "Features/Components/Data/RuntimeSettings/LevelSettingsTypes.h"
 #include "Features/Components/Data/RuntimeSettings/PlayerSettingsTypes.h"
-#include "Features/Components/Data/RuntimeSettings/RenderingSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/RenderingDistanceLodSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/RenderingProfileSettingsTypes.h"
+#include "Features/Components/Data/RuntimeSettings/RenderingTextureSettingsTypes.h"
 #include "Features/Components/Data/RuntimeSettings/SpeechSettingsTypes.h"
 #include "Features/Components/Data/RuntimeSettings/UISettingsTypes.h"
 

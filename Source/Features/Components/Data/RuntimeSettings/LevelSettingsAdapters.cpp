@@ -1,6 +1,6 @@
 #include "Features/Components/Data/RuntimeSettings/LevelSettingsAdapters.h"
 
-#include "Features/Components/Data/Json/JsonAdapters.h"
+#include "Features/Components/Data/Json/JsonSettingsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -10,9 +10,10 @@ namespace JsonAdapters {
 JSON_SETTINGS_REGISTRY(FLevelTerrainSourceSettings, TerrainCsvPath,
                        OrthoCsvPath);
 
-JSON_SETTINGS_REGISTRY(FLevelDataSourceSettings, RuntimeLayoutJsonPath,
-                       LandmarksJsonPath, TownspeopleJsonPath, HorsesJsonPath,
-                       NatureJsonPath);
+JSON_SETTINGS_REGISTRY(FLevelDataSourceSettings, RuntimeTerrainJsonPath,
+                       RuntimeTownJsonPath, RuntimeMineJsonPath,
+                       RuntimeOverlayLabelsJsonPath, LandmarksJsonPath,
+                       TownspeopleJsonPath, HorsesJsonPath, NatureJsonPath);
 
 JSON_SETTINGS_REGISTRY(FRuntimeValidationSettings, TerrainGridSize,
                        OrthoGridSize, TerrainMinReliefMeters);
@@ -52,9 +53,11 @@ ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object) {
 FLevelDataSourceSettings
 ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FLevelDataSourceSettings>(
-      Object, JSON_SETTINGS_ATOMS(RuntimeLayoutJsonPath, LandmarksJsonPath,
-                                  TownspeopleJsonPath, HorsesJsonPath,
-                                  NatureJsonPath));
+      Object, JSON_SETTINGS_ATOMS(RuntimeTerrainJsonPath, RuntimeTownJsonPath,
+                                  RuntimeMineJsonPath,
+                                  RuntimeOverlayLabelsJsonPath,
+                                  LandmarksJsonPath, TownspeopleJsonPath,
+                                  HorsesJsonPath, NatureJsonPath));
 }
 
 FRuntimeValidationSettings

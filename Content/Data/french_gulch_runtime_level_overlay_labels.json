@@ -1,0 +1,14 @@
+{
+  "overlay_labels": [
+    {
+      "id": "french-gulch-layout-source-label",
+      "text": "French Gulch OSM/USGS runtime layout",
+      "anchor": "post_office_lots",
+      "height_mode": "explicit",
+      "east_lots": 0.0,
+      "north_lots": 18.0,
+      "height_offset": 1200.0,
+      "world_size_scale": 5.0
+    }
+  ]
+}

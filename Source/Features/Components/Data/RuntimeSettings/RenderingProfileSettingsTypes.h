@@ -1,0 +1,128 @@
+#pragma once
+
+#include "Core/rtk.hpp"
+
+namespace ForbocAI {
+namespace Game {
+namespace Data {
+
+struct FRenderingAssetPathSettings {
+  FString LevelCubeMeshPath;
+  FString BlockoutMaterialPath;
+};
+
+
+struct FRenderingProfileSettings {
+  float TimeOfDayHour;
+  int32 AntiAliasingMethod;
+  int32 PostProcessAAQuality;
+  float ScreenPercentage;
+  float MinimumScreenPercentage;
+  int32 InternalRenderWidth;
+  int32 InternalRenderHeight;
+  int32 OutputScaleMultiplier;
+  bool bFullscreenOutput;
+  float ViewDistanceScale;
+  float FoliageDensityScale;
+  float GrassDensityScale;
+  float SunPitchDegrees;
+  float SunYawDegrees;
+  float SunRollDegrees;
+  float DirectionalLightIntensity;
+  float DirectionalLightSourceAngle;
+  float DirectionalLightColorR;
+  float DirectionalLightColorG;
+  float DirectionalLightColorB;
+  float DirectionalLightColorA;
+  int32 ShadowCascades;
+  int32 ShadowMaxResolution;
+  float PostProcessPriority;
+  float PostProcessBlendRadius;
+  float PostProcessBlendWeight;
+  float PostProcessSaturationMultiplier;
+  float PostProcessContrastMultiplier;
+  float PostProcessGainR;
+  float PostProcessGainG;
+  float PostProcessGainB;
+  float PostProcessGainA;
+  float PostProcessSceneTintR;
+  float PostProcessSceneTintG;
+  float PostProcessSceneTintB;
+  float PostProcessSceneTintA;
+  float SkyAtmosphereSkyLuminanceR;
+  float SkyAtmosphereSkyLuminanceG;
+  float SkyAtmosphereSkyLuminanceB;
+  float SkyAtmosphereSkyLuminanceA;
+  float SkyAtmosphereAerialLuminanceR;
+  float SkyAtmosphereAerialLuminanceG;
+  float SkyAtmosphereAerialLuminanceB;
+  float SkyAtmosphereAerialLuminanceA;
+  float SkyAtmosphereHeightFogContribution;
+  float SkyLightIntensity;
+  float SkyLightColorR;
+  float SkyLightColorG;
+  float SkyLightColorB;
+  float SkyLightColorA;
+  bool bSkyLightRealTimeCapture;
+  bool bSkyDomeEnabled;
+  FString SkyDomeMeshPath;
+  FString SkyDomeMaterialPath;
+  float SkyDomeScale;
+  float SkyDomeZOffset;
+  float SkyDomeSkyBrightness;
+  float SkyDomeCloudBrightness;
+  float SkyDomeCloudDarkness;
+  float SkyDomeRimBrightness;
+  float SkyDomeStarColorR;
+  float SkyDomeStarColorG;
+  float SkyDomeStarColorB;
+  float SkyDomeStarColorA;
+  float SkyDomeHorizonColorR;
+  float SkyDomeHorizonColorG;
+  float SkyDomeHorizonColorB;
+  float SkyDomeHorizonColorA;
+  float SkyDomeZenithColorR;
+  float SkyDomeZenithColorG;
+  float SkyDomeZenithColorB;
+  float SkyDomeZenithColorA;
+  bool bMoonDiscEnabled;
+  FString MoonDiscMeshPath;
+  FString MoonDiscMaterialPath;
+  float MoonDiscDistance;
+  float MoonDiscScale;
+  float MoonDiscPitchDegrees;
+  float MoonDiscYawDegrees;
+  float MoonDiscRollDegrees;
+  float MoonDiscColorR;
+  float MoonDiscColorG;
+  float MoonDiscColorB;
+  float MoonDiscColorA;
+  int32 MoonPixelGridSize;
+  float MoonDiscWorldUnitsPerScale;
+  float MoonPixelOverlapMultiplier;
+  int32 PointStarCount;
+  float PointStarYawHashSalt;
+  float PointStarYawSpanDegrees;
+  float PointStarPitchHashSalt;
+  float PointStarPitchMinDegrees;
+  float PointStarPitchSpanDegrees;
+  float PointStarDistanceMultiplier;
+  float PointStarSizeHashSalt;
+  float PointStarWorldSizeMin;
+  float PointStarWorldSizeJitter;
+  bool bFogEnabled;
+  bool bVolumetricFogEnabled;
+  float FogDensity;
+  float FogHeightFalloff;
+  float FogStartDistance;
+  float FogCutoffDistance;
+  float FogMaxOpacity;
+  float FogColorR;
+  float FogColorG;
+  float FogColorB;
+  float FogColorA;
+};
+
+} // namespace Data
+} // namespace Game
+} // namespace ForbocAI

@@ -26,7 +26,7 @@ namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
 func::Maybe<FLevelRuntimeSectionSeed>
 SectionFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
-  return JsonValues::ReduceRequiredFields<FLevelRuntimeSectionSeed>(FLevelRuntimeSectionSeed(), Request.Object, JSON_REQUIRED_ATOMS(Blocks, Labels));
+  return JsonValues::ReadRequiredFields<FLevelRuntimeSectionSeed>({FLevelRuntimeSectionSeed(), Request.Object}, JSON_REQUIRED_ATOMS(Blocks, Labels));
 }
 
 func::Maybe<FLevelRuntimeSectionSeed>

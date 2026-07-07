@@ -4,7 +4,10 @@
     "ortho_csv_path": "Map/Heightmaps/french_gulch_ca_ortho_65.csv"
   },
   "level_data_sources": {
-    "runtime_layout_json_path": "Data/french_gulch_runtime_level.json",
+    "runtime_terrain_json_path": "Data/french_gulch_runtime_level_terrain.json",
+    "runtime_town_json_path": "Data/french_gulch_runtime_level_town.json",
+    "runtime_mine_json_path": "Data/french_gulch_runtime_level_mine.json",
+    "runtime_overlay_labels_json_path": "Data/french_gulch_runtime_level_overlay_labels.json",
     "landmarks_json_path": "Data/french_gulch_landmarks.json",
     "townspeople_json_path": "Data/french_gulch_townspeople.json",
     "horses_json_path": "Data/french_gulch_horses.json",

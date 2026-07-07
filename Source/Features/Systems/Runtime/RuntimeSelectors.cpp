@@ -17,10 +17,14 @@
 #include "Features/Systems/Interaction/InteractionSelectors.h"
 #include "Features/Systems/UI/UISelectors.h"
 
+#include "Store.h"
+
 namespace ForbocAI {
 namespace Game {
 namespace Level {
 namespace RuntimeSelectors {
+
+const FRuntimeState &SelectState() { return Store::GetStore().getState(); }
 
 const FPlayerState &SelectPlayerState(const FRuntimeState &State) {
   return State.Player;
@@ -217,6 +221,11 @@ SelectHorsePresentation(const FRuntimeState &State) {
   return RenderingSelectors::SelectHorsePresentation(State.Rendering);
 }
 
+const FRuntimeStatsPresentationModel &
+SelectRuntimeStatsPresentation(const FRuntimeState &State) {
+  return RenderingSelectors::SelectRuntimeStatsPresentation(State.Rendering);
+}
+
 const ForbocAI::Game::Data::FRuntimeObservationIdSettings &
 SelectRuntimeObservationIds(const FRuntimeState &State) {
   return State.RuntimeObservationIds;
@@ -255,47 +264,6 @@ SelectRuntimeReducerDiagnostics(const FRuntimeState &State) {
 TArray<FBotEntity> SelectBots(const FRuntimeState &State) {
   return BotSelectors::SelectAll(State.Bots);
 }
-
-func::Maybe<FBotEntity> SelectBotById(const FRuntimeState &State,
-                                      const FString &Id) {
-  return BotSelectors::SelectById(State.Bots, Id);
-}
-
-TArray<FBotStatsComponent> SelectBotStats(const FRuntimeState &State) {
-  return BotStatsSelectors::SelectAll(State.BotStats);
-}
-
-func::Maybe<FBotStatsComponent>
-SelectBotStatsById(const FRuntimeState &State, const FString &Id) {
-  return BotStatsSelectors::SelectById(State.BotStats, Id);
-}
-
-TArray<FBotPositionComponent> SelectBotPositions(
-    const FRuntimeState &State) {
-  return BotPositionSelectors::SelectAll(State.BotPosition);
-}
-
-func::Maybe<FBotPositionComponent>
-SelectBotPositionById(const FRuntimeState &State, const FString &Id) {
-  return BotPositionSelectors::SelectById(State.BotPosition, Id);
-}
-
-TArray<FBotAIComponent> SelectBotAI(const FRuntimeState &State) {
-  return BotAISelectors::SelectAll(State.BotAI);
-}
-
-func::Maybe<FBotAIComponent> SelectBotAIById(const FRuntimeState &State,
-                                             const FString &Id) {
-  return BotAISelectors::SelectById(State.BotAI, Id);
-}
-
-TArray<FBotGoalComponent> SelectBotGoals(const FRuntimeState &State) {
-  return BotGoalSelectors::SelectAll(State.BotGoals);
-}
-
-func::Maybe<FBotGoalComponent> SelectBotGoalById(
-    const FRuntimeState &State, const FString &Id) {
-  return BotGoalSelectors::SelectById(State.BotGoals, Id);
 
 func::Maybe<FBotEntity> SelectBotById(const FRuntimeState &State,
                                       const FString &Id) {

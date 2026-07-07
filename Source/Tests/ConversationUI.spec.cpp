@@ -1,6 +1,8 @@
 #include "CoreMinimal.h"
 #include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
-#include "Features/Systems/UI/UIReducers.h"
+#include "Features/Systems/UI/UISharedReducers.h"
+#include "Features/Systems/UI/UIChatReducers.h"
+#include "Features/Systems/UI/UIConversationReducers.h"
 #include "Misc/AutomationTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(

@@ -15,6 +15,15 @@ const rtk::ActionCreator<FRenderingPayload> &RenderingProfileObserved() {
   return func::eval(Creator);
 }
 
+const rtk::ActionCreator<FRuntimeStatsSamplePayload> &RuntimeStatsSampled() {
+  static const func::Lazy<rtk::ActionCreator<FRuntimeStatsSamplePayload>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<FRuntimeStatsSamplePayload> {
+        return rtk::createAction<FRuntimeStatsSamplePayload>(
+            TEXT("systems/rendering/runtimeStatsSampled"));
+      });
+  return func::eval(Creator);
+}
+
 const rtk::ActionCreator<FRenderingPresentationRequest> &
 TownspersonPresentationRequested() {
   static const func::Lazy<rtk::ActionCreator<FRenderingPresentationRequest>>

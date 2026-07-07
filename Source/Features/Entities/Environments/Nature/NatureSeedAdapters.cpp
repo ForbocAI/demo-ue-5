@@ -1,7 +1,9 @@
 #include "Features/Entities/Environments/Nature/NatureSeedAdapters.h"
 
-#include "Features/Components/Data/Json/JsonAdapters.h"
+#include "Features/Components/Data/Json/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
+#include "Features/Components/ComponentsAdapters.h"
+#include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -222,7 +224,7 @@ TArray<FNatureFeatureSeed> BuildNatureSeed(
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FNatureFeatureFields, FNatureFeatureSeed>(
       JsonAdapters::ReadObjectArrayField<FNatureFeatureFields>(
-          {Root, "Features"},
+          Root, "Features",
           JsonAdapters::ReadSettingsWith<FNatureFeatureFields>(
               JSON_SETTINGS_ATOMS(Id, Name, Kind, EastLots, NorthLots,
                                   Scale))),
@@ -232,6 +234,86 @@ TArray<FNatureFeatureSeed> BuildNatureSeed(
 }
 
 } // namespace NatureAdapters
+} // namespace Level
+} // namespace Game
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Game {
+namespace Level {
+namespace ComponentsAdapters {
+
+template <> struct TComponentTextRegistry<ENatureFeatureKind> {
+  static const TArray<TComponentTextDeclaration<ENatureFeatureKind>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<ENatureFeatureKind>>
+        RegisteredCases = {{ENatureFeatureKind::Water, "Water"},
+                           {ENatureFeatureKind::Rock, "Rock"},
+                           {ENatureFeatureKind::TreeGrove, "TreeGrove"},
+                           {ENatureFeatureKind::Shrub, "Shrub"},
+                           {ENatureFeatureKind::PCGMarker, "PCGMarker"},
+                           {ENatureFeatureKind::WaterSystemMarker,
+                            "WaterSystemMarker"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FNatureFeatureSeed> {
+  static const TArray<
+      TComponentSourceValueFieldDeclaration<FNatureFeatureSeed>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<
+        FNatureFeatureSeed>>
+        RegisteredFields = {{"Id", &FNatureFeatureSeed::Id},
+                            {"Name", &FNatureFeatureSeed::Name},
+                            {"Kind", &FNatureFeatureSeed::Kind},
+                            {"LocalLocation", &FNatureFeatureSeed::Location},
+                            {"Scale", &FNatureFeatureSeed::Scale}};
+    return RegisteredFields;
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FNatureFeatureSeed> {
+  ecs::FComponentValue
+  operator()(const FNatureFeatureSeed &NatureFeature) const {
+    return ComponentSourceValueMap(
+        NatureFeature, {"Id", "Name", "Kind", "LocalLocation", "Scale"});
+  }
+};
+
+} // namespace ComponentsAdapters
+
+namespace EntitiesAdapters {
+
+using ComponentsAdapters::RegisteredComponentGroups;
+
+ecs::EntityKey NatureEntityKey(const FString &Id) {
+  return FString::Printf(TEXT("nature:%s"), *Id);
+}
+
+ecs::FWorld
+ProjectNatureFeature(const FProjectNatureFeatureEntityPayload &Payload) {
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+      Payload,
+      ComponentsAdapters::TEntityCatalogProjection{
+          [](const FProjectNatureFeatureEntityPayload &PayloadValue) {
+            return NatureEntityKey(PayloadValue.Feature.Id);
+          },
+          func::constant<TArray<TArray<FString>>>(
+              ComponentsAdapters::ComponentDomains(
+                  {{"Entities", "Environments", "Nature"},
+                   {"Systems", "Nature"}})),
+          [](const FProjectNatureFeatureEntityPayload &PayloadValue)
+              -> const FNatureFeatureSeed & {
+            return PayloadValue.Feature;
+          },
+          RegisteredComponentGroups<FNatureFeatureSeed>(
+              {{"Components/Data", {"Id", "Name", "Kind"}},
+               {"Components/Spatial", {"LocalLocation", "Scale"}}})});
+}
+
+} // namespace EntitiesAdapters
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI

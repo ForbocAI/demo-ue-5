@@ -3,7 +3,9 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/UI/UIActions.h"
-#include "Features/Systems/UI/UIReducers.h"
+#include "Features/Systems/UI/UISharedReducers.h"
+#include "Features/Systems/UI/UIChatReducers.h"
+#include "Features/Systems/UI/UIConversationReducers.h"
 #include "Features/Systems/UI/UITypes.h"
 
 namespace ForbocAI {

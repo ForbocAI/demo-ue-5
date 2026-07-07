@@ -13,7 +13,10 @@ struct FLevelTerrainSourceSettings {
 
 
 struct FLevelDataSourceSettings {
-  FString RuntimeLayoutJsonPath;
+  FString RuntimeTerrainJsonPath;
+  FString RuntimeTownJsonPath;
+  FString RuntimeMineJsonPath;
+  FString RuntimeOverlayLabelsJsonPath;
   FString LandmarksJsonPath;
   FString TownspeopleJsonPath;
   FString HorsesJsonPath;
@@ -85,7 +88,10 @@ inline bool operator!=(const FLevelTerrainSourceSettings &Left,
 
 inline bool operator==(const FLevelDataSourceSettings &Left,
                        const FLevelDataSourceSettings &Right) {
-  return Left.RuntimeLayoutJsonPath == Right.RuntimeLayoutJsonPath &&
+  return Left.RuntimeTerrainJsonPath == Right.RuntimeTerrainJsonPath &&
+         Left.RuntimeTownJsonPath == Right.RuntimeTownJsonPath &&
+         Left.RuntimeMineJsonPath == Right.RuntimeMineJsonPath &&
+         Left.RuntimeOverlayLabelsJsonPath == Right.RuntimeOverlayLabelsJsonPath &&
          Left.LandmarksJsonPath == Right.LandmarksJsonPath &&
          Left.TownspeopleJsonPath == Right.TownspeopleJsonPath &&
          Left.HorsesJsonPath == Right.HorsesJsonPath &&

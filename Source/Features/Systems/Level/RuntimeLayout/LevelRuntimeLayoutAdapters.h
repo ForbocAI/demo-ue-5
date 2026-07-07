@@ -10,13 +10,13 @@ namespace RuntimeLayout {
 /**
  * @brief Parses the authored runtime layout root object.
  *
- * @signature func::Maybe<FLevelRuntimeLayoutSeed> LayoutFromJson(const FLevelRuntimeJsonObjectRequest &Request)
+ * @signature func::Maybe<FLevelRuntimeLayoutSeed> LayoutFromJson(const FLevelRuntimeLayoutRoots &Roots)
  *
  * User story: As a Runtime thunk author, a full layout seed can be loaded from
  * JSON and passed into unidirectional RTK flow without view-side logic.
  */
 func::Maybe<FLevelRuntimeLayoutSeed>
-LayoutFromJson(const FLevelRuntimeJsonObjectRequest &Request);
+LayoutFromJson(const FLevelRuntimeLayoutRoots &Roots);
 
 } // namespace RuntimeLayout
 } // namespace Level

@@ -9,7 +9,8 @@
 #include "CoreMinimal.h"
 #include "Features/Components/Data/DataTypes.h"
 #include "Features/Components/Data/RuntimeSettings/LevelSettingsTypes.h"
-#include "Features/Components/Rendering/RenderingTypes.h"
+#include "Features/Components/Rendering/RenderingDistanceLodTypes.h"
+#include "Features/Components/Rendering/RenderingTextureTypes.h"
 #include "GameFramework/Actor.h"
 #include "RuntimeLevelView.generated.h"
 

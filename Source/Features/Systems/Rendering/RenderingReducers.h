@@ -5,67 +5,19 @@
 #include "Features/Components/Data/DataTypes.h"
 #include "Features/Systems/Rendering/RenderingTypes.h"
 
+// Forward includes for split reducers
+#include "Features/Systems/Rendering/RenderingTextureReducers.h"
+#include "Features/Systems/Rendering/RenderingDistanceLodReducers.h"
+#include "Features/Systems/Rendering/RenderingProfileReducers.h"
+#include "Features/Systems/Rendering/RenderingPresentationReducers.h"
+
 namespace ForbocAI {
 namespace Game {
 namespace Level {
 namespace RenderingReducers {
 
-FLevelRetroTextureApply
-NormalizeTextureApply(const FLevelRetroTextureApply &Input);
-
-/**
- * @brief Maps JSON-backed runtime rendering settings into RTK state.
- *
- * @signature FLevelRetroRenderProfile ReduceRuntimeProfile(const
- * ForbocAI::Game::Data::FRenderingProfileSettings &Settings)
- *
- * User story: As a runtime operator, runtime rendering quality can be tuned from
- * data while the rendering slice remains the owner of store semantics.
- */
-FLevelRetroRenderProfile ReduceRuntimeProfile(
-    const ForbocAI::Game::Data::FRenderingProfileSettings &Settings);
-
-/**
- * @brief Maps JSON-backed texture records into rendering texture specs.
- *
- * @signature TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(const
- * TArray<ForbocAI::Game::Data::FRenderingTextureSpecSettings> &Settings)
- *
- * User story: As an environment artist, prototype material labels and sizes
- * can be changed in JSON without adding view logic.
- */
-TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
-    const TArray<ForbocAI::Game::Data::FRenderingTextureSpecSettings>
-        &Settings);
-
-/**
- * @brief Maps authored distance LOD settings into feature-owned stages.
- */
-TArray<FLevelDistanceLodStage> ReduceDistanceLodStages(
-    const ForbocAI::Game::Data::FRenderingDistanceLodSettings &Settings);
-
-/**
- * @brief Selects the authored LOD stage for one world-space location.
- */
-FLevelDistanceLodStage
-ReduceDistanceLodStage(const FLevelDistanceLodStageRequest &Request);
-
-/**
- * @brief Maps JSON-backed asset path settings into rendering state.
- *
- * @signature FRenderingAssetPaths ReduceRenderingAssetPaths(const
- * ForbocAI::Game::Data::FRenderingAssetPathSettings &Settings)
- *
- * User story: As a level-view maintainer, mesh/material references stay in
- * store-owned data instead of view constructors.
- */
 FRenderingAssetPaths ReduceRenderingAssetPaths(
     const ForbocAI::Game::Data::FRenderingAssetPathSettings &Settings);
-
-ELevelRetroTexture ReduceTextureKind(const FString &Texture);
-
-FLevelRetroTextureSpec
-ReduceTextureSpec(const FRenderingTextureSpecRequest &Request);
 
 FRenderingPayload ReduceRenderingPayload(
     const FRenderingPayloadRequest &Request);
@@ -80,32 +32,9 @@ FRenderingState ReduceTownspersonPresentationRequested(
 FRenderingState ReduceHorsePresentationRequested(
     const FRenderingState &State,
     const rtk::PayloadAction<FRenderingPresentationRequest> &Action);
-
-/**
- * @brief Maps JSON-backed townsperson presentation settings into view model
- * state.
- *
- * @signature FTownspersonPresentationViewModel
- * ReduceTownspersonPresentation(const
- * FTownspersonPresentationReduceRequest &Request)
- *
- * User story: As a content author, NPC sizing, text positions, and asset paths
- * can be tuned in JSON while views only apply selected state.
- */
-FTownspersonPresentationViewModel ReduceTownspersonPresentation(
-    const FTownspersonPresentationReduceRequest &Request);
-
-/**
- * @brief Maps JSON-backed horse presentation settings into view model state.
- *
- * @signature FHorsePresentationViewModel ReduceHorsePresentation(const
- * FHorsePresentationReduceRequest &Request)
- *
- * User story: As a content author, horse display assets and movement
- * presentation can be changed in JSON without view hard values.
- */
-FHorsePresentationViewModel ReduceHorsePresentation(
-    const FHorsePresentationReduceRequest &Request);
+FRenderingState ReduceRuntimeStatsSampled(
+    const FRenderingState &State,
+    const rtk::PayloadAction<FRuntimeStatsSamplePayload> &Action);
 
 } // namespace RenderingReducers
 } // namespace Level

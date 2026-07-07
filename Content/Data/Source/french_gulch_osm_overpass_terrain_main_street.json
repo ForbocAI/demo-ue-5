@@ -1,0 +1,275 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-07-06T18:31:30Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "way",
+      "id": 10590783,
+      "bounds": {
+        "minlat": 40.6976515,
+        "minlon": -122.638804,
+        "maxlat": 40.704942,
+        "maxlon": -122.637194
+      },
+      "nodes": [
+        92314679,
+        92314682,
+        92314684,
+        92314686,
+        92314688,
+        91841939,
+        92314691,
+        92314694,
+        92314696,
+        92314699,
+        92314702,
+        92314706,
+        92314709,
+        92314711,
+        92314713,
+        92314715,
+        92314716,
+        92314718,
+        92314721,
+        92314724,
+        91994401,
+        92152759
+      ],
+      "geometry": [
+        {
+          "lat": 40.6976515,
+          "lon": -122.6384565
+        },
+        {
+          "lat": 40.697718,
+          "lon": -122.6384523
+        },
+        {
+          "lat": 40.697799,
+          "lon": -122.6384427
+        },
+        {
+          "lat": 40.6980514,
+          "lon": -122.63844
+        },
+        {
+          "lat": 40.698483,
+          "lon": -122.638513
+        },
+        {
+          "lat": 40.6986911,
+          "lon": -122.6385645
+        },
+        {
+          "lat": 40.699033,
+          "lon": -122.638658
+        },
+        {
+          "lat": 40.69954,
+          "lon": -122.638773
+        },
+        {
+          "lat": 40.69968,
+          "lon": -122.638797
+        },
+        {
+          "lat": 40.699749,
+          "lon": -122.638804
+        },
+        {
+          "lat": 40.699843,
+          "lon": -122.638799
+        },
+        {
+          "lat": 40.700113,
+          "lon": -122.638745
+        },
+        {
+          "lat": 40.700379,
+          "lon": -122.638666
+        },
+        {
+          "lat": 40.700663,
+          "lon": -122.638552
+        },
+        {
+          "lat": 40.700813,
+          "lon": -122.638475
+        },
+        {
+          "lat": 40.701251,
+          "lon": -122.638194
+        },
+        {
+          "lat": 40.701465,
+          "lon": -122.638074
+        },
+        {
+          "lat": 40.701674,
+          "lon": -122.638001
+        },
+        {
+          "lat": 40.702052,
+          "lon": -122.637897
+        },
+        {
+          "lat": 40.702583,
+          "lon": -122.637733
+        },
+        {
+          "lat": 40.703847,
+          "lon": -122.637415
+        },
+        {
+          "lat": 40.704942,
+          "lon": -122.637194
+        }
+      ],
+      "tags": {
+        "highway": "tertiary",
+        "name": "Main Street",
+        "name_1": "Trinity Mountain Road",
+        "tiger:cfcc": "A41",
+        "tiger:county": "Shasta, CA",
+        "tiger:name_base": "Main",
+        "tiger:name_base_1": "Trinity Mountain",
+        "tiger:name_type": "St",
+        "tiger:name_type_1": "Rd",
+        "tiger:reviewed": "no"
+      }
+    },
+    {
+      "type": "way",
+      "id": 930965638,
+      "bounds": {
+        "minlat": 40.6974799,
+        "minlon": -122.6384627,
+        "maxlat": 40.6976515,
+        "maxlon": -122.6384565
+      },
+      "nodes": [
+        91559141,
+        92314679
+      ],
+      "geometry": [
+        {
+          "lat": 40.6974799,
+          "lon": -122.6384627
+        },
+        {
+          "lat": 40.6976515,
+          "lon": -122.6384565
+        }
+      ],
+      "tags": {
+        "bridge": "yes",
+        "highway": "tertiary",
+        "layer": "1",
+        "name": "Main Street",
+        "name_1": "Trinity Mountain Road",
+        "tiger:cfcc": "A41",
+        "tiger:county": "Shasta, CA",
+        "tiger:name_base": "Main",
+        "tiger:name_base_1": "Trinity Mountain",
+        "tiger:name_type": "St",
+        "tiger:name_type_1": "Rd",
+        "tiger:reviewed": "no"
+      }
+    },
+    {
+      "type": "way",
+      "id": 930965639,
+      "bounds": {
+        "minlat": 40.69597,
+        "minlon": -122.6384627,
+        "maxlat": 40.6974799,
+        "maxlon": -122.638005
+      },
+      "nodes": [
+        92314648,
+        92314650,
+        92314653,
+        92314655,
+        92314657,
+        92314660,
+        92314663,
+        92314665,
+        92314670,
+        92314672,
+        92314674,
+        92314676,
+        91559141
+      ],
+      "geometry": [
+        {
+          "lat": 40.69597,
+          "lon": -122.638029
+        },
+        {
+          "lat": 40.69635,
+          "lon": -122.638005
+        },
+        {
+          "lat": 40.696457,
+          "lon": -122.638007
+        },
+        {
+          "lat": 40.696531,
+          "lon": -122.638024
+        },
+        {
+          "lat": 40.696619,
+          "lon": -122.638062
+        },
+        {
+          "lat": 40.696695,
+          "lon": -122.638104
+        },
+        {
+          "lat": 40.696856,
+          "lon": -122.638208
+        },
+        {
+          "lat": 40.697074,
+          "lon": -122.638364
+        },
+        {
+          "lat": 40.697149,
+          "lon": -122.638405
+        },
+        {
+          "lat": 40.697214,
+          "lon": -122.638434
+        },
+        {
+          "lat": 40.697283,
+          "lon": -122.638448
+        },
+        {
+          "lat": 40.697425,
+          "lon": -122.63846
+        },
+        {
+          "lat": 40.6974799,
+          "lon": -122.6384627
+        }
+      ],
+      "tags": {
+        "highway": "tertiary",
+        "name": "Main Street",
+        "name_1": "Trinity Mountain Road",
+        "tiger:cfcc": "A41",
+        "tiger:county": "Shasta, CA",
+        "tiger:name_base": "Main",
+        "tiger:name_base_1": "Trinity Mountain",
+        "tiger:name_type": "St",
+        "tiger:name_type_1": "Rd",
+        "tiger:reviewed": "no"
+      }
+    }
+  ]
+}

@@ -2,7 +2,9 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Components/Rendering/RenderingTypes.h"
+#include "Features/Components/Rendering/RenderingDistanceLodTypes.h"
+#include "Features/Components/Rendering/RenderingTextureTypes.h"
+#include "Features/Components/Rendering/RenderingProfileTypes.h"
 #include "Features/Systems/Rendering/RenderingTypes.h"
 
 namespace ForbocAI {
@@ -24,6 +26,8 @@ const FTownspersonPresentationViewModel &
 SelectTownspersonPresentation(const FRenderingState &State);
 const FHorsePresentationViewModel &
 SelectHorsePresentation(const FRenderingState &State);
+const FRuntimeStatsPresentationModel &
+SelectRuntimeStatsPresentation(const FRenderingState &State);
 
 } // namespace RenderingSelectors
 } // namespace Level

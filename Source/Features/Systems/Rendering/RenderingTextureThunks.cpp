@@ -186,7 +186,7 @@ RequiredPalette(const FRetroTextureCell &Cell) {
           [&Cell](
               const ForbocAI::Game::Data::FRenderingTexturePaletteSettings
                   &Candidate) {
-            return RenderingReducers::ReduceTextureKind(Candidate.Texture) ==
+            return RenderingTextureReducers::ReduceTextureKind(Candidate.Texture) ==
                    Cell.Texture;
           });
   check(Palette.hasValue);
@@ -288,7 +288,7 @@ void ApplyTexture(const FLevelRetroTextureApply &Request) {
   check(Request.Part);
   check(Request.BaseMaterial);
 
-  const FLevelRetroTextureSpec Spec = RenderingReducers::ReduceTextureSpec(
+  const FLevelRetroTextureSpec Spec = RenderingTextureReducers::ReduceTextureSpec(
       {Request.Texture, Request.TextureCatalog});
   UTexture2D *RetroTexture = TextureFor(Spec, Request.RuntimeSettings);
   check(RetroTexture);

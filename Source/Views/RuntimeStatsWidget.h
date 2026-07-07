@@ -136,15 +136,7 @@ private:
   UPROPERTY()
   UTextBlock *ProjectedComponentTypeCountValueTextElement;
 
-  float StatsRefreshElapsedSeconds{};
-  float PolyCountRefreshElapsedSeconds{};
-  double LastFrameClockSeconds{};
-  double BudgetLogLastSeconds{};
-  double BudgetScreenshotLastSeconds{};
-  float BudgetScreenshotIntervalSeconds{};
-  int32 BudgetScreenshotIndex{};
-  int64 CachedPolyCount{};
-  double CachedPolyCountMilliseconds{};
+
 
   /**
    * @brief Refreshes the visible HUD text from current runtime counters.

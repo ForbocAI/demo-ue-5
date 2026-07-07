@@ -15,10 +15,19 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT / "Content" / "Data"
 SOURCE_DIR = DATA_DIR / "Source"
 OVERPASS_LANDMARKS_PATH = SOURCE_DIR / "french_gulch_osm_overpass_landmarks.json"
-OVERPASS_LEVEL_PATH = SOURCE_DIR / "french_gulch_osm_overpass_level.json"
-OVERPASS_NATURE_PATH = SOURCE_DIR / "french_gulch_osm_overpass_nature.json"
+OVERPASS_TERRAIN_MAIN_STREET_PATH = SOURCE_DIR / "french_gulch_osm_overpass_terrain_main_street.json"
+OVERPASS_TERRAIN_TRINITY_MOUNTAIN_ROAD_PATH = SOURCE_DIR / "french_gulch_osm_overpass_terrain_trinity_mountain_road.json"
+OVERPASS_BUILDINGS_MICROSOFT_PATH = SOURCE_DIR / "french_gulch_osm_overpass_buildings_microsoft.json"
+OVERPASS_BUILDINGS_OSM_PATH = SOURCE_DIR / "french_gulch_osm_overpass_buildings_osm.json"
+OVERPASS_ROADS_RESIDENTIAL_PATH = SOURCE_DIR / "french_gulch_osm_overpass_roads_residential.json"
+OVERPASS_ROADS_SERVICE_PATH = SOURCE_DIR / "french_gulch_osm_overpass_roads_service.json"
+OVERPASS_NATURE_WATERWAY_PATH = SOURCE_DIR / "french_gulch_osm_overpass_nature_waterway.json"
+OVERPASS_NATURE_NATURAL_PATH = SOURCE_DIR / "french_gulch_osm_overpass_nature_natural.json"
 METADATA_PATH = SOURCE_DIR / "french_gulch_layout_metadata.json"
-RUNTIME_LEVEL_PATH = DATA_DIR / "french_gulch_runtime_level.json"
+RUNTIME_TERRAIN_PATH = DATA_DIR / "french_gulch_runtime_level_terrain.json"
+RUNTIME_TOWN_PATH = DATA_DIR / "french_gulch_runtime_level_town.json"
+RUNTIME_MINE_PATH = DATA_DIR / "french_gulch_runtime_level_mine.json"
+RUNTIME_OVERLAY_PATH = DATA_DIR / "french_gulch_runtime_level_overlay_labels.json"
 LANDMARKS_PATH = DATA_DIR / "french_gulch_landmarks.json"
 NATURE_PATH = DATA_DIR / "french_gulch_nature.json"
 LEVEL_SETTINGS_PATH = DATA_DIR / "runtime_settings_level.json"
@@ -79,14 +88,20 @@ def fetch_overpass() -> dict:
 
 
 def acquire_overpass(force: bool) -> dict:
-    if OVERPASS_LANDMARKS_PATH.exists() and OVERPASS_LEVEL_PATH.exists() and OVERPASS_NATURE_PATH.exists() and not force:
+    if OVERPASS_LANDMARKS_PATH.exists() and OVERPASS_TERRAIN_MAIN_STREET_PATH.exists() and OVERPASS_TERRAIN_TRINITY_MOUNTAIN_ROAD_PATH.exists() and OVERPASS_BUILDINGS_MICROSOFT_PATH.exists() and OVERPASS_BUILDINGS_OSM_PATH.exists() and OVERPASS_ROADS_RESIDENTIAL_PATH.exists() and OVERPASS_ROADS_SERVICE_PATH.exists() and OVERPASS_NATURE_WATERWAY_PATH.exists() and OVERPASS_NATURE_NATURAL_PATH.exists() and not force:
         landmarks = load_json(OVERPASS_LANDMARKS_PATH)
-        level = load_json(OVERPASS_LEVEL_PATH)
-        nature = load_json(OVERPASS_NATURE_PATH)
+        terrain_ms_src = load_json(OVERPASS_TERRAIN_MAIN_STREET_PATH)
+        terrain_tr_src = load_json(OVERPASS_TERRAIN_TRINITY_MOUNTAIN_ROAD_PATH)
+        buildings_ms_src = load_json(OVERPASS_BUILDINGS_MICROSOFT_PATH)
+        buildings_osm_src = load_json(OVERPASS_BUILDINGS_OSM_PATH)
+        roads_res_src = load_json(OVERPASS_ROADS_RESIDENTIAL_PATH)
+        roads_ser_src = load_json(OVERPASS_ROADS_SERVICE_PATH)
+        nature_ww_src = load_json(OVERPASS_NATURE_WATERWAY_PATH)
+        nature_nat_src = load_json(OVERPASS_NATURE_NATURAL_PATH)
         
         combined_elements = []
         seen = set()
-        for el in landmarks.get("elements", []) + level.get("elements", []) + nature.get("elements", []):
+        for el in landmarks.get("elements", []) + terrain_ms_src.get("elements", []) + terrain_tr_src.get("elements", []) + buildings_ms_src.get("elements", []) + buildings_osm_src.get("elements", []) + roads_res_src.get("elements", []) + roads_ser_src.get("elements", []) + nature_ww_src.get("elements", []) + nature_nat_src.get("elements", []):
             if el["id"] not in seen:
                 combined_elements.append(el)
                 seen.add(el["id"])
@@ -99,16 +114,24 @@ def acquire_overpass(force: bool) -> dict:
     # Split and write
     nodes = {el["id"]: el for el in data.get("elements", []) if el["type"] == "node"}
     buildings = []
-    highways = []
+    terrain_els = []
+    building_els = []
+    road_els = []
     nature_els = []
     
     for el in data.get("elements", []):
         if el["type"] == "node" and not el.get("tags"): continue
         tags = el.get("tags", {})
         if "building" in tags:
-            buildings.append(el)
+            if is_named_landmark(el):
+                buildings.append(el)
+            else:
+                building_els.append(el)
         elif "highway" in tags:
-            highways.append(el)
+            if tags["highway"] == "tertiary":
+                terrain_els.append(el)
+            else:
+                road_els.append(el)
         elif "natural" in tags or "waterway" in tags or "water" in tags:
             nature_els.append(el)
             
@@ -129,8 +152,26 @@ def acquire_overpass(force: bool) -> dict:
         write_json(path, out_data)
 
     save_sub(OVERPASS_LANDMARKS_PATH, buildings)
-    save_sub(OVERPASS_LEVEL_PATH, highways)
-    save_sub(OVERPASS_NATURE_PATH, nature_els)
+    
+    t_ms = [el for el in terrain_els if 'main street' in el.get('tags', {}).get('name', '').lower()]
+    t_tr = [el for el in terrain_els if 'trinity mountain' in el.get('tags', {}).get('name', '').lower()]
+    save_sub(OVERPASS_TERRAIN_MAIN_STREET_PATH, t_ms)
+    save_sub(OVERPASS_TERRAIN_TRINITY_MOUNTAIN_ROAD_PATH, t_tr)
+    
+    b_ms = [el for el in building_els if el.get('tags', {}).get('source') == 'microsoft/BuildingFootprints']
+    b_osm = [el for el in building_els if el.get('tags', {}).get('source') != 'microsoft/BuildingFootprints']
+    save_sub(OVERPASS_BUILDINGS_MICROSOFT_PATH, b_ms)
+    save_sub(OVERPASS_BUILDINGS_OSM_PATH, b_osm)
+    
+    r_res = [el for el in road_els if el.get('tags', {}).get('highway') == 'residential']
+    r_ser = [el for el in road_els if el.get('tags', {}).get('highway') == 'service']
+    save_sub(OVERPASS_ROADS_RESIDENTIAL_PATH, r_res)
+    save_sub(OVERPASS_ROADS_SERVICE_PATH, r_ser)
+    
+    n_ww = [el for el in nature_els if 'waterway' in el.get('tags', {})]
+    n_nat = [el for el in nature_els if 'waterway' not in el.get('tags', {})]
+    save_sub(OVERPASS_NATURE_WATERWAY_PATH, n_ww)
+    save_sub(OVERPASS_NATURE_NATURAL_PATH, n_nat)
     
     return data
 
@@ -560,7 +601,10 @@ def main() -> int:
 
     data = acquire_overpass(args.force_fetch)
     layout, landmarks, nature, metadata = generated_layout(data)
-    write_json(RUNTIME_LEVEL_PATH, layout)
+    write_json(RUNTIME_TERRAIN_PATH, {"terrain": layout["terrain"]})
+    write_json(RUNTIME_TOWN_PATH, {"town": layout["town"]})
+    write_json(RUNTIME_MINE_PATH, {"mine": layout["mine"]})
+    write_json(RUNTIME_OVERLAY_PATH, {"overlay_labels": layout["overlay_labels"]})
     write_json(LANDMARKS_PATH, landmarks)
     write_json(NATURE_PATH, nature)
     write_json(METADATA_PATH, metadata)

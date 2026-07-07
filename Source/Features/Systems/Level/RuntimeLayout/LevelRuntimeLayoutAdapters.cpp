@@ -32,8 +32,13 @@ namespace RuntimeLayout {
 namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
 func::Maybe<FLevelRuntimeLayoutSeed>
-LayoutFromJson(const FLevelRuntimeJsonObjectRequest &Request) {
-  return JsonValues::ReduceRequiredFields<FLevelRuntimeLayoutSeed>(FLevelRuntimeLayoutSeed(), Request.Object, JSON_REQUIRED_ATOMS(Terrain, Town, Mine, OverlayLabels));
+LayoutFromJson(const FLevelRuntimeLayoutRoots &Roots) {
+  FLevelRuntimeLayoutSeed Seed;
+  Seed = func::or_else(JsonValues::ReadRequiredFields<FLevelRuntimeLayoutSeed>({Seed, Roots.TerrainRoot}, JSON_REQUIRED_ATOMS(Terrain)), Seed);
+  Seed = func::or_else(JsonValues::ReadRequiredFields<FLevelRuntimeLayoutSeed>({Seed, Roots.TownRoot}, JSON_REQUIRED_ATOMS(Town)), Seed);
+  Seed = func::or_else(JsonValues::ReadRequiredFields<FLevelRuntimeLayoutSeed>({Seed, Roots.MineRoot}, JSON_REQUIRED_ATOMS(Mine)), Seed);
+  Seed = func::or_else(JsonValues::ReadRequiredFields<FLevelRuntimeLayoutSeed>({Seed, Roots.OverlayRoot}, JSON_REQUIRED_ATOMS(OverlayLabels)), Seed);
+  return func::just(Seed);
 }
 
 } // namespace RuntimeLayout

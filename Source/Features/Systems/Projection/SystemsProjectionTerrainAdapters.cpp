@@ -54,16 +54,17 @@ TArray<TArray<FString>> BuildTerrainDomains() {
 ecs::FWorld ProjectTerrain(const FProjectTerrainPayload &Payload) {
   return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
-      func::constant<ecs::EntityKey>(TerrainEntityKey()),
-      func::constant<TArray<TArray<FString>>>(BuildTerrainDomains()),
-      [](const FProjectTerrainPayload &PayloadValue) -> const FTerrainState & {
-        return PayloadValue.Terrain;
-      },
-      RegisteredComponentGroups<FTerrainState>(
-          {{"Components/Level",
-            {"TerrainLoaded", "GridSize", "MinElevationMeters",
-             "MaxElevationMeters"}},
-           {"Components/Data", {"TerrainSource", "OrthoSource"}}}));
+      ComponentsAdapters::TEntityCatalogProjection{
+          func::constant<ecs::EntityKey>(TerrainEntityKey()),
+          func::constant<TArray<TArray<FString>>>(BuildTerrainDomains()),
+          [](const FProjectTerrainPayload &PayloadValue) -> const FTerrainState & {
+            return PayloadValue.Terrain;
+          },
+          RegisteredComponentGroups<FTerrainState>(
+              {{"Components/Level",
+                {"TerrainLoaded", "GridSize", "MinElevationMeters",
+                 "MaxElevationMeters"}},
+               {"Components/Data", {"TerrainSource", "OrthoSource"}}})});
 }
 
 } // namespace SystemsProjectionTerrainAdapters

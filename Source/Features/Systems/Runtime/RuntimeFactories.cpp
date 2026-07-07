@@ -28,7 +28,9 @@
 #include "Features/Systems/Terrain/TerrainFactories.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonFactories.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonReducers.h"
-#include "Features/Systems/UI/UIReducers.h"
+#include "Features/Systems/UI/UISharedReducers.h"
+#include "Features/Systems/UI/UIChatReducers.h"
+#include "Features/Systems/UI/UIConversationReducers.h"
 #include "Features/Systems/UI/UISlice.h"
 #include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Interaction/InteractionReducers.h"
@@ -86,20 +88,20 @@ FRuntimeState CreateInitialState() {
   State.Player.Presentation =
       PlayerReducers::ReducePlayerPresentation(Settings.PlayerPresentation);
   State.Rendering.RuntimeProfile =
-      RenderingReducers::ReduceRuntimeProfile(Settings.RenderingProfile);
+      RenderingProfileReducers::ReduceRuntimeProfile(Settings.RenderingProfile);
   State.Rendering.TextureCatalog =
-      RenderingReducers::ReduceTextureCatalog(Settings.TextureCatalog);
+      RenderingTextureReducers::ReduceTextureCatalog(Settings.TextureCatalog);
   State.Rendering.DistanceLodStages =
-      RenderingReducers::ReduceDistanceLodStages(
+      RenderingDistanceLodReducers::ReduceDistanceLodStages(
           Settings.RenderingDistanceLod);
   State.Rendering.RuntimeSettings = Settings.RenderingRuntime;
   State.Rendering.AssetPaths =
       RenderingReducers::ReduceRenderingAssetPaths(Settings.RenderingAssets);
   State.Rendering.TownspersonPresentation =
-      RenderingReducers::ReduceTownspersonPresentation(
+      RenderingPresentationReducers::ReduceTownspersonPresentation(
           {Settings.TownspersonPresentation, Settings.LevelGeometry});
   State.Rendering.HorsePresentation =
-      RenderingReducers::ReduceHorsePresentation(
+      RenderingPresentationReducers::ReduceHorsePresentation(
           {Settings.HorsePresentation, Settings.LevelGeometry});
   State.Interaction.TownspersonMaxDistance =
       InteractionReducers::ReduceTownspersonInteractionDistance(

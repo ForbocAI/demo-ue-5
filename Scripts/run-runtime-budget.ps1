@@ -421,7 +421,8 @@ $Arguments = @(
   "-nop4",
   "-nosplash",
   "-nosound",
-  "-NoLiveCoding"
+  "-NoLiveCoding",
+  "-RenderOffScreen"
 )
 
 Write-Host "=== ForbocAI Runtime Budget ==="

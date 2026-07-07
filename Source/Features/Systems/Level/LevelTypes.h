@@ -3,7 +3,9 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Components/Level/LevelTypes.h"
-#include "Features/Components/Rendering/RenderingTypes.h"
+#include "Features/Components/Rendering/RenderingDistanceLodTypes.h"
+#include "Features/Components/Rendering/RenderingTextureTypes.h"
+#include "Features/Components/Rendering/RenderingProfileTypes.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 #include "Features/Systems/Landmarks/LandmarkTypes.h"
 #include "Features/Systems/Nature/NatureTypes.h"

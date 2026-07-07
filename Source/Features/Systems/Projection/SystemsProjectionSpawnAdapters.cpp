@@ -50,15 +50,16 @@ TArray<TArray<FString>> BuildSpawnDomains() {
 ecs::FWorld ProjectSpawn(const FProjectSpawnPayload &Payload) {
   return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
       Payload,
-      func::constant<ecs::EntityKey>(SpawnEntityKey()),
-      func::constant<TArray<TArray<FString>>>(BuildSpawnDomains()),
-      [](const FProjectSpawnPayload &PayloadValue)
-          -> const FSpawnPointPayload & {
-        return PayloadValue.Spawn.PlayerSpawn;
-      },
-      RegisteredComponentGroups<FSpawnPointPayload>(
-          {{"Components/Spatial", {"Location", "Rotation"}},
-           {"Components/Level", {"AnchorLabel"}}}));
+      ComponentsAdapters::TEntityCatalogProjection{
+          func::constant<ecs::EntityKey>(SpawnEntityKey()),
+          func::constant<TArray<TArray<FString>>>(BuildSpawnDomains()),
+          [](const FProjectSpawnPayload &PayloadValue)
+              -> const FSpawnPointPayload & {
+            return PayloadValue.Spawn.PlayerSpawn;
+          },
+          RegisteredComponentGroups<FSpawnPointPayload>(
+              {{"Components/Spatial", {"Location", "Rotation"}},
+               {"Components/Level", {"AnchorLabel"}}})});
 }
 
 } // namespace SystemsProjectionSpawnAdapters

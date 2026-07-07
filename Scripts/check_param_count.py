@@ -42,6 +42,7 @@ CONTROL = {"if", "for", "while", "switch", "return", "sizeof", "TEXT"}
 UE_CALLBACKS = {
     "BeginPlay",
     "Tick",
+    "TickComponent",
     "SetupInputComponent",
     "NativeConstruct",
     "HandleInteractionBegin",

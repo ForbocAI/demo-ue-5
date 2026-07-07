@@ -1,8 +1,10 @@
 #include "Features/Entities/Environments/Landmarks/LandmarksAdapters.h"
 
-#include "Features/Components/Data/Json/JsonAdapters.h"
+#include "Features/Components/Data/Json/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/LevelLayoutSlice.h"
 #include "Features/Systems/Landmarks/LandmarkFactories.h"
+#include "Features/Components/ComponentsAdapters.h"
+#include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -104,9 +106,9 @@ BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
       JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FLandmarkFields, FLandmark>(
       JsonAdapters::ReadSettingsObjectArrayField<FLandmarkFields>(
-          {Root, "Landmarks"},
+          "Landmarks",
           JSON_SETTINGS_ATOMS(Id, Label, Kind, EastLots, NorthLots,
-                              YawDegrees, FrontageFeet, DepthFeet, Stories)),
+                              YawDegrees, FrontageFeet, DepthFeet, Stories))(Root),
       [&Request](const FLandmarkFields &Fields) {
         return LandmarkFromFields(
             {&Request.TerrainData, Request.Geometry, Fields});
@@ -114,6 +116,91 @@ BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
 }
 
 } // namespace LandmarksAdapters
+} // namespace Level
+} // namespace Game
+} // namespace ForbocAI
+
+namespace ForbocAI {
+namespace Game {
+namespace Level {
+
+namespace {
+
+TArray<TArray<FString>> LandmarkDomains() {
+  return ComponentsAdapters::ComponentDomains(
+      {{"Entities", "Environments", "Landmarks"},
+       {"Systems", "Landmarks"}});
+}
+
+} // namespace
+
+namespace ComponentsAdapters {
+
+template <> struct TComponentTextRegistry<ELandmarkKind> {
+  static const TArray<TComponentTextDeclaration<ELandmarkKind>>
+      &Declarations() {
+    static const TArray<TComponentTextDeclaration<ELandmarkKind>>
+        RegisteredCases = {{ELandmarkKind::Building, "Building"},
+                           {ELandmarkKind::Road, "Road"},
+                           {ELandmarkKind::Creek, "Creek"},
+                           {ELandmarkKind::TerrainMarker, "TerrainMarker"},
+                           {ELandmarkKind::Mine, "Mine"},
+                           {ELandmarkKind::Cemetery, "Cemetery"},
+                           {ELandmarkKind::Park, "Park"}};
+    return RegisteredCases;
+  }
+};
+
+template <> struct TComponentSourceValueFieldRegistry<FLandmark> {
+  static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>>
+      &Fields() {
+    static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>>
+        RegisteredFields = {{"Id", &FLandmark::Id},
+                            {"Label", &FLandmark::Label},
+                            {"Kind", &FLandmark::Kind},
+                            {"Location", &FLandmark::Location},
+                            {"Scale", &FLandmark::Scale}};
+    return RegisteredFields;
+  }
+};
+
+template <>
+struct TComponentSourceProjector<FLandmark> {
+  ecs::FComponentValue operator()(const FLandmark &Landmark) const {
+    return ComponentSourceValueMap(
+        Landmark, {"Id", "Label", "Kind", "Location", "Scale"});
+  }
+};
+
+} // namespace ComponentsAdapters
+
+namespace EntitiesAdapters {
+
+using ComponentsAdapters::RegisteredComponentGroups;
+
+ecs::EntityKey LandmarkEntityKey(const FString &Id) {
+  return FString::Printf(TEXT("landmark:%s"), *Id);
+}
+
+ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) {
+  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+      Payload,
+      ComponentsAdapters::TEntityCatalogProjection{
+          [](const FProjectLandmarkEntityPayload &PayloadValue) {
+            return LandmarkEntityKey(PayloadValue.Landmark.Id);
+          },
+          func::constant<TArray<TArray<FString>>>(LandmarkDomains()),
+          [](const FProjectLandmarkEntityPayload &PayloadValue)
+              -> const FLandmark & {
+            return PayloadValue.Landmark;
+          },
+          RegisteredComponentGroups<FLandmark>(
+              {{"Components/Data", {"Id", "Label", "Kind"}},
+               {"Components/Spatial", {"Location", "Scale"}}})});
+}
+
+} // namespace EntitiesAdapters
+
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI

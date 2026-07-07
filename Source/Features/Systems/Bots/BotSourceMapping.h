@@ -53,7 +53,8 @@ TArray<Component> MapSeedComponents(const TArray<Seed> &Seeds,
 
 template <typename Request, typename Seed, typename Source, typename Component>
 TArray<Component> MapSeedRuntimeComponents(
-    const Request &RequestValue, TFunctionRef<Source(const Seed &)> BuildSourceValue,
+    const Request &RequestValue,
+    TFunctionRef<Source(const decltype(RequestValue.RuntimeSettings) &, const Seed &)> BuildSourceValue,
     TFunctionRef<Component(const Source &)> BuildComponentValue) {
   return MapSeedComponents<Seed, Source, Component>(
       RequestValue.Seeds,

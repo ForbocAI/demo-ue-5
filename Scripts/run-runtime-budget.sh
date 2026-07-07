@@ -147,7 +147,7 @@ echo "Log:         $LOG_FILE"
     "-AbsLog=$LOG_FILE_ARG" \
     "${SCREENSHOT_INTERVAL_COMMAND_LINE_KEY}${SCREENSHOT_INTERVAL_SECONDS}" \
     -log -stdout -FullStdOutLogOutput \
-    -unattended -nop4 -nosplash -nosound -NoLiveCoding \
+    -unattended -nop4 -nosplash -nosound -NoLiveCoding -RenderOffScreen \
     2>&1 | tee "$STDOUT_FILE"
 ) &
 RUNTIME_PID=$!

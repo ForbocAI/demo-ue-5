@@ -4,14 +4,16 @@
 #include "Dom/JsonObject.h"
 #include "Dom/JsonValue.h"
 
+
 namespace ForbocAI {
 namespace Game {
 namespace Data {
 
+// --- Request structs (data contracts) ------------------------------------
+
 struct FJsonContentObjectRequest {
   FString RelativePath;
 };
-
 
 struct FJsonFieldRequest {
   TSharedPtr<FJsonObject> Object;
@@ -28,6 +30,7 @@ struct FJsonArrayValueObjectRequest {
   int32 Index = 0;
 };
 
+// --- Equality operators --------------------------------------------------
 
 inline bool operator==(const FJsonContentObjectRequest &Left,
                        const FJsonContentObjectRequest &Right) {
@@ -52,3 +55,40 @@ inline bool operator!=(const FJsonFieldRequest &Left,
 } // namespace Data
 } // namespace Game
 } // namespace ForbocAI
+
+// --- Macro expansion primitives (declaration infrastructure) -------------
+// Shared by JsonSettingsAdapters and JsonValueAdapters macro families.
+// Owns arity expansion so declaration macros can be variadic without
+// digit-suffixed helper families.
+
+#define JSON_EMPTY()
+#define JSON_DEFER(Id) Id JSON_EMPTY()
+#define JSON_OBSTRUCT(...) __VA_ARGS__ JSON_DEFER(JSON_EMPTY)()
+#define JSON_EXPAND(...)                                                     \
+  JSON_EXPAND_MORE(                                                          \
+      JSON_EXPAND_MORE(                                                      \
+          JSON_EXPAND_MORE(                                                  \
+              JSON_EXPAND_MORE(                                              \
+                  JSON_EXPAND_MORE(                                          \
+                      JSON_EXPAND_MORE(                                      \
+                          JSON_EXPAND_MORE(                                  \
+                              JSON_EXPAND_MORE(__VA_ARGS__))))))))
+#define JSON_EXPAND_MORE(...)                                                \
+  JSON_EXPAND_DEEP(                                                          \
+      JSON_EXPAND_DEEP(                                                      \
+          JSON_EXPAND_DEEP(                                                  \
+              JSON_EXPAND_DEEP(                                              \
+                  JSON_EXPAND_DEEP(                                          \
+                      JSON_EXPAND_DEEP(                                      \
+                          JSON_EXPAND_DEEP(                                  \
+                              JSON_EXPAND_DEEP(__VA_ARGS__))))))))
+#define JSON_EXPAND_DEEP(...)                                                \
+  JSON_EXPAND_AGAIN(                                                         \
+      JSON_EXPAND_AGAIN(                                                     \
+          JSON_EXPAND_AGAIN(                                                 \
+              JSON_EXPAND_AGAIN(                                             \
+                  JSON_EXPAND_AGAIN(                                         \
+                      JSON_EXPAND_AGAIN(                                     \
+                          JSON_EXPAND_AGAIN(                                 \
+                              JSON_EXPAND_AGAIN(__VA_ARGS__))))))))
+#define JSON_EXPAND_AGAIN(...) __VA_ARGS__

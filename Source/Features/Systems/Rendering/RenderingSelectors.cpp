@@ -40,6 +40,11 @@ SelectHorsePresentation(const FRenderingState &State) {
   return State.HorsePresentation;
 }
 
+const FRuntimeStatsPresentationModel &
+SelectRuntimeStatsPresentation(const FRenderingState &State) {
+  return State.StatsPresentation;
+}
+
 } // namespace RenderingSelectors
 } // namespace Level
 } // namespace Game

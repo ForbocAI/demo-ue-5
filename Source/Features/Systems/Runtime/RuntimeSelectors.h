@@ -3,7 +3,10 @@
 #include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Runtime/RuntimeTypes.h"
+#include "Features/Systems/Runtime/RuntimeInteractionTypes.h"
+#include "Features/Systems/Runtime/RuntimeLevelViewTypes.h"
+#include "Features/Systems/Runtime/RuntimeStateTypes.h"
+#include "Features/Systems/Runtime/RuntimeViewSpawnTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -21,6 +24,9 @@ struct FEntityDomainLookup {
   ecs::EntityKey Entity;
   ecs::DomainPathKey Domain;
 };
+
+// Global selector to get the root state without importing Store.h in views
+const FRuntimeState &SelectState();
 
 const FPlayerState &SelectPlayerState(const FRuntimeState &State);
 const FSystemsState &SelectSystemsState(const FRuntimeState &State);
@@ -88,6 +94,8 @@ const FTownspersonPresentationViewModel &
 SelectTownspersonPresentation(const FRuntimeState &State);
 const FHorsePresentationViewModel &
 SelectHorsePresentation(const FRuntimeState &State);
+const FRuntimeStatsPresentationModel &
+SelectRuntimeStatsPresentation(const FRuntimeState &State);
 const ForbocAI::Game::Data::FRuntimeObservationIdSettings &
 SelectRuntimeObservationIds(const FRuntimeState &State);
 const ForbocAI::Game::Data::FRuntimeDebugMessageSettings &

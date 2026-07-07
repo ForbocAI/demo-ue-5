@@ -126,7 +126,7 @@ func::Maybe<FLevelRuntimeBlockSeed>
 ReadLotBlockLocation(const TSharedPtr<FJsonObject> &Object,
                      const FLevelRuntimeBlockSeed &Seed) {
   return func::fmap(
-      JsonValues::ReduceRequiredFields<FLevelRuntimeLotLocationFields>(FLevelRuntimeLotLocationFields(), Object, JSON_REQUIRED_ATOMS(EastLots, NorthLots)),
+      JsonValues::ReadRequiredFields<FLevelRuntimeLotLocationFields>({FLevelRuntimeLotLocationFields(), Object}, JSON_REQUIRED_ATOMS(EastLots, NorthLots)),
       [Seed](const FLevelRuntimeLotLocationFields &Fields) {
         return AssignLotBlockLocation(Seed, Fields);
       });
@@ -163,7 +163,7 @@ CompleteBlockLocation(const TSharedPtr<FJsonObject> &Object,
 
 func::Maybe<FLevelRuntimeBlockSeed>
 ReadBlockSeedFields(const FLevelRuntimeJsonObjectRequest &Request) {
-  return JsonValues::ReduceRequiredFields<FLevelRuntimeBlockSeed>(FLevelRuntimeBlockSeed(), Request.Object, JSON_REQUIRED_ATOMS(Id, Name, Anchor, YawDegrees, Scale, Texture));
+  return JsonValues::ReadRequiredFields<FLevelRuntimeBlockSeed>({FLevelRuntimeBlockSeed(), Request.Object}, JSON_REQUIRED_ATOMS(Id, Name, Anchor, YawDegrees, Scale, Texture));
 }
 
 } // namespace

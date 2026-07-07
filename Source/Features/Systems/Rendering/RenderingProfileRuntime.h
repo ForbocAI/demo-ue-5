@@ -5,7 +5,9 @@
 #include "Core/ue_fp.hpp"
 #include "Engine/World.h"
 #include "EngineUtils.h"
-#include "Features/Components/Rendering/RenderingTypes.h"
+#include "Features/Components/Rendering/RenderingDistanceLodTypes.h"
+#include "Features/Components/Rendering/RenderingTextureTypes.h"
+#include "Features/Components/Rendering/RenderingProfileTypes.h"
 #include "GameFramework/Actor.h"
 #include "HAL/IConsoleManager.h"
 
