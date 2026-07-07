@@ -62,24 +62,24 @@ if [ ! -f "$PROJECT_FILE" ]; then
 fi
 
 if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" == "win32"* ]]; then
-  UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.7}"
+  UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.8}"
   UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor.exe"
   RUNTIME_RENDER_ARGS=(-d3d11)
 elif grep -qi microsoft /proc/version 2>/dev/null; then
-  UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.7}"
+  UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.8}"
   UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor.exe"
   PROJECT_FILE_ARG="$(wslpath -w "$PROJECT_FILE")"
   LOG_FILE_ARG="$(wslpath -w "$LOG_FILE")"
   RUNNING_UNDER_WSL=1
   RUNTIME_RENDER_ARGS=(-d3d11)
 else
-  UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.7}"
+  UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
   UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Mac/UnrealEditor"
 fi
 
 if [ ! -f "$UNREAL_EDITOR" ]; then
   echo "Error: UnrealEditor not found at $UNREAL_EDITOR"
-  echo "Please set UE_ROOT to your Unreal Engine 5.7 installation directory."
+  echo "Please set UE_ROOT to your Unreal Engine 5.8 installation directory."
   exit 1
 fi
 

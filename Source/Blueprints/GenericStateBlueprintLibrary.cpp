@@ -1,5 +1,6 @@
 #include "Blueprints/GenericStateBlueprintLibrary.h"
 
+#include "Algo/Transform.h"
 #include "Core/ue_fp.hpp"
 #include "Features/Components/Data/Json/JsonReadAdapters.h"
 
@@ -135,7 +136,12 @@ void WriteBoolJsonField(const FJsonFieldRequest &Request,
 
 TArray<FString> JsonFieldNames(const TSharedPtr<FJsonObject> &JsonObject) {
   check(JsonObject.IsValid());
-  return func::map_keys<FString, TSharedPtr<FJsonValue>>(JsonObject->Values);
+  TArray<FString> FieldNames;
+  FieldNames.Reserve(JsonObject->Values.Num());
+  Algo::Transform(JsonObject->Values, FieldNames, [](const auto &Field) {
+    return FString(Field.Key.Len(), *Field.Key);
+  });
+  return FieldNames;
 }
 
 void CopyJsonField(const FStateJsonMergeRequest &Request,

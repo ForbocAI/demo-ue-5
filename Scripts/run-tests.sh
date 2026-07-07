@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # run-tests.sh
-# Runs ForbocAI automation tests for the UE 5.7 runtime project.
+# Runs ForbocAI automation tests for the UE 5.8 runtime project.
 # Saves logs and distinguishes real failures from offline skips.
 
 set -euo pipefail
@@ -24,7 +24,7 @@ fi
 
 # Detect OS and UE path (same logic as build_plugin.sh)
 if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" == "win32"* ]]; then
-    UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.7}"
+    UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.8}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Build.bat"
     UNREAL_BUILD_ARG="$UNREAL_BUILD"
@@ -33,7 +33,7 @@ if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" ==
       RUNTIME_BUDGET_POWERSHELL_ARG="$(cygpath -w "$RUNTIME_BUDGET_POWERSHELL_SCRIPT")"
     fi
 elif grep -qi microsoft /proc/version 2>/dev/null; then
-    UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.7}"
+    UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.8}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Build.bat"
     PROJECT_FILE_ARG="$(wslpath -w "$PROJECT_FILE")"
@@ -42,7 +42,7 @@ elif grep -qi microsoft /proc/version 2>/dev/null; then
     RUNTIME_BUDGET_VIA_POWERSHELL=1
     BUILD_VIA_CMD=1
 else
-    UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.7}"
+    UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Mac/UnrealEditor-Cmd"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Mac/Build.sh"
     UNREAL_BUILD_ARG="$UNREAL_BUILD"
@@ -50,13 +50,13 @@ fi
 
 if [ ! -f "$UNREAL_EDITOR" ]; then
   echo "Error: UnrealEditor-Cmd not found at $UNREAL_EDITOR"
-  echo "Please set UE_ROOT to your Unreal Engine 5.7 installation directory."
+  echo "Please set UE_ROOT to your Unreal Engine 5.8 installation directory."
   exit 1
 fi
 
 if [ -n "$UNREAL_BUILD" ] && [ ! -f "$UNREAL_BUILD" ]; then
   echo "Error: Unreal build script not found at $UNREAL_BUILD"
-  echo "Please set UE_ROOT to your Unreal Engine 5.7 installation directory."
+  echo "Please set UE_ROOT to your Unreal Engine 5.8 installation directory."
   exit 1
 fi
 

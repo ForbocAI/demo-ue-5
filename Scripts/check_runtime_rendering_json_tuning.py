@@ -178,7 +178,7 @@ def scan_paths(paths: list[Path]) -> list[tuple[Path, int, int, str, str]]:
 
 def run_self_test() -> bool:
     fixture = """
-#include "Ignored/Path/5.7.h"
+#include "Ignored/Path/5.8.h"
 int32 RuntimePointStarCount() { return 260; }
 const TCHAR *Name = TEXT("BaseColor");
 // RuntimeMoonPixelGridSize returns 32 in old code.
@@ -196,7 +196,7 @@ FRotator TopDown = FRotator(-90.0f, 0.0f, 0.0f);
         "260" in numbers
         and "90.0" in numbers            # scale-audit tuning literal
         and "32" not in numbers          # inside a comment
-        and "5.7" not in numbers         # preprocessor include line
+        and "5.8" not in numbers         # preprocessor include line
         and '"BaseColor"' in strings
         # action/slice/thunk metadata dynamically collected -> exempt:
         and "systems/rendering" in exempt

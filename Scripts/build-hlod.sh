@@ -8,15 +8,15 @@ MAP_PATH="${1:-/Game/Map/Maps/Runtime}"
 
 case "$(uname -s)" in
   Darwin)
-    UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.7}"
+    UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
     UNREAL_EDITOR_CMD="$UE_ROOT/Engine/Binaries/Mac/UnrealEditor-Cmd"
     ;;
   MINGW*|MSYS*|CYGWIN*)
-    UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.7}"
+    UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.8}"
     UNREAL_EDITOR_CMD="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     ;;
   *)
-    UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.7}"
+    UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.8}"
     UNREAL_EDITOR_CMD="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     ;;
 esac
@@ -27,7 +27,7 @@ if [[ ! -f "$PROJECT_FILE" ]]; then
 fi
 
 if [[ ! -f "$UNREAL_EDITOR_CMD" ]]; then
-  echo "UnrealEditor-Cmd was not found at $UNREAL_EDITOR_CMD. Set UE_ROOT to your Unreal Engine 5.7 directory." >&2
+  echo "UnrealEditor-Cmd was not found at $UNREAL_EDITOR_CMD. Set UE_ROOT to your Unreal Engine 5.8 directory." >&2
   exit 1
 fi
 

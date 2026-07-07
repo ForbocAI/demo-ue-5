@@ -24,6 +24,11 @@ User/
 !pre-game-assets/**
 !pre-game-assets/**/*.zip
 
+# Licensed third-party payloads stay local-only in the public demo repo.
+pre-game-assets/kb3d_outlaw*.zip
+pre-game-assets/kitbash_outlaw_*.png
+Content/Environment/KitBash/Outlaw/
+
 # Visual Studio / VS Code
 .vs/
 .vscode/

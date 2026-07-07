@@ -1,6 +1,6 @@
-# Forboc AI — UE 5.7 Demo Project
+# Forboc AI — UE 5.8 Demo Project
 
-A working Unreal Engine 5.7 project that demonstrates how to integrate
+A working Unreal Engine 5.8 project that demonstrates how to integrate
 **Forboc AI NPCs** into your game. Clone it, press Play, and talk to AI-driven
 townspeople — then copy the integration patterns into your own project.
 
@@ -10,7 +10,7 @@ townspeople — then copy the integration patterns into your own project.
 
 | Tool | Version |
 |---|---|
-| Unreal Engine | 5.7 |
+| Unreal Engine | 5.8 |
 | Visual Studio | 2022+ (Windows, with C++ Build Tools + Windows 11 SDK) |
 | Xcode | 15+ (macOS) |
 | Clang | 16+ (Linux) |
@@ -62,6 +62,7 @@ Forboc AI integration are:
 | **Speech component** | `Source/Features/Systems/Speech` | Text-to-speech playback with viseme-driven facial blending |
 | **Interaction system** | `Source/Features/Systems/Interaction` | Proximity triggers and player-to-NPC interaction flow |
 | **Conversation UI** | `Content/UI/WBP_Chat` | A ready-made UMG chat widget driven by the dialogue state |
+| **French Gulch asset importer** | `Scripts/Tools/import_outlaw_assets.py` | Local licensed KitBash3D Outlaw import workflow for storefronts, props, and mining-town dressing |
 | **Store** | `Source/Store.*` | Single runtime store that wires all feature slices together |
 | **ECS layer** | `Source/Core/ecs.hpp` | Lightweight ECS primitives used for entity/component management |
 | **RTK core** | via `Plugins/ForbocAI_SDK` | Redux Toolkit–style state management: actions, reducers, selectors, thunks |

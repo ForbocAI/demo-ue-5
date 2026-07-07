@@ -10,7 +10,7 @@ $PythonScript = Join-Path $ProjectRoot "Scripts\Tools\generate_skeletal_lods.py"
 if ($env:UE_ROOT) {
   $UERoot = $env:UE_ROOT
 } else {
-  $UERoot = "C:\Program Files\Epic Games\UE_5.7"
+  $UERoot = "C:\Program Files\Epic Games\UE_5.8"
 }
 
 $UnrealEditorCmd = Join-Path $UERoot "Engine\Binaries\Win64\UnrealEditor-Cmd.exe"
@@ -24,7 +24,7 @@ if (!(Test-Path $PythonScript)) {
 }
 
 if (!(Test-Path $UnrealEditorCmd)) {
-  throw "UnrealEditor-Cmd.exe was not found at $UnrealEditorCmd. Set UE_ROOT to your Unreal Engine 5.7 directory."
+  throw "UnrealEditor-Cmd.exe was not found at $UnrealEditorCmd. Set UE_ROOT to your Unreal Engine 5.8 directory."
 }
 
 & $UnrealEditorCmd `

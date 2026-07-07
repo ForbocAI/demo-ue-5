@@ -13,14 +13,14 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 PROJECT_FILE="$PROJECT_ROOT/ForbocAIDemo.uproject"
 MAP_PATH="/Game/Map/Maps/Runtime"
-UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.7}"
+UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
 UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor"
 
 if [[ ! -x "$UNREAL_EDITOR" ]]; then
   echo "UnrealEditor was not found at:"
   echo "  $UNREAL_EDITOR"
   echo
-  echo "Set UE_ROOT to your Unreal Engine 5.7 directory, then run this again."
+  echo "Set UE_ROOT to your Unreal Engine 5.8 directory, then run this again."
   exit 1
 fi
 

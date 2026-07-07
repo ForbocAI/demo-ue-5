@@ -1,5 +1,5 @@
 param(
-  [string] $UnrealEditor = "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor.exe",
+  [string] $UnrealEditor = "C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe",
   [string] $MapPath = "/Game/Map/Maps/Runtime",
   [int] $TimeoutSeconds = 120
 )

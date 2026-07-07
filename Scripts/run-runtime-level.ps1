@@ -37,7 +37,7 @@ function Resolve-UnrealEditorPath {
 
   $Root = $env:UE_ROOT
   if ([string]::IsNullOrWhiteSpace($Root)) {
-    $Root = "C:\Program Files\Epic Games\UE_5.7"
+    $Root = "C:\Program Files\Epic Games\UE_5.8"
   }
 
   return Join-Path $Root "Engine\Binaries\Win64\UnrealEditor.exe"

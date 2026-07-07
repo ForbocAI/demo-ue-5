@@ -9,7 +9,7 @@ set "PROJECT_FILE=%PROJECT_ROOT%\ForbocAIDemo.uproject"
 set "MAP_PATH=/Game/Map/Maps/Runtime"
 
 if "%UE_ROOT%"=="" (
-  set "UE_ROOT=C:\Program Files\Epic Games\UE_5.7"
+  set "UE_ROOT=C:\Program Files\Epic Games\UE_5.8"
 )
 
 set "UNREAL_EDITOR=%UE_ROOT%\Engine\Binaries\Win64\UnrealEditor.exe"
@@ -18,7 +18,7 @@ if not exist "%UNREAL_EDITOR%" (
   echo UnrealEditor.exe was not found at:
   echo   %UNREAL_EDITOR%
   echo.
-  echo Set UE_ROOT to your Unreal Engine 5.7 directory, then run this again.
+  echo Set UE_ROOT to your Unreal Engine 5.8 directory, then run this again.
   exit /b 1
 )
 

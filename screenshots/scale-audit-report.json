@@ -1,0 +1,37 @@
+{
+  "screenshots": [
+    "screenshots/scale-audit-whole-level.png",
+    "screenshots/scale-audit-town.png",
+    "screenshots/scale-audit-people-horses.png"
+  ],
+  "units": {
+    "terrain_feet_across": 10498.687664041994,
+    "lot_feet": 10.0,
+    "world_cm_per_authored_foot": 30.48,
+    "actor_cm_per_authored_foot": 30.48000000012192
+  },
+  "world": {
+    "terrain_blocks": 41,
+    "town_blocks": 36,
+    "landmarks": 3,
+    "median_building_frontage_ft": 43.768,
+    "median_building_depth_ft": 31.062,
+    "post_office_frontage_ft": 68.0,
+    "post_office_depth_ft": 46.0,
+    "road_width_ft": 24.0
+  },
+  "actors": {
+    "townsperson_height_ft": 5.5,
+    "townsperson_shoulder_width_ft": 1.75,
+    "townsperson_mannequin_scale": 0.74,
+    "horse_length_ft": 8.0,
+    "horse_imported_scale": 0.56,
+    "rider_scale": 0.56
+  },
+  "ratios": {
+    "post_office_frontage_to_person_height": 12.363636363636363,
+    "road_width_to_person_height": 4.363636363636363,
+    "median_building_frontage_to_person_height": 7.957818181818182,
+    "horse_length_to_road_width": 0.3333333333333333
+  }
+}
