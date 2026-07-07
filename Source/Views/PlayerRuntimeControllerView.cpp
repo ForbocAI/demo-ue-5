@@ -33,14 +33,17 @@ namespace FG = ForbocAI::Game::Level;
 
 DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeController, Log, All);
 
-namespace {
-
+// Payload for one orthographic scale-audit capture step. Named at file scope
+// (not the anonymous namespace) so APlayerRuntimeControllerView member methods
+// can take it by const reference.
 struct FScaleAuditCaptureView {
   FString OutputName;
   FVector Location = FVector::ZeroVector;
   FRotator ControlRotation = FRotator::ZeroRotator;
   float OrthoWidth = 0.0f;
 };
+
+namespace {
 
 struct FScaleAuditCaptureViewsRequest {
   UWorld *World = nullptr;
@@ -382,9 +385,27 @@ void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() {
   IFileManager::Get().MakeDirectory(*ScaleAuditOutputDirectory, true);
 }
 
-void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() {
-  UWorld *World = GetWorld();
-  check(World);
+void APlayerRuntimeControllerView::CacheScaleAuditCameraState(
+    UCameraComponent *Camera, USpringArmComponent *CameraBoom) {
+  bScaleAuditCameraStateCached
+      ? void()
+      : (PreviousProjectionMode = Camera->ProjectionMode,
+         PreviousFieldOfView = Camera->FieldOfView,
+         PreviousOrthoWidth = Camera->OrthoWidth,
+         PreviousSpringArmLength = CameraBoom->TargetArmLength,
+         bScaleAuditCameraStateCached = true, void());
+}
+
+void APlayerRuntimeControllerView::CacheScaleAuditMeshState(
+    USkeletalMeshComponent *PlayerMesh) {
+  bScaleAuditMeshStateCached
+      ? void()
+      : (bPreviousPlayerMeshHiddenInGame = PlayerMesh->bHiddenInGame,
+         bScaleAuditMeshStateCached = true, void());
+}
+
+void APlayerRuntimeControllerView::ApplyScaleAuditCaptureView(
+    const FScaleAuditCaptureView &View) {
   APlayerCharacterView *RuntimeCharacter =
       Cast<APlayerCharacterView>(GetPawn());
   check(RuntimeCharacter);
@@ -394,6 +415,27 @@ void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() {
   check(Camera);
   check(CameraBoom);
   check(PlayerMesh);
+  UWorld *World = GetWorld();
+  check(World);
+  CacheScaleAuditCameraState(Camera, CameraBoom);
+  CacheScaleAuditMeshState(PlayerMesh);
+  ScaleAuditCurrentOutputName = View.OutputName;
+  PlayerMesh->SetHiddenInGame(true);
+  CameraBoom->TargetArmLength = 0.0f;
+  Camera->ProjectionMode = ECameraProjectionMode::Orthographic;
+  Camera->SetOrthoWidth(View.OrthoWidth);
+  RuntimeCharacter->SetActorLocation(View.Location, false, nullptr,
+                                     ETeleportType::TeleportPhysics);
+  SetControlRotation(View.ControlRotation);
+  World->GetTimerManager().SetTimer(
+      ScaleAuditScreenshotTimer, this,
+      &APlayerRuntimeControllerView::RequestScaleAuditScreenshot,
+      ScaleAuditSettleSeconds, false);
+}
+
+void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() {
+  UWorld *World = GetWorld();
+  check(World);
   const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
   const TArray<FScaleAuditCaptureView> Views = ScaleAuditCaptureViews(
       {World, FG::RuntimeSelectors::SelectLevelGeometry(State),
@@ -401,32 +443,7 @@ void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() {
        ScaleAuditActorsOrthoWidth, ScaleAuditWholeCaptureHeight,
        ScaleAuditTownCaptureHeight, ScaleAuditActorsCaptureHeight});
   Views.IsValidIndex(ScaleAuditCaptureIndex)
-      ? (bScaleAuditCameraStateCached
-             ? void()
-             : (PreviousProjectionMode = Camera->ProjectionMode,
-                PreviousFieldOfView = Camera->FieldOfView,
-                PreviousOrthoWidth = Camera->OrthoWidth,
-                PreviousSpringArmLength = CameraBoom->TargetArmLength,
-                bScaleAuditCameraStateCached = true, void()),
-         bScaleAuditMeshStateCached
-             ? void()
-             : (bPreviousPlayerMeshHiddenInGame = PlayerMesh->bHiddenInGame,
-                bScaleAuditMeshStateCached = true, void()),
-         ScaleAuditCurrentOutputName =
-             Views[ScaleAuditCaptureIndex].OutputName,
-         PlayerMesh->SetHiddenInGame(true),
-         CameraBoom->TargetArmLength = 0.0f,
-         Camera->ProjectionMode = ECameraProjectionMode::Orthographic,
-         Camera->SetOrthoWidth(Views[ScaleAuditCaptureIndex].OrthoWidth),
-         RuntimeCharacter->SetActorLocation(
-             Views[ScaleAuditCaptureIndex].Location, false, nullptr,
-             ETeleportType::TeleportPhysics),
-         SetControlRotation(Views[ScaleAuditCaptureIndex].ControlRotation),
-         World->GetTimerManager().SetTimer(
-             ScaleAuditScreenshotTimer, this,
-             &APlayerRuntimeControllerView::RequestScaleAuditScreenshot,
-             ScaleAuditSettleSeconds, false),
-         void())
+      ? (ApplyScaleAuditCaptureView(Views[ScaleAuditCaptureIndex]), void())
       : CompleteScaleAuditCapture();
 }
 

@@ -14,6 +14,10 @@
 class ATownspersonView;
 class URuntimeChatWidget;
 class URuntimeStatsWidget;
+class UCameraComponent;
+class USpringArmComponent;
+class USkeletalMeshComponent;
+struct FScaleAuditCaptureView;
 
 namespace ForbocAI::Game::UI {
 struct FRuntimeConversationViewModel;
@@ -121,6 +125,14 @@ private:
   void StartScaleAuditCaptureIfRequested();
   void ConfigureScaleAuditCapture();
   void RunScaleAuditCaptureStep();
+  // Caches the pre-capture camera/mesh state once so CompleteScaleAuditCapture
+  // can restore it; applies one orthographic capture view and schedules the
+  // screenshot. Extracted from RunScaleAuditCaptureStep so each step reads as
+  // sequential statements instead of one nested ternary-comma expression.
+  void CacheScaleAuditCameraState(UCameraComponent *Camera,
+                                  USpringArmComponent *CameraBoom);
+  void CacheScaleAuditMeshState(USkeletalMeshComponent *PlayerMesh);
+  void ApplyScaleAuditCaptureView(const FScaleAuditCaptureView &View);
   void RequestScaleAuditScreenshot();
   void CompleteScaleAuditCapture();
 };
