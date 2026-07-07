@@ -31,12 +31,6 @@ const rtk::Slice<FRenderingState> &GetSlice() {
                   RenderingActions::RenderingProfileObserved(),
                   RenderingReducers::ReduceRenderingProfileObserved);
               Builder.addCase(
-                  RenderingActions::TownspersonPresentationRequested(),
-                  RenderingReducers::ReduceTownspersonPresentationRequested);
-              Builder.addCase(
-                  RenderingActions::HorsePresentationRequested(),
-                  RenderingReducers::ReduceHorsePresentationRequested);
-              Builder.addCase(
                   RenderingActions::RuntimeStatsSampled(),
                   RenderingReducers::ReduceRuntimeStatsSampled);
             });

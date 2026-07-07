@@ -35,12 +35,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeController, Log, All);
 
 namespace {
 
-struct FLocalRouteBounds {
-  FVector2D Min = FVector2D::ZeroVector;
-  FVector2D Max = FVector2D::ZeroVector;
-  bool bValid = false;
-};
-
 struct FScaleAuditCaptureView {
   FString OutputName;
   FVector Location = FVector::ZeroVector;
@@ -119,59 +113,6 @@ FString CommandLineString(const TCHAR *Key, const FString &Fallback) {
   return Value;
 }
 
-FLocalRouteBounds InitialRouteBounds(const FG::FLevelLocalPoint &Point) {
-  return {FVector2D(Point.EastWest, Point.NorthSouth),
-          FVector2D(Point.EastWest, Point.NorthSouth), true};
-}
-
-FLocalRouteBounds ExtendRouteBounds(const FLocalRouteBounds &Bounds,
-                                    const FG::FLevelLocalPoint &Point) {
-  return {FVector2D(FMath::Min(Bounds.Min.X, Point.EastWest),
-                    FMath::Min(Bounds.Min.Y, Point.NorthSouth)),
-          FVector2D(FMath::Max(Bounds.Max.X, Point.EastWest),
-                    FMath::Max(Bounds.Max.Y, Point.NorthSouth)),
-          true};
-}
-
-FLocalRouteBounds ReduceRoutePointBounds(FLocalRouteBounds Bounds,
-                                         const FG::FLevelLocalPoint &Point) {
-  return Bounds.bValid ? ExtendRouteBounds(Bounds, Point)
-                       : InitialRouteBounds(Point);
-}
-
-FLocalRouteBounds ReduceTownspersonBounds(
-    FLocalRouteBounds Bounds, const FG::FTownspersonSeed &Seed) {
-  return func::fold_indexed(Seed.PatrolRoute,
-                            static_cast<size_t>(Seed.PatrolRoute.Num()),
-                            Bounds, ReduceRoutePointBounds);
-}
-
-FLocalRouteBounds ReduceHorseBounds(FLocalRouteBounds Bounds,
-                                    const FG::FHorseRouteSeed &Seed) {
-  return func::fold_indexed(Seed.PatrolRoute,
-                            static_cast<size_t>(Seed.PatrolRoute.Num()),
-                            Bounds, ReduceRoutePointBounds);
-}
-
-FLocalRouteBounds DynamicRouteBounds(const FG::FRuntimeState &State) {
-  const FLocalRouteBounds TownspersonBounds = func::fold_indexed(
-      FG::RuntimeSelectors::SelectTownspeople(State),
-      static_cast<size_t>(FG::RuntimeSelectors::SelectTownspeople(State).Num()),
-      FLocalRouteBounds{}, ReduceTownspersonBounds);
-  return func::fold_indexed(
-      FG::RuntimeSelectors::SelectHorses(State),
-      static_cast<size_t>(FG::RuntimeSelectors::SelectHorses(State).Num()),
-      TownspersonBounds, ReduceHorseBounds);
-}
-
-FVector RouteBoundsCenter(const FLocalRouteBounds &Bounds,
-                          const FVector &Fallback) {
-  return Bounds.bValid
-             ? FVector((Bounds.Min.X + Bounds.Max.X) * 0.5f,
-                       (Bounds.Min.Y + Bounds.Max.Y) * 0.5f, 0.0f)
-             : Fallback;
-}
-
 FVector PostOfficeWorldCenter(
     const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
   const FG::FLevelLocalPoint Point =
@@ -188,8 +129,9 @@ ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request) {
   check(Request.World);
   const FVector TerrainCenter = FVector::ZeroVector;
   const FVector TownCenter = PostOfficeWorldCenter(Request.Geometry);
-  const FVector ActorCenter = RouteBoundsCenter(
-      DynamicRouteBounds(FG::RuntimeSelectors::SelectState()), TownCenter);
+  const FVector ActorCenter =
+      FG::RuntimeSelectors::SelectActorRouteBoundsCenter(
+          FG::RuntimeSelectors::SelectState(), TownCenter);
   const FRotator TopDownRotation = FRotator(-90.0f, 0.0f, 0.0f);
   return {{TEXT("scale-audit-ingame-whole-level.png"),
            TopDownCameraLocation(TerrainCenter, Request.WholeCaptureHeight),

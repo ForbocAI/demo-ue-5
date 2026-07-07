@@ -174,7 +174,9 @@ FString RequestLevelViewPayloadTypePrefix() {
 // a rejected action on failure instead of swallowing the error. The public
 // signature stays a ThunkAction (the config's operator()), so callers and the
 // EnhancedStore thunk-dispatch path are unchanged.
-rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
+const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
+                            FRuntimeState> &
+RequestPlayerSpawnAsyncThunk() {
   static const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
                                      FRuntimeState>
       Config = rtk::createAsyncThunk<FSpawnPointPayload, rtk::FEmptyPayload,
@@ -203,11 +205,16 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
                   Resolve(RuntimeSelectors::SelectPlayerSpawn(Api.getState()));
                 });
           });
-  return Config(rtk::FEmptyPayload{});
+  return Config;
 }
 
-rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
-RequestLevelViewPayload() {
+rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
+  return RequestPlayerSpawnAsyncThunk()(rtk::FEmptyPayload{});
+}
+
+const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload, rtk::FEmptyPayload,
+                            FRuntimeState> &
+RequestLevelViewPayloadAsyncThunk() {
   static const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload,
                                      rtk::FEmptyPayload, FRuntimeState>
       Config = rtk::createAsyncThunk<FRuntimeLevelViewPayload,
@@ -243,7 +250,12 @@ RequestLevelViewPayload() {
                                        &Geometry}));
                 });
           });
-  return Config(rtk::FEmptyPayload{});
+  return Config;
+}
+
+rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
+RequestLevelViewPayload() {
+  return RequestLevelViewPayloadAsyncThunk()(rtk::FEmptyPayload{});
 }
 
 } // namespace RuntimeThunks

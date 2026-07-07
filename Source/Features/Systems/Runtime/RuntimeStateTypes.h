@@ -21,6 +21,7 @@
 #include "Features/Systems/Landmarks/LandmarkTypes.h"
 #include "Features/Systems/Nature/NatureTypes.h"
 #include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Runtime/RuntimeLifecycleTypes.h"
 #include "Features/Systems/Spawn/SpawnTypes.h"
 #include "Features/Systems/Speech/SpeechTypes.h"
 #include "Features/Systems/SystemsTypes.h"
@@ -52,6 +53,7 @@ struct FRuntimeState {
   ForbocAI::Game::Data::FBotRuntimeSettings BotRuntime;
   FRuntimeEcsState Ecs;
   FRuntimeReducerDiagnosticsState ReducerDiagnostics;
+  FRuntimeLifecycleState Lifecycle;
   FRuntimeTownspersonInteractionRequest LastTownspersonInteractionRequest;
   FPlayerState Player;
   FSystemsState Systems;
@@ -116,6 +118,7 @@ inline bool operator==(const FRuntimeState &Left,
          Left.BotRuntime == Right.BotRuntime &&
          Left.Ecs == Right.Ecs &&
          Left.ReducerDiagnostics == Right.ReducerDiagnostics &&
+         Left.Lifecycle == Right.Lifecycle &&
          Left.LastTownspersonInteractionRequest ==
              Right.LastTownspersonInteractionRequest &&
          Left.Player == Right.Player &&

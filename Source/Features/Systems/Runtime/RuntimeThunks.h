@@ -21,6 +21,18 @@ FString RequestPlayerSpawnTypePrefix();
 FString RequestLevelViewPayloadTypePrefix();
 
 /**
+ * @brief The runtime bootstrap createAsyncThunk configs, exposed so slices can
+ * react to their pending/fulfilled/rejected lifecycle action creators via
+ * builder.addCase (the canonical RTK extraReducers pattern).
+ */
+const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
+                            FRuntimeState> &
+RequestPlayerSpawnAsyncThunk();
+const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload, rtk::FEmptyPayload,
+                            FRuntimeState> &
+RequestLevelViewPayloadAsyncThunk();
+
+/**
  * @brief RTK thunk that loads runtime data and resolves the player spawn.
  */
 rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn();

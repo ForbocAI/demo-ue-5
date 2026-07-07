@@ -34,28 +34,6 @@ FRenderingState ReduceRenderingProfileObserved(
       .val;
 }
 
-FRenderingState ReduceTownspersonPresentationRequested(
-    const FRenderingState &State,
-    const rtk::PayloadAction<FRenderingPresentationRequest> &Action) {
-  return (func::pipe(State) |
-          [&Action](FRenderingState Next) -> FRenderingState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
-            return Next;
-          })
-      .val;
-}
-
-FRenderingState ReduceHorsePresentationRequested(
-    const FRenderingState &State,
-    const rtk::PayloadAction<FRenderingPresentationRequest> &Action) {
-  return (func::pipe(State) |
-          [&Action](FRenderingState Next) -> FRenderingState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
-            return Next;
-          })
-      .val;
-}
-
 struct FStatsFormatContext {
   const FString *Format;
   int32 BufferCharacterCount;

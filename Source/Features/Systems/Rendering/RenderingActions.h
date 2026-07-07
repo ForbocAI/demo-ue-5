@@ -11,10 +11,6 @@ namespace RenderingActions {
 
 const rtk::ActionCreator<FRenderingPayload> &RenderingProfileObserved();
 const rtk::ActionCreator<FRuntimeStatsSamplePayload> &RuntimeStatsSampled();
-const rtk::ActionCreator<FRenderingPresentationRequest> &
-TownspersonPresentationRequested();
-const rtk::ActionCreator<FRenderingPresentationRequest> &
-HorsePresentationRequested();
 
 } // namespace RenderingActions
 } // namespace Level

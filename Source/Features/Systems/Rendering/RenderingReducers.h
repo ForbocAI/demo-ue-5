@@ -26,12 +26,6 @@ FRenderingState
 ReduceRenderingProfileObserved(const FRenderingState &State,
                                const rtk::PayloadAction<FRenderingPayload>
                                    &Action);
-FRenderingState ReduceTownspersonPresentationRequested(
-    const FRenderingState &State,
-    const rtk::PayloadAction<FRenderingPresentationRequest> &Action);
-FRenderingState ReduceHorsePresentationRequested(
-    const FRenderingState &State,
-    const rtk::PayloadAction<FRenderingPresentationRequest> &Action);
 FRenderingState ReduceRuntimeStatsSampled(
     const FRenderingState &State,
     const rtk::PayloadAction<FRuntimeStatsSamplePayload> &Action);

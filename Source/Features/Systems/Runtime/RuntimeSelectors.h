@@ -113,6 +113,10 @@ const ForbocAI::Game::Data::FBotRuntimeSettings &
 SelectBotRuntimeSettings(const FRuntimeState &State);
 const FRuntimeReducerDiagnosticsState &
 SelectRuntimeReducerDiagnostics(const FRuntimeState &State);
+const FRuntimeLifecycleState &
+SelectRuntimeLifecycle(const FRuntimeState &State);
+FVector SelectActorRouteBoundsCenter(const FRuntimeState &State,
+                                     const FVector &Fallback);
 TArray<FBotEntity> SelectBots(const FRuntimeState &State);
 func::Maybe<FBotEntity> SelectBotById(const FRuntimeState &State,
                                       const FString &Id);

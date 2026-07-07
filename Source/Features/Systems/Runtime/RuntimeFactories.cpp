@@ -20,6 +20,7 @@
 #include "Features/Systems/Nature/NatureFactories.h"
 #include "Features/Systems/Rendering/RenderingSlice.h"
 #include "Features/Systems/Rendering/RenderingReducers.h"
+#include "Features/Systems/Runtime/RuntimeLifecycleSlice.h"
 #include "Features/Systems/Runtime/RuntimeReducers.h"
 #include "Features/Systems/Spawn/SpawnFactories.h"
 #include "Features/Systems/Speech/SpeechReducers.h"
@@ -48,6 +49,7 @@ FRuntimeState CreateInitialState() {
   State.Systems = SystemsSlice::CreateInitialState();
   State.Level = LevelSystemSlice::CreateInitialState();
   State.Rendering = RenderingSlice::CreateInitialState();
+  State.Lifecycle = RuntimeLifecycleSlice::CreateInitialState();
   State.Dialogue = DialogueSlice::CreateInitialState();
   State.Dialogue =
       DialogueReducers::ReduceRuntimeSettings(State.Dialogue,

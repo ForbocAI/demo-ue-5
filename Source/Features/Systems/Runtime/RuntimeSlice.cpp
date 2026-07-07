@@ -19,6 +19,7 @@
 #include "Features/Systems/Nature/NatureSlice.h"
 #include "Features/Systems/Rendering/RenderingSlice.h"
 #include "Features/Systems/Runtime/RuntimeFactories.h"
+#include "Features/Systems/Runtime/RuntimeLifecycleSlice.h"
 #include "Features/Systems/Runtime/RuntimeReducers.h"
 #include "Features/Systems/Runtime/RuntimeThunks.h"
 #include "Features/Systems/Spawn/SpawnSlice.h"
@@ -81,6 +82,8 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
         .reducer(&FRuntimeState::Level, LevelSystemSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Rendering,
                  RenderingSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::Lifecycle,
+                 RuntimeLifecycleSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Dialogue,
                  DialogueSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Interaction,
