@@ -83,18 +83,6 @@ inline FPlayerPresentationViewModel ReducePlayerPresentation(
   return Model;
 }
 
-inline FPlayerState ReducePlayerMovementInputObserved(
-    const FPlayerState &State,
-    const rtk::PayloadAction<FPlayerMovementInputRequest> &Action) {
-  return (func::pipe(State) |
-          [&Action](FPlayerState Next) -> FPlayerState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
-            Next.MovementInput = ReduceMovementInput(Action.PayloadValue);
-            return Next;
-          })
-      .val;
-}
-
 inline FPlayerState ReducePlayerPresentationRequested(
     const FPlayerState &State,
     const rtk::PayloadAction<FPlayerPresentationRequest> &Action) {

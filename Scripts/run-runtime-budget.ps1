@@ -109,10 +109,12 @@ function Get-ScreenshotCount {
   param(
     [string] $Path,
     [string] $Filter,
-    [int] $Depth
+    [int] $Depth,
+    [datetime] $StartedAt
   )
 
-  @(Get-ChildItem -LiteralPath $Path -Filter $Filter -File -Recurse -Depth $Depth -ErrorAction SilentlyContinue).Count
+  @(Get-ChildItem -LiteralPath $Path -Filter $Filter -File -Recurse -Depth $Depth -ErrorAction SilentlyContinue |
+    Where-Object { $_.LastWriteTime -ge $StartedAt }).Count
 }
 
 function Wait-ForScreenshots {
@@ -122,12 +124,13 @@ function Wait-ForScreenshots {
     [string] $Filter,
     [int] $Depth,
     [int] $ExpectedCount,
-    [int] $TimeoutSeconds
+    [int] $TimeoutSeconds,
+    [datetime] $StartedAt
   )
 
   $Deadline = (Get-Date).AddSeconds($TimeoutSeconds)
   while ((-not $Process.HasExited) -and ((Get-Date) -lt $Deadline)) {
-    $Count = Get-ScreenshotCount -Path $Path -Filter $Filter -Depth $Depth
+    $Count = Get-ScreenshotCount -Path $Path -Filter $Filter -Depth $Depth -StartedAt $StartedAt
     if ($Count -ge $ExpectedCount) {
       return
     }
@@ -135,7 +138,7 @@ function Wait-ForScreenshots {
     $Process.Refresh()
   }
 
-  $FinalCount = Get-ScreenshotCount -Path $Path -Filter $Filter -Depth $Depth
+  $FinalCount = Get-ScreenshotCount -Path $Path -Filter $Filter -Depth $Depth -StartedAt $StartedAt
   Throw-RuntimeBudgetFailure "Runtime budget captured $FinalCount screenshot(s), expected $ExpectedCount."
 }
 
@@ -405,8 +408,8 @@ $FatalErrorMarker = [string] $Budget.runtime_budget.markers.fatal_error
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 Remove-Item -LiteralPath $LogPath -Force -ErrorAction SilentlyContinue
 New-Item -ItemType File -Force -Path $LogPath | Out-Null
-Remove-Item -LiteralPath $ScreenshotDir -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path $ScreenshotDir | Out-Null
+$ScreenshotStartedAt = Get-Date
 
 $Arguments = @(
   (Quote-ProcessArgument $ProjectPath),
@@ -422,7 +425,7 @@ $Arguments = @(
   "-nosplash",
   "-nosound",
   "-NoLiveCoding",
-  "-RenderOffScreen"
+  "-d3d11"
 )
 
 Write-Host "=== ForbocAI Runtime Budget ==="
@@ -432,6 +435,7 @@ Write-Host "Editor:      $UnrealEditor"
 Write-Host "Budget:      $BudgetPath"
 Write-Host "Window:      ${MeasurementSeconds}s"
 Write-Host "Screenshots: every ${ScreenshotIntervalSeconds}s into $ScreenshotDir"
+Write-Host "Mode:        real UnrealEditor game process; visible rendering; no null RHI/offscreen render path"
 Write-Host "Rendering:   authored JSON profile applied by game features"
 Write-Host "Log:         $LogPath"
 
@@ -451,7 +455,7 @@ try {
 
   if ($ExpectedScreenshotCount -gt 0) {
     Write-Host "Waiting for ${ExpectedScreenshotCount} review screenshot(s)..."
-    Wait-ForScreenshots -Process $Process -Path $ScreenshotDir -Filter $ScreenshotFileGlob -Depth $ScreenshotSearchMaxDepth -ExpectedCount $ExpectedScreenshotCount -TimeoutSeconds $ScreenshotTimeoutSeconds
+    Wait-ForScreenshots -Process $Process -Path $ScreenshotDir -Filter $ScreenshotFileGlob -Depth $ScreenshotSearchMaxDepth -ExpectedCount $ExpectedScreenshotCount -TimeoutSeconds $ScreenshotTimeoutSeconds -StartedAt $ScreenshotStartedAt
   }
 }
 finally {

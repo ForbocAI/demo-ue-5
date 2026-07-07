@@ -32,9 +32,6 @@ inline const rtk::Slice<FPlayerState> &GetSlice() {
               Builder.addCase(PlayerActions::PlayerObserved(),
                               PlayerReducers::ReducePlayerObserved);
               Builder.addCase(
-                  PlayerActions::PlayerMovementInputObserved(),
-                  PlayerReducers::ReducePlayerMovementInputObserved);
-              Builder.addCase(
                   PlayerActions::PlayerPresentationRequested(),
                   PlayerReducers::ReducePlayerPresentationRequested);
             });

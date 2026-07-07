@@ -5,13 +5,12 @@
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorThunks.h"
 #include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
-#include "Store.h"
 
 using namespace ForbocAI::Game::Level;
 
 namespace {
 
-const FRuntimeState &RuntimeState() { return Store::GetStore().getState(); }
+const FRuntimeState &RuntimeState() { return RuntimeSelectors::SelectState(); }
 
 FBotRuntimeSettings BotRuntimeSettings() {
   return RuntimeSelectors::SelectBotRuntimeSettings(RuntimeState());

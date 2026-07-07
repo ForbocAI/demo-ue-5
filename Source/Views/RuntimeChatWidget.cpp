@@ -10,7 +10,6 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
-#include "Store.h"
 
 void URuntimeChatWidget::NativeConstruct() {
   Super::NativeConstruct();
@@ -26,7 +25,7 @@ void URuntimeChatWidget::NativeConstruct() {
 
     const ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation =
         ForbocAI::Game::Level::RuntimeSelectors::SelectRuntimeConversation(
-            ForbocAI::Game::Level::Store::GetStore().getState());
+            ForbocAI::Game::Level::RuntimeSelectors::SelectState());
 
     TitleTextElement = BuildTextElement(Conversation.Title,
                                         Conversation.TitleColor,

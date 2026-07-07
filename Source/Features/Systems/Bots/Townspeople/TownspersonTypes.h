@@ -70,8 +70,7 @@ struct FTownspersonState {
   TArray<FTownspersonSeed> DialogueTownspeople;
   TArray<FTownspersonSeed> MemoryTownspeople;
   TArray<FTownspersonSeed> CombatValidationTownspeople;
-  FTownspersonViewDefaults LastViewDefaults;
-  FTownspersonInteractionOverlapViewModel LastInteractionOverlap;
+  FTownspersonViewDefaults ViewDefaults;
 };
 
 inline bool operator==(const FTownspersonSeed &Left,
@@ -108,20 +107,14 @@ inline bool operator==(const FTownspersonState &Left,
          Left.MemoryTownspeople == Right.MemoryTownspeople &&
          Left.CombatValidationTownspeople ==
              Right.CombatValidationTownspeople &&
-         Left.LastViewDefaults.InteractionPrompt ==
-             Right.LastViewDefaults.InteractionPrompt &&
-         Left.LastViewDefaults.DefaultPlayerLine ==
-             Right.LastViewDefaults.DefaultPlayerLine &&
-         Left.LastViewDefaults.Id == Right.LastViewDefaults.Id &&
-         Left.LastViewDefaults.Name == Right.LastViewDefaults.Name &&
-         Left.LastViewDefaults.Role == Right.LastViewDefaults.Role &&
-         Left.LastViewDefaults.Persona == Right.LastViewDefaults.Persona &&
-         Left.LastInteractionOverlap.bShouldApply ==
-             Right.LastInteractionOverlap.bShouldApply &&
-         Left.LastInteractionOverlap.bPlayerNearby ==
-             Right.LastInteractionOverlap.bPlayerNearby &&
-         Left.LastInteractionOverlap.bPromptVisible ==
-             Right.LastInteractionOverlap.bPromptVisible;
+         Left.ViewDefaults.InteractionPrompt ==
+             Right.ViewDefaults.InteractionPrompt &&
+         Left.ViewDefaults.DefaultPlayerLine ==
+             Right.ViewDefaults.DefaultPlayerLine &&
+         Left.ViewDefaults.Id == Right.ViewDefaults.Id &&
+         Left.ViewDefaults.Name == Right.ViewDefaults.Name &&
+         Left.ViewDefaults.Role == Right.ViewDefaults.Role &&
+         Left.ViewDefaults.Persona == Right.ViewDefaults.Persona;
 }
 
 inline bool operator!=(const FTownspersonState &Left,

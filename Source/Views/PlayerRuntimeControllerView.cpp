@@ -13,7 +13,6 @@
 #include "GameFramework/Pawn.h"
 #include "InputCoreTypes.h"
 #include "Kismet/GameplayStatics.h"
-#include "Store.h"
 #include "Views/RuntimeChatWidget.h"
 #include "Views/RuntimeStatsWidget.h"
 #include "Views/TownspersonView.h"
@@ -28,7 +27,7 @@ FG::FInteractionCandidatesObserved ObserveTownspersonCandidates(
   FG::FInteractionCandidatesObserved Observation;
   const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectRuntimeObservationIds(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   Observation.Id = Ids.TownspersonCandidatesObserved;
   Observation.MaxDistance = InteractionDistance;
 
@@ -65,7 +64,7 @@ void PresentMissingInteraction(const FString &Message) {
   check(GEngine);
   const ForbocAI::Game::Data::FRuntimeDebugMessageSettings &Debug =
       FG::RuntimeSelectors::SelectRuntimeDebugMessages(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   GEngine->AddOnScreenDebugMessage(Debug.OnScreenKey, Debug.DurationSeconds,
                                    Debug.Color, Message);
 }
@@ -75,7 +74,7 @@ void PresentMissingInteraction(const FString &Message) {
 APlayerRuntimeControllerView::APlayerRuntimeControllerView()
     : InteractionDistance(
           FG::RuntimeSelectors::SelectTownspersonInteractionDistance(
-              FG::Store::GetStore().getState())),
+              FG::RuntimeSelectors::SelectState())),
       RuntimeConversationWidgetClass(URuntimeChatWidget::StaticClass()),
       RuntimeConversationWidget(nullptr),
       RuntimeStatsWidgetClass(URuntimeStatsWidget::StaticClass()),
@@ -98,11 +97,11 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
   TArray<ATownspersonView *> Townspeople;
   const FG::FInteractionCandidatesObserved Observation =
       ObserveTownspersonCandidates(*this, InteractionDistance, Townspeople);
-  FG::Store::GetStore().dispatch(
+  FG::RuntimeActions::Dispatch(
       FG::InteractionSlice::TownspersonCandidatesObserved(Observation));
   const FG::FInteractionSelection Selection =
       FG::RuntimeSelectors::SelectInteractionSelection(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
 
   const bool bCanInteract =
       Selection.bFound && Townspeople.IsValidIndex(Selection.CandidateIndex);
@@ -110,12 +109,12 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
       ? ([this, &Townspeople, &Selection]() {
           ATownspersonView *Townsperson =
               Townspeople[Selection.CandidateIndex];
-          FG::Store::GetStore().dispatch(
+          FG::RuntimeActions::Dispatch(
               FG::RuntimeActions::TownspersonInteractionSourceObserved()(
                   ObserveTownspersonInteractionSource(*Townsperson)));
           const ForbocAI::Game::UI::FRuntimeConversationViewModel
               Conversation = FG::RuntimeSelectors::SelectRuntimeConversation(
-                  FG::Store::GetStore().getState());
+                  FG::RuntimeSelectors::SelectState());
           const FString Reply = Conversation.NpcReply;
           Townsperson->ShowDialogueReply(Reply);
           PresentConversationViewModel(Conversation);
@@ -146,7 +145,7 @@ void APlayerRuntimeControllerView::PresentRuntimeStatsWidget() {
           check(RuntimeStatsWidget);
           RuntimeStatsWidget->AddToViewport(
               FG::RuntimeSelectors::SelectUIRuntimeSettings(
-                  FG::Store::GetStore().getState())
+                  FG::RuntimeSelectors::SelectState())
                   .StatsOverlay.ZOrder);
         }(), void());
 }

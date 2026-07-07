@@ -84,18 +84,19 @@ namespace Level {
 namespace BotsAdapters {
 namespace {
 
-struct FRouteLotsRequest {
+struct FTownspersonRouteLotsRequest {
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   float EastLots;
   float NorthLots;
 };
 
-typedef FLevelLocalPoint (*FRouteLotsProjector)(const FRouteLotsRequest &);
+typedef FLevelLocalPoint (*FTownspersonRouteLotsProjector)(
+    const FTownspersonRouteLotsRequest &);
 
-struct FPatrolRouteFieldsRequest {
+struct FTownspersonPatrolRouteFieldsRequest {
   TArray<TSharedPtr<FJsonValue>> Points;
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
-  FRouteLotsProjector ProjectLots;
+  FTownspersonRouteLotsProjector ProjectLots;
 };
 
 struct FTownspersonBuildRequest {
@@ -103,7 +104,8 @@ struct FTownspersonBuildRequest {
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
-FLevelLocalPoint TownspersonRouteLots(const FRouteLotsRequest &Request) {
+FLevelLocalPoint
+TownspersonRouteLots(const FTownspersonRouteLotsRequest &Request) {
   return LevelLayoutSlice::FromPostOfficeLots(
       {Request.Geometry, Request.EastLots, Request.NorthLots,
        LevelLayoutSlice::CharacterHeightOffset(Request.Geometry)});
@@ -117,10 +119,11 @@ ETownspersonInteractionIntent InteractionIntentFromJson(
 }
 
 TArray<FLevelLocalPoint>
-PatrolRouteFromFields(const FPatrolRouteFieldsRequest &Request) {
+TownspersonPatrolRouteFromFields(
+    const FTownspersonPatrolRouteFieldsRequest &Request) {
   const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
       Request.Geometry;
-  const FRouteLotsProjector ProjectLots = Request.ProjectLots;
+  const FTownspersonRouteLotsProjector ProjectLots = Request.ProjectLots;
   return func::map_array<FTownspersonRoutePointFields, FLevelLocalPoint>(
       JsonAdapters::MapSettingsJsonValues<FTownspersonRoutePointFields>(
           Request.Points, JSON_SETTINGS_ATOMS(EastLots, NorthLots)),
@@ -145,7 +148,7 @@ FTownspersonSeed TownspersonFromFields(
   Seed.DefaultPlayerLine = Interaction.DefaultPlayerLine;
   Seed.PinnedResponse = Interaction.PinnedResponse;
   Seed.InteractionIntent = InteractionIntentFromJson(Interaction.Intent);
-  Seed.PatrolRoute = PatrolRouteFromFields(
+  Seed.PatrolRoute = TownspersonPatrolRouteFromFields(
       {Request.Fields.PatrolRoute, Request.Geometry, TownspersonRouteLots});
   return Seed;
 }

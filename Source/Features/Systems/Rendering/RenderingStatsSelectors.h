@@ -3,7 +3,6 @@
 #include "Features/Systems/Rendering/RenderingStatsTypes.h"
 #include "Features/Systems/Rendering/RenderingSlice.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
-#include "Store.h"
 
 #include <cstdarg>
 
@@ -25,7 +24,7 @@ struct FStatsFormatContext {
 };
 
 inline const FRuntimeStatsOverlaySettings &SelectStatsOverlaySettings() {
-  return RuntimeSelectors::SelectUIRuntimeSettings(Store::GetStore().getState())
+  return RuntimeSelectors::SelectUIRuntimeSettings(RuntimeSelectors::SelectState())
       .StatsOverlay;
 }
 

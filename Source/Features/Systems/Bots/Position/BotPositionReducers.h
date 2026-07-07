@@ -25,12 +25,6 @@ FBotPositionState ReduceTownspeopleSeeded(
 FBotPositionState ReduceHorsesSeeded(
     const FBotPositionState &State,
     const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action);
-FBotPositionState ReduceInitialPatrolObserved(
-    const FBotPositionState &State,
-    const rtk::PayloadAction<FBotInitialPatrolLocationRequest> &Action);
-FBotPositionState ReducePatrolAdvanceObserved(
-    const FBotPositionState &State,
-    const rtk::PayloadAction<FBotPatrolAdvanceRequest> &Action);
 int32 ReduceInitialPatrolIndex(const TArray<FVector> &PatrolRoute);
 FBotInitialPatrolLocationPayload ReduceInitialPatrolLocation(
     const FBotInitialPatrolLocationRequest &Request);

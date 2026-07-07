@@ -16,6 +16,7 @@ VALIDATOR="$PROJECT_ROOT/Scripts/validate-runtime-budget.py"
 UNREAL_EDITOR=""
 RUNTIME_PID=""
 RUNNING_UNDER_WSL=0
+RUNTIME_RENDER_ARGS=()
 
 stop_runtime() {
   if [ -n "${RUNTIME_PID:-}" ]; then
@@ -63,12 +64,14 @@ fi
 if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" == "win32"* ]]; then
   UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.7}"
   UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor.exe"
+  RUNTIME_RENDER_ARGS=(-d3d11)
 elif grep -qi microsoft /proc/version 2>/dev/null; then
   UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.7}"
   UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor.exe"
   PROJECT_FILE_ARG="$(wslpath -w "$PROJECT_FILE")"
   LOG_FILE_ARG="$(wslpath -w "$LOG_FILE")"
   RUNNING_UNDER_WSL=1
+  RUNTIME_RENDER_ARGS=(-d3d11)
 else
   UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.7}"
   UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Mac/UnrealEditor"
@@ -118,6 +121,7 @@ SCREENSHOT_DIR="$PROJECT_ROOT/${BUDGET_CONFIG[5]}"
 SCREENSHOT_FILE_GLOB="${BUDGET_CONFIG[6]}"
 SCREENSHOT_SEARCH_MAX_DEPTH="${BUDGET_CONFIG[7]}"
 SCREENSHOT_INTERVAL_COMMAND_LINE_KEY="${BUDGET_CONFIG[8]}"
+SCREENSHOT_RUN_MARKER="$PROJECT_ROOT/Saved/Automation/RuntimeBudgetScreenshotStart.marker"
 MAP_MARKER="${BUDGET_CONFIG[9]}"
 TERRAIN_MARKER="${BUDGET_CONFIG[10]}"
 PROFILE_MARKER="${BUDGET_CONFIG[11]}"
@@ -127,9 +131,9 @@ FATAL_ERROR_MARKER="${BUDGET_CONFIG[14]}"
 
 mkdir -p "$PROJECT_ROOT/Saved/Automation"
 rm -f "$LOG_FILE" "$STDOUT_FILE"
-rm -rf "$SCREENSHOT_DIR"
 mkdir -p "$SCREENSHOT_DIR"
 touch "$LOG_FILE"
+touch "$SCREENSHOT_RUN_MARKER"
 
 echo "=== ForbocAI Runtime Budget ==="
 echo "Project:     $PROJECT_FILE"
@@ -138,6 +142,7 @@ echo "Editor:      $UNREAL_EDITOR"
 echo "Budget:      $BUDGET_FILE"
 echo "Window:      ${MEASUREMENT_SECONDS}s"
 echo "Screenshots: every ${SCREENSHOT_INTERVAL_SECONDS}s into $SCREENSHOT_DIR"
+echo "Mode:        real UnrealEditor game process; visible rendering; no null RHI/offscreen render path"
 echo "Rendering:   authored JSON profile applied by game features"
 echo "Log:         $LOG_FILE"
 
@@ -147,7 +152,8 @@ echo "Log:         $LOG_FILE"
     "-AbsLog=$LOG_FILE_ARG" \
     "${SCREENSHOT_INTERVAL_COMMAND_LINE_KEY}${SCREENSHOT_INTERVAL_SECONDS}" \
     -log -stdout -FullStdOutLogOutput \
-    -unattended -nop4 -nosplash -nosound -NoLiveCoding -RenderOffScreen \
+    -unattended -nop4 -nosplash -nosound -NoLiveCoding \
+    "${RUNTIME_RENDER_ARGS[@]}" \
     2>&1 | tee "$STDOUT_FILE"
 ) &
 RUNTIME_PID=$!
@@ -189,7 +195,7 @@ wait_for_log_pattern() {
 }
 
 screenshot_count() {
-  find "$SCREENSHOT_DIR" -maxdepth "$SCREENSHOT_SEARCH_MAX_DEPTH" -type f -name "$SCREENSHOT_FILE_GLOB" 2>/dev/null | wc -l | tr -d ' '
+  find "$SCREENSHOT_DIR" -maxdepth "$SCREENSHOT_SEARCH_MAX_DEPTH" -type f -name "$SCREENSHOT_FILE_GLOB" -newer "$SCREENSHOT_RUN_MARKER" 2>/dev/null | wc -l | tr -d ' '
 }
 
 wait_for_screenshots() {

@@ -21,11 +21,6 @@ SelectLastActionId(const FPlayerState &State) {
   return State.LastActionId;
 }
 
-inline const FPlayerMovementInputViewModel &
-SelectMovementInput(const FPlayerState &State) {
-  return State.MovementInput;
-}
-
 inline const FPlayerPresentationViewModel &
 SelectPresentation(const FPlayerState &State) {
   return State.Presentation;

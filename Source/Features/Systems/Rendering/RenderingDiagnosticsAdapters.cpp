@@ -15,7 +15,6 @@
 #include "Misc/Paths.h"
 #include "RenderTimer.h"
 #include "RHIStats.h"
-#include "Store.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogForbocRenderingDiagnostics, Log, All);
 
@@ -126,7 +125,7 @@ FRuntimeStatsViewModel SelectRuntimeStats(
     double PolyCountMilliseconds,
     const ForbocAI::Game::Data::FRuntimeStatsOverlaySettings &Settings) {
   const double StartedSeconds = SelectRuntimeBudgetClockSeconds();
-  const FRuntimeState &State = Store::GetStore().getState();
+  const FRuntimeState &State = RuntimeSelectors::SelectState();
   const ecs::FWorld &EcsWorld = RuntimeSelectors::SelectWorld(State);
   const FRuntimeReducerDiagnosticsState &ReducerDiagnostics =
       RuntimeSelectors::SelectRuntimeReducerDiagnostics(State);

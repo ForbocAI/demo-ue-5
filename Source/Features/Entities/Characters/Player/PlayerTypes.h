@@ -61,7 +61,6 @@ struct FPlayerPresentationViewModel {
 
 struct FPlayerState {
   func::Maybe<FString> LastActionId = func::nothing<FString>();
-  FPlayerMovementInputViewModel MovementInput;
   FPlayerPresentationViewModel Presentation;
   bool bReady = false;
 };
@@ -162,7 +161,6 @@ inline bool operator!=(const FPlayerPresentationViewModel &Left,
 inline bool operator==(const FPlayerState &Left,
                        const FPlayerState &Right) {
   return Left.bReady == Right.bReady &&
-         Left.MovementInput == Right.MovementInput &&
          Left.Presentation == Right.Presentation &&
          Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
          (!Left.LastActionId.hasValue ||

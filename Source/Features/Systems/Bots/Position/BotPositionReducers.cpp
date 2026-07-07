@@ -110,31 +110,6 @@ FBotPositionState ReduceHorsesSeeded(
   }).val;
 }
 
-FBotPositionState ReduceInitialPatrolObserved(
-    const FBotPositionState &State,
-    const rtk::PayloadAction<FBotInitialPatrolLocationRequest> &Action) {
-  return (func::pipe(State) |
-          [&Action](FBotPositionState Next) -> FBotPositionState {
-            Next.LastInitialPatrolIndex =
-                ReduceInitialPatrolIndex(Action.PayloadValue.PatrolRoute);
-            Next.LastInitialPatrolLocation =
-                ReduceInitialPatrolLocation(Action.PayloadValue);
-            return Next;
-          })
-      .val;
-}
-
-FBotPositionState ReducePatrolAdvanceObserved(
-    const FBotPositionState &State,
-    const rtk::PayloadAction<FBotPatrolAdvanceRequest> &Action) {
-  return (func::pipe(State) |
-          [&Action](FBotPositionState Next) -> FBotPositionState {
-            Next.LastPatrolAdvance = ReducePatrolAdvance(Action.PayloadValue);
-            return Next;
-          })
-      .val;
-}
-
 int32 ReduceInitialPatrolIndex(const TArray<FVector> &PatrolRoute) {
   return PatrolRoute.Num() > 1 ? 1 : 0;
 }

@@ -6,8 +6,8 @@
 #include "Features/Systems/Bots/Orchestrator/BotOrchestratorActions.h"
 #include "Features/Systems/Bots/Pipeline/BotPipelineActions.h"
 #include "Features/Systems/Bots/Position/BotPositionActions.h"
+#include "Features/Systems/Runtime/RuntimeActions.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
-#include "Store.h"
 #include "GameFramework/Actor.h"
 
 namespace ForbocAI {
@@ -155,7 +155,7 @@ template <> struct TBotOrchestratorRegistry<FBotActionDispatchDeclaration> {
 };
 
 void DispatchRuntimeAction(const rtk::AnyAction &Action) {
-  Store::GetStore().dispatch(Action);
+  RuntimeActions::Dispatch(Action);
 }
 
 template <typename Source>

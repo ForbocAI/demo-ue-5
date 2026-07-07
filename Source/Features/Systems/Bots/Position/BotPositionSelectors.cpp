@@ -23,20 +23,6 @@ int32 SelectTotal(const FBotPositionState &State) {
       State.Items);
 }
 
-int32 SelectLastInitialPatrolIndex(const FBotPositionState &State) {
-  return State.LastInitialPatrolIndex;
-}
-
-const FBotInitialPatrolLocationPayload &
-SelectLastInitialPatrolLocation(const FBotPositionState &State) {
-  return State.LastInitialPatrolLocation;
-}
-
-const FBotPatrolAdvancePayload &
-SelectLastPatrolAdvance(const FBotPositionState &State) {
-  return State.LastPatrolAdvance;
-}
-
 } // namespace BotPositionSelectors
 } // namespace Level
 } // namespace Game

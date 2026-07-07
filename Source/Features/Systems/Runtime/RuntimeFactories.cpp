@@ -111,7 +111,7 @@ FRuntimeState CreateInitialState() {
   State.Interaction.SelectedCandidate =
       InteractionReducers::ReduceEmptySelection(
           State.Interaction.NoTownspersonMessage);
-  State.Townspeople.LastViewDefaults =
+  State.Townspeople.ViewDefaults =
       TownspersonReducers::ReduceViewDefaults(Settings.TownspersonDefaults);
   return RuntimeReducers::ReduceRuntimeProjected(State);
 }

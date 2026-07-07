@@ -8,8 +8,8 @@
 #include "Core/ue_fp.hpp"
 #include "EngineUtils.h"
 #include "Views/PlayerCharacterView.h"
+#include "Features/Systems/Runtime/RuntimeActions.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
-#include "Store.h"
 #include "Views/PlayerRuntimeControllerView.h"
 #include "Views/RuntimeLevelView.h"
 
@@ -29,7 +29,7 @@ ARuntimeLevelView *FindRuntimeLevelView(UWorld *World) {
 FTransform LoadPlayerSpawnTransform() {
   auto Spawn = FG::FSpawnPointPayload();
   const auto Result =
-      FG::Store::GetStore().dispatch(FG::RuntimeSlice::RequestPlayerSpawn());
+      FG::RuntimeActions::Dispatch(FG::RuntimeSlice::RequestPlayerSpawn());
   func::thenAsync(Result, [&Spawn](auto Resolved) { Spawn = Resolved; });
   func::executeAsync(Result);
   return FTransform(Spawn.Rotation, Spawn.Location);

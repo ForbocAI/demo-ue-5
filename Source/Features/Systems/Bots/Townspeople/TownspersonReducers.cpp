@@ -60,31 +60,6 @@ FTownspersonState ReduceTownspeopleSeeded(
   }).val;
 }
 
-FTownspersonState ReduceViewDefaultsRequested(
-    const FTownspersonState &State,
-    const rtk::PayloadAction<FTownspersonViewDefaultsRequest> &Action) {
-  return (func::pipe(State) |
-          [&Action](FTownspersonState Next) -> FTownspersonState {
-            Next.LastViewDefaults =
-                ReduceViewDefaults(
-                    {Action.PayloadValue, Next.LastViewDefaults});
-            return Next;
-          })
-      .val;
-}
-
-FTownspersonState ReduceInteractionOverlapObserved(
-    const FTownspersonState &State,
-    const rtk::PayloadAction<FTownspersonInteractionOverlapRequest> &Action) {
-  return (func::pipe(State) |
-          [&Action](FTownspersonState Next) -> FTownspersonState {
-            Next.LastInteractionOverlap =
-                ReduceInteractionOverlap(Action.PayloadValue);
-            return Next;
-          })
-      .val;
-}
-
 FTownspersonViewDefaults ReduceViewDefaults(
     const ForbocAI::Game::Data::FTownspersonDefaultsSettings &Settings) {
   return {Settings.Id, Settings.Name, Settings.Role, Settings.Persona,

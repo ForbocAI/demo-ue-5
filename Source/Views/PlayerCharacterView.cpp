@@ -12,7 +12,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
-#include "Features/Entities/Characters/Player/PlayerActions.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -20,21 +19,14 @@
 #include "InputAction.h"
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
-#include "Store.h"
 #include "Views/SkeletalLodClamp.h"
 
 namespace FG = ForbocAI::Game::Level;
 
 namespace {
 FG::FPlayerPresentationViewModel ObservePlayerPresentation() {
-  const FG::FRuntimeState &State = FG::Store::GetStore().getState();
-  const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
-      FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
-  FG::Store::GetStore().dispatch(
-      FG::PlayerActions::PlayerPresentationRequested()(
-          {Ids.PlayerPresentationRequested}));
   return FG::RuntimeSelectors::SelectPlayerPresentation(
-      FG::Store::GetStore().getState());
+      FG::RuntimeSelectors::SelectState());
 }
 
 UInputAction *LoadInputAction(const FString &AssetPath) {
@@ -54,7 +46,7 @@ APlayerCharacterView::APlayerCharacterView()
       ObservePlayerPresentation();
   const ForbocAI::Game::Data::FRuntimeViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectRuntimeViewNames(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   MeshRelativeLocation = Presentation.MeshRelativeLocation;
   MeshRelativeRotation = Presentation.MeshRelativeRotation;
   CharacterForcedLodModel = Presentation.SkeletalMeshForcedLodModel;
@@ -151,14 +143,11 @@ void APlayerCharacterView::DoMove(float Right, float Forward) {
   check(Controller);
   const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectRuntimeObservationIds(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   const ForbocAI::Game::Level::FPlayerMovementInputViewModel Model =
-      (FG::Store::GetStore().dispatch(
-           FG::PlayerActions::PlayerMovementInputObserved()(
-               {Ids.PlayerMovementInputObserved,
-                Controller->GetControlRotation(), Right, Forward, true})),
-       FG::RuntimeSelectors::SelectPlayerMovementInput(
-           FG::Store::GetStore().getState()));
+      FG::RuntimeSelectors::SelectPlayerMovementInput(
+          {Ids.PlayerMovementInputObserved, Controller->GetControlRotation(),
+           Right, Forward, true});
   Model.bShouldMove
       ? (AddMovementInput(Model.ForwardDirection, Model.ForwardScale),
          AddMovementInput(Model.RightDirection, Model.RightScale), void())

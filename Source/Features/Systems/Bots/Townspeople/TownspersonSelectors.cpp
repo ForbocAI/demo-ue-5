@@ -49,13 +49,8 @@ SelectCombatValidationTownspeople(const FTownspersonState &State) {
 }
 
 const FTownspersonViewDefaults &
-SelectLastViewDefaults(const FTownspersonState &State) {
-  return State.LastViewDefaults;
-}
-
-const FTownspersonInteractionOverlapViewModel &
-SelectLastInteractionOverlap(const FTownspersonState &State) {
-  return State.LastInteractionOverlap;
+SelectViewDefaults(const FTownspersonState &State) {
+  return State.ViewDefaults;
 }
 
 } // namespace TownspersonSelectors

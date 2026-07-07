@@ -12,10 +12,10 @@
 #include "Views/TownspersonView.h"
 #include "Views/HorseView.h"
 #include "Features/Systems/Rendering/RenderingSlice.h"
+#include "Features/Systems/Runtime/RuntimeActions.h"
 #include "Features/Systems/Runtime/RuntimeSlice.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "Materials/MaterialInterface.h"
-#include "Store.h"
 #include "Views/TerrainMeshView.h"
 
 namespace FG = ForbocAI::Game::Level;
@@ -49,7 +49,7 @@ ARuntimeLevelView::ARuntimeLevelView()
     : CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
   PrimaryActorTick.bCanEverTick = false;
 
-  const FG::FRuntimeState &State = FG::Store::GetStore().getState();
+  const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
   const FG::FRenderingAssetPaths AssetPaths =
       FG::RuntimeSelectors::SelectRenderingAssetPaths(State);
   CubeMesh = LoadObject<UStaticMesh>(nullptr, *AssetPaths.LevelCubeMeshPath);
@@ -72,25 +72,25 @@ void ARuntimeLevelView::BeginPlay() {
 void ARuntimeLevelView::RenderLevel() {
   const FG::FLevelRetroRenderProfile Profile =
       FG::RuntimeSelectors::SelectRuntimeProfile(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   FG::RenderingSlice::ApplyRuntimeProfile(
       {GetWorld(), Profile,
        FG::RuntimeSelectors::SelectRenderingRuntimeSettings(
-           FG::Store::GetStore().getState())});
+           FG::RuntimeSelectors::SelectState())});
   auto Payload = FG::FRuntimeLevelViewPayload();
-  const auto Result = FG::Store::GetStore().dispatch(
+  const auto Result = FG::RuntimeActions::Dispatch(
       FG::RuntimeSlice::RequestLevelViewPayload());
   func::thenAsync(Result, [&Payload](auto Resolved) {
     Payload = Resolved;
   });
   func::executeAsync(Result);
   TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(
-      FG::Store::GetStore().getState());
+      FG::RuntimeSelectors::SelectState());
   LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry(
-      FG::Store::GetStore().getState());
+      FG::RuntimeSelectors::SelectState());
   RenderingRuntimeSettings =
       FG::RuntimeSelectors::SelectRenderingRuntimeSettings(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   RenderLevelPayload(Payload);
 }
 

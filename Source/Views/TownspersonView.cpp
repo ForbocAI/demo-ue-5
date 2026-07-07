@@ -11,12 +11,8 @@
 #include "Components/TextRenderComponent.h"
 #include "Core/frmt.hpp"
 #include "Engine/SkeletalMesh.h"
-#include "Features/Systems/Bots/Position/BotPositionActions.h"
-#include "Features/Systems/Bots/Townspeople/TownspersonActions.h"
-#include "Features/Systems/Rendering/RenderingActions.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 #include "GameFramework/Pawn.h"
-#include "Store.h"
 #include "Views/SkeletalLodClamp.h"
 
 namespace FG = ForbocAI::Game::Level;
@@ -25,49 +21,31 @@ namespace {
 
 FG::FTownspersonViewDefaults ObserveTownspersonViewDefaults(
     const FG::FTownspersonViewDefaultsRequest &Request) {
-  FG::Store::GetStore().dispatch(
-      FG::TownspersonActions::ViewDefaultsRequested()(Request));
   return FG::RuntimeSelectors::SelectTownspersonViewDefaults(
-      FG::Store::GetStore().getState());
+      FG::RuntimeSelectors::SelectState(), Request);
 }
 
 FG::FTownspersonPresentationViewModel ObserveTownspersonPresentation() {
-  const FG::FRuntimeState &State = FG::Store::GetStore().getState();
-  const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
-      FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
-  FG::Store::GetStore().dispatch(
-      FG::RenderingActions::TownspersonPresentationRequested()(
-          {Ids.TownspersonPresentationRequested}));
   return FG::RuntimeSelectors::SelectTownspersonPresentation(
-      FG::Store::GetStore().getState());
+      FG::RuntimeSelectors::SelectState());
 }
 
 FG::FBotInitialPatrolLocationPayload
 ObserveTownspersonInitialPatrol(const TArray<FVector> &PatrolRoute,
                                 int32 &PatrolIndex) {
-  FG::Store::GetStore().dispatch(
-      FG::BotPositionActions::InitialPatrolObserved()({PatrolRoute}));
-  PatrolIndex = FG::RuntimeSelectors::SelectBotInitialPatrolIndex(
-      FG::Store::GetStore().getState());
-  return FG::RuntimeSelectors::SelectBotInitialPatrolLocation(
-      FG::Store::GetStore().getState());
+  PatrolIndex = FG::RuntimeSelectors::SelectBotInitialPatrolIndex(PatrolRoute);
+  return FG::RuntimeSelectors::SelectBotInitialPatrolLocation({PatrolRoute});
 }
 
 FG::FBotPatrolAdvancePayload
 ObserveTownspersonPatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
-  FG::Store::GetStore().dispatch(
-      FG::BotPositionActions::PatrolAdvanceObserved()(Request));
-  return FG::RuntimeSelectors::SelectBotPatrolAdvance(
-      FG::Store::GetStore().getState());
+  return FG::RuntimeSelectors::SelectBotPatrolAdvance(Request);
 }
 
 FG::FTownspersonInteractionOverlapViewModel
 ObserveInteractionOverlap(
     const FG::FTownspersonInteractionOverlapRequest &Request) {
-  FG::Store::GetStore().dispatch(
-      FG::TownspersonActions::InteractionOverlapObserved()(Request));
-  return FG::RuntimeSelectors::SelectTownspersonInteractionOverlap(
-      FG::Store::GetStore().getState());
+  return FG::RuntimeSelectors::SelectTownspersonInteractionOverlap(Request);
 }
 } // namespace
 
@@ -78,13 +56,13 @@ ATownspersonView::ATownspersonView()
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =
       FG::RuntimeSelectors::SelectBotRuntimeSettings(
-          FG::Store::GetStore().getState())
+          FG::RuntimeSelectors::SelectState())
           .PatrolTickIntervalSeconds;
   const FG::FTownspersonPresentationViewModel Presentation =
       ObserveTownspersonPresentation();
   const ForbocAI::Game::Data::FRuntimeViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectRuntimeViewNames(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   WalkSpeed = Presentation.WalkSpeed;
   PauseDuration = Presentation.PauseDuration;
   PatrolArrivalDistance = Presentation.PatrolArrivalDistance;
@@ -189,7 +167,7 @@ void ATownspersonView::ConfigureTownsperson(
   ApplyDistanceLod(Config.Lod);
   PauseRemaining =
       FG::RuntimeSelectors::SelectBotRuntimeSettings(
-          FG::Store::GetStore().getState())
+          FG::RuntimeSelectors::SelectState())
           .InitialPatrolPauseRemainingSeconds;
 
   const ForbocAI::Game::Level::FBotInitialPatrolLocationPayload Initial =
@@ -236,7 +214,7 @@ void ATownspersonView::ShowDialogueReply(const FString &Reply) {
                               CurrentLod.bLabelsVisible);
   const ForbocAI::Game::Data::FRuntimeTextSettings &Text =
       FG::RuntimeSelectors::SelectRuntimeText(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   const FString ReplyLog =
       frmt::RuntimeString(Text.NpcReplyLog, frmt::Args({frmt::Arg(Reply)}));
   UE_LOG(LogTemp, Display, TEXT("%s"), *ReplyLog);
@@ -286,7 +264,7 @@ void ATownspersonView::ConfigureSampleCharacterAsset() {
 void ATownspersonView::RefreshText() {
   const ForbocAI::Game::Data::FRuntimeTextSettings &Text =
       FG::RuntimeSelectors::SelectRuntimeText(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   NameText->SetText(FText::FromString(frmt::RuntimeString(
       Text.TownspersonNameRoleFormat,
       frmt::Args({frmt::Arg(TownspersonName),

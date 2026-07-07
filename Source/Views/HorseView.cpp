@@ -9,10 +9,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/SkeletalMesh.h"
-#include "Features/Systems/Bots/Position/BotPositionActions.h"
-#include "Features/Systems/Rendering/RenderingActions.h"
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
-#include "Store.h"
 #include "Views/SkeletalLodClamp.h"
 
 namespace FG = ForbocAI::Game::Level;
@@ -22,31 +19,18 @@ namespace {
 FG::FBotInitialPatrolLocationPayload
 ObserveHorseInitialPatrol(const TArray<FVector> &PatrolRoute,
                           int32 &PatrolIndex) {
-  FG::Store::GetStore().dispatch(
-      FG::BotPositionActions::InitialPatrolObserved()({PatrolRoute}));
-  PatrolIndex = FG::RuntimeSelectors::SelectBotInitialPatrolIndex(
-      FG::Store::GetStore().getState());
-  return FG::RuntimeSelectors::SelectBotInitialPatrolLocation(
-      FG::Store::GetStore().getState());
+  PatrolIndex = FG::RuntimeSelectors::SelectBotInitialPatrolIndex(PatrolRoute);
+  return FG::RuntimeSelectors::SelectBotInitialPatrolLocation({PatrolRoute});
 }
 
 FG::FBotPatrolAdvancePayload
 ObserveHorsePatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
-  FG::Store::GetStore().dispatch(
-      FG::BotPositionActions::PatrolAdvanceObserved()(Request));
-  return FG::RuntimeSelectors::SelectBotPatrolAdvance(
-      FG::Store::GetStore().getState());
+  return FG::RuntimeSelectors::SelectBotPatrolAdvance(Request);
 }
 
 FG::FHorsePresentationViewModel ObserveHorsePresentation() {
-  const FG::FRuntimeState &State = FG::Store::GetStore().getState();
-  const ForbocAI::Game::Data::FRuntimeObservationIdSettings &Ids =
-      FG::RuntimeSelectors::SelectRuntimeObservationIds(State);
-  FG::Store::GetStore().dispatch(
-      FG::RenderingActions::HorsePresentationRequested()(
-          {Ids.HorsePresentationRequested}));
   return FG::RuntimeSelectors::SelectHorsePresentation(
-      FG::Store::GetStore().getState());
+      FG::RuntimeSelectors::SelectState());
 }
 } // namespace
 
@@ -57,13 +41,13 @@ AHorseView::AHorseView()
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =
       FG::RuntimeSelectors::SelectBotRuntimeSettings(
-          FG::Store::GetStore().getState())
+          FG::RuntimeSelectors::SelectState())
           .PatrolTickIntervalSeconds;
   const FG::FHorsePresentationViewModel Presentation =
       ObserveHorsePresentation();
   const ForbocAI::Game::Data::FRuntimeViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectRuntimeViewNames(
-          FG::Store::GetStore().getState());
+          FG::RuntimeSelectors::SelectState());
   HorseName = Presentation.DefaultName;
   WalkSpeed = Presentation.WalkSpeed;
   PauseDuration = Presentation.PauseDuration;
@@ -117,7 +101,7 @@ void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   CurrentLod = Config.Lod;
   PauseRemaining =
       FG::RuntimeSelectors::SelectBotRuntimeSettings(
-          FG::Store::GetStore().getState())
+          FG::RuntimeSelectors::SelectState())
           .InitialPatrolPauseRemainingSeconds;
   const ForbocAI::Game::Level::FBotInitialPatrolLocationPayload Initial =
       ObserveHorseInitialPatrol(PatrolRoute, PatrolIndex);

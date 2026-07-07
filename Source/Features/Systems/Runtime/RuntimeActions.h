@@ -18,6 +18,10 @@ namespace RuntimeActions {
 void Dispatch(const rtk::AnyAction &Action);
 void Dispatch(const rtk::ThunkAction<void, FRuntimeState> &Thunk);
 
+template <typename Result>
+func::AsyncResult<Result>
+Dispatch(const rtk::ThunkAction<Result, FRuntimeState> &Thunk);
+
 void DispatchObserveRuntimeStatsTick(::UWorld *World, float DeltaSeconds);
 
 /**

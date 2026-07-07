@@ -1,9 +1,11 @@
 #include "Features/Systems/Runtime/RuntimeSelectors.h"
 
 #include "Features/Entities/Characters/Player/PlayerSelectors.h"
+#include "Features/Entities/Characters/Player/PlayerReducers.h"
 #include "Features/Systems/Bots/AI/BotAISelectors.h"
 #include "Features/Systems/Bots/BotSelectors.h"
 #include "Features/Systems/Bots/Goals/BotGoalSelectors.h"
+#include "Features/Systems/Bots/Position/BotPositionReducers.h"
 #include "Features/Systems/Bots/Position/BotPositionSelectors.h"
 #include "Features/Systems/Bots/Stats/BotStatsSelectors.h"
 #include "Features/Systems/Bots/Horses/HorseSelectors.h"
@@ -13,6 +15,7 @@
 #include "Features/Systems/Rendering/RenderingSelectors.h"
 #include "Features/Systems/Spawn/SpawnSelectors.h"
 #include "Features/Systems/Terrain/TerrainSelectors.h"
+#include "Features/Systems/Bots/Townspeople/TownspersonReducers.h"
 #include "Features/Systems/Bots/Townspeople/TownspersonSelectors.h"
 #include "Features/Systems/Interaction/InteractionSelectors.h"
 #include "Features/Systems/UI/UISelectors.h"
@@ -22,6 +25,31 @@
 namespace ForbocAI {
 namespace Game {
 namespace Level {
+
+namespace {
+
+using FTownspersonViewDefaultsInputSelector =
+    std::function<FTownspersonViewDefaults(const FRuntimeState &)>;
+
+const std::function<FTownspersonViewDefaults(const FRuntimeState &)> &
+TownspersonViewDefaultsSelector() {
+  static const auto Selector =
+      rtk::createSelector<FRuntimeState, FTownspersonViewDefaults>(
+          std::make_tuple(FTownspersonViewDefaultsInputSelector(
+              [](const FRuntimeState &State) -> FTownspersonViewDefaults {
+                return TownspersonSelectors::SelectViewDefaults(
+                    State.Townspeople);
+              })),
+          std::function<FTownspersonViewDefaults(FTownspersonViewDefaults)>(
+              [](FTownspersonViewDefaults Defaults)
+                  -> FTownspersonViewDefaults {
+                return Defaults;
+              }));
+  return Selector;
+}
+
+} // namespace
+
 namespace RuntimeSelectors {
 
 const FRuntimeState &SelectState() { return Store::GetStore().getState(); }
@@ -146,11 +174,6 @@ float SelectTownspersonInteractionDistance(const FRuntimeState &State) {
       State.Interaction);
 }
 
-const FPlayerMovementInputViewModel &
-SelectPlayerMovementInput(const FRuntimeState &State) {
-  return PlayerSelectors::SelectMovementInput(State.Player);
-}
-
 const FPlayerPresentationViewModel &
 SelectPlayerPresentation(const FRuntimeState &State) {
   return PlayerSelectors::SelectPresentation(State.Player);
@@ -181,29 +204,40 @@ SelectRenderingAssetPaths(const FRuntimeState &State) {
   return RenderingSelectors::SelectRenderingAssetPaths(State.Rendering);
 }
 
-int32 SelectBotInitialPatrolIndex(const FRuntimeState &State) {
-  return BotPositionSelectors::SelectLastInitialPatrolIndex(State.BotPosition);
+int32 SelectBotInitialPatrolIndex(const TArray<FVector> &PatrolRoute) {
+  return BotPositionReducers::ReduceInitialPatrolIndex(PatrolRoute);
 }
 
-const FBotInitialPatrolLocationPayload &
-SelectBotInitialPatrolLocation(const FRuntimeState &State) {
-  return BotPositionSelectors::SelectLastInitialPatrolLocation(
-      State.BotPosition);
+FBotInitialPatrolLocationPayload SelectBotInitialPatrolLocation(
+    const FBotInitialPatrolLocationRequest &Request) {
+  return BotPositionReducers::ReduceInitialPatrolLocation(Request);
 }
 
-const FBotPatrolAdvancePayload &
-SelectBotPatrolAdvance(const FRuntimeState &State) {
-  return BotPositionSelectors::SelectLastPatrolAdvance(State.BotPosition);
+FBotPatrolAdvancePayload
+SelectBotPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
+  return BotPositionReducers::ReducePatrolAdvance(Request);
 }
 
-const FTownspersonViewDefaults &
+FPlayerMovementInputViewModel
+SelectPlayerMovementInput(const FPlayerMovementInputRequest &Request) {
+  return PlayerReducers::ReduceMovementInput(Request);
+}
+
+FTownspersonViewDefaults
 SelectTownspersonViewDefaults(const FRuntimeState &State) {
-  return TownspersonSelectors::SelectLastViewDefaults(State.Townspeople);
+  return TownspersonViewDefaultsSelector()(State);
 }
 
-const FTownspersonInteractionOverlapViewModel &
-SelectTownspersonInteractionOverlap(const FRuntimeState &State) {
-  return TownspersonSelectors::SelectLastInteractionOverlap(State.Townspeople);
+FTownspersonViewDefaults SelectTownspersonViewDefaults(
+    const FRuntimeState &State,
+    const FTownspersonViewDefaultsRequest &Request) {
+  return TownspersonReducers::ReduceViewDefaults(
+      {Request, SelectTownspersonViewDefaults(State)});
+}
+
+FTownspersonInteractionOverlapViewModel SelectTownspersonInteractionOverlap(
+    const FTownspersonInteractionOverlapRequest &Request) {
+  return TownspersonReducers::ReduceInteractionOverlap(Request);
 }
 
 ForbocAI::Game::UI::FRuntimeConversationViewModel

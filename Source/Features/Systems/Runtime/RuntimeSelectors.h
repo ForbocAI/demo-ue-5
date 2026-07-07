@@ -65,8 +65,6 @@ SelectTownspersonInteractionRequest(const FRuntimeState &State);
 const FInteractionSelection &SelectInteractionSelection(
     const FRuntimeState &State);
 float SelectTownspersonInteractionDistance(const FRuntimeState &State);
-const FPlayerMovementInputViewModel &
-SelectPlayerMovementInput(const FRuntimeState &State);
 const FPlayerPresentationViewModel &
 SelectPlayerPresentation(const FRuntimeState &State);
 const FLevelRetroRenderProfile &
@@ -79,15 +77,20 @@ const ForbocAI::Game::Data::FRenderingRuntimeSettings &
 SelectRenderingRuntimeSettings(const FRuntimeState &State);
 const FRenderingAssetPaths &
 SelectRenderingAssetPaths(const FRuntimeState &State);
-int32 SelectBotInitialPatrolIndex(const FRuntimeState &State);
-const FBotInitialPatrolLocationPayload &
-SelectBotInitialPatrolLocation(const FRuntimeState &State);
-const FBotPatrolAdvancePayload &
-SelectBotPatrolAdvance(const FRuntimeState &State);
-const FTownspersonViewDefaults &
+int32 SelectBotInitialPatrolIndex(const TArray<FVector> &PatrolRoute);
+FBotInitialPatrolLocationPayload SelectBotInitialPatrolLocation(
+    const FBotInitialPatrolLocationRequest &Request);
+FBotPatrolAdvancePayload
+SelectBotPatrolAdvance(const FBotPatrolAdvanceRequest &Request);
+FPlayerMovementInputViewModel
+SelectPlayerMovementInput(const FPlayerMovementInputRequest &Request);
+FTownspersonViewDefaults
 SelectTownspersonViewDefaults(const FRuntimeState &State);
-const FTownspersonInteractionOverlapViewModel &
-SelectTownspersonInteractionOverlap(const FRuntimeState &State);
+FTownspersonViewDefaults SelectTownspersonViewDefaults(
+    const FRuntimeState &State,
+    const FTownspersonViewDefaultsRequest &Request);
+FTownspersonInteractionOverlapViewModel SelectTownspersonInteractionOverlap(
+    const FTownspersonInteractionOverlapRequest &Request);
 ForbocAI::Game::UI::FRuntimeConversationViewModel
 SelectRuntimeConversation(const FRuntimeState &State);
 const FTownspersonPresentationViewModel &

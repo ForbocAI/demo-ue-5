@@ -22,12 +22,6 @@ const rtk::Slice<FBotPositionState> &GetSlice() {
                                 BotPositionReducers::ReduceBotPositionUpserted);
     Builder.addCase(BotPositionActions::BotPositionMoved(),
                                 BotPositionReducers::ReduceBotPositionMoved);
-    Builder.addCase(
-        BotPositionActions::InitialPatrolObserved(),
-        BotPositionReducers::ReduceInitialPatrolObserved);
-    Builder.addCase(
-        BotPositionActions::PatrolAdvanceObserved(),
-        BotPositionReducers::ReducePatrolAdvanceObserved);
     Builder.addCase(TownspersonActions::TownspeopleSeeded(),
                                 BotPositionReducers::ReduceTownspeopleSeeded);
     Builder.addCase(HorseActions::HorsesSeeded(),

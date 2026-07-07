@@ -149,7 +149,7 @@ else
     echo "✗ Editor crashed or returned non-zero exit code: $UE_EXIT"
     exit 1
   fi
-  echo "Running 30-second Runtime map performance budget test..."
+  echo "Running 30-second Runtime map performance budget test in real UnrealEditor game mode..."
   if [ "$RUNTIME_BUDGET_VIA_POWERSHELL" -eq 1 ]; then
     powershell.exe -NoProfile -NonInteractive -InputFormat None -ExecutionPolicy Bypass -File "$RUNTIME_BUDGET_POWERSHELL_ARG" < /dev/null
   else

@@ -21,9 +21,7 @@ SelectMemoryTownspeople(const FTownspersonState &State);
 const TArray<FTownspersonSeed> &
 SelectCombatValidationTownspeople(const FTownspersonState &State);
 const FTownspersonViewDefaults &
-SelectLastViewDefaults(const FTownspersonState &State);
-const FTownspersonInteractionOverlapViewModel &
-SelectLastInteractionOverlap(const FTownspersonState &State);
+SelectViewDefaults(const FTownspersonState &State);
 
 } // namespace TownspersonSelectors
 } // namespace Level
