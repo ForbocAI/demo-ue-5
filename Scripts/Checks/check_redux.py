@@ -53,8 +53,8 @@ STRUCT_LEAF = register(
     Rule(
         id="RTK-STRUCT-001",
         severity=Severity.HIGH,
-        summary="feature leaf is not an exact RTK/ECS role name",
-        guidance="Leaves must be Actions, Adapters, Listeners, Selectors, Slice, Thunks, or Types; move domain/subdomain words into folders so boundaries shift without renaming role files.",
+        summary="feature leaf is not a folder-qualified RTK/ECS role name",
+        guidance="Feature leaves must be the nearest unambiguous folder qualifier plus the role, such as BotsAdapters or SystemsBotsAdapters; keep broader domain words in folders.",
         skill="model-redux-state-design-state-ownership: name by domain/role, not the component tree",
     )
 )
@@ -196,8 +196,8 @@ LEAF_SUFFIX_GUIDANCE: tuple[tuple[str, str], ...] = (
     ("Reducers", "Move pure reducer functions into the sibling Slice; reducers are slice-owned transitions."),
     ("Factories", "Replace Factories with Slice (initial state), Adapters (translation), or Thunks/Listeners (effects)."),
     ("Dispatch", "Replace Dispatch files with Actions/Thunks/Listeners; keep one store boundary."),
-    ("StateTypes", "Move domain words into folders and keep the leaf Types.h (State/Types.h)."),
-    ("PayloadTypes", "Move domain words into folders and keep the leaf Types.h (Payload/Types.h)."),
+    ("StateTypes", "Move domain words into folders and keep the folder-qualified Types leaf (State/StateTypes.h or the shortest collision-free suffix)."),
+    ("PayloadTypes", "Move domain words into folders and keep the folder-qualified Types leaf (Payload/PayloadTypes.h or the shortest collision-free suffix)."),
 )
 
 FORBIDDEN_TARGET_ROLES: dict[str, set[str]] = {
@@ -209,15 +209,15 @@ FORBIDDEN_TARGET_ROLES: dict[str, set[str]] = {
 }
 
 STORE_BOUNDARY_RELS = {
-    "Features/Systems/Actions.cpp",
-    "Features/Systems/Listeners.cpp",
-    "Features/Systems/Selectors.cpp",
-    "Features/Systems/Thunks.cpp",
+    "Features/Systems/SystemsActions.cpp",
+    "Features/Systems/SystemsListeners.cpp",
+    "Features/Systems/SystemsSelectors.cpp",
+    "Features/Systems/SystemsThunks.cpp",
 }
 
 RAW_DISPATCH_ALLOW_ROLES = {"actions", "thunks", "listeners"}
 RAW_GET_STATE_ALLOW_ROLES = {"thunks", "listeners"}
-GET_STATE_ALLOW_RELS = {"Features/Systems/Selectors.cpp"}
+GET_STATE_ALLOW_RELS = {"Features/Systems/SystemsSelectors.cpp"}
 
 DISPATCH_RE = re.compile(r"(?<!RuntimeDispatch::)\bDispatch\s*\(|\.dispatch\s*\(|Api\.dispatch\b")
 GET_STATE_RE = re.compile(r"\.getState\s*\(|Api\.getState\b")

@@ -1,10 +1,10 @@
 #include "Store.h"
 
 #include "Core/redux_logger.hpp"
-#include "Features/Components/Data/Settings/Adapters.h"
-#include "Features/Systems/Slice.h"
-#include "Features/Systems/Listeners.h"
-#include "Features/Systems/Slice.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+#include "Features/Systems/SystemsSlice.h"
+#include "Features/Systems/SystemsListeners.h"
+#include "Features/Systems/SystemsSlice.h"
 
 #include <vector>
 

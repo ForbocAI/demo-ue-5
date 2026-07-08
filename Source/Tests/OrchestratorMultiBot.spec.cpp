@@ -7,10 +7,10 @@
  */
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Data/Settings/Adapters.h"
-#include "Features/Systems/Bots/Actions.h"
-#include "Features/Systems/Bots/Position/Actions.h"
-#include "Features/Systems/Selectors.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+#include "Features/Systems/Bots/SystemsBotsActions.h"
+#include "Features/Systems/Bots/Position/PositionActions.h"
+#include "Features/Systems/SystemsSelectors.h"
 #include "Store.h"
 #include "Misc/AutomationTest.h"
 

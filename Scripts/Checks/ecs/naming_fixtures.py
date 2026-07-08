@@ -35,9 +35,13 @@ def main() -> int:
     failures: list[str] = []
 
     cases: list[tuple[str, str | None, str | None]] = [
-        ("domain-src", rid(dom.source_finding(features / "Demo" / "DemoActions.h")), "DOMAIN-SRC-001"),
-        ("domain-src-clean", rid(dom.source_finding(features / "Rendering" / "Sky" / "Thunks.h")), None),
+        ("domain-src-qualified", rid(dom.source_finding(features / "Demo" / "DemoActions.h")), None),
+        ("domain-src-bare", rid(dom.source_finding(features / "Demo" / "Actions.h")), "DOMAIN-SRC-001"),
+        ("domain-src-bad-prefix", rid(dom.source_finding(features / "Demo" / "FooActions.h")), "DOMAIN-SRC-001"),
+        ("domain-src-clean", rid(dom.source_finding(features / "Rendering" / "Sky" / "SkyThunks.h")), None),
         ("domain-view", rid(dom.view_finding(views / "FooBarView.cpp", set())), "DOMAIN-VIEW-001"),
+        ("domain-view-qualified", rid(dom.view_finding(views / "Player" / "Controller" / "ControllerView.cpp", set())), None),
+        ("domain-view-bare", rid(dom.view_finding(views / "Player" / "Controller" / "View.cpp", set())), "DOMAIN-VIEW-001"),
         ("domain-data-ecs", rid(dom.data_ecs_finding(data / "components_foo.json")), "DOMAIN-DATA-002"),
         ("data-catalog-order", rid(dat.catalog_order_finding(data / "french_gulch" / "roads" / "x.json", location)), "DATA-NAME-001"),
         ("data-wide-sections", rid(dat.wide_sections_finding(data / "x.json", {"components": {}, "systems": []}, frozenset())), "DATA-NAME-004"),

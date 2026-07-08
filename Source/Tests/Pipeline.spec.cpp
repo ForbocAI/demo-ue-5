@@ -2,10 +2,10 @@
 #include "CoreMinimal.h"
 #include "Core/ue_fp.hpp"
 #include "Misc/AutomationTest.h"
-#include "Features/Systems/Bots/Core/Actions.h"
-#include "Features/Systems/Bots/Core/Runtime/Types.h"
-#include "Features/Components/Data/Settings/Adapters.h"
-#include "Features/Systems/Bots/Pipeline/Slice.h"
+#include "Features/Systems/Bots/Core/CoreActions.h"
+#include "Features/Systems/Bots/Core/Runtime/RuntimeTypes.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+#include "Features/Systems/Bots/Pipeline/PipelineSlice.h"
 
 using namespace ForbocAI::Game::Level;
 using namespace ForbocAI::Game::Level::BotPipelineReducers;

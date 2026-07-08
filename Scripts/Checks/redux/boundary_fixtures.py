@@ -29,48 +29,56 @@ from features_boundaries import apply_suppressions, build_unit, parse_suppressio
 @dataclass
 class Case:
     name: str
-    rel: str  # path under the temp project, e.g. "Source/Features/Demo/Types.h"
+    rel: str  # path under the temp project, e.g. "Source/Features/Demo/DemoTypes.h"
     body: str
     expect: set[str]  # rule ids that MUST fire
     forbid: set[str] = frozenset()  # rule ids that must NOT fire
 
 
 CASES: list[Case] = [
-    Case("nonserializable-types", "Source/Features/Demo/State/Types.h",
+    Case("nonserializable-types", "Source/Features/Demo/State/StateTypes.h",
          "struct FDemo { AActor *Owner; };", {"RTK-TYPES-001"}),
-    Case("adapter-types-exempt", "Source/Features/Demo/Adapters/Types.h",
+    Case("adapter-types-exempt", "Source/Features/Demo/Adapters/AdaptersTypes.h",
          "struct FDemo { TFunction<int(int)> Project; };", set(), {"RTK-TYPES-001"}),
-    Case("component-named-state", "Source/Features/Demo/State/Types.h",
+    Case("component-named-state", "Source/Features/Demo/State/StateTypes.h",
          "struct FLoginScreenState { int X; };", {"RTK-TYPES-004"}),
-    Case("scratchpad-decl-once", "Source/Features/Demo/State/Types.h",
+    Case("scratchpad-decl-once", "Source/Features/Demo/State/StateTypes.h",
          "struct FDemo { int LastValue; };\nbool eq(FDemo L, FDemo R){ return L.LastValue == R.LastValue; }",
          {"RTK-TYPES-002"}),
-    Case("setter-action", "Source/Features/Demo/Actions.h",
+    Case("setter-action", "Source/Features/Demo/DemoActions.h",
          "void SetPlayerHealth(int v);", {"RTK-ACTION-002"}),
-    Case("switch-reducer", "Source/Features/Demo/Slice.h",
+    Case("switch-reducer", "Source/Features/Demo/DemoSlice.h",
          "int r(int s, Act action){ switch(action.type){ default: return s; } }", {"RTK-SLICE-002"}),
-    Case("createreducer-ok", "Source/Features/Demo/Slice.h",
+    Case("createreducer-ok", "Source/Features/Demo/DemoSlice.h",
          "auto s = rtk::createReducer<FState>(builder);", set(), {"RTK-SLICE-002"}),
-    Case("rtk1-extra-reducers", "Source/Features/Demo/Slice.h",
+    Case("rtk1-extra-reducers", "Source/Features/Demo/DemoSlice.h",
          "auto x = [Thunk.fulfilled]{};", {"RTK-SLICE-005"}),
-    Case("thunk-no-condition", "Source/Features/Demo/Thunks.h",
+    Case("thunk-no-condition", "Source/Features/Demo/DemoThunks.h",
          "auto t = rtk::createAsyncThunk<P>(prefix, fn);", {"RTK-THUNK-004"}),
-    Case("thunk-polling", "Source/Features/Demo/Thunks.h",
+    Case("thunk-polling", "Source/Features/Demo/DemoThunks.h",
          "auto t = rtk::createAsyncThunk<P>(p, [](auto Api){ while(true){ Api.getState(); } }, cfg_with_Condition);",
          {"RTK-THUNK-002"}),
-    Case("selector-whole-state", "Source/Features/Demo/Selectors.h",
+    Case("selector-whole-state", "Source/Features/Demo/DemoSelectors.h",
          "FState pick(){ return State; }", {"RTK-SELECTOR-002"}),
-    Case("listener-appended", "Source/Features/Demo/Listeners.h",
+    Case("qualified-selector-whole-state", "Source/Features/Demo/DemoSelectors.h",
+         "FState pick(){ return State; }", {"RTK-SELECTOR-002"}, {"RTK-STRUCT-001"}),
+    Case("listener-appended", "Source/Features/Demo/DemoListeners.h",
          "auto m = createListenerMiddleware<S>(); auto s = base.concat(m);", {"RTK-LISTENER-002"}),
-    Case("fingerprint-mismatch", "Source/Features/Demo/Selectors.h",
+    Case("fingerprint-mismatch", "Source/Features/Demo/DemoSelectors.h",
          "auto s = rtk::createSlice<FState>(name, r);", {"RTK-ROLE-001"}),
-    Case("view-store-access", "Source/Views/Demo/View.cpp",
+    Case("view-store-access", "Source/Views/Demo/DemoView.cpp",
          "void f(){ Store::GetStore().dispatch(a); }", {"RTK-VIEW-004"}),
-    Case("view-whole-state", "Source/Views/Demo/View.cpp",
+    Case("qualified-view-store-access", "Source/Views/Demo/DemoView.cpp",
+         "void f(){ Store::GetStore().dispatch(a); }", {"RTK-VIEW-004"}, {"RTK-STRUCT-001", "RTK-VIEW-001"}),
+    Case("view-whole-state", "Source/Views/Demo/DemoView.cpp",
          "void f(){ auto s = SelectRuntimeState(); }", {"RTK-VIEW-007"}),
+    Case("bare-role-leaf", "Source/Features/Demo/Actions.h",
+         "int x;", {"RTK-STRUCT-001"}),
+    Case("bare-view-leaf", "Source/Views/Demo/View.cpp",
+         "int x;", {"RTK-STRUCT-001"}),
     Case("bad-leaf-name", "Source/Features/Demo/Reducers.h",
          "int x;", {"RTK-STRUCT-001"}),
-    Case("clean-types", "Source/Features/Demo/State/Types.h",
+    Case("clean-types", "Source/Features/Demo/State/StateTypes.h",
          "struct FDemo { int Health; FString Name; };", set(),
          {"RTK-TYPES-001", "RTK-TYPES-002", "RTK-TYPES-004"}),
 ]
@@ -85,7 +93,7 @@ def run_case(root: Path, plugins: dict, case: Case) -> list[str]:
 
 
 def test_suppression(root: Path, plugins: dict) -> list[str]:
-    path = root / "Source/Features/Suppressed/State/Types.h"
+    path = root / "Source/Features/Suppressed/State/StateTypes.h"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         "struct FLoginScreenState {  // boundary-allow: RTK-TYPES-004 legacy screen\n int X; };",

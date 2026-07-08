@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Interaction/Conversation/Types.h"
-#include "Features/Systems/Level/View/Types.h"
-#include "Features/Systems/State/Types.h"
-#include "Features/Systems/View/Spawn/Types.h"
+#include "Features/Systems/Interaction/Conversation/ConversationTypes.h"
+#include "Features/Systems/Level/View/ViewTypes.h"
+#include "Features/Systems/State/SystemsStateTypes.h"
+#include "Features/Systems/View/Spawn/ViewSpawnTypes.h"
 
 namespace ForbocAI {
 namespace Game {

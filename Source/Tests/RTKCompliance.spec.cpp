@@ -1,5 +1,5 @@
 #include "CoreMinimal.h"
-#include "Features/Components/Data/Settings/Adapters.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Core/ue_fp.hpp"
 #include "HAL/FileManager.h"
 #include "Misc/AutomationTest.h"

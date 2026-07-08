@@ -3,8 +3,10 @@
 
 Boundaries are derived from the repository shape, not a managed list:
 
-* source files put domain tokens in folders and keep an exact role leaf;
-* view files put subject tokens in folders and keep the View leaf;
+* source files put broad domain tokens in folders and keep the shortest needed
+  folder-qualified role leaf;
+* view files put broad subject tokens in folders and keep the shortest needed
+  folder-qualified View leaf;
 * data files fold repeated prefix groups (and ECS section/kind prefixes) into
   folders;
 * a folder never repeats its parent.
@@ -74,7 +76,7 @@ SRC_REPEAT = register(
         id="DOMAIN-SRC-001",
         severity=Severity.HIGH,
         summary="source filename repeats domain/subdomain tokens already in its folders",
-        guidance="Move the domain/subdomain words into folders and keep the exact role leaf (Rendering/Sky/Thunks.h)." + _SELF_MOVE_NOTE,
+        guidance="Move broad domain/subdomain words into folders and keep the shortest needed folder-suffix qualifier plus role (Rendering/Sky/SkyThunks.h)." + _SELF_MOVE_NOTE,
         skill="ecs.hpp doctrine: domain words live in folders; the leaf is a small role name",
     )
 )
@@ -84,7 +86,7 @@ VIEW_REPEAT = register(
         id="DOMAIN-VIEW-001",
         severity=Severity.HIGH,
         summary="view filename repeats subject tokens shared across views",
-        guidance="Move the shared subject word into a folder and keep the leaf View (Player/Controller/View.cpp)." + _SELF_MOVE_NOTE,
+        guidance="Move broad subject words into folders and keep the shortest needed folder-suffix qualifier plus View (Player/Controller/ControllerView.cpp)." + _SELF_MOVE_NOTE,
         skill="ecs.hpp doctrine: subject in folders, View leaf",
     )
 )
@@ -126,6 +128,10 @@ def _move(path: Path, expected: Path, rule: Rule) -> Finding:
 
 # --- Source leaves ---------------------------------------------------------
 
+@dataclass(frozen=True)
+class RoleNameContext:
+    expected_stem_by_path: dict[Path, str]
+
 def _split_source_role(tokens: list[str]) -> tuple[list[str], list[str]]:
     for role in CANONICAL_SOURCE_ROLES:
         if len(tokens) >= len(role) and tuple(tokens[-len(role):]) == role:
@@ -140,23 +146,78 @@ def _source_ancestor_tokens(path: Path) -> set[str]:
     return set(normalized_tokens(tokens))
 
 
-def source_finding(path: Path) -> Finding | None:
+def _source_stems(path: Path, role_tokens: list[str]) -> list[str]:
+    parts = path.relative_to(SOURCE_FEATURES_ROOT).parent.parts
+    return [
+        "".join(
+            token
+            for part in parts[index:]
+            for token in camel_tokens(part)
+        )
+        + "".join(role_tokens)
+        for index in range(len(parts) - 1, -1, -1)
+    ]
+
+
+def _role_name_context(
+    paths: list[Path],
+    root: Path,
+    role_suffixes: tuple[tuple[str, ...], ...],
+    stem_candidates,
+) -> RoleNameContext:
+    items: list[dict] = []
+    for path in paths:
+        if path.suffix not in SOURCE_SUFFIXES or not path.is_relative_to(root):
+            continue
+        tokens = camel_tokens(path.stem)
+        for role_tokens in role_suffixes:
+            if len(tokens) >= len(role_tokens) and tuple(tokens[-len(role_tokens):]) == role_tokens:
+                candidates = stem_candidates(path, list(role_tokens))
+                if candidates:
+                    items.append({"path": path, "candidates": candidates, "index": 0})
+                break
+
+    while True:
+        groups: dict[tuple[str, str], list[dict]] = {}
+        for item in items:
+            key = (item["path"].suffix, item["candidates"][item["index"]])
+            groups.setdefault(key, []).append(item)
+
+        changed = False
+        for group in groups.values():
+            if len(group) <= 1:
+                continue
+            for item in group:
+                if item["index"] < len(item["candidates"]) - 1:
+                    item["index"] += 1
+                    changed = True
+        if not changed:
+            break
+
+    return RoleNameContext(
+        expected_stem_by_path={item["path"]: item["candidates"][item["index"]] for item in items}
+    )
+
+
+def source_role_context(paths: list[Path]) -> RoleNameContext:
+    return _role_name_context(paths, SOURCE_FEATURES_ROOT, CANONICAL_SOURCE_ROLES, _source_stems)
+
+
+def source_finding(path: Path, context: RoleNameContext | None = None) -> Finding | None:
     if path.suffix not in SOURCE_SUFFIXES or not path.is_relative_to(SOURCE_FEATURES_ROOT):
         return None
     tokens = camel_tokens(path.stem)
     prefix_tokens, role_tokens = _split_source_role(tokens)
     if not role_tokens:
         return None
-    ancestor = _source_ancestor_tokens(path)
-    repeated = [t for t in prefix_tokens if normalize_token(t) in ancestor]
-    new_tokens = [t for t in prefix_tokens if normalize_token(t) not in ancestor]
-    has_compound = bool(prefix_tokens) or ("".join(role_tokens) + path.suffix) != path.name
-    if not repeated and not has_compound:
+    expected_stem = (
+        context.expected_stem_by_path.get(path)
+        if context is not None
+        else _source_stems(path, role_tokens)[0]
+    )
+    if path.stem == expected_stem:
         return None
-    expected_parent = path.parent
-    for token in new_tokens:
-        expected_parent /= token
-    expected = expected_parent / ("".join(role_tokens) + path.suffix)
+    expected = path.parent / (expected_stem + path.suffix)
     return None if expected == path else _move(path, expected, SRC_REPEAT)
 
 
@@ -165,6 +226,30 @@ def source_finding(path: Path) -> Finding | None:
 def _view_subject_tokens(path: Path) -> list[str]:
     tokens = camel_tokens(path.stem)
     return tokens[:-1] if tokens and tokens[-1] == "View" else []
+
+
+def _view_stems(path: Path) -> list[str]:
+    if path.parent == SOURCE_VIEWS_ROOT:
+        return []
+    parts = path.relative_to(SOURCE_VIEWS_ROOT).parent.parts
+    return [
+        "".join(
+            token
+            for part in parts[index:]
+            for token in camel_tokens(part)
+        )
+        + "View"
+        for index in range(len(parts) - 1, -1, -1)
+    ]
+
+
+def view_role_context(paths: list[Path]) -> RoleNameContext:
+    return _role_name_context(
+        paths,
+        SOURCE_VIEWS_ROOT,
+        (("View",),),
+        lambda path, _role_tokens: _view_stems(path),
+    )
 
 
 def view_qualifier_tokens(paths: list[Path]) -> set[str]:
@@ -181,9 +266,23 @@ def view_qualifier_tokens(paths: list[Path]) -> set[str]:
     return {token for token, count in counts.items() if count >= VIEW_QUALIFIER_MIN_COUNT}
 
 
-def view_finding(path: Path, qualifiers: set[str]) -> Finding | None:
+def view_finding(
+    path: Path,
+    qualifiers: set[str],
+    context: RoleNameContext | None = None,
+) -> Finding | None:
     if path.suffix not in SOURCE_SUFFIXES or not path.is_relative_to(SOURCE_VIEWS_ROOT):
         return None
+    expected_stem = (
+        context.expected_stem_by_path.get(path)
+        if context is not None
+        else (_view_stems(path)[0] if _view_stems(path) else None)
+    )
+    if expected_stem is not None:
+        if path.stem == expected_stem:
+            return None
+        expected = path.parent / (expected_stem + path.suffix)
+        return None if expected == path else _move(path, expected, VIEW_REPEAT)
     subject = [t for t in _view_subject_tokens(path) if normalize_token(t) not in qualifiers]
     if not subject:
         return None
@@ -335,13 +434,15 @@ def folder_redundancy_findings(paths: list[Path]) -> list[Finding]:
 
 def find_findings(paths: list[Path]) -> list[Finding]:
     candidates = iter_files(paths)
+    source_context = source_role_context(candidates)
+    view_context = view_role_context(candidates)
     qualifiers = view_qualifier_tokens(candidates)
     context = data_context(candidates)
     findings: list[Finding] = []
     for path in candidates:
         finding = (
-            view_finding(path, qualifiers)
-            or source_finding(path)
+            view_finding(path, qualifiers, view_context)
+            or source_finding(path, source_context)
             or data_ecs_finding(path)
             or data_freq_finding(path, context)
         )

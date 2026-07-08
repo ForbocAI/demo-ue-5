@@ -137,14 +137,70 @@ VIOLATION_PREFIX = "FP/ECS violation, forward target: "
 
 
 @dataclass(frozen=True)
+class Rule:
+    id: str
+    summary: str
+    guidance: str
+
+
+LAZY_NOUN = Rule(
+    "FP-COMP-001",
+    "identifier uses a lazy wrapper noun",
+    "Name the exact role/domain boundary. Split vague bags/helpers into subdomain data and reusable composers.",
+)
+REPEATED_PATH_TOKEN = Rule(
+    "FP-COMP-002",
+    "identifier repeats folder/domain tokens",
+    "Move domain words into folders/namespaces and keep local names role-shaped.",
+)
+COOKBOOK_CALL = Rule(
+    "FP-COMP-003",
+    "call shape repeats field/member composition",
+    "Pass grouped declaration atoms to one reusable composer; the composer owns conversion and folds.",
+)
+WRAPPER_FAMILY = Rule(
+    "FP-COMP-004",
+    "struct/class is a noun wrapper family",
+    "Put atoms/selectors/projectors/validators in grouped declarations and fold them with one composer.",
+)
+TEXT_ATOM_REPETITION = Rule(
+    "FP-COMP-005",
+    "file repeats platform text atoms",
+    "Move authored atoms to grouped declarations or JSON and let generic helpers own TEXT conversion.",
+)
+WIDE_SCALAR_STRUCT = Rule(
+    "FP-COMP-006",
+    "wide scalar/list struct hides subdomains",
+    "Split wide scalar/list records by subdomain and compose them through a reader/adapter fold.",
+)
+
+
+@dataclass(frozen=True)
 class Issue:
     path: Path
     line: int
+    rule_id: str
     message: str
 
 
+@dataclass(frozen=True)
+class StructNameItem:
+    path: Path
+    offset: int
+    name: str
+    candidates: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class StructNameContext:
+    expected_by_key: dict[tuple[Path, int, str], str]
+
+
 def display(path: Path) -> str:
-    return path.relative_to(PROJECT_ROOT).as_posix()
+    try:
+        return path.relative_to(PROJECT_ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def line_number(text: str, index: int) -> int:
@@ -182,6 +238,13 @@ def normalize(token: str) -> str:
 def strip_unreal_prefix(tokens: list[str]) -> list[str]:
     if tokens and tokens[0] in {"A", "E", "F", "I", "S", "T", "U"}:
         return tokens[1:]
+    if (
+        tokens
+        and len(tokens[0]) > 1
+        and tokens[0][0] in {"A", "E", "F", "I", "S", "T", "U"}
+        and tokens[0][1:].isupper()
+    ):
+        return [tokens[0][1:]] + tokens[1:]
     return tokens
 
 
@@ -190,6 +253,79 @@ def strip_role_suffixes(tokens: list[str]) -> list[str]:
     while result and result[-1] in ROLE_SUFFIXES:
         result.pop()
     return result
+
+
+def split_unreal_name(name: str) -> tuple[str, list[str]]:
+    simple = name.rsplit("::", 1)[-1].lstrip("~")
+    if (
+        len(simple) > 1
+        and simple[0] in {"A", "E", "F", "I", "S", "T", "U"}
+        and simple[1].isupper()
+    ):
+        return simple[0], camel_tokens(simple[1:])
+    return "", camel_tokens(simple)
+
+
+def split_role_suffix(tokens: list[str]) -> tuple[list[str], list[str]]:
+    result = list(tokens)
+    suffix: list[str] = []
+    while result and result[-1] in ROLE_SUFFIXES:
+        suffix.insert(0, result.pop())
+    return result, suffix
+
+
+def shortest_qualifier_candidates(name: str) -> tuple[str, ...]:
+    unreal_prefix, tokens = split_unreal_name(name)
+    qualifier_tokens, suffix_tokens = split_role_suffix(tokens)
+    if not qualifier_tokens or not suffix_tokens:
+        return (name,)
+    candidates = [
+        unreal_prefix + "".join(qualifier_tokens[index:] + suffix_tokens)
+        for index in range(len(qualifier_tokens) - 1, -1, -1)
+    ]
+    return tuple(dict.fromkeys(candidates))
+
+
+def struct_name_context(paths: list[Path]) -> StructNameContext:
+    items: list[dict] = []
+    existing: dict[str, list[tuple[Path, int, str]]] = {}
+    for path in paths:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for match in STRUCT_RE.finditer(text):
+            name = match.group(1)
+            key = (path, match.start(), name)
+            existing.setdefault(name, []).append(key)
+            candidates = shortest_qualifier_candidates(name)
+            if candidates:
+                items.append(
+                    {"key": key, "name": name, "candidates": candidates, "index": 0}
+                )
+
+    while True:
+        changed = False
+        candidate_counts: dict[str, int] = {}
+        for item in items:
+            candidate_counts[item["candidates"][item["index"]]] = (
+                candidate_counts.get(item["candidates"][item["index"]], 0) + 1
+            )
+
+        for item in items:
+            candidate = item["candidates"][item["index"]]
+            occupied_by_other = any(
+                key != item["key"] for key in existing.get(candidate, [])
+            )
+            collides = candidate_counts[candidate] > 1 or occupied_by_other
+            if collides and item["index"] < len(item["candidates"]) - 1:
+                item["index"] += 1
+                changed = True
+        if not changed:
+            break
+
+    return StructNameContext(
+        expected_by_key={
+            item["key"]: item["candidates"][item["index"]] for item in items
+        }
+    )
 
 
 def semantic_identifier_tokens(name: str) -> list[str]:
@@ -201,7 +337,10 @@ def path_tokens(path: Path) -> set[str]:
     try:
         rel = path.relative_to(PROJECT_ROOT / "Source")
     except ValueError:
-        rel = path.relative_to(PROJECT_ROOT)
+        try:
+            rel = path.relative_to(PROJECT_ROOT)
+        except ValueError:
+            rel = path
     tokens: list[str] = []
     for part in rel.parent.parts:
         tokens.extend(folder_tokens(part))
@@ -213,7 +352,9 @@ def lazy_noun_issues(path: Path, text: str, name: str, offset: int) -> list[Issu
     issues: list[Issue] = []
     for token in tokens:
         if token in LAZY_NOUNS:
-            issues.append(Issue(path, line_number(text, offset), LAZY_NOUNS[token]))
+            issues.append(
+                Issue(path, line_number(text, offset), LAZY_NOUN.id, LAZY_NOUNS[token])
+            )
     return issues
 
 
@@ -232,6 +373,7 @@ def repeated_path_token_issue(path: Path, text: str, name: str, offset: int) -> 
     return Issue(
         path,
         line_number(text, offset),
+        REPEATED_PATH_TOKEN.id,
         f"Identifier repeats folder/domain token(s): {repeated_text}. Move those words into folders/namespaces and keep the local name role-shaped.",
     )
 
@@ -258,7 +400,12 @@ def struct_body(text: str, match: re.Match[str]) -> str | None:
     return text[match.end() : close]
 
 
-def wide_struct_issue(path: Path, text: str, match: re.Match[str]) -> Issue | None:
+def wide_struct_issue(
+    path: Path,
+    text: str,
+    match: re.Match[str],
+    context: StructNameContext,
+) -> Issue | None:
     name = match.group(1)
     body = struct_body(text, match)
     if body is None:
@@ -266,19 +413,18 @@ def wide_struct_issue(path: Path, text: str, match: re.Match[str]) -> Issue | No
     scalar_fields = SCALAR_FIELD_RE.findall(body)
     if len(scalar_fields) <= WIDE_SCALAR_FIELD_COUNT:
         return None
-    tokens = strip_unreal_prefix(camel_tokens(name))
-    has_wrapper_violation = any(token in LAZY_NOUNS for token in tokens)
-    repeated = [
-        token
-        for token in strip_role_suffixes(tokens)
-        if normalize(token) in path_tokens(path)
-    ]
-    if not has_wrapper_violation and not repeated:
-        return None
+    expected = context.expected_by_key.get((path, match.start(), name), name)
+    qualifier = (
+        f" Current name should shorten to `{expected}` if it remains in this domain; "
+        "split records must use the same nearest-domain collision rule."
+        if expected != name
+        else " Split records must keep the shortest collision-free domain qualifier."
+    )
     return Issue(
         path,
         line_number(text, match.start()),
-        f"Wide scalar struct `{name}` has {len(scalar_fields)} direct scalar/list fields. Split by subdomain and compose smaller records through a reader/adapter fold.",
+        WIDE_SCALAR_STRUCT.id,
+        f"Wide scalar struct `{name}` has {len(scalar_fields)} direct scalar/list fields. Split by subdomain and compose smaller records through a reader/adapter fold.{qualifier}",
     )
 
 
@@ -286,7 +432,7 @@ def cookbook_call_issues(path: Path, text: str) -> list[Issue]:
     issues: list[Issue] = []
     for pattern, message in COOKBOOK_CALL_RULES:
         for match in pattern.finditer(text):
-            issues.append(Issue(path, line_number(text, match.start()), message))
+            issues.append(Issue(path, line_number(text, match.start()), COOKBOOK_CALL.id, message))
     return issues
 
 
@@ -298,6 +444,7 @@ def wrapper_family_issues(path: Path, text: str) -> list[Issue]:
             Issue(
                 path,
                 line_number(text, match.start()),
+                WRAPPER_FAMILY.id,
                 f"`{name}` looks like a noun wrapper family. If only nouns change, put atoms/selectors/projectors/validators in grouped declarations and fold them with one composer.",
             )
         )
@@ -313,17 +460,19 @@ def text_atom_repetition_issue(path: Path, text: str) -> Issue | None:
     return Issue(
         path,
         1,
+        TEXT_ATOM_REPETITION.id,
         f"File repeats TEXT(...) atoms {count} times. Generic declaration helpers own platform string conversion; move authored atoms to grouped declarations or JSON.",
     )
 
 
-def scan_file(path: Path) -> list[Issue]:
+def scan_file(path: Path, context: StructNameContext | None = None) -> list[Issue]:
     text = path.read_text(encoding="utf-8", errors="replace")
+    name_context = context if context is not None else struct_name_context([path])
     issues: list[Issue] = []
-    seen: set[tuple[int, str]] = set()
+    seen: set[tuple[int, str, str]] = set()
 
     def add(issue: Issue) -> None:
-        key = (issue.line, issue.message)
+        key = (issue.line, issue.rule_id, issue.message)
         if key not in seen:
             seen.add(key)
             issues.append(issue)
@@ -335,7 +484,7 @@ def scan_file(path: Path) -> list[Issue]:
         repeated = repeated_path_token_issue(path, text, name, match.start())
         if repeated is not None:
             add(repeated)
-        wide = wide_struct_issue(path, text, match)
+        wide = wide_struct_issue(path, text, match, name_context)
         if wide is not None:
             add(wide)
 
@@ -388,8 +537,10 @@ def iter_files(roots: list[Path]) -> list[Path]:
 
 def find_issues(roots: list[Path]) -> list[Issue]:
     issues: list[Issue] = []
-    for path in iter_files(roots):
-        issues.extend(scan_file(path))
+    files = iter_files(roots)
+    context = struct_name_context(files)
+    for path in files:
+        issues.extend(scan_file(path, context))
     return sorted(issues, key=lambda issue: (display(issue.path), issue.line, issue.message))
 
 
@@ -404,7 +555,7 @@ def main() -> int:
         for issue in issues:
             print(
                 f"{display(issue.path)}:{issue.line}: "
-                f"{VIOLATION_PREFIX}{issue.message}"
+                f"{issue.rule_id}: {VIOLATION_PREFIX}{issue.message}"
             )
         print("")
         print(

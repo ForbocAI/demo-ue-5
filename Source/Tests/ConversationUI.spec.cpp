@@ -1,8 +1,8 @@
 #include "CoreMinimal.h"
-#include "Features/Components/Data/Settings/Adapters.h"
-#include "Features/Systems/UI/Shared/Slice.h"
-#include "Features/Systems/UI/Chat/Slice.h"
-#include "Features/Systems/UI/Conversation/Slice.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+#include "Features/Systems/UI/Shared/SharedSlice.h"
+#include "Features/Systems/UI/Chat/ChatSlice.h"
+#include "Features/Systems/UI/Conversation/UIConversationSlice.h"
 #include "Misc/AutomationTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(

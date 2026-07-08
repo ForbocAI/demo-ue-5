@@ -1,8 +1,8 @@
 #include "Misc/AutomationTest.h"
-#include "Features/Components/Data/Settings/Adapters.h"
-#include "Features/Systems/Bots/Core/Runtime/Types.h"
-#include "Features/Systems/Bots/Core/Actions.h"
-#include "Features/Systems/Bots/Core/Slice.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+#include "Features/Systems/Bots/Core/Runtime/RuntimeTypes.h"
+#include "Features/Systems/Bots/Core/CoreActions.h"
+#include "Features/Systems/Bots/Core/CoreSlice.h"
 
 using namespace ForbocAI::Game::Level;
 

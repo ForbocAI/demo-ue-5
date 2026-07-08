@@ -47,6 +47,8 @@ ROLE_BY_STEM: dict[str, str] = {
     "View": "view",
 }
 
+ROLE_STEM_BY_ROLE = {role: stem for stem, role in ROLE_BY_STEM.items()}
+
 ROLE_GUIDANCE: dict[str, str] = {
     "actions": "Actions describe events or expose narrow UE dispatch facades; reducers own the state transition.",
     "adapters": "Adapters translate authored JSON, UE objects, or ECS data at boundaries without dispatching.",
@@ -252,8 +254,25 @@ class SourceUnit:
 def _sibling_raw(path: Path) -> str:
     if path.suffix not in {".h", ".hpp"}:
         return ""
-    sibling = path.with_suffix(".cpp")
-    return sibling.read_text(encoding="utf-8", errors="replace") if sibling.exists() else ""
+    candidates = [path.with_suffix(".cpp")]
+    role = role_for_path(path)
+    if role is not None:
+        role_stem = ROLE_STEM_BY_ROLE[role]
+        qualifiers = {
+            qualifier
+            for marker in ("Features", "Views")
+            for qualifier in _folder_suffix_qualifiers(path, marker)
+            if qualifier
+        }
+        candidates.extend(path.with_name(qualifier + role_stem + ".cpp") for qualifier in qualifiers)
+    seen: set[Path] = set()
+    for sibling in candidates:
+        if sibling in seen:
+            continue
+        seen.add(sibling)
+        if sibling.exists():
+            return sibling.read_text(encoding="utf-8", errors="replace")
+    return ""
 
 
 def build_unit(path: Path, root: Path) -> SourceUnit:
@@ -267,7 +286,7 @@ def build_unit(path: Path, root: Path) -> SourceUnit:
         path=path,
         root=root,
         stem=path.stem,
-        declared_role=role_for_stem(path.stem),
+        declared_role=role_for_path(path),
         raw=raw,
         code=code,
         includes=includes,
@@ -280,10 +299,59 @@ def role_for_stem(stem: str) -> str | None:
     return ROLE_BY_STEM.get(stem)
 
 
+def _camel_name(value: str) -> str:
+    return "".join(
+        token[:1].upper() + token[1:]
+        for token in re.split(r"[^A-Za-z0-9]+", value)
+        if token
+    )
+
+
+def _folder_parts_after_marker(path: Path, marker: str) -> tuple[str, ...]:
+    parts = path.parts
+    if marker not in parts:
+        return ()
+    index = parts.index(marker)
+    return tuple(parts[index + 1 : -1])
+
+
+def _is_under_marker(path: Path, marker: str) -> bool:
+    return bool(_folder_parts_after_marker(path, marker))
+
+
+def _folder_suffix_qualifiers(path: Path, marker: str) -> tuple[str, ...]:
+    parts = _folder_parts_after_marker(path, marker)
+    return tuple(
+        "".join(_camel_name(part) for part in parts[index:])
+        for index in range(len(parts) - 1, -1, -1)
+    )
+
+
+def _qualified_role_for_path(path: Path) -> str | None:
+    stem = path.stem
+    markers = ("Features", "Views")
+    qualifiers = {
+        qualifier
+        for marker in markers
+        for qualifier in _folder_suffix_qualifiers(path, marker)
+        if qualifier
+    }
+    for role_stem, role in ROLE_BY_STEM.items():
+        if any(stem == qualifier + role_stem for qualifier in qualifiers):
+            return role
+    return None
+
+
+def role_for_path(path: Path) -> str | None:
+    if _is_under_marker(path, "Features") or _is_under_marker(path, "Views"):
+        return _qualified_role_for_path(path)
+    return role_for_stem(path.stem)
+
+
 def role_for_include(include: str) -> str | None:
     if not include.startswith("Features/"):
         return None
-    return role_for_stem(Path(include).stem)
+    return role_for_path(Path(include))
 
 
 def feature_relative_include(include: str) -> Path | None:
@@ -356,7 +424,7 @@ FINGERPRINT = register(
             "Name the leaf for what it builds: createSlice -> Slice, "
             "createAsyncThunk -> Thunks, createAction -> Actions, "
             "createEntityAdapter -> Adapters, createListenerMiddleware -> "
-            "Listeners. Domain words go in folders, not the role leaf."
+            "Listeners. The leaf must be folder-qualified, such as BotsSlice."
         ),
         skill="model-redux-state-design-state-ownership: naming state after the wrong role",
     )

@@ -12,7 +12,6 @@ This module is a role plugin (``check``) for the boundaries runner.
 
 from __future__ import annotations
 
-from pathlib import Path
 import re
 
 from features_boundaries import (
@@ -24,12 +23,14 @@ from features_boundaries import (
     findings_for,
     line_number,
     register,
+    role_for_include,
+    role_for_path,
 )
 
 
 ROLE = "view"
 
-ALLOWED_FEATURE_LEAVES = {"Actions.h", "Selectors.h"}
+ALLOWED_FEATURE_ROLES = {"actions", "selectors"}
 FEATURE_INCLUDE = re.compile(r"^Features/")
 STORE_INCLUDE = "Store.h"
 STORE_ACCESS = re.compile(r"\bStore::GetStore\s*\(|\.dispatch\s*\(|\.getState\s*\(")
@@ -46,8 +47,8 @@ VIEW_NAME = register(
     Rule(
         id="RTK-VIEW-001",
         severity=Severity.HIGH,
-        summary="view source leaf must be exactly `View`",
-        guidance="Move the subject words into folders so the leaf stays View (Source/Views/<Subject>/View.cpp).",
+        summary="view source leaf must be folder-qualified `View`",
+        guidance="Use the nearest unambiguous folder qualifier plus View, such as Source/Views/Player/Controller/ControllerView.cpp.",
         skill="build-modern-redux-apps-modern-redux: keep feature logic colocated behind stable leaves",
         roles=frozenset({ROLE}),
     )
@@ -138,7 +139,7 @@ def _include_findings(unit: SourceUnit) -> list[Finding]:
         line = line_number(unit.raw, match.start())
         if include == STORE_INCLUDE:
             findings.append(Finding(unit.path, line, VIEW_STORE_IMPORT.id, VIEW_STORE_IMPORT.severity, VIEW_STORE_IMPORT.summary))
-        elif FEATURE_INCLUDE.match(include) and Path(include).name not in ALLOWED_FEATURE_LEAVES:
+        elif FEATURE_INCLUDE.match(include) and role_for_include(include) not in ALLOWED_FEATURE_ROLES:
             findings.append(
                 Finding(unit.path, line, VIEW_INCLUDE.id, VIEW_INCLUDE.severity, f"disallowed feature include `{include}`")
             )
@@ -147,7 +148,7 @@ def _include_findings(unit: SourceUnit) -> list[Finding]:
 
 def check(unit: SourceUnit) -> list[Finding]:
     findings: list[Finding] = []
-    if unit.stem != "View":
+    if role_for_path(unit.path) != ROLE:
         findings.append(Finding(unit.path, 1, VIEW_NAME.id, VIEW_NAME.severity, VIEW_NAME.summary))
     findings += _include_findings(unit)
     findings += findings_for(unit, unit.code, VIEW_STORE_ACCESS, STORE_ACCESS)
