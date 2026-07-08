@@ -7,7 +7,7 @@
 namespace {
 
 const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings &
-OrchestratorAutomationSettings() {
+BotOrchestratorAutomationSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   return Settings.Automation.Bot.Orchestrator;
@@ -15,11 +15,11 @@ OrchestratorAutomationSettings() {
 
 } // namespace
 
-DEFINE_SPEC(FBotOrchestratorSpec, OrchestratorAutomationSettings().Spec, EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
+DEFINE_SPEC(FBotOrchestratorSpec, BotOrchestratorAutomationSettings().Spec, EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FBotOrchestratorSpec::Define() {
   const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings
-      &Settings = OrchestratorAutomationSettings();
+      &Settings = BotOrchestratorAutomationSettings();
 
   Describe(Settings.Groups.Registration, [this, &Settings]() {
     It(Settings.Cases.RegisterBot, [this, &Settings]() {

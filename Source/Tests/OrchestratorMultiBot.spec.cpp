@@ -26,7 +26,7 @@ OrchestratorSettings() {
 }
 
 const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings &
-OrchestratorAutomationSettings() {
+OrchestratorMultiBotAutomationSettings() {
   return OrchestratorSettings().Automation.Bot.Orchestrator;
 }
 
@@ -64,13 +64,13 @@ FBotEntity OrchestratorMovingBot() {
 } // namespace
 
 DEFINE_SPEC(FOrchestratorMultiBotSpec,
-            OrchestratorAutomationSettings().MultiBotSpec,
+            OrchestratorMultiBotAutomationSettings().MultiBotSpec,
             EAutomationTestFlags::ProductFilter |
                 EAutomationTestFlags_ApplicationContextMask)
 
 void FOrchestratorMultiBotSpec::Define() {
   const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings
-      &Automation = OrchestratorAutomationSettings();
+      &Automation = OrchestratorMultiBotAutomationSettings();
 
   Describe(Automation.Groups.RuntimeStore, [this, &Automation]() {
     It(Automation.Cases.RegisterBots, [this, &Automation]() {
