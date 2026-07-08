@@ -7,6 +7,7 @@
 #include "Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h"
 #include "Features/Components/Data/Settings/Automation/Rtk/Compliance/ComplianceTypes.h"
 #include "Features/Components/Data/Settings/Automation/Store/StoreTypes.h"
+#include "Features/Components/Data/Settings/Automation/Tests/AutomationTestsTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -15,6 +16,7 @@ namespace Automation {
 
 struct FSettings {
   Store::FSettings Store;
+  Tests::FSettings Tests;
   Content::Assets::FSettings ContentAssets;
   Rtk::Compliance::FSettings RtkCompliance;
   Bot::FSettings Bot;
@@ -25,6 +27,7 @@ struct FSettings {
 
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Store == Right.Store &&
+         Left.Tests == Right.Tests &&
          Left.ContentAssets == Right.ContentAssets &&
          Left.RtkCompliance == Right.RtkCompliance &&
          Left.Bot == Right.Bot &&

@@ -239,7 +239,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
       SettingsSource(Sources, "Ecs"));
   Settings.Automation =
       Json::ReadSettingsWith<Automation::FSettings>(
-          JSON_SETTINGS_ATOMS(Store, ContentAssets, RtkCompliance, Bot,
+          JSON_SETTINGS_ATOMS(Store, Tests, ContentAssets, RtkCompliance, Bot,
                               Pipeline,
                               ConversationUI, ProtocolLoop))(
           SettingsSource(Sources, "Automation"));

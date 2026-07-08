@@ -144,6 +144,44 @@ JSON_SETTINGS_REGISTRY(Automation::Store::FSettings,
                        ReduxLoggerActionTitlePrefix, TerrainEntity,
                        TerrainProjectionDomain);
 
+JSON_SETTINGS_REGISTRY(Automation::Tests::FBddSettings,
+                       Spec, Group, Case, Assertion);
+
+JSON_SETTINGS_REGISTRY(Automation::Tests::FContractParitySettings,
+                       Test, HeadersAvailableAssertion, SkipWarning,
+                       RunEnvironmentVariable, MinimumScenarioSteps);
+
+JSON_SETTINGS_REGISTRY(Automation::Tests::FIntegrationVerificationSettings,
+                       Test, QuarantineWarning);
+
+template <>
+struct TJsonSettingsRegistry<Automation::Tests::FSettings> {
+  static const TArray<TField<Automation::Tests::FSettings>>
+      &Fields() {
+    static const TArray<TField<Automation::Tests::FSettings>>
+        RegisteredFields = {
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Tests::FSettings,
+                ReadSettingsWith<Automation::Tests::FBddSettings>(
+                    JSON_SETTINGS_ATOMS(Spec, Group, Case, Assertion)),
+                Bdd),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Tests::FSettings,
+                ReadSettingsWith<Automation::Tests::FContractParitySettings>(
+                    JSON_SETTINGS_ATOMS(Test, HeadersAvailableAssertion,
+                                        SkipWarning, RunEnvironmentVariable,
+                                        MinimumScenarioSteps)),
+                ContractParity),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Tests::FSettings,
+                ReadSettingsWith<
+                    Automation::Tests::FIntegrationVerificationSettings>(
+                    JSON_SETTINGS_ATOMS(Test, QuarantineWarning)),
+                IntegrationVerification)};
+    return RegisteredFields;
+  }
+};
+
 JSON_SETTINGS_REGISTRY(Automation::Content::Assets::FPackage, Label, Path);
 
 JSON_SETTINGS_REGISTRY(Automation::Content::Assets::FConfig, Label, Section,
@@ -508,6 +546,12 @@ template <> struct TJsonSettingsRegistry<Automation::FSettings> {
                 Store),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::FSettings,
+                ReadSettingsWith<Automation::Tests::FSettings>(
+                    JSON_SETTINGS_ATOMS(Bdd, ContractParity,
+                                        IntegrationVerification)),
+                Tests),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::FSettings,
                 ReadSettingsWith<Automation::Content::Assets::FSettings>(
                     JSON_SETTINGS_ATOMS(
                         Packages, Classes, SpeechComponentClasses,
@@ -531,7 +575,7 @@ template <> struct TJsonSettingsRegistry<Automation::FSettings> {
                 Automation::FSettings,
                 ReadSettingsWith<Automation::Bot::FSettings>(
                     JSON_SETTINGS_ATOMS(Spec, Tests, Groups, Cases,
-                                        Assertions)),
+                                        Assertions, Orchestrator)),
                 Bot),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::FSettings,

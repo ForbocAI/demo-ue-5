@@ -8,13 +8,25 @@
  */
 
 #include "Misc/AutomationTest.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+
+namespace {
+
+const ForbocAI::Game::Data::Automation::Tests::FIntegrationVerificationSettings &
+IntegrationVerificationAutomationSettings() {
+  static const ForbocAI::Game::Data::FSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
+  return Settings.Automation.Tests.IntegrationVerification;
+}
+
+} // namespace
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FIntegrationVerificationQuarantined,
-    "ForbocAI.Integration.QuarantinedUntilSdkSync",
+    IntegrationVerificationAutomationSettings().Test,
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 bool FIntegrationVerificationQuarantined::RunTest(const FString &Parameters) {
-  AddWarning(TEXT("Integration verification is quarantined until the UE SDK is synced with the API and TS SDK contracts."));
+  AddWarning(IntegrationVerificationAutomationSettings().QuarantineWarning);
   return true;
 }

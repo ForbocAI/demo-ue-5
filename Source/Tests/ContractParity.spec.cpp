@@ -6,31 +6,45 @@
  */
 
 #include "CoreMinimal.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "HAL/PlatformMisc.h"
 #include "Misc/AutomationTest.h"
 #include "TestGame/TestGameContract.h"
 #include "TestGame/TestGameTypes.h"
 
+namespace {
+
+const ForbocAI::Game::Data::Automation::Tests::FContractParitySettings &
+ContractParityAutomationSettings() {
+  static const ForbocAI::Game::Data::FSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
+  return Settings.Automation.Tests.ContractParity;
+}
+
+} // namespace
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FContractParityHeadersPresent,
-    "ForbocAI.TestGame.ContractParity.HeadersPresent",
+    ContractParityAutomationSettings().Test,
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 bool FContractParityHeadersPresent::RunTest(const FString &Parameters) {
-  const auto RunContractParity = [this]() {
+  const ForbocAI::Game::Data::Automation::Tests::FContractParitySettings
+      &Settings = ContractParityAutomationSettings();
+  const auto RunContractParity = [this, &Settings]() {
     const TArray<TestGame::FScenarioStep> Steps =
         TestGame::Contract::GetContractScenarioSteps();
-    TestTrue(TEXT("Contract scenario headers are available"), Steps.Num() > 0);
+    TestTrue(Settings.HeadersAvailableAssertion,
+             Steps.Num() > Settings.MinimumScenarioSteps);
     return true;
   };
-  const auto SkipUntilApiWorkResumes = [this]() {
-    AddWarning(TEXT("Skipping API/test-game contract parity until that work is "
-                    "ready to resume."));
+  const auto SkipUntilApiWorkResumes = [this, &Settings]() {
+    AddWarning(Settings.SkipWarning);
     return true;
   };
 
   return FPlatformMisc::GetEnvironmentVariable(
-             TEXT("FORBOC_RUN_API_CONTRACT_PARITY_TESTS"))
+             *Settings.RunEnvironmentVariable)
              .IsEmpty()
          ? SkipUntilApiWorkResumes()
          : RunContractParity();
