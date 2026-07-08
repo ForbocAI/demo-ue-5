@@ -275,6 +275,11 @@
     }
   ],
   "automation": {
+    "phoneme_estimation_test": "ForbocAI.Speech.PhonemeEstimation",
+    "phoneme_estimation_with_spaces_test": "ForbocAI.Speech.PhonemeEstimationWithSpaces",
+    "viseme_map_completeness_test": "ForbocAI.Speech.VisemeMapCompleteness",
+    "active_viseme_at_time_test": "ForbocAI.Speech.ActiveVisemeAtTime",
+    "viseme_lookup_unknown_test": "ForbocAI.Speech.VisemeLookupUnknown",
     "phoneme_estimation_text": "Hello",
     "silence_text": "Hi there",
     "unknown_phoneme": "UNKNOWN",

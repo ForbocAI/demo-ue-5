@@ -24,6 +24,13 @@ ForbocAI::Game::Data::FSpeechSettings LoadSpeechSettings() {
           .Speech;
 }
 
+const ForbocAI::Game::Data::FAutomationSettings &
+SpeechAutomationSettings() {
+  static const ForbocAI::Game::Data::FSpeechSettings Settings =
+      LoadSpeechSettings();
+  return Settings.Automation;
+}
+
 TMap<FString, FVisemeMapping> LoadVisemeMap(
     const ForbocAI::Game::Data::FSpeechSettings &Settings) {
   return SpeechOps::VisemeMapFromSettings(Settings);
@@ -72,7 +79,7 @@ float SampleTime(const FPhonemeEvent &Event, float Ratio) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechPhonemeEstimation,
-    "ForbocAI.Speech.PhonemeEstimation",
+    SpeechAutomationSettings().PhonemeEstimationTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -114,7 +121,7 @@ bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechPhonemeWithSpaces,
-    "ForbocAI.Speech.PhonemeEstimationWithSpaces",
+    SpeechAutomationSettings().PhonemeEstimationWithSpacesTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -153,7 +160,7 @@ bool FSpeechPhonemeWithSpaces::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechVisemeMapCompleteness,
-    "ForbocAI.Speech.VisemeMapCompleteness",
+    SpeechAutomationSettings().VisemeMapCompletenessTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -188,7 +195,7 @@ bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechActiveVisemeAtTime,
-    "ForbocAI.Speech.ActiveVisemeAtTime",
+    SpeechAutomationSettings().ActiveVisemeAtTimeTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -279,7 +286,7 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechVisemeLookup,
-    "ForbocAI.Speech.VisemeLookupUnknown",
+    SpeechAutomationSettings().VisemeLookupUnknownTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 

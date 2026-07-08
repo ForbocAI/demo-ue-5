@@ -24,6 +24,11 @@ struct FPhonemeDurationRuleSettings {
 };
 
 struct FAutomationSettings {
+  FString PhonemeEstimationTest;
+  FString PhonemeEstimationWithSpacesTest;
+  FString VisemeMapCompletenessTest;
+  FString ActiveVisemeAtTimeTest;
+  FString VisemeLookupUnknownTest;
   FString PhonemeEstimationText;
   FString SilenceText;
   FString UnknownPhoneme;
@@ -111,6 +116,13 @@ inline bool operator!=(const FPhonemeDurationRuleSettings &Left,
 inline bool operator==(const FAutomationSettings &Left,
                        const FAutomationSettings &Right) {
   return Left.PhonemeEstimationText == Right.PhonemeEstimationText &&
+         Left.PhonemeEstimationTest == Right.PhonemeEstimationTest &&
+         Left.PhonemeEstimationWithSpacesTest ==
+             Right.PhonemeEstimationWithSpacesTest &&
+         Left.VisemeMapCompletenessTest ==
+             Right.VisemeMapCompletenessTest &&
+         Left.ActiveVisemeAtTimeTest == Right.ActiveVisemeAtTimeTest &&
+         Left.VisemeLookupUnknownTest == Right.VisemeLookupUnknownTest &&
          Left.SilenceText == Right.SilenceText &&
          Left.UnknownPhoneme == Right.UnknownPhoneme &&
          FMath::IsNearlyEqual(Left.ActiveVisemeSampleRatio,

@@ -851,7 +851,10 @@ JSON_SETTINGS_REGISTRY(FVowelPhonemeSettings, Character, Phoneme);
 JSON_SETTINGS_REGISTRY(FPhonemeDurationRuleSettings, Kind, Phoneme,
                        Multiplier);
 
-JSON_SETTINGS_REGISTRY(FAutomationSettings, PhonemeEstimationText,
+JSON_SETTINGS_REGISTRY(FAutomationSettings, PhonemeEstimationTest,
+                       PhonemeEstimationWithSpacesTest,
+                       VisemeMapCompletenessTest, ActiveVisemeAtTimeTest,
+                       VisemeLookupUnknownTest, PhonemeEstimationText,
                        SilenceText, UnknownPhoneme, ActiveVisemeSampleRatio,
                        PastEndSampleRatio, ProducesPhonemesLabelFormat,
                        CorrectPhonemeCountLabel, FirstPhonemeStartLabel,
@@ -897,6 +900,11 @@ template <> struct TJsonSettingsRegistry<FSpeechSettings> {
                 FSpeechSettings,
                 ReadSettingsWith<FAutomationSettings>(
                     JSON_SETTINGS_ATOMS(
+                        PhonemeEstimationTest,
+                        PhonemeEstimationWithSpacesTest,
+                        VisemeMapCompletenessTest,
+                        ActiveVisemeAtTimeTest,
+                        VisemeLookupUnknownTest,
                         PhonemeEstimationText, SilenceText, UnknownPhoneme,
                         ActiveVisemeSampleRatio, PastEndSampleRatio,
                         ProducesPhonemesLabelFormat,
