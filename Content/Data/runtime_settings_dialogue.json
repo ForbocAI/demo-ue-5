@@ -1,5 +1,0 @@
-{
-  "runtime_dialogue": {
-    "reply_payload_id_format": "systems/dialogue/localReply/%s"
-  }
-}

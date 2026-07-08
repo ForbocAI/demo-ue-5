@@ -1,0 +1,7 @@
+{
+  "rendering_assets": "Data/settings/rendering/assets.json",
+  "rendering_profile": "Data/settings/rendering/profile.json",
+  "rendering_pipeline": "Data/settings/rendering/pipeline.json",
+  "rendering_distance_lod": "Data/settings/rendering/lod.json",
+  "texture_catalog": "Data/settings/rendering/texture/catalog.json"
+}

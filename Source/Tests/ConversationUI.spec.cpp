@@ -1,8 +1,8 @@
 #include "CoreMinimal.h"
-#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
-#include "Features/Systems/UI/UISharedReducers.h"
-#include "Features/Systems/UI/UIChatReducers.h"
-#include "Features/Systems/UI/UIConversationReducers.h"
+#include "Features/Components/Data/Settings/Adapters.h"
+#include "Features/Systems/UI/Shared/Slice.h"
+#include "Features/Systems/UI/Chat/Slice.h"
+#include "Features/Systems/UI/Conversation/Slice.h"
 #include "Misc/AutomationTest.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -11,9 +11,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
-  const ForbocAI::Game::Data::FUIRuntimeSettings UISettings =
-      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings()
-          .UIRuntime;
+  const ForbocAI::Game::Data::FUISettings UISettings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
+          .UI;
   const ForbocAI::Game::UI::FChatMessageViewModel PlayerMessage =
       ForbocAI::Game::Level::UIReducers::ReduceChatMessageViewModel(
           {TEXT("Player"), TEXT("Hello")}, UISettings);

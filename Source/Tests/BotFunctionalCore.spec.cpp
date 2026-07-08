@@ -1,17 +1,37 @@
 #include "Misc/AutomationTest.h"
-#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
-#include "Features/Systems/Bots/Core/BotCoreRuntimeTypes.h"
-#include "Features/Systems/Bots/Core/BotCoreActions.h"
-#include "Features/Systems/Bots/Core/BotCoreReducers.h"
+#include "Features/Components/Data/Settings/Adapters.h"
+#include "Features/Systems/Bots/Core/Runtime/Types.h"
+#include "Features/Systems/Bots/Core/Actions.h"
+#include "Features/Systems/Bots/Core/Slice.h"
 
 using namespace ForbocAI::Game::Level;
 
 namespace {
-const ForbocAI::Game::Data::FBotRuntimeSettings &
-BotFunctionalCoreRuntimeSettings() {
-  static const ForbocAI::Game::Data::FRuntimeSettings Settings =
-      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings();
-  return Settings.BotRuntime;
+const ForbocAI::Game::Data::FBotSettings &
+BotFunctionalCoreSettings() {
+  static const ForbocAI::Game::Data::FSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
+  return Settings.Bot;
+}
+
+float FunctionalCoreHealthyDamage() {
+  const ForbocAI::Game::Data::FBotSettings &Settings =
+      BotFunctionalCoreSettings();
+  return Settings.InitialHealth * Settings.PhaseFleeHealthRatio;
+}
+
+float FunctionalCoreFleeDamage() {
+  const ForbocAI::Game::Data::FBotSettings &Settings =
+      BotFunctionalCoreSettings();
+  return Settings.InitialHealth -
+         (Settings.InitialMaxHealth * Settings.DamageFleeHealthRatio) +
+         Settings.MovementArrivalDistanceSquared;
+}
+
+float FunctionalCoreExpectedHealthAfterDamage(const float Damage) {
+  const ForbocAI::Game::Data::FBotSettings &Settings =
+      BotFunctionalCoreSettings();
+  return FMath::Max(Settings.MinimumHealth, Settings.InitialHealth - Damage);
 }
 
 rtk::EnhancedStore<FBotCoreRuntimeState> ConfigureStore(
@@ -19,7 +39,7 @@ rtk::EnhancedStore<FBotCoreRuntimeState> ConfigureStore(
   return rtk::configureStore<FBotCoreRuntimeState>(
       BotCoreReducers::BotReducer(),
       CreateBotCoreRuntimeInitialState(
-          {BotName, BotFunctionalCoreRuntimeSettings()}));
+          {BotName, BotFunctionalCoreSettings()}));
 }
 } // namespace
 
@@ -31,14 +51,15 @@ void FBotFunctionalCoreSpec::Define()
     {
         It("Should create initial state with correct defaults", [this]()
         {
-            auto Store = ConfigureStore(TEXT("TestBot"));
+            const FString BotName = BotFunctionalCoreSettings().InitialName;
+            auto Store = ConfigureStore(BotName);
             FBotCoreRuntimeState State = Store.getState();
 
-            TestEqual("Name", State.Name, TEXT("TestBot"));
+            TestEqual("Name", State.Name, BotName);
             TestTrue("Health",
                      FMath::IsNearlyEqual(
                          State.Stats.Health,
-                         BotFunctionalCoreRuntimeSettings().InitialHealth));
+                         BotFunctionalCoreSettings().InitialHealth));
             TestTrue("Phase", State.Phase == EBotCorePhase::Idle);
             TestTrue("ID is valid", State.Id.IsValid());
         });
@@ -50,12 +71,15 @@ void FBotFunctionalCoreSpec::Define()
         {
             It("Should update position to target", [this]()
             {
-                auto Store = ConfigureStore(TEXT("Mover"));
+                const ForbocAI::Game::Data::FBotSettings &Settings =
+                    BotFunctionalCoreSettings();
+                auto Store = ConfigureStore(Settings.MoveActionType);
                 Store.dispatch(BotCoreActions::BotMoved()(
-                    FBotMovePayload{FVector(100, 0, 0), 50.0f}));
+                    FBotMovePayload{Settings.MoveActionOffset,
+                                    Settings.DefaultMovementInterpSpeed}));
 
                 auto State = Store.getState();
-                TestTrue("Position.X", FMath::IsNearlyEqual(State.Position.X, 100.0f));
+                TestTrue("Position.X", FMath::IsNearlyEqual(State.Position.X, Settings.MoveActionOffset.X));
             });
         });
 
@@ -63,19 +87,20 @@ void FBotFunctionalCoreSpec::Define()
         {
             It("Should reduce health when taking damage", [this]()
             {
-                auto Store = ConfigureStore(TEXT("Victim"));
+                const float Damage = FunctionalCoreHealthyDamage();
+                auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
                 Store.dispatch(BotCoreActions::BotDamageTaken()(
-                    FBotDamageTakenPayload{10.0f, nullptr}));
+                    FBotDamageTakenPayload{Damage, nullptr}));
                 
                 auto State = Store.getState();
-                TestTrue("Health Reduced", FMath::IsNearlyEqual(State.Stats.Health, 90.0f));
+                TestTrue("Health Reduced", FMath::IsNearlyEqual(State.Stats.Health, FunctionalCoreExpectedHealthAfterDamage(Damage)));
             });
 
             It("Should transition to Combat phase when damaged but healthy", [this]()
             {
-                auto Store = ConfigureStore(TEXT("Fighter"));
+                auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
                 Store.dispatch(BotCoreActions::BotDamageTaken()(
-                    FBotDamageTakenPayload{10.0f, nullptr}));
+                    FBotDamageTakenPayload{FunctionalCoreHealthyDamage(), nullptr}));
                 
                 auto State = Store.getState();
                 TestTrue("Phase -> Combat", State.Phase == EBotCorePhase::Combat);
@@ -83,9 +108,9 @@ void FBotFunctionalCoreSpec::Define()
 
             It("Should transition to Flee phase when critically damaged", [this]()
             {
-                auto Store = ConfigureStore(TEXT("Coward"));
+                auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
                 Store.dispatch(BotCoreActions::BotDamageTaken()(
-                    FBotDamageTakenPayload{80.0f, nullptr}));
+                    FBotDamageTakenPayload{FunctionalCoreFleeDamage(), nullptr}));
                 
                 auto State = Store.getState();
                 TestTrue("Phase -> Flee", State.Phase == EBotCorePhase::Flee);
@@ -96,14 +121,16 @@ void FBotFunctionalCoreSpec::Define()
         {
             It("Should update memory when spotting enemy", [this]()
             {
-                auto Store = ConfigureStore(TEXT("Spotter"));
+                const ForbocAI::Game::Data::FBotSettings &Settings =
+                    BotFunctionalCoreSettings();
+                auto Store = ConfigureStore(Settings.InitialName);
                 Store.dispatch(BotCoreActions::BotEnemySpotted()(
-                    FBotEnemySpottedPayload{FVector(500, 500, 0)}));
+                    FBotEnemySpottedPayload{Settings.MoveActionOffset}));
                 
                 auto State = Store.getState();
                 TestTrue("Has Aggro", State.Memory.bHasAggro);
-                TestTrue("TimeSinceLastSeen", FMath::IsNearlyEqual(State.Memory.TimeSinceLastSeenPlayer, 0.0f));
-                TestTrue("LastKnownPos.X", FMath::IsNearlyEqual(State.Memory.LastKnownPlayerPos.X, 500.0f));
+                TestTrue("TimeSinceLastSeen", FMath::IsNearlyEqual(State.Memory.TimeSinceLastSeenPlayer, Settings.EnemySpottedTimeSinceLastSeenPlayer));
+                TestTrue("LastKnownPos.X", FMath::IsNearlyEqual(State.Memory.LastKnownPlayerPos.X, Settings.MoveActionOffset.X));
                 TestTrue("Phase -> Combat", State.Phase == EBotCorePhase::Combat);
             });
         });
@@ -112,25 +139,30 @@ void FBotFunctionalCoreSpec::Define()
         {
             It("Should increment tick count", [this]()
             {
-                auto Store = ConfigureStore(TEXT("Ticker"));
+                const ForbocAI::Game::Data::FBotSettings &Settings =
+                    BotFunctionalCoreSettings();
+                auto Store = ConfigureStore(Settings.InitialName);
                 Store.dispatch(BotCoreActions::BotTicked()(
-                    FBotTickPayload{0.1f}));
+                    FBotTickPayload{Settings.PatrolTickIntervalSeconds}));
                 
                 auto State = Store.getState();
-                TestEqual("TickCount", State.TickCount, (uint64)1);
+                TestTrue("TickCount", State.TickCount > static_cast<uint64>(Settings.InitialTickCount));
             });
 
             It("Should decay Aggro after timeout", [this]()
             {
-                auto Store = ConfigureStore(TEXT("Forgetful"));
+                const ForbocAI::Game::Data::FBotSettings &Settings =
+                    BotFunctionalCoreSettings();
+                auto Store = ConfigureStore(Settings.InitialName);
                 
                 Store.dispatch(BotCoreActions::BotEnemySpotted()(
-                    FBotEnemySpottedPayload{FVector(0, 0, 0)}));
+                    FBotEnemySpottedPayload{Settings.InitialLastKnownPlayerPosition}));
                 
                 TestTrue("Initially Aggro", Store.getState().Memory.bHasAggro);
 
                 Store.dispatch(BotCoreActions::BotTicked()(
-                    FBotTickPayload{11.0f}));
+                    FBotTickPayload{Settings.AggroTimeoutSeconds +
+                                    Settings.PatrolTickIntervalSeconds}));
 
                 TestFalse("Lost Aggro", Store.getState().Memory.bHasAggro);
             });

@@ -1,0 +1,17 @@
+{
+  "texture_palette_sources": [
+    "Data/settings/rendering/texture/palette/terrain_ortho.json",
+    "Data/settings/rendering/texture/palette/building_timber.json",
+    "Data/settings/rendering/texture/palette/road_dust.json",
+    "Data/settings/rendering/texture/palette/water_creek.json",
+    "Data/settings/rendering/texture/palette/foliage_riparian.json",
+    "Data/settings/rendering/texture/palette/rock_granite.json",
+    "Data/settings/rendering/texture/palette/mine_timber.json",
+    "Data/settings/rendering/texture/palette/marker_paint.json",
+    "Data/settings/rendering/texture/palette/npc_body.json",
+    "Data/settings/rendering/texture/palette/npc_hat.json",
+    "Data/settings/rendering/texture/palette/horse_coat.json",
+    "Data/settings/rendering/texture/palette/horse_leg.json",
+    "Data/settings/rendering/texture/palette/horse_tack.json"
+  ]
+}

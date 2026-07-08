@@ -1,0 +1,27 @@
+#pragma once
+
+#include "Core/rtk.hpp"
+
+#include "Features/Systems/Bots/Orchestrator/Types.h"
+
+namespace ForbocAI {
+namespace Game {
+namespace Level {
+namespace BotOrchestratorSelectors {
+
+inline bool SelectReady(const FBotOrchestratorState &State) {
+  return (func::pipe(State.bReady) | [](bool bReady) -> bool {
+            return bReady;
+          })
+      .val;
+}
+
+inline func::Maybe<FString>
+SelectLastActionId(const FBotOrchestratorState &State) {
+  return State.LastActionId;
+}
+
+} // namespace BotOrchestratorSelectors
+} // namespace Level
+} // namespace Game
+} // namespace ForbocAI

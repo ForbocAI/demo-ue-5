@@ -1,4 +1,4 @@
-#include "Features/Systems/Bots/Orchestrator/BotOrchestratorAdapters.h"
+#include "Features/Systems/Bots/Orchestrator/Adapters.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "Misc/AutomationTest.h"

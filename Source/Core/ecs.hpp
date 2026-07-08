@@ -76,7 +76,8 @@ inline FEntityId createEntityId(int64 Index, int32 Generation) {
  * component tables.
  */
 inline EntityKey createEntityKey(const FEntityId &Id) {
-  return FString::Printf(TEXT("%lld:%d"), Id.Index, Id.Generation);
+  return LexToString(Id.Index) + FString::Chr(TCHAR(':')) +
+         LexToString(Id.Generation);
 }
 
 inline bool operator==(const FEntityId &Left, const FEntityId &Right) {
@@ -107,7 +108,7 @@ struct FAllocatedEntity {
  */
 inline FAllocator createEntityAllocator() {
   FAllocator Allocator;
-  Allocator.NextIndex = 0;
+  Allocator.NextIndex = int64{};
   return Allocator;
 }
 
@@ -138,8 +139,8 @@ inline bool operator!=(const FAllocatedEntity &Left,
  * Maybe so fresh allocation composes without imperative checks.
  */
 inline func::Maybe<FEntityId> findReusableEntityId(const FAllocator &Allocator) {
-  return Allocator.Freed.Num() > 0 ? func::just(Allocator.Freed.Last())
-                                   : func::nothing<FEntityId>();
+  return !Allocator.Freed.IsEmpty() ? func::just(Allocator.Freed.Last())
+                                    : func::nothing<FEntityId>();
 }
 
 /**
@@ -167,9 +168,9 @@ inline FAllocatedEntity allocateRecycledEntity(FAllocator Allocator,
  */
 inline FAllocatedEntity allocateFreshEntity(FAllocator Allocator) {
   FAllocatedEntity Result;
-  Result.Entity = createEntityId(Allocator.NextIndex, 0);
-  Allocator.Generations.Add(Allocator.NextIndex, 0);
-  Allocator.NextIndex += 1;
+  Result.Entity = createEntityId(Allocator.NextIndex, int32{});
+  Allocator.Generations.Add(Allocator.NextIndex, int32{});
+  ++Allocator.NextIndex;
   Result.Allocator = Allocator;
   return Result;
 }
@@ -213,7 +214,8 @@ inline bool entityGenerationMatches(const FAllocator &Allocator,
  * Maybe predicate that decides whether an id can be released.
  */
 inline FAllocator freeMatchedEntity(FAllocator Allocator, const FEntityId &Id) {
-  const int32 NextGeneration = Id.Generation + 1;
+  int32 NextGeneration = Id.Generation;
+  ++NextGeneration;
   Allocator.Generations.Add(Id.Index, NextGeneration);
   Allocator.Freed.Add(createEntityId(Id.Index, NextGeneration));
   return Allocator;
@@ -271,8 +273,8 @@ inline FComponentValue createNoneComponentValue() {
   FComponentValue Value;
   Value.Kind = EComponentValueKind::None;
   Value.BoolValue = false;
-  Value.IntValue = 0;
-  Value.FloatValue = 0.0F;
+  Value.IntValue = int64{};
+  Value.FloatValue = float{};
   return Value;
 }
 
@@ -649,7 +651,8 @@ inline bool operator!=(const FDomainPath &Left, const FDomainPath &Right) {
  * @signature inline DomainPathKey createDomainPathKey(const FDomainPath &Path)
  */
 inline DomainPathKey createDomainPathKey(const FDomainPath &Path) {
-  return FString::Join(Path.Segments, TEXT("/"));
+  const FString Separator = FString::Chr(TCHAR('/'));
+  return FString::Join(Path.Segments, *Separator);
 }
 
 /**
@@ -878,15 +881,26 @@ typedef std::function<FDomainNode(const FDomainNode &)> FDomainNodeTransform;
 inline func::Maybe<DomainPathKey> findParentDomainKey(const FDomainPath &Path) {
   return func::fmap(
       func::maybe_filter(
-          func::just<FDomainPath>(Path),
-          [](const FDomainPath &Candidate) {
-            return Candidate.Segments.Num() > 1;
-          }),
-      [](const FDomainPath &Candidate) {
-        FDomainPath ParentPath = Candidate;
-        ParentPath.Segments.RemoveAt(ParentPath.Segments.Num() - 1);
-        return createDomainPathKey(ParentPath);
-      });
+	          func::just<FDomainPath>(Path),
+	          [](const FDomainPath &Candidate) {
+	            return func::match(
+	                func::maybe_filter(
+	                    func::just<TArray<FString>>(Candidate.Segments),
+	                    [](const TArray<FString> &Segments) {
+	                      return !Segments.IsEmpty();
+	                    }),
+	                [](const TArray<FString> &Segments) {
+	                  TArray<FString> ParentCandidate = Segments;
+	                  ParentCandidate.Pop(EAllowShrinking::No);
+	                  return !ParentCandidate.IsEmpty();
+	                },
+	                []() { return false; });
+	          }),
+	      [](const FDomainPath &Candidate) {
+	        FDomainPath ParentPath = Candidate;
+	        ParentPath.Segments.Pop(EAllowShrinking::No);
+	        return createDomainPathKey(ParentPath);
+	      });
 }
 
 inline FDomainRegistry updateDomainNode(FDomainRegistry Registry,
@@ -1130,181 +1144,15 @@ registerEventType(const FRegisterEventSpecRequest &Request) {
 }
 
 /**
- * @brief Builds the neutral cross-domain taxonomy shared by ECS cores.
- * @signature inline FDomainRegistry buildCrossDomainRegistry()
+ * @brief Builds a domain registry from authored domain path declarations.
+ * @signature inline FDomainRegistry createDomainRegistry(const TArray<FDomainPathRegistration> &Registrations)
  *
- * User Story: As a feature author, I need Components / Entities / Systems /
- * Ui domains with stable subdomains so project systems can query and inspectEntity
- * data without importing presentational view layers.
+ * User Story: As a runtime data author, ECS taxonomy should be loaded from
+ * authored settings while the core still owns the registry fold machinery.
  */
-inline FDomainRegistry buildCrossDomainRegistry() {
-  return registerDomainPathDeclarations(
-      createDomainRegistry(),
-      {
-           {{"Components"}, EDomainKind::Component},
-           {{"Components", "Attributes"},
-            EDomainKind::Component},
-           {{"Components", "Bots"}, EDomainKind::Component},
-           {{"Components", "Data"}, EDomainKind::Data},
-           {{"Components", "Data", "Json"},
-            EDomainKind::Data},
-           {{"Components", "Data", "Json",
-             "Values"},
-            EDomainKind::Data},
-           {{"Components", "Frame"}, EDomainKind::Component},
-           {{"Components", "Framebuffer"},
-            EDomainKind::Component},
-           {{"Components", "Geometry"},
-            EDomainKind::Component},
-           {{"Components", "Glyphs"}, EDomainKind::Component},
-           {{"Components", "Health"}, EDomainKind::Component},
-           {{"Components", "Input"}, EDomainKind::Input},
-           {{"Components", "Interaction"},
-            EDomainKind::Component},
-           {{"Components", "Level"}, EDomainKind::Data},
-           {{"Components", "Level", "TerrainGeometry"},
-            EDomainKind::Data},
-           {{"Components", "Lifecycle"},
-            EDomainKind::Component},
-           {{"Components", "Narrative"},
-            EDomainKind::Narrative},
-           {{"Components", "Position"},
-            EDomainKind::Component},
-           {{"Components", "Random"}, EDomainKind::Component},
-           {{"Components", "Rendering"},
-            EDomainKind::Rendering},
-           {{"Components", "Spatial"}, EDomainKind::Component},
-           {{"Components", "Stats"}, EDomainKind::Component},
-           {{"Components", "UI"}, EDomainKind::Ui},
-           {{"Entities"}, EDomainKind::Entity},
-           {{"Entities", "Characters"}, EDomainKind::Entity},
-           {{"Entities", "Characters", "Bots"},
-            EDomainKind::Entity},
-           {{"Entities", "Characters", "Bots",
-             "Horses"},
-            EDomainKind::Entity},
-           {{"Entities", "Characters", "Bots",
-             "Townspeople"},
-            EDomainKind::Entity},
-           {{"Entities", "Characters", "Player"},
-            EDomainKind::Entity},
-           {{"Entities", "Environments"}, EDomainKind::Entity},
-           {{"Entities", "Environments", "Landmarks"},
-            EDomainKind::Entity},
-           {{"Entities", "Environments", "Nature"},
-            EDomainKind::Entity},
-           {{"Entities", "Session"}, EDomainKind::Session},
-           {{"Systems"}, EDomainKind::System},
-           {{"Systems", "Bots"}, EDomainKind::System},
-           {{"Systems", "Bots", "AI"}, EDomainKind::Ai},
-           {{"Systems", "Bots", "Core"},
-            EDomainKind::System},
-           {{"Systems", "Bots", "Goals"},
-            EDomainKind::System},
-           {{"Systems", "Bots", "Horses"},
-            EDomainKind::System},
-           {{"Systems", "Bots", "Orchestrator"},
-            EDomainKind::System},
-           {{"Systems", "Bots", "Orchestrator",
-             "Factories"},
-            EDomainKind::System},
-           {{"Systems", "Bots", "Pipeline"},
-            EDomainKind::System},
-           {{"Systems", "Bots", "Position"},
-            EDomainKind::System},
-           {{"Systems", "Bots", "Stats"},
-            EDomainKind::System},
-           {{"Systems", "Bots", "Townspeople"},
-            EDomainKind::System},
-           {{"Systems", "Capabilities"}, EDomainKind::System},
-           {{"Systems", "Dialogue"}, EDomainKind::Narrative},
-           {{"Systems", "Factories"}, EDomainKind::System},
-           {{"Systems", "Input"}, EDomainKind::Input},
-           {{"Systems", "Interaction"}, EDomainKind::System},
-           {{"Systems", "Landmarks"}, EDomainKind::System},
-           {{"Systems", "Level"}, EDomainKind::System},
-           {{"Systems", "Level", "RuntimeLayout"},
-            EDomainKind::System},
-           {{"Systems", "Level", "RuntimeLayout",
-             "Enums"},
-            EDomainKind::System},
-           {{"Systems", "Level", "RuntimeLayout",
-             "Scales"},
-            EDomainKind::System},
-           {{"Systems", "Level", "RuntimeLayout",
-             "Blocks"},
-            EDomainKind::System},
-           {{"Systems", "Level", "RuntimeLayout",
-             "Labels"},
-            EDomainKind::System},
-           {{"Systems", "Level", "RuntimeLayout",
-             "Sections"},
-            EDomainKind::System},
-           {{"Systems", "Level", "RuntimeLayout",
-             "Layout"},
-            EDomainKind::System},
-           {{"Systems", "Level", "TerrainGeometry"},
-            EDomainKind::System},
-           {{"Systems", "Nature"}, EDomainKind::Procgen},
-           {{"Systems", "Projection"}, EDomainKind::System},
-           {{"Systems", "Projection", "Bots"},
-            EDomainKind::System},
-           {{"Systems", "Projection", "Bots",
-             "AI"},
-            EDomainKind::Ai},
-           {{"Systems", "Projection", "Bots",
-             "Goals"},
-            EDomainKind::System},
-           {{"Systems", "Projection", "Bots",
-             "Position"},
-            EDomainKind::System},
-           {{"Systems", "Projection", "Bots",
-             "Stats"},
-            EDomainKind::System},
-           {{"Systems", "Projection", "Interaction"},
-            EDomainKind::System},
-           {{"Systems", "Projection", "Runtime"},
-            EDomainKind::System},
-           {{"Systems", "Projection", "Spawn"},
-            EDomainKind::System},
-           {{"Systems", "Projection", "Terrain"},
-            EDomainKind::System},
-           {{"Systems", "Rendering"}, EDomainKind::Rendering},
-           {{"Systems", "Runtime"}, EDomainKind::System},
-           {{"Systems", "Services"}, EDomainKind::Service},
-           {{"Systems", "Spawn"}, EDomainKind::System},
-           {{"Systems", "Speech"}, EDomainKind::Narrative},
-           {{"Systems", "Terrain"}, EDomainKind::System},
-           {{"Systems", "Transformations"},
-            EDomainKind::System},
-           {{"Systems", "UI"}, EDomainKind::Ui},
-           {{"Systems", "Utils"}, EDomainKind::Service},
-      });
-}
-
-/**
- * @brief Returns the lazily memoized neutral ECS domain registry.
- * @signature inline const FDomainRegistry &crossDomainRegistryCache()
- *
- * User Story: As every new world initializes, I need the static taxonomy to be
- * computed once through ue_fp lazy evaluation instead of rebuilt for
- * each world value.
- */
-inline const FDomainRegistry &crossDomainRegistryCache() {
-  static const func::Lazy<FDomainRegistry> Registry =
-      func::lazy([]() { return buildCrossDomainRegistry(); });
-  return func::eval(Registry);
-}
-
-/**
- * @brief Copies the cached neutral ECS domain registry into a world.
- * @signature inline FDomainRegistry createCrossDomainRegistry()
- *
- * User Story: As a reducer storing ECS world state, I need each world to own a
- * plain registry value while the expensive construction path remains lazy.
- */
-inline FDomainRegistry createCrossDomainRegistry() {
-  return crossDomainRegistryCache();
+inline FDomainRegistry
+createDomainRegistry(const TArray<FDomainPathRegistration> &Registrations) {
+  return registerDomainPaths({createDomainRegistry(), Registrations});
 }
 
 struct FRelationship {
@@ -1941,13 +1789,15 @@ inline FWorld setEntityDomain(const FSetEntityDomainRequest &Request);
  * Architecture: The world is plain value state. RTK reducers may store and
  * replace it, but ECS never owns the runtime store or dispatch semantics.
  */
-inline FWorld createWorld() {
+inline FWorld createWorld(const FDomainRegistry &Domains) {
   FWorld World;
   World.Allocator = createEntityAllocator();
-  World.Domains = createCrossDomainRegistry();
-  World.Generation = 0;
+  World.Domains = Domains;
+  World.Generation = int64{};
   return World;
 }
+
+inline FWorld createWorld() { return createWorld(createDomainRegistry()); }
 
 inline bool componentTableEquals(const ComponentTable &Left,
                                  const ComponentTable &Right) {
@@ -2039,7 +1889,7 @@ inline bool operator!=(const FWorld &Left, const FWorld &Right) {
 inline FWorld recordEntityDirty(const FRecordEntityDirtyRequest &Request) {
   FWorld World = Request.World;
   World.DirtyEntities.AddUnique(Request.Entity);
-  World.Generation += 1;
+  ++World.Generation;
   return World;
 }
 
@@ -2623,7 +2473,7 @@ inline bool hasTag(const FHasTagRequest &Request) {
 inline FWorld setResource(const FSetResourceRequest &Request) {
   FWorld World = Request.World;
   World.Resources.Add(Request.Name, Request.Value);
-  World.Generation += 1;
+  ++World.Generation;
   return World;
 }
 

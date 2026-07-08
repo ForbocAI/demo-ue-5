@@ -11,12 +11,27 @@ import unreal
 
 
 PROJECT_ROOT = Path(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()))
-SETTINGS_PATH = PROJECT_ROOT / "Content" / "Data" / "runtime_settings_rendering_skeletal_lods.json"
+DATA_ROOT = PROJECT_ROOT / "Content" / "Data"
+
+
+def data_json_with_top_level_key(key):
+    matches = []
+    for path in sorted(DATA_ROOT.rglob("*.json")):
+        with path.open("r", encoding="utf-8") as source:
+            document = json.load(source)
+        if isinstance(document, dict) and isinstance(document.get(key), dict):
+            matches.append((path, document))
+    if len(matches) != 1:
+        discovered = ", ".join(str(path.relative_to(PROJECT_ROOT)) for path, _ in matches)
+        raise RuntimeError(
+            "Expected exactly one data JSON document with top-level key "
+            f"{key!r}; found {len(matches)}: {discovered}"
+        )
+    return matches[0][1]
 
 
 def load_settings():
-    with SETTINGS_PATH.open("r", encoding="utf-8") as source:
-        return json.load(source)["skeletal_lod_generation"]
+    return data_json_with_top_level_key("skeletal_lod_generation")["skeletal_lod_generation"]
 
 
 def require_skeletal_mesh(asset_path):

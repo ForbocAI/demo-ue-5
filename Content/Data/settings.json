@@ -1,0 +1,11 @@
+{
+  "player": "Data/settings/player.json",
+  "interaction": "Data/settings/interaction.json",
+  "level": "Data/settings/level.json",
+  "rendering": "Data/settings/rendering.json",
+  "bots": "Data/settings/bots.json",
+  "dialogue": "Data/settings/dialogue.json",
+  "speech": "Data/settings/speech.json",
+  "ui": "Data/settings/ui.json",
+  "core": "Data/settings/core.json"
+}

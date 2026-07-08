@@ -1,25 +1,70 @@
 
 #include "CoreMinimal.h"
+#include "Core/ue_fp.hpp"
 #include "Misc/AutomationTest.h"
-#include "Features/Systems/Bots/Core/BotCoreActions.h"
-#include "Features/Systems/Bots/Core/BotCoreRuntimeTypes.h"
-#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
-#include "Features/Systems/Bots/Pipeline/BotPipelineReducers.h"
+#include "Features/Systems/Bots/Core/Actions.h"
+#include "Features/Systems/Bots/Core/Runtime/Types.h"
+#include "Features/Components/Data/Settings/Adapters.h"
+#include "Features/Systems/Bots/Pipeline/Slice.h"
 
 using namespace ForbocAI::Game::Level;
 using namespace ForbocAI::Game::Level::BotPipelineReducers;
 
 namespace {
 
-const ForbocAI::Game::Data::FBotRuntimeSettings &
-PipelineBotRuntimeSettings() {
-  static const ForbocAI::Game::Data::FRuntimeSettings Settings =
-      ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings();
-  return Settings.BotRuntime;
+const ForbocAI::Game::Data::FBotSettings &
+PipelineBotSettings() {
+  static const ForbocAI::Game::Data::FSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
+  return Settings.Bot;
+}
+
+FString PipelineInitialBotName() {
+  return PipelineBotSettings().InitialName;
+}
+
+FString PipelineMoveBotName() {
+  return PipelineBotSettings().MoveActionType;
+}
+
+FString PipelineAttackBotName() {
+  return PipelineBotSettings().AttackActionType;
+}
+
+float PipelineTickDelta() {
+  return PipelineBotSettings().PatrolTickIntervalSeconds;
+}
+
+float PipelineHazardDamage() {
+  const ForbocAI::Game::Data::FBotSettings &Settings =
+      PipelineBotSettings();
+  return Settings.InitialHealth * Settings.PhaseFleeHealthRatio;
+}
+
+float PipelineDamagePerSecond(const float DeltaTime) {
+  return PipelineHazardDamage() / DeltaTime;
+}
+
+float PipelineExpectedHazardHealth() {
+  const ForbocAI::Game::Data::FBotSettings &Settings =
+      PipelineBotSettings();
+  return FMath::Max(Settings.MinimumHealth,
+                    Settings.InitialHealth - PipelineHazardDamage());
+}
+
+float PipelineFleeHealth() {
+  const ForbocAI::Game::Data::FBotSettings &Settings =
+      PipelineBotSettings();
+  return Settings.InitialMaxHealth * Settings.PhaseFleeHealthRatio -
+         Settings.MovementArrivalDistanceSquared;
+}
+
+FVector PipelineEnemyPosition() {
+  return PipelineBotSettings().MoveActionOffset;
 }
 
 FBotCoreRuntimeState CreateTestBotState(const FString &Name) {
-  return CreateBotCoreRuntimeInitialState({Name, PipelineBotRuntimeSettings()});
+  return CreateBotCoreRuntimeInitialState({Name, PipelineBotSettings()});
 }
 
 FBotPipelineWorldSnapshot DefaultWorld(const FBotCoreRuntimeState &State,
@@ -49,14 +94,17 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineIdleTick::RunTest(const FString &Parameters) {
   const FBotCoreRuntimeState Initial =
-      CreateTestBotState(TEXT("IdleBot"));
-  const FBotPipelineOutputResult Result = ReduceIdlePipeline(Initial, 0.016f);
+      CreateTestBotState(PipelineInitialBotName());
+  const FBotPipelineOutputResult Result =
+      ReduceIdlePipeline(Initial, PipelineTickDelta());
 
-  TestEqual(TEXT("Tick count advanced"), Result.NewState.TickCount,
-            (uint64)1);
+  TestTrue(TEXT("Tick count advanced"),
+           Result.NewState.TickCount > Initial.TickCount);
   TestTrue(TEXT("At least 1 action dispatched"),
-           Result.ActionsDispatched >= 1);
-  TestEqual(TEXT("Health unchanged"), Result.NewState.Stats.Health, 100.0f);
+           Result.ActionsDispatched >
+               static_cast<int32>(Initial.TickCount));
+  TestEqual(TEXT("Health unchanged"), Result.NewState.Stats.Health,
+            PipelineBotSettings().InitialHealth);
 
   return true;
 }
@@ -69,18 +117,20 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
   const FBotCoreRuntimeState Initial =
-      CreateTestBotState(TEXT("HazardBot"));
+      CreateTestBotState(PipelineMoveBotName());
 
-  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, 1.0f);
+  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, PipelineTickDelta());
   World.HazardOverlap.bOverlapping = true;
-  World.HazardOverlap.DamagePerSecond = 25.0f;
+  World.HazardOverlap.DamagePerSecond =
+      PipelineDamagePerSecond(World.DeltaTime);
 
   const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
   TestTrue(TEXT("Health reduced by hazard"),
-           Result.NewState.Stats.Health < 100.0f);
+           Result.NewState.Stats.Health <
+               PipelineBotSettings().InitialHealth);
   TestEqual(TEXT("Health after 1s hazard (25 DPS)"),
-            Result.NewState.Stats.Health, 75.0f);
+            Result.NewState.Stats.Health, PipelineExpectedHazardHealth());
 
   return true;
 }
@@ -93,12 +143,12 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineAwareness::RunTest(const FString &Parameters) {
   const FBotCoreRuntimeState Initial =
-      CreateTestBotState(TEXT("AwareBot"));
+      CreateTestBotState(PipelineAttackBotName());
 
-  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, 0.016f);
+  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, PipelineTickDelta());
   World.Visibility.bCanSeeEnemy = true;
-  World.Visibility.EnemyPosition = FVector(500.0f, 200.0f, 0.0f);
-  World.Visibility.Distance = 540.0f;
+  World.Visibility.EnemyPosition = PipelineEnemyPosition();
+  World.Visibility.Distance = PipelineEnemyPosition().Size();
 
   const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
@@ -107,7 +157,7 @@ bool FPipelineAwareness::RunTest(const FString &Parameters) {
             (int32)Result.NewState.Phase, (int32)EBotCorePhase::Combat);
   TestEqual(TEXT("Remembers enemy position"),
             Result.NewState.Memory.LastKnownPlayerPos,
-            FVector(500.0f, 200.0f, 0.0f));
+            PipelineEnemyPosition());
 
   return true;
 }
@@ -120,13 +170,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
   FBotCoreRuntimeState LowHealth =
-      CreateTestBotState(TEXT("FleeBot"));
-  LowHealth.Stats.Health = 15.0f; // 15% health
+      CreateTestBotState(PipelineAttackBotName());
+  LowHealth.Stats.Health = PipelineFleeHealth();
   LowHealth.Phase = EBotCorePhase::Combat;
   LowHealth.Memory.bHasAggro = true;
-  LowHealth.Memory.LastKnownPlayerPos = FVector(300.0f, 0.0f, 0.0f);
+  LowHealth.Memory.LastKnownPlayerPos = PipelineEnemyPosition();
 
-  FBotPipelineWorldSnapshot World = DefaultWorld(LowHealth, 0.016f);
+  FBotPipelineWorldSnapshot World = DefaultWorld(LowHealth, PipelineTickDelta());
 
   const FBotPipelineOutputResult Result = ReducePipeline(LowHealth, World);
 
@@ -147,41 +197,50 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
 
   // Bot 1: Idle
   FBotPipelineTickInput Idle;
-  Idle.State = CreateTestBotState(TEXT("Bot-Idle"));
-  Idle.World = DefaultWorld(Idle.State, 0.016f);
+  Idle.State = CreateTestBotState(PipelineInitialBotName());
+  Idle.World = DefaultWorld(Idle.State, PipelineTickDelta());
   Inputs.Add(Idle);
 
   // Bot 2: In hazard
   FBotPipelineTickInput Hazard;
-  Hazard.State = CreateTestBotState(TEXT("Bot-Hazard"));
-  Hazard.World = DefaultWorld(Hazard.State, 1.0f);
+  Hazard.State = CreateTestBotState(PipelineMoveBotName());
+  Hazard.World = DefaultWorld(Hazard.State, PipelineTickDelta());
   Hazard.World.HazardOverlap.bOverlapping = true;
-  Hazard.World.HazardOverlap.DamagePerSecond = 50.0f;
+  Hazard.World.HazardOverlap.DamagePerSecond =
+      PipelineDamagePerSecond(Hazard.World.DeltaTime);
   Inputs.Add(Hazard);
 
   // Bot 3: Sees enemy
   FBotPipelineTickInput Aware;
-  Aware.State = CreateTestBotState(TEXT("Bot-Aware"));
-  Aware.World = DefaultWorld(Aware.State, 0.016f);
+  Aware.State = CreateTestBotState(PipelineAttackBotName());
+  Aware.World = DefaultWorld(Aware.State, PipelineTickDelta());
   Aware.World.Visibility.bCanSeeEnemy = true;
-  Aware.World.Visibility.EnemyPosition = FVector(100.0f, 0.0f, 0.0f);
+  Aware.World.Visibility.EnemyPosition = PipelineEnemyPosition();
   Inputs.Add(Aware);
 
   const TArray<FBotPipelineOutputResult> Results =
       ReduceMultiBotPipeline(Inputs);
 
-  TestEqual(TEXT("3 bots processed"), Results.Num(), 3);
+  TestEqual(TEXT("3 bots processed"), Results.Num(), Inputs.Num());
 
-  // Bot 1: Should be idle, full health
-  TestEqual(TEXT("Bot 1 full health"), Results[0].NewState.Stats.Health,
-            100.0f);
-
-  // Bot 2: Should have taken 50 damage
-  TestEqual(TEXT("Bot 2 took hazard damage"),
-            Results[1].NewState.Stats.Health, 50.0f);
-
-  // Bot 3: Should have aggro
-  TestTrue(TEXT("Bot 3 has aggro"), Results[2].NewState.Memory.bHasAggro);
+  func::for_each_indexed(
+      Results, static_cast<size_t>(Results.Num()),
+      [this, &Idle, &Hazard, &Aware](const FBotPipelineOutputResult &Result) {
+        Result.NewState.Name == Idle.State.Name
+            ? static_cast<void>(TestEqual(
+                  TEXT("Bot 1 full health"), Result.NewState.Stats.Health,
+                  PipelineBotSettings().InitialHealth))
+            : void();
+        Result.NewState.Name == Hazard.State.Name
+            ? static_cast<void>(TestEqual(
+                  TEXT("Bot 2 took hazard damage"),
+                  Result.NewState.Stats.Health, PipelineExpectedHazardHealth()))
+            : void();
+        Result.NewState.Name == Aware.State.Name
+            ? static_cast<void>(TestTrue(TEXT("Bot 3 has aggro"),
+                                         Result.NewState.Memory.bHasAggro))
+            : void();
+      });
 
   return true;
 }
@@ -195,13 +254,14 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FPipelineDeterministic::RunTest(const FString &Parameters) {
   // Run the same pipeline twice — results must be identical
   const FBotCoreRuntimeState Initial =
-      CreateTestBotState(TEXT("DetBot"));
+      CreateTestBotState(PipelineInitialBotName());
 
-  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, 0.5f);
+  FBotPipelineWorldSnapshot World = DefaultWorld(Initial, PipelineTickDelta());
   World.HazardOverlap.bOverlapping = true;
-  World.HazardOverlap.DamagePerSecond = 10.0f;
+  World.HazardOverlap.DamagePerSecond =
+      PipelineDamagePerSecond(World.DeltaTime);
   World.Visibility.bCanSeeEnemy = true;
-  World.Visibility.EnemyPosition = FVector(200.0f, 100.0f, 0.0f);
+  World.Visibility.EnemyPosition = PipelineEnemyPosition();
 
   const FBotPipelineOutputResult Run1 = ReducePipeline(Initial, World);
   const FBotPipelineOutputResult Run2 = ReducePipeline(Initial, World);

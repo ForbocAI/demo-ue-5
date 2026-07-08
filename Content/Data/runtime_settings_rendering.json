@@ -1,7 +1,0 @@
-{
-  "rendering_assets": "Data/runtime_settings_rendering_assets.json",
-  "rendering_profile": "Data/runtime_settings_rendering_profile.json",
-  "rendering_runtime": "Data/runtime_settings_rendering_runtime.json",
-  "rendering_distance_lod": "Data/runtime_settings_rendering_lod.json",
-  "texture_catalog": "Data/runtime_settings_rendering_texture_catalog.json"
-}

@@ -1,10 +1,10 @@
 #include "Store.h"
 
 #include "Core/redux_logger.hpp"
-#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
-#include "Features/Systems/Runtime/RuntimeFactories.h"
-#include "Features/Systems/Runtime/RuntimeListeners.h"
-#include "Features/Systems/Runtime/RuntimeSlice.h"
+#include "Features/Components/Data/Settings/Adapters.h"
+#include "Features/Systems/Slice.h"
+#include "Features/Systems/Listeners.h"
+#include "Features/Systems/Slice.h"
 
 #include <vector>
 
@@ -16,16 +16,16 @@ namespace Level {
 namespace Store {
 namespace detail {
 
-using FRuntimeReduxLogSettings = ForbocAI::Game::Data::FRuntimeReduxLogSettings;
+using FReduxLogSettings = ForbocAI::Game::Data::FReduxLogSettings;
 
-FRuntimeReduxLogSettings RuntimeReduxLogSettings() {
-  return ForbocAI::Game::Data::RuntimeSettingsAdapters::LoadRuntimeSettings()
-      .RuntimeReduxLog;
+FReduxLogSettings ReduxLogSettings() {
+  return ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
+      .ReduxLog;
 }
 
 bool IsSampledRuntimeLogAction(
     const rtk::AnyAction &Action,
-    const FRuntimeReduxLogSettings &Settings) {
+    const FReduxLogSettings &Settings) {
   return func::any_indexed(
       Settings.SampledActionTypes,
       static_cast<size_t>(Settings.SampledActionTypes.Num()),
@@ -34,7 +34,7 @@ bool IsSampledRuntimeLogAction(
 
 bool ShouldLogSampledRuntimeAction(
     const rtk::AnyAction &Action,
-    const FRuntimeReduxLogSettings &Settings) {
+    const FReduxLogSettings &Settings) {
   static TMap<FString, int32> CountsByType;
   const int32 NextCount = CountsByType.FindRef(Action.Type) + 1;
   CountsByType.Add(Action.Type, NextCount);
@@ -42,7 +42,7 @@ bool ShouldLogSampledRuntimeAction(
 }
 
 bool ShouldLogRuntimeAction(const rtk::AnyAction &Action,
-                            const FRuntimeReduxLogSettings &Settings) {
+                            const FReduxLogSettings &Settings) {
   return IsSampledRuntimeLogAction(Action, Settings)
              ? ShouldLogSampledRuntimeAction(Action, Settings)
              : true;
@@ -72,7 +72,7 @@ std::function<void(const FString &)> CreateReduxLoggerSink() {
  */
 rtk::logger::ReduxLoggerOptions<FRuntimeState> CreateReduxLoggerOptions() {
   rtk::logger::ReduxLoggerOptions<FRuntimeState> Options;
-  const FRuntimeReduxLogSettings LogSettings = RuntimeReduxLogSettings();
+  const FReduxLogSettings LogSettings = ReduxLogSettings();
   Options.Logger = CreateReduxLoggerSink();
   Options.Predicate = [LogSettings](
                           const std::function<const FRuntimeState &()> &,

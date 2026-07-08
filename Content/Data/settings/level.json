@@ -1,0 +1,63 @@
+{
+  "level_terrain_sources": {
+    "terrain_csv_path": "Map/Heightmaps/french_gulch_ca_terrain_65.csv",
+    "ortho_csv_path": "Map/Heightmaps/french_gulch_ca_ortho_65.csv"
+  },
+  "level_data_sources": {
+    "terrain_json_path": "Data/french_gulch/level/terrain.json",
+    "town_json_path": "Data/french_gulch/level/town.json",
+    "mine_json_path": "Data/french_gulch/level/mine.json",
+    "overlay_labels_json_path": "Data/french_gulch/level/overlay_labels.json",
+    "landmarks_json_path": "Data/french_gulch/landmarks.json",
+    "townspeople_json_path": "Data/french_gulch/townspeople.json",
+    "horses_json_path": "Data/french_gulch/horses.json",
+    "nature_json_path": "Data/french_gulch/nature.json"
+  },
+  "validation": {
+    "terrain_grid_size": 65,
+    "ortho_grid_size": 65,
+    "terrain_min_relief_meters": 250.0
+  },
+  "level_geometry": {
+    "terrain_world_size": 320000.0,
+    "terrain_elevation_scale": 100.0,
+    "terrain_lots_across": 1049.8687664000001,
+    "post_office_east_lots": 0.0,
+    "post_office_north_lots": 0.0,
+    "cube_mesh_size": 100.0,
+    "block_scale_per_foot": 0.3048,
+    "height_scale_per_story": 3.048,
+    "foundation_height_ratio": 0.15,
+    "road_clearance_ratio": 0.06,
+    "character_height_ratio": 1.2,
+    "label_clearance_ratio": 2.4,
+    "actor_foot_to_terrain_ratio": 1.0,
+    "actor_reference_feet_across": 10498.687664000001,
+    "player_spawn_north_lots": -8.55,
+    "player_spawn_extra_height_ratio": 1.4,
+    "main_street_facing_yaw_degrees": 64.06299999999999,
+    "player_spawn_anchor_label": "U.S. Post Office / 14200 Trinity Mountain Rd",
+    "landmark_label_world_size_scale": 4.8,
+    "nature_label_world_size_scale": 3.6,
+    "terrain_lod_step": 1,
+    "terrain_minimum_lod_step": 1,
+    "terrain_grid_terminal_offset": 1,
+    "terrain_lod_grid_padding": 1,
+    "terrain_quad_index_reserve_count": 6,
+    "terrain_quad_column_step": 1,
+    "terrain_quad_row_step": 1,
+    "terrain_half_world_size_scale": 0.5,
+    "terrain_vertex_height_offset": 0.0,
+    "terrain_material_slot_index": 0,
+    "terrain_mesh_section_index": 0,
+    "terrain_create_collision": true,
+    "block_forced_lod_model": 0,
+    "block_cull_distance": 320000.0,
+    "spawn_on_begin_play": true,
+    "first_render_index": 0,
+    "index_step": 1,
+    "patrol_route_required_point_count": 1,
+    "initial_patrol_route_index": 0,
+    "player_spawn_east_lots": 5.318
+  }
+}

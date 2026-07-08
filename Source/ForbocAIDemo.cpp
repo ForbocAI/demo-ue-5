@@ -1,5 +1,5 @@
 #include "ForbocAIDemo.h"
-#include "Features/Components/Data/RuntimeSettings/RuntimeSettingsAdapters.h"
+#include "Features/Components/Data/Settings/Adapters.h"
 #include "ForbocAILog.h"
 #include "Modules/ModuleManager.h"
 
@@ -7,11 +7,11 @@ class FForbocAIDemoModule : public FDefaultGameModuleImpl {
 public:
   virtual void StartupModule() override {
     FDefaultGameModuleImpl::StartupModule();
-    const ForbocAI::Game::Data::FRuntimeSettings Settings =
-        ForbocAI::Game::Data::RuntimeSettingsAdapters::
-            LoadRuntimeSettings();
+    const ForbocAI::Game::Data::FSettings Settings =
+        ForbocAI::Game::Data::SettingsAdapters::
+            LoadSettings();
     UE_LOG(LogForbocAIRedux, Display, TEXT("%s"),
-           *Settings.RuntimeText.StartupSdkEnabled);
+           *Settings.Text.StartupSdkEnabled);
   }
 };
 

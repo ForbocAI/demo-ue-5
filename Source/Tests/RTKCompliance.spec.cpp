@@ -27,9 +27,9 @@ bool IsAllowedStoreBoundary(const FString &Path) {
   return Normal.Contains(TEXT("/Source/Tests/")) ||
          Normal.EndsWith(TEXT("/Source/Store.cpp")) ||
          Normal.EndsWith(
-             TEXT("/Source/Features/Systems/Runtime/RuntimeActions.cpp")) ||
+             TEXT("/Source/Features/Systems/Actions.cpp")) ||
          Normal.EndsWith(
-             TEXT("/Source/Features/Systems/Runtime/RuntimeSelectors.cpp"));
+             TEXT("/Source/Features/Systems/Selectors.cpp"));
 }
 
 bool ShouldAuditFile(const FString &Path) {

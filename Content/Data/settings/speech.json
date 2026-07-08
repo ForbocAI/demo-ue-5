@@ -1,0 +1,298 @@
+{
+  "speech": {
+    "rest_viseme": "viseme_sil",
+    "rest_weight": 0.0,
+    "speech_rate": 1.0,
+    "volume": 1.0,
+    "enable_lip_sync": true,
+    "can_ever_tick": true,
+    "start_tick_enabled": false,
+    "initial_playback_time": 0.0,
+    "initial_speech_active": false,
+    "estimated_base_phoneme_seconds": 0.08,
+    "vowel_phonemes": [
+      {
+        "character": "A",
+        "phoneme": "AA"
+      },
+      {
+        "character": "E",
+        "phoneme": "EH"
+      },
+      {
+        "character": "I",
+        "phoneme": "IH"
+      },
+      {
+        "character": "O",
+        "phoneme": "OW"
+      },
+      {
+        "character": "U",
+        "phoneme": "UW"
+      }
+    ],
+    "silence_characters": " .,",
+    "silence_phoneme": "SIL",
+    "viseme_change_tolerance": 0.01,
+    "tts_endpoint": "",
+    "tts_verb": "POST",
+    "tts_content_type_header": "Content-Type",
+    "tts_content_type": "application/json",
+    "tts_request_format": "{\"text\":\"%s\",\"voice\":\"default\",\"speed\":%f}",
+    "tts_success_response_code": 200,
+    "minimum_audio_bytes": 0,
+    "speech_start_log_format": "Speech: Starting speech with %d phonemes for: %s",
+    "speech_audio_received_log_format": "Speech: Received %d bytes of TTS audio",
+    "reset_morph_targets": [
+      "viseme_sil",
+      "viseme_PP",
+      "viseme_FF",
+      "viseme_TH",
+      "viseme_DD",
+      "viseme_kk",
+      "viseme_CH",
+      "viseme_SS",
+      "viseme_nn",
+      "viseme_RR",
+      "viseme_aa",
+      "viseme_E",
+      "viseme_I",
+      "viseme_O",
+      "viseme_U"
+    ],
+    "viseme_mappings": [
+      {
+        "phoneme": "SIL",
+        "morph_target_name": "viseme_sil",
+        "blend_weight": 0.0
+      },
+      {
+        "phoneme": "AA",
+        "morph_target_name": "viseme_aa",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "AE",
+        "morph_target_name": "viseme_aa",
+        "blend_weight": 0.8
+      },
+      {
+        "phoneme": "AH",
+        "morph_target_name": "viseme_aa",
+        "blend_weight": 0.7
+      },
+      {
+        "phoneme": "AO",
+        "morph_target_name": "viseme_O",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "AW",
+        "morph_target_name": "viseme_O",
+        "blend_weight": 0.9
+      },
+      {
+        "phoneme": "AY",
+        "morph_target_name": "viseme_aa",
+        "blend_weight": 0.6
+      },
+      {
+        "phoneme": "EH",
+        "morph_target_name": "viseme_E",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "ER",
+        "morph_target_name": "viseme_E",
+        "blend_weight": 0.7
+      },
+      {
+        "phoneme": "EY",
+        "morph_target_name": "viseme_E",
+        "blend_weight": 0.8
+      },
+      {
+        "phoneme": "IH",
+        "morph_target_name": "viseme_I",
+        "blend_weight": 0.8
+      },
+      {
+        "phoneme": "IY",
+        "morph_target_name": "viseme_I",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "OW",
+        "morph_target_name": "viseme_O",
+        "blend_weight": 0.9
+      },
+      {
+        "phoneme": "OY",
+        "morph_target_name": "viseme_O",
+        "blend_weight": 0.8
+      },
+      {
+        "phoneme": "UH",
+        "morph_target_name": "viseme_U",
+        "blend_weight": 0.8
+      },
+      {
+        "phoneme": "UW",
+        "morph_target_name": "viseme_U",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "B",
+        "morph_target_name": "viseme_PP",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "CH",
+        "morph_target_name": "viseme_CH",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "D",
+        "morph_target_name": "viseme_DD",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "DH",
+        "morph_target_name": "viseme_TH",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "F",
+        "morph_target_name": "viseme_FF",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "G",
+        "morph_target_name": "viseme_kk",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "HH",
+        "morph_target_name": "viseme_sil",
+        "blend_weight": 0.3
+      },
+      {
+        "phoneme": "JH",
+        "morph_target_name": "viseme_CH",
+        "blend_weight": 0.9
+      },
+      {
+        "phoneme": "K",
+        "morph_target_name": "viseme_kk",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "L",
+        "morph_target_name": "viseme_DD",
+        "blend_weight": 0.7
+      },
+      {
+        "phoneme": "M",
+        "morph_target_name": "viseme_PP",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "N",
+        "morph_target_name": "viseme_nn",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "NG",
+        "morph_target_name": "viseme_nn",
+        "blend_weight": 0.8
+      },
+      {
+        "phoneme": "P",
+        "morph_target_name": "viseme_PP",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "R",
+        "morph_target_name": "viseme_RR",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "S",
+        "morph_target_name": "viseme_SS",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "SH",
+        "morph_target_name": "viseme_CH",
+        "blend_weight": 0.8
+      },
+      {
+        "phoneme": "T",
+        "morph_target_name": "viseme_DD",
+        "blend_weight": 0.9
+      },
+      {
+        "phoneme": "TH",
+        "morph_target_name": "viseme_TH",
+        "blend_weight": 1.0
+      },
+      {
+        "phoneme": "V",
+        "morph_target_name": "viseme_FF",
+        "blend_weight": 0.9
+      },
+      {
+        "phoneme": "W",
+        "morph_target_name": "viseme_U",
+        "blend_weight": 0.6
+      },
+      {
+        "phoneme": "Y",
+        "morph_target_name": "viseme_I",
+        "blend_weight": 0.5
+      },
+      {
+        "phoneme": "Z",
+        "morph_target_name": "viseme_SS",
+        "blend_weight": 0.9
+      },
+      {
+        "phoneme": "ZH",
+        "morph_target_name": "viseme_CH",
+        "blend_weight": 0.7
+      }
+    ],
+    "duration_rules": [
+      {
+        "kind": "phoneme_equals",
+        "phoneme": "SIL",
+        "multiplier": 0.5
+      },
+      {
+        "kind": "always",
+        "phoneme": "",
+        "multiplier": 1.0
+      }
+    ],
+    "automation": {
+      "phoneme_estimation_text": "Hello",
+      "silence_text": "Hi there",
+      "unknown_phoneme": "UNKNOWN",
+      "active_viseme_sample_ratio": 0.5,
+      "past_end_sample_ratio": 1.0,
+      "produces_phonemes_label_format": "Produces phonemes for {0}",
+      "correct_phoneme_count_label": "Correct phoneme count for authored text",
+      "first_phoneme_start_label": "First phoneme starts at authored initial playback time",
+      "positive_duration_label_format": "Phoneme[{0}] has positive duration",
+      "silence_phoneme_label": "Authored silence text produces silence phoneme",
+      "viseme_map_count_label": "Map matches authored viseme mappings",
+      "vowel_mapped_label_format": "Vowel {0} mapped",
+      "active_viseme_label_format": "At authored sample for {0}",
+      "active_viseme_weight_label_format": "At authored sample for {0}: weight is positive",
+      "past_end_silence_label": "Past authored phoneme timeline returns rest viseme",
+      "known_phoneme_label_format": "{0} maps to authored viseme",
+      "unknown_phoneme_label_format": "{0} phoneme is unmapped"
+    }
+  }
+}

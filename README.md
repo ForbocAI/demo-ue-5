@@ -34,7 +34,7 @@ townspeople — then copy the integration patterns into your own project.
 2. **Run first-time setup:**
 
    ```bash
-   bash Scripts/setup-dev.sh
+   bash Scripts/Setup/setup-dev.sh
    ```
 
 3. **Generate project files:**
@@ -105,14 +105,14 @@ SDK files from inside this repo.
 To pull the latest SDK version:
 
 ```bash
-bash Scripts/update-sdk.sh
+bash Scripts/SDK/update-sdk.sh
 ```
 
 To activate the submodule guard hooks (recommended):
 
 ```bash
 git config core.hooksPath .githooks
-bash Scripts/lock_sdk_submodule.sh --lock
+bash Scripts/SDK/lock_sdk_submodule.sh --lock
 ```
 
 These hooks prevent accidental edits inside the submodule directory.
@@ -122,7 +122,7 @@ These hooks prevent accidental edits inside the submodule directory.
 ## Running Tests
 
 ```bash
-bash Scripts/run-tests.sh
+bash Scripts/Run/run-tests.sh
 ```
 
 This runs the project's C++ test suite, including store/reducer round-trip
@@ -135,7 +135,7 @@ Press `F` during play to toggle fly mode for scale and layout inspection.
 To capture reusable in-game scale evidence with the real player camera, run:
 
 ```bash
-bash Scripts/capture-scale-audit.sh
+bash Scripts/Capture/capture-scale-audit.sh
 ```
 
 The script launches `/Game/Map/Maps/Runtime` in game mode and writes:
@@ -143,6 +143,21 @@ The script launches `/Game/Map/Maps/Runtime` in game mode and writes:
 - `screenshots/scale-audit-ingame-whole-level.png`
 - `screenshots/scale-audit-ingame-town.png`
 - `screenshots/scale-audit-ingame-people-horses.png`
+
+To capture French Gulch brochure/marketing shots, run:
+
+```bash
+bash Scripts/Capture/capture-brochure-shots.sh
+```
+
+The script launches the same Runtime map in game mode and writes:
+
+- `screenshots/brochure/french-gulch/french-gulch-brochure-hero.png`
+- `screenshots/brochure/french-gulch/french-gulch-brochure-main-street.png`
+- `screenshots/brochure/french-gulch/french-gulch-brochure-people-horses.png`
+
+In game, press `P` or `Esc` to open the marketing pause menu and retake the
+same brochure shots from the running map.
 
 Distance LOD should reduce detail and runtime cost, not hide the level. Distant
 assets stay visible while lower LODs disable labels, animation, patrol,
