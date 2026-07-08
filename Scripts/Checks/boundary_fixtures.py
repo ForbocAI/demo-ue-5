@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""Meta-test for the boundary guards.
+
+Each fixture asserts a rule fires on a bad snippet (and that a clean snippet
+stays silent), so a rule that silently stops matching is caught. This tests the
+LINTER, not Source: it is never wired into run-tests and is not a substitute for
+scanning Source (that is what boundaries.py does). Run it directly:
+
+    python3 Scripts/Checks/boundary_fixtures.py
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+import sys
+import tempfile
+
+import boundaries
+from boundary_engine import apply_suppressions, build_unit, parse_suppressions
+
+
+@dataclass
+class Case:
+    name: str
+    rel: str  # path under the temp project, e.g. "Source/Features/Demo/Types.h"
+    body: str
+    expect: set[str]  # rule ids that MUST fire
+    forbid: set[str] = frozenset()  # rule ids that must NOT fire
+
+
+CASES: list[Case] = [
+    Case("nonserializable-types", "Source/Features/Demo/State/Types.h",
+         "struct FDemo { AActor *Owner; };", {"RTK-TYPES-001"}),
+    Case("adapter-types-exempt", "Source/Features/Demo/Adapters/Types.h",
+         "struct FDemo { TFunction<int(int)> Project; };", set(), {"RTK-TYPES-001"}),
+    Case("component-named-state", "Source/Features/Demo/State/Types.h",
+         "struct FLoginScreenState { int X; };", {"RTK-TYPES-004"}),
+    Case("scratchpad-decl-once", "Source/Features/Demo/State/Types.h",
+         "struct FDemo { int LastValue; };\nbool eq(FDemo L, FDemo R){ return L.LastValue == R.LastValue; }",
+         {"RTK-TYPES-002"}),
+    Case("setter-action", "Source/Features/Demo/Actions.h",
+         "void SetPlayerHealth(int v);", {"RTK-ACTION-002"}),
+    Case("switch-reducer", "Source/Features/Demo/Slice.h",
+         "int r(int s, Act action){ switch(action.type){ default: return s; } }", {"RTK-SLICE-002"}),
+    Case("createreducer-ok", "Source/Features/Demo/Slice.h",
+         "auto s = rtk::createReducer<FState>(builder);", set(), {"RTK-SLICE-002"}),
+    Case("rtk1-extra-reducers", "Source/Features/Demo/Slice.h",
+         "auto x = [Thunk.fulfilled]{};", {"RTK-SLICE-005"}),
+    Case("thunk-no-condition", "Source/Features/Demo/Thunks.h",
+         "auto t = rtk::createAsyncThunk<P>(prefix, fn);", {"RTK-THUNK-004"}),
+    Case("thunk-polling", "Source/Features/Demo/Thunks.h",
+         "auto t = rtk::createAsyncThunk<P>(p, [](auto Api){ while(true){ Api.getState(); } }, cfg_with_Condition);",
+         {"RTK-THUNK-002"}),
+    Case("selector-whole-state", "Source/Features/Demo/Selectors.h",
+         "FState pick(){ return State; }", {"RTK-SELECTOR-002"}),
+    Case("listener-appended", "Source/Features/Demo/Listeners.h",
+         "auto m = createListenerMiddleware<S>(); auto s = base.concat(m);", {"RTK-LISTENER-002"}),
+    Case("fingerprint-mismatch", "Source/Features/Demo/Selectors.h",
+         "auto s = rtk::createSlice<FState>(name, r);", {"RTK-ROLE-001"}),
+    Case("view-store-access", "Source/Views/Demo/View.cpp",
+         "void f(){ Store::GetStore().dispatch(a); }", {"RTK-VIEW-004"}),
+    Case("view-whole-state", "Source/Views/Demo/View.cpp",
+         "void f(){ auto s = SelectRuntimeState(); }", {"RTK-VIEW-007"}),
+    Case("bad-leaf-name", "Source/Features/Demo/Reducers.h",
+         "int x;", {"RTK-STRUCT-001"}),
+    Case("clean-types", "Source/Features/Demo/State/Types.h",
+         "struct FDemo { int Health; FString Name; };", set(),
+         {"RTK-TYPES-001", "RTK-TYPES-002", "RTK-TYPES-004"}),
+]
+
+
+def run_case(root: Path, plugins: dict, case: Case) -> list[str]:
+    path = root / case.rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(case.body, encoding="utf-8")
+    unit = build_unit(path, root)
+    return [finding.rule_id for finding in boundaries.check_unit(unit, plugins)]
+
+
+def test_suppression(root: Path, plugins: dict) -> list[str]:
+    path = root / "Source/Features/Suppressed/State/Types.h"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "struct FLoginScreenState {  // boundary-allow: RTK-TYPES-004 legacy screen\n int X; };",
+        encoding="utf-8",
+    )
+    unit = build_unit(path, root)
+    findings = boundaries.check_unit(unit, plugins)
+    markers = parse_suppressions(unit.path, unit.raw)
+    kept, dropped = apply_suppressions(findings, {unit.path: markers})
+    failures: list[str] = []
+    if dropped < 1:
+        failures.append("suppression: expected RTK-TYPES-004 to be suppressed")
+    if any(f.rule_id == "RTK-TYPES-004" for f in kept):
+        failures.append("suppression: RTK-TYPES-004 survived a matching boundary-allow marker")
+    return failures
+
+
+def main() -> int:
+    plugins = boundaries.discover_role_plugins()
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        for case in CASES:
+            fired = set(run_case(root, plugins, case))
+            missing = case.expect - fired
+            unexpected = case.forbid & fired
+            if missing:
+                failures.append(f"{case.name}: expected {sorted(missing)} to fire, got {sorted(fired)}")
+            if unexpected:
+                failures.append(f"{case.name}: {sorted(unexpected)} fired but is forbidden")
+        failures += test_suppression(root, plugins)
+
+    if failures:
+        print(f"Boundary fixtures FAILED: {len(failures)} case(s).")
+        for failure in failures:
+            print(f"  - {failure}")
+        return 1
+    print(f"Boundary fixtures passed: {len(CASES)} rule cases + suppression.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

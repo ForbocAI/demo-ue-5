@@ -88,11 +88,8 @@ echo "Checking branchless FP source discipline..."
 python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py" --self-test
 python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py" "$PROJECT_ROOT/Source"
 
-echo "Checking view boundary discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/view_boundaries.py" "$PROJECT_ROOT/Source/Views"
-
-echo "Checking RTK feature boundary discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/feature_boundaries.py" "$PROJECT_ROOT/Source/Features"
+echo "Checking RTK/ECS boundary discipline (Features + Views)..."
+python3 "$PROJECT_ROOT/Scripts/Checks/boundaries.py" "$PROJECT_ROOT/Source/Features" "$PROJECT_ROOT/Source/Views"
 
 echo "Checking runtime rendering JSON tuning discipline..."
 # No --self-test line here. A self-test passes without scanning Source and reads

@@ -13,6 +13,7 @@
 | 684 | `Source/Views/Player/Controller/View.cpp` |
 | 630 | `Scripts/Tools/acquire_french_gulch_layout.py` |
 | 617 | `Content/Data/levels/french_gulch/terrain/blocks.json` |
+| 615 | `Scripts/Checks/boundary_engine.py` |
 | 600 | `Source/Features/Components/Data/Settings/Registry/Adapters.h` |
 | 545 | `Source/Features/Components/Data/Settings/UI/Types.h` |
 | 542 | `Content/Data/levels/french_gulch/town/blocks.json` |
@@ -21,13 +22,13 @@
 | 484 | `Source/Features/Components/Data/Settings/Types.h` |
 | 463 | `Source/Features/Systems/Selectors.cpp` |
 | 450 | `Content/Data/settings/core/automation.json` |
+| 436 | `Scripts/Checks/boundaries.py` |
 | 422 | `Scripts/Checks/check_function_composition.py` |
 | 410 | `Source/Features/Systems/Slice.cpp` |
 | 406 | `Source/Features/Systems/Level/Slice.h` |
 | 374 | `Scripts/Checks/check_data_naming.py` |
 | 353 | `Scripts/Tools/import_outlaw_assets.py` |
 | 341 | `Source/Features/Systems/Rendering/Profile/Sky/Thunks.cpp` |
-| 340 | `Scripts/Checks/feature_boundaries.py` |
 | 340 | `Scripts/Tools/generate_french_gulch_heightmap.py` |
 | 336 | `Scripts/Tools/import_classic_horse_assets.py` |
 | 332 | `Content/Data/settings/ui.json` |
@@ -82,7 +83,6 @@
 | 198 | `Source/Features/Systems/Rendering/Diagnostics/Poly/Count/Adapters.cpp` |
 | 198 | `Source/Tests/BotFunctionalCore.spec.cpp` |
 | 196 | `Source/Features/Systems/UI/Types.h` |
-| 192 | `Scripts/Checks/view_boundaries.py` |
 | 190 | `Source/Features/Components/Data/Settings/Rendering/Texture/Types.h` |
 | 188 | `Source/Features/Components/Data/Settings/Level/Types.h` |
 | 188 | `Source/Features/Systems/Bots/Stats/Slice.cpp` |
@@ -98,9 +98,9 @@
 | 179 | `Source/Features/Entities/Characters/Player/Types.h` |
 | 176 | `Source/Features/Components/Adapters/Selectors.h` |
 | 176 | `Source/Features/Systems/Interaction/Slice.h` |
-| 175 | `Scripts/Run/run-tests.sh` |
 | 175 | `Source/Features/Systems/Bots/Position/Types.h` |
 | 175 | `Source/Features/Systems/Rendering/Profile/Runtime/Thunks.h` |
+| 172 | `Scripts/Run/run-tests.sh` |
 | 172 | `Source/Features/Systems/Rendering/Profile/Console/Thunks.cpp` |
 | 171 | `Source/Features/Systems/Speech/Adapters.cpp` |
 | 170 | `Source/Tests/ContentAssets.spec.cpp` |
@@ -109,6 +109,7 @@
 | 160 | `Source/Tests/ProtocolLoop.spec.cpp` |
 | 159 | `Source/Features/Systems/Bots/Orchestrator/Adapters.cpp` |
 | 159 | `Source/Views/Player/Controller/View.h` |
+| 158 | `Scripts/Checks/view_boundaries.py` |
 | 158 | `Source/Features/Systems/Bots/Slice.cpp` |
 | 154 | `Source/Features/Systems/Selectors.h` |
 | 153 | `Source/Features/Systems/State/Types.h` |
@@ -132,11 +133,13 @@
 | 132 | `Content/Data/levels/french_gulch/townspeople.json` |
 | 132 | `Source/Features/Systems/Bots/Goals/Types.h` |
 | 131 | `Source/Features/Systems/UI/Shared/Slice.h` |
+| 130 | `Scripts/Checks/types_boundaries.py` |
 | 130 | `Source/Tests/OrchestratorMultiBot.spec.cpp` |
 | 128 | `Source/Features/Components/Adapters/Types.h` |
 | 128 | `Source/Features/Components/Data/Settings/Rendering/Profile/Types.h` |
 | 128 | `Source/Features/Systems/Projection/Bot/Goal/Adapters.cpp` |
 | 126 | `Source/Features/Systems/Rendering/Presentation/Types.h` |
+| 125 | `Scripts/Checks/boundary_fixtures.py` |
 | 125 | `Source/Features/Systems/Rendering/Profile/Slice.cpp` |
 | 124 | `Source/Features/Components/Data/Settings/Automation/Protocol/Loop/Types.h` |
 | 123 | `Source/Views/Marketing/Menu/View.cpp` |
@@ -160,9 +163,9 @@
 | 108 | `Source/Views/Player/Character/View.h` |
 | 106 | `Source/Features/Systems/Projection/Runtime/Adapters.cpp` |
 | 104 | `Source/Features/Systems/Rendering/Diagnostics/Selectors.cpp` |
-| 103 | `Scripts/Checks/boundary_common.py` |
 | 103 | `Source/Features/Systems/Bots/Core/Actions.h` |
 | 103 | `Source/Views/Horse/View.h` |
+| 101 | `Scripts/Checks/slice_boundaries.py` |
 | 100 | `Source/Features/Systems/UI/Chat/Slice.h` |
 | 99 | `Source/Features/Systems/Lifecycle/Slice.cpp` |
 | 97 | `Source/Features/Systems/Adapters.h` |
@@ -178,6 +181,7 @@
 | 90 | `Source/Features/Systems/Slice.h` |
 | 85 | `Config/DefaultInput.ini` |
 | 85 | `Source/Features/Entities/Characters/Bots/Adapters.cpp` |
+| 84 | `Scripts/Checks/thunk_boundaries.py` |
 | 84 | `Source/Features/Systems/Bots/Stats/Slice.h` |
 | 84 | `Source/Features/Systems/Rendering/Payload/Types.h` |
 | 84 | `Source/Features/Systems/Rendering/Profile/Sky/Slice.h` |
@@ -211,6 +215,7 @@
 | 73 | `Source/Features/Systems/Projection/Slice.cpp` |
 | 73 | `Source/Features/Systems/Projection/Terrain/Adapters.cpp` |
 | 73 | `Source/Features/Systems/Spawn/Slice.cpp` |
+| 72 | `Scripts/Checks/selector_boundaries.py` |
 | 72 | `Scripts/Setup/setup-dev.sh` |
 | 72 | `Source/Features/Components/Rendering/Distance/Lod/Types.h` |
 | 71 | `Source/Features/Systems/Bots/Orchestrator/Slice.h` |
@@ -231,7 +236,6 @@
 | 66 | `Content/Data/settings/level.json` |
 | 66 | `Source/Features/Systems/Bots/Position/Actions.cpp` |
 | 66 | `style-guide.md` |
-| 65 | `Scripts/Checks/slice_boundaries.py` |
 | 64 | `Source/Features/Entities/Adapters.h` |
 | 64 | `Source/Features/Systems/Bots/AI/Slice.h` |
 | 64 | `Source/Features/Systems/Bots/Types.h` |
@@ -249,15 +253,17 @@
 | 60 | `Source/Features/Systems/Rendering/Distance/Lod/Slice.cpp` |
 | 60 | `Source/Features/Systems/UI/Selectors.h` |
 | 59 | `Content/Data/levels/french_gulch/horses.json` |
+| 59 | `Scripts/Checks/adapter_boundaries.py` |
 | 59 | `Source/Features/Systems/Bots/Townspeople/Selectors.cpp` |
 | 58 | `Content/Data/Source/french_gulch/osm/overpass/buildings/osm.json` |
-| 58 | `Scripts/Checks/thunk_boundaries.py` |
 | 58 | `Source/Features/Components/Level/Types.h` |
 | 57 | `Source/Features/Systems/Bots/Orchestrator/Adapters.h` |
 | 57 | `Source/Features/Systems/Level/Layout/Enum/Adapters.h` |
 | 57 | `Source/Features/Systems/Spawn/Types.h` |
 | 56 | `Source/Features/Systems/Rendering/Profile/Thunks.cpp` |
 | 56 | `Source/Tests/ConversationUI.spec.cpp` |
+| 55 | `Scripts/Checks/action_boundaries.py` |
+| 55 | `Scripts/Checks/listener_boundaries.py` |
 | 55 | `Source/Features/Systems/Adapters.cpp` |
 | 55 | `Source/Features/Systems/Listeners.cpp` |
 | 55 | `Source/Features/Systems/Projection/Bot/Shared/Adapters.h` |
@@ -270,9 +276,6 @@
 | 53 | `Source/Features/Systems/Projection/Bot/Adapters.h` |
 | 53 | `Source/Views/Marketing/Menu/View.h` |
 | 52 | `Source/Features/Systems/Level/Layout/Types.h` |
-| 51 | `Scripts/Checks/action_boundaries.py` |
-| 51 | `Scripts/Checks/listener_boundaries.py` |
-| 51 | `Scripts/Checks/selector_boundaries.py` |
 | 51 | `Source/Features/Systems/Rendering/Selectors.cpp` |
 | 51 | `Source/Views/Level/Game/Mode/View.h` |
 | 50 | `Source/Features/Systems/Landmarks/Slice.h` |
@@ -290,7 +293,6 @@
 | 46 | `Source/Features/Systems/Interaction/Conversation/Slice.h` |
 | 46 | `Source/Features/Systems/UI/Actions.h` |
 | 46 | `Source/Views/Terrain/Mesh/View.cpp` |
-| 45 | `Scripts/Checks/types_boundaries.py` |
 | 45 | `Scripts/Run/create-mac-run-game.sh` |
 | 45 | `Source/Features/Components/Rendering/Texture/Types.h` |
 | 45 | `Source/Features/Systems/Speech/Types.h` |
@@ -321,7 +323,6 @@
 | 39 | `Content/Map/Heightmaps/french_gulch_ca_terrain_metadata.json` |
 | 39 | `Source/Features/Systems/Interaction/Selectors.h` |
 | 39 | `Source/Features/Systems/Rendering/Texture/Types.h` |
-| 38 | `Scripts/Checks/adapter_boundaries.py` |
 | 38 | `Source/Features/Systems/Bots/Goals/Actions.cpp` |
 | 38 | `Source/Views/Speech/Presenter/View.cpp` |
 | 37 | `Source/Features/Components/Data/Settings/Automation/Bot/Functional/Core/Types.h` |
