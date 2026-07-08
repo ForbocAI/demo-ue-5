@@ -26,10 +26,13 @@ PipelineSettings() {
   return Settings.Automation.Pipeline;
 }
 
-FString PipelineAssertion(const int32 Index) {
-  const TArray<FString> &Assertions = PipelineSettings().Assertions;
-  check(Assertions.IsValidIndex(Index));
-  return Assertions[Index];
+const ForbocAI::Game::Data::Automation::Pipeline::FTests &PipelineTests() {
+  return PipelineSettings().Tests;
+}
+
+const ForbocAI::Game::Data::Automation::Pipeline::FAssertions &
+PipelineAssertions() {
+  return PipelineSettings().Assertions;
 }
 
 FString PipelineInitialBotName() {
@@ -101,7 +104,7 @@ FBotPipelineWorldSnapshot DefaultWorld(const FBotCoreRuntimeState &State,
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FPipelineIdleTick,
-    "ForbocAI.Pipeline.IdleTickAdvancesState",
+    PipelineTests().IdleTickAdvancesState,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -111,10 +114,12 @@ bool FPipelineIdleTick::RunTest(const FString &Parameters) {
   const FBotPipelineOutputResult Result =
       ReduceIdlePipeline(Initial, PipelineTickDelta());
 
-  TestTrue(PipelineAssertion(0), Result.NewState.TickCount > Initial.TickCount);
-  TestTrue(PipelineAssertion(1),
+  TestTrue(PipelineAssertions().TickCountAdvanced,
+           Result.NewState.TickCount > Initial.TickCount);
+  TestTrue(PipelineAssertions().ActionDispatched,
            Result.ActionsDispatched > static_cast<int32>(Initial.TickCount));
-  TestEqual(PipelineAssertion(2), Result.NewState.Stats.Health,
+  TestEqual(PipelineAssertions().HealthUnchanged,
+            Result.NewState.Stats.Health,
             PipelineBotSettings().InitialHealth);
 
   return true;
@@ -122,7 +127,7 @@ bool FPipelineIdleTick::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FPipelineHazardDamage,
-    "ForbocAI.Pipeline.HazardCausesDamage",
+    PipelineTests().HazardCausesDamage,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -137,10 +142,11 @@ bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
-  TestTrue(PipelineAssertion(3),
+  TestTrue(PipelineAssertions().HealthReducedByHazard,
            Result.NewState.Stats.Health <
                PipelineBotSettings().InitialHealth);
-  TestEqual(PipelineAssertion(4), Result.NewState.Stats.Health,
+  TestEqual(PipelineAssertions().HealthAfterHazard,
+            Result.NewState.Stats.Health,
             PipelineExpectedHazardHealth());
 
   return true;
@@ -148,7 +154,7 @@ bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FPipelineAwareness,
-    "ForbocAI.Pipeline.AwarenessTriggersAggro",
+    PipelineTests().AwarenessTriggersAggro,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -163,10 +169,11 @@ bool FPipelineAwareness::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
-  TestTrue(PipelineAssertion(5), Result.NewState.Memory.bHasAggro);
-  TestEqual(PipelineAssertion(6),
+  TestTrue(PipelineAssertions().BotHasAggro,
+           Result.NewState.Memory.bHasAggro);
+  TestEqual(PipelineAssertions().PhaseIsCombat,
             (int32)Result.NewState.Phase, (int32)EBotCorePhase::Combat);
-  TestEqual(PipelineAssertion(7),
+  TestEqual(PipelineAssertions().RemembersEnemyPosition,
             Result.NewState.Memory.KnownPlayerPos,
             PipelineEnemyPosition());
 
@@ -175,7 +182,7 @@ bool FPipelineAwareness::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FPipelineFleeTransition,
-    "ForbocAI.Pipeline.FleeTransitionOnLowHealth",
+    PipelineTests().FleeTransitionOnLowHealth,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -191,7 +198,7 @@ bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(LowHealth, World);
 
-  TestEqual(PipelineAssertion(8),
+  TestEqual(PipelineAssertions().PhaseTransitionedToFlee,
             (int32)Result.NewState.Phase, (int32)EBotCorePhase::Flee);
 
   return true;
@@ -199,7 +206,7 @@ bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FPipelineMultiBot,
-    "ForbocAI.Pipeline.MultiBotIndependent",
+    PipelineTests().MultiBotIndependent,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -232,23 +239,25 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
   const TArray<FBotPipelineOutputResult> Results =
       ReduceMultiBotPipeline(Inputs);
 
-  TestEqual(PipelineAssertion(9), Results.Num(), Inputs.Num());
+  TestEqual(PipelineAssertions().BotsProcessed, Results.Num(), Inputs.Num());
 
   func::for_each_indexed(
       Results, static_cast<size_t>(Results.Num()),
       [this, &Idle, &Hazard, &Aware](const FBotPipelineOutputResult &Result) {
         Result.NewState.Name == Idle.State.Name
             ? static_cast<void>(TestEqual(
-                  PipelineAssertion(10), Result.NewState.Stats.Health,
+                  PipelineAssertions().IdleBotFullHealth,
+                  Result.NewState.Stats.Health,
                   PipelineBotSettings().InitialHealth))
             : void();
         Result.NewState.Name == Hazard.State.Name
             ? static_cast<void>(TestEqual(
-                  PipelineAssertion(11), Result.NewState.Stats.Health,
+                  PipelineAssertions().HazardBotTookDamage,
+                  Result.NewState.Stats.Health,
                   PipelineExpectedHazardHealth()))
             : void();
         Result.NewState.Name == Aware.State.Name
-            ? static_cast<void>(TestTrue(PipelineAssertion(12),
+            ? static_cast<void>(TestTrue(PipelineAssertions().AwareBotHasAggro,
                                          Result.NewState.Memory.bHasAggro))
             : void();
       });
@@ -258,7 +267,7 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FPipelineDeterministic,
-    "ForbocAI.Pipeline.DeterministicOrder",
+    PipelineTests().DeterministicOrder,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -277,15 +286,20 @@ bool FPipelineDeterministic::RunTest(const FString &Parameters) {
   const FBotPipelineOutputResult Run1 = ReducePipeline(Initial, World);
   const FBotPipelineOutputResult Run2 = ReducePipeline(Initial, World);
 
-  TestEqual(PipelineAssertion(13), Run1.NewState.Stats.Health,
+  TestEqual(PipelineAssertions().HealthDeterministic,
+            Run1.NewState.Stats.Health,
             Run2.NewState.Stats.Health);
-  TestEqual(PipelineAssertion(14), Run1.NewState.Position,
+  TestEqual(PipelineAssertions().PositionDeterministic,
+            Run1.NewState.Position,
             Run2.NewState.Position);
-  TestEqual(PipelineAssertion(15), (int32)Run1.NewState.Phase,
+  TestEqual(PipelineAssertions().PhaseDeterministic,
+            (int32)Run1.NewState.Phase,
             (int32)Run2.NewState.Phase);
-  TestEqual(PipelineAssertion(16), Run1.NewState.Memory.bHasAggro,
+  TestEqual(PipelineAssertions().AggroDeterministic,
+            Run1.NewState.Memory.bHasAggro,
             Run2.NewState.Memory.bHasAggro);
-  TestEqual(PipelineAssertion(17), Run1.ActionsDispatched, Run2.ActionsDispatched);
+  TestEqual(PipelineAssertions().ActionCountDeterministic,
+            Run1.ActionsDispatched, Run2.ActionsDispatched);
 
   return true;
 }

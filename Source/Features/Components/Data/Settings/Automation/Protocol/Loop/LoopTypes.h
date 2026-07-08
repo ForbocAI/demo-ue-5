@@ -40,11 +40,38 @@ struct FBridge {
   int32 MinimumRules;
 };
 
+struct FGroups {
+  FString AgentCreation;
+  FString StateUpdates;
+  FString AsyncProcessPipeline;
+  FString BridgeValidation;
+};
+
+struct FCases {
+  FString CreateAgent;
+  FString CreateImmutableAgent;
+  FString WithStateUpdate;
+  FString InvokeProcess;
+  FString CreateRpgRules;
+  FString ValidateRpgAction;
+};
+
+struct FAssertions {
+  FString AgentIdNotEmpty;
+  FString PersonaMatches;
+  FString AgentPointerValid;
+  FString PersonaPreserved;
+  FString OriginalIdPreserved;
+  FString UpdatedStateContainsMood;
+  FString RpgRulesNotEmpty;
+  FString MoveActionValid;
+};
+
 struct FSettings {
   FString Spec;
-  TArray<FString> Groups;
-  TArray<FString> Cases;
-  TArray<FString> Assertions;
+  FGroups Groups;
+  FCases Cases;
+  FAssertions Assertions;
   FGate Gate;
   FConnection Connection;
   FPersonas Personas;
@@ -101,6 +128,45 @@ inline bool operator==(const FBridge &Left, const FBridge &Right) {
 }
 
 inline bool operator!=(const FBridge &Left, const FBridge &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FGroups &Left, const FGroups &Right) {
+  return Left.AgentCreation == Right.AgentCreation &&
+         Left.StateUpdates == Right.StateUpdates &&
+         Left.AsyncProcessPipeline == Right.AsyncProcessPipeline &&
+         Left.BridgeValidation == Right.BridgeValidation;
+}
+
+inline bool operator!=(const FGroups &Left, const FGroups &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCases &Left, const FCases &Right) {
+  return Left.CreateAgent == Right.CreateAgent &&
+         Left.CreateImmutableAgent == Right.CreateImmutableAgent &&
+         Left.WithStateUpdate == Right.WithStateUpdate &&
+         Left.InvokeProcess == Right.InvokeProcess &&
+         Left.CreateRpgRules == Right.CreateRpgRules &&
+         Left.ValidateRpgAction == Right.ValidateRpgAction;
+}
+
+inline bool operator!=(const FCases &Left, const FCases &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FAssertions &Left, const FAssertions &Right) {
+  return Left.AgentIdNotEmpty == Right.AgentIdNotEmpty &&
+         Left.PersonaMatches == Right.PersonaMatches &&
+         Left.AgentPointerValid == Right.AgentPointerValid &&
+         Left.PersonaPreserved == Right.PersonaPreserved &&
+         Left.OriginalIdPreserved == Right.OriginalIdPreserved &&
+         Left.UpdatedStateContainsMood == Right.UpdatedStateContainsMood &&
+         Left.RpgRulesNotEmpty == Right.RpgRulesNotEmpty &&
+         Left.MoveActionValid == Right.MoveActionValid;
+}
+
+inline bool operator!=(const FAssertions &Left, const FAssertions &Right) {
   return !(Left == Right);
 }
 

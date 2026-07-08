@@ -31,27 +31,28 @@ const FProtocolLoopSettings &ProtocolLoopSettings() {
   return Settings.Automation.ProtocolLoop;
 }
 
-FString ProtocolAssertion(const int32 Index) {
-  const TArray<FString> &Assertions = ProtocolLoopSettings().Assertions;
-  check(Assertions.IsValidIndex(Index));
-  return Assertions[Index];
+FString ProtocolSpec() {
+  return ProtocolLoopSettings().Spec;
 }
 
-FString ProtocolGroup(const int32 Index) {
-  const TArray<FString> &Groups = ProtocolLoopSettings().Groups;
-  check(Groups.IsValidIndex(Index));
-  return Groups[Index];
+const ForbocAI::Game::Data::Automation::Protocol::Loop::FGroups &
+ProtocolGroups() {
+  return ProtocolLoopSettings().Groups;
 }
 
-FString ProtocolCase(const int32 Index) {
-  const TArray<FString> &Cases = ProtocolLoopSettings().Cases;
-  check(Cases.IsValidIndex(Index));
-  return Cases[Index];
+const ForbocAI::Game::Data::Automation::Protocol::Loop::FCases &
+ProtocolCases() {
+  return ProtocolLoopSettings().Cases;
+}
+
+const ForbocAI::Game::Data::Automation::Protocol::Loop::FAssertions &
+ProtocolAssertions() {
+  return ProtocolLoopSettings().Assertions;
 }
 
 } // namespace
 
-DEFINE_SPEC(FProtocolLoopSpec, "ForbocAI.SDK.ProtocolLoop", EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
+DEFINE_SPEC(FProtocolLoopSpec, ProtocolSpec(), EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FProtocolLoopSpec::Define() {
   const auto ShouldSkipUntilApiWorkResumes = []() {
@@ -71,8 +72,8 @@ void FProtocolLoopSpec::Define() {
         return SkipUntilApiWorkResumes() ? void() : Body();
       };
 
-  Describe(ProtocolGroup(0), [this, RunApiTest]() {
-    It(ProtocolCase(0),
+  Describe(ProtocolGroups().AgentCreation, [this, RunApiTest]() {
+    It(ProtocolCases().CreateAgent,
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            FAgentConfig Config;
@@ -82,13 +83,14 @@ void FProtocolLoopSpec::Define() {
 
            const FAgent Agent = AgentFactory::Create(Config);
 
-           TestFalse(ProtocolAssertion(0), Agent.Id.IsEmpty());
-           TestEqual(ProtocolAssertion(1), Agent.Persona,
+           TestFalse(ProtocolAssertions().AgentIdNotEmpty,
+                     Agent.Id.IsEmpty());
+           TestEqual(ProtocolAssertions().PersonaMatches, Agent.Persona,
                      ProtocolLoopSettings().Personas.Agent);
          });
       });
 
-    It(ProtocolCase(1),
+    It(ProtocolCases().CreateImmutableAgent,
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            FAgentConfig Config;
@@ -99,15 +101,17 @@ void FProtocolLoopSpec::Define() {
            TSharedPtr<const FAgent> AgentPtr =
                MakeShared<const FAgent>(AgentFactory::Create(Config));
 
-           TestTrue(ProtocolAssertion(2), AgentPtr.IsValid());
-           TestEqual(ProtocolAssertion(3), AgentPtr->Persona,
+           TestTrue(ProtocolAssertions().AgentPointerValid,
+                    AgentPtr.IsValid());
+           TestEqual(ProtocolAssertions().PersonaPreserved,
+                     AgentPtr->Persona,
                      ProtocolLoopSettings().Personas.Immutable);
          });
        });
   });
 
-  Describe(ProtocolGroup(1), [this, RunApiTest]() {
-    It(ProtocolCase(2),
+  Describe(ProtocolGroups().StateUpdates, [this, RunApiTest]() {
+    It(ProtocolCases().WithStateUpdate,
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            FAgentConfig Config;
@@ -121,17 +125,18 @@ void FProtocolLoopSpec::Define() {
            const FAgent Updated = AgentOps::WithState(Original, NewState);
 
            // Original should be unchanged (immutable pattern)
-           TestEqual(ProtocolAssertion(4), Original.Id, Updated.Id);
+           TestEqual(ProtocolAssertions().OriginalIdPreserved, Original.Id,
+                     Updated.Id);
            // The updated agent should carry the new state
-           TestTrue(ProtocolAssertion(5),
+           TestTrue(ProtocolAssertions().UpdatedStateContainsMood,
                     Updated.State.JsonData.Contains(
                         ProtocolLoopSettings().State.Needle));
          });
        });
   });
 
-  Describe(ProtocolGroup(2), [this, RunApiTest]() {
-    It(ProtocolCase(3),
+  Describe(ProtocolGroups().AsyncProcessPipeline, [this, RunApiTest]() {
+    It(ProtocolCases().InvokeProcess,
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            // This test verifies the pipeline can be invoked without a crash.
@@ -161,17 +166,17 @@ void FProtocolLoopSpec::Define() {
        });
   });
 
-  Describe(ProtocolGroup(3), [this, RunApiTest]() {
-    It(ProtocolCase(4), [this, RunApiTest]() {
+  Describe(ProtocolGroups().BridgeValidation, [this, RunApiTest]() {
+    It(ProtocolCases().CreateRpgRules, [this, RunApiTest]() {
       return RunApiTest([this]() {
         TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();
 
-        TestTrue(ProtocolAssertion(6),
+        TestTrue(ProtocolAssertions().RpgRulesNotEmpty,
                  Rules.Num() > ProtocolLoopSettings().Bridge.MinimumRules);
       });
     });
 
-    It(ProtocolCase(5),
+    It(ProtocolCases().ValidateRpgAction,
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            FAgentConfig Config;
@@ -192,7 +197,7 @@ void FProtocolLoopSpec::Define() {
                BridgeOps::Validate(Action, Rules, Context);
 
            // MOVE should be valid under RPG rules
-           TestTrue(ProtocolAssertion(7), Result.bValid);
+           TestTrue(ProtocolAssertions().MoveActionValid, Result.bValid);
          });
        });
   });

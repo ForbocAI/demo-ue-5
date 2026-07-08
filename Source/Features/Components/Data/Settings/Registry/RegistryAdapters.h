@@ -203,8 +203,51 @@ struct TJsonSettingsRegistry<Automation::Rtk::Compliance::FSettings> {
 JSON_SETTINGS_REGISTRY(Automation::Bot::Functional::Core::FSettings, Spec,
                        Tests, Groups, Cases, Assertions);
 
-JSON_SETTINGS_REGISTRY(Automation::Pipeline::FSettings, Spec, Tests, Groups,
-                       Cases, Assertions);
+JSON_SETTINGS_REGISTRY(Automation::Pipeline::FTests, IdleTickAdvancesState,
+                       HazardCausesDamage, AwarenessTriggersAggro,
+                       FleeTransitionOnLowHealth, MultiBotIndependent,
+                       DeterministicOrder);
+
+JSON_SETTINGS_REGISTRY(Automation::Pipeline::FAssertions, TickCountAdvanced,
+                       ActionDispatched, HealthUnchanged,
+                       HealthReducedByHazard, HealthAfterHazard, BotHasAggro,
+                       PhaseIsCombat, RemembersEnemyPosition,
+                       PhaseTransitionedToFlee, BotsProcessed,
+                       IdleBotFullHealth, HazardBotTookDamage,
+                       AwareBotHasAggro, HealthDeterministic,
+                       PositionDeterministic, PhaseDeterministic,
+                       AggroDeterministic, ActionCountDeterministic);
+
+template <> struct TJsonSettingsRegistry<Automation::Pipeline::FSettings> {
+  static const TArray<TField<Automation::Pipeline::FSettings>> &Fields() {
+    static const TArray<TField<Automation::Pipeline::FSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(Automation::Pipeline::FSettings, Spec, Groups,
+                                Cases),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Pipeline::FSettings,
+                ReadSettingsWith<Automation::Pipeline::FTests>(
+                    JSON_SETTINGS_ATOMS(
+                        IdleTickAdvancesState, HazardCausesDamage,
+                        AwarenessTriggersAggro, FleeTransitionOnLowHealth,
+                        MultiBotIndependent, DeterministicOrder)),
+                Tests),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Pipeline::FSettings,
+                ReadSettingsWith<Automation::Pipeline::FAssertions>(
+                    JSON_SETTINGS_ATOMS(
+                        TickCountAdvanced, ActionDispatched, HealthUnchanged,
+                        HealthReducedByHazard, HealthAfterHazard, BotHasAggro,
+                        PhaseIsCombat, RemembersEnemyPosition,
+                        PhaseTransitionedToFlee, BotsProcessed,
+                        IdleBotFullHealth, HazardBotTookDamage,
+                        AwareBotHasAggro, HealthDeterministic,
+                        PositionDeterministic, PhaseDeterministic,
+                        AggroDeterministic, ActionCountDeterministic)),
+                Assertions)};
+    return RegisteredFields;
+  }
+};
 
 JSON_SETTINGS_REGISTRY(Automation::Conversation::UI::FMessage, Role, Text,
                        ExpectedText, ExpectedGreen);
@@ -288,14 +331,49 @@ JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FAsync, Prompt);
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FBridge, Action,
                        MinimumRules);
 
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FGroups, AgentCreation,
+                       StateUpdates, AsyncProcessPipeline, BridgeValidation);
+
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FCases, CreateAgent,
+                       CreateImmutableAgent, WithStateUpdate, InvokeProcess,
+                       CreateRpgRules, ValidateRpgAction);
+
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FAssertions,
+                       AgentIdNotEmpty, PersonaMatches, AgentPointerValid,
+                       PersonaPreserved, OriginalIdPreserved,
+                       UpdatedStateContainsMood, RpgRulesNotEmpty,
+                       MoveActionValid);
+
 template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> {
   static const TArray<TField<Automation::Protocol::Loop::FSettings>>
       &Fields() {
     static const TArray<TField<
         Automation::Protocol::Loop::FSettings>>
         RegisteredFields = {
-            JSON_SETTING_FIELDS(Automation::Protocol::Loop::FSettings, Spec,
-                                Groups, Cases, Assertions),
+            JSON_SETTING_FIELDS(Automation::Protocol::Loop::FSettings, Spec),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FGroups>(
+                    JSON_SETTINGS_ATOMS(AgentCreation, StateUpdates,
+                                        AsyncProcessPipeline,
+                                        BridgeValidation)),
+                Groups),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FCases>(
+                    JSON_SETTINGS_ATOMS(CreateAgent, CreateImmutableAgent,
+                                        WithStateUpdate, InvokeProcess,
+                                        CreateRpgRules, ValidateRpgAction)),
+                Cases),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FAssertions>(
+                    JSON_SETTINGS_ATOMS(
+                        AgentIdNotEmpty, PersonaMatches, AgentPointerValid,
+                        PersonaPreserved, OriginalIdPreserved,
+                        UpdatedStateContainsMood, RpgRulesNotEmpty,
+                        MoveActionValid)),
+                Assertions),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
                 ReadSettingsWith<Automation::Protocol::Loop::FGate>(

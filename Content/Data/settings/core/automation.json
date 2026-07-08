@@ -266,36 +266,36 @@
   },
   "pipeline": {
     "spec": "",
-    "tests": [
-      "ForbocAI.Pipeline.IdleTickAdvancesState",
-      "ForbocAI.Pipeline.HazardCausesDamage",
-      "ForbocAI.Pipeline.AwarenessTriggersAggro",
-      "ForbocAI.Pipeline.FleeTransitionOnLowHealth",
-      "ForbocAI.Pipeline.MultiBotIndependent",
-      "ForbocAI.Pipeline.DeterministicOrder"
-    ],
+    "tests": {
+      "idle_tick_advances_state": "ForbocAI.Pipeline.IdleTickAdvancesState",
+      "hazard_causes_damage": "ForbocAI.Pipeline.HazardCausesDamage",
+      "awareness_triggers_aggro": "ForbocAI.Pipeline.AwarenessTriggersAggro",
+      "flee_transition_on_low_health": "ForbocAI.Pipeline.FleeTransitionOnLowHealth",
+      "multi_bot_independent": "ForbocAI.Pipeline.MultiBotIndependent",
+      "deterministic_order": "ForbocAI.Pipeline.DeterministicOrder"
+    },
     "groups": [],
     "cases": [],
-    "assertions": [
-      "Tick count advanced",
-      "At least 1 action dispatched",
-      "Health unchanged",
-      "Health reduced by hazard",
-      "Health after 1s hazard (25 DPS)",
-      "Bot has aggro",
-      "Phase is Combat",
-      "Remembers enemy position",
-      "Phase transitioned to Flee",
-      "3 bots processed",
-      "Bot 1 full health",
-      "Bot 2 took hazard damage",
-      "Bot 3 has aggro",
-      "Health deterministic",
-      "Position deterministic",
-      "Phase deterministic",
-      "Aggro deterministic",
-      "Action count deterministic"
-    ]
+    "assertions": {
+      "tick_count_advanced": "Tick count advanced",
+      "action_dispatched": "At least 1 action dispatched",
+      "health_unchanged": "Health unchanged",
+      "health_reduced_by_hazard": "Health reduced by hazard",
+      "health_after_hazard": "Health after 1s hazard (25 DPS)",
+      "bot_has_aggro": "Bot has aggro",
+      "phase_is_combat": "Phase is Combat",
+      "remembers_enemy_position": "Remembers enemy position",
+      "phase_transitioned_to_flee": "Phase transitioned to Flee",
+      "bots_processed": "3 bots processed",
+      "idle_bot_full_health": "Bot 1 full health",
+      "hazard_bot_took_damage": "Bot 2 took hazard damage",
+      "aware_bot_has_aggro": "Bot 3 has aggro",
+      "health_deterministic": "Health deterministic",
+      "position_deterministic": "Position deterministic",
+      "phase_deterministic": "Phase deterministic",
+      "aggro_deterministic": "Aggro deterministic",
+      "action_count_deterministic": "Action count deterministic"
+    }
   },
   "conversation_ui": {
     "test": "ForbocAI.UI.ConversationViewModels",
@@ -347,30 +347,30 @@
   },
   "protocol_loop": {
     "spec": "ForbocAI.SDK.ProtocolLoop",
-    "groups": [
-      "Agent Creation",
-      "State Updates",
-      "Async Process Pipeline",
-      "Bridge Validation"
-    ],
-    "cases": [
-      "Should create an agent via AgentFactory with valid config",
-      "Should create an immutable agent wrapped in TSharedPtr",
-      "Should return a new agent on WithState (immutable update)",
-      "Should invoke AgentOps::Process without crashing",
-      "Should create RPG rules via BridgeOps preset",
-      "Should validate a valid action against RPG rules"
-    ],
-    "assertions": [
-      "Agent ID is not empty",
-      "Persona matches",
-      "Agent pointer is valid",
-      "Persona preserved",
-      "Original ID preserved",
-      "Updated state contains mood",
-      "RPG rules are not empty",
-      "MOVE action is valid"
-    ],
+    "groups": {
+      "agent_creation": "Agent Creation",
+      "state_updates": "State Updates",
+      "async_process_pipeline": "Async Process Pipeline",
+      "bridge_validation": "Bridge Validation"
+    },
+    "cases": {
+      "create_agent": "Should create an agent via AgentFactory with valid config",
+      "create_immutable_agent": "Should create an immutable agent wrapped in TSharedPtr",
+      "with_state_update": "Should return a new agent on WithState (immutable update)",
+      "invoke_process": "Should invoke AgentOps::Process without crashing",
+      "create_rpg_rules": "Should create RPG rules via BridgeOps preset",
+      "validate_rpg_action": "Should validate a valid action against RPG rules"
+    },
+    "assertions": {
+      "agent_id_not_empty": "Agent ID is not empty",
+      "persona_matches": "Persona matches",
+      "agent_pointer_valid": "Agent pointer is valid",
+      "persona_preserved": "Persona preserved",
+      "original_id_preserved": "Original ID preserved",
+      "updated_state_contains_mood": "Updated state contains mood",
+      "rpg_rules_not_empty": "RPG rules are not empty",
+      "move_action_valid": "MOVE action is valid"
+    },
     "gate": {
       "variable": "FORBOC_RUN_API_PROTOCOL_LOOP_TESTS",
       "warning": "Skipping API protocol-loop test until API work resumes."
