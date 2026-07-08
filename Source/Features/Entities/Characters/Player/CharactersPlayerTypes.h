@@ -17,36 +17,36 @@ struct FPlayerPresentationRequest {
 struct FMovementInputRequest {
   FString Id;
   FRotator ControlRotation = FRotator::ZeroRotator;
-  float Right = 0.0f;
-  float Forward = 0.0f;
+  float Right = float{};
+  float Forward = float{};
   bool bControllerAvailable = false;
 };
 
 struct FMovementInputViewModel {
   FVector ForwardDirection = FVector::ZeroVector;
   FVector RightDirection = FVector::ZeroVector;
-  float ForwardScale = 0.0f;
-  float RightScale = 0.0f;
+  float ForwardScale = float{};
+  float RightScale = float{};
   bool bShouldMove = false;
 };
 
 struct FPresentationViewModel {
-  float CapsuleRadius = 0.0f;
-  float CapsuleHalfHeight = 0.0f;
-  float FollowCameraArmLength = 0.0f;
-  float RotationRateYaw = 0.0f;
-  float JumpZVelocity = 0.0f;
-  float AirControl = 0.0f;
-  float MaxWalkSpeed = 0.0f;
-  float FlyModeSpeed = 0.0f;
-  float MinAnalogWalkSpeed = 0.0f;
-  float BrakingDecelerationWalking = 0.0f;
-  float BrakingDecelerationFalling = 0.0f;
+  float CapsuleRadius = float{};
+  float CapsuleHalfHeight = float{};
+  float FollowCameraArmLength = float{};
+  float RotationRateYaw = float{};
+  float JumpZVelocity = float{};
+  float AirControl = float{};
+  float MaxWalkSpeed = float{};
+  float FlyModeSpeed = float{};
+  float MinAnalogWalkSpeed = float{};
+  float BrakingDecelerationWalking = float{};
+  float BrakingDecelerationFalling = float{};
   FVector MeshRelativeLocation = FVector::ZeroVector;
   FRotator MeshRelativeRotation = FRotator::ZeroRotator;
-  int32 SkeletalMeshForcedLodModel = 0;
-  int32 SkeletalMeshMinLodModel = 0;
-  float MeshCullDistance = 0.0f;
+  int32 SkeletalMeshForcedLodModel = int32{};
+  int32 SkeletalMeshMinLodModel = int32{};
+  float MeshCullDistance = float{};
   bool bMeshCastShadow = false;
   bool bMeshComponentTickEnabled = false;
   bool bMeshUpdateRateOptimizationsEnabled = false;
