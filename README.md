@@ -1,160 +1,128 @@
-# Forboc AI — UE 5.8 Demo Project
+# Forboc AI - Unreal Engine Demo
 
-A working Unreal Engine 5.8 project that demonstrates how to integrate
-**Forboc AI NPCs** into your game. Clone it, press Play, and talk to AI-driven
-townspeople — then copy the integration patterns into your own project.
-
----
+A working Unreal Engine 5.8 project that shows how to put **Forboc AI NPCs**
+inside a playable game loop. Clone it, run the setup script, press Play, and
+study how the demo routes player interaction into ForbocAI-backed NPC state,
+conversation UI, and speech presentation.
 
 ## Prerequisites
 
 | Tool | Version |
-|---|---|
+| --- | --- |
 | Unreal Engine | 5.8 |
-| Visual Studio | 2022+ (Windows, with C++ Build Tools + Windows 11 SDK) |
-| Xcode | 15+ (macOS) |
-| Clang | 16+ (Linux) |
-
----
+| Visual Studio | 2022+ with C++ Build Tools and Windows 11 SDK |
+| Xcode | 15+ on macOS |
+| Clang | 16+ on Linux |
 
 ## Quick Start
 
-1. **Clone** (include the SDK submodule):
+Clone with the SDK submodule:
 
-   ```bash
-   git clone --recurse-submodules https://github.com/ForbocAI/demo-ue-5.git
-   ```
-
-   If you cloned without `--recurse-submodules`:
-
-   ```bash
-   git submodule update --init --recursive
-   ```
-
-2. **Run first-time setup:**
-
-   ```bash
-   bash Scripts/Setup/setup-dev.sh
-   ```
-
-3. **Generate project files:**
-   - **Windows** — right-click `ForbocAIDemo.uproject` → *Generate Visual Studio Project Files*.
-   - **macOS** — right-click `ForbocAIDemo.uproject` → *Generate Xcode Project*.
-   - **Linux** — `UnrealEditor.sh -projectfiles -project="$PWD/ForbocAIDemo.uproject"`.
-
-4. **Build** the `Development Editor` configuration.
-
-5. **Launch** the editor and **Press Play**. You'll spawn into a small town with
-   AI-driven NPCs you can walk up to and talk with.
-
----
-
-## What's in the Box
-
-This demo is a complete, playable project. The parts most relevant to your own
-Forboc AI integration are:
-
-| Component | Path | What It Shows |
-|---|---|---|
-| **SDK plugin** | `Plugins/ForbocAI_SDK` | The Forboc AI SDK, consumed as a Git submodule |
-| **Dialogue system** | `Source/Features/Systems/Dialogue` | Actions, reducers, selectors, and thunks that manage NPC conversation state |
-| **Bot management** | `Source/Features/Systems/Bots` | Multi-bot orchestration — spawning, tracking, and updating many NPCs at once |
-| **Speech component** | `Source/Features/Systems/Speech` | Text-to-speech playback with viseme-driven facial blending |
-| **Interaction system** | `Source/Features/Systems/Interaction` | Proximity triggers and player-to-NPC interaction flow |
-| **Conversation UI** | `Content/UI/WBP_Chat` | A ready-made UMG chat widget driven by the dialogue state |
-| **Store** | `Source/Store.*` | Single runtime store that wires all feature slices together |
-| **ECS layer** | `Source/Core/ecs.hpp` | Lightweight ECS primitives used for entity/component management |
-| **RTK core** | via `Plugins/ForbocAI_SDK` | Redux Toolkit–style state management: actions, reducers, selectors, thunks |
-
----
-
-## SDK Integration Pattern
-
-The demo follows a strict unidirectional data flow. Every NPC interaction
-follows this path:
-
-```text
-UE event (overlap, input, tick)
-  → action or thunk          (describe what happened)
-  → reducer                  (update state)
-  → selector                 (read derived state)
-  → UE view                  (render the result)
+```bash
+git clone --recurse-submodules https://github.com/ForbocAI/demo-ue-5.git
+cd demo-ue-5
 ```
 
-**In practice, a dialogue interaction looks like this:**
+If you already cloned without submodules:
 
-1. Player overlaps an NPC trigger → dispatches a `StartDialogue` action.
-2. A thunk calls the Forboc AI service and dispatches response actions.
-3. The dialogue reducer updates conversation state.
-4. Selectors derive the current dialogue text, speech audio, and viseme data.
-5. `WBP_Chat` and the speech component read selected state and update the UI
-   and facial animation.
+```bash
+git submodule update --init --recursive
+```
 
-Gameplay decisions live in **reducers and thunks** (`Source/Features`).
-Display and effects live in **views** (`Source/Views`). This separation keeps
-your AI integration testable and portable.
+Run first-time setup:
 
----
+```bash
+bash Scripts/Setup/setup-dev.sh
+```
+
+Generate project files:
+
+- Windows: right-click `ForbocAIDemo.uproject` and choose **Generate Visual Studio Project Files**.
+- macOS: right-click `ForbocAIDemo.uproject` and choose **Generate Xcode Project**.
+- Linux:
+
+  ```bash
+  UnrealEditor.sh -projectfiles -project="$PWD/ForbocAIDemo.uproject"
+  ```
+
+Build the `Development Editor` target, open the project, then press Play.
+
+## What To Study
+
+The demo is a game project, not the SDK itself. The useful ForbocAI integration
+surfaces are:
+
+| Area | Path | What It Shows |
+| --- | --- | --- |
+| SDK plugin boundary | `Plugins/ForbocAI_SDK` | Consuming the ForbocAI UE SDK as a submodule |
+| Runtime store | `Source/Store.*` | One game-owned state boundary for NPC interaction results |
+| NPC and bot state | `Source/Features/Systems/Bots` | Multi-NPC state, position, goals, AI facts, and orchestration |
+| Interaction flow | `Source/Features/Systems/Interaction` | Turning player focus/input into NPC conversation events |
+| Dialogue state | `Source/Features/Systems/Dialogue` | Conversation actions, selectors, and reducer-owned state |
+| Conversation UI | `Source/Views/Chat` and `Source/Views/Player/Controller` | Rendering selected ForbocAI dialogue into the viewport |
+| Speech presentation | `Source/Features/Systems/Speech` and `Source/Views/Speech/Presenter` | Routing selected response text into speech/lip-sync presentation |
+
+## Integration Pattern
+
+The demo keeps the AI turn path explicit:
+
+```text
+UE input / overlap
+  -> interaction action or thunk
+  -> ForbocAI dialogue backend or local demo fallback
+  -> reducer-owned conversation state
+  -> selectors
+  -> chat widget and speech presenter
+```
+
+Game actors and widgets apply selected state. They do not own the ForbocAI
+protocol, API calls, or durable NPC state directly.
 
 ## SDK Submodule
 
-`Plugins/ForbocAI_SDK` is consumed as a **read-only Git submodule**. Do not edit
-SDK files from inside this repo.
+`Plugins/ForbocAI_SDK` is a read-only Git submodule in this checkout. Change
+SDK code in the SDK repository, then update the submodule pointer here.
 
-To pull the latest SDK version:
+Update the SDK pointer:
 
 ```bash
 bash Scripts/SDK/update-sdk.sh
 ```
 
-To activate the submodule guard hooks (recommended):
+Activate the submodule guard hooks:
 
 ```bash
 git config core.hooksPath .githooks
 bash Scripts/SDK/lock_sdk_submodule.sh --lock
 ```
 
-These hooks prevent accidental edits inside the submodule directory.
+## Verify The Demo
 
----
-
-## Running Tests
+Run the project verification wrapper:
 
 ```bash
 bash Scripts/Run/run-tests.sh
 ```
 
-This runs the project's C++ test suite, including store/reducer round-trip
-tests and SDK integration checks.
-
-## Trying the AI Demo
-
-Press Play, walk up to a townsperson, and use the interaction prompt to start
-conversation. The demo routes player input through the interaction system,
-dispatches dialogue actions and thunks, receives Forboc AI results, and renders
-the selected response through the chat UI and speech component.
-
----
+This builds the editor target, runs the ForbocAI automation tests, and checks
+the project guardrails used by the demo.
 
 ## Troubleshooting
 
 | Problem | Fix |
-|---|---|
+| --- | --- |
 | `Plugin 'ForbocAI_SDK' failed to load` | Run `git submodule update --init --recursive`, then rebuild |
-| Linker errors after C++ changes | Regenerate project files from `.uproject` |
-| NPCs don't respond to dialogue | Check the editor Output Log for SDK connection errors; verify your API key in project settings |
-| Speech audio plays but no lip sync | Ensure the NPC skeletal mesh has morph targets for the viseme set defined in `SpeechComponent` |
+| Linker errors after changing branches | Delete `Intermediate/` and `Binaries/`, regenerate project files, then rebuild |
+| NPC conversation does not update | Check the editor Output Log for SDK/API configuration errors and verify your API key |
+| Speech plays without matching presentation | Check the speech settings and the NPC mesh/morph-target setup used by your project |
 
----
+## Links
 
-## Going Further
-
-- **SDK reference & tutorials:** <https://docs.forboc.ai>
-- **SDK source:** <https://github.com/ForbocAI/sdk-ue-5>
-- **Issues & questions:** <https://github.com/ForbocAI/demo-ue-5/issues>
-
----
+- SDK docs: <https://docs.forboc.ai>
+- UE SDK source: <https://github.com/ForbocAI/sdk-ue-5>
+- Demo issues: <https://github.com/ForbocAI/demo-ue-5/issues>
 
 ## License
 
-© 2026 ForbocAI, Inc. All rights reserved. See [LICENSE](./LICENSE) for full terms.
+(c) 2026 ForbocAI, Inc. All rights reserved. See [LICENSE](./LICENSE) for
+terms.
