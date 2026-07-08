@@ -10,8 +10,6 @@ This module is the whole engine the per-role guards build on:
 * ``Rule``/``register``/``RULES`` make each rule a first-class object with a
   stable id, a severity aligned to the redux/rtk skills, and a skill citation --
   which powers ``--explain`` and the JSON/SARIF emitters.
-* Inline ``// boundary-allow: RULE-ID reason`` suppressions are a governed,
-  auditable escape hatch (never a blanket bypass).
 * Content-based role fingerprinting and the feature import graph let the guards
   reason about a file's *observed* role and cross-file structure, not just its
   name.
@@ -22,7 +20,7 @@ that the runner auto-discovers.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 import re
@@ -31,7 +29,6 @@ from typing import Callable, Iterable
 
 SOURCE_EXTENSIONS = {".h", ".hpp", ".cpp"}
 IMPORT_RE = re.compile(r'^\s*#\s*include\s+"([^"]+)"', re.MULTILINE)
-SUPPRESS_RE = re.compile(r"boundary-allow\s*:\s*([A-Z0-9\-,\s]+)")
 
 
 # --- Roles -----------------------------------------------------------------
@@ -457,44 +454,6 @@ def fingerprint_findings(unit: SourceUnit) -> list[Finding]:
     return findings
 
 
-# --- Suppressions ----------------------------------------------------------
-
-@dataclass
-class Suppressions:
-    by_line: dict[int, set[str]] = field(default_factory=dict)
-    used: set[tuple[Path, int, str]] = field(default_factory=set)
-
-
-def parse_suppressions(path: Path, raw: str) -> dict[int, set[str]]:
-    """Collect `// boundary-allow: RULE-ID[, RULE-ID] reason` markers by line."""
-    by_line: dict[int, set[str]] = {}
-    for lineno, line in enumerate(raw.split("\n"), 1):
-        match = SUPPRESS_RE.search(line)
-        if not match:
-            continue
-        ids = {token for token in re.split(r"[,\s]+", match.group(1).strip()) if re.fullmatch(r"[A-Z]+-[A-Z]+-\d+", token)}
-        if ids:
-            by_line[lineno] = ids
-    return by_line
-
-
-def apply_suppressions(
-    findings: list[Finding],
-    suppressions: dict[Path, dict[int, set[str]]],
-) -> tuple[list[Finding], int]:
-    """Drop findings a same-or-previous-line marker allows. Returns (kept, dropped)."""
-    kept: list[Finding] = []
-    dropped = 0
-    for finding in findings:
-        by_line = suppressions.get(finding.path, {})
-        allowed = by_line.get(finding.line, set()) | by_line.get(finding.line - 1, set())
-        if finding.rule_id in allowed:
-            dropped += 1
-            continue
-        kept.append(finding)
-    return kept, dropped
-
-
 # --- Import graph ----------------------------------------------------------
 
 def role_edges(units: list[SourceUnit]) -> list[tuple[Path, str, Path]]:
@@ -583,15 +542,13 @@ def sort_findings(findings: list[Finding]) -> list[Finding]:
     )
 
 
-def format_text(findings: list[Finding], project_root: Path, guard_name: str, dropped: int) -> str:
+def format_text(findings: list[Finding], project_root: Path, guard_name: str) -> str:
     lines: list[str] = []
     counts = {sev: 0 for sev in Severity}
     for finding in findings:
         counts[finding.severity] += 1
     summary = ", ".join(f"{counts[sev]} {sev.value}" for sev in Severity if counts[sev])
     lines.append(f"{guard_name} failed: {len(findings)} issue(s) ({summary}).")
-    if dropped:
-        lines.append(f"({dropped} finding(s) suppressed by boundary-allow markers.)")
     for finding in sort_findings(findings):
         display = _display_path(finding, project_root)
         lines.append(

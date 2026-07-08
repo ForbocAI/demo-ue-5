@@ -15,7 +15,9 @@ using RenderingProfileColorTypes::ProfileLinearColor;
 // --- Moon pixel grid helpers (pure computation) --------------------------
 
 float MoonPixelGridCenter(const FLevelRetroRenderProfile &Profile) {
-  return static_cast<float>(Profile.MoonPixelGridSize - 1) * 0.5f;
+  return static_cast<float>(Profile.MoonPixelGridSize -
+                            Profile.MoonPixelGridTerminalOffset) *
+         Profile.PixelQuadHalfExtentMultiplier;
 }
 
 float MoonPixelCoordinate(const FLevelRetroRenderProfile &Profile,
@@ -30,7 +32,7 @@ bool MoonPixelVisible(const FLevelRetroRenderProfile &Profile,
       MoonPixelCoordinate(Profile, static_cast<int32>(Index.Column));
   const float Y =
       MoonPixelCoordinate(Profile, static_cast<int32>(Index.Row));
-  return FVector2D(X, Y).Size() <= 1.0f;
+  return FVector2D(X, Y).Size() <= Profile.MoonPixelVisibleRadius;
 }
 
 float MoonPixelWorldDiameter(const FLevelRetroRenderProfile &Profile) {
@@ -58,28 +60,33 @@ FVector MoonPixelOffset(const FLevelRetroRenderProfile &Profile,
       MoonPixelCoordinate(Profile, static_cast<int32>(Index.Column));
   const float Y =
       MoonPixelCoordinate(Profile, static_cast<int32>(Index.Row));
-  const float Radius = MoonPixelWorldDiameter(Profile) * 0.5f;
+  const float Radius =
+      MoonPixelWorldDiameter(Profile) * Profile.PixelQuadHalfExtentMultiplier;
   return MoonPixelPlaneRight(Profile) * (X * Radius) +
          MoonPixelPlaneUp(Profile) * (Y * Radius);
 }
 
 // --- Point star helpers (pure computation) --------------------------------
 
-float PointStarHash(int32 Index, float Salt) {
+float PointStarHash(const FLevelRetroRenderProfile &Profile, int32 Index,
+                    float Salt) {
   return FMath::Frac(
-      FMath::Sin((static_cast<float>(Index) + 1.0f) * Salt) * 43758.5453f);
+      FMath::Sin((static_cast<float>(Index) +
+                  Profile.PointStarHashIndexOffset) *
+                 Salt) *
+      Profile.PointStarHashMultiplier);
 }
 
 float PointStarYawDegrees(const FLevelRetroRenderProfile &Profile,
                           int32 Index) {
-  return PointStarHash(Index, Profile.PointStarYawHashSalt) *
+  return PointStarHash(Profile, Index, Profile.PointStarYawHashSalt) *
          Profile.PointStarYawSpanDegrees;
 }
 
 float PointStarPitchDegrees(const FLevelRetroRenderProfile &Profile,
                             int32 Index) {
   return Profile.PointStarPitchMinDegrees +
-         PointStarHash(Index, Profile.PointStarPitchHashSalt) *
+         PointStarHash(Profile, Index, Profile.PointStarPitchHashSalt) *
              Profile.PointStarPitchSpanDegrees;
 }
 
@@ -90,7 +97,8 @@ float PointStarDistance(const FLevelRetroRenderProfile &Profile) {
 FVector PointStarLocation(const FLevelRetroRenderProfile &Profile,
                           int32 Index) {
   return FRotator(PointStarPitchDegrees(Profile, Index),
-                  PointStarYawDegrees(Profile, Index), 0.0f)
+                  PointStarYawDegrees(Profile, Index),
+                  Profile.PointStarRollDegrees)
              .Vector() *
          PointStarDistance(Profile);
 }
@@ -98,7 +106,7 @@ FVector PointStarLocation(const FLevelRetroRenderProfile &Profile,
 float PointStarWorldSize(const FLevelRetroRenderProfile &Profile,
                          int32 Index) {
   return Profile.PointStarWorldSizeMin +
-         PointStarHash(Index, Profile.PointStarSizeHashSalt) *
+         PointStarHash(Profile, Index, Profile.PointStarSizeHashSalt) *
              Profile.PointStarWorldSizeJitter;
 }
 
@@ -177,8 +185,10 @@ FLinearColor SkyDomeZenithColor(const FLevelRetroRenderProfile &Profile) {
 
 FLinearColor SkyDomeTextureStarMaskColor(
     const FLevelRetroRenderProfile &Profile) {
-  (void)Profile;
-  return FLinearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  return FLinearColor(Profile.SkyDomeTextureStarMaskColorR,
+                      Profile.SkyDomeTextureStarMaskColorG,
+                      Profile.SkyDomeTextureStarMaskColorB,
+                      Profile.SkyDomeTextureStarMaskColorA);
 }
 
 FLinearColor MoonDiscColor(const FLevelRetroRenderProfile &Profile) {
@@ -245,7 +255,7 @@ FRuntimePixelMeshBuffers ReduceMoonPixelMeshBuffers(
   func::for_each_array<func::GridIndex>(
       ReduceMoonPixelIndices(Profile),
       [&Profile, &Buffers](const func::GridIndex &Index) {
-        AppendPixelQuad(Buffers, ReduceMoonPixelQuad(Profile, Index));
+        AppendPixelQuad(Buffers, Profile, ReduceMoonPixelQuad(Profile, Index));
       });
   return Buffers;
 }
@@ -266,7 +276,7 @@ FRuntimePixelMeshBuffers ReducePointStarMeshBuffers(
   func::for_each_array<int32>(
       func::index_range(Profile.PointStarCount),
       [&Profile, &Buffers](const int32 &Index) {
-        AppendPixelQuad(Buffers, ReducePointStarQuad(Profile, Index));
+        AppendPixelQuad(Buffers, Profile, ReducePointStarQuad(Profile, Index));
       });
   return Buffers;
 }
@@ -278,21 +288,28 @@ FVector ReducePixelQuadNormal(const FRuntimePixelQuad &Quad) {
 }
 
 void AppendPixelQuad(FRuntimePixelMeshBuffers &Buffers,
+                     const FLevelRetroRenderProfile &Profile,
                      const FRuntimePixelQuad &Quad) {
   const int32 BaseIndex = Buffers.Vertices.Num();
-  const FVector Right = Quad.Right * (Quad.Size * 0.5f);
-  const FVector Up = Quad.Up * (Quad.Size * 0.5f);
+  const FVector Right =
+      Quad.Right * (Quad.Size * Profile.PixelQuadHalfExtentMultiplier);
+  const FVector Up =
+      Quad.Up * (Quad.Size * Profile.PixelQuadHalfExtentMultiplier);
   const FVector Normal = ReducePixelQuadNormal(Quad);
+  const int32 A = BaseIndex + Profile.PixelQuadIndexA;
+  const int32 B = BaseIndex + Profile.PixelQuadIndexB;
+  const int32 C = BaseIndex + Profile.PixelQuadIndexC;
+  const int32 D = BaseIndex + Profile.PixelQuadIndexD;
   Buffers.Vertices.Append(
       {Quad.Center - Right - Up, Quad.Center + Right - Up,
        Quad.Center + Right + Up, Quad.Center - Right + Up});
-  Buffers.Triangles.Append({BaseIndex, BaseIndex + 1, BaseIndex + 2,
-                            BaseIndex, BaseIndex + 2, BaseIndex + 3,
-                            BaseIndex + 2, BaseIndex + 1, BaseIndex,
-                            BaseIndex + 3, BaseIndex + 2, BaseIndex});
+  Buffers.Triangles.Append({A, B, C, A, C, D, C, B, A, D, C, A});
   Buffers.Normals.Append({Normal, Normal, Normal, Normal});
-  Buffers.UV0.Append({FVector2D(0.0f, 0.0f), FVector2D(1.0f, 0.0f),
-                      FVector2D(1.0f, 1.0f), FVector2D(0.0f, 1.0f)});
+  Buffers.UV0.Append(
+      {FVector2D(Profile.PixelQuadUvMin, Profile.PixelQuadUvMin),
+       FVector2D(Profile.PixelQuadUvMax, Profile.PixelQuadUvMin),
+       FVector2D(Profile.PixelQuadUvMax, Profile.PixelQuadUvMax),
+       FVector2D(Profile.PixelQuadUvMin, Profile.PixelQuadUvMax)});
   Buffers.VertexColors.Append({Quad.Color, Quad.Color, Quad.Color,
                                Quad.Color});
   Buffers.Tangents.Append({FProcMeshTangent(Quad.Right, false),

@@ -104,6 +104,43 @@ struct FLevelRetroRenderProfile {
   float PointStarSizeHashSalt;
   float PointStarWorldSizeMin;
   float PointStarWorldSizeJitter;
+  int32 MoonPixelGridTerminalOffset;
+  float MoonPixelVisibleRadius;
+  float PointStarHashIndexOffset;
+  float PointStarHashMultiplier;
+  float PointStarRollDegrees;
+  FString RuntimeSkyDomeActorTag;
+  FString RuntimeMoonDiscActorTag;
+  FString RuntimePointStarsActorTag;
+  FString RuntimeMoonPixelsComponentName;
+  FString RuntimePointStarsComponentName;
+  FString MaterialBaseColorParameter;
+  FString MaterialColorParameter;
+  FString MaterialTintColorParameter;
+  FString MaterialDiffuseColorParameter;
+  FString MaterialEmissiveColorParameter;
+  FString SkyDomeSkyBrightnessParameter;
+  FString SkyDomeCloudBrightnessParameter;
+  FString SkyDomeCloudDarknessParameter;
+  FString SkyDomeRimBrightnessParameter;
+  FString SkyDomeStarsParameter;
+  FString SkyDomeStarColorParameter;
+  FString SkyDomeHorizonColorParameter;
+  FString SkyDomeZenithColorParameter;
+  float SkyDomeStarsScalarValue;
+  float SkyDomeTextureStarMaskColorR;
+  float SkyDomeTextureStarMaskColorG;
+  float SkyDomeTextureStarMaskColorB;
+  float SkyDomeTextureStarMaskColorA;
+  int32 RuntimePixelMeshSectionIndex;
+  int32 RuntimePixelMaterialIndex;
+  float PixelQuadHalfExtentMultiplier;
+  int32 PixelQuadIndexA;
+  int32 PixelQuadIndexB;
+  int32 PixelQuadIndexC;
+  int32 PixelQuadIndexD;
+  float PixelQuadUvMin;
+  float PixelQuadUvMax;
   bool bFogEnabled;
   bool bVolumetricFogEnabled;
   float FogDensity;
@@ -276,6 +313,66 @@ inline bool operator==(const FLevelRetroRenderProfile &Left,
                               Right.PointStarWorldSizeMin) &&
          FMath::IsNearlyEqual(Left.PointStarWorldSizeJitter,
                               Right.PointStarWorldSizeJitter) &&
+         Left.MoonPixelGridTerminalOffset ==
+             Right.MoonPixelGridTerminalOffset &&
+         FMath::IsNearlyEqual(Left.MoonPixelVisibleRadius,
+                              Right.MoonPixelVisibleRadius) &&
+         FMath::IsNearlyEqual(Left.PointStarHashIndexOffset,
+                              Right.PointStarHashIndexOffset) &&
+         FMath::IsNearlyEqual(Left.PointStarHashMultiplier,
+                              Right.PointStarHashMultiplier) &&
+         FMath::IsNearlyEqual(Left.PointStarRollDegrees,
+                              Right.PointStarRollDegrees) &&
+         Left.RuntimeSkyDomeActorTag == Right.RuntimeSkyDomeActorTag &&
+         Left.RuntimeMoonDiscActorTag == Right.RuntimeMoonDiscActorTag &&
+         Left.RuntimePointStarsActorTag == Right.RuntimePointStarsActorTag &&
+         Left.RuntimeMoonPixelsComponentName ==
+             Right.RuntimeMoonPixelsComponentName &&
+         Left.RuntimePointStarsComponentName ==
+             Right.RuntimePointStarsComponentName &&
+         Left.MaterialBaseColorParameter == Right.MaterialBaseColorParameter &&
+         Left.MaterialColorParameter == Right.MaterialColorParameter &&
+         Left.MaterialTintColorParameter == Right.MaterialTintColorParameter &&
+         Left.MaterialDiffuseColorParameter ==
+             Right.MaterialDiffuseColorParameter &&
+         Left.MaterialEmissiveColorParameter ==
+             Right.MaterialEmissiveColorParameter &&
+         Left.SkyDomeSkyBrightnessParameter ==
+             Right.SkyDomeSkyBrightnessParameter &&
+         Left.SkyDomeCloudBrightnessParameter ==
+             Right.SkyDomeCloudBrightnessParameter &&
+         Left.SkyDomeCloudDarknessParameter ==
+             Right.SkyDomeCloudDarknessParameter &&
+         Left.SkyDomeRimBrightnessParameter ==
+             Right.SkyDomeRimBrightnessParameter &&
+         Left.SkyDomeStarsParameter == Right.SkyDomeStarsParameter &&
+         Left.SkyDomeStarColorParameter ==
+             Right.SkyDomeStarColorParameter &&
+         Left.SkyDomeHorizonColorParameter ==
+             Right.SkyDomeHorizonColorParameter &&
+         Left.SkyDomeZenithColorParameter ==
+             Right.SkyDomeZenithColorParameter &&
+         FMath::IsNearlyEqual(Left.SkyDomeStarsScalarValue,
+                              Right.SkyDomeStarsScalarValue) &&
+         FMath::IsNearlyEqual(Left.SkyDomeTextureStarMaskColorR,
+                              Right.SkyDomeTextureStarMaskColorR) &&
+         FMath::IsNearlyEqual(Left.SkyDomeTextureStarMaskColorG,
+                              Right.SkyDomeTextureStarMaskColorG) &&
+         FMath::IsNearlyEqual(Left.SkyDomeTextureStarMaskColorB,
+                              Right.SkyDomeTextureStarMaskColorB) &&
+         FMath::IsNearlyEqual(Left.SkyDomeTextureStarMaskColorA,
+                              Right.SkyDomeTextureStarMaskColorA) &&
+         Left.RuntimePixelMeshSectionIndex ==
+             Right.RuntimePixelMeshSectionIndex &&
+         Left.RuntimePixelMaterialIndex == Right.RuntimePixelMaterialIndex &&
+         FMath::IsNearlyEqual(Left.PixelQuadHalfExtentMultiplier,
+                              Right.PixelQuadHalfExtentMultiplier) &&
+         Left.PixelQuadIndexA == Right.PixelQuadIndexA &&
+         Left.PixelQuadIndexB == Right.PixelQuadIndexB &&
+         Left.PixelQuadIndexC == Right.PixelQuadIndexC &&
+         Left.PixelQuadIndexD == Right.PixelQuadIndexD &&
+         FMath::IsNearlyEqual(Left.PixelQuadUvMin, Right.PixelQuadUvMin) &&
+         FMath::IsNearlyEqual(Left.PixelQuadUvMax, Right.PixelQuadUvMax) &&
          Left.bFogEnabled == Right.bFogEnabled &&
          Left.bVolumetricFogEnabled == Right.bVolumetricFogEnabled &&
          FMath::IsNearlyEqual(Left.FogDensity, Right.FogDensity) &&

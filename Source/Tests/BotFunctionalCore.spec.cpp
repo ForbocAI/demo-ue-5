@@ -8,7 +8,7 @@ using namespace ForbocAI::Game::Level;
 
 namespace {
 
-struct FAutomationTestLabelCursor {
+struct FBotFunctionalCoreLabelCursor {
   const TArray<FString> *Labels = nullptr;
   int32 Index = int32();
 
@@ -21,8 +21,8 @@ struct FAutomationTestLabelCursor {
   }
 };
 
-FAutomationTestLabelCursor
-AutomationTestLabels(const TArray<FString> &Labels) {
+FBotFunctionalCoreLabelCursor
+BotFunctionalCoreLabels(const TArray<FString> &Labels) {
   return {&Labels, int32()};
 }
 
@@ -71,7 +71,7 @@ DEFINE_SPEC(FBotFunctionalCoreSpec, "ForbocAI.Bot.FunctionalCore", EAutomationTe
 
 void FBotFunctionalCoreSpec::Define()
 {
-    FAutomationTestLabelCursor Labels = AutomationTestLabels(
+    FBotFunctionalCoreLabelCursor Labels = BotFunctionalCoreLabels(
         BotFunctionalCoreAllSettings().Automation.BotFunctionalCore.Assertions);
 
     Describe("State Creation", [this, &Labels]()

@@ -10,7 +10,7 @@ namespace {
 using FConversationUISettings =
     ForbocAI::Game::Data::Automation::Conversation::UI::FSettings;
 
-struct FAutomationTestLabelCursor {
+struct FConversationUILabelCursor {
   const TArray<FString> *Labels = nullptr;
   int32 Index = int32();
 
@@ -23,7 +23,8 @@ struct FAutomationTestLabelCursor {
   }
 };
 
-FAutomationTestLabelCursor AutomationTestLabels(const TArray<FString> &Labels) {
+FConversationUILabelCursor ConversationUILabels(
+    const TArray<FString> &Labels) {
   return {&Labels, int32()};
 }
 
@@ -40,8 +41,8 @@ bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FUISettings UISettings = Settings.UI;
   const FConversationUISettings Automation =
       Settings.Automation.ConversationUI;
-  FAutomationTestLabelCursor Labels =
-      AutomationTestLabels(Automation.Assertions);
+  FConversationUILabelCursor Labels =
+      ConversationUILabels(Automation.Assertions);
   const ForbocAI::Game::UI::FChatMessageViewModel PlayerMessage =
       ForbocAI::Game::Level::UIReducers::ReduceChatMessageViewModel(
           {Automation.PlayerMessage.Role, Automation.PlayerMessage.Text},

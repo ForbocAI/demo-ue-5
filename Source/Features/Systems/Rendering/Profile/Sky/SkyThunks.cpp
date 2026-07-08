@@ -30,37 +30,35 @@ struct FRuntimePixelMaterialEval {
   UProceduralMeshComponent *Component;
   UMaterialInterface *Material;
   FLinearColor Color;
+  const FLevelRetroRenderProfile *Profile;
 };
 
-FName SkyAtom(const char *Atom) {
-  return FName(UTF8_TO_TCHAR(Atom));
+FName SkyAtom(const FString &Atom) {
+  return FName(*Atom);
 }
 
 // --- Actor tags -----------------------------------------------------------
 
-FName RuntimeProfileSkyDomeTag() {
-  static const FName Tag(SkyAtom("ForbocRuntimeProfileSkyDome"));
-  return Tag;
+FName RuntimeProfileSkyDomeTag(const FLevelRetroRenderProfile &Profile) {
+  return SkyAtom(Profile.RuntimeSkyDomeActorTag);
 }
 
-FName RuntimeProfileMoonDiscTag() {
-  static const FName Tag(SkyAtom("ForbocRuntimeProfileMoonDisc"));
-  return Tag;
+FName RuntimeProfileMoonDiscTag(const FLevelRetroRenderProfile &Profile) {
+  return SkyAtom(Profile.RuntimeMoonDiscActorTag);
 }
 
-FName RuntimeProfilePointStarsTag() {
-  static const FName Tag(SkyAtom("ForbocRuntimeProfilePointStars"));
-  return Tag;
+FName RuntimeProfilePointStarsTag(const FLevelRetroRenderProfile &Profile) {
+  return SkyAtom(Profile.RuntimePointStarsActorTag);
 }
 
-FName RuntimeProfileMoonPixelsComponentName() {
-  static const FName Name(SkyAtom("ForbocRuntimeProfileMoonPixels"));
-  return Name;
+FName RuntimeProfileMoonPixelsComponentName(
+    const FLevelRetroRenderProfile &Profile) {
+  return SkyAtom(Profile.RuntimeMoonPixelsComponentName);
 }
 
-FName RuntimeProfilePointStarsComponentName() {
-  static const FName Name(SkyAtom("ForbocRuntimeProfilePointStars"));
-  return Name;
+FName RuntimeProfilePointStarsComponentName(
+    const FLevelRetroRenderProfile &Profile) {
+  return SkyAtom(Profile.RuntimePointStarsComponentName);
 }
 
 // --- Asset loading (side effect) -----------------------------------------
@@ -92,36 +90,47 @@ Component *FindActorComponentByName(AActor *Actor, const FName &Name) {
 // --- Material side effects -----------------------------------------------
 
 void ApplyRuntimeEmissiveColor(UMaterialInstanceDynamic *Material,
+                               const FLevelRetroRenderProfile &Profile,
                                const FLinearColor &Color) {
   check(Material);
-  Material->SetVectorParameterValue(SkyAtom("BaseColor"), Color);
-  Material->SetVectorParameterValue(SkyAtom("Color"), Color);
-  Material->SetVectorParameterValue(SkyAtom("TintColor"), Color);
-  Material->SetVectorParameterValue(SkyAtom("DiffuseColor"), Color);
-  Material->SetVectorParameterValue(SkyAtom("EmissiveColor"), Color);
+  Material->SetVectorParameterValue(
+      SkyAtom(Profile.MaterialBaseColorParameter), Color);
+  Material->SetVectorParameterValue(SkyAtom(Profile.MaterialColorParameter),
+                                    Color);
+  Material->SetVectorParameterValue(
+      SkyAtom(Profile.MaterialTintColorParameter), Color);
+  Material->SetVectorParameterValue(
+      SkyAtom(Profile.MaterialDiffuseColorParameter), Color);
+  Material->SetVectorParameterValue(
+      SkyAtom(Profile.MaterialEmissiveColorParameter), Color);
 }
 
 void ApplyRuntimeSkyDomeMaterialParameters(
     UMaterialInstanceDynamic *Material,
     const FLevelRetroRenderProfile &Profile) {
   check(Material);
-  Material->SetScalarParameterValue(SkyAtom("SkyBrightness"),
-                                    Profile.SkyDomeSkyBrightness);
-  Material->SetScalarParameterValue(SkyAtom("CloudBrightness"),
-                                    Profile.SkyDomeCloudBrightness);
-  Material->SetScalarParameterValue(SkyAtom("CloudDarkness"),
-                                    Profile.SkyDomeCloudDarkness);
-  Material->SetScalarParameterValue(SkyAtom("RimBrightness"),
-                                    Profile.SkyDomeRimBrightness);
-  Material->SetScalarParameterValue(SkyAtom("Stars"), 0.0f);
+  Material->SetScalarParameterValue(
+      SkyAtom(Profile.SkyDomeSkyBrightnessParameter),
+      Profile.SkyDomeSkyBrightness);
+  Material->SetScalarParameterValue(
+      SkyAtom(Profile.SkyDomeCloudBrightnessParameter),
+      Profile.SkyDomeCloudBrightness);
+  Material->SetScalarParameterValue(
+      SkyAtom(Profile.SkyDomeCloudDarknessParameter),
+      Profile.SkyDomeCloudDarkness);
+  Material->SetScalarParameterValue(
+      SkyAtom(Profile.SkyDomeRimBrightnessParameter),
+      Profile.SkyDomeRimBrightness);
+  Material->SetScalarParameterValue(SkyAtom(Profile.SkyDomeStarsParameter),
+                                    Profile.SkyDomeStarsScalarValue);
   Material->SetVectorParameterValue(
-      SkyAtom("StarColor"),
+      SkyAtom(Profile.SkyDomeStarColorParameter),
       RenderingProfileSkyReducers::SkyDomeTextureStarMaskColor(Profile));
   Material->SetVectorParameterValue(
-      SkyAtom("HorizonColor"),
+      SkyAtom(Profile.SkyDomeHorizonColorParameter),
       RenderingProfileSkyReducers::SkyDomeHorizonColor(Profile));
   Material->SetVectorParameterValue(
-      SkyAtom("ZenithColor"),
+      SkyAtom(Profile.SkyDomeZenithColorParameter),
       RenderingProfileSkyReducers::SkyDomeZenithColor(Profile));
 }
 
@@ -152,44 +161,54 @@ CreateRuntimeProceduralMeshComponent(AActor *Actor, const FName &Name) {
   return Component;
 }
 
-UProceduralMeshComponent *RuntimeMoonPixelsComponent(AActor *Actor) {
+UProceduralMeshComponent *RuntimeMoonPixelsComponent(
+    AActor *Actor, const FLevelRetroRenderProfile &Profile) {
   UProceduralMeshComponent *Existing =
       FindActorComponentByName<UProceduralMeshComponent>(
-          Actor, RuntimeProfileMoonPixelsComponentName());
+          Actor, RuntimeProfileMoonPixelsComponentName(Profile));
   return Existing
              ? Existing
              : CreateRuntimeProceduralMeshComponent(
-                   Actor, RuntimeProfileMoonPixelsComponentName());
+                   Actor, RuntimeProfileMoonPixelsComponentName(Profile));
 }
 
-UProceduralMeshComponent *RuntimePointStarsComponent(AActor *Actor) {
+UProceduralMeshComponent *RuntimePointStarsComponent(
+    AActor *Actor, const FLevelRetroRenderProfile &Profile) {
   UProceduralMeshComponent *Existing =
       FindActorComponentByName<UProceduralMeshComponent>(
-          Actor, RuntimeProfilePointStarsComponentName());
+          Actor, RuntimeProfilePointStarsComponentName(Profile));
   return Existing ? Existing
                   : CreateRuntimeProceduralMeshComponent(
-                        Actor, RuntimeProfilePointStarsComponentName());
+                        Actor, RuntimeProfilePointStarsComponentName(Profile));
 }
 
 void ApplyRuntimePixelMeshSection(UProceduralMeshComponent *Component,
+                                  const FLevelRetroRenderProfile &Profile,
                                   const FRuntimePixelMeshBuffers &Buffers) {
   check(Component);
   Component->ClearAllMeshSections();
   Component->CreateMeshSection_LinearColor(
-      0, Buffers.Vertices, Buffers.Triangles, Buffers.Normals, Buffers.UV0,
+      Profile.RuntimePixelMeshSectionIndex, Buffers.Vertices,
+      Buffers.Triangles, Buffers.Normals, Buffers.UV0,
       Buffers.VertexColors, Buffers.Tangents, false, false);
 }
 
 void ApplyRuntimePixelMaterial(const FRuntimePixelMaterialEval &Eval) {
   check(Eval.Component);
+  check(Eval.Profile);
+  const FLevelRetroRenderProfile &Profile = *Eval.Profile;
   UMaterialInstanceDynamic *DynamicMaterial =
       Eval.Material ? Eval.Component->CreateDynamicMaterialInstance(
-                          0, Eval.Material)
+                          Profile.RuntimePixelMaterialIndex, Eval.Material)
                     : nullptr;
   DynamicMaterial
-      ? (ApplyRuntimeEmissiveColor(DynamicMaterial, Eval.Color),
-         Eval.Component->SetMaterial(0, DynamicMaterial), void())
-      : (Eval.Material ? (Eval.Component->SetMaterial(0, Eval.Material), void())
+      ? (ApplyRuntimeEmissiveColor(DynamicMaterial, Profile, Eval.Color),
+         Eval.Component->SetMaterial(Profile.RuntimePixelMaterialIndex,
+                                     DynamicMaterial),
+         void())
+      : (Eval.Material ? (Eval.Component->SetMaterial(
+                              Profile.RuntimePixelMaterialIndex, Eval.Material),
+                          void())
                        : void());
 }
 
@@ -246,18 +265,23 @@ void ApplyRuntimeSkyDomeActor(AStaticMeshActor *Actor,
       LoadRuntimeProfileAsset<UMaterialInterface>(Profile.SkyDomeMaterialPath);
   Mesh ? (Component->SetStaticMesh(Mesh), void()) : void();
   UMaterialInstanceDynamic *DynamicMaterial =
-      Material ? Component->CreateDynamicMaterialInstance(0, Material)
+      Material ? Component->CreateDynamicMaterialInstance(
+                     Profile.RuntimePixelMaterialIndex, Material)
                : nullptr;
   DynamicMaterial
       ? (ApplyRuntimeSkyDomeMaterialParameters(DynamicMaterial, Profile),
          void())
-      : (Material ? (Component->SetMaterial(0, Material), void()) : void());
+      : (Material ? (Component->SetMaterial(Profile.RuntimePixelMaterialIndex,
+                                            Material),
+                     void())
+                  : void());
 }
 
 void ApplyRuntimePointStarsActor(AActor *Actor,
                                  const FLevelRetroRenderProfile &Profile) {
   check(Actor);
-  UProceduralMeshComponent *Component = RuntimePointStarsComponent(Actor);
+  UProceduralMeshComponent *Component =
+      RuntimePointStarsComponent(Actor, Profile);
   check(Component);
   Component->SetMobility(EComponentMobility::Movable);
   Actor->SetActorHiddenInGame(!Profile.bSkyDomeEnabled);
@@ -272,16 +296,16 @@ void ApplyRuntimePointStarsActor(AActor *Actor,
       LoadRuntimeProfileAsset<UMaterialInterface>(Profile.MoonDiscMaterialPath);
   ApplyRuntimePixelMaterial(
       {Component, Material,
-       RenderingProfileSkyReducers::SkyDomeStarColor(Profile)});
+       RenderingProfileSkyReducers::SkyDomeStarColor(Profile), &Profile});
   ApplyRuntimePixelMeshSection(
-      Component,
+      Component, Profile,
       RenderingProfileSkyReducers::ReducePointStarMeshBuffers(Profile));
 }
 
 void ApplyRuntimeMoonDiscActor(AActor *Actor,
                                const FLevelRetroRenderProfile &Profile) {
   check(Actor);
-  UProceduralMeshComponent *Component = RuntimeMoonPixelsComponent(Actor);
+  UProceduralMeshComponent *Component = RuntimeMoonPixelsComponent(Actor, Profile);
   check(Component);
   HideRuntimeMoonMeshComponent(Actor);
   Component->SetMobility(EComponentMobility::Movable);
@@ -297,9 +321,9 @@ void ApplyRuntimeMoonDiscActor(AActor *Actor,
       LoadRuntimeProfileAsset<UMaterialInterface>(Profile.MoonDiscMaterialPath);
   ApplyRuntimePixelMaterial(
       {Component, Material,
-       RenderingProfileSkyReducers::MoonDiscColor(Profile)});
+       RenderingProfileSkyReducers::MoonDiscColor(Profile), &Profile});
   ApplyRuntimePixelMeshSection(
-      Component,
+      Component, Profile,
       RenderingProfileSkyReducers::ReduceMoonPixelMeshBuffers(Profile));
 }
 
@@ -316,16 +340,16 @@ void ApplyRuntimeSkyLight(const FRuntimeProfileEval &Eval) {
 
 void ApplyRuntimeSkyDome(const FRuntimeProfileEval &Eval) {
   ApplyToTaggedProfileActor<AStaticMeshActor>(
-      RuntimeProfileSkyDomeTag(), &ApplyRuntimeSkyDomeActor)(Eval);
+      RuntimeProfileSkyDomeTag(Eval.Profile), &ApplyRuntimeSkyDomeActor)(Eval);
 }
 
 void ApplyRuntimePointStars(const FRuntimeProfileEval &Eval) {
-  ApplyToTaggedProfileActor<AActor>(RuntimeProfilePointStarsTag(),
+  ApplyToTaggedProfileActor<AActor>(RuntimeProfilePointStarsTag(Eval.Profile),
                                     &ApplyRuntimePointStarsActor)(Eval);
 }
 
 void ApplyRuntimeMoonDisc(const FRuntimeProfileEval &Eval) {
-  ApplyToTaggedProfileActor<AActor>(RuntimeProfileMoonDiscTag(),
+  ApplyToTaggedProfileActor<AActor>(RuntimeProfileMoonDiscTag(Eval.Profile),
                                     &ApplyRuntimeMoonDiscActor)(Eval);
 }
 

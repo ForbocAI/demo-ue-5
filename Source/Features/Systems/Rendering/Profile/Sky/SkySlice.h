@@ -76,6 +76,7 @@ FRuntimePixelMeshBuffers ReducePointStarMeshBuffers(
 
 FVector ReducePixelQuadNormal(const FRuntimePixelQuad &Quad);
 void AppendPixelQuad(FRuntimePixelMeshBuffers &Buffers,
+                     const FLevelRetroRenderProfile &Profile,
                      const FRuntimePixelQuad &Quad);
 
 } // namespace RenderingProfileSkyReducers

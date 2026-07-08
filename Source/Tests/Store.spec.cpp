@@ -99,7 +99,7 @@ private:
   FName Category;
 };
 
-struct FAutomationTestLabelCursor {
+struct FStoreLabelCursor {
   const TArray<FString> *Labels = nullptr;
   int32 Index = int32();
 
@@ -112,8 +112,8 @@ struct FAutomationTestLabelCursor {
   }
 };
 
-FAutomationTestLabelCursor
-AutomationTestLabels(const TArray<FString> &Labels) {
+FStoreLabelCursor
+StoreLabels(const TArray<FString> &Labels) {
   return {&Labels, int32()};
 }
 
@@ -234,7 +234,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   const FStoreSettings StoreAutomation = Settings.Automation.Store;
-  FAutomationTestLabelCursor Labels = AutomationTestLabels(
+  FStoreLabelCursor Labels = StoreLabels(
       StoreAutomation.DataBackedMapLabels);
   const ForbocAI::Game::Data::FTerrainSourceSettings Sources =
       Settings.LevelTerrainSources;
@@ -625,7 +625,7 @@ bool FStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   const FStoreSettings StoreAutomation = Settings.Automation.Store;
-  FAutomationTestLabelCursor Labels = AutomationTestLabels(
+  FStoreLabelCursor Labels = StoreLabels(
       StoreAutomation.ReduxLoggerMiddlewareLabels);
   TArray<FString> CapturedLines;
   FReduxLoggerCaptureDevice CaptureDevice(CapturedLines,
@@ -674,7 +674,7 @@ bool FStoreProjectionGate::RunTest(const FString &Parameters) {
 
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
-  FAutomationTestLabelCursor Labels = AutomationTestLabels(
+  FStoreLabelCursor Labels = StoreLabels(
       Settings.Automation.Store.ProjectionGateLabels);
   FBotPositionMoved MovePayload;
   FBotPatrolAdvanceRequest PatrolRequest;
