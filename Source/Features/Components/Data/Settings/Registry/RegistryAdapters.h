@@ -209,6 +209,50 @@ JSON_SETTINGS_REGISTRY(Automation::Bot::FCases,
                        TransitionToCombat, TransitionToFlee, UpdateMemory,
                        IncrementTick, DecayAggro);
 
+JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorGroups,
+                       Registration, Cycle, RuntimeStore);
+
+JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorCases,
+                       RegisterBot, RespectObservationInterval, RegisterBots,
+                       DispatchMovement);
+
+JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorAssertions,
+                       ThreeBotsInRootState, BotSelectable, HorseSelectable,
+                       PositionSelectable, WorldPositionUpdated);
+
+template <>
+struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorSettings> {
+  static const TArray<TField<Automation::Bot::FOrchestratorSettings>>
+      &Fields() {
+    static const TArray<
+        TField<Automation::Bot::FOrchestratorSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorSettings, Spec, MultiBotSpec,
+                Persona, WorldContextIndex),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorSettings,
+                ReadSettingsWith<Automation::Bot::FOrchestratorGroups>(
+                    JSON_SETTINGS_ATOMS(Registration, Cycle, RuntimeStore)),
+                Groups),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorSettings,
+                ReadSettingsWith<Automation::Bot::FOrchestratorCases>(
+                    JSON_SETTINGS_ATOMS(RegisterBot,
+                                        RespectObservationInterval,
+                                        RegisterBots, DispatchMovement)),
+                Cases),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorSettings,
+                ReadSettingsWith<Automation::Bot::FOrchestratorAssertions>(
+                    JSON_SETTINGS_ATOMS(
+                        ThreeBotsInRootState, BotSelectable, HorseSelectable,
+                        PositionSelectable, WorldPositionUpdated)),
+                Assertions)};
+    return RegisteredFields;
+  }
+};
+
 template <>
 struct TJsonSettingsRegistry<Automation::Bot::FSettings> {
   static const TArray<TField<Automation::Bot::FSettings>>
@@ -231,7 +275,14 @@ struct TJsonSettingsRegistry<Automation::Bot::FSettings> {
                                         ReduceHealth, TransitionToCombat,
                                         TransitionToFlee, UpdateMemory,
                                         IncrementTick, DecayAggro)),
-                Cases)};
+                Cases),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FSettings,
+                ReadSettingsWith<Automation::Bot::FOrchestratorSettings>(
+                    JSON_SETTINGS_ATOMS(Spec, MultiBotSpec, Persona,
+                                        WorldContextIndex, Groups, Cases,
+                                        Assertions)),
+                Orchestrator)};
     return RegisteredFields;
   }
 };

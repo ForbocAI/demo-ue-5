@@ -262,7 +262,31 @@
       "TickCount",
       "Initially Aggro",
       "Lost Aggro"
-    ]
+    ],
+    "orchestrator": {
+      "spec": "ForbocAI.Bot.Orchestrator",
+      "multi_bot_spec": "ForbocAI.Bot.Orchestrator.MultiBot",
+      "persona": "TestPersona",
+      "world_context_index": 0,
+      "groups": {
+        "registration": "Bot Registration",
+        "cycle": "Orchestration Cycle",
+        "runtime_store": "Single RTK Runtime Store"
+      },
+      "cases": {
+        "register_bot": "Should successfully register a bot and initialize its agent",
+        "respect_observation_interval": "Should respect the observation interval",
+        "register_bots": "Should register bots into one root store",
+        "dispatch_movement": "Should dispatch movement through the position slice"
+      },
+      "assertions": {
+        "three_bots_in_root_state": "Three bots in root state",
+        "bot_selectable": "Bot alpha selectable",
+        "horse_selectable": "Horse selectable",
+        "position_selectable": "Position selectable",
+        "world_position_updated": "World position updated"
+      }
+    }
   },
   "pipeline": {
     "spec": "",

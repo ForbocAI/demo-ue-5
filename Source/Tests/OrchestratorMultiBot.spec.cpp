@@ -25,6 +25,11 @@ OrchestratorSettings() {
   return Settings;
 }
 
+const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings &
+OrchestratorAutomationSettings() {
+  return OrchestratorSettings().Automation.Bot.Orchestrator;
+}
+
 FLevelLocalPoint LocalPointFromVector(const FVector &Vector) {
   return {static_cast<float>(Vector.X), static_cast<float>(Vector.Y),
           static_cast<float>(Vector.Z)};
@@ -58,13 +63,17 @@ FBotEntity OrchestratorMovingBot() {
 
 } // namespace
 
-DEFINE_SPEC(FOrchestratorMultiBotSpec, "ForbocAI.Bot.Orchestrator.MultiBot",
+DEFINE_SPEC(FOrchestratorMultiBotSpec,
+            OrchestratorAutomationSettings().MultiBotSpec,
             EAutomationTestFlags::ProductFilter |
                 EAutomationTestFlags_ApplicationContextMask)
 
 void FOrchestratorMultiBotSpec::Define() {
-  Describe("Single RTK Runtime Store", [this]() {
-    It("Should register bots into one root store", [this]() {
+  const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings
+      &Automation = OrchestratorAutomationSettings();
+
+  Describe(Automation.Groups.RuntimeStore, [this, &Automation]() {
+    It(Automation.Cases.RegisterBots, [this, &Automation]() {
       rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
           Store::ConfigureStore();
 
@@ -78,20 +87,21 @@ void FOrchestratorMultiBotSpec::Define() {
       const TArray<FBotEntity> Bots =
           RuntimeSelectors::SelectBots(EnhancedStoreValue.getState());
 
-      TestEqual(TEXT("Three bots in root state"), Bots.Num(), SeedBots.Num());
-      TestTrue(TEXT("Bot alpha selectable"),
+      TestEqual(Automation.Assertions.ThreeBotsInRootState, Bots.Num(),
+                SeedBots.Num());
+      TestTrue(Automation.Assertions.BotSelectable,
                RuntimeSelectors::SelectBotById(EnhancedStoreValue.getState(),
                                                SeedBots[SeedBots.Num() -
                                                         SeedBots.Num()]
                                                    .Id)
                    .hasValue);
-      TestTrue(TEXT("Horse selectable"),
+      TestTrue(Automation.Assertions.HorseSelectable,
                RuntimeSelectors::SelectBotById(EnhancedStoreValue.getState(),
                                                SeedBots.Last().Id)
                    .hasValue);
     });
 
-    It("Should dispatch movement through the position slice", [this]() {
+    It(Automation.Cases.DispatchMovement, [this, &Automation]() {
       rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
           Store::ConfigureStore();
       const ForbocAI::Game::Data::FSettings &Settings =
@@ -120,8 +130,8 @@ void FOrchestratorMultiBotSpec::Define() {
           RuntimeSelectors::SelectBotPositionById(EnhancedStoreValue.getState(),
                                                   MovingBot.Id);
 
-      TestTrue(TEXT("Position selectable"), Position.hasValue);
-      TestEqual(TEXT("World position updated"),
+      TestTrue(Automation.Assertions.PositionSelectable, Position.hasValue);
+      TestEqual(Automation.Assertions.WorldPositionUpdated,
                 Position.hasValue ? Position.value.WorldLocation
                                   : FVector::ZeroVector,
                 Settings.Bot.MoveActionOffset);

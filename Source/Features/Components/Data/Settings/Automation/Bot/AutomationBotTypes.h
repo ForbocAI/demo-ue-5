@@ -28,12 +28,44 @@ struct FCases {
   FString DecayAggro;
 };
 
+struct FOrchestratorGroups {
+  FString Registration;
+  FString Cycle;
+  FString RuntimeStore;
+};
+
+struct FOrchestratorCases {
+  FString RegisterBot;
+  FString RespectObservationInterval;
+  FString RegisterBots;
+  FString DispatchMovement;
+};
+
+struct FOrchestratorAssertions {
+  FString ThreeBotsInRootState;
+  FString BotSelectable;
+  FString HorseSelectable;
+  FString PositionSelectable;
+  FString WorldPositionUpdated;
+};
+
+struct FOrchestratorSettings {
+  FString Spec;
+  FString MultiBotSpec;
+  FString Persona;
+  int32 WorldContextIndex;
+  FOrchestratorGroups Groups;
+  FOrchestratorCases Cases;
+  FOrchestratorAssertions Assertions;
+};
+
 struct FSettings {
   FString Spec;
   TArray<FString> Tests;
   FGroups Groups;
   FCases Cases;
   TArray<FString> Assertions;
+  FOrchestratorSettings Orchestrator;
 };
 
 inline bool operator==(const FGroups &Left, const FGroups &Right) {
@@ -62,10 +94,64 @@ inline bool operator!=(const FCases &Left, const FCases &Right) {
   return !(Left == Right);
 }
 
+inline bool operator==(const FOrchestratorGroups &Left,
+                       const FOrchestratorGroups &Right) {
+  return Left.Registration == Right.Registration &&
+         Left.Cycle == Right.Cycle &&
+         Left.RuntimeStore == Right.RuntimeStore;
+}
+
+inline bool operator!=(const FOrchestratorGroups &Left,
+                       const FOrchestratorGroups &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FOrchestratorCases &Left,
+                       const FOrchestratorCases &Right) {
+  return Left.RegisterBot == Right.RegisterBot &&
+         Left.RespectObservationInterval == Right.RespectObservationInterval &&
+         Left.RegisterBots == Right.RegisterBots &&
+         Left.DispatchMovement == Right.DispatchMovement;
+}
+
+inline bool operator!=(const FOrchestratorCases &Left,
+                       const FOrchestratorCases &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FOrchestratorAssertions &Left,
+                       const FOrchestratorAssertions &Right) {
+  return Left.ThreeBotsInRootState == Right.ThreeBotsInRootState &&
+         Left.BotSelectable == Right.BotSelectable &&
+         Left.HorseSelectable == Right.HorseSelectable &&
+         Left.PositionSelectable == Right.PositionSelectable &&
+         Left.WorldPositionUpdated == Right.WorldPositionUpdated;
+}
+
+inline bool operator!=(const FOrchestratorAssertions &Left,
+                       const FOrchestratorAssertions &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FOrchestratorSettings &Left,
+                       const FOrchestratorSettings &Right) {
+  return Left.Spec == Right.Spec && Left.MultiBotSpec == Right.MultiBotSpec &&
+         Left.Persona == Right.Persona &&
+         Left.WorldContextIndex == Right.WorldContextIndex &&
+         Left.Groups == Right.Groups && Left.Cases == Right.Cases &&
+         Left.Assertions == Right.Assertions;
+}
+
+inline bool operator!=(const FOrchestratorSettings &Left,
+                       const FOrchestratorSettings &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Spec == Right.Spec && Left.Tests == Right.Tests &&
          Left.Groups == Right.Groups && Left.Cases == Right.Cases &&
-         Left.Assertions == Right.Assertions;
+         Left.Assertions == Right.Assertions &&
+         Left.Orchestrator == Right.Orchestrator;
 }
 
 inline bool operator!=(const FSettings &Left, const FSettings &Right) {
