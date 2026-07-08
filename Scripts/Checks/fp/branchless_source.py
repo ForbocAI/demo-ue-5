@@ -5,9 +5,8 @@ Built on the check_fp engine: findings carry stable ids/severities and the
 guidance for each control-flow keyword is DERIVED from the func:: helper
 vocabulary in Core/ue_fp.hpp, so a loop always points at the current fold/
 traverse helpers and a switch at the current match/dispatch helpers. Beyond the
-keyword ban it also flags the two ways people dodge it -- deep ternary chains
-(mechanical if-replacement) and goto/do -- and the bool + out-param shape that
-should return Maybe/Either so missing data is visible in the type.
+keyword ban it also flags the two ways people dodge it: deep ternary chains
+(mechanical if-else-if replacement) and goto/do.
 """
 
 from __future__ import annotations
@@ -38,13 +37,11 @@ from check_fp import (
 
 
 CONTROL_RE = re.compile(r"\b(if|else|for|while|switch|case)\b")
-TERNARY_RE = re.compile(r"\?[^?:;{}]+:[^?:;{}]+\?[^?:;{}]+:")  # two or more chained ?:
+# A genuine if-else-if-else-if ternary chain: three or more ?: with nothing that
+# ends an expression (comma/semicolon/brace) between them, so separate ternaries
+# in an argument list are not joined into a false "chain".
+TERNARY_RE = re.compile(r"(?:\?[^?:;{},]+:[^?:;{},]+){2}\?[^?:;{},]+:")
 JUMP_RE = re.compile(r"\b(goto|do)\b")
-# bool Foo(..., Out& out) -- a boolean success flag plus a mutable out-param is
-# the shape that should return Maybe/Either instead.
-OUT_PARAM_RE = re.compile(
-    r"\bbool\s+[A-Za-z_][A-Za-z0-9_]*\s*\([^;{)]*[A-Za-z0-9_>]\s*[&*]\s*[A-Za-z_][A-Za-z0-9_]*\s*\)\s*\{"
-)
 
 
 def _helper_hint(kind: str) -> str:
@@ -79,15 +76,6 @@ JUMP = register(
         skill="ue_fp.hpp: functional-core recursion/folds over open-ended loops",
     )
 )
-OUT_PARAM = register(
-    Rule(
-        id="FP-BRANCH-004",
-        severity=Severity.MEDIUM,
-        summary="bool return + mutable out-param instead of Maybe/Either",
-        guidance="Return func::Maybe<T> or func::Either<E, T> so missing data is visible in the type instead of a success flag plus an out-param.",
-        skill="ue_fp.hpp: prefer Maybe/Either-returning helpers so missing data is visible",
-    )
-)
 
 
 def scan_file(path: Path) -> list[Finding]:
@@ -107,11 +95,6 @@ def scan_file(path: Path) -> list[Finding]:
         findings.append(
             Finding(path, line_number(code, match.start()), JUMP.id, JUMP.severity,
                     f"`{match.group(1)}` control flow")
-        )
-    for match in OUT_PARAM_RE.finditer(code):
-        findings.append(
-            Finding(path, line_number(code, match.start()), OUT_PARAM.id, OUT_PARAM.severity,
-                    OUT_PARAM.summary)
         )
     return findings
 

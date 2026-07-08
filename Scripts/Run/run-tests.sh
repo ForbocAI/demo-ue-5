@@ -79,13 +79,13 @@ echo "Checking SDK submodule immutability..."
 bash "$PROJECT_ROOT/Scripts/Checks/check_sdk_submodule_guard.sh"
 
 echo "Checking feature C++ parameter discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_param_count.py"
+python3 "$PROJECT_ROOT/Scripts/Checks/fp/param_count.py"
 
 echo "Checking function/data composition naming discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_function_composition.py"
+python3 "$PROJECT_ROOT/Scripts/Checks/fp/function_composition.py"
 
 echo "Checking branchless FP source discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py"
+python3 "$PROJECT_ROOT/Scripts/Checks/fp/branchless_source.py"
 
 echo "Checking RTK/ECS boundary discipline (Features + Views)..."
 python3 "$PROJECT_ROOT/Scripts/Checks/check_redux.py"
@@ -94,10 +94,10 @@ echo "Checking runtime rendering JSON tuning discipline..."
 python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py"
 
 echo "Checking authored data naming discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/ecs/check_data_naming.py"
+python3 "$PROJECT_ROOT/Scripts/Checks/ecs/data_naming.py"
 
 echo "Checking domain/subdomain path ownership..."
-python3 "$PROJECT_ROOT/Scripts/Checks/ecs/check_domain_boundaries.py"
+python3 "$PROJECT_ROOT/Scripts/Checks/ecs/domain_boundaries.py"
 
 echo "Validating authored data JSON..."
 while IFS= read -r -d '' JSON_FILE; do

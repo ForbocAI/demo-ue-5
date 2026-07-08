@@ -18,8 +18,8 @@ import tempfile
 # The ECS engine (check_ecs) lives one level up in Checks/; put it on the path.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import check_data_naming as dat
-import check_domain_boundaries as dom
+import data_naming as dat
+import domain_boundaries as dom
 
 
 def rid(finding) -> str | None:
