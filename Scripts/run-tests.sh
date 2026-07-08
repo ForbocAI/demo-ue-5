@@ -85,9 +85,14 @@ echo "Checking branchless FP source discipline..."
 python3 "$PROJECT_ROOT/Scripts/check_branchless_source.py" --self-test
 python3 "$PROJECT_ROOT/Scripts/check_branchless_source.py" "$PROJECT_ROOT/Source"
 
+echo "Checking view boundary discipline..."
+python3 "$PROJECT_ROOT/Scripts/check_view_boundaries.py" "$PROJECT_ROOT/Source/Views"
+
 echo "Checking runtime rendering JSON tuning discipline..."
-python3 "$PROJECT_ROOT/Scripts/check_runtime_rendering_json_tuning.py" --self-test
-python3 "$PROJECT_ROOT/Scripts/check_runtime_rendering_json_tuning.py" "$PROJECT_ROOT/Source"
+# No --self-test line here. A self-test passes without scanning Source and reads
+# as green while real hard-coded values slip through. Only the Source scan below
+# actually enforces the discipline. DO NOT add a --self-test invocation back.
+python3 "$PROJECT_ROOT/Scripts/check_source_for_data.py" "$PROJECT_ROOT/Source"
 
 echo "Validating runtime settings JSON..."
 for JSON_FILE in "$PROJECT_ROOT/Content/Data/runtime_settings.json" "$PROJECT_ROOT"/Content/Data/runtime_settings_*.json; do

@@ -176,44 +176,13 @@ def scan_paths(paths: list[Path]) -> list[tuple[Path, int, int, str, str]]:
     ]
 
 
-def run_self_test() -> bool:
-    fixture = """
-#include "Ignored/Path/5.8.h"
-int32 RuntimePointStarCount() { return 260; }
-const TCHAR *Name = TEXT("BaseColor");
-// RuntimeMoonPixelGridSize returns 32 in old code.
-auto Slice = rtk::createSlice<FRuntimeState>(TEXT("systems/rendering"), S);
-auto Type = createAction<FPayload>(TEXT("botAI/seeded"));
-FString RequestPlayerSpawnTypePrefix() { return TEXT("runtime/spawn"); }
-FRotator TopDown = FRotator(-90.0f, 0.0f, 0.0f);
-"""
-    scannable = blank_comments_and_chars(blank_preprocessor(fixture))
-    exempt = collect_metadata_strings([scannable])
-    found = scan_file(Path("fixture.cpp"), scannable, exempt)
-    numbers = {token for _p, _l, _c, kind, token in found if kind == "number"}
-    strings = {token for _p, _l, _c, kind, token in found if kind == "string"}
-    return (
-        "260" in numbers
-        and "90.0" in numbers            # scale-audit tuning literal
-        and "32" not in numbers          # inside a comment
-        and "5.8" not in numbers         # preprocessor include line
-        and '"BaseColor"' in strings
-        # action/slice/thunk metadata dynamically collected -> exempt:
-        and "systems/rendering" in exempt
-        and "botAI/seeded" in exempt
-        and "runtime/spawn" in exempt
-        and not any("systems/rendering" in value for value in strings)
-        and not any("botAI/seeded" in value for value in strings)
-    )
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--self-test",
-        action="store_true",
-        help="Run guard fixture checks for hard-coded values.",
-    )
+    # No --self-test flag, on purpose. A self-test only exercises the guard's own
+    # fixture and prints "self-test passed" WITHOUT scanning your Source, so it
+    # reads as green while real hard-coded values slip through untouched. The
+    # guard must always scan a path (defaulting to Source). DO NOT add
+    # --self-test back.
     parser.add_argument(
         "paths",
         nargs="*",
@@ -221,13 +190,6 @@ def main() -> int:
         help="C++ source file or directory to scan.",
     )
     args = parser.parse_args()
-
-    if args.self_test:
-        if run_self_test():
-            print("Hard-coded value guard self-test passed.")
-            return 0
-        print("Hard-coded value guard self-test failed.")
-        return 1
 
     paths = [Path(path).resolve() for path in args.paths]
     missing_paths = [path for path in paths if not path.exists()]
