@@ -3,7 +3,7 @@
 # Runs ForbocAI automation tests for the UE 5.8 runtime project.
 # Saves logs and distinguishes real failures from offline skips.
 
-set -euo pipefail
+set -uo pipefail
 
 # Locate project root
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -48,6 +48,81 @@ else
     UNREAL_BUILD_ARG="$UNREAL_BUILD"
 fi
 
+LOG_FILE="$PROJECT_ROOT/Saved/Automation/AutomationLog.txt"
+mkdir -p "$PROJECT_ROOT/Saved/Automation"
+
+CHECK_FAILURES=0
+FAILED_CHECKS=()
+
+record_check_failure() {
+  local label="$1"
+  local exit_code="$2"
+
+  CHECK_FAILURES=$((CHECK_FAILURES + 1))
+  FAILED_CHECKS+=("${label%...} (exit $exit_code)")
+  echo "✗ ${label%...} failed with exit code: $exit_code"
+}
+
+run_check() {
+  local label="$1"
+  shift
+
+  echo "$label"
+  "$@"
+  local exit_code=$?
+  if [ "$exit_code" -ne 0 ]; then
+    record_check_failure "$label" "$exit_code"
+  fi
+  return 0
+}
+
+validate_authored_data_json() {
+  local failures=0
+  while IFS= read -r -d '' JSON_FILE; do
+    if ! python3 -m json.tool "$JSON_FILE" >/dev/null; then
+      echo "Invalid JSON: $JSON_FILE"
+      failures=$((failures + 1))
+    fi
+  done < <(find "$PROJECT_ROOT/Content/Data" -type f -name '*.json' -print0)
+
+  if [ "$failures" -ne 0 ]; then
+    echo "Found $failures invalid authored JSON file(s)."
+    return 1
+  fi
+  return 0
+}
+
+echo "=== ForbocAI UE Automation Runner ==="
+echo "Project: $PROJECT_FILE"
+echo "Editor:  $UNREAL_EDITOR"
+echo "Log:     $LOG_FILE"
+if [ -n "$UNREAL_BUILD" ]; then
+  echo "Build:   $UNREAL_BUILD"
+fi
+echo "Running ForbocAI.* tests..."
+
+run_check "Locking SDK submodule read-only..." bash "$PROJECT_ROOT/Scripts/SDK/lock_sdk_submodule.sh" --lock
+run_check "Checking SDK submodule immutability..." bash "$PROJECT_ROOT/Scripts/Checks/check_sdk_submodule_guard.sh"
+run_check "Checking feature C++ parameter discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/fp/param_count.py"
+run_check "Checking function/data composition naming discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/fp/function_composition.py"
+run_check "Checking branchless FP source discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/fp/branchless_source.py"
+run_check "Checking RTK/ECS boundary discipline (Features + Views)..." python3 "$PROJECT_ROOT/Scripts/Checks/check_redux.py"
+run_check "Checking runtime rendering JSON tuning discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py"
+run_check "Checking authored data naming discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/ecs/data_naming.py"
+run_check "Checking domain/subdomain path ownership..." python3 "$PROJECT_ROOT/Scripts/Checks/ecs/domain_boundaries.py"
+run_check "Checking Source/Content file size discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/check_line_count.py"
+run_check "Validating authored data JSON..." validate_authored_data_json
+run_check "Updating file line count documentation..." python3 "$PROJECT_ROOT/Scripts/Docs/count_project_lines.py"
+run_check "Checking diff whitespace..." git -C "$PROJECT_ROOT" diff --check
+
+if [ "$CHECK_FAILURES" -ne 0 ]; then
+  echo ""
+  echo "=== Preflight Failure Summary ==="
+  printf ' - %s\n' "${FAILED_CHECKS[@]}"
+  echo "✗ Preflight failed after running all checks."
+  exit 1
+fi
+
 if [ ! -f "$UNREAL_EDITOR" ]; then
   echo "Error: UnrealEditor-Cmd not found at $UNREAL_EDITOR"
   echo "Please set UE_ROOT to your Unreal Engine 5.8 installation directory."
@@ -60,69 +135,14 @@ if [ -n "$UNREAL_BUILD" ] && [ ! -f "$UNREAL_BUILD" ]; then
   exit 1
 fi
 
-LOG_FILE="$PROJECT_ROOT/Saved/Automation/AutomationLog.txt"
-mkdir -p "$PROJECT_ROOT/Saved/Automation"
-
-echo "=== ForbocAI UE Automation Runner ==="
-echo "Project: $PROJECT_FILE"
-echo "Editor:  $UNREAL_EDITOR"
-echo "Log:     $LOG_FILE"
-if [ -n "$UNREAL_BUILD" ]; then
-  echo "Build:   $UNREAL_BUILD"
-fi
-echo "Running ForbocAI.* tests..."
-
-echo "Locking SDK submodule read-only..."
-bash "$PROJECT_ROOT/Scripts/SDK/lock_sdk_submodule.sh" --lock
-
-echo "Checking SDK submodule immutability..."
-bash "$PROJECT_ROOT/Scripts/Checks/check_sdk_submodule_guard.sh"
-
-echo "Checking feature C++ parameter discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/fp/param_count.py"
-
-echo "Checking function/data composition naming discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/fp/function_composition.py"
-
-echo "Checking branchless FP source discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/fp/branchless_source.py"
-
-echo "Checking RTK/ECS boundary discipline (Features + Views)..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_redux.py"
-
-echo "Checking runtime rendering JSON tuning discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py"
-
-echo "Checking authored data naming discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/ecs/data_naming.py"
-
-echo "Checking domain/subdomain path ownership..."
-python3 "$PROJECT_ROOT/Scripts/Checks/ecs/domain_boundaries.py"
-
-echo "Checking Source/Content file size discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_line_count.py"
-
-echo "Validating authored data JSON..."
-while IFS= read -r -d '' JSON_FILE; do
-  python3 -m json.tool "$JSON_FILE" >/dev/null
-done < <(find "$PROJECT_ROOT/Content/Data" -type f -name '*.json' -print0)
-
-echo "Updating file line count documentation..."
-python3 "$PROJECT_ROOT/Scripts/Docs/count_project_lines.py"
-
-echo "Checking diff whitespace..."
-git -C "$PROJECT_ROOT" diff --check
-
 if [ -n "$UNREAL_BUILD" ]; then
   echo "Ensuring ForbocAIDemoEditor is built..."
-  set +e
   if [ "$BUILD_VIA_CMD" -eq 1 ]; then
     powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { & '$UNREAL_BUILD_ARG' 'ForbocAIDemoEditor' 'Win64' 'Development' '-Project=$PROJECT_FILE_ARG' '-WaitMutex' '-NoHotReloadFromIDE'; exit \$LASTEXITCODE }" < /dev/null
   else
     "$UNREAL_BUILD" ForbocAIDemoEditor Win64 Development "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE
   fi
   BUILD_EXIT=$?
-  set -e
   if [ "$BUILD_EXIT" -ne 0 ]; then
     echo "✗ Build failed with exit code: $BUILD_EXIT"
     exit 1
@@ -132,14 +152,12 @@ fi
 # Run UE Automation tests
 # We use -ExecCmds to run tests and then quit.
 # We pipe both stdout and stderr to tee so we can parse it.
-set +e
 "$UNREAL_EDITOR" "$PROJECT_FILE_ARG" \
   -ExecCmds="Automation RunTests ForbocAI; Quit" \
   -log -NoUI -stdout -FullStdOutLogOutput \
   -unattended -nop4 -nosplash -nullrhi -nosound -NoLiveCoding \
   | tee "$LOG_FILE"
 UE_EXIT=$?
-set -e
 
 echo ""
 echo "=== Test Results Analysis ==="

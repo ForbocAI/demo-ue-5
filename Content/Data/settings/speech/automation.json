@@ -1,0 +1,26 @@
+{
+  "automation": {
+    "phoneme_estimation_test": "ForbocAI.Speech.PhonemeEstimation",
+    "phoneme_estimation_with_spaces_test": "ForbocAI.Speech.PhonemeEstimationWithSpaces",
+    "viseme_map_completeness_test": "ForbocAI.Speech.VisemeMapCompleteness",
+    "active_viseme_at_time_test": "ForbocAI.Speech.ActiveVisemeAtTime",
+    "viseme_lookup_unknown_test": "ForbocAI.Speech.VisemeLookupUnknown",
+    "phoneme_estimation_text": "Hello",
+    "silence_text": "Hi there",
+    "unknown_phoneme": "UNKNOWN",
+    "active_viseme_sample_ratio": 0.5,
+    "past_end_sample_ratio": 1.0,
+    "produces_phonemes_label_format": "Produces phonemes for {0}",
+    "correct_phoneme_count_label": "Correct phoneme count for authored text",
+    "first_phoneme_start_label": "First phoneme starts at authored initial playback time",
+    "positive_duration_label_format": "Phoneme[{0}] has positive duration",
+    "silence_phoneme_label": "Authored silence text produces silence phoneme",
+    "viseme_map_count_label": "Map matches authored viseme mappings",
+    "vowel_mapped_label_format": "Vowel {0} mapped",
+    "active_viseme_label_format": "At authored sample for {0}",
+    "active_viseme_weight_label_format": "At authored sample for {0}: weight is positive",
+    "past_end_silence_label": "Past authored phoneme timeline returns rest viseme",
+    "known_phoneme_label_format": "{0} maps to authored viseme",
+    "unknown_phoneme_label_format": "{0} phoneme is unmapped"
+  }
+}

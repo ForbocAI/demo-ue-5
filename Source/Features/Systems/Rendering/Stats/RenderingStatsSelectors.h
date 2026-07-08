@@ -22,6 +22,12 @@ struct FFormatContext {
   int32 BufferCharacterCount;
 };
 
+struct FRuntimeStatsMessageFormatRequest {
+  const FRuntimeStatsViewModel *Stats;
+  const FString *Format;
+  const FStatsOverlaySettings *Settings;
+};
+
 inline const FStatsOverlaySettings &SelectStatsOverlaySettings() {
   return RuntimeSelectors::SelectUISettings(RuntimeSelectors::SelectState())
       .StatsOverlay;
@@ -53,11 +59,11 @@ inline FString FormatRuntimeStatsDecimalValue(
 }
 
 inline FString FormatRuntimeStatsMessage(
-    const FRuntimeStatsViewModel &Stats,
-    const FString &Format,
-    const FStatsOverlaySettings &Settings) {
+    const FRuntimeStatsMessageFormatRequest &Request) {
+  const FRuntimeStatsViewModel &Stats = *Request.Stats;
+  const FStatsOverlaySettings &Settings = *Request.Settings;
   return FormatRuntimeStatsText(
-      {&Format, Settings.FormatBufferCharacterCount},
+      {Request.Format, Settings.FormatBufferCharacterCount},
       Stats.FramesPerSecond, Stats.StackDepth,
       static_cast<long long>(Stats.PolyCount),
       static_cast<long long>(Stats.UsedPhysicalMemoryMegabytes),
@@ -95,14 +101,15 @@ inline bool ShouldRunInterval(float ElapsedSeconds, float IntervalSeconds) {
 inline FString FormatRuntimeStatsDebugMessage(
     const FRuntimeStatsViewModel &Stats,
     const FStatsOverlaySettings &Settings) {
-  return FormatRuntimeStatsMessage(Stats, Settings.DebugMessageFormat,
-                                   Settings);
+  return FormatRuntimeStatsMessage(
+      {&Stats, &Settings.DebugMessageFormat, &Settings});
 }
 
 inline FString FormatRuntimeStatsBudgetLogMessage(
     const FRuntimeStatsViewModel &Stats,
     const FStatsOverlaySettings &Settings) {
-  return FormatRuntimeStatsMessage(Stats, Settings.BudgetLogFormat, Settings);
+  return FormatRuntimeStatsMessage(
+      {&Stats, &Settings.BudgetLogFormat, &Settings});
 }
 
 } // namespace RenderingStatsSelectors

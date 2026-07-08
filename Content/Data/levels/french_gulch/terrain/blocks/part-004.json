@@ -1,0 +1,152 @@
+[
+  {
+    "id": "osm-clear-creek-91655395-16",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -141.506,
+    "north_lots": -77.188,
+    "yaw_degrees": -141.315,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 11.823,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-17",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -134.617,
+    "north_lots": -85.417,
+    "yaw_degrees": -138.531,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 9.646,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-18",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -127.129,
+    "north_lots": -92.743,
+    "yaw_degrees": -130.843,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 11.353,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-19",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -117.943,
+    "north_lots": -99.967,
+    "yaw_degrees": -125.677,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 12.042,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-20",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -108.057,
+    "north_lots": -106.892,
+    "yaw_degrees": -124.344,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 12.099,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-21",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -98.568,
+    "north_lots": -113.015,
+    "yaw_degrees": -121.092,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 10.495,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-22",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -89.682,
+    "north_lots": -117.633,
+    "yaw_degrees": -113.481,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 9.579,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-23",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -80.595,
+    "north_lots": -120.043,
+    "yaw_degrees": -96.106,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 9.443,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-24",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -71.106,
+    "north_lots": -121.351,
+    "yaw_degrees": -99.535,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 9.723,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-25",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -62.815,
+    "north_lots": -123.663,
+    "yaw_degrees": -113.307,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 7.615,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  }
+]

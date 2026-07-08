@@ -1,0 +1,35 @@
+{
+  "pipeline": {
+    "spec": "",
+    "tests": {
+      "idle_tick_advances_state": "ForbocAI.Pipeline.IdleTickAdvancesState",
+      "hazard_causes_damage": "ForbocAI.Pipeline.HazardCausesDamage",
+      "awareness_triggers_aggro": "ForbocAI.Pipeline.AwarenessTriggersAggro",
+      "flee_transition_on_low_health": "ForbocAI.Pipeline.FleeTransitionOnLowHealth",
+      "multi_bot_independent": "ForbocAI.Pipeline.MultiBotIndependent",
+      "deterministic_order": "ForbocAI.Pipeline.DeterministicOrder"
+    },
+    "groups": [],
+    "cases": [],
+    "assertions": {
+      "tick_count_advanced": "Tick count advanced",
+      "action_dispatched": "At least 1 action dispatched",
+      "health_unchanged": "Health unchanged",
+      "health_reduced_by_hazard": "Health reduced by hazard",
+      "health_after_hazard": "Health after 1s hazard (25 DPS)",
+      "bot_has_aggro": "Bot has aggro",
+      "phase_is_combat": "Phase is Combat",
+      "remembers_enemy_position": "Remembers enemy position",
+      "phase_transitioned_to_flee": "Phase transitioned to Flee",
+      "bots_processed": "3 bots processed",
+      "idle_bot_full_health": "Bot 1 full health",
+      "hazard_bot_took_damage": "Bot 2 took hazard damage",
+      "aware_bot_has_aggro": "Bot 3 has aggro",
+      "health_deterministic": "Health deterministic",
+      "position_deterministic": "Position deterministic",
+      "phase_deterministic": "Phase deterministic",
+      "aggro_deterministic": "Aggro deterministic",
+      "action_count_deterministic": "Action count deterministic"
+    }
+  }
+}

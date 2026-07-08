@@ -1,0 +1,152 @@
+[
+  {
+    "id": "osm-building-1193533012",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": -1.937,
+    "north_lots": 31.734,
+    "yaw_degrees": -133.644,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 47.218,
+      "depth_feet": 27.282,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533011",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 4.944,
+    "north_lots": 31.825,
+    "yaw_degrees": 166.332,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 51.062,
+      "depth_feet": 43.587,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533149",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 29.046,
+    "north_lots": -16.293,
+    "yaw_degrees": -2.309,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 63.519,
+      "depth_feet": 25.954,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533150",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 26.568,
+    "north_lots": -22.556,
+    "yaw_degrees": -103.562,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 25.001,
+      "depth_feet": 16.284,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533156",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 1.653,
+    "north_lots": -37.15,
+    "yaw_degrees": -178.92,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 52.825,
+      "depth_feet": 44.367,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533144",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 24.729,
+    "north_lots": 29.561,
+    "yaw_degrees": 88.369,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 40.197,
+      "depth_feet": 38.502,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533010",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 5.763,
+    "north_lots": 39.904,
+    "yaw_degrees": -104.325,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 35.809,
+      "depth_feet": 28.903,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533164",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": -14.216,
+    "north_lots": -39.248,
+    "yaw_degrees": 1.229,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 50.681,
+      "depth_feet": 38.722,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533145",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 27.939,
+    "north_lots": 32.026,
+    "yaw_degrees": 174.35,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 22.271,
+      "depth_feet": 19.817,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533157",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 7.879,
+    "north_lots": -47.008,
+    "yaw_degrees": -175.034,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 46.446,
+      "depth_feet": 35.557,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  }
+]

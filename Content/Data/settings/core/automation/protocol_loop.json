@@ -1,0 +1,54 @@
+{
+  "protocol_loop": {
+    "spec": "ForbocAI.SDK.ProtocolLoop",
+    "groups": {
+      "agent_creation": "Agent Creation",
+      "state_updates": "State Updates",
+      "async_process_pipeline": "Async Process Pipeline",
+      "bridge_validation": "Bridge Validation"
+    },
+    "cases": {
+      "create_agent": "Should create an agent via AgentFactory with valid config",
+      "create_immutable_agent": "Should create an immutable agent wrapped in TSharedPtr",
+      "with_state_update": "Should return a new agent on WithState (immutable update)",
+      "invoke_process": "Should invoke AgentOps::Process without crashing",
+      "create_rpg_rules": "Should create RPG rules via BridgeOps preset",
+      "validate_rpg_action": "Should validate a valid action against RPG rules"
+    },
+    "assertions": {
+      "agent_id_not_empty": "Agent ID is not empty",
+      "persona_matches": "Persona matches",
+      "agent_pointer_valid": "Agent pointer is valid",
+      "persona_preserved": "Persona preserved",
+      "original_id_preserved": "Original ID preserved",
+      "updated_state_contains_mood": "Updated state contains mood",
+      "rpg_rules_not_empty": "RPG rules are not empty",
+      "move_action_valid": "MOVE action is valid"
+    },
+    "gate": {
+      "variable": "FORBOC_RUN_API_PROTOCOL_LOOP_TESTS",
+      "warning": "Skipping API protocol-loop test until API work resumes."
+    },
+    "connection": {
+      "url": "http://localhost:8080"
+    },
+    "personas": {
+      "agent": "TestNPC",
+      "immutable": "Immutable-Test",
+      "state": "StateTester",
+      "async": "AsyncTester",
+      "bridge": "BridgeTester"
+    },
+    "state": {
+      "json": "{\"mood\": \"alert\"}",
+      "needle": "alert"
+    },
+    "async": {
+      "prompt": "Hello, who are you?"
+    },
+    "bridge": {
+      "action": "MOVE",
+      "minimum_rules": 0
+    }
+  }
+}

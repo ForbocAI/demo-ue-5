@@ -172,18 +172,24 @@ void ApplyRuntimeVideoSettings(const FLevelRetroRenderProfile &Profile) {
       : void();
 }
 
+struct FRuntimeOutputLogMessageRequest {
+  const FLevelRetroRenderProfile *Profile;
+  FIntPoint OutputSize;
+  FIntPoint EffectiveViewportSize;
+  float EffectiveScreenPercentage;
+};
+
 FString RuntimeOutputLogMessage(
-    const FLevelRetroRenderProfile &Profile,
-    const FIntPoint &OutputSize,
-    const FIntPoint &EffectiveViewportSize,
-    float EffectiveScreenPercentage) {
+    const FRuntimeOutputLogMessageRequest &Request) {
+  const FLevelRetroRenderProfile &Profile = *Request.Profile;
   return RuntimeOutputFormat(
       {&Profile.RuntimeOutputLogFormat,
        Profile.RuntimeOutputFormatBufferCharacterCount},
-      Profile.InternalRenderWidth,
-      Profile.InternalRenderHeight, OutputSize.X, OutputSize.Y,
-      EffectiveViewportSize.X, EffectiveViewportSize.Y,
-      EffectiveScreenPercentage, static_cast<int32>(Profile.bFullscreenOutput));
+      Profile.InternalRenderWidth, Profile.InternalRenderHeight,
+      Request.OutputSize.X, Request.OutputSize.Y,
+      Request.EffectiveViewportSize.X, Request.EffectiveViewportSize.Y,
+      Request.EffectiveScreenPercentage,
+      static_cast<int32>(Profile.bFullscreenOutput));
 }
 
 } // namespace
@@ -207,8 +213,8 @@ void ApplyRuntimeOutput(const FRuntimeProfileEval &Eval) {
   SetRuntimeCVarFloat(Eval.Profile.ScreenPercentageCVarName,
                       EffectiveScreenPercentage);
   const FString LogMessage = RuntimeOutputLogMessage(
-      Eval.Profile, OutputSize, EffectiveViewportSize,
-      EffectiveScreenPercentage);
+      {&Eval.Profile, OutputSize, EffectiveViewportSize,
+       EffectiveScreenPercentage});
   UE_LOG(LogForbocRenderingProfile, Display, TEXT("%s"), *LogMessage);
 }
 

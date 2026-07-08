@@ -1,0 +1,50 @@
+{
+  "conversation_ui": {
+    "test": "ForbocAI.UI.ConversationViewModels",
+    "assertions": [
+      "Player message is role-prefixed",
+      "Player message uses cyan channel",
+      "History produces view models",
+      "Tagged history keeps role",
+      "Untagged history is marked unknown",
+      "Submitted text is trimmed",
+      "Conversation title is composed",
+      "Conversation player line is labeled",
+      "Conversation reply is labeled"
+    ],
+    "player_message": {
+      "role": "Player",
+      "text": "Hello",
+      "expected_text": "[Player] Hello",
+      "expected_green": 0.85
+    },
+    "history": {
+      "lines": [
+        "NPC: Welcome back",
+        "Unlabeled message"
+      ],
+      "expected_count": 2,
+      "tagged": {
+        "index": 0,
+        "expected_text": "[NPC] Welcome back"
+      },
+      "untagged": {
+        "index": 1,
+        "expected_text": "[Unknown] Unlabeled message"
+      }
+    },
+    "submitted": {
+      "input": "  Ask around  ",
+      "expected_text": "Ask around"
+    },
+    "dialogue": {
+      "speaker_name": "Clara Bell",
+      "speaker_role": "Postmaster",
+      "player_line": "Any mail?",
+      "npc_reply": "Only dust today.",
+      "expected_title": "Clara Bell - Postmaster",
+      "expected_player_line": "Player: Any mail?",
+      "expected_npc_reply": "NPC: Only dust today."
+    }
+  }
+}

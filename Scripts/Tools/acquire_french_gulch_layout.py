@@ -60,7 +60,18 @@ def snake_id(text: str) -> str:
 
 
 def load_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
+    data = json.loads(path.read_text(encoding="utf-8"))
+    parts = data.get("parts", [])
+    if not parts:
+        return data
+
+    combined = {key: value for key, value in data.items() if key != "parts"}
+    combined["elements"] = [
+        element
+        for part in parts
+        for element in load_json(path.parent / part).get("elements", [])
+    ]
+    return combined
 
 
 def write_json(path: Path, data: object) -> None:

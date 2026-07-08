@@ -4,6 +4,7 @@
 #include "Misc/Paths.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "Features/Components/Data/Json/Manifest/JsonManifestAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -71,6 +72,7 @@ ParseArraySource(const FString &Source) {
              : func::nothing<TArray<TSharedPtr<FJsonValue>>>();
 }
 
+
 } // namespace
 
 FFieldRequest Field(const TSharedPtr<FJsonObject> &Object,
@@ -92,8 +94,16 @@ func::Maybe<TSharedPtr<FJsonObject>>
 LoadObjectFromContent(const FContentObjectRequest &Request) {
   const FString SourcePath = ResolveContentPath(Request);
   return func::mbind(ReadSourceFile(SourcePath),
-                     [](const FString &Source) {
-                       return ParseObjectSource(Source);
+                     [&Request](const FString &Source) {
+                       return func::mbind(
+                           ParseObjectSource(Source),
+                           [&Request](const TSharedPtr<FJsonObject> &Object) {
+                             const func::Maybe<TSharedPtr<FJsonObject>> Parts =
+                                 LoadObjectManifestParts(Request.RelativePath,
+                                                         Object);
+                             return Parts.hasValue ? Parts
+                                                   : func::just(Object);
+                           });
                      });
 }
 
@@ -107,10 +117,19 @@ LoadRequiredObjectFromContent(const FContentObjectRequest &Request) {
 func::Maybe<TArray<TSharedPtr<FJsonValue>>>
 LoadArrayFromContent(const FContentArrayRequest &Request) {
   const FString SourcePath = ResolveContentPath(Request);
-  return func::mbind(ReadSourceFile(SourcePath),
-                     [](const FString &Source) {
-                       return ParseArraySource(Source);
-                     });
+  return func::mbind(
+      ReadSourceFile(SourcePath), [&Request](const FString &Source) {
+        const func::Maybe<TArray<TSharedPtr<FJsonValue>>> Array =
+            ParseArraySource(Source);
+        return Array.hasValue
+                   ? Array
+                   : func::mbind(
+                         ParseObjectSource(Source),
+                         [&Request](const TSharedPtr<FJsonObject> &Object) {
+                           return LoadArrayManifestParts(Request.RelativePath,
+                                                         Object);
+                         });
+      });
 }
 
 TArray<TSharedPtr<FJsonValue>>

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "osm-building-1193533165",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": -17.235,
+    "north_lots": -44.997,
+    "yaw_degrees": 177.058,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 22.196,
+      "depth_feet": 21.577,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533158",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 12.78,
+    "north_lots": -46.99,
+    "yaw_degrees": 94.965,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 35.32,
+      "depth_feet": 28.081,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533004",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 26.984,
+    "north_lots": 40.682,
+    "yaw_degrees": 177.676,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 62.591,
+      "depth_feet": 48.0,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533163",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": -15.344,
+    "north_lots": -48.594,
+    "yaw_degrees": -178.176,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 43.902,
+      "depth_feet": 43.483,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533006",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": 14.331,
+    "north_lots": 50.098,
+    "yaw_degrees": 168.481,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 62.782,
+      "depth_feet": 41.754,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  },
+  {
+    "id": "osm-building-1193533162",
+    "name": "yes",
+    "anchor": "post_office_lots",
+    "east_lots": -1.402,
+    "north_lots": -53.397,
+    "yaw_degrees": 13.104,
+    "scale": {
+      "mode": "building",
+      "frontage_feet": 43.495,
+      "depth_feet": 23.665,
+      "stories": 1.35
+    },
+    "texture": "building_timber"
+  }
+]

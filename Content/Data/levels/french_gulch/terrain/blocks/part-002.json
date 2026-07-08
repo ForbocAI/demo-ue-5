@@ -1,0 +1,152 @@
+[
+  {
+    "id": "osm-road-10590783-12",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": -2.283,
+    "north_lots": -27.213,
+    "yaw_degrees": -16.926,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 10.842,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10590783-13",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 0.361,
+    "north_lots": -19.288,
+    "yaw_degrees": -21.264,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 5.879,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10590783-14",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 5.318,
+    "north_lots": -8.55,
+    "yaw_degrees": -25.937,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 17.788,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10590783-15",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 10.869,
+    "north_lots": 3.356,
+    "yaw_degrees": -23.031,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 8.493,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10590783-16",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 13.541,
+    "north_lots": 11.08,
+    "yaw_degrees": -14.831,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 7.896,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10590783-17",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 15.991,
+    "north_lots": 21.8,
+    "yaw_degrees": -11.782,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 14.102,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10590783-18",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 19.702,
+    "north_lots": 38.399,
+    "yaw_degrees": -13.178,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 19.918,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10590783-19",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 26.375,
+    "north_lots": 71.178,
+    "yaw_degrees": -10.798,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 46.996,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10590783-20",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 33.836,
+    "north_lots": 114.255,
+    "yaw_degrees": -8.699,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 40.457,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-930965638-0",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 1.854,
+    "north_lots": -135.147,
+    "yaw_degrees": -1.569,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 6.27,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  }
+]

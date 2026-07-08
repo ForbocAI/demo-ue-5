@@ -1,0 +1,17 @@
+[
+  {
+    "id": "osm-clear-creek-91655395-26",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -55.923,
+    "north_lots": -127.276,
+    "yaw_degrees": -121.832,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 7.991,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "id": "osm-road-10595494-0",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": -1.106,
+    "north_lots": -81.357,
+    "yaw_degrees": -85.467,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 5.083,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10595494-1",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 7.463,
+    "north_lots": -80.974,
+    "yaw_degrees": -88.267,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 12.078,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-road-10595494-2",
+    "name": "Trinity Mountain Road / Main Street",
+    "anchor": "post_office_lots",
+    "east_lots": 21.37,
+    "north_lots": -79.767,
+    "yaw_degrees": -82.584,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 24.0,
+      "length_lots": 15.874,
+      "height_feet": 0.35
+    },
+    "texture": "road_dust"
+  },
+  {
+    "id": "osm-clear-creek-91653699-0",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": 47.193,
+    "north_lots": -154.787,
+    "yaw_degrees": 178.374,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 27.326,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91654254-0",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": 78.165,
+    "north_lots": -62.835,
+    "yaw_degrees": 126.338,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 5.96,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91654254-1",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": 71.535,
+    "north_lots": -64.981,
+    "yaw_degrees": 95.132,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 8.493,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91654254-2",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": 65.263,
+    "north_lots": -64.756,
+    "yaw_degrees": 73.522,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 4.262,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91654254-3",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": 62.004,
+    "north_lots": -62.503,
+    "yaw_degrees": 36.395,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 4.097,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91654728-0",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": 52.53,
+    "north_lots": -60.432,
+    "yaw_degrees": 151.398,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 3.615,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  },
+  {
+    "id": "osm-clear-creek-91655395-15",
+    "name": "Clear Creek",
+    "anchor": "post_office_lots",
+    "east_lots": -148.096,
+    "north_lots": -69.164,
+    "yaw_degrees": -139.666,
+    "scale": {
+      "mode": "long_feature",
+      "width_feet": 12.0,
+      "length_lots": 8.945,
+      "height_feet": 0.4
+    },
+    "texture": "water_creek"
+  }
+]

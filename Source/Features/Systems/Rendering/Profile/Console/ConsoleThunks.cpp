@@ -105,17 +105,21 @@ FCVarApplyDeclaration RequiredCVarDeclaration(
 }
 
 template <typename Value>
-func::Maybe<Value> SelectProfileValue(const FLevelRetroRenderProfile &Profile,
-                                      const FString &Field,
-                                      const ForbocAI::Game::Data::
-                                          FRenderingConsoleSettings
-                                              &Settings) {
+struct TProfileValueSelectRequest {
+  const FLevelRetroRenderProfile *Profile;
+  FString Field;
+  const ForbocAI::Game::Data::FRenderingConsoleSettings *Settings;
+};
+
+template <typename Value>
+func::Maybe<Value>
+SelectProfileValue(const TProfileValueSelectRequest<Value> &Request) {
   const TArray<TProfileFieldDeclaration<Value>> FieldList =
-      TProfileFieldRegistry<Value>::Fields(Settings);
+      TProfileFieldRegistry<Value>::Fields(*Request.Settings);
   return func::match(
-      FindRenderingDeclarationIndex(Field, FieldList),
-      [&Profile, &FieldList](int32 Index) {
-        return func::just<Value>(Profile.*FieldList[Index].Member);
+      FindRenderingDeclarationIndex(Request.Field, FieldList),
+      [&Request, &FieldList](int32 Index) {
+        return func::just<Value>(Request.Profile->*FieldList[Index].Member);
       },
       []() { return func::nothing<Value>(); });
 }
@@ -124,8 +128,9 @@ template <typename Value>
 Value RequiredProfileValue(const FRetroCVarEval &Eval) {
   check(Eval.Settings);
   const func::Maybe<Value> ValueResult =
-      SelectProfileValue<Value>(Eval.Profile, Eval.Setting.ProfileField,
-                                Eval.Settings->Console);
+      SelectProfileValue<Value>(
+          {&Eval.Profile, Eval.Setting.ProfileField,
+           &Eval.Settings->Console});
   check(ValueResult.hasValue);
   return ValueResult.value;
 }
