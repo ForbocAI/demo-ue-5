@@ -98,6 +98,8 @@ struct FGeometrySettings {
   int32 TerrainQuadColumnStep;
   int32 TerrainQuadRowStep;
   float TerrainHalfWorldSizeScale;
+  float TerrainSampleNormalizedMin;
+  float TerrainSampleNormalizedMax;
   float TerrainVertexHeightOffset;
   int32 TerrainMaterialSlotIndex;
   int32 TerrainMeshSectionIndex;
@@ -260,6 +262,10 @@ inline bool operator==(const FGeometrySettings &Left,
          Left.TerrainQuadRowStep == Right.TerrainQuadRowStep &&
          FMath::IsNearlyEqual(Left.TerrainHalfWorldSizeScale,
                               Right.TerrainHalfWorldSizeScale) &&
+         FMath::IsNearlyEqual(Left.TerrainSampleNormalizedMin,
+                              Right.TerrainSampleNormalizedMin) &&
+         FMath::IsNearlyEqual(Left.TerrainSampleNormalizedMax,
+                              Right.TerrainSampleNormalizedMax) &&
          FMath::IsNearlyEqual(Left.TerrainVertexHeightOffset,
                               Right.TerrainVertexHeightOffset) &&
          Left.TerrainMaterialSlotIndex == Right.TerrainMaterialSlotIndex &&

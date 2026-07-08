@@ -238,6 +238,9 @@ bool FLevelTerrainData::LoadFromContent(
   GridTerminalOffset = Request.Csv.Grid.TerminalOffset;
   TerrainWorldSize = Request.Geometry.TerrainWorldSize;
   ElevationScale = Request.Geometry.TerrainElevationScale;
+  TerrainHalfWorldSizeScale = Request.Geometry.TerrainHalfWorldSizeScale;
+  TerrainSampleNormalizedMin = Request.Geometry.TerrainSampleNormalizedMin;
+  TerrainSampleNormalizedMax = Request.Geometry.TerrainSampleNormalizedMax;
   SourcePath = FPaths::ProjectContentDir() / Request.Sources.TerrainCsvPath;
 
   TArray<FString> Lines;
@@ -320,18 +323,23 @@ FString FLevelTerrainData::GetSourcePath() const { return SourcePath; }
 
 float FLevelTerrainData::SampleElevationMeters(float EastWest,
                                                float NorthSouth) const {
-  const float HalfSize = TerrainWorldSize * 0.5f;
+  const float HalfSize = TerrainWorldSize * TerrainHalfWorldSizeScale;
   const float NormalizedX =
-      FMath::Clamp((EastWest + HalfSize) / TerrainWorldSize, 0.0f, 1.0f);
+      FMath::Clamp((EastWest + HalfSize) / TerrainWorldSize,
+                   TerrainSampleNormalizedMin, TerrainSampleNormalizedMax);
   const float NormalizedY =
-      FMath::Clamp((HalfSize - NorthSouth) / TerrainWorldSize, 0.0f, 1.0f);
+      FMath::Clamp((HalfSize - NorthSouth) / TerrainWorldSize,
+                   TerrainSampleNormalizedMin, TerrainSampleNormalizedMax);
 
-  const float Column = NormalizedX * (GridSize - 1);
-  const float Row = NormalizedY * (GridSize - 1);
+  const int32 TerminalGridIndex = GridSize - GridTerminalOffset;
+  const float Column = NormalizedX * TerminalGridIndex;
+  const float Row = NormalizedY * TerminalGridIndex;
   const int32 Column0 = FMath::FloorToInt(Column);
   const int32 Row0 = FMath::FloorToInt(Row);
-  const int32 Column1 = FMath::Min(Column0 + 1, GridSize - 1);
-  const int32 Row1 = FMath::Min(Row0 + 1, GridSize - 1);
+  const int32 Column1 =
+      FMath::Min(Column0 + GridTerminalOffset, TerminalGridIndex);
+  const int32 Row1 =
+      FMath::Min(Row0 + GridTerminalOffset, TerminalGridIndex);
   const float Tx = Column - Column0;
   const float Ty = Row - Row0;
 

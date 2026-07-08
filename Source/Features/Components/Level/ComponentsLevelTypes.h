@@ -59,6 +59,9 @@ private:
   float MaxElevationMeters = float{};
   float TerrainWorldSize = float{};
   float ElevationScale = float{};
+  float TerrainHalfWorldSizeScale = float{};
+  float TerrainSampleNormalizedMin = float{};
+  float TerrainSampleNormalizedMax = float{};
   FString SourcePath;
   TArray<float> ElevationsMeters;
 

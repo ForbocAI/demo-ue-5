@@ -76,6 +76,8 @@
     "terrain_quad_column_step": 1,
     "terrain_quad_row_step": 1,
     "terrain_half_world_size_scale": 0.5,
+    "terrain_sample_normalized_min": 0.0,
+    "terrain_sample_normalized_max": 1.0,
     "terrain_vertex_height_offset": 0.0,
     "terrain_material_slot_index": 0,
     "terrain_mesh_section_index": 0,
