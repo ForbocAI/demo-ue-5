@@ -3,11 +3,9 @@
 
 Numbers and strings that configure authored behavior belong in JSON -- loaded
 through the settings adapters and read from typed settings/profile
-structs -- not baked into C++ or headers. This guard scans all of Source and
-flags every numeric literal and every string literal in authored code. The
-project Source tree is always scanned, even if path arguments are supplied, so a
-narrow path cannot make the guard appear green while authored Source still
-contains hard-coded data.
+structs -- not baked into C++ or headers. This guard always scans the project
+Source tree and rejects every numeric literal and every string literal in
+authored code.
 
 Action/slice/reducer metadata strings (action type strings, slice names, thunk
 type prefixes, listener action types) are discovered dynamically from the RTK
@@ -385,32 +383,17 @@ def scan_file(
     return violations
 
 
-def iter_source_paths(paths: list[Path]) -> list[Path]:
+def iter_source_paths() -> list[Path]:
     return [
         source
-        for path in paths
-        for source in (sorted(path.rglob("*")) if path.is_dir() else [path])
+        for source in sorted(PROJECT_SOURCE_ROOT.rglob("*"))
         if source.is_file() and source.suffix in SOURCE_SUFFIXES
     ]
 
 
-def canonical_scan_paths(requested_paths: list[str]) -> list[Path]:
-    paths = [PROJECT_SOURCE_ROOT.resolve()]
-    paths.extend(Path(path).resolve() for path in requested_paths)
-
-    deduped: list[Path] = []
-    seen: set[Path] = set()
-    for path in paths:
-        if path in seen:
-            continue
-        seen.add(path)
-        deduped.append(path)
-    return deduped
-
-
-def scan_paths(paths: list[Path]) -> list[tuple[Path, int, int, str, str]]:
+def scan_paths() -> list[tuple[Path, int, int, str, str]]:
     scannables = {}
-    for path in iter_source_paths(paths):
+    for path in iter_source_paths():
         scannable = blank_unreal_reflection_metadata(
             blank_json_schema_metadata(
                 blank_comments_and_chars(
@@ -431,39 +414,23 @@ def scan_paths(paths: list[Path]) -> list[tuple[Path, int, int, str, str]]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, add_help=False)
-    # No --self-test flag, on purpose. A self-test only exercises the guard's own
-    # fixture and prints "self-test passed" WITHOUT scanning your Source, so it
-    # reads as green while real hard-coded values slip through untouched. The
-    # guard must always scan a path (defaulting to Source). DO NOT add
-    # --self-test back. Help is also not allowed to short-circuit the scan.
     parser.add_argument(
         "-h",
         "--help",
         action="store_true",
         help="Show this help message after the required Source scan passes.",
     )
-    parser.add_argument(
-        "paths",
-        nargs="*",
-        help=(
-            "Extra C++ source file or directory to scan. Project Source is "
-            "always scanned and cannot be replaced by this argument."
-        ),
-    )
     args = parser.parse_args()
 
-    paths = canonical_scan_paths(args.paths)
-    missing_paths = [path for path in paths if not path.exists()]
-    if missing_paths:
+    if not PROJECT_SOURCE_ROOT.exists():
         print("Hard-coded value guard failed:")
-        for path in missing_paths:
-            print(f"{path}: source path does not exist")
+        print(f"{PROJECT_SOURCE_ROOT}: source path does not exist")
         if args.help:
             print("")
             parser.print_help()
         return 1
 
-    violations = scan_paths(paths)
+    violations = scan_paths()
     if not violations:
         if args.help:
             parser.print_help()

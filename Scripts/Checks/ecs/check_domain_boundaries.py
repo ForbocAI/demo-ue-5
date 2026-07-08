@@ -13,7 +13,8 @@ Boundaries are derived from the repository shape, not a managed list:
 
 This guard is report-only. It computes the constructive target path for every
 violation and tells the developer the move to make -- it never renames files or
-rewrites references itself.
+rewrites references itself. The production CLI always scans Source/Features,
+Source/Views, and Content/Data; path arguments are intentionally unsupported.
 """
 
 from __future__ import annotations
@@ -432,8 +433,8 @@ def folder_redundancy_findings(paths: list[Path]) -> list[Finding]:
 
 # --- Runner ----------------------------------------------------------------
 
-def find_findings(paths: list[Path]) -> list[Finding]:
-    candidates = iter_files(paths)
+def find_findings() -> list[Finding]:
+    candidates = iter_files([SOURCE_FEATURES_ROOT, SOURCE_VIEWS_ROOT, CONTENT_DATA_ROOT])
     source_context = source_role_context(candidates)
     view_context = view_role_context(candidates)
     qualifiers = view_qualifier_tokens(candidates)
@@ -454,13 +455,6 @@ def find_findings(paths: list[Path]) -> list[Finding]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "paths",
-        nargs="*",
-        type=Path,
-        default=[SOURCE_FEATURES_ROOT, SOURCE_VIEWS_ROOT, CONTENT_DATA_ROOT],
-        help="files or directories to scan",
-    )
     parser.add_argument("--format", choices=("text", "json", "sarif"), default="text")
     parser.add_argument("--explain", nargs="?", const="", metavar="RULE-ID")
     return parser.parse_args()
@@ -472,7 +466,7 @@ def main() -> int:
         print(explain(args.explain or None))
         return 0
 
-    findings = find_findings(args.paths)
+    findings = find_findings()
     guard = "Domain boundary guard"
     if args.format == "json":
         print(format_json(findings, PROJECT_ROOT))

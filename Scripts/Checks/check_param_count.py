@@ -6,7 +6,7 @@ Mirrors Therapy 12's parameter discipline
 function DEFINITIONS at two data parameters or fewer and drive over-arity
 functions toward functional composition. Each over-limit definition is bucketed
 by WHY it carries the extra parameters; only the genuinely reducible
-("actionable") bucket drives the headline count and --strict.
+("actionable") bucket fails the guard.
 
 Buckets:
     actionable   - foldable via currying / a payload struct.
@@ -33,6 +33,10 @@ import re
 import sys
 from collections import Counter
 
+
+PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[2]
+SOURCE_ROOT = PROJECT_ROOT / "Source"
+MAX_DATA_PARAMS = 2
 
 FN_RE = re.compile(
     r"(?:^|[;\n{}])\s*(?:[\w:<>&*\s]+\s+)?([A-Za-z_][A-Za-z0-9_:~]*)\s*\(",
@@ -118,7 +122,7 @@ def is_mut_sink(segment: str) -> bool:
 
 def classify(name: str, segments: list[str]) -> str:
     # Mirrors Therapy 12's classify_function: only genuinely reducible
-    # ("actionable") functions drive --strict; the other buckets are
+    # ("actionable") functions fail the guard; the other buckets are
     # irreducible by design and stay at two parameters.
     simple_name = strip_receiver(name)
     if simple_name in UE_CALLBACKS:
@@ -164,29 +168,29 @@ def scan_file(path: pathlib.Path):
         yield name, len(segments), text[: match.start()].count("\n") + 1, classify(name, segments)
 
 
-def gather(root: pathlib.Path, max_params: int):
+def gather(root: pathlib.Path):
     violations = []
     for path in sorted(root.rglob("*")):
         if path.suffix not in {".h", ".hpp", ".cpp"}:
             continue
         for name, params, line, bucket in scan_file(path):
-            if params > max_params:
+            if params > MAX_DATA_PARAMS:
                 violations.append((path, line, name, params, bucket))
     return violations
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--root", default="Source/Features")
-    parser.add_argument("--max", type=int, default=2)
-    parser.add_argument("--strict", action="store_true")
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        epilog="This guard always scans the project Source tree; path and threshold arguments are intentionally unsupported.",
+    )
+    parser.parse_args()
 
-    violations = gather(pathlib.Path(args.root), args.max)
+    violations = gather(SOURCE_ROOT)
     actionable = [row for row in violations if row[4] == "actionable"]
     counts = Counter(row[4] for row in violations)
 
-    print(f"Functions over {args.max} data params: {len(violations)}")
+    print(f"Functions over {MAX_DATA_PARAMS} data params: {len(violations)}")
     print(f"  actionable (foldable):       {counts['actionable']}")
     print(f"  fn-arg (functions-as-args):  {counts['fn-arg']}")
     print(f"  mut-sink (&/* target):       {counts['mut-sink']}")
@@ -200,7 +204,7 @@ def main() -> int:
         print("")
         print(GUIDANCE)
 
-    return 1 if args.strict and actionable else 0
+    return 1 if actionable else 0
 
 
 if __name__ == "__main__":

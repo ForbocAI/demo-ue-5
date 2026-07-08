@@ -9,6 +9,8 @@ import re
 import sys
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SOURCE_ROOT = PROJECT_ROOT / "Source"
 SOURCE_SUFFIXES = {".h", ".hpp", ".cpp", ".cs"}
 CONTROL_PATTERN = re.compile(r"\b(if|else|for|while|switch|case)\b")
 
@@ -138,49 +140,14 @@ def guidance_for(token: str) -> str:
     return TOKEN_GUIDANCE[token]
 
 
-def run_self_test() -> bool:
-    samples = {
-        "if": "void x(){ if (Ready) { Run(); } }",
-        "else": "void x(){ Ready ? Run() : Stop(); else; }",
-        "switch": "void x(){ switch(Value) {} }",
-        "case": "void x(){ switch(Value) { case 1: break; } }",
-        "for": "void x(){ for (int i = 0; i < 1; ++i) { Run(); } }",
-        "while": "void x(){ while (Ready) { Run(); } }",
-    }
-    violations = [
-        (f"{token}.cpp", line_for_offset(strip_comments_and_strings(source), match.start()), match.group(1))
-        for token, source in samples.items()
-        for match in CONTROL_PATTERN.finditer(strip_comments_and_strings(source))
-    ]
-    found_tokens = {token for _, _, token in violations}
-    guidance_ok = all(guidance_for(token) for token in samples)
-    return found_tokens == set(samples) and guidance_ok
-
-
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--self-test",
-        action="store_true",
-        help="Run guard fixture checks for each rejected control-flow token.",
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        epilog="This guard always scans the project Source tree; path arguments are intentionally unsupported.",
     )
-    parser.add_argument(
-        "source_root",
-        nargs="?",
-        default="Source",
-        help="Source directory to scan.",
-    )
-    args = parser.parse_args()
+    parser.parse_args()
 
-    if args.self_test:
-        if run_self_test():
-            print("Branchless Source guard self-test passed.")
-            return 0
-        print("Branchless Source guard self-test failed.")
-        return 1
-
-    source_root = Path(args.source_root).resolve()
-    violations = scan_source(source_root)
+    violations = scan_source(SOURCE_ROOT)
 
     if not violations:
         print("Branchless Source guard passed.")

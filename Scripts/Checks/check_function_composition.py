@@ -13,7 +13,8 @@ catches naming and call-shape violations that hide non-compositional bags:
   recomposed by an adapter/fold.
 
 The check derives context from paths and identifiers. It does not keep a domain
-list, because domains stay free to move.
+list, because domains stay free to move. The production CLI always scans the
+whole Source tree; fixture tests may call scan helpers directly.
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SOURCE_ROOT = PROJECT_ROOT / "Source"
 SOURCE_SUFFIXES = {".cpp", ".h", ".hpp"}
 IGNORED_PARTS = {
     ".git",
@@ -520,24 +522,19 @@ def scan_file(path: Path, context: StructNameContext | None = None) -> list[Issu
     return issues
 
 
-def iter_files(roots: list[Path]) -> list[Path]:
-    files: list[Path] = []
-    for root in roots:
-        path = root if root.is_absolute() else PROJECT_ROOT / root
-        if path.is_file() and path.suffix in SOURCE_SUFFIXES:
-            files.append(path)
-        elif path.is_dir():
-            files.extend(
-                child
-                for child in path.rglob("*")
-                if child.is_file() and child.suffix in SOURCE_SUFFIXES
-            )
-    return sorted(path for path in files if not has_ignored_part(path))
+def iter_source_files() -> list[Path]:
+    return sorted(
+        path
+        for path in SOURCE_ROOT.rglob("*")
+        if path.is_file()
+        and path.suffix in SOURCE_SUFFIXES
+        and not has_ignored_part(path)
+    )
 
 
-def find_issues(roots: list[Path]) -> list[Issue]:
+def find_issues() -> list[Issue]:
     issues: list[Issue] = []
-    files = iter_files(roots)
+    files = iter_source_files()
     context = struct_name_context(files)
     for path in files:
         issues.extend(scan_file(path, context))
@@ -545,11 +542,13 @@ def find_issues(roots: list[Path]) -> list[Issue]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("paths", nargs="*", type=Path, default=[Path("Source")])
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        epilog="This guard always scans the project Source tree; path arguments are intentionally unsupported.",
+    )
+    parser.parse_args()
 
-    issues = find_issues(args.paths)
+    issues = find_issues()
     if issues:
         print(f"Function/data composition naming guard failed: {len(issues)} issue(s).")
         for issue in issues:

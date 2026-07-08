@@ -9,6 +9,8 @@ core. A file may opt a rule out with a top-level `"$naming-allow": ["DATA-NAME-0
 key -- a governed, auditable escape hatch, never a blanket bypass.
 
 Report-only: it names the constructive target shape and never edits files.
+The production CLI always scans Content/Data; path arguments are intentionally
+unsupported.
 """
 
 from __future__ import annotations
@@ -326,8 +328,8 @@ def load_json(path: Path) -> tuple[object, str | None]:
         return None, str(error)
 
 
-def find_findings(paths: list[Path]) -> tuple[list[Finding], dict[Path, dict[int, set[str]]]]:
-    files = iter_files(paths, {".json"})
+def find_findings() -> tuple[list[Finding], dict[Path, dict[int, set[str]]]]:
+    files = iter_files([CONTENT_DATA_ROOT], {".json"})
     location_roots = infer_location_roots(files)
     findings: list[Finding] = []
     suppressions: dict[Path, dict[int, set[str]]] = {}
@@ -356,7 +358,6 @@ def find_findings(paths: list[Path]) -> tuple[list[Finding], dict[Path, dict[int
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("paths", nargs="*", type=Path, default=[CONTENT_DATA_ROOT])
     parser.add_argument("--format", choices=("text", "json", "sarif"), default="text")
     parser.add_argument("--explain", nargs="?", const="", metavar="RULE-ID")
     return parser.parse_args()
@@ -368,7 +369,7 @@ def main() -> int:
         print(explain(args.explain or None))
         return 0
 
-    findings, suppressions = find_findings(args.paths)
+    findings, suppressions = find_findings()
     findings, dropped = apply_suppressions(findings, suppressions)
     guard = "Authored-data naming guard"
     if args.format == "json":

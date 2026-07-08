@@ -79,29 +79,25 @@ echo "Checking SDK submodule immutability..."
 bash "$PROJECT_ROOT/Scripts/Checks/check_sdk_submodule_guard.sh"
 
 echo "Checking feature C++ parameter discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_param_count.py" --strict
+python3 "$PROJECT_ROOT/Scripts/Checks/check_param_count.py"
 
 echo "Checking function/data composition naming discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_function_composition.py" "$PROJECT_ROOT/Source"
+python3 "$PROJECT_ROOT/Scripts/Checks/check_function_composition.py"
 
 echo "Checking branchless FP source discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py" --self-test
-python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py" "$PROJECT_ROOT/Source"
+python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py"
 
 echo "Checking RTK/ECS boundary discipline (Features + Views)..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_redux.py" "$PROJECT_ROOT/Source/Features" "$PROJECT_ROOT/Source/Views"
+python3 "$PROJECT_ROOT/Scripts/Checks/check_redux.py"
 
 echo "Checking runtime rendering JSON tuning discipline..."
-# No --self-test line here. A self-test passes without scanning Source and reads
-# as green while real hard-coded values slip through. Only the Source scan below
-# actually enforces the discipline. DO NOT add a --self-test invocation back.
-python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py" "$PROJECT_ROOT/Source"
+python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py"
 
 echo "Checking authored data naming discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/ecs/check_data_naming.py" "$PROJECT_ROOT/Content/Data"
+python3 "$PROJECT_ROOT/Scripts/Checks/ecs/check_data_naming.py"
 
 echo "Checking domain/subdomain path ownership..."
-python3 "$PROJECT_ROOT/Scripts/Checks/ecs/check_domain_boundaries.py" "$PROJECT_ROOT/Source/Features" "$PROJECT_ROOT/Source/Views" "$PROJECT_ROOT/Content/Data"
+python3 "$PROJECT_ROOT/Scripts/Checks/ecs/check_domain_boundaries.py"
 
 echo "Validating authored data JSON..."
 while IFS= read -r -d '' JSON_FILE; do

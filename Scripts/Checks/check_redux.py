@@ -8,7 +8,10 @@ boundary, dispatch/getState placement, pure-role purity, RTK Query lifecycle,
 and the feature import graph. Every finding carries a stable rule id and a
 severity aligned to the redux/rtk skills.
 
-    boundaries.py [paths...] [--format text|json|sarif] [--explain [RULE-ID]]
+    check_redux.py [--format text|json|sarif] [--explain [RULE-ID]]
+
+The production CLI always scans Source/Features and Source/Views; path
+arguments are intentionally unsupported.
 """
 
 from __future__ import annotations
@@ -23,6 +26,8 @@ import sys
 # the sibling redux/ folder; put it on the path before importing either.
 REDUX_DIR = Path(__file__).resolve().parent / "redux"
 sys.path.insert(0, str(REDUX_DIR))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SCAN_ROOTS = [PROJECT_ROOT / "Source" / "Features", PROJECT_ROOT / "Source" / "Views"]
 
 from features_boundaries import (
     Finding,
@@ -377,20 +382,11 @@ def check_import_graph(units: list[SourceUnit]) -> list[Finding]:
 
 # --- Runner ----------------------------------------------------------------
 
-def infer_project_root(paths: list[Path]) -> Path:
-    for path in paths:
-        resolved = path.resolve()
-        for parent in (resolved, *resolved.parents):
-            if parent.name == "Source":
-                return parent.parent
-    return Path.cwd().resolve()
-
-
-def run(paths: list[Path], guard_name: str = "RTK/ECS boundary guard", fmt: str = "text") -> int:
-    project_root = infer_project_root(paths)
+def run(guard_name: str = "RTK/ECS boundary guard", fmt: str = "text") -> int:
+    project_root = PROJECT_ROOT
     plugins = discover_role_plugins()
 
-    units = [build_unit(path, project_root) for path in iter_source_files(paths)]
+    units = [build_unit(path, project_root) for path in iter_source_files(SCAN_ROOTS)]
 
     findings: list[Finding] = []
     suppressions: dict[Path, dict[int, set[str]]] = {}
@@ -421,7 +417,6 @@ def run(paths: list[Path], guard_name: str = "RTK/ECS boundary guard", fmt: str 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("paths", nargs="*", type=Path, default=[Path("Source/Features"), Path("Source/Views")], help="Feature/View files or directories to scan.")
     parser.add_argument("--format", choices=("text", "json", "sarif"), default="text")
     parser.add_argument("--explain", nargs="?", const="", metavar="RULE-ID", help="Print a rule (or the whole catalog) and exit.")
     return parser.parse_args()
@@ -433,7 +428,7 @@ def main() -> int:
     if args.explain is not None:
         print(explain(args.explain or None))
         return 0
-    return run(args.paths, fmt=args.format)
+    return run(fmt=args.format)
 
 
 if __name__ == "__main__":
