@@ -52,24 +52,12 @@ inline FString FormatRuntimeStatsDecimalValue(
       Value);
 }
 
-inline FLinearColor SelectRuntimeStatsValueColor(
-    const FValueUpdateRequest &Request) {
-  return Request.Value >= Request.HighThreshold
-             ? Request.Settings->HighValueColor
-             : (Request.Value >= Request.MediumThreshold
-                    ? Request.Settings->MediumValueColor
-                    : Request.Settings->LowValueColor);
-}
-
-inline bool ShouldRunInterval(float ElapsedSeconds, float IntervalSeconds) {
-  return ElapsedSeconds >= IntervalSeconds;
-}
-
-inline FString FormatRuntimeStatsDebugMessage(
+inline FString FormatRuntimeStatsMessage(
     const FRuntimeStatsViewModel &Stats,
+    const FString &Format,
     const FStatsOverlaySettings &Settings) {
   return FormatRuntimeStatsText(
-      {&Settings.DebugMessageFormat, Settings.FormatBufferCharacterCount},
+      {&Format, Settings.FormatBufferCharacterCount},
       Stats.FramesPerSecond, Stats.StackDepth,
       static_cast<long long>(Stats.PolyCount),
       static_cast<long long>(Stats.UsedPhysicalMemoryMegabytes),
@@ -89,6 +77,32 @@ inline FString FormatRuntimeStatsDebugMessage(
       Stats.RootReducerMilliseconds, Stats.CombinedReducerMilliseconds,
       Stats.EcsProjectionMilliseconds, Stats.ProjectedEntityCount,
       Stats.ProjectedComponentTypeCount);
+}
+
+inline FLinearColor SelectRuntimeStatsValueColor(
+    const FValueUpdateRequest &Request) {
+  return Request.Value >= Request.HighThreshold
+             ? Request.Settings->HighValueColor
+             : (Request.Value >= Request.MediumThreshold
+                    ? Request.Settings->MediumValueColor
+                    : Request.Settings->LowValueColor);
+}
+
+inline bool ShouldRunInterval(float ElapsedSeconds, float IntervalSeconds) {
+  return ElapsedSeconds >= IntervalSeconds;
+}
+
+inline FString FormatRuntimeStatsDebugMessage(
+    const FRuntimeStatsViewModel &Stats,
+    const FStatsOverlaySettings &Settings) {
+  return FormatRuntimeStatsMessage(Stats, Settings.DebugMessageFormat,
+                                   Settings);
+}
+
+inline FString FormatRuntimeStatsBudgetLogMessage(
+    const FRuntimeStatsViewModel &Stats,
+    const FStatsOverlaySettings &Settings) {
+  return FormatRuntimeStatsMessage(Stats, Settings.BudgetLogFormat, Settings);
 }
 
 } // namespace RenderingStatsSelectors

@@ -23,40 +23,13 @@ namespace RenderingThunks {
 
 DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeBudget, Log, All);
 
-void LogRuntimeBudgetSample(const FRuntimeStatsViewModel &Stats) {
-  UE_LOG(LogForbocRuntimeBudget, Display,
-         TEXT("runtime-budget sample fps=%d stack_depth=%d poly_count=%lld "
-              "memory_mib=%lld peak_memory_mib=%lld virtual_memory_mib=%lld "
-              "game_ms=%.2f render_ms=%.2f rhi_ms=%.2f gpu_ms=%.2f "
-              "draw_calls=%d rhi_primitives=%d wall_ms=%.2f "
-              "input_delta_ms=%.2f stats_select_ms=%.2f poly_count_ms=%.2f "
-              "engine_idle_ms=%.2f engine_idle_overshoot_ms=%.2f "
-              "max_fps=%.2f frame_rate_limit=%.2f effective_max_tick_rate=%.2f "
-              "fixed_frame_rate_enabled=%d fixed_frame_rate=%.2f "
-              "fixed_time_step_enabled=%d fixed_delta_ms=%.2f "
-              "vsync=%d idle_when_not_foreground=%d app_has_focus=%d "
-              "cpu_throttle=%d all_windows_hidden=%d "
-              "root_reducer_ms=%.2f combined_reducer_ms=%.2f "
-              "ecs_projection_ms=%.2f ecs_entities=%d "
-              "ecs_component_types=%d"),
-         Stats.FramesPerSecond, Stats.StackDepth, Stats.PolyCount,
-         Stats.UsedPhysicalMemoryMegabytes,
-         Stats.PeakPhysicalMemoryMegabytes, Stats.UsedVirtualMemoryMegabytes,
-         Stats.GameThreadMilliseconds, Stats.RenderThreadMilliseconds,
-         Stats.RhiThreadMilliseconds, Stats.GpuMilliseconds, Stats.DrawCalls,
-         Stats.RhiPrimitives, Stats.WallDeltaMilliseconds,
-         Stats.InputDeltaMilliseconds, Stats.StatsSelectionMilliseconds,
-         Stats.PolyCountMilliseconds, Stats.EngineIdleMilliseconds,
-         Stats.EngineIdleOvershootMilliseconds, Stats.MaxFps,
-         Stats.FrameRateLimit, Stats.EffectiveMaxTickRate,
-         Stats.FixedFrameRateEnabled, Stats.FixedFrameRate,
-         Stats.FixedTimeStepEnabled, Stats.FixedDeltaMilliseconds,
-         Stats.VsyncEnabled,
-         Stats.IdleWhenNotForegroundEnabled, Stats.AppHasFocus,
-         Stats.CpuThrottleEnabled, Stats.AllWindowsHidden,
-         Stats.RootReducerMilliseconds, Stats.CombinedReducerMilliseconds,
-         Stats.EcsProjectionMilliseconds, Stats.ProjectedEntityCount,
-         Stats.ProjectedComponentTypeCount);
+void LogRuntimeBudgetSample(
+    const FRuntimeStatsViewModel &Stats,
+    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+  const FString Message =
+      RenderingStatsSelectors::FormatRuntimeStatsBudgetLogMessage(Stats,
+                                                                  Settings);
+  UE_LOG(LogForbocRuntimeBudget, Display, TEXT("%s"), *Message);
 }
 
 void PresentRuntimeStatsDebugMessage(
@@ -82,8 +55,9 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
       const auto &Settings = RuntimeSelectors::SelectUISettings(State).StatsOverlay;
 
       double BudgetClockSeconds = RenderingAdapters::SelectRuntimeBudgetClockSeconds();
-    float WallDeltaSeconds = (RenderState.StatsClock.FrameClockSeconds == 0.0)
-        ? 0.0f
+    float WallDeltaSeconds = (RenderState.StatsClock.FrameClockSeconds ==
+                              double{})
+        ? Settings.InitialDeltaSeconds
         : (BudgetClockSeconds - RenderState.StatsClock.FrameClockSeconds);
 
     bool bRefreshPolyCount =
@@ -119,7 +93,7 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
                  RenderState.BudgetClock.BudgetLogPreviousSeconds,
                  Settings.BudgetLogIntervalSeconds});
 
-    bShouldLog ? LogRuntimeBudgetSample(Payload.Stats.value), void() : void();
+    bShouldLog ? LogRuntimeBudgetSample(Payload.Stats.value, Settings), void() : void();
     Payload.BudgetLogPreviousSeconds =
         bShouldLog ? BudgetClockSeconds
                    : RenderState.BudgetClock.BudgetLogPreviousSeconds;

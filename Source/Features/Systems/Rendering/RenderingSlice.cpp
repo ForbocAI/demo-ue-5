@@ -149,8 +149,9 @@ FRenderingState ReduceRuntimeStatsSampled(
                 Payload.BudgetScreenshotPreviousSeconds;
             Next.BudgetClock.BudgetScreenshotIndex =
                 Payload.BudgetScreenshotIndex;
-            float WallDeltaSeconds = (State.StatsClock.FrameClockSeconds == 0.0)
-                                         ? 0.0f
+            float WallDeltaSeconds = (State.StatsClock.FrameClockSeconds ==
+                                      double{})
+                                         ? Settings.InitialDeltaSeconds
                                          : Payload.BudgetClockSeconds -
                                                State.StatsClock.FrameClockSeconds;
             Next.StatsClock.StatsRefreshElapsedSeconds += WallDeltaSeconds;

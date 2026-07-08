@@ -46,6 +46,7 @@ struct FStatsOverlaySettings {
   FString ValueFormat;
   FString DecimalValueFormat;
   FString DebugMessageFormat;
+  FString BudgetLogFormat;
   int32 FormatBufferCharacterCount;
   int32 DebugMessageKey;
   float DebugMessageDurationSeconds;
@@ -281,6 +282,7 @@ inline bool operator==(const FStatsOverlaySettings &Left,
          Left.ValueFormat == Right.ValueFormat &&
          Left.DecimalValueFormat == Right.DecimalValueFormat &&
          Left.DebugMessageFormat == Right.DebugMessageFormat &&
+         Left.BudgetLogFormat == Right.BudgetLogFormat &&
          Left.FormatBufferCharacterCount == Right.FormatBufferCharacterCount &&
          Left.DebugMessageKey == Right.DebugMessageKey &&
          FMath::IsNearlyEqual(Left.DebugMessageDurationSeconds,
