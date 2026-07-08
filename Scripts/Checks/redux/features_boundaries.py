@@ -98,8 +98,8 @@ SEVERITY_ORDER = {
 SARIF_LEVEL = {
     Severity.CRITICAL: "error",
     Severity.HIGH: "error",
-    Severity.MEDIUM: "warning",
-    Severity.LOW: "note",
+    Severity.MEDIUM: "error",
+    Severity.LOW: "error",
 }
 
 

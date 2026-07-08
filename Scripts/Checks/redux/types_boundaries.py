@@ -48,7 +48,7 @@ NON_SERIALIZABLE = register(
         severity=Severity.HIGH,
         summary="persistent Types hold non-serializable state (UE pointers, ownership, callbacks)",
         guidance="Keep Types serializable/inert; UE object pointers, shared ownership, and callbacks live at Adapter/Thunk/Listener/View boundaries.",
-        skill="evolve-and-diagnose-redux-apps-debug-redux-toolkit-apps: HIGH ignoring serializable-state warnings",
+        skill="evolve-and-diagnose-redux-apps-debug-redux-toolkit-apps: HIGH ignoring serializable-state violations",
         roles=frozenset({ROLE}),
     )
 )

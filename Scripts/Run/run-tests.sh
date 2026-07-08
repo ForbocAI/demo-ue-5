@@ -146,13 +146,14 @@ echo "=== Test Results Analysis ==="
 FAILURES=$(grep -Fc "Test Completed. Result={Fail" "$LOG_FILE" || true)
 CONTROLLER_ERRORS=$(grep -Fc "LogAutomationController: Error:" "$LOG_FILE" || true)
 COMMAND_ERRORS=$(grep -Fc "LogAutomationCommandLine: Error:" "$LOG_FILE" || true)
+WARNINGS=$(grep -Eic '(^|[[:space:]])Warning:' "$LOG_FILE" || true)
 SKIPS=$(grep -Eic "skipp(ed|ing)" "$LOG_FILE" || true)
 
-TOTAL_FAILURES=$((FAILURES + CONTROLLER_ERRORS + COMMAND_ERRORS))
+TOTAL_FAILURES=$((FAILURES + CONTROLLER_ERRORS + COMMAND_ERRORS + WARNINGS))
 
 if [ "$TOTAL_FAILURES" -gt 0 ]; then
-  echo "✗ Tests failed. Found $TOTAL_FAILURES real failure(s)."
-  echo "  (Found $SKIPS offline skip(s)/warning(s))"
+  echo "✗ Tests failed. Found $TOTAL_FAILURES failure(s), including $WARNINGS warning(s)."
+  echo "  (Found $SKIPS offline skip(s))"
   exit 1
 else
   if [ "$UE_EXIT" -ne 0 ]; then
@@ -166,6 +167,6 @@ else
     bash "$RUNTIME_BUDGET_SCRIPT"
   fi
   echo "✓ All tests passed."
-  echo "  (Found $SKIPS offline skip(s)/warning(s) which are treated as successful skips)"
+  echo "  (Found $SKIPS offline skip(s))"
   exit 0
 fi
