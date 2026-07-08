@@ -38,6 +38,21 @@ BotFunctionalCoreSettings() {
   return BotFunctionalCoreAllSettings().Bot;
 }
 
+const ForbocAI::Game::Data::Automation::Bot::FSettings &
+BotFunctionalCoreAutomationSettings() {
+  return BotFunctionalCoreAllSettings().Automation.Bot;
+}
+
+const ForbocAI::Game::Data::Automation::Bot::FGroups &
+BotFunctionalCoreGroups() {
+  return BotFunctionalCoreAutomationSettings().Groups;
+}
+
+const ForbocAI::Game::Data::Automation::Bot::FCases &
+BotFunctionalCoreCases() {
+  return BotFunctionalCoreAutomationSettings().Cases;
+}
+
 float FunctionalCoreHealthyDamage() {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       BotFunctionalCoreSettings();
@@ -67,16 +82,16 @@ rtk::EnhancedStore<FBotCoreRuntimeState> ConfigureStore(
 }
 } // namespace
 
-DEFINE_SPEC(FBotFunctionalCoreSpec, "ForbocAI.Bot.FunctionalCore", EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
+DEFINE_SPEC(FBotFunctionalCoreSpec, BotFunctionalCoreAutomationSettings().Spec, EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FBotFunctionalCoreSpec::Define()
 {
     FBotFunctionalCoreLabelCursor Labels = BotFunctionalCoreLabels(
-        BotFunctionalCoreAllSettings().Automation.BotFunctionalCore.Assertions);
+        BotFunctionalCoreAutomationSettings().Assertions);
 
-    Describe("State Creation", [this, &Labels]()
+    Describe(BotFunctionalCoreGroups().StateCreation, [this, &Labels]()
     {
-        It("Should create initial state with correct defaults", [this, &Labels]()
+        It(BotFunctionalCoreCases().CreateInitialState, [this, &Labels]()
         {
             const FString BotName = BotFunctionalCoreSettings().InitialName;
             auto Store = ConfigureStore(BotName);
@@ -92,11 +107,11 @@ void FBotFunctionalCoreSpec::Define()
         });
     });
 
-    Describe("Reducers", [this, &Labels]()
+    Describe(BotFunctionalCoreGroups().Reducers, [this, &Labels]()
     {
-        Describe("Movement", [this, &Labels]()
+        Describe(BotFunctionalCoreGroups().Movement, [this, &Labels]()
         {
-            It("Should update position to target", [this, &Labels]()
+            It(BotFunctionalCoreCases().UpdatePosition, [this, &Labels]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -110,9 +125,9 @@ void FBotFunctionalCoreSpec::Define()
             });
         });
 
-        Describe("Combat", [this, &Labels]()
+        Describe(BotFunctionalCoreGroups().Combat, [this, &Labels]()
         {
-            It("Should reduce health when taking damage", [this, &Labels]()
+            It(BotFunctionalCoreCases().ReduceHealth, [this, &Labels]()
             {
                 const float Damage = FunctionalCoreHealthyDamage();
                 auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
@@ -123,7 +138,7 @@ void FBotFunctionalCoreSpec::Define()
                 TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Stats.Health, FunctionalCoreExpectedHealthAfterDamage(Damage)));
             });
 
-            It("Should transition to Combat phase when damaged but healthy", [this, &Labels]()
+            It(BotFunctionalCoreCases().TransitionToCombat, [this, &Labels]()
             {
                 auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
                 Store.dispatch(BotCoreActions::BotDamageTaken()(
@@ -133,7 +148,7 @@ void FBotFunctionalCoreSpec::Define()
                 TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Combat);
             });
 
-            It("Should transition to Flee phase when critically damaged", [this, &Labels]()
+            It(BotFunctionalCoreCases().TransitionToFlee, [this, &Labels]()
             {
                 auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
                 Store.dispatch(BotCoreActions::BotDamageTaken()(
@@ -144,9 +159,9 @@ void FBotFunctionalCoreSpec::Define()
             });
         });
 
-        Describe("Awareness", [this, &Labels]()
+        Describe(BotFunctionalCoreGroups().Awareness, [this, &Labels]()
         {
-            It("Should update memory when spotting enemy", [this, &Labels]()
+            It(BotFunctionalCoreCases().UpdateMemory, [this, &Labels]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -162,9 +177,9 @@ void FBotFunctionalCoreSpec::Define()
             });
         });
 
-        Describe("Tick Update", [this, &Labels]()
+        Describe(BotFunctionalCoreGroups().TickUpdate, [this, &Labels]()
         {
-            It("Should increment tick count", [this, &Labels]()
+            It(BotFunctionalCoreCases().IncrementTick, [this, &Labels]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -176,7 +191,7 @@ void FBotFunctionalCoreSpec::Define()
                 TestTrue(Labels.Next(), State.TickCount > static_cast<uint64>(Settings.InitialTickCount));
             });
 
-            It("Should decay Aggro after timeout", [this, &Labels]()
+            It(BotFunctionalCoreCases().DecayAggro, [this, &Labels]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();

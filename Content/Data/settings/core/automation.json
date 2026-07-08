@@ -225,27 +225,27 @@
     "violation_count_increment": 1,
     "clean_violation_count": 0
   },
-  "bot_functional_core": {
-    "spec": "ForbocAI.Bot.FunctionalCore",
+  "bot": {
+    "spec": "ForbocAI.Bot",
     "tests": [],
-    "groups": [
-      "State Creation",
-      "Reducers",
-      "Movement",
-      "Combat",
-      "Awareness",
-      "Tick Update"
-    ],
-    "cases": [
-      "Should create initial state with correct defaults",
-      "Should update position to target",
-      "Should reduce health when taking damage",
-      "Should transition to Combat phase when damaged but healthy",
-      "Should transition to Flee phase when critically damaged",
-      "Should update memory when spotting enemy",
-      "Should increment tick count",
-      "Should decay Aggro after timeout"
-    ],
+    "groups": {
+      "state_creation": "State Creation",
+      "reducers": "Reducers",
+      "movement": "Movement",
+      "combat": "Combat",
+      "awareness": "Awareness",
+      "tick_update": "Tick Update"
+    },
+    "cases": {
+      "create_initial_state": "Should create initial state with correct defaults",
+      "update_position": "Should update position to target",
+      "reduce_health": "Should reduce health when taking damage",
+      "transition_to_combat": "Should transition to Combat phase when damaged but healthy",
+      "transition_to_flee": "Should transition to Flee phase when critically damaged",
+      "update_memory": "Should update memory when spotting enemy",
+      "increment_tick": "Should increment tick count",
+      "decay_aggro": "Should decay Aggro after timeout"
+    },
     "assertions": [
       "Name",
       "Health",

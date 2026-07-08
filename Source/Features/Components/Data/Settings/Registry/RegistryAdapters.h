@@ -200,8 +200,41 @@ struct TJsonSettingsRegistry<Automation::Rtk::Compliance::FSettings> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(Automation::Bot::Functional::Core::FSettings, Spec,
-                       Tests, Groups, Cases, Assertions);
+JSON_SETTINGS_REGISTRY(Automation::Bot::FGroups,
+                       StateCreation, Reducers, Movement, Combat, Awareness,
+                       TickUpdate);
+
+JSON_SETTINGS_REGISTRY(Automation::Bot::FCases,
+                       CreateInitialState, UpdatePosition, ReduceHealth,
+                       TransitionToCombat, TransitionToFlee, UpdateMemory,
+                       IncrementTick, DecayAggro);
+
+template <>
+struct TJsonSettingsRegistry<Automation::Bot::FSettings> {
+  static const TArray<TField<Automation::Bot::FSettings>>
+      &Fields() {
+    static const TArray<TField<
+        Automation::Bot::FSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(Automation::Bot::FSettings,
+                                Spec, Tests, Assertions),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FSettings,
+                ReadSettingsWith<Automation::Bot::FGroups>(
+                    JSON_SETTINGS_ATOMS(StateCreation, Reducers, Movement,
+                                        Combat, Awareness, TickUpdate)),
+                Groups),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FSettings,
+                ReadSettingsWith<Automation::Bot::FCases>(
+                    JSON_SETTINGS_ATOMS(CreateInitialState, UpdatePosition,
+                                        ReduceHealth, TransitionToCombat,
+                                        TransitionToFlee, UpdateMemory,
+                                        IncrementTick, DecayAggro)),
+                Cases)};
+    return RegisteredFields;
+  }
+};
 
 JSON_SETTINGS_REGISTRY(Automation::Pipeline::FTests, IdleTickAdvancesState,
                        HazardCausesDamage, AwarenessTriggersAggro,
@@ -445,10 +478,10 @@ template <> struct TJsonSettingsRegistry<Automation::FSettings> {
                 RtkCompliance),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::FSettings,
-                ReadSettingsWith<Automation::Bot::Functional::Core::FSettings>(
+                ReadSettingsWith<Automation::Bot::FSettings>(
                     JSON_SETTINGS_ATOMS(Spec, Tests, Groups, Cases,
                                         Assertions)),
-                BotFunctionalCore),
+                Bot),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::FSettings,
                 ReadSettingsWith<Automation::Pipeline::FSettings>(

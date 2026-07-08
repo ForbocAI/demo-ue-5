@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/Automation/Bot/Functional/Core/FunctionalCoreTypes.h"
+#include "Features/Components/Data/Settings/Automation/Bot/AutomationBotTypes.h"
 #include "Features/Components/Data/Settings/Automation/Content/Assets/AssetsTypes.h"
 #include "Features/Components/Data/Settings/Automation/Conversation/UI/ConversationUITypes.h"
 #include "Features/Components/Data/Settings/Automation/Pipeline/AutomationPipelineTypes.h"
@@ -17,7 +17,7 @@ struct FSettings {
   Store::FSettings Store;
   Content::Assets::FSettings ContentAssets;
   Rtk::Compliance::FSettings RtkCompliance;
-  Bot::Functional::Core::FSettings BotFunctionalCore;
+  Bot::FSettings Bot;
   Pipeline::FSettings Pipeline;
   Conversation::UI::FSettings ConversationUI;
   Protocol::Loop::FSettings ProtocolLoop;
@@ -27,7 +27,7 @@ inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Store == Right.Store &&
          Left.ContentAssets == Right.ContentAssets &&
          Left.RtkCompliance == Right.RtkCompliance &&
-         Left.BotFunctionalCore == Right.BotFunctionalCore &&
+         Left.Bot == Right.Bot &&
          Left.Pipeline == Right.Pipeline &&
          Left.ConversationUI == Right.ConversationUI &&
          Left.ProtocolLoop == Right.ProtocolLoop;
