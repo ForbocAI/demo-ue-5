@@ -5,8 +5,7 @@ JSON paths read like ECS domain paths: broad catalog, concrete instance,
 subdomain, then a small local leaf. Violations are derived from path and object
 shape, and the ECS section vocabulary is sourced from Source/Core/ecs.hpp (via
 check_ecs) rather than a hand-maintained copy, so the doctrine tracks the ECS
-core. A file may opt a rule out with a top-level `"$naming-allow": ["DATA-NAME-00X"]`
-key -- a governed, auditable escape hatch, never a blanket bypass.
+core.
 
 Report-only: it names the constructive target shape and never edits files.
 The production CLI always scans Content/Data; path arguments are intentionally
@@ -27,7 +26,6 @@ from check_ecs import (
     Finding,
     Rule,
     Severity,
-    apply_suppressions,
     ecs_section_keys,
     explain,
     format_json,
@@ -35,7 +33,6 @@ from check_ecs import (
     format_text,
     has_ignored_part,
     iter_files,
-    json_naming_allow,
     normalize,
     pluralize,
     register,
@@ -328,19 +325,15 @@ def load_json(path: Path) -> tuple[object, str | None]:
         return None, str(error)
 
 
-def find_findings() -> tuple[list[Finding], dict[Path, dict[int, set[str]]]]:
+def find_findings() -> list[Finding]:
     files = iter_files([CONTENT_DATA_ROOT], {".json"})
     location_roots = infer_location_roots(files)
     findings: list[Finding] = []
-    suppressions: dict[Path, dict[int, set[str]]] = {}
     for path in files:
         value, error = load_json(path)
         if error is not None:
             findings.append(_finding(path, UNPARSEABLE, error.splitlines()[0]))
             continue
-        allow = json_naming_allow(value)
-        if allow:
-            suppressions[path] = {0: allow}
         for finding in (
             catalog_order_finding(path, location_roots),
             compound_leaf_finding(path, location_roots),
@@ -353,7 +346,7 @@ def find_findings() -> tuple[list[Finding], dict[Path, dict[int, set[str]]]]:
         ):
             if finding is not None:
                 findings.append(finding)
-    return findings, suppressions
+    return findings
 
 
 def parse_args() -> argparse.Namespace:
@@ -369,18 +362,16 @@ def main() -> int:
         print(explain(args.explain or None))
         return 0
 
-    findings, suppressions = find_findings()
-    findings, dropped = apply_suppressions(findings, suppressions)
+    findings = find_findings()
     guard = "Authored-data naming guard"
     if args.format == "json":
         print(format_json(findings, PROJECT_ROOT))
     elif args.format == "sarif":
         print(format_sarif(findings, PROJECT_ROOT, guard))
     elif findings:
-        print(format_text(findings, PROJECT_ROOT, guard, dropped))
+        print(format_text(findings, PROJECT_ROOT, guard))
     else:
-        note = f" ({dropped} suppressed)" if dropped else ""
-        print(f"{guard} passed.{note}")
+        print(f"{guard} passed.")
     return 1 if findings else 0
 
 

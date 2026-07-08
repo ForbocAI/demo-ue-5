@@ -23,7 +23,7 @@ sys.path.insert(0, str(_HERE.parent))
 sys.path.insert(0, str(_HERE))
 
 import check_redux
-from features_boundaries import apply_suppressions, build_unit, parse_suppressions
+from features_boundaries import build_unit
 
 
 @dataclass
@@ -92,25 +92,6 @@ def run_case(root: Path, plugins: dict, case: Case) -> list[str]:
     return [finding.rule_id for finding in check_redux.check_unit(unit, plugins)]
 
 
-def test_suppression(root: Path, plugins: dict) -> list[str]:
-    path = root / "Source/Features/Suppressed/State/StateTypes.h"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        "struct FLoginScreenState {  // boundary-allow: RTK-TYPES-004 legacy screen\n int X; };",
-        encoding="utf-8",
-    )
-    unit = build_unit(path, root)
-    findings = check_redux.check_unit(unit, plugins)
-    markers = parse_suppressions(unit.path, unit.raw)
-    kept, dropped = apply_suppressions(findings, {unit.path: markers})
-    failures: list[str] = []
-    if dropped < 1:
-        failures.append("suppression: expected RTK-TYPES-004 to be suppressed")
-    if any(f.rule_id == "RTK-TYPES-004" for f in kept):
-        failures.append("suppression: RTK-TYPES-004 survived a matching boundary-allow marker")
-    return failures
-
-
 def main() -> int:
     plugins = check_redux.discover_role_plugins()
     failures: list[str] = []
@@ -124,14 +105,13 @@ def main() -> int:
                 failures.append(f"{case.name}: expected {sorted(missing)} to fire, got {sorted(fired)}")
             if unexpected:
                 failures.append(f"{case.name}: {sorted(unexpected)} fired but is forbidden")
-        failures += test_suppression(root, plugins)
 
     if failures:
         print(f"Boundary fixtures FAILED: {len(failures)} case(s).")
         for failure in failures:
             print(f"  - {failure}")
         return 1
-    print(f"Boundary fixtures passed: {len(CASES)} rule cases + suppression.")
+    print(f"Boundary fixtures passed: {len(CASES)} rule cases.")
     return 0
 
 

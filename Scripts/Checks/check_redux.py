@@ -43,10 +43,8 @@ from features_boundaries import (
     format_json,
     format_sarif,
     format_text,
-    apply_suppressions,
     iter_source_files,
     line_number,
-    parse_suppressions,
     register,
     role_for_include,
 )
@@ -389,28 +387,21 @@ def run(guard_name: str = "RTK/ECS boundary guard", fmt: str = "text") -> int:
     units = [build_unit(path, project_root) for path in iter_source_files(SCAN_ROOTS)]
 
     findings: list[Finding] = []
-    suppressions: dict[Path, dict[int, set[str]]] = {}
     for unit in units:
         findings += check_unit(unit, plugins)
-        markers = parse_suppressions(unit.path, unit.raw)
-        if markers:
-            suppressions[unit.path] = markers
 
     findings += check_store_boundary(project_root)
     findings += check_multiple_api_roots(units)
     findings += check_import_graph(units)
-
-    findings, dropped = apply_suppressions(findings, suppressions)
 
     if fmt == "json":
         print(format_json(findings, project_root))
     elif fmt == "sarif":
         print(format_sarif(findings, project_root, guard_name))
     elif findings:
-        print(format_text(findings, project_root, guard_name, dropped))
+        print(format_text(findings, project_root, guard_name))
     else:
-        note = f" ({dropped} suppressed)" if dropped else ""
-        print(f"{guard_name} passed.{note}")
+        print(f"{guard_name} passed.")
 
     return 1 if findings else 0
 

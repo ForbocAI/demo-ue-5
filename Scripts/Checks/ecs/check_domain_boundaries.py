@@ -32,7 +32,6 @@ from check_ecs import (
     Finding,
     Rule,
     Severity,
-    apply_suppressions,
     camel_tokens,
     ecs_domain_kinds,
     ecs_section_keys,
@@ -473,7 +472,7 @@ def main() -> int:
     elif args.format == "sarif":
         print(format_sarif(findings, PROJECT_ROOT, guard))
     elif findings:
-        print(format_text(findings, PROJECT_ROOT, guard, 0))
+        print(format_text(findings, PROJECT_ROOT, guard))
     else:
         print(f"{guard} passed.")
     return 1 if findings else 0

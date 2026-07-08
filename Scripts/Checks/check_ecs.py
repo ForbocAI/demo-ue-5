@@ -4,8 +4,8 @@
 The ECS naming/domain guards build on this engine the way the RTK role guards
 build on check_redux. The two engines are peers: they mirror the same
 finding model (Severity, Finding, Rule registry, text/json/sarif emitters,
-governed suppression, ``--explain``) but neither imports the other, matching the
-fp/rtk/ecs tri-core parity rule that ECS never depends on RTK.
+``--explain``) but neither imports the other, matching the fp/rtk/ecs tri-core
+parity rule that ECS never depends on RTK.
 
 On top of the mirrored finding model this engine owns ECS-specific machinery: one
 canonical tokenizer + path helpers shared by the naming guards, and the ECS
@@ -89,35 +89,6 @@ def column_number(text: str, index: int) -> int:
     return index - (text.rfind("\n", 0, index) + 1) + 1
 
 
-# --- Suppressions ----------------------------------------------------------
-
-def apply_suppressions(
-    findings: list[Finding],
-    suppressions: dict[Path, dict[int, set[str]]],
-) -> tuple[list[Finding], int]:
-    """Drop findings a same-or-previous-line marker allows. Returns (kept, dropped).
-
-    ``suppressions`` maps a file path to ``{line: {rule_id, ...}}``. A finding is
-    dropped when its rule id is allowed on its own line or the line above (so a
-    marker can sit on the declaration or just before it). Line ``0`` allows a
-    rule anywhere in the file, for path/whole-file findings.
-    """
-    kept: list[Finding] = []
-    dropped = 0
-    for finding in findings:
-        by_line = suppressions.get(finding.path, {})
-        allowed = (
-            by_line.get(finding.line, set())
-            | by_line.get(finding.line - 1, set())
-            | by_line.get(0, set())
-        )
-        if finding.rule_id in allowed:
-            dropped += 1
-            continue
-        kept.append(finding)
-    return kept, dropped
-
-
 # --- Formatting ------------------------------------------------------------
 
 def _display_path(finding: Finding, project_root: Path) -> str:
@@ -134,15 +105,13 @@ def sort_findings(findings: list[Finding]) -> list[Finding]:
     )
 
 
-def format_text(findings: list[Finding], project_root: Path, guard_name: str, dropped: int) -> str:
+def format_text(findings: list[Finding], project_root: Path, guard_name: str) -> str:
     lines: list[str] = []
     counts = {sev: 0 for sev in Severity}
     for finding in findings:
         counts[finding.severity] += 1
     summary = ", ".join(f"{counts[sev]} {sev.value}" for sev in Severity if counts[sev])
     lines.append(f"{guard_name} failed: {len(findings)} issue(s) ({summary}).")
-    if dropped:
-        lines.append(f"({dropped} finding(s) suppressed by allow markers.)")
     for finding in sort_findings(findings):
         display = _display_path(finding, project_root)
         lines.append(
@@ -371,20 +340,3 @@ def ecs_section_keys() -> frozenset[str]:
     if re.search(r"\bstruct\s+FDomainRegistry\b", _ecs_source()):
         sections |= {"domains", "domain_registry"}
     return frozenset(sections)
-
-
-# --- JSON suppression ------------------------------------------------------
-
-NAMING_ALLOW_KEY = "$naming-allow"
-
-
-def json_naming_allow(value: object) -> set[str]:
-    """Rule ids listed under a top-level `$naming-allow` key in a JSON object."""
-    if not isinstance(value, dict):
-        return set()
-    allow = value.get(NAMING_ALLOW_KEY)
-    if isinstance(allow, str):
-        allow = [allow]
-    if not isinstance(allow, list):
-        return set()
-    return {item for item in allow if isinstance(item, str) and re.fullmatch(r"[A-Z]+-[A-Z]+-\d+", item)}

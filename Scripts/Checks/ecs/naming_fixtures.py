@@ -20,7 +20,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import check_data_naming as dat
 import check_domain_boundaries as dom
-from check_ecs import json_naming_allow
 
 
 def rid(finding) -> str | None:
@@ -65,11 +64,7 @@ def main() -> int:
         if error is None:
             failures.append("data-unparseable: expected a parse error to report DATA-NAME-007")
 
-    allow = json_naming_allow({"$naming-allow": ["DATA-NAME-004"], "components": {}, "systems": []})
-    if "DATA-NAME-004" not in allow:
-        failures.append("suppression: $naming-allow did not collect the rule id")
-
-    total = len(cases) + 3
+    total = len(cases) + 2
     if failures:
         print(f"Naming fixtures FAILED: {len(failures)} case(s).")
         for failure in failures:
