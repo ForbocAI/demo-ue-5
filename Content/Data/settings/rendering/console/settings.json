@@ -1,0 +1,16 @@
+{
+  "console_settings": {
+    "profile_field_anti_aliasing_method": "anti_aliasing_method",
+    "profile_field_post_process_aa_quality": "post_process_aa_quality",
+    "profile_field_shadow_cascades": "shadow_cascades",
+    "profile_field_shadow_max_resolution": "shadow_max_resolution",
+    "profile_field_screen_percentage": "screen_percentage",
+    "profile_field_view_distance_scale": "view_distance_scale",
+    "profile_field_foliage_density_scale": "foliage_density_scale",
+    "profile_field_grass_density_scale": "grass_density_scale",
+    "value_kind_fixed_int": "fixed_int",
+    "value_kind_profile_int": "profile_int",
+    "value_kind_fixed_float": "fixed_float",
+    "value_kind_profile_float": "profile_float"
+  }
+}

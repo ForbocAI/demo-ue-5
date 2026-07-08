@@ -15,6 +15,18 @@ JSON_SETTINGS_REGISTRY(FHashSettings, XMultiplier,
 JSON_SETTINGS_REGISTRY(FRenderingConsoleVariableSettings, Name, ValueKind,
                        ProfileField, IntValue, FloatValue);
 
+JSON_SETTINGS_REGISTRY(FRenderingConsoleSettings,
+                       ProfileFieldAntiAliasingMethod,
+                       ProfileFieldPostProcessAaQuality,
+                       ProfileFieldShadowCascades,
+                       ProfileFieldShadowMaxResolution,
+                       ProfileFieldScreenPercentage,
+                       ProfileFieldViewDistanceScale,
+                       ProfileFieldFoliageDensityScale,
+                       ProfileFieldGrassDensityScale, ValueKindFixedInt,
+                       ValueKindProfileInt, ValueKindFixedFloat,
+                       ValueKindProfileFloat);
+
 JSON_SETTINGS_REGISTRY(FStageSettings, Id, MaxDistance,
                        StaticMeshForcedLodModel, SkeletalMeshForcedLodModel,
                        SkeletalMeshMinLodModel, CullDistance,
@@ -187,6 +199,21 @@ template <> struct TJsonSettingsRegistry<FRenderingSettings> {
                                 PredicateModLessThanKind, ResultSolidKind,
                                 ResultMixKind, TextureMipIndex,
                                 TextureMaterialSlotIndex),
+            JSON_OBJECT_SETTING_FIELD(
+                FRenderingSettings,
+                ReadSettingsWith<FRenderingConsoleSettings>(
+                    JSON_SETTINGS_ATOMS(
+                        ProfileFieldAntiAliasingMethod,
+                        ProfileFieldPostProcessAaQuality,
+                        ProfileFieldShadowCascades,
+                        ProfileFieldShadowMaxResolution,
+                        ProfileFieldScreenPercentage,
+                        ProfileFieldViewDistanceScale,
+                        ProfileFieldFoliageDensityScale,
+                        ProfileFieldGrassDensityScale, ValueKindFixedInt,
+                        ValueKindProfileInt, ValueKindFixedFloat,
+                        ValueKindProfileFloat)),
+                Console),
             JSON_OBJECT_SETTING_FIELD(
                 FRenderingSettings,
                 ReadSettingsWith<FHashSettings>(
@@ -382,6 +409,17 @@ ReadRenderingSettings(const FSettingsRequest &Request) {
                               ResultMixKind, TextureMipIndex,
                               TextureMaterialSlotIndex,
                               TextureHash));
+  Settings.Console =
+      Json::ReadSettingsWith<FRenderingConsoleSettings>(
+          JSON_SETTINGS_ATOMS(
+              ProfileFieldAntiAliasingMethod,
+              ProfileFieldPostProcessAaQuality, ProfileFieldShadowCascades,
+              ProfileFieldShadowMaxResolution, ProfileFieldScreenPercentage,
+              ProfileFieldViewDistanceScale,
+              ProfileFieldFoliageDensityScale,
+              ProfileFieldGrassDensityScale, ValueKindFixedInt,
+              ValueKindProfileInt, ValueKindFixedFloat,
+              ValueKindProfileFloat))(Request.ConsoleSettings);
   Settings.ConsoleVariables =
       Json::ReadObjectArrayField<FRenderingConsoleVariableSettings>(
           Request.ConsoleVariables, "ConsoleVariables",

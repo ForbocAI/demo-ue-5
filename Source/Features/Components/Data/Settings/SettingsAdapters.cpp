@@ -57,7 +57,8 @@ const TArray<FSourceGroup> &SettingsSourceGroups() {
        {"RenderingAssets", "RenderingProfile", "RenderingPipeline",
         "TextureCatalog", "RenderingDistanceLod"}},
       {"RenderingPipeline",
-       {"TextureSettings", "ConsoleVariables", "TexturePalettes"}}};
+       {"TextureSettings", "ConsoleSettings", "ConsoleVariables",
+        "TexturePalettes"}}};
   return Groups;
 }
 
@@ -157,6 +158,9 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
           Json::ReadObjectField(SettingsSource(Sources,
                                                       "TextureSettings"),
                                 "TextureSettings"),
+          Json::ReadObjectField(SettingsSource(Sources,
+                                                      "ConsoleSettings"),
+                                "ConsoleSettings"),
           SettingsSource(Sources, "ConsoleVariables"),
           SettingsSource(Sources, "TexturePalettes")});
   Settings.RenderingDistanceLod =

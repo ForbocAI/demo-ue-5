@@ -16,11 +16,8 @@ namespace {
 struct FRetroCVarEval {
   ForbocAI::Game::Data::FRenderingConsoleVariableSettings Setting;
   FLevelRetroRenderProfile Profile;
+  const ForbocAI::Game::Data::FRenderingSettings *Settings;
 };
-
-inline FString RenderingProfileDispatchAtom(const char *Atom) {
-  return FString(UTF8_TO_TCHAR(Atom));
-}
 
 template <typename Declaration>
 func::Maybe<int32> FindRenderingDeclarationIndex(
@@ -37,24 +34,17 @@ template <typename Value> struct TProfileFieldDeclaration {
   FString Name;
   Value FLevelRetroRenderProfile::*Member;
 
-  TProfileFieldDeclaration(const char *InName,
+  TProfileFieldDeclaration(const FString &InName,
                            Value FLevelRetroRenderProfile::*InMember)
-      : Name(RenderingProfileDispatchAtom(InName)), Member(InMember) {}
+      : Name(InName), Member(InMember) {}
 };
-
-template <typename Value>
-TArray<TProfileFieldDeclaration<Value>>
-ProfileFieldDeclarations(
-    std::initializer_list<TProfileFieldDeclaration<Value>> Declarations) {
-  return TArray<TProfileFieldDeclaration<Value>>(Declarations);
-}
 
 template <typename Apply> struct TRenderingDispatchDeclaration {
   FString Name;
   Apply Run;
 
-  TRenderingDispatchDeclaration(const char *InName, Apply InRun)
-      : Name(RenderingProfileDispatchAtom(InName)), Run(InRun) {}
+  TRenderingDispatchDeclaration(const FString &InName, Apply InRun)
+      : Name(InName), Run(InRun) {}
 };
 
 using FCVarApply = void (*)(const FRetroCVarEval &);
@@ -68,47 +58,46 @@ void ApplyProfileFloatCVar(const FRetroCVarEval &Eval);
 template <typename Value> struct TProfileFieldRegistry;
 
 template <> struct TProfileFieldRegistry<int32> {
-  static const TArray<TProfileFieldDeclaration<int32>> &Fields() {
-    static const TArray<TProfileFieldDeclaration<int32>> ProfileFields =
-        ProfileFieldDeclarations<int32>(
-            {{"anti_aliasing_method",
-              &FLevelRetroRenderProfile::AntiAliasingMethod},
-             {"post_process_aa_quality",
-              &FLevelRetroRenderProfile::PostProcessAAQuality},
-             {"shadow_cascades", &FLevelRetroRenderProfile::ShadowCascades},
-             {"shadow_max_resolution",
-              &FLevelRetroRenderProfile::ShadowMaxResolution}});
-    return ProfileFields;
+  static TArray<TProfileFieldDeclaration<int32>> Fields(
+      const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
+    return {{Settings.ProfileFieldAntiAliasingMethod,
+             &FLevelRetroRenderProfile::AntiAliasingMethod},
+            {Settings.ProfileFieldPostProcessAaQuality,
+             &FLevelRetroRenderProfile::PostProcessAAQuality},
+            {Settings.ProfileFieldShadowCascades,
+             &FLevelRetroRenderProfile::ShadowCascades},
+            {Settings.ProfileFieldShadowMaxResolution,
+             &FLevelRetroRenderProfile::ShadowMaxResolution}};
   }
 };
 
 template <> struct TProfileFieldRegistry<float> {
-  static const TArray<TProfileFieldDeclaration<float>> &Fields() {
-    static const TArray<TProfileFieldDeclaration<float>> ProfileFields =
-        ProfileFieldDeclarations<float>(
-            {{"screen_percentage",
-              &FLevelRetroRenderProfile::ScreenPercentage},
-             {"view_distance_scale",
-              &FLevelRetroRenderProfile::ViewDistanceScale},
-             {"foliage_density_scale",
-              &FLevelRetroRenderProfile::FoliageDensityScale},
-             {"grass_density_scale",
-              &FLevelRetroRenderProfile::GrassDensityScale}});
-    return ProfileFields;
+  static TArray<TProfileFieldDeclaration<float>> Fields(
+      const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
+    return {{Settings.ProfileFieldScreenPercentage,
+             &FLevelRetroRenderProfile::ScreenPercentage},
+            {Settings.ProfileFieldViewDistanceScale,
+             &FLevelRetroRenderProfile::ViewDistanceScale},
+            {Settings.ProfileFieldFoliageDensityScale,
+             &FLevelRetroRenderProfile::FoliageDensityScale},
+            {Settings.ProfileFieldGrassDensityScale,
+             &FLevelRetroRenderProfile::GrassDensityScale}};
   }
 };
 
-const TArray<FCVarApplyDeclaration> &CVarApplyDeclarations() {
-  static const TArray<FCVarApplyDeclaration> RegisteredDeclarations = {
-      {"fixed_int", ApplyFixedIntCVar},
-      {"profile_int", ApplyProfileIntCVar},
-      {"fixed_float", ApplyFixedFloatCVar},
-      {"profile_float", ApplyProfileFloatCVar}};
-  return RegisteredDeclarations;
+TArray<FCVarApplyDeclaration> CVarApplyDeclarations(
+    const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
+  return {{Settings.ValueKindFixedInt, ApplyFixedIntCVar},
+          {Settings.ValueKindProfileInt, ApplyProfileIntCVar},
+          {Settings.ValueKindFixedFloat, ApplyFixedFloatCVar},
+          {Settings.ValueKindProfileFloat, ApplyProfileFloatCVar}};
 }
 
-FCVarApplyDeclaration RequiredCVarDeclaration(const FString &Name) {
-  const TArray<FCVarApplyDeclaration> &Declarations = CVarApplyDeclarations();
+FCVarApplyDeclaration RequiredCVarDeclaration(
+    const FString &Name,
+    const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
+  const TArray<FCVarApplyDeclaration> Declarations =
+      CVarApplyDeclarations(Settings);
   const func::Maybe<int32> Found =
       FindRenderingDeclarationIndex(Name, Declarations);
   check(Found.hasValue);
@@ -117,9 +106,12 @@ FCVarApplyDeclaration RequiredCVarDeclaration(const FString &Name) {
 
 template <typename Value>
 func::Maybe<Value> SelectProfileValue(const FLevelRetroRenderProfile &Profile,
-                                      const FString &Field) {
-  const TArray<TProfileFieldDeclaration<Value>> &FieldList =
-      TProfileFieldRegistry<Value>::Fields();
+                                      const FString &Field,
+                                      const ForbocAI::Game::Data::
+                                          FRenderingConsoleSettings
+                                              &Settings) {
+  const TArray<TProfileFieldDeclaration<Value>> FieldList =
+      TProfileFieldRegistry<Value>::Fields(Settings);
   return func::match(
       FindRenderingDeclarationIndex(Field, FieldList),
       [&Profile, &FieldList](int32 Index) {
@@ -130,8 +122,10 @@ func::Maybe<Value> SelectProfileValue(const FLevelRetroRenderProfile &Profile,
 
 template <typename Value>
 Value RequiredProfileValue(const FRetroCVarEval &Eval) {
+  check(Eval.Settings);
   const func::Maybe<Value> ValueResult =
-      SelectProfileValue<Value>(Eval.Profile, Eval.Setting.ProfileField);
+      SelectProfileValue<Value>(Eval.Profile, Eval.Setting.ProfileField,
+                                Eval.Settings->Console);
   check(ValueResult.hasValue);
   return ValueResult.value;
 }
@@ -161,7 +155,9 @@ void ApplyProfileFloatCVar(const FRetroCVarEval &Eval) {
 }
 
 void ApplyConsoleVariable(const FRetroCVarEval &Eval) {
-  RequiredCVarDeclaration(Eval.Setting.ValueKind).Run(Eval);
+  check(Eval.Settings);
+  RequiredCVarDeclaration(Eval.Setting.ValueKind, Eval.Settings->Console)
+      .Run(Eval);
 }
 
 } // namespace
@@ -172,8 +168,11 @@ void ApplyRuntimeConsoleVariables(
   func::for_each_indexed(
       Settings.ConsoleVariables,
       static_cast<size_t>(Settings.ConsoleVariables.Num()),
-      [&Profile](const ForbocAI::Game::Data::FRenderingConsoleVariableSettings
-                     &Setting) { ApplyConsoleVariable({Setting, Profile}); });
+      [&Profile, &Settings](
+          const ForbocAI::Game::Data::FRenderingConsoleVariableSettings
+              &Setting) {
+        ApplyConsoleVariable({Setting, Profile, &Settings});
+      });
 }
 
 } // namespace RenderingThunks

@@ -49,6 +49,7 @@ ReadTextureCatalogSettings(const TSharedPtr<FJsonObject> &Object);
 
 struct FSettingsRequest {
   const TSharedPtr<FJsonObject> TextureSettings;
+  const TSharedPtr<FJsonObject> ConsoleSettings;
   const TSharedPtr<FJsonObject> ConsoleVariables;
   const TSharedPtr<FJsonObject> TexturePalettes;
 };

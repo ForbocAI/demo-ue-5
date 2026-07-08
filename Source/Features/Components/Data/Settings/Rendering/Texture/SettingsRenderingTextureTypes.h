@@ -37,6 +37,21 @@ struct FRenderingConsoleVariableSettings {
   float FloatValue;
 };
 
+struct FRenderingConsoleSettings {
+  FString ProfileFieldAntiAliasingMethod;
+  FString ProfileFieldPostProcessAaQuality;
+  FString ProfileFieldShadowCascades;
+  FString ProfileFieldShadowMaxResolution;
+  FString ProfileFieldScreenPercentage;
+  FString ProfileFieldViewDistanceScale;
+  FString ProfileFieldFoliageDensityScale;
+  FString ProfileFieldGrassDensityScale;
+  FString ValueKindFixedInt;
+  FString ValueKindProfileInt;
+  FString ValueKindFixedFloat;
+  FString ValueKindProfileFloat;
+};
+
 
 struct FPredicateSettings {
   FString Kind;
@@ -86,6 +101,7 @@ struct FRenderingSettings {
   FString ResultMixKind;
   int32 TextureMipIndex;
   int32 TextureMaterialSlotIndex;
+  FRenderingConsoleSettings Console;
   FHashSettings TextureHash;
   TArray<FRenderingConsoleVariableSettings> ConsoleVariables;
   TArray<FPaletteSettings> TexturePalettes;
@@ -124,6 +140,35 @@ inline bool operator==(const FRenderingConsoleVariableSettings &Left,
 
 inline bool operator!=(const FRenderingConsoleVariableSettings &Left,
                        const FRenderingConsoleVariableSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FRenderingConsoleSettings &Left,
+                       const FRenderingConsoleSettings &Right) {
+  return Left.ProfileFieldAntiAliasingMethod ==
+             Right.ProfileFieldAntiAliasingMethod &&
+         Left.ProfileFieldPostProcessAaQuality ==
+             Right.ProfileFieldPostProcessAaQuality &&
+         Left.ProfileFieldShadowCascades ==
+             Right.ProfileFieldShadowCascades &&
+         Left.ProfileFieldShadowMaxResolution ==
+             Right.ProfileFieldShadowMaxResolution &&
+         Left.ProfileFieldScreenPercentage ==
+             Right.ProfileFieldScreenPercentage &&
+         Left.ProfileFieldViewDistanceScale ==
+             Right.ProfileFieldViewDistanceScale &&
+         Left.ProfileFieldFoliageDensityScale ==
+             Right.ProfileFieldFoliageDensityScale &&
+         Left.ProfileFieldGrassDensityScale ==
+             Right.ProfileFieldGrassDensityScale &&
+         Left.ValueKindFixedInt == Right.ValueKindFixedInt &&
+         Left.ValueKindProfileInt == Right.ValueKindProfileInt &&
+         Left.ValueKindFixedFloat == Right.ValueKindFixedFloat &&
+         Left.ValueKindProfileFloat == Right.ValueKindProfileFloat;
+}
+
+inline bool operator!=(const FRenderingConsoleSettings &Left,
+                       const FRenderingConsoleSettings &Right) {
   return !(Left == Right);
 }
 
@@ -189,6 +234,7 @@ inline bool operator==(const FRenderingSettings &Left,
          Left.ResultMixKind == Right.ResultMixKind &&
          Left.TextureMipIndex == Right.TextureMipIndex &&
          Left.TextureMaterialSlotIndex == Right.TextureMaterialSlotIndex &&
+         Left.Console == Right.Console &&
          Left.TextureHash == Right.TextureHash &&
          Left.ConsoleVariables == Right.ConsoleVariables &&
          Left.TexturePalettes == Right.TexturePalettes;
