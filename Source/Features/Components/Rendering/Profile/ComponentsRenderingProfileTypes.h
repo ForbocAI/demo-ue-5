@@ -16,6 +16,12 @@ struct FLevelRetroRenderProfile {
   int32 InternalRenderHeight;
   int32 OutputScaleMultiplier;
   bool bFullscreenOutput;
+  FString RuntimeResolutionCommandFormat;
+  FString FullscreenOutputSuffix;
+  FString WindowedOutputSuffix;
+  FString ScreenPercentageCVarName;
+  FString RuntimeOutputLogFormat;
+  int32 RuntimeOutputFormatBufferCharacterCount;
   float ViewDistanceScale;
   float FoliageDensityScale;
   float GrassDensityScale;
@@ -33,6 +39,8 @@ struct FLevelRetroRenderProfile {
   float PostProcessPriority;
   float PostProcessBlendRadius;
   float PostProcessBlendWeight;
+  float PostProcessEnabledBlendWeightThreshold;
+  FString RuntimePostProcessActorTag;
   float PostProcessSaturationMultiplier;
   float PostProcessContrastMultiplier;
   float PostProcessGainR;
@@ -166,6 +174,14 @@ inline bool operator==(const FLevelRetroRenderProfile &Left,
          Left.InternalRenderHeight == Right.InternalRenderHeight &&
          Left.OutputScaleMultiplier == Right.OutputScaleMultiplier &&
          Left.bFullscreenOutput == Right.bFullscreenOutput &&
+         Left.RuntimeResolutionCommandFormat ==
+             Right.RuntimeResolutionCommandFormat &&
+         Left.FullscreenOutputSuffix == Right.FullscreenOutputSuffix &&
+         Left.WindowedOutputSuffix == Right.WindowedOutputSuffix &&
+         Left.ScreenPercentageCVarName == Right.ScreenPercentageCVarName &&
+         Left.RuntimeOutputLogFormat == Right.RuntimeOutputLogFormat &&
+         Left.RuntimeOutputFormatBufferCharacterCount ==
+             Right.RuntimeOutputFormatBufferCharacterCount &&
          FMath::IsNearlyEqual(Left.ViewDistanceScale,
                               Right.ViewDistanceScale) &&
          FMath::IsNearlyEqual(Left.FoliageDensityScale,
@@ -195,6 +211,10 @@ inline bool operator==(const FLevelRetroRenderProfile &Left,
                               Right.PostProcessBlendRadius) &&
          FMath::IsNearlyEqual(Left.PostProcessBlendWeight,
                               Right.PostProcessBlendWeight) &&
+         FMath::IsNearlyEqual(
+             Left.PostProcessEnabledBlendWeightThreshold,
+             Right.PostProcessEnabledBlendWeightThreshold) &&
+         Left.RuntimePostProcessActorTag == Right.RuntimePostProcessActorTag &&
          FMath::IsNearlyEqual(Left.PostProcessSaturationMultiplier,
                               Right.PostProcessSaturationMultiplier) &&
          FMath::IsNearlyEqual(Left.PostProcessContrastMultiplier,

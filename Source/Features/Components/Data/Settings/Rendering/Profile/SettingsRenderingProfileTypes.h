@@ -22,6 +22,12 @@ struct FProfileSettings {
   int32 InternalRenderHeight;
   int32 OutputScaleMultiplier;
   bool bFullscreenOutput;
+  FString RuntimeResolutionCommandFormat;
+  FString FullscreenOutputSuffix;
+  FString WindowedOutputSuffix;
+  FString ScreenPercentageCVarName;
+  FString RuntimeOutputLogFormat;
+  int32 RuntimeOutputFormatBufferCharacterCount;
   float ViewDistanceScale;
   float FoliageDensityScale;
   float GrassDensityScale;
@@ -39,6 +45,8 @@ struct FProfileSettings {
   float PostProcessPriority;
   float PostProcessBlendRadius;
   float PostProcessBlendWeight;
+  float PostProcessEnabledBlendWeightThreshold;
+  FString RuntimePostProcessActorTag;
   float PostProcessSaturationMultiplier;
   float PostProcessContrastMultiplier;
   float PostProcessGainR;

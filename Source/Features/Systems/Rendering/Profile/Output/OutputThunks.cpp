@@ -7,6 +7,8 @@
 #include "Features/Systems/Rendering/Profile/ProfileThunks.h"
 #include "GameFramework/GameUserSettings.h"
 
+#include <cstdarg>
+
 namespace ForbocAI {
 namespace Game {
 namespace Level {
@@ -16,9 +18,25 @@ namespace {
 // Final-image subdomain: post-process color grading volume plus render output
 // (internal render scale, resolution, and video mode).
 
-FName RuntimeProfilePostProcessTag() {
-  static const FName Tag(TEXT("ForbocRuntimeProfilePostProcess"));
-  return Tag;
+struct FRuntimeOutputFormatContext {
+  const FString *Format;
+  int32 BufferCharacterCount;
+};
+
+FName RuntimeProfilePostProcessTag(
+    const FLevelRetroRenderProfile &Profile) {
+  return FName(*Profile.RuntimePostProcessActorTag);
+}
+
+FString RuntimeOutputFormat(FRuntimeOutputFormatContext Context, ...) {
+  TArray<TCHAR> Buffer;
+  Buffer.SetNumZeroed(Context.BufferCharacterCount);
+  const TCHAR *FormatPtr = **Context.Format;
+  va_list Args;
+  va_start(Args, Context);
+  FCString::GetVarArgs(Buffer.GetData(), Buffer.Num(), FormatPtr, Args);
+  va_end(Args);
+  return FString(Buffer.GetData());
 }
 
 // Grouped 4-channel declaration fed to one FVector4 composer, mirroring the
@@ -67,7 +85,8 @@ void ApplyRuntimePostProcessVolume(APostProcessVolume *Volume,
   Volume->Priority = Profile.PostProcessPriority;
   Volume->BlendRadius = Profile.PostProcessBlendRadius;
   Volume->BlendWeight = Profile.PostProcessBlendWeight;
-  Volume->bEnabled = Profile.PostProcessBlendWeight > 0.0f;
+  Volume->bEnabled = Profile.PostProcessBlendWeight >
+                     Profile.PostProcessEnabledBlendWeightThreshold;
   Volume->bUnbound = true;
   Volume->Settings.bOverride_ColorSaturation = true;
   Volume->Settings.ColorSaturation = PostProcessSaturation(Profile);
@@ -99,9 +118,10 @@ FIntPoint SelectViewportSize(UWorld *World) {
 
 float SelectInternalRenderScreenPercentage(
     const FLevelRetroRenderProfile &Profile, const FIntPoint &ViewportSize) {
-  const bool bCanScale = Profile.InternalRenderWidth > 0 &&
-                         Profile.InternalRenderHeight > 0 &&
-                         ViewportSize.X > 0 && ViewportSize.Y > 0;
+  const bool bCanScale = Profile.InternalRenderWidth > int32{} &&
+                         Profile.InternalRenderHeight > int32{} &&
+                         ViewportSize.X > int32{} &&
+                         ViewportSize.Y > int32{};
   const float WidthScale =
       bCanScale ? (static_cast<float>(Profile.InternalRenderWidth) /
                    static_cast<float>(ViewportSize.X)) *
@@ -118,15 +138,20 @@ float SelectInternalRenderScreenPercentage(
 }
 
 FIntPoint ProfileOutputRenderSize(const FLevelRetroRenderProfile &Profile) {
-  check(Profile.OutputScaleMultiplier > 0);
+  check(Profile.OutputScaleMultiplier > int32{});
   return FIntPoint(Profile.InternalRenderWidth * Profile.OutputScaleMultiplier,
                    Profile.InternalRenderHeight * Profile.OutputScaleMultiplier);
 }
 
 FString RuntimeResolutionCommand(const FLevelRetroRenderProfile &Profile) {
   const FIntPoint OutputSize = ProfileOutputRenderSize(Profile);
-  return FString::Printf(TEXT("r.SetRes %dx%d%s"), OutputSize.X, OutputSize.Y,
-                         Profile.bFullscreenOutput ? TEXT("f") : TEXT("w"));
+  const FString OutputModeSuffix =
+      Profile.bFullscreenOutput ? Profile.FullscreenOutputSuffix
+                                : Profile.WindowedOutputSuffix;
+  return RuntimeOutputFormat(
+      {&Profile.RuntimeResolutionCommandFormat,
+       Profile.RuntimeOutputFormatBufferCharacterCount},
+      OutputSize.X, OutputSize.Y, *OutputModeSuffix);
 }
 
 void ApplyRuntimeResolutionCommand(UWorld *World,
@@ -147,11 +172,26 @@ void ApplyRuntimeVideoSettings(const FLevelRetroRenderProfile &Profile) {
       : void();
 }
 
+FString RuntimeOutputLogMessage(
+    const FLevelRetroRenderProfile &Profile,
+    const FIntPoint &OutputSize,
+    const FIntPoint &EffectiveViewportSize,
+    float EffectiveScreenPercentage) {
+  return RuntimeOutputFormat(
+      {&Profile.RuntimeOutputLogFormat,
+       Profile.RuntimeOutputFormatBufferCharacterCount},
+      Profile.InternalRenderWidth,
+      Profile.InternalRenderHeight, OutputSize.X, OutputSize.Y,
+      EffectiveViewportSize.X, EffectiveViewportSize.Y,
+      EffectiveScreenPercentage, static_cast<int32>(Profile.bFullscreenOutput));
+}
+
 } // namespace
 
 void ApplyRuntimePostProcess(const FRuntimeProfileEval &Eval) {
   ApplyToTaggedProfileActor<APostProcessVolume>(
-      RuntimeProfilePostProcessTag(), &ApplyRuntimePostProcessVolume)(Eval);
+      RuntimeProfilePostProcessTag(Eval.Profile),
+      &ApplyRuntimePostProcessVolume)(Eval);
 }
 
 void ApplyRuntimeOutput(const FRuntimeProfileEval &Eval) {
@@ -164,14 +204,12 @@ void ApplyRuntimeOutput(const FRuntimeProfileEval &Eval) {
   const float EffectiveScreenPercentage =
       SelectInternalRenderScreenPercentage(Eval.Profile,
                                            EffectiveViewportSize);
-  SetRuntimeCVarFloat(TEXT("r.ScreenPercentage"), EffectiveScreenPercentage);
-  UE_LOG(LogForbocRenderingProfile, Display,
-         TEXT("runtime render output internal=%dx%d output=%dx%d viewport=%dx%d "
-              "screen_percentage=%.2f fullscreen=%d"),
-         Eval.Profile.InternalRenderWidth, Eval.Profile.InternalRenderHeight,
-         OutputSize.X, OutputSize.Y, EffectiveViewportSize.X,
-         EffectiveViewportSize.Y, EffectiveScreenPercentage,
-         Eval.Profile.bFullscreenOutput ? 1 : 0);
+  SetRuntimeCVarFloat(Eval.Profile.ScreenPercentageCVarName,
+                      EffectiveScreenPercentage);
+  const FString LogMessage = RuntimeOutputLogMessage(
+      Eval.Profile, OutputSize, EffectiveViewportSize,
+      EffectiveScreenPercentage);
+  UE_LOG(LogForbocRenderingProfile, Display, TEXT("%s"), *LogMessage);
 }
 
 } // namespace RenderingThunks
