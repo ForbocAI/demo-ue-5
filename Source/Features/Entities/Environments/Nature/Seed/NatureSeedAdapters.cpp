@@ -1,4 +1,4 @@
-#include "Features/Entities/Environments/Nature/Seed/Types/NatureSeedTypes.h"
-#include "Features/Entities/Environments/Nature/Seed/Json/NatureSeedJsonAdapters.h"
-#include "Features/Entities/Environments/Nature/Seed/Build/NatureSeedBuildAdapters.h"
-#include "Features/Entities/Environments/Nature/Seed/Project/NatureSeedProjectAdapters.h"
+#include "Features/Entities/Environments/Nature/Seed/Json/SeedJsonTypes.h"
+#include "Features/Entities/Environments/Nature/Seed/Json/JsonAdapters.h"
+#include "Features/Entities/Environments/Nature/Seed/Construction/ConstructionAdapters.h"
+#include "Features/Entities/Environments/Nature/Seed/Project/ProjectAdapters.h"

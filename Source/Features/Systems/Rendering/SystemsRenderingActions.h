@@ -3,6 +3,8 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/Payload/Application/PayloadApplicationAdapters.h"
+#include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 
 class UMaterialInterface;
 

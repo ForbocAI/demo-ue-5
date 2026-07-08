@@ -42,6 +42,7 @@ from features_boundaries import (
     fingerprint_findings,
     format_json,
     format_sarif,
+    format_summary,
     format_text,
     iter_source_files,
     line_number,
@@ -57,7 +58,20 @@ STRUCT_LEAF = register(
         id="RTK-STRUCT-001",
         severity=Severity.HIGH,
         summary="feature leaf is not a folder-qualified RTK/ECS role name",
-        guidance="Feature leaves must be the nearest unambiguous folder qualifier plus the role, such as BotsAdapters or SystemsBotsAdapters; keep broader domain words in folders.",
+        guidance=(
+            "Feature leaves must be the nearest unambiguous real domain atom "
+            "plus the role, such as SkyThunks or TextureAdapters; keep broader "
+            "domain words in folders. Do not use .inl fragments, Support/Setup "
+            "leaves, RTK role folders like Slice/Thunks/Selectors, non-role "
+            "implementation buckets like Reducers/Factories, or vague bucket "
+            "atoms like Core/Runtime/Common. Put reducer transitions in Slice "
+            "(skill: \"Use mutating logic inside slice reducers\"), derived reads "
+            "in Selectors (skill: \"Derive values with selectors instead of "
+            "storing duplicates\"), imperative effects in Thunks (skill: \"Use "
+            "a thunk when you need one imperative async workflow\"), and reactive "
+            "effects in Listeners. Never add suppression comments; fix the "
+            "boundary by moving, splitting, or renaming the code."
+        ),
         skill="model-redux-state-design-state-ownership: name by domain/role, not the component tree",
     )
 )
@@ -192,12 +206,33 @@ GRAPH_CYCLE = register(
     )
 )
 
+SUPPRESSION_COMMENT = register(
+    Rule(
+        id="RTK-SUPPRESS-001",
+        severity=Severity.HIGH,
+        summary="suppression comment attempts to bypass the RTK/ECS guard",
+        guidance=(
+            "Never add suppression or allow comments such as rtk:suppress, "
+            "boundary-allow, NOLINT, or ignore directives. Fix the boundary by "
+            "moving, splitting, renaming, or changing the rule when the rule is "
+            "wrong."
+        ),
+        skill="redux/rtk doctrine: fix boundaries instead of hiding violations",
+    )
+)
+
 
 # --- Cross-role data -------------------------------------------------------
 
 LEAF_SUFFIX_GUIDANCE: tuple[tuple[str, str], ...] = (
-    ("Reducers", "Move pure reducer functions into the sibling Slice; reducers are slice-owned transitions."),
-    ("Factories", "Replace Factories with Slice (initial state), Adapters (translation), or Thunks/Listeners (effects)."),
+    (
+        "Reducers",
+        "Reducers is not an RTK role. Move reducer transitions/helpers into the sibling Slice; RTK skill: \"Use mutating logic inside slice reducers\" and \"Hand-written reducers are an escape hatch\".",
+    ),
+    (
+        "Factories",
+        "Factories is not an RTK role. Replace by responsibility: initial-state/createSlice assembly -> Slice; JSON/ECS translation -> Adapters; imperative effects -> Thunks (skill: \"Use a thunk when you need one imperative async workflow\"); reactive effects -> Listeners.",
+    ),
     ("Dispatch", "Replace Dispatch files with Actions/Thunks/Listeners; keep one store boundary."),
     ("StateTypes", "Move domain words into folders and keep the folder-qualified Types leaf (State/StateTypes.h or the shortest collision-free suffix)."),
     ("PayloadTypes", "Move domain words into folders and keep the folder-qualified Types leaf (Payload/PayloadTypes.h or the shortest collision-free suffix)."),
@@ -244,6 +279,11 @@ CREATE_API = re.compile(r"\bcreateApi\s*<")
 STORE_LEGACY_RE = re.compile(r"\bcreateStore\s*\(|\bapplyMiddleware\s*\(")
 STORE_ARRAY_MW_RE = re.compile(r"\bmiddleware\s*[:=]\s*\[")
 CONFIGURE_STORE_RE = re.compile(r"\brtk::configureStore\s*<|(?<!create)configureStore\s*\(")
+SUPPRESSION_RE = re.compile(
+    r"\b(?:rtk:suppress|boundary-allow|NOLINT|eslint-disable|ts-ignore|@ts-ignore|noinspection)"
+    r"|\bpragma\s+warning\s*\(\s*disable",
+    re.IGNORECASE,
+)
 
 
 # --- Plugin discovery ------------------------------------------------------
@@ -322,12 +362,26 @@ def check_rtk_query(unit: SourceUnit) -> list[Finding]:
     return [Finding(unit.path, line_number(unit.code, match.start()), QUERY_LIFECYCLE.id, QUERY_LIFECYCLE.severity, QUERY_LIFECYCLE.summary)]
 
 
+def check_suppressions(unit: SourceUnit) -> list[Finding]:
+    return [
+        Finding(
+            unit.path,
+            line_number(unit.raw, match.start()),
+            SUPPRESSION_COMMENT.id,
+            SUPPRESSION_COMMENT.severity,
+            SUPPRESSION_COMMENT.summary,
+        )
+        for match in SUPPRESSION_RE.finditer(unit.raw)
+    ]
+
+
 def check_unit(unit: SourceUnit, plugins: dict[str, object]) -> list[Finding]:
+    findings = check_suppressions(unit)
     role = unit.declared_role
     if role is None:
-        return [Finding(unit.path, 1, STRUCT_LEAF.id, STRUCT_LEAF.severity, leaf_guidance(unit.stem))]
+        return findings + [Finding(unit.path, 1, STRUCT_LEAF.id, STRUCT_LEAF.severity, leaf_guidance(unit.stem))]
 
-    findings = fingerprint_findings(unit)
+    findings += fingerprint_findings(unit)
     plugin = plugins.get(role)
 
     if role == "view":
@@ -396,8 +450,12 @@ def run(guard_name: str = "RTK/ECS boundary guard", fmt: str = "text") -> int:
 
     if fmt == "json":
         print(format_json(findings, project_root))
+        if findings:
+            print(format_summary(findings, guard_name), file=sys.stderr)
     elif fmt == "sarif":
         print(format_sarif(findings, project_root, guard_name))
+        if findings:
+            print(format_summary(findings, guard_name), file=sys.stderr)
     elif findings:
         print(format_text(findings, project_root, guard_name))
     else:

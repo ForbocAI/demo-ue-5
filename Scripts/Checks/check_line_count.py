@@ -9,6 +9,11 @@ for authored data, smaller catalog/instance/subdomain JSON leaves) and recompose
 them through an adapter/fold, so folder/namespace boundaries own the domain
 words and each leaf stays small.
 
+Do not split with ``.inl``/``.inc``/``.ipp`` fragments or other non-role
+implementation leaves to bypass the RTK/ECS/View structure checks. Drill into
+real descriptive subdomains instead, then keep code in checked ``.h``/``.hpp``/
+``.cpp`` role/domain leaves.
+
 Line counts are taken the same way as Scripts/Docs/count_project_lines.py (the
 FILES_BY_LINE_NUMBER report), so the numbers agree. The guard always scans the
 project Source and Content trees; path arguments are intentionally unsupported.
@@ -23,7 +28,10 @@ import sys
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SCAN_ROOTS = [PROJECT_ROOT / "Source", PROJECT_ROOT / "Content"]
-TEXT_SUFFIXES = {".h", ".hpp", ".cpp", ".c", ".cs", ".json", ".csv", ".ini", ".txt"}
+TEXT_SUFFIXES = {
+    ".h", ".hpp", ".cpp", ".c", ".cs", ".json", ".csv", ".ini", ".txt",
+    ".inl", ".inc", ".ipp",
+}
 EXCLUDED_DIRS = {
     ".git", ".vs", ".vscode", "Binaries", "Build", "DerivedDataCache",
     "Intermediate", "Plugins", "Saved", "__pycache__",
@@ -35,7 +43,10 @@ GUIDANCE = (
     "smaller RTK/ECS role leaves or grouped declaration atoms fed to one reusable "
     "composer. Content: smaller catalog/instance/subdomain JSON leaves composed "
     "through the settings adapters. Folder/namespace boundaries own the domain "
-    "words; each leaf stays small. A wide file is a bag hiding subdomains."
+    "words; each leaf stays small. Never use .inl/.inc/.ipp fragments or "
+    "non-role implementation leaves as an escape hatch; drill into concrete "
+    "subdomains and keep the result visible to the structural guards. A wide "
+    "file is a bag hiding subdomains."
 )
 
 

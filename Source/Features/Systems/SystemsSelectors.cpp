@@ -23,6 +23,18 @@
 
 #include "Store.h"
 
-#include "Features/Systems/Selectors/CoreSelectors.h"
-#include "Features/Systems/Selectors/PresentationSelectors.h"
-#include "Features/Systems/Selectors/RouteSelectors.h"
+#include "Features/Systems/State/StateSelectors.h"
+#include "Features/Systems/Presentation/PresentationSelectors.h"
+#include "Features/Systems/Route/RouteSelectors.h"
+
+namespace ForbocAI {
+namespace Game {
+namespace Level {
+namespace RuntimeSelectors {
+
+const FRuntimeState &SelectState() { return Store::GetStore().getState(); }
+
+} // namespace RuntimeSelectors
+} // namespace Level
+} // namespace Game
+} // namespace ForbocAI

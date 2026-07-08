@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Systems/Level/Layout/SystemsLevelLayoutTypes.h"
+#include "Features/Systems/Level/Layout/Document/DocumentAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

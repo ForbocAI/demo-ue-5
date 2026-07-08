@@ -542,13 +542,39 @@ def sort_findings(findings: list[Finding]) -> list[Finding]:
     )
 
 
-def format_text(findings: list[Finding], project_root: Path, guard_name: str) -> str:
-    lines: list[str] = []
+def finding_counts(findings: list[Finding]) -> dict[str, dict[str, int]]:
     counts = {sev: 0 for sev in Severity}
+    rules: dict[str, int] = {}
     for finding in findings:
         counts[finding.severity] += 1
-    summary = ", ".join(f"{counts[sev]} {sev.value}" for sev in Severity if counts[sev])
-    lines.append(f"{guard_name} failed: {len(findings)} issue(s) ({summary}).")
+        rules[finding.rule_id] = rules.get(finding.rule_id, 0) + 1
+    return {
+        "severity": {
+            severity.value: counts[severity]
+            for severity in Severity
+            if counts[severity]
+        },
+        "rules": dict(sorted(rules.items())),
+    }
+
+
+def format_summary(findings: list[Finding], guard_name: str) -> str:
+    if not findings:
+        return f"{guard_name} passed."
+    counts = finding_counts(findings)
+    severity = ", ".join(
+        f"{count} {name}"
+        for name, count in counts["severity"].items()
+    )
+    rules = ", ".join(
+        f"{rule_id}={count}"
+        for rule_id, count in counts["rules"].items()
+    )
+    return f"{guard_name} failed: {len(findings)} issue(s) ({severity}). Rules: {rules}."
+
+
+def format_text(findings: list[Finding], project_root: Path, guard_name: str) -> str:
+    lines: list[str] = [format_summary(findings, guard_name)]
     for finding in sort_findings(findings):
         display = _display_path(finding, project_root)
         lines.append(
@@ -576,7 +602,10 @@ def format_json(findings: list[Finding], project_root: Path) -> str:
         }
         for finding in sort_findings(findings)
     ]
-    return json.dumps({"findings": payload, "count": len(payload)}, indent=2)
+    return json.dumps(
+        {"findings": payload, "count": len(payload), "summary": finding_counts(findings)},
+        indent=2,
+    )
 
 
 def format_sarif(findings: list[Finding], project_root: Path, guard_name: str) -> str:

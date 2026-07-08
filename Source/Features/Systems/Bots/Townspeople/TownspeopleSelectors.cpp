@@ -48,11 +48,6 @@ SelectCombatValidationTownspeople(const FTownspersonState &State) {
   return State.CombatValidationTownspeople;
 }
 
-const FTownspersonViewDefaults &
-SelectViewDefaults(const FTownspersonState &State) {
-  return State.ViewDefaults;
-}
-
 } // namespace TownspersonSelectors
 } // namespace Level
 } // namespace Game

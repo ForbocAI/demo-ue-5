@@ -2,7 +2,7 @@
 
 #include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
-#include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
+#include "Features/Components/Spatial/Level/Layout/LayoutTypes.h"
 
 namespace ForbocAI {
 namespace Game {

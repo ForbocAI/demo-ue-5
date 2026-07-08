@@ -2,7 +2,7 @@
 
 #include "Core/ue_fp.hpp"
 #include "Features/Components/Data/Json/JsonSlice.h"
-#include "Features/Components/Data/Json/JsonTypes.h"
+#include "Features/Components/Data/Json/DataJsonTypes.h"
 
 // Json read adapters: neutral boundary projection from JSON objects into typed
 // values. These are adapter-layer plumbing shared across all feature domains.

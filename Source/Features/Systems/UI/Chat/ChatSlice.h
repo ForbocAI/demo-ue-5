@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Systems/UI/Shared/SharedSlice.h"
+#include "Features/Systems/UI/Chat/Rendering/ChatRenderingSlice.h"
 
 namespace ForbocAI {
 namespace Game {

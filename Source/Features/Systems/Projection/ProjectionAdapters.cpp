@@ -1,11 +1,11 @@
-#include "Features/Systems/Projection/ProjectionAdapters.h"
+#include "Features/Systems/Projection/SystemsProjectionAdapters.h"
 
 #include "Features/Components/ComponentsAdapters.h"
 #include "Features/Entities/EntitiesAdapters.h"
 #include "Features/Systems/Projection/Bot/ProjectionBotAdapters.h"
 #include "Features/Systems/Projection/Interaction/InteractionAdapters.h"
 #include "Features/Systems/Projection/Spawn/SpawnAdapters.h"
-#include "Features/Systems/Projection/Terrain/TerrainAdapters.h"
+#include "Features/Systems/Projection/Terrain/ProjectionTerrainAdapters.h"
 #include "Features/Systems/SystemsSelectors.h"
 
 namespace ForbocAI {

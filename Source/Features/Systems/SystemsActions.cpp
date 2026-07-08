@@ -2,7 +2,7 @@
 
 #include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
-#include "Features/Systems/SystemsSlice.h"
+#include "Features/Systems/State/StateSlice.h"
 #include "Store.h"
 #include "Core/ue_fp.hpp"
 
@@ -41,8 +41,8 @@ void DispatchObserveRuntimeStatsTick(::UWorld *World, float DeltaSeconds) {
 } // namespace ForbocAI
 
 
-#include "Features/Systems/Level/View/ViewTypes.h"
-#include "Features/Systems/View/Spawn/ViewSpawnTypes.h"
+#include "Features/Systems/Level/Presentation/LevelPresentationTypes.h"
+#include "Features/Systems/Level/Presentation/Spawn/PresentationSpawnTypes.h"
 #include "Store.h"
 
 namespace ForbocAI {

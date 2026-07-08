@@ -29,9 +29,7 @@ ObserveHorsePatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
 }
 
 FG::FHorsePresentationViewModel ObserveHorsePresentation() {
-  return FG::RuntimeSelectors::SelectHorsePresentation(
-      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-      FG::RuntimeSelectors::SelectState());
+  return FG::RuntimeSelectors::SelectHorsePresentation();
 }
 } // namespace
 
@@ -41,16 +39,11 @@ AHorseView::AHorseView()
       bMountedRider(false), CurrentLod() {
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =
-      FG::RuntimeSelectors::SelectBotSettings(
-          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-          FG::RuntimeSelectors::SelectState())
-          .PatrolTickIntervalSeconds;
+      FG::RuntimeSelectors::SelectBotSettings().PatrolTickIntervalSeconds;
   const FG::FHorsePresentationViewModel Presentation =
       ObserveHorsePresentation();
   const ForbocAI::Game::Data::FViewNameSettings &ViewNames =
-      FG::RuntimeSelectors::SelectViewNames(
-          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-          FG::RuntimeSelectors::SelectState());
+      FG::RuntimeSelectors::SelectViewNames();
   HorseName = Presentation.DefaultName;
   WalkSpeed = Presentation.WalkSpeed;
   PauseDuration = Presentation.PauseDuration;
@@ -103,9 +96,7 @@ void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   PatrolRoute = Config.PatrolRoute;
   CurrentLod = Config.Lod;
   PauseRemaining =
-      FG::RuntimeSelectors::SelectBotSettings(
-          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-          FG::RuntimeSelectors::SelectState())
+      FG::RuntimeSelectors::SelectBotSettings()
           .InitialPatrolPauseRemainingSeconds;
   const ForbocAI::Game::Level::FBotInitialPatrolLocationPayload Initial =
       ObserveHorseInitialPatrol(PatrolRoute, PatrolIndex);

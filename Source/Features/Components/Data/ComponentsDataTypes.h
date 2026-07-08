@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Features/Components/Data/State/DataStateTypes.h"
-#include "Features/Components/Data/Json/JsonTypes.h"
-#include "Features/Components/Data/Settings/Bot/BotTypes.h"
+#include "Features/Components/Data/Json/DataJsonTypes.h"
+#include "Features/Components/Data/Settings/Bot/SettingsBotTypes.h"
 #include "Features/Components/Data/Settings/Dialogue/SettingsDialogueTypes.h"
 #include "Features/Components/Data/Settings/Interaction/SettingsInteractionTypes.h"
 #include "Features/Components/Data/Settings/Level/SettingsLevelTypes.h"

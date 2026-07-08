@@ -24,9 +24,7 @@ void URuntimeChatWidget::NativeConstruct() {
         WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
 
     const ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation =
-        ForbocAI::Game::Level::RuntimeSelectors::SelectRuntimeConversation(
-            // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-            ForbocAI::Game::Level::RuntimeSelectors::SelectState());
+        ForbocAI::Game::Level::RuntimeSelectors::SelectRuntimeConversation();
 
     TitleTextElement = BuildTextElement(Conversation.Text.Title,
                                         Conversation.Colors.TitleColor,

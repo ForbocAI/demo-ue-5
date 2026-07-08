@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Features/Components/Adapters/ComponentsAdaptersTypes.h"
-#include "Features/Components/Adapters/AdaptersSelectors.h"
+#include "Features/Components/Projection/ComponentsProjectionAdapters.h"
+#include "Features/Components/Projection/ProjectionSelectors.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
 
 // ECS boundary adapters: converting application domains into ECS components and projection.

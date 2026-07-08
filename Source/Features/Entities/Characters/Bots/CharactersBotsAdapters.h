@@ -9,7 +9,7 @@
 #include "Features/Systems/Bots/Horses/HorsesAdapters.h"
 #include "Features/Systems/Bots/Horses/HorsesTypes.h"
 #include "Features/Systems/Bots/Position/PositionAdapters.h"
-#include "Features/Systems/Bots/Stats/StatsAdapters.h"
+#include "Features/Systems/Bots/Stats/BotsStatsAdapters.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleAdapters.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
 

@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/UI/UIActions.h"
-#include "Features/Systems/UI/Shared/SharedSlice.h"
+#include "Features/Systems/UI/Chat/Rendering/ChatRenderingSlice.h"
 #include "Features/Systems/UI/Chat/ChatSlice.h"
 #include "Features/Systems/UI/Conversation/UIConversationSlice.h"
 #include "Features/Systems/UI/SystemsUITypes.h"

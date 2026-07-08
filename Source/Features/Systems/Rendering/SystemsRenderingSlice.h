@@ -9,7 +9,7 @@
 #include "Features/Systems/Rendering/Texture/TextureSlice.h"
 #include "Features/Systems/Rendering/Distance/Lod/LodSlice.h"
 #include "Features/Systems/Rendering/Profile/ProfileSlice.h"
-#include "Features/Systems/Rendering/Presentation/PresentationSlice.h"
+#include "Features/Systems/Rendering/Presentation/RenderingPresentationSlice.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -40,6 +40,8 @@ FRenderingState ReduceRuntimeStatsSampled(
 #include "Features/Components/Data/Settings/UI/SettingsUITypes.h"
 #include "Features/Systems/Rendering/SystemsRenderingActions.h"
 #include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/Payload/Application/PayloadApplicationAdapters.h"
+#include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 
 class UMaterialInterface;
 class UWorld;

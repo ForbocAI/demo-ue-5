@@ -7,7 +7,7 @@
 #include "Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h"
 #include "Features/Components/Data/Settings/Automation/Rtk/Compliance/ComplianceTypes.h"
 #include "Features/Components/Data/Settings/Automation/Store/StoreTypes.h"
-#include "Features/Components/Data/Settings/Automation/Tests/AutomationTestsTypes.h"
+#include "Features/Components/Data/Settings/Automation/Tests/TestsTypes.h"
 
 namespace ForbocAI {
 namespace Game {

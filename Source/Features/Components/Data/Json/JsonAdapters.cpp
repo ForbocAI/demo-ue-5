@@ -4,7 +4,7 @@
 #include "Misc/Paths.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
-#include "Features/Components/Data/Json/Manifest/JsonManifestAdapters.h"
+#include "Features/Components/Data/Json/Manifest/ManifestAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

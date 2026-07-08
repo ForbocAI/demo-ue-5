@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/Settings/Automation/AutomationTypes.h"
-#include "Features/Components/Data/Settings/Bot/BotTypes.h"
+#include "Features/Components/Data/Settings/Bot/SettingsBotTypes.h"
 #include "Features/Components/Data/Settings/Dialogue/SettingsDialogueTypes.h"
 #include "Features/Components/Data/Settings/Interaction/SettingsInteractionTypes.h"
 #include "Features/Components/Data/Settings/Level/SettingsLevelTypes.h"

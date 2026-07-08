@@ -2,7 +2,7 @@
 #include "Core/ue_fp.hpp"
 #include "Engine/SkeletalMesh.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
-#include "Features/Systems/Speech/SpeechAdapters.h"
+#include "Features/Systems/Speech/Component/ComponentAdapters.h"
 #include "GameFramework/Actor.h"
 #include "Misc/AutomationTest.h"
 #include "Misc/ConfigCacheIni.h"

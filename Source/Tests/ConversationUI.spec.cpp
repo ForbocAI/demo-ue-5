@@ -1,6 +1,6 @@
 #include "CoreMinimal.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
-#include "Features/Systems/UI/Shared/SharedSlice.h"
+#include "Features/Systems/UI/Chat/Rendering/ChatRenderingSlice.h"
 #include "Features/Systems/UI/Chat/ChatSlice.h"
 #include "Features/Systems/UI/Conversation/UIConversationSlice.h"
 #include "Misc/AutomationTest.h"

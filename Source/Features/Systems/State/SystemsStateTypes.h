@@ -6,13 +6,13 @@
 #include "Features/Entities/Characters/Player/CharactersPlayerTypes.h"
 #include "Features/Systems/Bots/AI/AITypes.h"
 #include "Features/Systems/Bots/SystemsBotsTypes.h"
-#include "Features/Systems/Bots/Core/BotsCoreTypes.h"
+#include "Features/Systems/Bots/Behavior/BehaviorTypes.h"
 #include "Features/Systems/Bots/Goals/GoalsTypes.h"
 #include "Features/Systems/Bots/Position/PositionTypes.h"
 #include "Features/Systems/Bots/Stats/BotsStatsTypes.h"
 #include "Features/Systems/Bots/Horses/HorsesTypes.h"
 #include "Features/Systems/Bots/Orchestrator/OrchestratorTypes.h"
-#include "Features/Systems/Bots/Orchestrator/Factories/FactoriesTypes.h"
+#include "Features/Systems/Bots/Orchestrator/Readiness/ReadinessTypes.h"
 #include "Features/Systems/Bots/Pipeline/BotsPipelineTypes.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
 #include "Features/Systems/Dialogue/SystemsDialogueTypes.h"
@@ -52,6 +52,7 @@ struct FRuntimeState {
   ForbocAI::Game::Data::FViewNameSettings ViewNames;
   ForbocAI::Game::Data::FTextSettings Text;
   ForbocAI::Game::Data::FBotSettings Bot;
+  ForbocAI::Game::Data::FTownspersonDefaultsSettings TownspersonDefaults;
   FRuntimeEcsState Ecs;
   FRuntimeReducerDiagnosticsState ReducerDiagnostics;
   FRuntimeLifecycleState Lifecycle;
@@ -77,7 +78,7 @@ struct FRuntimeState {
   FBotAIState BotAI;
   FBotGoalState BotGoals;
   FBotOrchestratorState BotOrchestrator;
-  FBotOrchestratorFactoriesState BotOrchestratorFactories;
+  FBotOrchestratorReadinessState BotOrchestratorReadiness;
   FBotPipelineState BotPipeline;
 };
 
@@ -117,6 +118,7 @@ inline bool operator==(const FRuntimeState &Left,
          Left.ViewNames == Right.ViewNames &&
          Left.Text == Right.Text &&
          Left.Bot == Right.Bot &&
+         Left.TownspersonDefaults == Right.TownspersonDefaults &&
          Left.Ecs == Right.Ecs &&
          Left.ReducerDiagnostics == Right.ReducerDiagnostics &&
          Left.Lifecycle == Right.Lifecycle &&
@@ -139,7 +141,7 @@ inline bool operator==(const FRuntimeState &Left,
          Left.BotPosition == Right.BotPosition && Left.BotAI == Right.BotAI &&
          Left.BotGoals == Right.BotGoals &&
          Left.BotOrchestrator == Right.BotOrchestrator &&
-         Left.BotOrchestratorFactories == Right.BotOrchestratorFactories &&
+         Left.BotOrchestratorReadiness == Right.BotOrchestratorReadiness &&
          Left.BotPipeline == Right.BotPipeline;
 }
 

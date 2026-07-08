@@ -12,7 +12,7 @@ class UStaticMeshComponent;
 class UWorld;
 
 #include "Features/Systems/Rendering/Payload/PayloadTypes.h"
-#include "Features/Systems/Rendering/Presentation/PresentationTypes.h"
+#include "Features/Systems/Rendering/Presentation/RenderingPresentationTypes.h"
 #include "Features/Systems/Rendering/Stats/Data/StatsDataTypes.h"
 #include "Features/Systems/Rendering/Texture/SystemsRenderingTextureTypes.h"
 

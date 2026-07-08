@@ -47,7 +47,11 @@ NON_SERIALIZABLE = register(
         id="RTK-TYPES-001",
         severity=Severity.HIGH,
         summary="persistent Types hold non-serializable state (UE pointers, ownership, callbacks)",
-        guidance="Keep Types serializable/inert; UE object pointers, shared ownership, and callbacks live at Adapter/Thunk/Listener/View boundaries.",
+        guidance=(
+            "Keep Types serializable/inert; UE object pointers, shared ownership, "
+            "and callbacks live at Adapter/Thunk/Listener/View boundaries. Never "
+            "add suppressions; move the boundary shape to the right role."
+        ),
         skill="evolve-and-diagnose-redux-apps-debug-redux-toolkit-apps: HIGH ignoring serializable-state violations",
         roles=frozenset({ROLE}),
     )
@@ -69,7 +73,11 @@ DERIVED_TYPES = register(
         id="RTK-TYPES-003",
         severity=Severity.MEDIUM,
         summary="view model / derived defaults stored as Types shape",
-        guidance="Store raw state and derive view models in Selectors unless this is an explicit boundary payload.",
+        guidance=(
+            "Store raw state and derive view models in Selectors. Never add "
+            "suppressions; if the value is a boundary payload, move it out of "
+            "persistent state and into the owning Adapter/Thunk/Listener/View role."
+        ),
         skill="build-modern-redux-apps-redux-dataflow: MEDIUM storing derived values in state",
         roles=frozenset({ROLE}),
     )

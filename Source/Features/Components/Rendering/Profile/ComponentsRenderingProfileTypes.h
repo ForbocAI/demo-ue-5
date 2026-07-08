@@ -1,4 +1,4 @@
 #pragma once
 
-#include "Features/Components/Rendering/Profile/ProfileTypes/RenderProfileTypes.h"
-#include "Features/Components/Rendering/Profile/ProfileTypes/RenderProfileEquality.h"
+#include "Features/Components/Rendering/Profile/Render/RenderTypes.h"
+#include "Features/Components/Rendering/Profile/Render/Equality/EqualityTypes.h"

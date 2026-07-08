@@ -47,19 +47,15 @@ void ApplyBlockLevelOfDetail(const FBlockLevelOfDetailApplyRequest &Request) {
 ARuntimeLevelView::ARuntimeLevelView()
     : CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
   PrimaryActorTick.bCanEverTick = false;
-
-  // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-  const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
   const FG::FRenderingAssetPaths AssetPaths =
-      FG::RuntimeSelectors::SelectRenderingAssetPaths(State);
+      FG::RuntimeSelectors::SelectRenderingAssetPaths();
   CubeMesh = LoadObject<UStaticMesh>(nullptr, *AssetPaths.LevelCubeMeshPath);
   BlockBaseMaterial = FG::RenderingActions::LoadBlockoutMaterial(
       AssetPaths.BlockoutMaterialPath);
-  LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry(State);
+  LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry();
   bSpawnOnBeginPlay = LevelGeometrySettings.bSpawnOnBeginPlay;
-  TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(State);
-  RenderingSettings =
-      FG::RuntimeSelectors::SelectRenderingSettings(State);
+  TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog();
+  RenderingSettings = FG::RuntimeSelectors::SelectRenderingSettings();
 }
 
 void ARuntimeLevelView::BeginPlay() {
@@ -71,30 +67,19 @@ void ARuntimeLevelView::BeginPlay() {
 
 void ARuntimeLevelView::RenderLevel() {
   const FG::FLevelRetroRenderProfile Profile =
-      FG::RuntimeSelectors::SelectRuntimeProfile(
-          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-          FG::RuntimeSelectors::SelectState());
+      FG::RuntimeSelectors::SelectRuntimeProfile();
   FG::RenderingActions::ApplyRuntimeProfile(
       {GetWorld(), Profile,
-       FG::RuntimeSelectors::SelectRenderingSettings(
-           // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-           FG::RuntimeSelectors::SelectState())});
+       FG::RuntimeSelectors::SelectRenderingSettings()});
   auto Payload = FG::FRuntimeLevelViewPayload();
   const auto Result = FG::RuntimeActions::DispatchRequestLevelViewPayload();
   func::thenAsync(Result, [&Payload](auto Resolved) {
     Payload = Resolved;
   });
   func::executeAsync(Result);
-  TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(
-      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-      FG::RuntimeSelectors::SelectState());
-  LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry(
-      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-      FG::RuntimeSelectors::SelectState());
-  RenderingSettings =
-      FG::RuntimeSelectors::SelectRenderingSettings(
-          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-          FG::RuntimeSelectors::SelectState());
+  TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog();
+  LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry();
+  RenderingSettings = FG::RuntimeSelectors::SelectRenderingSettings();
   RenderLevelPayload(Payload);
 }
 

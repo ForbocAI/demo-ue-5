@@ -20,8 +20,6 @@ const TArray<FTownspersonSeed> &
 SelectMemoryTownspeople(const FTownspersonState &State);
 const TArray<FTownspersonSeed> &
 SelectCombatValidationTownspeople(const FTownspersonState &State);
-const FTownspersonViewDefaults &
-SelectViewDefaults(const FTownspersonState &State);
 
 } // namespace TownspersonSelectors
 } // namespace Level

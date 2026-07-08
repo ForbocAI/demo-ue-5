@@ -26,6 +26,6 @@
 #include "Views/Townsperson/TownspersonView.h"
 
 
-#include "Views/Player/Controller/ControllerViewSupport.h"
-#include "Views/Player/Controller/ControllerViewInteraction.h"
-#include "Views/Player/Controller/ControllerViewCapture.h"
+#include "Views/Player/Controller/Initialization/ControllerInitializationView.h"
+#include "Views/Player/Controller/Interaction/InteractionView.h"
+#include "Views/Player/Controller/Capture/CaptureView.h"

@@ -1,2 +1,2 @@
-#include "Features/Components/Level/Data/Csv/OrthoDataAdapters.h"
-#include "Features/Components/Level/Data/Csv/TerrainDataAdapters.h"
+#include "Features/Components/Level/Data/Csv/Ortho/OrthoAdapters.h"
+#include "Features/Components/Level/Data/Csv/Terrain/CsvTerrainAdapters.h"

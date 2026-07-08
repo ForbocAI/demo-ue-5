@@ -14,7 +14,7 @@
 
 #include "Misc/AutomationTest.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
-#include "Features/Systems/Speech/Adapters/AdaptersSlice.h"
+#include "Features/Systems/Speech/Phoneme/PhonemeSlice.h"
 
 namespace {
 

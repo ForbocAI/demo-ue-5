@@ -4,6 +4,7 @@
 #include "Features/Systems/Rendering/SystemsRenderingActions.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
 #include "Features/Systems/Rendering/SystemsRenderingSlice.h"
+#include "Features/Systems/Rendering/Payload/Application/PayloadApplicationAdapters.h"
 #include "Features/Systems/SystemsSelectors.h"
 
 // Runtime render profile orchestrator. The subdomain application passes live

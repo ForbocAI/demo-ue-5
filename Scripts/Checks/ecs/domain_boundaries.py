@@ -9,6 +9,11 @@ Boundaries are derived from the repository shape, not a managed list:
   folder-qualified View leaf;
 * data files fold repeated prefix groups (and ECS section/kind prefixes) into
   folders;
+* source/view folders are real domain atoms, never role buckets
+  (Slice/Thunks/Selectors/etc.), non-RTK implementation buckets
+  (Factories/Reducers), or vague buckets (Core/Runtime/Common/Shared/etc.);
+* source/view splits stay in checked role/domain leaves, never .inl/.inc/.ipp
+  fragments;
 * a folder never repeats its parent.
 
 This guard is report-only. It computes the constructive target path for every
@@ -39,6 +44,7 @@ from check_ecs import (
     folder_tokens,
     format_json,
     format_sarif,
+    format_summary,
     format_text,
     iter_files,
     normalize_token,
@@ -54,6 +60,7 @@ SOURCE_VIEWS_ROOT = PROJECT_ROOT / "Source" / "Views"
 CONTENT_DATA_ROOT = PROJECT_ROOT / "Content" / "Data"
 
 SOURCE_SUFFIXES = {".cpp", ".h", ".hpp"}
+SOURCE_FRAGMENT_SUFFIXES = {".inl", ".inc", ".ipp"}
 CANONICAL_SOURCE_ROLES = (
     ("Actions",),
     ("Adapters",),
@@ -63,12 +70,49 @@ CANONICAL_SOURCE_ROLES = (
     ("Thunks",),
     ("Types",),
 )
+ROLE_FOLDER_ATOMS = frozenset({
+    "action",
+    "adapter",
+    "listener",
+    "selector",
+    "slice",
+    "thunk",
+    "type",
+    "view",
+})
+IMPLEMENTATION_BUCKET_ATOMS = frozenset({
+    "factory",
+    "reducer",
+})
+VAGUE_FOLDER_ATOMS = frozenset({
+    "base",
+    "common",
+    "core",
+    "default",
+    "fragment",
+    "general",
+    "generic",
+    "helper",
+    "implementation",
+    "impl",
+    "internal",
+    "macro",
+    "misc",
+    "miscellaneous",
+    "runtime",
+    "setup",
+    "shared",
+    "support",
+    "util",
+    "utility",
+})
 DATA_PREFIX_MIN_COUNT = 4
 VIEW_QUALIFIER_MIN_COUNT = 3
 
 _SELF_MOVE_NOTE = (
     " Rename/move the file to that path and update its references yourself; this "
-    "guard reports the target and never edits files."
+    "guard reports the target and never edits files. Never add suppression "
+    "comments to bypass the guard."
 )
 
 SRC_REPEAT = register(
@@ -76,8 +120,27 @@ SRC_REPEAT = register(
         id="DOMAIN-SRC-001",
         severity=Severity.HIGH,
         summary="source filename repeats domain/subdomain tokens already in its folders",
-        guidance="Move broad domain/subdomain words into folders and keep the shortest needed folder-suffix qualifier plus role (Rendering/Sky/SkyThunks.h)." + _SELF_MOVE_NOTE,
+        guidance=(
+            "Move broad domain/subdomain words into folders and keep the "
+            "shortest collision-free real-domain qualifier plus the role "
+            "(Rendering/Sky/SkyThunks.h). Drill into descriptive subdomains; "
+            "do not use role folders, vague buckets, digits, or .inl fragments."
+        ) + _SELF_MOVE_NOTE,
         skill="ecs.hpp doctrine: domain words live in folders; the leaf is a small role name",
+    )
+)
+
+SOURCE_FRAGMENT = register(
+    Rule(
+        id="DOMAIN-SRC-002",
+        severity=Severity.HIGH,
+        summary="source fragment bypasses RTK/ECS/View role leaf structure",
+        guidance=(
+            "Never split Source into .inl/.inc/.ipp or other non-role "
+            "implementation fragments. Drill into real descriptive subdomain "
+            "folders and keep code in checked .h/.hpp/.cpp role/domain leaves."
+        ) + _SELF_MOVE_NOTE,
+        skill="ecs.hpp doctrine: implementation splits stay visible as domain role leaves",
     )
 )
 
@@ -86,7 +149,13 @@ VIEW_REPEAT = register(
         id="DOMAIN-VIEW-001",
         severity=Severity.HIGH,
         summary="view filename repeats subject tokens shared across views",
-        guidance="Move broad subject words into folders and keep the shortest needed folder-suffix qualifier plus View (Player/Controller/ControllerView.cpp)." + _SELF_MOVE_NOTE,
+        guidance=(
+            "Move broad subject words into folders and keep the shortest "
+            "collision-free real-domain qualifier plus View "
+            "(Player/Controller/ControllerView.cpp). Drill into descriptive "
+            "view subdomains; do not use .inl fragments, Support/Setup leaves, "
+            "role folders, vague buckets, or digits."
+        ) + _SELF_MOVE_NOTE,
         skill="ecs.hpp doctrine: subject in folders, View leaf",
     )
 )
@@ -118,6 +187,56 @@ FOLDER_REDUNDANT = register(
         summary="folder segment repeats its parent segment",
         guidance="Collapse the redundant nesting; each path segment should add a new domain word, not repeat its parent." + _SELF_MOVE_NOTE,
         skill="ecs.hpp doctrine: every path segment is a distinct domain step",
+    )
+)
+
+FOLDER_ROLE_BUCKET = register(
+    Rule(
+        id="DOMAIN-FOLDER-002",
+        severity=Severity.HIGH,
+        summary="folder segment is an implementation role bucket, not a domain",
+        guidance=(
+            "Do not create folders named for roles such as Actions, Adapters, "
+            "Listeners, Selectors, Slice, Thunks, Types, or View. "
+            "Choose the real domain/subdomain atom, then keep the role as the "
+            "file leaf suffix."
+        ) + _SELF_MOVE_NOTE,
+        skill="ecs.hpp doctrine: folders are domains; role names belong on leaves",
+    )
+)
+
+FOLDER_IMPLEMENTATION_BUCKET = register(
+    Rule(
+        id="DOMAIN-FOLDER-004",
+        severity=Severity.HIGH,
+        summary="folder segment is a non-RTK implementation bucket, not a domain",
+        guidance=(
+            "Factories and Reducers are not RTK/redux roles. Do not create "
+            "Factories/Reducers folders or leaves; replace by responsibility: "
+            "reducer transitions/helpers and initial-state/createSlice assembly "
+            "go in Slice (skill: \"Use mutating logic inside slice reducers\"); "
+            "JSON/ECS translation goes in Adapters; imperative effects go in "
+            "Thunks (skill: \"Use a thunk when you need one imperative async "
+            "workflow\"); reactive effects go in Listeners (skill: \"Listeners "
+            "fit workflows that react to future actions or state changes\"). "
+            "If none of those fits, drill into the concrete domain/subdomain "
+            "the code owns."
+        ) + _SELF_MOVE_NOTE,
+        skill="redux/rtk doctrine: factories/reducers are not roles; use real RTK roles",
+    )
+)
+
+FOLDER_VAGUE_BUCKET = register(
+    Rule(
+        id="DOMAIN-FOLDER-003",
+        severity=Severity.HIGH,
+        summary="folder segment is a vague bucket instead of a domain atom",
+        guidance=(
+            "Do not use vague folder atoms such as Core, Runtime, Common, "
+            "Shared, Support, Setup, Util, or numeric/version buckets. Name the "
+            "specific domain/subdomain the code owns."
+        ) + _SELF_MOVE_NOTE,
+        skill="ecs.hpp doctrine: every folder is a concrete domain step",
     )
 )
 
@@ -430,6 +549,101 @@ def folder_redundancy_findings(paths: list[Path]) -> list[Finding]:
     return findings
 
 
+def _source_or_view_root(path: Path) -> Path | None:
+    if path.is_relative_to(SOURCE_FEATURES_ROOT):
+        return SOURCE_FEATURES_ROOT
+    if path.is_relative_to(SOURCE_VIEWS_ROOT):
+        return SOURCE_VIEWS_ROOT
+    return None
+
+
+def _source_or_view_folder_parts(path: Path) -> tuple[Path, tuple[str, ...]] | None:
+    root = _source_or_view_root(path)
+    if root is None:
+        return None
+    return root, path.relative_to(root).parent.parts
+
+
+def _folder_token_atoms(part: str) -> list[str]:
+    return normalized_tokens(folder_tokens(part))
+
+
+def _is_numeric_or_version_atom(atom: str) -> bool:
+    return atom.isdigit() or (atom.startswith("v") and atom[1:].isdigit())
+
+
+def source_fragment_findings(paths: list[Path]) -> list[Finding]:
+    findings: list[Finding] = []
+    for path in paths:
+        if path.suffix not in SOURCE_FRAGMENT_SUFFIXES or _source_or_view_root(path) is None:
+            continue
+        findings.append(
+            Finding(
+                path,
+                1,
+                SOURCE_FRAGMENT.id,
+                SOURCE_FRAGMENT.severity,
+                f"{SOURCE_FRAGMENT.summary}; suffix `{path.suffix}` hides an implementation split",
+            )
+        )
+    return findings
+
+
+def folder_domain_findings(paths: list[Path]) -> list[Finding]:
+    seen: set[tuple[Path, str]] = set()
+    findings: list[Finding] = []
+    for path in paths:
+        scoped = _source_or_view_folder_parts(path)
+        if scoped is None:
+            continue
+        root, parts = scoped
+        for index, part in enumerate(parts):
+            atoms = _folder_token_atoms(part)
+            if not atoms:
+                continue
+            folder = root / Path(*parts[: index + 1])
+            if any(atom in ROLE_FOLDER_ATOMS for atom in atoms):
+                key = (folder, FOLDER_ROLE_BUCKET.id)
+                if key not in seen:
+                    seen.add(key)
+                    findings.append(
+                        Finding(
+                            folder,
+                            1,
+                            FOLDER_ROLE_BUCKET.id,
+                            FOLDER_ROLE_BUCKET.severity,
+                            f"{FOLDER_ROLE_BUCKET.summary} (`{part}`); use a real domain folder and keep the role on the file leaf",
+                        )
+                    )
+            if any(atom in IMPLEMENTATION_BUCKET_ATOMS for atom in atoms):
+                key = (folder, FOLDER_IMPLEMENTATION_BUCKET.id)
+                if key not in seen:
+                    seen.add(key)
+                    findings.append(
+                        Finding(
+                            folder,
+                            1,
+                            FOLDER_IMPLEMENTATION_BUCKET.id,
+                            FOLDER_IMPLEMENTATION_BUCKET.severity,
+                            f"{FOLDER_IMPLEMENTATION_BUCKET.summary} (`{part}`); choose the concrete owned domain/subdomain atom and a real RTK role leaf",
+                        )
+                    )
+            if any(atom in VAGUE_FOLDER_ATOMS or _is_numeric_or_version_atom(atom) for atom in atoms):
+                key = (folder, FOLDER_VAGUE_BUCKET.id)
+                if key not in seen:
+                    seen.add(key)
+                    findings.append(
+                        Finding(
+                            folder,
+                            1,
+                            FOLDER_VAGUE_BUCKET.id,
+                            FOLDER_VAGUE_BUCKET.severity,
+                            f"{FOLDER_VAGUE_BUCKET.summary} (`{part}`); choose the concrete owned domain/subdomain atom",
+                        )
+                    )
+    return findings
+
+
 # --- Runner ----------------------------------------------------------------
 
 def find_findings() -> list[Finding]:
@@ -449,6 +663,8 @@ def find_findings() -> list[Finding]:
         if finding is not None:
             findings.append(finding)
     findings += folder_redundancy_findings(candidates)
+    findings += source_fragment_findings(candidates)
+    findings += folder_domain_findings(candidates)
     return findings
 
 
@@ -469,8 +685,12 @@ def main() -> int:
     guard = "Domain boundary guard"
     if args.format == "json":
         print(format_json(findings, PROJECT_ROOT))
+        if findings:
+            print(format_summary(findings, guard), file=sys.stderr)
     elif args.format == "sarif":
         print(format_sarif(findings, PROJECT_ROOT, guard))
+        if findings:
+            print(format_summary(findings, guard), file=sys.stderr)
     elif findings:
         print(format_text(findings, PROJECT_ROOT, guard))
     else:

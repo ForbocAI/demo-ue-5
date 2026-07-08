@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Systems/Rendering/Stats/RenderingStatsTypes.h"
+#include "Features/Systems/Rendering/Stats/Widget/WidgetAdapters.h"
 #include "Features/Systems/SystemsSelectors.h"
 
 #include <cstdarg>

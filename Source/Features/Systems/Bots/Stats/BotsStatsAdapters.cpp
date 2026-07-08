@@ -1,4 +1,4 @@
-#include "Features/Systems/Bots/Stats/StatsAdapters.h"
+#include "Features/Systems/Bots/Stats/BotsStatsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

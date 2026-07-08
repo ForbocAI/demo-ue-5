@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
+#include "Features/Components/Spatial/Level/Layout/LayoutTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -70,8 +70,6 @@ struct FTownspersonState {
   TArray<FTownspersonSeed> DialogueTownspeople;
   TArray<FTownspersonSeed> MemoryTownspeople;
   TArray<FTownspersonSeed> CombatValidationTownspeople;
-  // boundary-allow: RTK-TYPES-003 explicit boundary payload for view projection
-  FTownspersonViewDefaults ViewDefaults;
 };
 
 inline bool operator==(const FTownspersonSeed &Left,
@@ -107,15 +105,7 @@ inline bool operator==(const FTownspersonState &Left,
          Left.DialogueTownspeople == Right.DialogueTownspeople &&
          Left.MemoryTownspeople == Right.MemoryTownspeople &&
          Left.CombatValidationTownspeople ==
-             Right.CombatValidationTownspeople &&
-         Left.ViewDefaults.InteractionPrompt ==
-             Right.ViewDefaults.InteractionPrompt &&
-         Left.ViewDefaults.DefaultPlayerLine ==
-             Right.ViewDefaults.DefaultPlayerLine &&
-         Left.ViewDefaults.Id == Right.ViewDefaults.Id &&
-         Left.ViewDefaults.Name == Right.ViewDefaults.Name &&
-         Left.ViewDefaults.Role == Right.ViewDefaults.Role &&
-         Left.ViewDefaults.Persona == Right.ViewDefaults.Persona;
+             Right.CombatValidationTownspeople;
 }
 
 inline bool operator!=(const FTownspersonState &Left,

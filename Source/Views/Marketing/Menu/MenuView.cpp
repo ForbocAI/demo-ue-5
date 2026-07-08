@@ -19,9 +19,7 @@ void URuntimeMarketingMenuWidget::NativeConstruct() {
   Super::NativeConstruct();
 
   const ForbocAI::Game::Data::FMarketingCaptureSettings &Settings =
-      FG::RuntimeSelectors::SelectMarketingCaptureSettings(
-          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
-          FG::RuntimeSelectors::SelectState());
+      FG::RuntimeSelectors::SelectMarketingCaptureSettings();
   SetIsFocusable(true);
   check(WidgetTree);
   WidgetTree->RootWidget

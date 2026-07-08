@@ -4,7 +4,7 @@
 #include "Features/Components/Data/Settings/Level/SettingsLevelAdapters.h"
 #include "Features/Components/Data/Settings/Player/PlayerAdapters.h"
 #include "Features/Components/Data/Settings/Rendering/RenderingAdapters.h"
-#include "Features/Components/Data/Settings/Registry/RegistryAdapters.h"
+#include "Features/Components/Data/Settings/Registry/Catalog/CatalogAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

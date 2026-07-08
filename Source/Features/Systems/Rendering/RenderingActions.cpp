@@ -1,6 +1,8 @@
 #include "Features/Systems/Rendering/SystemsRenderingActions.h"
 
 #include "Features/Systems/Rendering/RenderingThunks.h"
+#include "Features/Systems/Rendering/Payload/Application/PayloadApplicationAdapters.h"
+#include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

@@ -2,9 +2,9 @@
 
 #include "Core/redux_logger.hpp"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
-#include "Features/Systems/SystemsSlice.h"
+#include "Features/Systems/Initialization/InitializationAdapters.h"
 #include "Features/Systems/SystemsListeners.h"
-#include "Features/Systems/SystemsSlice.h"
+#include "Features/Systems/State/StateSlice.h"
 
 #include <vector>
 

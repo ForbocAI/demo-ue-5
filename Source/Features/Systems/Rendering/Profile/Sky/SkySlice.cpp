@@ -1,1 +1,1 @@
-#include "Features/Systems/Rendering/Profile/Sky/Slice/SkyPixelReducers.h"
+#include "Features/Systems/Rendering/Profile/Sky/Pixel/PixelSlice.h"

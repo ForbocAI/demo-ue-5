@@ -1,4 +1,4 @@
-#include "Features/Systems/Rendering/Profile/Sky/Thunks/SkyActorThunks.h"
+#include "Features/Systems/Rendering/Profile/Sky/Actor/ActorThunks.h"
 
 namespace ForbocAI {
 namespace Game {

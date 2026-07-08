@@ -1,6 +1,6 @@
 #include "Features/Systems/Projection/Bot/ProjectionBotAdapters.h"
 
-#include "Features/Systems/Projection/Bot/Shared/SharedAdapters.h"
+#include "Features/Systems/Projection/Bot/Domains/DomainsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

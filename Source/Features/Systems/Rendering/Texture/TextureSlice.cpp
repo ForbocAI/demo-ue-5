@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/Texture/TextureSlice.h"
+#include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 
 #include "Core/ue_fp.hpp"
 

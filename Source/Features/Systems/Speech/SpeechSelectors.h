@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Systems/Speech/SpeechAdapters.h"
+#include "Features/Systems/Speech/Component/ComponentAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

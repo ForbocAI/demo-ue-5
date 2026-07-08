@@ -3,7 +3,8 @@
 #include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/Core/CoreSlice.h"
+#include "Features/Systems/Bots/Behavior/BehaviorSlice.h"
+#include "Features/Systems/Bots/Pipeline/PipelineAdapters.h"
 #include "Features/Systems/Bots/Pipeline/BotsPipelineTypes.h"
 
 namespace ForbocAI {
@@ -207,6 +208,7 @@ inline TArray<FBotPipelineOutputResult> ReduceMultiBotPipeline(
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Bots/Pipeline/PipelineActions.h"
+#include "Features/Systems/Bots/Pipeline/PipelineAdapters.h"
 #include "Features/Systems/Bots/Pipeline/PipelineSelectors.h"
 #include "Features/Systems/Bots/Pipeline/BotsPipelineTypes.h"
 

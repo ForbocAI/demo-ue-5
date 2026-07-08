@@ -4,9 +4,9 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Interaction/Conversation/ConversationTypes.h"
-#include "Features/Systems/Level/View/ViewTypes.h"
+#include "Features/Systems/Level/Presentation/LevelPresentationTypes.h"
 #include "Features/Systems/State/SystemsStateTypes.h"
-#include "Features/Systems/View/Spawn/ViewSpawnTypes.h"
+#include "Features/Systems/Level/Presentation/Spawn/PresentationSpawnTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -39,6 +39,7 @@ const ForbocAI::Game::Data::FDataSourceSettings &
 SelectLevelDataSources(const FRuntimeState &State);
 const ForbocAI::Game::Data::FGeometrySettings &
 SelectLevelGeometry(const FRuntimeState &State);
+const ForbocAI::Game::Data::FGeometrySettings &SelectLevelGeometry();
 const FRenderingState &SelectRenderingState(const FRuntimeState &State);
 const FDialogueState &SelectDialogueState(const FRuntimeState &State);
 const FInteractionState &SelectInteractionState(const FRuntimeState &State);
@@ -66,19 +67,26 @@ const FRuntimeTownspersonInteractionRequest &
 SelectTownspersonInteractionRequest(const FRuntimeState &State);
 const FSelection &SelectInteractionSelection(
     const FRuntimeState &State);
+const FSelection &SelectInteractionSelection();
 float SelectTownspersonInteractionDistance(const FRuntimeState &State);
+float SelectTownspersonInteractionDistance();
 const FPresentationViewModel &
 SelectPlayerPresentation(const FRuntimeState &State);
+const FPresentationViewModel &SelectPlayerPresentation();
 const FLevelRetroRenderProfile &
 SelectRuntimeProfile(const FRuntimeState &State);
+const FLevelRetroRenderProfile &SelectRuntimeProfile();
 const TArray<FLevelRetroTextureSpec> &
 SelectTextureCatalog(const FRuntimeState &State);
+const TArray<FLevelRetroTextureSpec> &SelectTextureCatalog();
 const TArray<FLevelDistanceLodStage> &
 SelectDistanceLodStages(const FRuntimeState &State);
 const ForbocAI::Game::Data::FRenderingSettings &
 SelectRenderingSettings(const FRuntimeState &State);
+const ForbocAI::Game::Data::FRenderingSettings &SelectRenderingSettings();
 const FRenderingAssetPaths &
 SelectRenderingAssetPaths(const FRuntimeState &State);
+const FRenderingAssetPaths &SelectRenderingAssetPaths();
 int32 SelectBotInitialPatrolIndex(const TArray<FVector> &PatrolRoute);
 FBotInitialPatrolLocationPayload SelectBotInitialPatrolLocation(
     const FBotInitialPatrolLocationRequest &Request);
@@ -87,41 +95,58 @@ SelectBotPatrolAdvance(const FBotPatrolAdvanceRequest &Request);
 FMovementInputViewModel
 SelectPlayerMovementInput(const FMovementInputRequest &Request);
 FVector SelectPostOfficeWorldCenter(const FRuntimeState &State);
+FVector SelectPostOfficeWorldCenter();
 FTownspersonViewDefaults
 SelectTownspersonViewDefaults(const FRuntimeState &State);
 FTownspersonViewDefaults SelectTownspersonViewDefaults(
     const FRuntimeState &State,
     const FTownspersonViewDefaultsRequest &Request);
+FTownspersonViewDefaults SelectTownspersonViewDefaults(
+    const FTownspersonViewDefaultsRequest &Request);
 FTownspersonInteractionOverlapViewModel SelectTownspersonInteractionOverlap(
     const FTownspersonInteractionOverlapRequest &Request);
 ForbocAI::Game::UI::FRuntimeConversationViewModel
 SelectRuntimeConversation(const FRuntimeState &State);
+ForbocAI::Game::UI::FRuntimeConversationViewModel
+SelectRuntimeConversation();
 const FTownspersonPresentationViewModel &
 SelectTownspersonPresentation(const FRuntimeState &State);
+const FTownspersonPresentationViewModel &SelectTownspersonPresentation();
 const FHorsePresentationViewModel &
 SelectHorsePresentation(const FRuntimeState &State);
+const FHorsePresentationViewModel &SelectHorsePresentation();
 const FRuntimeStatsPresentationModel &
 SelectRuntimeStatsPresentation(const FRuntimeState &State);
+const FRuntimeStatsPresentationModel &SelectRuntimeStatsPresentation();
 const ForbocAI::Game::Data::FObservationIdSettings &
 SelectObservationIds(const FRuntimeState &State);
+const ForbocAI::Game::Data::FObservationIdSettings &SelectObservationIds();
 const ForbocAI::Game::Data::FDebugMessageSettings &
 SelectDebugMessages(const FRuntimeState &State);
+const ForbocAI::Game::Data::FDebugMessageSettings &SelectDebugMessages();
 const ForbocAI::Game::Data::FViewNameSettings &
 SelectViewNames(const FRuntimeState &State);
+const ForbocAI::Game::Data::FViewNameSettings &SelectViewNames();
 const ForbocAI::Game::Data::FTextSettings &
 SelectText(const FRuntimeState &State);
+const ForbocAI::Game::Data::FTextSettings &SelectText();
 const ForbocAI::Game::Data::FUISettings &
 SelectUISettings(const FRuntimeState &State);
+const ForbocAI::Game::Data::FUISettings &SelectUISettings();
 const ForbocAI::Game::Data::FMarketingCaptureSettings &
 SelectMarketingCaptureSettings(const FRuntimeState &State);
+const ForbocAI::Game::Data::FMarketingCaptureSettings &
+SelectMarketingCaptureSettings();
 const ForbocAI::Game::Data::FBotSettings &
 SelectBotSettings(const FRuntimeState &State);
+const ForbocAI::Game::Data::FBotSettings &SelectBotSettings();
 const FRuntimeReducerDiagnosticsState &
 SelectRuntimeReducerDiagnostics(const FRuntimeState &State);
 const FRuntimeLifecycleState &
 SelectRuntimeLifecycle(const FRuntimeState &State);
 FVector SelectActorRouteBoundsCenter(const FRuntimeState &State,
                                      const FVector &Fallback);
+FVector SelectActorRouteBoundsCenter(const FVector &Fallback);
 TArray<FBotEntity> SelectBots(const FRuntimeState &State);
 func::Maybe<FBotEntity> SelectBotById(const FRuntimeState &State,
                                       const FString &Id);

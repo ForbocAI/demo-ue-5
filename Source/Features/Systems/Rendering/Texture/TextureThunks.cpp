@@ -1,4 +1,5 @@
-#include "Features/Systems/Rendering/Texture/TextureThunkSupport.h"
+#include "Features/Systems/Rendering/Texture/Palette/PaletteThunks.h"
+#include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

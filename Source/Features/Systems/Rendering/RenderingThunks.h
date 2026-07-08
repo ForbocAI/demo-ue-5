@@ -4,10 +4,12 @@
 
 #include "Features/Components/Data/Settings/UI/SettingsUITypes.h"
 #include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/Payload/Application/PayloadApplicationAdapters.h"
+#include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 #include "Features/Systems/Interaction/Conversation/ConversationTypes.h"
-#include "Features/Systems/Level/View/ViewTypes.h"
+#include "Features/Systems/Level/Presentation/LevelPresentationTypes.h"
 #include "Features/Systems/State/SystemsStateTypes.h"
-#include "Features/Systems/View/Spawn/ViewSpawnTypes.h"
+#include "Features/Systems/Level/Presentation/Spawn/PresentationSpawnTypes.h"
 
 class UMaterialInterface;
 class UWorld;
