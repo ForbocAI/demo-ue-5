@@ -4,7 +4,7 @@
 Each fixture asserts a rule fires on a bad snippet (and that a clean snippet
 stays silent), so a rule that silently stops matching is caught. This tests the
 LINTER, not Source: it is never wired into run-tests and is not a substitute for
-scanning Source (that is what boundaries.py does). Run it directly:
+scanning Source (that is what check_redux.py does). Run it directly:
 
     python3 Scripts/Checks/boundary_fixtures.py
 """
@@ -16,8 +16,14 @@ from pathlib import Path
 import sys
 import tempfile
 
-import boundaries
-from boundary_engine import apply_suppressions, build_unit, parse_suppressions
+# This fixture lives in redux/ next to the engine it tests. Put this folder on
+# the path for features_boundaries and the parent Checks/ dir for check_redux.
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
+sys.path.insert(0, str(_HERE))
+
+import check_redux
+from features_boundaries import apply_suppressions, build_unit, parse_suppressions
 
 
 @dataclass
@@ -75,7 +81,7 @@ def run_case(root: Path, plugins: dict, case: Case) -> list[str]:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(case.body, encoding="utf-8")
     unit = build_unit(path, root)
-    return [finding.rule_id for finding in boundaries.check_unit(unit, plugins)]
+    return [finding.rule_id for finding in check_redux.check_unit(unit, plugins)]
 
 
 def test_suppression(root: Path, plugins: dict) -> list[str]:
@@ -86,7 +92,7 @@ def test_suppression(root: Path, plugins: dict) -> list[str]:
         encoding="utf-8",
     )
     unit = build_unit(path, root)
-    findings = boundaries.check_unit(unit, plugins)
+    findings = check_redux.check_unit(unit, plugins)
     markers = parse_suppressions(unit.path, unit.raw)
     kept, dropped = apply_suppressions(findings, {unit.path: markers})
     failures: list[str] = []
@@ -98,7 +104,7 @@ def test_suppression(root: Path, plugins: dict) -> list[str]:
 
 
 def main() -> int:
-    plugins = boundaries.discover_role_plugins()
+    plugins = check_redux.discover_role_plugins()
     failures: list[str] = []
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)

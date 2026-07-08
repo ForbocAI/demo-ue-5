@@ -15,7 +15,7 @@ from __future__ import annotations
 from pathlib import Path
 import re
 
-from boundary_engine import (
+from features_boundaries import (
     IMPORT_RE,
     Finding,
     Rule,

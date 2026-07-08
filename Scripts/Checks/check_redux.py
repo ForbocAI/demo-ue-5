@@ -19,7 +19,12 @@ from pathlib import Path
 import re
 import sys
 
-from boundary_engine import (
+# The redux role plugins and their shared engine (features_boundaries) live in
+# the sibling redux/ folder; put it on the path before importing either.
+REDUX_DIR = Path(__file__).resolve().parent / "redux"
+sys.path.insert(0, str(REDUX_DIR))
+
+from features_boundaries import (
     Finding,
     RULES,
     Rule,
@@ -242,8 +247,7 @@ CONFIGURE_STORE_RE = re.compile(r"\brtk::configureStore\s*<|(?<!create)configure
 
 def discover_role_plugins() -> dict[str, object]:
     plugins: dict[str, object] = {}
-    here = Path(__file__).resolve().parent
-    for file in sorted(here.glob("*_boundaries.py")):
+    for file in sorted(REDUX_DIR.glob("*_boundaries.py")):
         module = importlib.import_module(file.stem)
         role = getattr(module, "ROLE", None)
         check = getattr(module, "check", None)

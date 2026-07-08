@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 
-from boundary_engine import (
+from features_boundaries import (
     Finding,
     Rule,
     Severity,

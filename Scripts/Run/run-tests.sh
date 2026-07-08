@@ -89,7 +89,7 @@ python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py" --self-test
 python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py" "$PROJECT_ROOT/Source"
 
 echo "Checking RTK/ECS boundary discipline (Features + Views)..."
-python3 "$PROJECT_ROOT/Scripts/Checks/boundaries.py" "$PROJECT_ROOT/Source/Features" "$PROJECT_ROOT/Source/Views"
+python3 "$PROJECT_ROOT/Scripts/Checks/check_redux.py" "$PROJECT_ROOT/Source/Features" "$PROJECT_ROOT/Source/Views"
 
 echo "Checking runtime rendering JSON tuning discipline..."
 # No --self-test line here. A self-test passes without scanning Source and reads
@@ -98,7 +98,10 @@ echo "Checking runtime rendering JSON tuning discipline..."
 python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py" "$PROJECT_ROOT/Source"
 
 echo "Checking authored data naming discipline..."
-python3 "$PROJECT_ROOT/Scripts/Checks/check_data_naming.py" "$PROJECT_ROOT/Content/Data"
+python3 "$PROJECT_ROOT/Scripts/Checks/ecs/check_data_naming.py" "$PROJECT_ROOT/Content/Data"
+
+echo "Checking domain/subdomain path ownership..."
+python3 "$PROJECT_ROOT/Scripts/Checks/ecs/check_domain_boundaries.py" "$PROJECT_ROOT/Source/Features" "$PROJECT_ROOT/Source/Views" "$PROJECT_ROOT/Content/Data"
 
 echo "Validating authored data JSON..."
 while IFS= read -r -d '' JSON_FILE; do
