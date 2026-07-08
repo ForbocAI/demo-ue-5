@@ -4,6 +4,13 @@
     "texture_alpha": 255,
     "texture_cache_key_format": "%d:%d:%d",
     "material_texture_parameter": "Texture",
+    "predicate_always_kind": "always",
+    "predicate_mod_equals_kind": "mod_equals",
+    "predicate_mod_less_than_kind": "mod_less_than",
+    "result_solid_kind": "solid",
+    "result_mix_kind": "mix",
+    "texture_mip_index": 0,
+    "texture_material_slot_index": 0,
     "texture_hash": {
       "x_multiplier": 73856093,
       "y_multiplier": 19349663,

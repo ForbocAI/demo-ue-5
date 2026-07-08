@@ -33,17 +33,15 @@ struct FRetroPredicateEval {
   int32 X;
   int32 Y;
   int32 Noise;
+  const ForbocAI::Game::Data::FRenderingSettings *Settings;
 };
 
 struct FRetroResultEval {
   ForbocAI::Game::Data::FColorResultSettings Result;
   int32 Noise;
   int32 Alpha;
+  const ForbocAI::Game::Data::FRenderingSettings *Settings;
 };
-
-inline FString RenderingTextureDispatchAtom(const char *Atom) {
-  return FString(UTF8_TO_TCHAR(Atom));
-}
 
 template <typename Declaration>
 func::Maybe<int32> FindTextureRenderingDeclarationIndex(
@@ -60,8 +58,8 @@ template <typename Apply> struct TTextureRenderingDispatchDeclaration {
   FString Name;
   Apply Run;
 
-  TTextureRenderingDispatchDeclaration(const char *InName, Apply InRun)
-      : Name(RenderingTextureDispatchAtom(InName)), Run(InRun) {}
+  TTextureRenderingDispatchDeclaration(const FString &InName, Apply InRun)
+      : Name(InName), Run(InRun) {}
 };
 
 using FPredicateApply = bool (*)(const FRetroPredicateEval &, int32);
@@ -77,32 +75,35 @@ bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term);
 FColor SolidColor(const FRetroResultEval &Eval);
 FColor Mix(const FRetroResultEval &Eval);
 
-const TArray<FPredicateApplyDeclaration> &PredicateApplyDeclarations() {
-  static const TArray<FPredicateApplyDeclaration> RegisteredDeclarations = {
-      {"always", AlwaysPredicate},
-      {"mod_equals", ModEqualsPredicate},
-      {"mod_less_than", ModLessThanPredicate}};
-  return RegisteredDeclarations;
+TArray<FPredicateApplyDeclaration> PredicateApplyDeclarations(
+    const ForbocAI::Game::Data::FRenderingSettings &Settings) {
+  return {{Settings.PredicateAlwaysKind, AlwaysPredicate},
+          {Settings.PredicateModEqualsKind, ModEqualsPredicate},
+          {Settings.PredicateModLessThanKind, ModLessThanPredicate}};
 }
 
-const TArray<FColorResultDeclaration> &ColorResultDeclarations() {
-  static const TArray<FColorResultDeclaration> RegisteredDeclarations = {
-      {"solid", SolidColor}, {"mix", Mix}};
-  return RegisteredDeclarations;
+TArray<FColorResultDeclaration> ColorResultDeclarations(
+    const ForbocAI::Game::Data::FRenderingSettings &Settings) {
+  return {{Settings.ResultSolidKind, SolidColor},
+          {Settings.ResultMixKind, Mix}};
 }
 
-FPredicateApplyDeclaration RequiredPredicateDeclaration(const FString &Name) {
-  const TArray<FPredicateApplyDeclaration> &Declarations =
-      PredicateApplyDeclarations();
+FPredicateApplyDeclaration RequiredPredicateDeclaration(
+    const FString &Name,
+    const ForbocAI::Game::Data::FRenderingSettings &Settings) {
+  const TArray<FPredicateApplyDeclaration> Declarations =
+      PredicateApplyDeclarations(Settings);
   const func::Maybe<int32> Found =
       FindTextureRenderingDeclarationIndex(Name, Declarations);
   check(Found.hasValue);
   return Declarations[Found.value];
 }
 
-FColorResultDeclaration RequiredColorDeclaration(const FString &Name) {
-  const TArray<FColorResultDeclaration> &Declarations =
-      ColorResultDeclarations();
+FColorResultDeclaration RequiredColorDeclaration(
+    const FString &Name,
+    const ForbocAI::Game::Data::FRenderingSettings &Settings) {
+  const TArray<FColorResultDeclaration> Declarations =
+      ColorResultDeclarations(Settings);
   const func::Maybe<int32> Found =
       FindTextureRenderingDeclarationIndex(Name, Declarations);
   check(Found.hasValue);
@@ -116,8 +117,8 @@ FColor Color(const ForbocAI::Game::Data::FRenderingRgbSettings &Rgb,
 }
 
 FColor Mix(const FRetroResultEval &Eval) {
-  check(Eval.Result.Denominator > 0);
-  check(Eval.Result.NumeratorNoiseModulus > 0);
+  check(Eval.Result.Denominator > int32{});
+  check(Eval.Result.NumeratorNoiseModulus > int32{});
   const int32 Numerator =
       Eval.Result.NumeratorBase + Eval.Noise % Eval.Result.NumeratorNoiseModulus;
   const int32 Inverse = Eval.Result.Denominator - Numerator;
@@ -148,8 +149,8 @@ int32 HashCell(FRetroHashCell Cell) {
 }
 
 int32 PredicateTerm(const FRetroPredicateEval &Eval) {
-  check(Eval.Predicate.XDivisor > 0);
-  check(Eval.Predicate.YDivisor > 0);
+  check(Eval.Predicate.XDivisor > int32{});
+  check(Eval.Predicate.YDivisor > int32{});
   return Eval.Predicate.XMultiplier * (Eval.X / Eval.Predicate.XDivisor) +
          Eval.Predicate.YMultiplier * (Eval.Y / Eval.Predicate.YDivisor) +
          Eval.Predicate.NoiseMultiplier * Eval.Noise;
@@ -158,39 +159,38 @@ int32 PredicateTerm(const FRetroPredicateEval &Eval) {
 bool AlwaysPredicate(const FRetroPredicateEval &, int32) { return true; }
 
 bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term) {
-  check(Eval.Predicate.Modulus > 0);
+  check(Eval.Predicate.Modulus > int32{});
   return Term % Eval.Predicate.Modulus == Eval.Predicate.Equals;
 }
 
 bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term) {
-  check(Eval.Predicate.Modulus > 0);
+  check(Eval.Predicate.Modulus > int32{});
   return Term % Eval.Predicate.Modulus < Eval.Predicate.LessThan;
 }
 
 bool PredicateMatches(const FRetroPredicateEval &Eval) {
+  check(Eval.Settings);
   const int32 Term = PredicateTerm(Eval);
-  return RequiredPredicateDeclaration(Eval.Predicate.Kind).Run(Eval, Term);
+  return RequiredPredicateDeclaration(Eval.Predicate.Kind, *Eval.Settings)
+      .Run(Eval, Term);
 }
 
 FColor ResolveColor(const FRetroResultEval &Eval) {
-  return RequiredColorDeclaration(Eval.Result.Kind).Run(Eval);
+  check(Eval.Settings);
+  return RequiredColorDeclaration(Eval.Result.Kind, *Eval.Settings).Run(Eval);
 }
 
 ForbocAI::Game::Data::FPaletteSettings
 RequiredPalette(const FRetroTextureCell &Cell) {
   check(Cell.Settings);
-  const func::Maybe<ForbocAI::Game::Data::FPaletteSettings>
-      Palette = func::find_indexed(
-          Cell.Settings->TexturePalettes,
-          static_cast<size_t>(Cell.Settings->TexturePalettes.Num()),
-          [&Cell](
-              const ForbocAI::Game::Data::FPaletteSettings
-                  &Candidate) {
-            return RenderingTextureReducers::ReduceTextureKind(Candidate.Texture) ==
-                   Cell.Texture;
-          });
-  check(Palette.hasValue);
-  return Palette.value;
+  const TArray<int32> Indices =
+      func::index_range(Cell.Settings->TexturePalettes.Num());
+  const func::Maybe<int32> PaletteIndex = func::find_indexed(
+      Indices, static_cast<size_t>(Indices.Num()), [&Cell](int32 Index) {
+        return static_cast<ELevelRetroTexture>(Index) == Cell.Texture;
+      });
+  check(PaletteIndex.hasValue);
+  return Cell.Settings->TexturePalettes[PaletteIndex.value];
 }
 
 FColor PaletteColor(const FRetroTextureCell &Cell) {
@@ -207,11 +207,11 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
               const ForbocAI::Game::Data::FRuleSettings
                   &Candidate) {
             return PredicateMatches(
-                {Candidate.Predicate, Cell.X, Cell.Y, Noise});
+                {Candidate.Predicate, Cell.X, Cell.Y, Noise, Cell.Settings});
           });
   check(Rule.hasValue);
   return ResolveColor({Rule.value.Result, Noise,
-                       Cell.Settings->TextureAlpha});
+                       Cell.Settings->TextureAlpha, Cell.Settings});
 }
 
 FString TextureCacheKey(
@@ -226,14 +226,15 @@ FString TextureCacheKey(
 UTexture2D *CreateRetroTexture(
     const FLevelRetroTextureSpec &Spec,
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {
-  check(Spec.Size.X > 0);
-  check(Spec.Size.Y > 0);
+  check(Spec.Size.X > int32{});
+  check(Spec.Size.Y > int32{});
 
   UTexture2D *Result =
       UTexture2D::CreateTransient(Spec.Size.X, Spec.Size.Y, PF_B8G8R8A8);
   check(Result);
   check(Result->GetPlatformData());
-  check(Result->GetPlatformData()->Mips.Num() > 0);
+  check(Settings.TextureMipIndex >= int32{});
+  check(Result->GetPlatformData()->Mips.Num() > Settings.TextureMipIndex);
 
   Result->Filter = TF_Nearest;
   Result->AddressX = TA_Wrap;
@@ -242,7 +243,8 @@ UTexture2D *CreateRetroTexture(
   Result->NeverStream = true;
   Result->SRGB = true;
 
-  FTexture2DMipMap &Mip = Result->GetPlatformData()->Mips[0];
+  FTexture2DMipMap &Mip =
+      Result->GetPlatformData()->Mips[Settings.TextureMipIndex];
   void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
   check(Data);
 
@@ -296,10 +298,11 @@ void ApplyTexture(const FLevelRetroTextureApply &Request) {
   UMaterialInstanceDynamic *Material =
       UMaterialInstanceDynamic::Create(Request.BaseMaterial, Request.Part);
   check(Material);
+  check(Request.Settings.TextureMaterialSlotIndex >= int32{});
 
   Material->SetTextureParameterValue(
       FName(*Request.Settings.MaterialTextureParameter), RetroTexture);
-  Request.Part->SetMaterial(0, Material);
+  Request.Part->SetMaterial(Request.Settings.TextureMaterialSlotIndex, Material);
 }
 
 } // namespace RenderingThunks

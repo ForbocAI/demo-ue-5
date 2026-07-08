@@ -79,6 +79,13 @@ struct FRenderingSettings {
   int32 TextureAlpha;
   FString TextureCacheKeyFormat;
   FString MaterialTextureParameter;
+  FString PredicateAlwaysKind;
+  FString PredicateModEqualsKind;
+  FString PredicateModLessThanKind;
+  FString ResultSolidKind;
+  FString ResultMixKind;
+  int32 TextureMipIndex;
+  int32 TextureMaterialSlotIndex;
   FHashSettings TextureHash;
   TArray<FRenderingConsoleVariableSettings> ConsoleVariables;
   TArray<FPaletteSettings> TexturePalettes;
@@ -175,6 +182,13 @@ inline bool operator==(const FRenderingSettings &Left,
          Left.TextureAlpha == Right.TextureAlpha &&
          Left.TextureCacheKeyFormat == Right.TextureCacheKeyFormat &&
          Left.MaterialTextureParameter == Right.MaterialTextureParameter &&
+         Left.PredicateAlwaysKind == Right.PredicateAlwaysKind &&
+         Left.PredicateModEqualsKind == Right.PredicateModEqualsKind &&
+         Left.PredicateModLessThanKind == Right.PredicateModLessThanKind &&
+         Left.ResultSolidKind == Right.ResultSolidKind &&
+         Left.ResultMixKind == Right.ResultMixKind &&
+         Left.TextureMipIndex == Right.TextureMipIndex &&
+         Left.TextureMaterialSlotIndex == Right.TextureMaterialSlotIndex &&
          Left.TextureHash == Right.TextureHash &&
          Left.ConsoleVariables == Right.ConsoleVariables &&
          Left.TexturePalettes == Right.TexturePalettes;

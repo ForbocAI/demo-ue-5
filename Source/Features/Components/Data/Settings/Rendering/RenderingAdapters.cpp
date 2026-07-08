@@ -182,7 +182,11 @@ template <> struct TJsonSettingsRegistry<FRenderingSettings> {
         RegisteredFields = {
             JSON_SETTING_FIELDS(FRenderingSettings, TextureChannels,
                                 TextureAlpha, TextureCacheKeyFormat,
-                                MaterialTextureParameter),
+                                MaterialTextureParameter,
+                                PredicateAlwaysKind, PredicateModEqualsKind,
+                                PredicateModLessThanKind, ResultSolidKind,
+                                ResultMixKind, TextureMipIndex,
+                                TextureMaterialSlotIndex),
             JSON_OBJECT_SETTING_FIELD(
                 FRenderingSettings,
                 ReadSettingsWith<FHashSettings>(
@@ -373,6 +377,10 @@ ReadRenderingSettings(const FSettingsRequest &Request) {
           Request.TextureSettings,
           JSON_SETTINGS_ATOMS(TextureChannels, TextureAlpha,
                               TextureCacheKeyFormat, MaterialTextureParameter,
+                              PredicateAlwaysKind, PredicateModEqualsKind,
+                              PredicateModLessThanKind, ResultSolidKind,
+                              ResultMixKind, TextureMipIndex,
+                              TextureMaterialSlotIndex,
                               TextureHash));
   Settings.ConsoleVariables =
       Json::ReadObjectArrayField<FRenderingConsoleVariableSettings>(

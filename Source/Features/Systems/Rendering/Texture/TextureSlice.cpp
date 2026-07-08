@@ -8,64 +8,6 @@ namespace Level {
 namespace RenderingTextureReducers {
 namespace {
 
-inline FString RenderingReducerAtom(const char *Atom) {
-  return FString(UTF8_TO_TCHAR(Atom));
-}
-
-template <typename Output> struct TRenderingTextValueDeclaration {
-  FString Text;
-  Output Value;
-
-  TRenderingTextValueDeclaration(const char *InText, Output InValue)
-      : Text(RenderingReducerAtom(InText)), Value(InValue) {}
-};
-
-template <typename Output> struct TRenderingTextValueRegistry;
-
-template <> struct TRenderingTextValueRegistry<ELevelRetroTexture> {
-  static const TArray<TRenderingTextValueDeclaration<ELevelRetroTexture>>
-      &Values() {
-    static const TArray<TRenderingTextValueDeclaration<ELevelRetroTexture>>
-        RegisteredValues = {
-            {"terrain_ortho", ELevelRetroTexture::TerrainOrtho},
-            {"building_timber", ELevelRetroTexture::BuildingTimber},
-            {"road_dust", ELevelRetroTexture::RoadDust},
-            {"water_creek", ELevelRetroTexture::WaterCreek},
-            {"foliage_riparian", ELevelRetroTexture::FoliageRiparian},
-            {"rock_granite", ELevelRetroTexture::RockGranite},
-            {"mine_timber", ELevelRetroTexture::MineTimber},
-            {"marker_paint", ELevelRetroTexture::MarkerPaint},
-            {"npc_body", ELevelRetroTexture::NpcBody},
-            {"npc_hat", ELevelRetroTexture::NpcHat},
-            {"horse_coat", ELevelRetroTexture::HorseCoat},
-            {"horse_leg", ELevelRetroTexture::HorseLeg},
-            {"horse_tack", ELevelRetroTexture::HorseTack}};
-    return RegisteredValues;
-  }
-};
-
-template <typename Output>
-func::Maybe<Output> ReadRenderingTextValue(const FString &Text) {
-  const FString LowerText = Text.ToLower();
-  const TArray<TRenderingTextValueDeclaration<Output>> &Values =
-      TRenderingTextValueRegistry<Output>::Values();
-  return func::fold_array<TRenderingTextValueDeclaration<Output>,
-                          func::Maybe<Output>>(
-      Values, func::nothing<Output>(),
-      [LowerText](const func::Maybe<Output> &Current,
-                  const TRenderingTextValueDeclaration<Output> &Declaration) {
-        return Current.hasValue || Declaration.Text != LowerText
-                   ? Current
-                   : func::just(Declaration.Value);
-      });
-}
-
-template <typename Output> Output RequireRenderingTextValue(const FString &Text) {
-  const func::Maybe<Output> Resolved = ReadRenderingTextValue<Output>(Text);
-  check(Resolved.hasValue);
-  return Resolved.value;
-}
-
 template <typename Item, typename Predicate>
 Item RequireRenderingCatalogItem(const TArray<Item> &Catalog,
                                  Predicate Matches) {
@@ -74,10 +16,18 @@ Item RequireRenderingCatalogItem(const TArray<Item> &Catalog,
   return Found.value;
 }
 
+ELevelRetroTexture TextureValueForCatalogIndex(int32 Index) {
+  check(Index >= int32{});
+  return static_cast<ELevelRetroTexture>(Index);
+}
+
 FLevelRetroTextureSpec ReduceTextureCatalogItem(
-    const ForbocAI::Game::Data::FSpecSettings &Settings) {
-  return {ReduceTextureKind(Settings.Texture), Settings.Name, Settings.Use,
-          FIntPoint(Settings.Size, Settings.Size)};
+    const TArray<ForbocAI::Game::Data::FSpecSettings> &Settings,
+    int32 Index) {
+  check(Settings.IsValidIndex(Index));
+  const ForbocAI::Game::Data::FSpecSettings &Item = Settings[Index];
+  return {TextureValueForCatalogIndex(Index), Item.Name, Item.Use,
+          FIntPoint(Item.Size, Item.Size)};
 }
 
 } // namespace
@@ -91,16 +41,14 @@ NormalizeTextureApply(const FLevelRetroTextureApply &Input) {
       .val;
 }
 
-ELevelRetroTexture ReduceTextureKind(const FString &Texture) {
-  return RequireRenderingTextValue<ELevelRetroTexture>(Texture);
-}
-
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
     const TArray<ForbocAI::Game::Data::FSpecSettings>
         &Settings) {
-  return func::map_array<
-      ForbocAI::Game::Data::FSpecSettings,
-      FLevelRetroTextureSpec>(Settings, ReduceTextureCatalogItem);
+  const TArray<int32> Indices = func::index_range(Settings.Num());
+  return func::map_array<int32, FLevelRetroTextureSpec>(
+      Indices, [&Settings](int32 Index) {
+        return ReduceTextureCatalogItem(Settings, Index);
+      });
 }
 
 FLevelRetroTextureSpec

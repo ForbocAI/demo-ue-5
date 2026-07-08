@@ -25,8 +25,6 @@ TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
     const TArray<ForbocAI::Game::Data::FSpecSettings>
         &Settings);
 
-ELevelRetroTexture ReduceTextureKind(const FString &Texture);
-
 FLevelRetroTextureSpec
 ReduceTextureSpec(const FSpecRequest &Request);
 
