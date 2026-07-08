@@ -99,6 +99,9 @@ python3 "$PROJECT_ROOT/Scripts/Checks/ecs/data_naming.py"
 echo "Checking domain/subdomain path ownership..."
 python3 "$PROJECT_ROOT/Scripts/Checks/ecs/domain_boundaries.py"
 
+echo "Checking Source/Content file size discipline..."
+python3 "$PROJECT_ROOT/Scripts/Checks/check_line_count.py"
+
 echo "Validating authored data JSON..."
 while IFS= read -r -d '' JSON_FILE; do
   python3 -m json.tool "$JSON_FILE" >/dev/null
