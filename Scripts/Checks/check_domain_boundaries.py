@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Enforce domain and subdomain ownership in file paths.
 
-The script derives boundaries from the repository shape instead of a copied
-domain list:
+The script derives boundaries from the repository shape:
 
 * source files use folders for domain tokens and exact role filenames;
 * view files use subject folders and a role filename;
@@ -68,31 +67,6 @@ IGNORED_PARTS = {
     "Saved",
 }
 
-TOKEN_ALIASES = {
-    "ais": "ai",
-    "bots": "bot",
-    "buildings": "building",
-    "characters": "character",
-    "components": "component",
-    "diagnostics": "diagnostic",
-    "entities": "entity",
-    "environments": "environment",
-    "factories": "factory",
-    "goals": "goal",
-    "horses": "horse",
-    "landmarks": "landmark",
-    "lods": "lod",
-    "palettes": "palette",
-    "reducers": "reducer",
-    "selectors": "selector",
-    "settings": "setting",
-    "systems": "system",
-    "thunks": "thunk",
-    "townspeople": "townsperson",
-    "types": "type",
-    "views": "view",
-}
-
 ACRONYM_TOKENS = {
     "AI",
     "CSV",
@@ -150,7 +124,11 @@ def camel_tokens(value: str) -> list[str]:
 
 def normalize_token(value: str) -> str:
     normalized = value.replace("-", "_").lower()
-    return TOKEN_ALIASES.get(normalized, normalized)
+    if normalized.endswith("ies") and len(normalized) > 3:
+        return normalized[:-3] + "y"
+    if normalized.endswith("s") and not normalized.endswith("ss") and len(normalized) > 1:
+        return normalized[:-1]
+    return normalized
 
 
 def normalized_tokens(tokens: list[str] | tuple[str, ...]) -> list[str]:
@@ -424,19 +402,19 @@ def find_violations(paths: list[Path]) -> list[BoundaryViolation]:
 def replacement_pairs(violations: list[BoundaryViolation]) -> list[tuple[str, str]]:
     pairs: list[tuple[str, str]] = []
     for violation in violations:
-        old = violation.source.relative_to(PROJECT_ROOT).as_posix()
-        new = violation.expected.relative_to(PROJECT_ROOT).as_posix()
-        pairs.append((old, new))
-        if old.startswith("Source/"):
-            pairs.append((old.removeprefix("Source/"), new.removeprefix("Source/")))
-        if old.startswith("Content/"):
-            pairs.append((old.removeprefix("Content/"), new.removeprefix("Content/")))
-        pairs.append((old.replace("/", "\\"), new.replace("/", "\\")))
-        if old.startswith("Content/"):
+        source_text = violation.source.relative_to(PROJECT_ROOT).as_posix()
+        target_text = violation.expected.relative_to(PROJECT_ROOT).as_posix()
+        pairs.append((source_text, target_text))
+        if source_text.startswith("Source/"):
+            pairs.append((source_text.removeprefix("Source/"), target_text.removeprefix("Source/")))
+        if source_text.startswith("Content/"):
+            pairs.append((source_text.removeprefix("Content/"), target_text.removeprefix("Content/")))
+        pairs.append((source_text.replace("/", "\\"), target_text.replace("/", "\\")))
+        if source_text.startswith("Content/"):
             pairs.append(
                 (
-                    old.removeprefix("Content/").replace("/", "\\"),
-                    new.removeprefix("Content/").replace("/", "\\"),
+                    source_text.removeprefix("Content/").replace("/", "\\"),
+                    target_text.removeprefix("Content/").replace("/", "\\"),
                 )
             )
         if violation.source.suffix == ".h" and violation.expected.suffix == ".h":
@@ -479,8 +457,8 @@ def rewrite_references(violations: list[BoundaryViolation]) -> int:
         except UnicodeDecodeError:
             continue
         updated = original
-        for old, new in pairs:
-            updated = updated.replace(old, new)
+        for source_text, target_text in pairs:
+            updated = updated.replace(source_text, target_text)
         if updated != original:
             path.write_text(updated, encoding="utf-8")
             rewritten += 1

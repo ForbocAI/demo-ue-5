@@ -121,7 +121,7 @@ void ARuntimeLevelView::RenderTerrain(
 }
 
 void ARuntimeLevelView::RenderSections(
-    const TArray<FG::FLevelRuntimeSectionSpawn> &Sections, int32 Index) {
+    const TArray<FG::FLevelSectionSpawn> &Sections, int32 Index) {
   Index >= Sections.Num()
       ? void()
       : (RenderSection(Sections[Index]),
@@ -129,7 +129,7 @@ void ARuntimeLevelView::RenderSections(
 }
 
 void ARuntimeLevelView::RenderSection(
-    const FG::FLevelRuntimeSectionSpawn &Section) {
+    const FG::FLevelSectionSpawn &Section) {
   RenderBlocks(Section.Blocks, LevelGeometrySettings.FirstRenderIndex);
   RenderLabels(Section.Labels, LevelGeometrySettings.FirstRenderIndex);
 }

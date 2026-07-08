@@ -47,19 +47,19 @@ def check(path: Path, text: str) -> list[Issue]:
     for pattern, message in (
         (
             HAND_WRITTEN_REDUCER,
-            "Soft RTK upgrade: migrate hand-written/createReducer transitions into createSlice assembly unless this is a measured escape hatch.",
+            "RTK violation, forward target: createSlice assembly owns reducer transitions; move hand-written/createReducer transitions into Slice.",
         ),
         (
             BLIND_PAYLOAD_REPLACE,
-            "Soft RTK upgrade: reducers should own the slice shape instead of blindly replacing state from payloads unless the payload is an authoritative snapshot.",
+            "RTK violation, forward target: reducers own the slice shape instead of blindly replacing state from payloads.",
         ),
         (
             VIEW_MODEL_STATE,
-            "Soft RTK upgrade: view models/defaults are usually derived reads. Prefer Selectors unless this is an explicit boundary payload.",
+            "RTK violation, forward target: view models/defaults are derived reads owned by Selectors, not stored slice shape.",
         ),
     ):
         match = pattern.search(text)
         if match:
-            issues.append(Issue(path, line_number(text, match.start()), message, "warning"))
+            issues.append(Issue(path, line_number(text, match.start()), message))
 
     return issues

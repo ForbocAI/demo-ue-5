@@ -238,15 +238,15 @@ RequestLevelViewPayloadAsyncThunk() {
                   const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
                       RuntimeSelectors::SelectLevelGeometry(State);
                   LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
-                  const FLevelRuntimeLayoutSeed RuntimeLayout =
-                      LevelAdapters::LoadRuntimeLayoutSeed(DataSources);
+                  const FLevelLayoutSeed Layout =
+                      LevelAdapters::LoadLayoutSeed(DataSources);
                   DispatchRuntimeSeeded({Api.dispatch, TerrainData, OrthoData,
                                          DataSources, Geometry});
                   func::executeAsync(RenderingThunks::ObserveRuntimeProfile(
                       TEXT("runtime/rendering/profileObserved"))(Api.dispatch,
                                                                  Api.getState));
                   Resolve(RuntimeReducers::ReduceLevelViewPayload(
-                      Api.getState(), {&TerrainData, &OrthoData, &RuntimeLayout,
+                      Api.getState(), {&TerrainData, &OrthoData, &Layout,
                                        &Geometry}));
                 });
           });

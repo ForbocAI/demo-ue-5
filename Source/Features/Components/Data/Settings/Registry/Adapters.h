@@ -3,8 +3,8 @@
 #include "Features/Components/Data/Json/Settings/Adapters.h"
 #include "Features/Components/Data/Settings/Slice.h"
 
-// Runtime settings adapter registries: TJsonSettingsRegistry specializations
-// that declare field-to-struct bindings for each runtime settings type.
+// Settings adapter registries: TJsonSettingsRegistry specializations that
+// declare field-to-struct bindings for each settings type.
 // These are RTK entity adapter pattern declarations — field binding data
 // that the settings fold machinery traverses.
 
@@ -149,6 +149,8 @@ JSON_SETTINGS_REGISTRY(FContentAssetExpectationSettings, Label, Path);
 JSON_SETTINGS_REGISTRY(FContentConfigExpectationSettings, Label, Section, Key,
                        Expected);
 
+JSON_SETTINGS_REGISTRY(FForbiddenSourcePatternSettings, Token, Message);
+
 template <> struct TJsonSettingsRegistry<FContentAssetsAutomationSettings> {
   static const TArray<TJsonSettingsField<FContentAssetsAutomationSettings>>
       &Fields() {
@@ -174,6 +176,44 @@ template <> struct TJsonSettingsRegistry<FContentAssetsAutomationSettings> {
   }
 };
 
+template <> struct TJsonSettingsRegistry<FRTKComplianceAutomationSettings> {
+  static const TArray<TJsonSettingsField<FRTKComplianceAutomationSettings>>
+      &Fields() {
+    static const TArray<TJsonSettingsField<FRTKComplianceAutomationSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(
+                FRTKComplianceAutomationSettings, SourceFileSuffixes,
+                AllowedBoundaryFragments, SourceDirectoryName,
+                SourceSearchPattern, ViolationMessageFormat,
+                SourceReadFailureFormat, StoreBoundaryLabel,
+                ViolationCountIncrement, CleanViolationCount),
+            JSON_OBJECT_ARRAY_SETTING_FIELDS(
+                FRTKComplianceAutomationSettings,
+                ReadSettingsWith<FForbiddenSourcePatternSettings>(
+                    JSON_SETTINGS_ATOMS(Token, Message)),
+                ForbiddenPatterns)};
+    return RegisteredFields;
+  }
+};
+
+JSON_SETTINGS_REGISTRY(
+    FConversationUITestAutomationSettings, Labels, PlayerRole, PlayerText,
+    ExpectedPlayerMessageText, ExpectedPlayerMessageGreen, History,
+    ExpectedHistoryCount, TaggedHistoryIndex, ExpectedTaggedHistoryText,
+    UntaggedHistoryIndex, ExpectedUntaggedHistoryText, SubmittedInput,
+    ExpectedSubmittedText, SpeakerName, SpeakerRole, ConversationPlayerLine,
+    ConversationNpcReply, ExpectedConversationTitle,
+    ExpectedConversationPlayerLine, ExpectedConversationNpcReply);
+
+JSON_SETTINGS_REGISTRY(
+    FProtocolLoopAutomationSettings, Labels, RunEnvironmentVariable,
+    SkipWarning, ApiUrl, AgentPersona, ImmutablePersona, StatePersona,
+    StateJson, StateNeedle, AsyncPersona, AsyncPrompt, BridgePersona,
+    BridgeActionType, MinimumRuleCount);
+
+JSON_SETTINGS_REGISTRY(FAutomationTextSettings, SpecName, TestNames,
+                       GroupLabels, CaseLabels, AssertionLabels);
+
 template <> struct TJsonSettingsRegistry<FAutomationSettings> {
   static const TArray<TJsonSettingsField<FAutomationSettings>> &Fields() {
     static const TArray<TJsonSettingsField<FAutomationSettings>>
@@ -197,7 +237,48 @@ template <> struct TJsonSettingsRegistry<FAutomationSettings> {
                         SkeletalMeshLodDataLabelFormat,
                         NativeLodAuditCountFormat,
                         NativeLodAuditEntryFormat)),
-                ContentAssets)};
+                ContentAssets),
+            JSON_OBJECT_SETTING_FIELDS(
+                FAutomationSettings,
+                ReadSettingsWith<FRTKComplianceAutomationSettings>(
+                    JSON_SETTINGS_ATOMS(
+                        SourceFileSuffixes, AllowedBoundaryFragments,
+                        SourceDirectoryName, SourceSearchPattern,
+                        ForbiddenPatterns, ViolationMessageFormat,
+                        SourceReadFailureFormat, StoreBoundaryLabel,
+                        ViolationCountIncrement, CleanViolationCount)),
+                RtkCompliance),
+            JSON_OBJECT_SETTING_FIELDS(
+                FAutomationSettings,
+                ReadSettingsWith<FAutomationTextSettings>(
+                    JSON_SETTINGS_ATOMS(SpecName, TestNames, GroupLabels,
+                                        CaseLabels, AssertionLabels)),
+                BotFunctionalCore, Pipeline),
+            JSON_OBJECT_SETTING_FIELDS(
+                FAutomationSettings,
+                ReadSettingsWith<FConversationUITestAutomationSettings>(
+                    JSON_SETTINGS_ATOMS(
+                        Labels, PlayerRole, PlayerText,
+                        ExpectedPlayerMessageText,
+                        ExpectedPlayerMessageGreen, History,
+                        ExpectedHistoryCount, TaggedHistoryIndex,
+                        ExpectedTaggedHistoryText, UntaggedHistoryIndex,
+                        ExpectedUntaggedHistoryText, SubmittedInput,
+                        ExpectedSubmittedText, SpeakerName, SpeakerRole,
+                        ConversationPlayerLine, ConversationNpcReply,
+                        ExpectedConversationTitle,
+                        ExpectedConversationPlayerLine,
+                        ExpectedConversationNpcReply)),
+                ConversationUI),
+            JSON_OBJECT_SETTING_FIELDS(
+                FAutomationSettings,
+                ReadSettingsWith<FProtocolLoopAutomationSettings>(
+                    JSON_SETTINGS_ATOMS(
+                        Labels, RunEnvironmentVariable, SkipWarning, ApiUrl,
+                        AgentPersona, ImmutablePersona, StatePersona,
+                        StateJson, StateNeedle, AsyncPersona, AsyncPrompt,
+                        BridgePersona, BridgeActionType, MinimumRuleCount)),
+                ProtocolLoop)};
     return RegisteredFields;
   }
 };

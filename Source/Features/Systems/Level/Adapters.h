@@ -11,15 +11,15 @@ namespace Level {
 namespace LevelAdapters {
 
 /**
- * @brief Loads an authored runtime layout from split Content JSONs.
+ * @brief Loads an authored level layout from split Content JSONs.
  *
- * @signature func::Maybe<FLevelRuntimeLayoutSeed>
- * LoadRuntimeLayoutSeed(const ForbocAI::Game::Data::FLevelDataSourceSettings &DataSources)
+ * @signature func::Maybe<FLevelLayoutSeed>
+ * LoadLayoutSeed(const ForbocAI::Game::Data::FLevelDataSourceSettings &DataSources)
  *
  * User story: As a level author, invalid or missing authored layout data is
  * rejected at the adapter boundary instead of becoming reducer-owned state.
  */
-FLevelRuntimeLayoutSeed LoadRuntimeLayoutSeed(const ForbocAI::Game::Data::FLevelDataSourceSettings &DataSources);
+FLevelLayoutSeed LoadLayoutSeed(const ForbocAI::Game::Data::FLevelDataSourceSettings &DataSources);
 
 } // namespace LevelAdapters
 } // namespace Level

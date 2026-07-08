@@ -65,6 +65,12 @@ LoadObjectFromContent(const FJsonContentObjectRequest &Request);
 TSharedPtr<FJsonObject>
 LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request);
 
+func::Maybe<TArray<TSharedPtr<FJsonValue>>>
+LoadArrayFromContent(const FJsonContentArrayRequest &Request);
+
+TArray<TSharedPtr<FJsonValue>>
+LoadRequiredArrayFromContent(const FJsonContentArrayRequest &Request);
+
 // --- Typed value readers -------------------------------------------------
 
 FString ReadString(const FJsonFieldRequest &Request);

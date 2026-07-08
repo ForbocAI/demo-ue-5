@@ -1,0 +1,7 @@
+{
+  "player_presentation_requested": "entities/player/presentationRequested",
+  "player_movement_input_observed": "entities/player/movementInputObserved",
+  "townsperson_presentation_requested": "systems/rendering/townspersonPresentationRequested",
+  "horse_presentation_requested": "systems/rendering/horsePresentationRequested",
+  "townsperson_candidates_observed": "systems/interaction/townspersonCandidatesObserved"
+}

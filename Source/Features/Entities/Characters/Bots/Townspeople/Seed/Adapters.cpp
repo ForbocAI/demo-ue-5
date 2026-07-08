@@ -157,13 +157,12 @@ FTownspersonSeed TownspersonFromFields(
 
 TArray<FTownspersonSeed> BuildTownspersonSeed(
     const FBotSeedBuildRequest &Request) {
-  const TSharedPtr<FJsonObject> Root =
-      JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FTownspersonFields, FTownspersonSeed>(
-      JsonAdapters::ReadSettingsObjectArrayField<FTownspersonFields>(
-          "Townspeople",
+      JsonAdapters::MapSettingsJsonValues<FTownspersonFields>(
+          JsonAdapters::LoadRequiredArrayFromContent(
+              {Request.RelativeJsonPath}),
           JSON_SETTINGS_ATOMS(Id, Name, Role, Persona, Interaction,
-                              PatrolRoute))(Root),
+                              PatrolRoute)),
       [&Request](const FTownspersonFields &Fields) {
         return TownspersonFromFields({Fields, Request.Geometry});
       });

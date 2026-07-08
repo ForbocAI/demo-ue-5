@@ -44,8 +44,7 @@ def check(path: Path, text: str) -> list[Issue]:
             Issue(
                 path,
                 line_number(text, match.start()),
-                "Soft RTK upgrade: listener middleware should be prepended before default serializability checks, not appended after them.",
-                "warning",
+                "RTK violation, forward target: listener middleware is prepended before default serializability checks, not appended after them.",
             )
         )
 

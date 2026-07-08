@@ -13,14 +13,14 @@ namespace Level {
 struct FRuntimeLevelViewPayloadRequest {
   const FLevelTerrainData *TerrainData = nullptr;
   const FLevelOrthoData *OrthoData = nullptr;
-  const FLevelRuntimeLayoutSeed *RuntimeLayout = nullptr;
+  const FLevelLayoutSeed *Layout = nullptr;
   const ForbocAI::Game::Data::FLevelGeometrySettings *Geometry = nullptr;
 };
 
 struct FRuntimeLevelViewPayload {
   bool bTerrainMeshLoaded = false;
   FTerrainMeshPayload TerrainMesh;
-  TArray<FLevelRuntimeSectionSpawn> Sections;
+  TArray<FLevelSectionSpawn> Sections;
   TArray<FRuntimeTownspersonViewSpawn> Townspeople;
   TArray<FRuntimeHorseViewSpawn> Horses;
 };

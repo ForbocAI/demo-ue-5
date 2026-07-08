@@ -48,7 +48,7 @@ BOUNDARY_GUIDANCE = (
     "Functional-core cookbook boundary: use SDK func::* helpers for non-ECS "
     "collection and decision work. Use ECS helpers only for ECS-owned "
     "entity/component/system world transitions. At UE/effect boundaries, "
-    "prefer required-data checks with check(...)."
+    "use required-data checks with check(...)."
 )
 
 

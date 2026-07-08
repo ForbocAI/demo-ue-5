@@ -2,7 +2,7 @@
 """Adapters boundary rules.
 
 Adapters translate authored JSON, UE objects, ECS data, and entity-adapter
-state. They should not dispatch, listen, or read the store.
+state. They do not dispatch, listen, or read the store.
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ def check(path: Path, text: str) -> list[Issue]:
             Issue(
                 path,
                 1,
-                "Adapters files that expose entity adapters must build them with rtk::createEntityAdapter; non-entity adapters may remain translation helpers.",
+                "Adapters files that expose entity adapters must build them with rtk::createEntityAdapter; non-entity adapters stay translation helpers.",
             )
         ]
     return []

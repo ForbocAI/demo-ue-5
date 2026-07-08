@@ -18,8 +18,16 @@ namespace {
  * User story: As a data adapter author, content path assembly should be one
  * neutral function below every authored JSON domain.
  */
+FString ResolveContentPath(const FString &RelativePath) {
+  return FPaths::ProjectContentDir() / RelativePath;
+}
+
 FString ResolveContentPath(const FJsonContentObjectRequest &Request) {
-  return FPaths::ProjectContentDir() / Request.RelativePath;
+  return ResolveContentPath(Request.RelativePath);
+}
+
+FString ResolveContentPath(const FJsonContentArrayRequest &Request) {
+  return ResolveContentPath(Request.RelativePath);
 }
 
 /**
@@ -53,6 +61,16 @@ ParseObjectSource(const FString &Source) {
              : func::nothing<TSharedPtr<FJsonObject>>();
 }
 
+func::Maybe<TArray<TSharedPtr<FJsonValue>>>
+ParseArraySource(const FString &Source) {
+  TArray<TSharedPtr<FJsonValue>> Root;
+  const TSharedRef<TJsonReader<>> Reader =
+      TJsonReaderFactory<>::Create(Source);
+  return FJsonSerializer::Deserialize(Reader, Root)
+             ? func::just(Root)
+             : func::nothing<TArray<TSharedPtr<FJsonValue>>>();
+}
+
 } // namespace
 
 FJsonFieldRequest Field(const TSharedPtr<FJsonObject> &Object,
@@ -82,6 +100,23 @@ LoadObjectFromContent(const FJsonContentObjectRequest &Request) {
 TSharedPtr<FJsonObject>
 LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request) {
   const func::Maybe<TSharedPtr<FJsonObject>> Root = LoadObjectFromContent(Request);
+  check(Root.hasValue);
+  return Root.value;
+}
+
+func::Maybe<TArray<TSharedPtr<FJsonValue>>>
+LoadArrayFromContent(const FJsonContentArrayRequest &Request) {
+  const FString SourcePath = ResolveContentPath(Request);
+  return func::mbind(ReadSourceFile(SourcePath),
+                     [](const FString &Source) {
+                       return ParseArraySource(Source);
+                     });
+}
+
+TArray<TSharedPtr<FJsonValue>>
+LoadRequiredArrayFromContent(const FJsonContentArrayRequest &Request) {
+  const func::Maybe<TArray<TSharedPtr<FJsonValue>>> Root =
+      LoadArrayFromContent(Request);
   check(Root.hasValue);
   return Root.value;
 }

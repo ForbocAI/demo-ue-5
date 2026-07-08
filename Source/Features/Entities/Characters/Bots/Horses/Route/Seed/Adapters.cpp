@@ -107,12 +107,11 @@ FHorseRouteSeed HorseRouteFromFields(
 
 TArray<FHorseRouteSeed> BuildHorseRouteSeed(
     const FBotSeedBuildRequest &Request) {
-  const TSharedPtr<FJsonObject> Root =
-      JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FHorseRouteFields, FHorseRouteSeed>(
-      JsonAdapters::ReadSettingsObjectArrayField<FHorseRouteFields>(
-          "Horses",
-          JSON_SETTINGS_ATOMS(Id, Name, bMountedRider, PatrolRoute))(Root),
+      JsonAdapters::MapSettingsJsonValues<FHorseRouteFields>(
+          JsonAdapters::LoadRequiredArrayFromContent(
+              {Request.RelativeJsonPath}),
+          JSON_SETTINGS_ATOMS(Id, Name, bMountedRider, PatrolRoute)),
       [&Request](const FHorseRouteFields &Fields) {
         return HorseRouteFromFields({Fields, Request.Geometry});
       });

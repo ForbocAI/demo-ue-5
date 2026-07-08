@@ -9,16 +9,16 @@ by WHY it carries the extra parameters; only the genuinely reducible
 ("actionable") bucket drives the headline count and --strict.
 
 Buckets:
-    actionable   - foldable via currying / a payload struct (the target).
+    actionable   - foldable via currying / a payload struct.
     fn-arg       - a parameter is already a function/callable ("supply
                    functions as arguments"); leave at two.
     mut-sink     - the first parameter is a non-const &/* output or engine
-                   target written each call; leave at two. A `const`
-                   reference/pointer is DATA, not a sink, and is NOT exempt.
+                   target written each call. A `const` reference/pointer is
+                   DATA, not a sink.
     reducer      - a Reduce*(state, action) function whose first parameter is
                    the by-value state accumulator; leave at two.
     ue-callback  - UE reflection/lifecycle callback (BeginPlay, Tick, ...) whose
-                   signature the engine fixes; leave as-is.
+                   signature is owned by the engine boundary.
 
 The reduction-by-currying technique (capture the threaded constant in a factory
 that returns a one-argument function) and the payload-struct boundary are the
@@ -51,16 +51,16 @@ UE_CALLBACKS = {
 
 GUIDANCE = (
     "Keep authored functions at two data parameters or fewer. A leading CONST "
-    "reference/pointer is DATA and is not exempt -- do not widen a signature by "
+    "reference/pointer is DATA -- do not widen a signature by "
     "threading more const inputs. Reduce an actionable function with the ue_fp "
     "cookbook: (1) group related inputs into one payload/request struct at a "
     "real domain boundary; (2) curry -- capture the stable inputs in a factory "
     "that returns a unary function over the varying input; or (3) supply "
     "behavior as a function argument (func::compose/pipe/converge2, folds, "
-    "catalogs, Dispatcher). Exempt buckets stay at two: fn-arg (a parameter is "
-    "already a function/callable), mut-sink (a non-const &/* output or engine "
-    "target), reducer (Reduce* with a by-value state), and UE reflection/"
-    "lifecycle callbacks."
+    "catalogs, Dispatcher). Non-actionable classifications are still reported: "
+    "fn-arg (a parameter is already a function/callable), mut-sink (a non-const "
+    "&/* output or engine target), reducer (Reduce* with a by-value state), and "
+    "UE reflection/lifecycle callbacks."
 )
 
 # A parameter whose type is a function/callable (the endorsed "supply functions
@@ -112,7 +112,7 @@ def data_segments(param_text: str) -> list[str]:
 
 def is_mut_sink(segment: str) -> bool:
     # A mutable output/engine target: a non-const reference or pointer. A
-    # `const &`/`const *` parameter is DATA, not a sink, and is not exempt.
+    # `const &`/`const *` parameter is DATA, not a sink.
     return ("&" in segment or "*" in segment) and "const" not in segment
 
 

@@ -62,7 +62,6 @@ Forboc AI integration are:
 | **Speech component** | `Source/Features/Systems/Speech` | Text-to-speech playback with viseme-driven facial blending |
 | **Interaction system** | `Source/Features/Systems/Interaction` | Proximity triggers and player-to-NPC interaction flow |
 | **Conversation UI** | `Content/UI/WBP_Chat` | A ready-made UMG chat widget driven by the dialogue state |
-| **French Gulch asset importer** | `Scripts/Tools/import_outlaw_assets.py` | Local licensed KitBash3D Outlaw import workflow for storefronts, props, and mining-town dressing |
 | **Store** | `Source/Store.*` | Single runtime store that wires all feature slices together |
 | **ECS layer** | `Source/Core/ecs.hpp` | Lightweight ECS primitives used for entity/component management |
 | **RTK core** | via `Plugins/ForbocAI_SDK` | Redux Toolkit–style state management: actions, reducers, selectors, thunks |
@@ -128,40 +127,12 @@ bash Scripts/Run/run-tests.sh
 This runs the project's C++ test suite, including store/reducer round-trip
 tests and SDK integration checks.
 
-## Runtime Map Tools
+## Trying the AI Demo
 
-Press `F` during play to toggle fly mode for scale and layout inspection.
-
-To capture reusable in-game scale evidence with the real player camera, run:
-
-```bash
-bash Scripts/Capture/capture-scale-audit.sh
-```
-
-The script launches `/Game/Map/Maps/Runtime` in game mode and writes:
-
-- `screenshots/scale-audit-ingame-whole-level.png`
-- `screenshots/scale-audit-ingame-town.png`
-- `screenshots/scale-audit-ingame-people-horses.png`
-
-To capture French Gulch brochure/marketing shots, run:
-
-```bash
-bash Scripts/Capture/capture-brochure-shots.sh
-```
-
-The script launches the same Runtime map in game mode and writes:
-
-- `screenshots/brochure/french-gulch/french-gulch-brochure-hero.png`
-- `screenshots/brochure/french-gulch/french-gulch-brochure-main-street.png`
-- `screenshots/brochure/french-gulch/french-gulch-brochure-people-horses.png`
-
-In game, press `P` or `Esc` to open the marketing pause menu and retake the
-same brochure shots from the running map.
-
-Distance LOD should reduce detail and runtime cost, not hide the level. Distant
-assets stay visible while lower LODs disable labels, animation, patrol,
-collision, shadows, and other expensive behavior.
+Press Play, walk up to a townsperson, and use the interaction prompt to start
+conversation. The demo routes player input through the interaction system,
+dispatches dialogue actions and thunks, receives Forboc AI results, and renders
+the selected response through the chat UI and speech component.
 
 ---
 

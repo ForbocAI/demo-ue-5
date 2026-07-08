@@ -11,7 +11,6 @@ from typing import Iterable
 
 SOURCE_EXTENSIONS = {".h", ".hpp", ".cpp"}
 IMPORT_RE = re.compile(r'^\s*#\s*include\s+"([^"]+)"', re.MULTILINE)
-WARNING_TRUE_VALUES = {"1", "true", "TRUE", "yes", "YES"}
 
 ROLE_BY_STEM: dict[str, str] = {
     "Actions": "actions",
@@ -39,7 +38,6 @@ class Issue:
     path: Path
     line: int
     message: str
-    severity: str = "error"
 
 
 def role_for_stem(stem: str) -> str | None:
@@ -98,9 +96,8 @@ def pattern_issue(
     text: str,
     pattern: re.Pattern[str],
     message: str,
-    severity: str = "error",
 ) -> Issue | None:
     match = pattern.search(text)
     if not match:
         return None
-    return Issue(path, line_number(text, match.start()), message, severity)
+    return Issue(path, line_number(text, match.start()), message)

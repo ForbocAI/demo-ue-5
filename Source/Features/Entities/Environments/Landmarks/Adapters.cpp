@@ -102,13 +102,12 @@ FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) {
 
 TArray<FLandmark>
 BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
-  const TSharedPtr<FJsonObject> Root =
-      JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FLandmarkFields, FLandmark>(
-      JsonAdapters::ReadSettingsObjectArrayField<FLandmarkFields>(
-          "Landmarks",
+      JsonAdapters::MapSettingsJsonValues<FLandmarkFields>(
+          JsonAdapters::LoadRequiredArrayFromContent(
+              {Request.RelativeJsonPath}),
           JSON_SETTINGS_ATOMS(Id, Label, Kind, EastLots, NorthLots,
-                              YawDegrees, FrontageFeet, DepthFeet, Stories))(Root),
+                              YawDegrees, FrontageFeet, DepthFeet, Stories)),
       [&Request](const FLandmarkFields &Fields) {
         return LandmarkFromFields(
             {&Request.TerrainData, Request.Geometry, Fields});

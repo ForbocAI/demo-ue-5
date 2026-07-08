@@ -2,8 +2,8 @@
 """Thunks boundary rules.
 
 Thunks own one imperative async workflow with dispatch/getState. Long-lived
-reaction logic belongs in Listeners, and server cache usually belongs in RTK
-Query.
+reaction logic belongs in Listeners, and cache-owned request/response data
+moves behind RTK Query.
 """
 
 from __future__ import annotations
@@ -44,15 +44,15 @@ def check(path: Path, text: str) -> list[Issue]:
     for pattern, message in (
         (
             POLLING_GET_STATE,
-            "Soft RTK upgrade: polling future state in a thunk fights the architecture. Move long-lived reactive workflows to Listeners.",
+            "RTK violation, forward target: thunks do not poll future state; long-lived reactive workflows belong in Listeners.",
         ),
         (
             SERVER_CACHE_WORKFLOW,
-            "Soft RTK upgrade: if this is request/response server cache, prefer an RTK Query createApi/injectEndpoints boundary over a hand-written thunk cache.",
+            "RTK violation, forward target: request/response server cache moves behind an RTK Query createApi/injectEndpoints boundary instead of a hand-written thunk cache.",
         ),
     ):
         match = pattern.search(text)
         if match:
-            issues.append(Issue(path, line_number(text, match.start()), message, "warning"))
+            issues.append(Issue(path, line_number(text, match.start()), message))
 
     return issues

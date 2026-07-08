@@ -1,0 +1,450 @@
+{
+  "content_assets": {
+    "packages": [
+      {
+        "label": "Default French Gulch runtime map is tracked",
+        "path": "/Game/Map/Maps/Runtime"
+      }
+    ],
+    "classes": [
+      {
+        "label": "Default runtime game mode class loads",
+        "path": "/Script/ForbocAIDemo.LevelGameModeView"
+      },
+      {
+        "label": "Runtime player controller native class loads",
+        "path": "/Script/ForbocAIDemo.PlayerRuntimeControllerView"
+      },
+      {
+        "label": "Runtime level native class loads",
+        "path": "/Script/ForbocAIDemo.RuntimeLevelView"
+      },
+      {
+        "label": "Runtime townsperson native class loads",
+        "path": "/Script/ForbocAIDemo.TownspersonView"
+      },
+      {
+        "label": "Runtime speech presenter native class loads",
+        "path": "/Script/ForbocAIDemo.RuntimeSpeechPresenterView"
+      },
+      {
+        "label": "Runtime chat widget native class loads",
+        "path": "/Script/ForbocAIDemo.RuntimeChatWidget"
+      }
+    ],
+    "speech_component_classes": [
+      {
+        "label": "Runtime speech presenter owns USpeechComponent",
+        "path": "/Script/ForbocAIDemo.RuntimeSpeechPresenterView"
+      }
+    ],
+    "config_values": [
+      {
+        "label": "Game default map opens the tracked runtime map",
+        "section": "/Script/EngineSettings.GameMapsSettings",
+        "key": "GameDefaultMap",
+        "expected": "/Game/Map/Maps/Runtime"
+      },
+      {
+        "label": "Editor startup map opens the tracked runtime map",
+        "section": "/Script/EngineSettings.GameMapsSettings",
+        "key": "EditorStartupMap",
+        "expected": "/Game/Map/Maps/Runtime"
+      },
+      {
+        "label": "Server default map opens the tracked runtime map",
+        "section": "/Script/EngineSettings.GameMapsSettings",
+        "key": "ServerDefaultMap",
+        "expected": "/Game/Map/Maps/Runtime"
+      },
+      {
+        "label": "Runtime map uses source-controlled game mode",
+        "section": "/Script/EngineSettings.GameMapsSettings",
+        "key": "GlobalDefaultGameMode",
+        "expected": "/Script/ForbocAIDemo.LevelGameModeView"
+      }
+    ],
+    "assets": [
+      {
+        "label": "Manny mesh asset loads",
+        "path": "/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"
+      },
+      {
+        "label": "Manny unarmed animation blueprint asset loads",
+        "path": "/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed"
+      },
+      {
+        "label": "Third Person move input action loads",
+        "path": "/Game/Input/Actions/IA_Move.IA_Move"
+      },
+      {
+        "label": "Third Person look input action loads",
+        "path": "/Game/Input/Actions/IA_Look.IA_Look"
+      },
+      {
+        "label": "Third Person mouse-look input action loads",
+        "path": "/Game/Input/Actions/IA_MouseLook.IA_MouseLook"
+      },
+      {
+        "label": "Third Person jump input action loads",
+        "path": "/Game/Input/Actions/IA_Jump.IA_Jump"
+      },
+      {
+        "label": "Third Person default mapping context loads",
+        "path": "/Game/Input/IMC_Default.IMC_Default"
+      },
+      {
+        "label": "Third Person mouse-look mapping context loads",
+        "path": "/Game/Input/IMC_MouseLook.IMC_MouseLook"
+      },
+      {
+        "label": "Classic Horse skeletal mesh loads",
+        "path": "/Game/Characters/Horses/ClassicHorse/SkeletalMesh/ClassicHorse_Equipment_A.ClassicHorse_Equipment_A"
+      },
+      {
+        "label": "Classic Horse walk animation loads",
+        "path": "/Game/Characters/Horses/ClassicHorse/Animations/Horse_Walk.Horse_Walk"
+      },
+      {
+        "label": "Classic Horse idle animation loads",
+        "path": "/Game/Characters/Horses/ClassicHorse/Animations/Horse_Idle.Horse_Idle"
+      },
+      {
+        "label": "Mounted rider skeletal mesh loads",
+        "path": "/Game/Characters/Horses/ClassicHorse/Rider/SkeletalMesh/Rider_SkeletalMesh.Rider_SkeletalMesh"
+      },
+      {
+        "label": "Mounted rider walk animation loads",
+        "path": "/Game/Characters/Horses/ClassicHorse/Rider/Animations/Rider_Walk.Rider_Walk"
+      },
+      {
+        "label": "Mounted rider idle animation loads",
+        "path": "/Game/Characters/Horses/ClassicHorse/Rider/Animations/Rider_Idle.Rider_Idle"
+      },
+      {
+        "label": "Built-in night sky dome mesh loads",
+        "path": "/Engine/MapTemplates/Sky/SM_SkySphere.SM_SkySphere"
+      },
+      {
+        "label": "Built-in night sky dome material loads",
+        "path": "/Engine/MapTemplates/Sky/M_Procedural_Sky_Night.M_Procedural_Sky_Night"
+      },
+      {
+        "label": "Built-in moon pixel mesh loads",
+        "path": "/Engine/BasicShapes/Cube.Cube"
+      },
+      {
+        "label": "Built-in moon disc material loads",
+        "path": "/Engine/EngineDebugMaterials/LevelColorationUnlitMaterial.LevelColorationUnlitMaterial"
+      }
+    ],
+    "skeletal_mesh_lods": [
+      {
+        "label": "Manny",
+        "path": "/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple"
+      },
+      {
+        "label": "Classic Horse",
+        "path": "/Game/Characters/Horses/ClassicHorse/SkeletalMesh/ClassicHorse_Equipment_A.ClassicHorse_Equipment_A"
+      },
+      {
+        "label": "Mounted Rider",
+        "path": "/Game/Characters/Horses/ClassicHorse/Rider/SkeletalMesh/Rider_SkeletalMesh.Rider_SkeletalMesh"
+      }
+    ],
+    "missing_packages": [
+      {
+        "label": "Old UE4 mannequin package is not tracked",
+        "path": "/Game/Character/Mesh/SK_Mannequin"
+      },
+      {
+        "label": "Old ThirdPerson animation package is not tracked",
+        "path": "/Game/Animations/ThirdPerson_AnimBP"
+      },
+      {
+        "label": "Old ThirdPerson template mesh package is not tracked",
+        "path": "/Game/ThirdPersonTemplate/Meshes/Ramp_StaticMesh"
+      }
+    ],
+    "skeletal_mesh_loads_label_format": "{0} skeletal mesh loads",
+    "skeletal_mesh_lod_data_label_format": "{0} exposes native render LOD data",
+    "native_lod_audit_count_format": "Native LOD audit {0} lod_count={1}",
+    "native_lod_audit_entry_format": "Native LOD audit {0} lod={1} faces={2} vertices={3}"
+  },
+  "rtk_compliance": {
+    "source_file_suffixes": [
+      ".h",
+      ".hpp",
+      ".cpp"
+    ],
+    "allowed_boundary_fragments": [
+      "/Source/Tests/",
+      "/Source/Store.cpp",
+      "/Source/Features/Systems/Actions.cpp",
+      "/Source/Features/Systems/Selectors.cpp"
+    ],
+    "source_directory_name": "Source",
+    "source_search_pattern": "*.*",
+    "forbidden_patterns": [
+      {
+        "token": "#include \"Store.h\"",
+        "message": "Use feature Actions/Selectors instead of importing Store.h"
+      },
+      {
+        "token": "Store::GetStore(",
+        "message": "Use feature Actions/Selectors instead of direct store access"
+      },
+      {
+        "token": "Store::GetStore().",
+        "message": "Use feature Actions/Selectors instead of direct store access"
+      },
+      {
+        "token": "LastInitialPatrol",
+        "message": "Patrol view models are derived data and must not live in RTK state"
+      },
+      {
+        "token": "LastPatrolAdvance",
+        "message": "Patrol view models are derived data and must not live in RTK state"
+      },
+      {
+        "token": "LastViewDefaults",
+        "message": "Townsperson default overrides are derived data and must not live in RTK state"
+      },
+      {
+        "token": "LastInteractionOverlap",
+        "message": "Overlap view models are derived data and must not live in RTK state"
+      },
+      {
+        "token": "State.MovementInput",
+        "message": "Player movement view models are derived data and must not live in RTK state"
+      }
+    ],
+    "violation_message_format": "%s: %s (%s)",
+    "source_read_failure_format": "Unable to read source file: %s",
+    "store_boundary_label": "No forbidden RTK store boundary or scratchpad patterns",
+    "violation_count_increment": 1,
+    "clean_violation_count": 0
+  },
+  "bot_functional_core": {
+    "spec_name": "ForbocAI.Bot.FunctionalCore",
+    "test_names": [],
+    "group_labels": [
+      "State Creation",
+      "Reducers",
+      "Movement",
+      "Combat",
+      "Awareness",
+      "Tick Update"
+    ],
+    "case_labels": [
+      "Should create initial state with correct defaults",
+      "Should update position to target",
+      "Should reduce health when taking damage",
+      "Should transition to Combat phase when damaged but healthy",
+      "Should transition to Flee phase when critically damaged",
+      "Should update memory when spotting enemy",
+      "Should increment tick count",
+      "Should decay Aggro after timeout"
+    ],
+    "assertion_labels": [
+      "Name",
+      "Health",
+      "Phase",
+      "ID is valid",
+      "Position.X",
+      "Health Reduced",
+      "Phase -> Combat",
+      "Phase -> Flee",
+      "Has Aggro",
+      "TimeSinceLastSeen",
+      "LastKnownPos.X",
+      "Phase -> Combat",
+      "TickCount",
+      "Initially Aggro",
+      "Lost Aggro"
+    ]
+  },
+  "pipeline": {
+    "spec_name": "",
+    "test_names": [
+      "ForbocAI.Pipeline.IdleTickAdvancesState",
+      "ForbocAI.Pipeline.HazardCausesDamage",
+      "ForbocAI.Pipeline.AwarenessTriggersAggro",
+      "ForbocAI.Pipeline.FleeTransitionOnLowHealth",
+      "ForbocAI.Pipeline.MultiBotIndependent",
+      "ForbocAI.Pipeline.DeterministicOrder"
+    ],
+    "group_labels": [],
+    "case_labels": [],
+    "assertion_labels": [
+      "Tick count advanced",
+      "At least 1 action dispatched",
+      "Health unchanged",
+      "Health reduced by hazard",
+      "Health after 1s hazard (25 DPS)",
+      "Bot has aggro",
+      "Phase is Combat",
+      "Remembers enemy position",
+      "Phase transitioned to Flee",
+      "3 bots processed",
+      "Bot 1 full health",
+      "Bot 2 took hazard damage",
+      "Bot 3 has aggro",
+      "Health deterministic",
+      "Position deterministic",
+      "Phase deterministic",
+      "Aggro deterministic",
+      "Action count deterministic"
+    ]
+  },
+  "conversation_ui": {
+    "labels": [
+      "Player message is role-prefixed",
+      "Player message uses cyan channel",
+      "History produces view models",
+      "Tagged history keeps role",
+      "Untagged history is marked unknown",
+      "Submitted text is trimmed",
+      "Conversation title is composed",
+      "Conversation player line is labeled",
+      "Conversation reply is labeled"
+    ],
+    "player_role": "Player",
+    "player_text": "Hello",
+    "expected_player_message_text": "[Player] Hello",
+    "expected_player_message_green": 0.85,
+    "history": [
+      "NPC: Welcome back",
+      "Unlabeled message"
+    ],
+    "expected_history_count": 2,
+    "tagged_history_index": 0,
+    "expected_tagged_history_text": "[NPC] Welcome back",
+    "untagged_history_index": 1,
+    "expected_untagged_history_text": "[Unknown] Unlabeled message",
+    "submitted_input": "  Ask around  ",
+    "expected_submitted_text": "Ask around",
+    "speaker_name": "Clara Bell",
+    "speaker_role": "Postmaster",
+    "conversation_player_line": "Any mail?",
+    "conversation_npc_reply": "Only dust today.",
+    "expected_conversation_title": "Clara Bell - Postmaster",
+    "expected_conversation_player_line": "Player: Any mail?",
+    "expected_conversation_npc_reply": "NPC: Only dust today."
+  },
+  "protocol_loop": {
+    "labels": [
+      "Agent ID is not empty",
+      "Persona matches",
+      "Agent pointer is valid",
+      "Persona preserved",
+      "Original ID preserved",
+      "Updated state contains mood",
+      "RPG rules are not empty",
+      "MOVE action is valid"
+    ],
+    "run_environment_variable": "FORBOC_RUN_API_PROTOCOL_LOOP_TESTS",
+    "skip_warning": "Skipping API protocol-loop test until API work resumes.",
+    "api_url": "http://localhost:8080",
+    "agent_persona": "TestNPC",
+    "immutable_persona": "Immutable-Test",
+    "state_persona": "StateTester",
+    "state_json": "{\"mood\": \"alert\"}",
+    "state_needle": "alert",
+    "async_persona": "AsyncTester",
+    "async_prompt": "Hello, who are you?",
+    "bridge_persona": "BridgeTester",
+    "bridge_action_type": "MOVE",
+    "minimum_rule_count": 0
+  },
+  "store": {
+    "data_backed_map_labels": [
+      "French Gulch heightmap CSV loads",
+      "French Gulch USGS ortho CSV loads",
+      "Terrain grid matches authored validation data",
+      "Ortho grid matches authored validation data",
+      "Terrain has relief",
+      "Blockout feet match actor feet",
+      "Blockout story clears a character",
+      "Level layout loads town labels",
+      "Level layout parses label height_mode",
+      "Level layout loads overlay labels",
+      "Level layout loads OSM road and creek blocks",
+      "Level layout loads OSM building footprints",
+      "RTK slice records terrain load",
+      "Store owns a projected ECS world",
+      "ECS registry includes authored runtime domains",
+      "Terrain entity is projected through authored ECS terrain domain",
+      "RTK entity adapter stores seeded landmarks",
+      "Post office landmark is selectable",
+      "Post office label",
+      "Player spawn anchor",
+      "Player spawn is above terrain",
+      "1899 horse routes are seeded",
+      "RTK entity adapter stores seeded horses",
+      "Mounted rider offset is authored in JSON",
+      "Mounted rider sits below horse label",
+      "Horse route has a patrol loop",
+      "RTK entity adapter stores seeded townspeople",
+      "Runtime has dialogue townsperson interaction",
+      "Runtime has memory townsperson interaction",
+      "Runtime has combat validation townsperson interaction",
+      "RTK bot entity subdomain indexes townspeople and horses",
+      "RTK bot stats subdomain indexes townspeople and horses",
+      "RTK bot position subdomain indexes townspeople and horses",
+      "RTK bot AI subdomain indexes townspeople and horses",
+      "RTK bot goal subdomain indexes townspeople and horses",
+      "Townsperson bot entity is selectable",
+      "Clara is a townsperson bot",
+      "Clara is friendly",
+      "Clara is projected into ECS",
+      "Clara ECS projection includes authored role",
+      "Horse bot stats are selectable",
+      "Sorrel is not a mounted rider",
+      "Sorrel has route movement speed",
+      "Sorrel is projected into ECS",
+      "Sorrel ECS projection includes authored speed",
+      "Horse bot active goal is selectable",
+      "Post road rider has a patrol goal",
+      "Post road rider goal targets a route location",
+      "OSM-backed layout removes fictional nature markers",
+      "RTK entity adapter stores seeded nature features",
+      "Retro profile is set to 11pm",
+      "Retro profile applies authored full-moon saturation",
+      "Retro profile applies authored full-moon contrast",
+      "Retro profile uses desaturated full-moon light",
+      "Retro profile disables anti-aliasing",
+      "Retro profile renders at native low resolution",
+      "Retro profile targets a 320px internal render width",
+      "Retro profile targets a 240px internal render height",
+      "Retro profile scales the internal render target up from JSON",
+      "Retro profile scales the internal render target fullscreen",
+      "Retro profile keeps view distance bounded for performance",
+      "Retro profile uses a built-in night sky dome",
+      "Retro profile uses a dark-blue reference night sky",
+      "Retro profile drives bright point stars from JSON",
+      "Retro profile uses procedural moon pixel geometry",
+      "Retro profile uses budget haze to cover distant LOD",
+      "Retro profile keeps volumetric fog disabled",
+      "Runtime has five distance LOD stages",
+      "Runtime LOD stage comes from JSON",
+      "Stats overlay reads authored memory divisor",
+      "Stats overlay shows physical memory",
+      "Stats overlay shows peak physical memory",
+      "Retro texture catalog covers terrain, level, NPC, and horse surfaces"
+    ],
+    "redux_logger_middleware_labels": [
+      "Redux logger writes action title to UE automation output",
+      "Redux logger writes action payload row to UE automation output"
+    ],
+    "projection_gate_labels": [
+      "Bot movement actions are ECS projection inputs",
+      "Patrol advance observations are not ECS projection inputs",
+      "Patrol advance observation keeps current ECS projection"
+    ],
+    "redux_logger_category": "LogForbocRuntimeRedux",
+    "redux_logger_action_title_prefix": "action",
+    "terrain_entity": "level:terrain",
+    "terrain_projection_domain": "Systems/Projection/Terrain"
+  }
+}

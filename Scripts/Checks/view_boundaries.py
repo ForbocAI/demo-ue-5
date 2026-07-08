@@ -11,12 +11,11 @@ belong behind feature facades so domains can move without view rewrites.
 from __future__ import annotations
 
 import argparse
-import os
 from pathlib import Path
 import re
 import sys
 
-from boundary_common import SOURCE_EXTENSIONS, WARNING_TRUE_VALUES, line_number
+from boundary_common import SOURCE_EXTENSIONS, line_number
 
 
 FEATURE_INCLUDE = re.compile(r'^\s*#\s*include\s+"(Features/[^"]+)"')
@@ -30,8 +29,6 @@ WHOLE_STATE_SELECTOR = re.compile(r"\bSelect[A-Za-z0-9_]*State\s*\(")
 BOUNDARY_IO = re.compile(
     r"\bIFileManager::|\bFPaths::|\bFParse::|\bFCommandLine::|\bFHttpModule\b|\bIHttpRequest\b"
 )
-WARNING_AS_ERROR_ENV = "FORBOC_VIEW_WARNINGS_AS_ERRORS"
-
 GUIDANCE = (
     "Views may include only feature Actions or Selectors facades. Move data "
     "derivation into Selectors, event creation/dispatch into Actions, async "
@@ -41,9 +38,8 @@ GUIDANCE = (
 )
 
 
-def finding(path: Path, views_root: Path, line: int, message: str,
-            severity: str = "error") -> tuple[str, Path, int, str]:
-    return severity, path.relative_to(views_root), line, message
+def finding(path: Path, views_root: Path, line: int, message: str) -> tuple[Path, int, str]:
+    return path.relative_to(views_root), line, message
 
 
 def iter_source_paths(root: Path) -> list[Path]:
@@ -54,7 +50,7 @@ def iter_source_paths(root: Path) -> list[Path]:
     ]
 
 
-def check_view_name(path: Path, views_root: Path) -> list[tuple[str, Path, int, str]]:
+def check_view_name(path: Path, views_root: Path) -> list[tuple[Path, int, str]]:
     return (
         []
         if path.stem == "View"
@@ -74,7 +70,7 @@ def is_allowed_feature_include(include: str) -> bool:
     return leaf in {"Actions.h", "Selectors.h"}
 
 
-def check_feature_includes(path: Path, views_root: Path) -> list[tuple[str, Path, int, str]]:
+def check_feature_includes(path: Path, views_root: Path) -> list[tuple[Path, int, str]]:
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
     feature_violations = [
         finding(
@@ -102,9 +98,9 @@ def check_feature_includes(path: Path, views_root: Path) -> list[tuple[str, Path
     return feature_violations + store_violations
 
 
-def check_view_source(path: Path, views_root: Path) -> list[tuple[str, Path, int, str]]:
+def check_view_source(path: Path, views_root: Path) -> list[tuple[Path, int, str]]:
     text = path.read_text(encoding="utf-8", errors="replace")
-    findings: list[tuple[str, Path, int, str]] = []
+    findings: list[tuple[Path, int, str]] = []
 
     for match in STORE_ACCESS.finditer(text):
         findings.append(
@@ -129,27 +125,27 @@ def check_view_source(path: Path, views_root: Path) -> list[tuple[str, Path, int
     for pattern, message in (
         (
             RTK_QUERY_CACHE_PATCH,
-            "Soft RTK upgrade: patch RTK Query cache in endpoint lifecycles, not from presentation code",
+            "View-boundary violation, forward target: RTK Query cache patches live in endpoint lifecycles, not presentation code",
         ),
         (
             WHOLE_STATE_SELECTOR,
-            "Soft RTK upgrade: views should subscribe to narrow selector results, not whole slice/state objects",
+            "View-boundary violation, forward target: views subscribe to narrow selector results, not whole slice/state objects",
         ),
         (
             BOUNDARY_IO,
-            "Soft RTK upgrade: file, command-line, and network IO should live behind Adapters, Thunks, or Listeners before a View consumes the result",
+            "View-boundary violation, forward target: file, command-line, and network IO lives behind Adapters, Thunks, or Listeners before a View consumes the result",
         ),
     ):
         match = pattern.search(text)
         if match:
             findings.append(
-                finding(path, views_root, line_number(text, match.start()), message, "warning")
+                finding(path, views_root, line_number(text, match.start()), message)
             )
 
     return findings
 
 
-def check_views(views_root: Path) -> list[tuple[str, Path, int, str]]:
+def check_views(views_root: Path) -> list[tuple[Path, int, str]]:
     return [
         violation
         for path in iter_source_paths(views_root)
@@ -169,14 +165,6 @@ def parse_args() -> argparse.Namespace:
         default="Source/Views",
         help="View source directory to scan.",
     )
-    parser.add_argument(
-        "--warnings-as-errors",
-        action="store_true",
-        help=(
-            "Promote soft view-boundary upgrade findings to errors. "
-            f"Can also be enabled with {WARNING_AS_ERROR_ENV}=1."
-        ),
-    )
     return parser.parse_args()
 
 
@@ -188,40 +176,16 @@ def main() -> int:
         return 1
 
     findings = check_views(views_root)
-    warnings_as_errors = args.warnings_as_errors or os.environ.get(
-        WARNING_AS_ERROR_ENV
-    ) in WARNING_TRUE_VALUES
-    violations = [
-        finding
-        for finding in findings
-        if finding[0] == "error" or (warnings_as_errors and finding[0] == "warning")
-    ]
-    warnings = [
-        finding
-        for finding in findings
-        if finding[0] == "warning" and not warnings_as_errors
-    ]
-
-    if not violations and not warnings:
+    if not findings:
         print("View boundary guard passed.")
         return 0
 
-    if violations:
-        print(f"View boundary guard failed: {len(violations)} issue(s).")
-        for _severity, relative, line, message in violations:
-            print(f"{relative.as_posix()}:{line}: {message}")
-        if warnings:
-            print(f"\nSoft view-boundary warning(s): {len(warnings)}")
-            for _severity, relative, line, message in warnings:
-                print(f"{relative.as_posix()}:{line}: {message}")
-        print("")
-        print(GUIDANCE)
-        return 1
-
-    print(f"View boundary guard passed with {len(warnings)} soft warning(s).")
-    for _severity, relative, line, message in warnings:
+    print(f"View boundary guard failed: {len(findings)} issue(s).")
+    for relative, line, message in findings:
         print(f"{relative.as_posix()}:{line}: {message}")
-    return 0
+    print("")
+    print(GUIDANCE)
+    return 1
 
 
 if __name__ == "__main__":

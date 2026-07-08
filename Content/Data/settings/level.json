@@ -4,14 +4,17 @@
     "ortho_csv_path": "Map/Heightmaps/french_gulch_ca_ortho_65.csv"
   },
   "level_data_sources": {
-    "terrain_json_path": "Data/french_gulch/level/terrain.json",
-    "town_json_path": "Data/french_gulch/level/town.json",
-    "mine_json_path": "Data/french_gulch/level/mine.json",
-    "overlay_labels_json_path": "Data/french_gulch/level/overlay_labels.json",
-    "landmarks_json_path": "Data/french_gulch/landmarks.json",
-    "townspeople_json_path": "Data/french_gulch/townspeople.json",
-    "horses_json_path": "Data/french_gulch/horses.json",
-    "nature_json_path": "Data/french_gulch/nature.json"
+    "terrain_blocks_json_path": "Data/levels/french_gulch/terrain/blocks.json",
+    "terrain_labels_json_path": "Data/levels/french_gulch/terrain/labels.json",
+    "town_blocks_json_path": "Data/levels/french_gulch/town/blocks.json",
+    "town_labels_json_path": "Data/levels/french_gulch/town/labels.json",
+    "mine_blocks_json_path": "Data/levels/french_gulch/mine/blocks.json",
+    "mine_labels_json_path": "Data/levels/french_gulch/mine/labels.json",
+    "overlay_labels_json_path": "Data/levels/french_gulch/overlay/labels.json",
+    "landmarks_json_path": "Data/levels/french_gulch/landmarks.json",
+    "townspeople_json_path": "Data/levels/french_gulch/townspeople.json",
+    "horses_json_path": "Data/levels/french_gulch/horses.json",
+    "nature_json_path": "Data/levels/french_gulch/nature.json"
   },
   "validation": {
     "terrain_grid_size": 65,

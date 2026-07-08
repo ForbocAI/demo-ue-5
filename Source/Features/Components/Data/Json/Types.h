@@ -15,6 +15,10 @@ struct FJsonContentObjectRequest {
   FString RelativePath;
 };
 
+struct FJsonContentArrayRequest {
+  FString RelativePath;
+};
+
 struct FJsonFieldRequest {
   TSharedPtr<FJsonObject> Object;
   FString FieldName;
@@ -39,6 +43,16 @@ inline bool operator==(const FJsonContentObjectRequest &Left,
 
 inline bool operator!=(const FJsonContentObjectRequest &Left,
                        const FJsonContentObjectRequest &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FJsonContentArrayRequest &Left,
+                       const FJsonContentArrayRequest &Right) {
+  return Left.RelativePath == Right.RelativePath;
+}
+
+inline bool operator!=(const FJsonContentArrayRequest &Left,
+                       const FJsonContentArrayRequest &Right) {
   return !(Left == Right);
 }
 

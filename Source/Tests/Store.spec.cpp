@@ -278,24 +278,24 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
                LevelLayoutAdapters::ActorWorldUnitsFromFeet(
                    {Geometry, CharacterHeightFeet}));
 
-  const FLevelRuntimeLayoutSeed RuntimeLayout =
-      LevelAdapters::LoadRuntimeLayoutSeed(DataSources);
+  const FLevelLayoutSeed Layout =
+      LevelAdapters::LoadLayoutSeed(DataSources);
   TestTrue(Labels.Next(),
-           !RuntimeLayout.Town.Labels.IsEmpty());
-  check(!RuntimeLayout.Town.Labels.IsEmpty());
+           !Layout.Town.Labels.IsEmpty());
+  check(!Layout.Town.Labels.IsEmpty());
   TestEqual(Labels.Next(),
             static_cast<int32>(
-                RuntimeLayout.Town.Labels[RuntimeLayout.Town.Labels.Num() -
-                                         RuntimeLayout.Town.Labels.Num()]
+                Layout.Town.Labels[Layout.Town.Labels.Num() -
+                                         Layout.Town.Labels.Num()]
                     .Height),
-            static_cast<int32>(ELevelRuntimeLabelHeightMode::Explicit));
+            static_cast<int32>(ELevelLabelHeightMode::Explicit));
   TestTrue(Labels.Next(),
-           !RuntimeLayout.OverlayLabels.IsEmpty());
+           !Layout.OverlayLabels.IsEmpty());
   TestTrue(Labels.Next(),
-           RuntimeLayout.Terrain.Blocks.Num() >
-               RuntimeLayout.OverlayLabels.Num());
+           Layout.Terrain.Blocks.Num() >
+               Layout.OverlayLabels.Num());
   TestTrue(Labels.Next(),
-           RuntimeLayout.Town.Blocks.Num() > RuntimeLayout.Town.Labels.Num());
+           Layout.Town.Blocks.Num() > Layout.Town.Labels.Num());
 
   rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
       Store::ConfigureStore();

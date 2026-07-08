@@ -1,4 +1,5 @@
 #include "CoreMinimal.h"
+#include "Features/Components/Data/Settings/Adapters.h"
 #include "Core/ue_fp.hpp"
 #include "HAL/FileManager.h"
 #include "Misc/AutomationTest.h"
@@ -7,14 +8,22 @@
 
 namespace {
 
-struct FForbiddenSourcePattern {
-  FString Token;
-  FString Message;
-};
+using FForbiddenSourcePatternSettings =
+    ForbocAI::Game::Data::FForbiddenSourcePatternSettings;
+using FRTKComplianceAutomationSettings =
+    ForbocAI::Game::Data::FRTKComplianceAutomationSettings;
+
+const FRTKComplianceAutomationSettings &RTKComplianceSettings() {
+  static const ForbocAI::Game::Data::FSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
+  return Settings.Automation.RtkCompliance;
+}
 
 bool IsHeaderOrSourceFile(const FString &Path) {
-  return Path.EndsWith(TEXT(".h")) || Path.EndsWith(TEXT(".hpp")) ||
-         Path.EndsWith(TEXT(".cpp"));
+  return RTKComplianceSettings().SourceFileSuffixes.ContainsByPredicate(
+      [&Path](const FString &Suffix) {
+        return Path.EndsWith(Suffix);
+      });
 }
 
 FString NormalizedPath(FString Path) {
@@ -24,12 +33,10 @@ FString NormalizedPath(FString Path) {
 
 bool IsAllowedStoreBoundary(const FString &Path) {
   const FString Normal = NormalizedPath(Path);
-  return Normal.Contains(TEXT("/Source/Tests/")) ||
-         Normal.EndsWith(TEXT("/Source/Store.cpp")) ||
-         Normal.EndsWith(
-             TEXT("/Source/Features/Systems/Actions.cpp")) ||
-         Normal.EndsWith(
-             TEXT("/Source/Features/Systems/Selectors.cpp"));
+  return RTKComplianceSettings().AllowedBoundaryFragments.ContainsByPredicate(
+      [&Normal](const FString &Fragment) {
+        return Normal.Contains(Fragment) || Normal.EndsWith(Fragment);
+      });
 }
 
 bool ShouldAuditFile(const FString &Path) {
@@ -38,30 +45,12 @@ bool ShouldAuditFile(const FString &Path) {
 
 TArray<FString> SourceFiles() {
   TArray<FString> Files;
-  const FString SourceDir = FPaths::Combine(FPaths::ProjectDir(), TEXT("Source"));
+  const FRTKComplianceAutomationSettings &Settings = RTKComplianceSettings();
+  const FString SourceDir =
+      FPaths::Combine(FPaths::ProjectDir(), Settings.SourceDirectoryName);
   IFileManager::Get().FindFilesRecursive(
-      Files, *SourceDir, TEXT("*.*"), true, false);
+      Files, *SourceDir, *Settings.SourceSearchPattern, true, false);
   return func::filter_array<FString>(Files, ShouldAuditFile);
-}
-
-TArray<FForbiddenSourcePattern> ForbiddenPatterns() {
-  return {
-      {TEXT("#include \"Store.h\""),
-       TEXT("Use RuntimeActions/RuntimeSelectors instead of importing Store.h")},
-      {TEXT("Store::GetStore("),
-       TEXT("Use RuntimeActions/RuntimeSelectors instead of direct store access")},
-      {TEXT("Store::GetStore()."),
-       TEXT("Use RuntimeActions/RuntimeSelectors instead of direct store access")},
-      {TEXT("LastInitialPatrol"),
-       TEXT("Patrol view models are derived data and must not live in RTK state")},
-      {TEXT("LastPatrolAdvance"),
-       TEXT("Patrol view models are derived data and must not live in RTK state")},
-      {TEXT("LastViewDefaults"),
-       TEXT("Townsperson default overrides are derived data and must not live in RTK state")},
-      {TEXT("LastInteractionOverlap"),
-       TEXT("Overlap view models are derived data and must not live in RTK state")},
-      {TEXT("State.MovementInput"),
-       TEXT("Player movement view models are derived data and must not live in RTK state")}};
 }
 
 func::Maybe<FString> LoadSourceContent(const FString &Path) {
@@ -72,40 +61,44 @@ func::Maybe<FString> LoadSourceContent(const FString &Path) {
 
 int32 CountPatternViolation(FAutomationTestBase &Test, const FString &Path,
                             const FString &Content,
-                            const FForbiddenSourcePattern &Pattern) {
+                            const FForbiddenSourcePatternSettings &Pattern) {
+  const FRTKComplianceAutomationSettings &Settings = RTKComplianceSettings();
   return Content.Contains(Pattern.Token)
-             ? (Test.AddError(FString::Printf(TEXT("%s: %s (%s)"), *Path,
-                                               *Pattern.Message,
+             ? (Test.AddError(FString::Printf(*Settings.ViolationMessageFormat,
+                                               *Path, *Pattern.Message,
                                                *Pattern.Token)),
-                1)
-             : 0;
+                Settings.ViolationCountIncrement)
+             : Settings.CleanViolationCount;
 }
 
 int32 CountForbiddenSourcePatternsInFile(
-    FAutomationTestBase &Test, const TArray<FForbiddenSourcePattern> &Patterns,
+    FAutomationTestBase &Test,
+    const TArray<FForbiddenSourcePatternSettings> &Patterns,
     const FString &Path) {
   return func::match(
       LoadSourceContent(Path),
       [&Test, &Patterns, &Path](const FString &Content) {
-        return func::fold_array<FForbiddenSourcePattern, int32>(
-            Patterns, 0,
+        return func::fold_array<FForbiddenSourcePatternSettings, int32>(
+            Patterns, RTKComplianceSettings().CleanViolationCount,
             [&Test, &Path, &Content](
                 const int32 &Count,
-                const FForbiddenSourcePattern &Pattern) -> int32 {
+                const FForbiddenSourcePatternSettings &Pattern) -> int32 {
               return Count + CountPatternViolation(Test, Path, Content, Pattern);
             });
       },
       [&Test, &Path]() -> int32 {
-        Test.AddError(FString::Printf(TEXT("Unable to read source file: %s"),
+        Test.AddError(FString::Printf(
+            *RTKComplianceSettings().SourceReadFailureFormat,
                                       *Path));
-        return 1;
+        return RTKComplianceSettings().ViolationCountIncrement;
       });
 }
 
 int32 CountForbiddenSourcePatterns(FAutomationTestBase &Test) {
-  const TArray<FForbiddenSourcePattern> Patterns = ForbiddenPatterns();
+  const TArray<FForbiddenSourcePatternSettings> Patterns =
+      RTKComplianceSettings().ForbiddenPatterns;
   return func::fold_array<FString, int32>(
-      SourceFiles(), 0,
+      SourceFiles(), RTKComplianceSettings().CleanViolationCount,
       [&Test, &Patterns](const int32 &Count, const FString &Path) -> int32 {
         return Count +
                CountForbiddenSourcePatternsInFile(Test, Patterns, Path);
@@ -121,7 +114,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FRTKComplianceStoreBoundary::RunTest(const FString &Parameters) {
   (void)Parameters;
-  TestEqual(TEXT("No forbidden RTK store boundary or scratchpad patterns"),
-            CountForbiddenSourcePatterns(*this), 0);
+  TestEqual(RTKComplianceSettings().StoreBoundaryLabel,
+            CountForbiddenSourcePatterns(*this),
+            RTKComplianceSettings().CleanViolationCount);
   return true;
 }

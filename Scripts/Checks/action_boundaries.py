@@ -2,7 +2,7 @@
 """Actions boundary rules.
 
 Actions expose event-style action creators/facades. They may dispatch through
-the one store boundary, but should not derive state or watch future actions.
+the one store boundary, but they do not derive state or watch future actions.
 """
 
 from __future__ import annotations
@@ -44,8 +44,7 @@ def check(path: Path, text: str) -> list[Issue]:
             Issue(
                 path,
                 line_number(text, match.start()),
-                "Soft RTK upgrade: prefer event-style action names over setter/replacer facades. Dispatch what happened and let Slice own the transition.",
-                "warning",
+                "RTK violation, forward target: event-style action names replace setter/replacer facades; dispatch what happened and let Slice own the transition.",
             )
         )
 

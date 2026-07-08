@@ -23,7 +23,7 @@ namespace Game {
 namespace Level {
 struct FLevelBlockSpawn;
 struct FLevelLabelSpawn;
-struct FLevelRuntimeSectionSpawn;
+struct FLevelSectionSpawn;
 struct FRuntimeHorseViewSpawn;
 struct FRuntimeLevelViewPayload;
 struct FRuntimeTownspersonViewSpawn;
@@ -87,11 +87,11 @@ private:
       const TArray<ForbocAI::Game::Level::FRuntimeHorseViewSpawn> &Horses,
       int32 Index);
   void RenderSections(
-      const TArray<ForbocAI::Game::Level::FLevelRuntimeSectionSpawn> &Sections,
+      const TArray<ForbocAI::Game::Level::FLevelSectionSpawn> &Sections,
       int32 Index);
 
   void RenderSection(
-      const ForbocAI::Game::Level::FLevelRuntimeSectionSpawn &Section);
+      const ForbocAI::Game::Level::FLevelSectionSpawn &Section);
   void RenderBlocks(
       const TArray<ForbocAI::Game::Level::FLevelBlockSpawn> &Blocks,
       int32 Index);

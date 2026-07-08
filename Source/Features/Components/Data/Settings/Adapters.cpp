@@ -50,6 +50,9 @@ const TArray<FSettingsSourceGroup> &SettingsSourceGroups() {
       {"Root",
        {"Player", "Interaction", "Level", "Rendering", "Bots", "Dialogue",
         "Speech", "UI", "Core"}},
+      {"Core",
+       {"ObservationIds", "DebugMessages", "ViewNames", "Text", "ReduxLog",
+        "Ecs", "Automation"}},
       {"Rendering",
        {"RenderingAssets", "RenderingProfile", "RenderingPipeline",
         "TextureCatalog", "RenderingDistanceLod"}},
@@ -200,13 +203,11 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
                               TownspersonPresentationRequested,
                               HorsePresentationRequested,
                               TownspersonCandidatesObserved))(
-          Json::ReadObjectField(SettingsSource(Sources, "Core"),
-                                "ObservationIds"));
+          SettingsSource(Sources, "ObservationIds"));
   Settings.DebugMessages =
       Json::ReadSettingsWith<FDebugMessageSettings>(
           JSON_SETTINGS_ATOMS(OnScreenKey, DurationSeconds, Color))(
-          Json::ReadObjectField(SettingsSource(Sources, "Core"),
-                                "DebugMessages"));
+          SettingsSource(Sources, "DebugMessages"));
   Settings.ViewNames =
       Json::ReadSettingsWith<FViewNameSettings>(
           JSON_SETTINGS_ATOMS(SceneRoot, TownspersonCharacterMesh,
@@ -217,8 +218,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
                               HorseMountedRiderMesh, HorseNameText,
                               PlayerCameraBoom, PlayerFollowCamera,
                               SpeechPresentationMesh, SpeechComponent))(
-          Json::ReadObjectField(SettingsSource(Sources, "Core"),
-                                "ViewNames"));
+          SettingsSource(Sources, "ViewNames"));
   Settings.Text = Json::ReadSettingsWith<FTextSettings>(
       JSON_SETTINGS_ATOMS(TownspersonNameRoleFormat, NpcReplyLog,
                           TownspersonMissingMesh,
@@ -226,22 +226,20 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
                           HorseMissingWalkAnimation,
                           RiderMissingWalkAnimation, RiderMissingMesh,
                           StartupSdkEnabled, StartupSdkDisabled))(
-      Json::ReadObjectField(SettingsSource(Sources, "Core"),
-                            "Text"));
+      SettingsSource(Sources, "Text"));
   Settings.ReduxLog =
       Json::ReadSettingsWith<FReduxLogSettings>(
           JSON_SETTINGS_ATOMS(SampleInterval, SampledActionTypes))(
-          Json::ReadObjectField(SettingsSource(Sources, "Core"),
-                                "ReduxLog"));
+          SettingsSource(Sources, "ReduxLog"));
   Settings.Ecs = Json::ReadSettingsWith<FEcsSettings>(
       JSON_SETTINGS_ATOMS(DomainRegistry))(
-      Json::ReadObjectField(SettingsSource(Sources, "Core"),
-                            "Ecs"));
+      SettingsSource(Sources, "Ecs"));
   Settings.Automation =
       Json::ReadSettingsWith<FAutomationSettings>(
-          JSON_SETTINGS_ATOMS(Store))(
-          Json::ReadObjectField(SettingsSource(Sources, "Core"),
-                                "Automation"));
+          JSON_SETTINGS_ATOMS(Store, ContentAssets, RtkCompliance,
+                              BotFunctionalCore, Pipeline,
+                              ConversationUI, ProtocolLoop))(
+          SettingsSource(Sources, "Automation"));
   Settings.UI = Json::ReadSettingsWith<FUISettings>(
       JSON_SETTINGS_ATOMS(
           PlayerRoleLabel, SystemRoleLabel, NpcRoleLabel, UnknownRoleLabel,
@@ -253,8 +251,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
           NpcColor, UnknownColor, ReplyColor, PanelPadding, TitleSize,
           BodySize, StatsOverlay, MarketingCapture, FlyMode,
           ScaleAuditCapture))(
-      Json::ReadObjectField(SettingsSource(Sources, "UI"),
-                            "UI"));
+      SettingsSource(Sources, "UI"));
   Settings.Speech = Json::ReadSettingsWith<FSpeechSettings>(
       JSON_SETTINGS_ATOMS(
           RestViseme, RestWeight, SpeechRate, Volume, bEnableLipSync,
@@ -265,8 +262,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
           TtsRequestFormat, TtsSuccessResponseCode, MinimumAudioBytes,
           SpeechStartLogFormat, SpeechAudioReceivedLogFormat,
           ResetMorphTargets, VisemeMappings, DurationRules))(
-      Json::ReadObjectField(SettingsSource(Sources, "Speech"),
-                            "Speech"));
+      SettingsSource(Sources, "Speech"));
   return Settings;
 }
 

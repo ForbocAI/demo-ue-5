@@ -20,7 +20,6 @@ small and semantic.
 from __future__ import annotations
 
 import argparse
-import os
 from pathlib import Path
 import re
 import sys
@@ -30,7 +29,6 @@ import adapter_boundaries
 from boundary_common import (
     IMPORT_RE,
     ROLE_GUIDANCE,
-    WARNING_TRUE_VALUES,
     Issue,
     first_line_for_pattern,
     iter_source_files,
@@ -94,7 +92,7 @@ FORBIDDEN_TARGET_ROLES: dict[str, set[str]] = {
     "slice": {"listeners"},
 }
 
-STORE_ACCESS_ALLOWLIST = {
+STORE_BOUNDARY_FILES = {
     Path("Systems/Actions.cpp"),
     Path("Systems/Listeners.cpp"),
     Path("Systems/Selectors.cpp"),
@@ -121,13 +119,13 @@ RTK_FACTORY_RULES = tuple(
 )
 
 REDUCER_SIDE_EFFECT_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"\bLoadObject\s*<"), "Slice reducer logic, Selectors, and Types should not load Unreal assets"),
-    (re.compile(r"\bSpawnActor\s*<"), "Slice reducer logic, Selectors, and Types should not spawn actors"),
-    (re.compile(r"\bGetTimerManager\s*\("), "Slice reducer logic, Selectors, and Types should not schedule timers"),
-    (re.compile(r"\bFScreenshotRequest::"), "Slice reducer logic, Selectors, and Types should not request screenshots"),
-    (re.compile(r"\bFParse::|\bFCommandLine::"), "Slice reducer logic, Selectors, and Types should not parse command lines"),
-    (re.compile(r"\bIFileManager::|\bFPaths::"), "Slice reducer logic, Selectors, and Types should not perform filesystem IO"),
-    (re.compile(r"\bConsoleCommand\s*\("), "Slice reducer logic, Selectors, and Types should not issue console commands"),
+    (re.compile(r"\bLoadObject\s*<"), "Slice reducer logic, Selectors, and Types do not load Unreal assets"),
+    (re.compile(r"\bSpawnActor\s*<"), "Slice reducer logic, Selectors, and Types do not spawn actors"),
+    (re.compile(r"\bGetTimerManager\s*\("), "Slice reducer logic, Selectors, and Types do not schedule timers"),
+    (re.compile(r"\bFScreenshotRequest::"), "Slice reducer logic, Selectors, and Types do not request screenshots"),
+    (re.compile(r"\bFParse::|\bFCommandLine::"), "Slice reducer logic, Selectors, and Types do not parse command lines"),
+    (re.compile(r"\bIFileManager::|\bFPaths::"), "Slice reducer logic, Selectors, and Types do not perform filesystem IO"),
+    (re.compile(r"\bConsoleCommand\s*\("), "Slice reducer logic, Selectors, and Types do not issue console commands"),
 )
 
 RTK_QUERY_PATTERN = re.compile(r"\bcreateApi\s*<|\binjectEndpoints\s*\(")
@@ -143,7 +141,6 @@ STORE_FORBIDDEN_PATTERN_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
 )
 
 STORE_CONFIGURE_PATTERN = re.compile(r"\brtk::configureStore\s*<|(?<!create)configureStore\s*\(")
-WARNING_AS_ERROR_ENV = "FORBOC_RTK_WARNINGS_AS_ERRORS"
 
 
 def role_name_guidance(stem: str) -> str:
@@ -177,7 +174,7 @@ def check_imports(path: Path, text: str, role: str, rel: Path) -> list[Issue]:
         reason = contains_forbidden_include(include, role)
         if reason:
             issues.append(Issue(path, line_number(text, match.start()), f"{reason}: `{include}`"))
-        if include == "Store.h" and rel not in STORE_ACCESS_ALLOWLIST:
+        if include == "Store.h" and rel not in STORE_BOUNDARY_FILES:
             issues.append(
                 Issue(
                     path,
@@ -190,7 +187,7 @@ def check_imports(path: Path, text: str, role: str, rel: Path) -> list[Issue]:
 
 def check_store_access(path: Path, text: str, role: str, rel: Path) -> list[Issue]:
     issues: list[Issue] = []
-    if "Store::GetStore(" in text and rel not in STORE_ACCESS_ALLOWLIST:
+    if "Store::GetStore(" in text and rel not in STORE_BOUNDARY_FILES:
         issues.append(
             Issue(
                 path,
@@ -237,8 +234,7 @@ def check_rtk_query(path: Path, text: str) -> list[Issue]:
         Issue(
             path,
             first_line_for_pattern(text, RTK_QUERY_PATTERN),
-            "Soft RTK Query upgrade: createApi/injectEndpoints boundaries should normally declare tags or endpoint lifecycles so cache invalidation and optimistic updates stay coupled to requests.",
-            "warning",
+            "RTK Query violation, forward target: createApi/injectEndpoints boundaries declare tags or endpoint lifecycles so cache invalidation and optimistic updates stay coupled to requests.",
         )
     ]
 
@@ -267,8 +263,7 @@ def check_store_boundary(project_root: Path) -> list[Issue]:
             Issue(
                 existing_store_paths[0],
                 1,
-                "Soft RTK upgrade: the store boundary should be visibly configureStore-style so default middleware/dev checks remain the baseline.",
-                "warning",
+                "RTK violation, forward target: the store boundary is visibly configureStore-style so default middleware/dev checks remain the baseline.",
             )
         )
 
@@ -307,14 +302,6 @@ def parse_args() -> argparse.Namespace:
         default=[Path("Source/Features")],
         help="Feature files or directories to scan.",
     )
-    parser.add_argument(
-        "--warnings-as-errors",
-        action="store_true",
-        help=(
-            "Promote soft RTK upgrade findings to errors. "
-            f"Can also be enabled with {WARNING_AS_ERROR_ENV}=1."
-        ),
-    )
     return parser.parse_args()
 
 
@@ -332,30 +319,11 @@ def main() -> int:
 
     issues.extend(check_store_boundary(project_root))
 
-    warnings_as_errors = args.warnings_as_errors or os.environ.get(
-        WARNING_AS_ERROR_ENV
-    ) in WARNING_TRUE_VALUES
-    errors = [
-        issue
-        for issue in issues
-        if issue.severity == "error" or (warnings_as_errors and issue.severity == "warning")
-    ]
-    warnings = [
-        issue
-        for issue in issues
-        if issue.severity == "warning" and not warnings_as_errors
-    ]
-
-    if errors:
-        print(f"RTK feature boundary guard failed: {len(errors)} issue(s).")
-        for issue in errors:
+    if issues:
+        print(f"RTK feature boundary guard failed: {len(issues)} issue(s).")
+        for issue in issues:
             display = issue.path.relative_to(project_root)
             print(f"{display}:{issue.line}: {issue.message}")
-        if warnings:
-            print(f"\nSoft RTK upgrade warning(s): {len(warnings)}")
-            for issue in warnings:
-                display = issue.path.relative_to(project_root)
-                print(f"{display}:{issue.line}: {issue.message}")
         print(
             "\nRole contract: Types are inert data; Slice owns createSlice, "
             "initial state, and pure reducer transitions; Selectors derive "
@@ -363,13 +331,6 @@ def main() -> int:
             "JSON/UE/ECS data; Actions expose event-style creators/facades."
         )
         return 1
-
-    if warnings:
-        print(f"RTK feature boundary guard passed with {len(warnings)} soft warning(s).")
-        for issue in warnings:
-            display = issue.path.relative_to(project_root)
-            print(f"{display}:{issue.line}: {issue.message}")
-        return 0
 
     print("RTK feature boundary guard passed.")
     return 0

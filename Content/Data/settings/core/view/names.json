@@ -1,0 +1,16 @@
+{
+  "scene_root": "SceneRoot",
+  "townsperson_character_mesh": "CharacterMesh",
+  "townsperson_interaction_sphere": "InteractionSphere",
+  "townsperson_name_text": "NameText",
+  "townsperson_prompt_text": "PromptText",
+  "townsperson_dialogue_text": "DialogueText",
+  "townsperson_overlap_profile": "OverlapAllDynamic",
+  "horse_imported_mesh": "ImportedHorseMesh",
+  "horse_mounted_rider_mesh": "MountedRiderMesh",
+  "horse_name_text": "NameText",
+  "player_camera_boom": "CameraBoom",
+  "player_follow_camera": "FollowCamera",
+  "speech_presentation_mesh": "PresentationMesh",
+  "speech_component": "SpeechComponent"
+}

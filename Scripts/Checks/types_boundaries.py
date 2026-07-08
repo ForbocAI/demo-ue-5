@@ -2,7 +2,7 @@
 """Types boundary rules.
 
 Types stay inert: state, payload, entity, and dispatch declarations only. They
-should not own side effects, store access, or non-serializable behavior.
+do not own side effects, store access, or non-serializable behavior.
 """
 
 from __future__ import annotations
@@ -28,18 +28,18 @@ def check(path: Path, text: str) -> list[Issue]:
     for pattern, message in (
         (
             NON_SERIALIZABLE_STATE,
-            "Soft RTK upgrade: persistent Types should stay serializable/inert; keep UE object pointers, shared ownership, and callbacks at Adapter/Thunk/Listener/View boundaries.",
+            "RTK violation, forward target: persistent Types stay serializable/inert; UE object pointers, shared ownership, and callbacks live at Adapter/Thunk/Listener/View boundaries.",
         ),
         (
             SCRATCHPAD_STATE,
-            "Soft RTK upgrade: Last*/scratchpad state often signals derived or transient data. Keep only authoritative state and derive read models with Selectors when possible.",
+            "RTK violation, forward target: Last*/scratchpad state is derived or transient; authoritative state stays minimal and read models come from Selectors.",
         ),
         (
             VIEW_MODEL_STATE,
-            "Soft RTK upgrade: view models/defaults are usually derived reads. Prefer Selectors unless this is an explicit boundary payload.",
+            "RTK violation, forward target: view models/defaults are derived reads from Selectors unless this is an explicit boundary payload.",
         ),
     ):
         match = pattern.search(text)
         if match:
-            issues.append(Issue(path, line_number(text, match.start()), message, "warning"))
+            issues.append(Issue(path, line_number(text, match.start()), message))
     return issues

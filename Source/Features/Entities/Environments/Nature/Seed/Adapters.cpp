@@ -220,11 +220,10 @@ FNatureFeatureSeed FeatureFromFields(const FFeatureBuildRequest &Request) {
 
 TArray<FNatureFeatureSeed> BuildNatureSeed(
     const FNatureSeedBuildRequest &Request) {
-  const TSharedPtr<FJsonObject> Root =
-      JsonAdapters::LoadRequiredObjectFromContent({Request.RelativeJsonPath});
   return func::map_array<FNatureFeatureFields, FNatureFeatureSeed>(
-      JsonAdapters::ReadObjectArrayField<FNatureFeatureFields>(
-          Root, "Features",
+      JsonAdapters::MapJsonValues<FNatureFeatureFields>(
+          JsonAdapters::LoadRequiredArrayFromContent(
+              {Request.RelativeJsonPath}),
           JsonAdapters::ReadSettingsWith<FNatureFeatureFields>(
               JSON_SETTINGS_ATOMS(Id, Name, Kind, EastLots, NorthLots,
                                   Scale))),

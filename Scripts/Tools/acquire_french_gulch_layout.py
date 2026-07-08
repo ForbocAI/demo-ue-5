@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Acquire OSM layout data for the French Gulch runtime map."""
+"""Acquire OSM layout data for the French Gulch level map."""
 
 from __future__ import annotations
 
@@ -13,24 +13,29 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT / "Content" / "Data"
-SOURCE_DIR = DATA_DIR / "Source"
-OVERPASS_LANDMARKS_PATH = SOURCE_DIR / "french_gulch_osm_overpass_landmarks.json"
-OVERPASS_TERRAIN_MAIN_STREET_PATH = SOURCE_DIR / "french_gulch_osm_overpass_terrain_main_street.json"
-OVERPASS_TERRAIN_TRINITY_MOUNTAIN_ROAD_PATH = SOURCE_DIR / "french_gulch_osm_overpass_terrain_trinity_mountain_road.json"
-OVERPASS_BUILDINGS_MICROSOFT_PATH = SOURCE_DIR / "french_gulch_osm_overpass_buildings_microsoft.json"
-OVERPASS_BUILDINGS_OSM_PATH = SOURCE_DIR / "french_gulch_osm_overpass_buildings_osm.json"
-OVERPASS_ROADS_RESIDENTIAL_PATH = SOURCE_DIR / "french_gulch_osm_overpass_roads_residential.json"
-OVERPASS_ROADS_SERVICE_PATH = SOURCE_DIR / "french_gulch_osm_overpass_roads_service.json"
-OVERPASS_NATURE_WATERWAY_PATH = SOURCE_DIR / "french_gulch_osm_overpass_nature_waterway.json"
-OVERPASS_NATURE_NATURAL_PATH = SOURCE_DIR / "french_gulch_osm_overpass_nature_natural.json"
-METADATA_PATH = SOURCE_DIR / "french_gulch_layout_metadata.json"
-RUNTIME_TERRAIN_PATH = DATA_DIR / "french_gulch_level_terrain.json"
-RUNTIME_TOWN_PATH = DATA_DIR / "french_gulch_level_town.json"
-RUNTIME_MINE_PATH = DATA_DIR / "french_gulch_level_mine.json"
-RUNTIME_OVERLAY_PATH = DATA_DIR / "french_gulch_level_overlay_labels.json"
-LANDMARKS_PATH = DATA_DIR / "french_gulch_landmarks.json"
-NATURE_PATH = DATA_DIR / "french_gulch_nature.json"
-LEVEL_SETTINGS_PATH = DATA_DIR / "settings_level.json"
+SOURCE_DIR = DATA_DIR / "Source" / "french_gulch"
+OVERPASS_ROOT = SOURCE_DIR / "osm" / "overpass"
+OVERPASS_LANDMARKS_PATH = OVERPASS_ROOT / "landmarks.json"
+OVERPASS_TERRAIN_MAIN_STREET_PATH = OVERPASS_ROOT / "terrain" / "main" / "street.json"
+OVERPASS_TERRAIN_TRINITY_MOUNTAIN_ROAD_PATH = OVERPASS_ROOT / "terrain" / "trinity" / "mountain" / "road.json"
+OVERPASS_BUILDINGS_MICROSOFT_PATH = OVERPASS_ROOT / "buildings" / "microsoft.json"
+OVERPASS_BUILDINGS_OSM_PATH = OVERPASS_ROOT / "buildings" / "osm.json"
+OVERPASS_ROADS_RESIDENTIAL_PATH = OVERPASS_ROOT / "roads" / "residential.json"
+OVERPASS_ROADS_SERVICE_PATH = OVERPASS_ROOT / "roads" / "service.json"
+OVERPASS_NATURE_WATERWAY_PATH = OVERPASS_ROOT / "nature" / "waterway.json"
+OVERPASS_NATURE_NATURAL_PATH = OVERPASS_ROOT / "nature" / "natural.json"
+METADATA_PATH = SOURCE_DIR / "layout" / "metadata.json"
+LEVEL_DIR = DATA_DIR / "levels" / "french_gulch"
+TERRAIN_BLOCKS_PATH = LEVEL_DIR / "terrain" / "blocks.json"
+TERRAIN_LABELS_PATH = LEVEL_DIR / "terrain" / "labels.json"
+TOWN_BLOCKS_PATH = LEVEL_DIR / "town" / "blocks.json"
+TOWN_LABELS_PATH = LEVEL_DIR / "town" / "labels.json"
+MINE_BLOCKS_PATH = LEVEL_DIR / "mine" / "blocks.json"
+MINE_LABELS_PATH = LEVEL_DIR / "mine" / "labels.json"
+OVERLAY_LABELS_PATH = LEVEL_DIR / "overlay" / "labels.json"
+LANDMARKS_PATH = LEVEL_DIR / "landmarks.json"
+NATURE_PATH = LEVEL_DIR / "nature.json"
+LEVEL_SETTINGS_PATH = DATA_DIR / "settings" / "level.json"
 
 ANCHOR_LAT = 40.7011876
 ANCHOR_LON = -122.6382527
@@ -58,7 +63,7 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def write_json(path: Path, data: dict) -> None:
+def write_json(path: Path, data: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
@@ -350,7 +355,7 @@ def road_segment_blocks(elements: list[dict], origin_lat: float, origin_lon: flo
                 continue
             heading = math.degrees(math.atan2(dy, dx))
             blocks.append(
-                runtime_block(
+                level_block(
                     f"osm-road-{element['id']}-{index}",
                     "Trinity Mountain Road / Main Street",
                     center,
@@ -383,7 +388,7 @@ def creek_segment_blocks(elements: list[dict], origin_lat: float, origin_lon: fl
                 continue
             heading = math.degrees(math.atan2(dy, dx))
             blocks.append(
-                runtime_block(
+                level_block(
                     f"osm-clear-creek-{element['id']}-{index}",
                     "Clear Creek",
                     center,
@@ -400,7 +405,7 @@ def creek_segment_blocks(elements: list[dict], origin_lat: float, origin_lon: fl
     return blocks[:18]
 
 
-def runtime_block(
+def level_block(
     block_id: str,
     name: str,
     center_meters: tuple[float, float],
@@ -441,7 +446,7 @@ def landmark_from_building(building: dict) -> dict:
     }
 
 
-def runtime_building_block(building: dict) -> dict:
+def level_building_block(building: dict) -> dict:
     return {
         "id": building["id"],
         "name": building["name"],
@@ -510,7 +515,7 @@ def generated_layout(data: dict) -> tuple[dict, dict, dict, dict]:
     layout = {
         "terrain": {"blocks": terrain_blocks, "labels": []},
         "town": {
-            "blocks": [runtime_building_block(record) for record in unnamed],
+            "blocks": [level_building_block(record) for record in unnamed],
             "labels": [
                 {
                     "id": "trinity-mountain-road-label",
@@ -528,7 +533,7 @@ def generated_layout(data: dict) -> tuple[dict, dict, dict, dict]:
         "overlay_labels": [
             {
                 "id": "french-gulch-layout-source-label",
-                "text": "French Gulch OSM/USGS runtime layout",
+                "text": "French Gulch OSM/USGS level layout",
                 "anchor": "post_office_lots",
                 "height_mode": "explicit",
                 "east_lots": 0.0,
@@ -538,8 +543,8 @@ def generated_layout(data: dict) -> tuple[dict, dict, dict, dict]:
             }
         ],
     }
-    landmarks = {"landmarks": [landmark_from_building(record) for record in named]}
-    nature = {"features": []}
+    landmarks = [landmark_from_building(record) for record in named]
+    nature = []
     metadata = {
         "generated_by": "Scripts/Tools/acquire_french_gulch_layout.py",
         "source": "OpenStreetMap Overpass API",
@@ -552,9 +557,9 @@ def generated_layout(data: dict) -> tuple[dict, dict, dict, dict]:
         "player_spawn_lots": player_spawn,
         "counts": {
             "raw_elements": len(elements),
-            "runtime_terrain_blocks": len(layout["terrain"]["blocks"]),
-            "runtime_building_blocks": len(layout["town"]["blocks"]),
-            "named_landmarks": len(landmarks["landmarks"]),
+            "terrain_blocks": len(layout["terrain"]["blocks"]),
+            "building_blocks": len(layout["town"]["blocks"]),
+            "named_landmarks": len(landmarks),
         },
     }
     return layout, landmarks, nature, metadata
@@ -601,18 +606,21 @@ def main() -> int:
 
     data = acquire_overpass(args.force_fetch)
     layout, landmarks, nature, metadata = generated_layout(data)
-    write_json(RUNTIME_TERRAIN_PATH, {"terrain": layout["terrain"]})
-    write_json(RUNTIME_TOWN_PATH, {"town": layout["town"]})
-    write_json(RUNTIME_MINE_PATH, {"mine": layout["mine"]})
-    write_json(RUNTIME_OVERLAY_PATH, {"overlay_labels": layout["overlay_labels"]})
+    write_json(TERRAIN_BLOCKS_PATH, layout["terrain"]["blocks"])
+    write_json(TERRAIN_LABELS_PATH, layout["terrain"]["labels"])
+    write_json(TOWN_BLOCKS_PATH, layout["town"]["blocks"])
+    write_json(TOWN_LABELS_PATH, layout["town"]["labels"])
+    write_json(MINE_BLOCKS_PATH, layout["mine"]["blocks"])
+    write_json(MINE_LABELS_PATH, layout["mine"]["labels"])
+    write_json(OVERLAY_LABELS_PATH, layout["overlay_labels"])
     write_json(LANDMARKS_PATH, landmarks)
     write_json(NATURE_PATH, nature)
     write_json(METADATA_PATH, metadata)
     update_level_settings(metadata)
     print(
         "Generated French Gulch layout: "
-        f"{metadata['counts']['runtime_terrain_blocks']} terrain blocks, "
-        f"{metadata['counts']['runtime_building_blocks']} building blocks, "
+        f"{metadata['counts']['terrain_blocks']} terrain blocks, "
+        f"{metadata['counts']['building_blocks']} building blocks, "
         f"{metadata['counts']['named_landmarks']} named landmarks"
     )
     return 0

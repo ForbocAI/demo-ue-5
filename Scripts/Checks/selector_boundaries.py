@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Selectors boundary rules.
 
-Selectors expose derived reads from state. They should stay pure, avoid
-dispatch/effects, and keep views away from store internals.
+Selectors expose derived reads from state. They stay pure, avoid
+dispatch/effects, and keep Views away from store internals.
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ def check(path: Path, text: str) -> list[Issue]:
             Issue(
                 path,
                 1,
-                "Selectors files that expose memoized/adapter selectors should use createSelector or adapter getSelectors; simple pure selectors may remain direct reads.",
+                "Selectors files that expose memoized/adapter selectors use createSelector or adapter getSelectors; simple pure selectors stay direct reads.",
             )
         )
 
@@ -44,8 +44,7 @@ def check(path: Path, text: str) -> list[Issue]:
             Issue(
                 path,
                 line_number(text, match.start()),
-                "Soft RTK upgrade: selectors should expose narrow derived reads instead of returning the whole slice/state and widening subscriptions.",
-                "warning",
+                "RTK violation, forward target: selectors expose narrow derived reads instead of returning the whole slice/state and widening subscriptions.",
             )
         )
 

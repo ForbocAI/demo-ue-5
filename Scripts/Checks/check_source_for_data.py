@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 """Reject hard-coded values in authored Source.
 
-Numbers and strings that configure runtime behavior belong in JSON -- loaded
-through the runtime settings adapters and read from typed settings/profile
+Numbers and strings that configure authored behavior belong in JSON -- loaded
+through the settings adapters and read from typed settings/profile
 structs -- not baked into C++ or headers. This guard scans all of Source and
 flags every numeric literal and every string literal in authored code. The
 project Source tree is always scanned, even if path arguments are supplied, so a
 narrow path cannot make the guard appear green while authored Source still
 contains hard-coded data.
 
-The only exempt strings are action/slice/reducer metadata (action type strings,
-slice names, thunk type prefixes, listener action types). That exempt set is
-discovered DYNAMICALLY: the guard collects the string values actually passed to
-the RTK creators in this codebase, rather than guessing an action-string format.
-Comments and preprocessor lines (includes, pragmas, defines) are ignored.
-Unreal reflection macro arguments are also ignored because metadata such as
-`Category = "Level|Debug"` is consumed by UHT/editor tooling, not runtime
-settings data.
+Action/slice/reducer metadata strings (action type strings, slice names, thunk
+type prefixes, listener action types) are discovered dynamically from the RTK
+creator calls in this codebase. They are code metadata, not authored settings
+data. Comments, preprocessor lines, and Unreal reflection macro arguments are
+blanked before scanning because they are compiler/UHT/editor metadata. Test
+registration strings and assertion labels are scanned; they are authored test
+data and must live in JSON just like other authored fixtures.
 """
 
 from __future__ import annotations
@@ -47,10 +46,6 @@ UNREAL_REFLECTION_MACROS = {
 UNREAL_REFLECTION_MACRO = re.compile(
     r"\b(" + "|".join(sorted(UNREAL_REFLECTION_MACROS)) + r")\s*\("
 )
-TEST_DECLARATION_MACRO = re.compile(
-    r"\b(?:DEFINE_SPEC|IMPLEMENT_SIMPLE_AUTOMATION_TEST)\s*\("
-)
-TEST_METADATA_CALL = re.compile(r"\b(?:Describe|It)\s*\(")
 JSON_SCHEMA_FIELD_CALL = re.compile(
     r"\b(?:[A-Za-z_][A-Za-z0-9_]*::)?(?:"
     r"Field|ReadStringField|ReadStringArrayField|ReadObjectField|"
@@ -59,24 +54,35 @@ JSON_SCHEMA_FIELD_CALL = re.compile(
     r"SettingsSource|SettingsSourceKey|SettingsFieldName"
     r")\s*(?:<[^;{}()]*>)?\s*\("
 )
-RUNTIME_SETTINGS_SOURCE_GROUPS = re.compile(
-    r"\bRuntimeSettingsSourceGroups\s*\("
+SETTINGS_SOURCE_GROUPS = re.compile(
+    r"\bSettingsSourceGroups\s*\("
+)
+ECS_SCHEMA_CALL = re.compile(
+    r"\b(?:"
+    r"ComponentAtom|ComponentDomain|ComponentDomains|ComponentSourceValueMap|"
+    r"ComponentValueMap|MakeBotProjectionRequest|RegisteredComponentGroups"
+    r")\s*(?:<[^;{}()]*>)?\s*\("
+)
+SCHEMA_REGISTRY_STRUCT = re.compile(
+    r"\b(?:TComponentSourceValueFieldRegistry|TComponentTextRegistry|"
+    r"TJsonTextValueRegistry)\s*<[^;{}]+>\s*\{"
 )
 
 # Where reducer/action metadata is defined. A string in the same statement as
 # one of these (or in a `*TypePrefix` accessor) is action/slice/thunk metadata,
-# not runtime configuration. The exempt VALUES are still collected dynamically
-# from real usage below; this only identifies the definition sites.
+# not authored configuration. The values are collected dynamically from real
+# usage below; this only identifies the definition sites.
 METADATA_CONTEXT = re.compile(
     r"create(?:Action|Slice|Reducer|AsyncThunk)|addListener|TypePrefix"
 )
 
 GUIDANCE = (
     "Move the value into authored JSON under Content/Data, load it through "
-    "the runtime settings adapters, and read it from a typed settings/profile "
+    "the settings adapters, and read it from a typed settings/profile "
     "struct. Only action type strings, slice names, and thunk type prefixes may "
     "remain in code as reducer/action metadata (auto-detected from RTK usage)."
 )
+VIOLATION_PREFIX = "Authored-data violation, forward target: "
 
 
 def blank_preprocessor(text: str) -> str:
@@ -237,82 +243,11 @@ def call_end(text: str, open_paren: int) -> int:
     return len(text)
 
 
-def first_argument_end(text: str, open_paren: int, close_paren: int) -> int:
-    index = open_paren + 1
-    depth = 1
-    state = "code"
-    quote = ""
-    while index < close_paren:
-        char = text[index]
-        nxt = text[index + 1] if index + 1 < len(text) else ""
-        if state == "string":
-            escaped = char == "\\"
-            state = "code" if (char == quote and not escaped) else state
-            index += 2 if escaped else 1
-            continue
-        if state == "char":
-            escaped = char == "\\"
-            state = "code" if (char == "'" and not escaped) else state
-            index += 2 if escaped else 1
-            continue
-        if char == '"':
-            quote = char
-            state = "string"
-            index += 1
-            continue
-        if char == "'":
-            state = "char"
-            index += 1
-            continue
-        if char == "(":
-            depth += 1
-        elif char == ")":
-            depth -= 1
-        elif char == "," and depth == 1:
-            return index
-        index += 1
-    return close_paren - 1
-
-
 def blank_string_literals_in_range(result: list[str], text: str,
                                    start: int, end: int) -> None:
     for match in STRING_LITERAL.finditer(text, start, end):
         for offset in range(match.start(), match.end()):
             result[offset] = "\n" if text[offset] == "\n" else " "
-
-
-def blank_test_metadata(text: str) -> str:
-    """Blank test registration metadata while keeping assertion labels visible.
-
-    Assertion labels are authored test data. They must remain scannable so
-    strings like TestTrue(TEXT("Sorrel is projected into ECS"), ...) are caught
-    by the hard-coded value gate.
-    """
-    result = list(text)
-
-    for pattern in (TEST_DECLARATION_MACRO,):
-        cursor = 0
-        while True:
-            match = pattern.search(text, cursor)
-            if not match:
-                break
-            close = call_end(text, match.end() - 1)
-            blank_string_literals_in_range(result, text, match.start(), close)
-            cursor = close
-
-    for pattern in (TEST_METADATA_CALL,):
-        cursor = 0
-        while True:
-            match = pattern.search(text, cursor)
-            if not match:
-                break
-            open_paren = match.end() - 1
-            close = call_end(text, open_paren)
-            first_end = first_argument_end(text, open_paren, close)
-            blank_string_literals_in_range(result, text, open_paren, first_end)
-            cursor = match.end()
-
-    return "".join(result)
 
 
 def body_end(text: str, open_brace: int) -> int:
@@ -353,10 +288,10 @@ def body_end(text: str, open_brace: int) -> int:
 
 
 def blank_settings_source_group_strings(result: list[str],
-                                                text: str) -> None:
+                                        text: str) -> None:
     cursor = 0
     while True:
-        match = RUNTIME_SETTINGS_SOURCE_GROUPS.search(text, cursor)
+        match = SETTINGS_SOURCE_GROUPS.search(text, cursor)
         if not match:
             break
         close = call_end(text, match.end() - 1)
@@ -369,8 +304,31 @@ def blank_settings_source_group_strings(result: list[str],
         cursor = close_brace
 
 
+def blank_schema_registry_struct_strings(result: list[str], text: str) -> None:
+    cursor = 0
+    while True:
+        match = SCHEMA_REGISTRY_STRUCT.search(text, cursor)
+        if not match:
+            break
+        close_brace = body_end(text, match.end() - 1)
+        blank_string_literals_in_range(result, text, match.start(),
+                                       close_brace)
+        cursor = close_brace
+
+
+def blank_schema_call_strings(result: list[str], text: str) -> None:
+    cursor = 0
+    while True:
+        match = ECS_SCHEMA_CALL.search(text, cursor)
+        if not match:
+            break
+        close = call_end(text, match.end() - 1)
+        blank_string_literals_in_range(result, text, match.start(), close)
+        cursor = close
+
+
 def blank_json_schema_metadata(text: str) -> str:
-    """Blank JSON field/schema identifiers while preserving JSON values."""
+    """Blank schema identifiers while preserving authored JSON-backed values."""
     result = list(text)
 
     cursor = 0
@@ -383,6 +341,8 @@ def blank_json_schema_metadata(text: str) -> str:
         cursor = close
 
     blank_settings_source_group_strings(result, text)
+    blank_schema_registry_struct_strings(result, text)
+    blank_schema_call_strings(result, text)
     return "".join(result)
 
 
@@ -393,17 +353,17 @@ def line_column(text: str, offset: int) -> tuple[int, int]:
 
 def collect_metadata_strings(scannables: list[str]) -> set[str]:
     """Discover action/slice/thunk metadata string values from real RTK usage."""
-    exempt: set[str] = set()
+    metadata_strings: set[str] = set()
     for scannable in scannables:
         for match in STRING_LITERAL.finditer(scannable):
             preceding = scannable[max(0, match.start() - 200): match.start()]
             if METADATA_CONTEXT.search(preceding):
-                exempt.add(match.group(0)[1:-1])
-    return exempt
+                metadata_strings.add(match.group(0)[1:-1])
+    return metadata_strings
 
 
 def scan_file(
-    path: Path, scannable: str, exempt: set[str]
+    path: Path, scannable: str, metadata_strings: set[str]
 ) -> list[tuple[Path, int, int, str, str]]:
     violations: list[tuple[Path, int, int, str, str]] = []
 
@@ -412,7 +372,7 @@ def scan_file(
         value = match.group(0)[1:-1]
         for index in range(match.start(), match.end()):
             code_without_strings[index] = " "
-        if value == "" or value in exempt:
+        if value == "" or value in metadata_strings:
             continue
         line, column = line_column(scannable, match.start())
         violations.append((path, line, column, "string", match.group(0)))
@@ -460,16 +420,12 @@ def scan_paths(paths: list[Path]) -> list[tuple[Path, int, int, str, str]]:
                 )
             )
         )
-        scannables[path] = (
-            blank_test_metadata(scannable)
-            if "Tests" in path.parts
-            else scannable
-        )
-    exempt = collect_metadata_strings(list(scannables.values()))
+        scannables[path] = scannable
+    metadata_strings = collect_metadata_strings(list(scannables.values()))
     return [
         violation
         for path, scannable in scannables.items()
-        for violation in scan_file(path, scannable, exempt)
+        for violation in scan_file(path, scannable, metadata_strings)
     ]
 
 
@@ -517,7 +473,11 @@ def main() -> int:
 
     print(f"Hard-coded value guard failed: {len(violations)} value(s).")
     for path, line, column, kind, token in violations:
-        print(f"{path}:{line}:{column}: hard-coded {kind} `{token}`")
+        print(
+            f"{path}:{line}:{column}: {VIOLATION_PREFIX}"
+            f"move hard-coded {kind} `{token}` into authored JSON and read it "
+            "through typed settings/profile state."
+        )
     print("")
     print(GUIDANCE)
     if args.help:

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "trinity-mountain-road-label",
+    "text": "Trinity Mountain Rd / Main St",
+    "anchor": "post_office_lots",
+    "height_mode": "explicit",
+    "east_lots": 0.0,
+    "north_lots": -8.0,
+    "height_offset": 650.0,
+    "world_size_scale": 4.2
+  }
+]

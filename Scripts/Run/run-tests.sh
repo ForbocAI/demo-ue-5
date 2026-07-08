@@ -81,6 +81,9 @@ bash "$PROJECT_ROOT/Scripts/Checks/check_sdk_submodule_guard.sh"
 echo "Checking feature C++ parameter discipline..."
 python3 "$PROJECT_ROOT/Scripts/Checks/check_param_count.py" --strict
 
+echo "Checking function/data composition naming discipline..."
+python3 "$PROJECT_ROOT/Scripts/Checks/check_function_composition.py" "$PROJECT_ROOT/Source"
+
 echo "Checking branchless FP source discipline..."
 python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py" --self-test
 python3 "$PROJECT_ROOT/Scripts/Checks/check_branchless_source.py" "$PROJECT_ROOT/Source"
@@ -96,6 +99,9 @@ echo "Checking runtime rendering JSON tuning discipline..."
 # as green while real hard-coded values slip through. Only the Source scan below
 # actually enforces the discipline. DO NOT add a --self-test invocation back.
 python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py" "$PROJECT_ROOT/Source"
+
+echo "Checking authored data naming discipline..."
+python3 "$PROJECT_ROOT/Scripts/Checks/check_data_naming.py" "$PROJECT_ROOT/Content/Data"
 
 echo "Validating authored data JSON..."
 while IFS= read -r -d '' JSON_FILE; do

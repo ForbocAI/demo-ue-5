@@ -10,10 +10,12 @@ namespace JsonAdapters {
 JSON_SETTINGS_REGISTRY(FLevelTerrainSourceSettings, TerrainCsvPath,
                        OrthoCsvPath);
 
-JSON_SETTINGS_REGISTRY(FLevelDataSourceSettings, TerrainJsonPath,
-                       TownJsonPath, MineJsonPath,
-                       OverlayLabelsJsonPath, LandmarksJsonPath,
-                       TownspeopleJsonPath, HorsesJsonPath, NatureJsonPath);
+JSON_SETTINGS_REGISTRY(FLevelDataSourceSettings, TerrainBlocksJsonPath,
+                       TerrainLabelsJsonPath, TownBlocksJsonPath,
+                       TownLabelsJsonPath, MineBlocksJsonPath,
+                       MineLabelsJsonPath, OverlayLabelsJsonPath,
+                       LandmarksJsonPath, TownspeopleJsonPath,
+                       HorsesJsonPath, NatureJsonPath);
 
 JSON_SETTINGS_REGISTRY(FLevelValidationSettings, TerrainGridSize,
                        OrthoGridSize, TerrainMinReliefMeters);
@@ -53,11 +55,13 @@ ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object) {
 FLevelDataSourceSettings
 ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FLevelDataSourceSettings>(
-      Object, JSON_SETTINGS_ATOMS(TerrainJsonPath, TownJsonPath,
-                                  MineJsonPath,
-                                  OverlayLabelsJsonPath,
-                                  LandmarksJsonPath, TownspeopleJsonPath,
-                                  HorsesJsonPath, NatureJsonPath));
+      Object, JSON_SETTINGS_ATOMS(TerrainBlocksJsonPath,
+                                  TerrainLabelsJsonPath,
+                                  TownBlocksJsonPath, TownLabelsJsonPath,
+                                  MineBlocksJsonPath, MineLabelsJsonPath,
+                                  OverlayLabelsJsonPath, LandmarksJsonPath,
+                                  TownspeopleJsonPath, HorsesJsonPath,
+                                  NatureJsonPath));
 }
 
 FLevelValidationSettings

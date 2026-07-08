@@ -99,6 +99,11 @@ struct FContentConfigExpectationSettings {
   FString Expected;
 };
 
+struct FForbiddenSourcePatternSettings {
+  FString Token;
+  FString Message;
+};
+
 struct FContentAssetsAutomationSettings {
   TArray<FContentAssetExpectationSettings> Packages;
   TArray<FContentAssetExpectationSettings> Classes;
@@ -113,9 +118,54 @@ struct FContentAssetsAutomationSettings {
   FString NativeLodAuditEntryFormat;
 };
 
+struct FRTKComplianceAutomationSettings {
+  TArray<FString> SourceFileSuffixes;
+  TArray<FString> AllowedBoundaryFragments;
+  FString SourceDirectoryName;
+  FString SourceSearchPattern;
+  TArray<FForbiddenSourcePatternSettings> ForbiddenPatterns;
+  FString ViolationMessageFormat;
+  FString SourceReadFailureFormat;
+  FString StoreBoundaryLabel;
+  int32 ViolationCountIncrement;
+  int32 CleanViolationCount;
+};
+
+struct FAutomationTextAtomSettings {
+  FString Id;
+  FString Value;
+};
+
+struct FAutomationTextListAtomSettings {
+  FString Id;
+  TArray<FString> Values;
+};
+
+struct FAutomationFloatAtomSettings {
+  FString Id;
+  float Value;
+};
+
+struct FAutomationIntegerAtomSettings {
+  FString Id;
+  int32 Value;
+};
+
+struct FAutomationCatalogSettings {
+  TArray<FAutomationTextAtomSettings> Text;
+  TArray<FAutomationTextListAtomSettings> TextLists;
+  TArray<FAutomationFloatAtomSettings> Floats;
+  TArray<FAutomationIntegerAtomSettings> Integers;
+};
+
 struct FAutomationSettings {
   FStoreAutomationSettings Store;
   FContentAssetsAutomationSettings ContentAssets;
+  FRTKComplianceAutomationSettings RtkCompliance;
+  FAutomationCatalogSettings BotFunctionalCore;
+  FAutomationCatalogSettings Pipeline;
+  FAutomationCatalogSettings ConversationUI;
+  FAutomationCatalogSettings ProtocolLoop;
 };
 
 struct FSettings {
@@ -292,6 +342,16 @@ inline bool operator!=(const FContentConfigExpectationSettings &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FForbiddenSourcePatternSettings &Left,
+                       const FForbiddenSourcePatternSettings &Right) {
+  return Left.Token == Right.Token && Left.Message == Right.Message;
+}
+
+inline bool operator!=(const FForbiddenSourcePatternSettings &Left,
+                       const FForbiddenSourcePatternSettings &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FContentAssetsAutomationSettings &Left,
                        const FContentAssetsAutomationSettings &Right) {
   return Left.Packages == Right.Packages &&
@@ -314,10 +374,104 @@ inline bool operator!=(const FContentAssetsAutomationSettings &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FRTKComplianceAutomationSettings &Left,
+                       const FRTKComplianceAutomationSettings &Right) {
+  return Left.SourceFileSuffixes == Right.SourceFileSuffixes &&
+         Left.AllowedBoundaryFragments == Right.AllowedBoundaryFragments &&
+         Left.SourceDirectoryName == Right.SourceDirectoryName &&
+         Left.SourceSearchPattern == Right.SourceSearchPattern &&
+         Left.ForbiddenPatterns == Right.ForbiddenPatterns &&
+         Left.ViolationMessageFormat == Right.ViolationMessageFormat &&
+         Left.SourceReadFailureFormat == Right.SourceReadFailureFormat &&
+         Left.StoreBoundaryLabel == Right.StoreBoundaryLabel &&
+         Left.ViolationCountIncrement == Right.ViolationCountIncrement &&
+         Left.CleanViolationCount == Right.CleanViolationCount;
+}
+
+inline bool operator!=(const FRTKComplianceAutomationSettings &Left,
+                       const FRTKComplianceAutomationSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FConversationUITestAutomationSettings &Left,
+                       const FConversationUITestAutomationSettings &Right) {
+  return Left.Labels == Right.Labels &&
+         Left.PlayerRole == Right.PlayerRole &&
+         Left.PlayerText == Right.PlayerText &&
+         Left.ExpectedPlayerMessageText == Right.ExpectedPlayerMessageText &&
+         FMath::IsNearlyEqual(Left.ExpectedPlayerMessageGreen,
+                              Right.ExpectedPlayerMessageGreen) &&
+         Left.History == Right.History &&
+         Left.ExpectedHistoryCount == Right.ExpectedHistoryCount &&
+         Left.TaggedHistoryIndex == Right.TaggedHistoryIndex &&
+         Left.ExpectedTaggedHistoryText == Right.ExpectedTaggedHistoryText &&
+         Left.UntaggedHistoryIndex == Right.UntaggedHistoryIndex &&
+         Left.ExpectedUntaggedHistoryText ==
+             Right.ExpectedUntaggedHistoryText &&
+         Left.SubmittedInput == Right.SubmittedInput &&
+         Left.ExpectedSubmittedText == Right.ExpectedSubmittedText &&
+         Left.SpeakerName == Right.SpeakerName &&
+         Left.SpeakerRole == Right.SpeakerRole &&
+         Left.ConversationPlayerLine == Right.ConversationPlayerLine &&
+         Left.ConversationNpcReply == Right.ConversationNpcReply &&
+         Left.ExpectedConversationTitle == Right.ExpectedConversationTitle &&
+         Left.ExpectedConversationPlayerLine ==
+             Right.ExpectedConversationPlayerLine &&
+         Left.ExpectedConversationNpcReply ==
+             Right.ExpectedConversationNpcReply;
+}
+
+inline bool operator!=(const FConversationUITestAutomationSettings &Left,
+                       const FConversationUITestAutomationSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FProtocolLoopAutomationSettings &Left,
+                       const FProtocolLoopAutomationSettings &Right) {
+  return Left.Labels == Right.Labels &&
+         Left.RunEnvironmentVariable == Right.RunEnvironmentVariable &&
+         Left.SkipWarning == Right.SkipWarning &&
+         Left.ApiUrl == Right.ApiUrl &&
+         Left.AgentPersona == Right.AgentPersona &&
+         Left.ImmutablePersona == Right.ImmutablePersona &&
+         Left.StatePersona == Right.StatePersona &&
+         Left.StateJson == Right.StateJson &&
+         Left.StateNeedle == Right.StateNeedle &&
+         Left.AsyncPersona == Right.AsyncPersona &&
+         Left.AsyncPrompt == Right.AsyncPrompt &&
+         Left.BridgePersona == Right.BridgePersona &&
+         Left.BridgeActionType == Right.BridgeActionType &&
+         Left.MinimumRuleCount == Right.MinimumRuleCount;
+}
+
+inline bool operator!=(const FProtocolLoopAutomationSettings &Left,
+                       const FProtocolLoopAutomationSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FAutomationTextSettings &Left,
+                       const FAutomationTextSettings &Right) {
+  return Left.SpecName == Right.SpecName &&
+         Left.TestNames == Right.TestNames &&
+         Left.GroupLabels == Right.GroupLabels &&
+         Left.CaseLabels == Right.CaseLabels &&
+         Left.AssertionLabels == Right.AssertionLabels;
+}
+
+inline bool operator!=(const FAutomationTextSettings &Left,
+                       const FAutomationTextSettings &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FAutomationSettings &Left,
                        const FAutomationSettings &Right) {
   return Left.Store == Right.Store &&
-         Left.ContentAssets == Right.ContentAssets;
+         Left.ContentAssets == Right.ContentAssets &&
+         Left.RtkCompliance == Right.RtkCompliance &&
+         Left.BotFunctionalCore == Right.BotFunctionalCore &&
+         Left.Pipeline == Right.Pipeline &&
+         Left.ConversationUI == Right.ConversationUI &&
+         Left.ProtocolLoop == Right.ProtocolLoop;
 }
 
 inline bool operator!=(const FAutomationSettings &Left,

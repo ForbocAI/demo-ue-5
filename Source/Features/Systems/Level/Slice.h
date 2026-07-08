@@ -23,31 +23,31 @@ struct FGroundLotsRequest {
 };
 
 struct FScaleFromSeedRequest {
-  FLevelRuntimeScaleSeed Seed;
+  FLevelScaleSeed Seed;
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
 struct FLocalPointFromSeedRequest {
-  FLevelRuntimeBlockSeed Seed;
+  FLevelBlockSeed Seed;
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FVector Scale = FVector::OneVector;
 };
 
 struct FWorldLocationFromSeedRequest {
-  FLevelRuntimeBlockSeed Seed;
+  FLevelBlockSeed Seed;
   FLevelTerrainData TerrainData;
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FVector Scale = FVector::OneVector;
 };
 
 struct FLabelHeightOffsetRequest {
-  FLevelRuntimeLabelSeed Seed;
+  FLevelLabelSeed Seed;
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
   FVector ReferenceScale;
 };
 
 struct FLabelLocalPointRequest {
-  FLevelRuntimeLabelSeed Seed;
+  FLevelLabelSeed Seed;
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
 };
 
@@ -78,11 +78,11 @@ inline FLevelLocalPoint FeatureLots(const FGroundLotsRequest &Request) {
 }
 
 inline FVector ScaleFromSeed(const FScaleFromSeedRequest &Request) {
-  return Request.Seed.Mode == ELevelRuntimeScaleMode::Building
+  return Request.Seed.Mode == ELevelScaleMode::Building
              ? LevelLayoutAdapters::BuildingScaleFromFeet(
                    {Request.Geometry, Request.Seed.FrontageFeet,
                     Request.Seed.DepthFeet, Request.Seed.Stories})
-             : Request.Seed.Mode == ELevelRuntimeScaleMode::LongFeature
+             : Request.Seed.Mode == ELevelScaleMode::LongFeature
                    ? LevelLayoutAdapters::LongFeatureScale(
                          {Request.Geometry, Request.Seed.WidthFeet,
                           Request.Seed.LengthLots, Request.Seed.HeightFeet})
@@ -93,10 +93,10 @@ inline FVector ScaleFromSeed(const FScaleFromSeedRequest &Request) {
 
 inline FLevelLocalPoint LocalPointFromSeed(
     const FLocalPointFromSeedRequest &Request) {
-  return Request.Seed.Anchor == ELevelRuntimeAnchorMode::BuildingLots
+  return Request.Seed.Anchor == ELevelAnchorMode::BuildingLots
              ? BuildingLots({Request.Geometry, Request.Seed.EastLots,
                              Request.Seed.NorthLots, Request.Scale, 0.0f})
-             : Request.Seed.Anchor == ELevelRuntimeAnchorMode::PostOfficeLots
+             : Request.Seed.Anchor == ELevelAnchorMode::PostOfficeLots
                    ? LevelLayoutAdapters::FromPostOfficeLots(
                          {Request.Geometry, Request.Seed.EastLots,
                           Request.Seed.NorthLots, 0.0f})
@@ -107,7 +107,7 @@ inline FLevelLocalPoint LocalPointFromSeed(
 
 inline FVector WorldLocationFromSeed(
     const FWorldLocationFromSeedRequest &Request) {
-  return Request.Seed.Anchor == ELevelRuntimeAnchorMode::World
+  return Request.Seed.Anchor == ELevelAnchorMode::World
              ? Request.Seed.WorldLocation
              : LevelLayoutAdapters::ToWorld(
                    {Request.TerrainData,
@@ -117,10 +117,10 @@ inline FVector WorldLocationFromSeed(
 
 inline float LabelHeightOffsetFromSeed(
     const FLabelHeightOffsetRequest &Request) {
-  return Request.Seed.Height == ELevelRuntimeLabelHeightMode::LabelForScale
+  return Request.Seed.Height == ELevelLabelHeightMode::LabelForScale
              ? LevelLayoutAdapters::LabelHeightForScale(
                    {Request.Geometry, Request.ReferenceScale})
-             : Request.Seed.Height == ELevelRuntimeLabelHeightMode::AboveBlock
+             : Request.Seed.Height == ELevelLabelHeightMode::AboveBlock
                    ? LevelLayoutAdapters::AboveBlock(
                          {Request.Geometry,
                           LevelLayoutAdapters::Point({0.0f, 0.0f, 0.0f}),
@@ -149,7 +149,7 @@ inline FLevelLocalPoint ReferenceLabelLocalPointFromSeed(
 
 inline FLevelLocalPoint LabelLocalPointFromSeed(
     const FLabelLocalPointRequest &Request) {
-  return Request.Seed.Height == ELevelRuntimeLabelHeightMode::Explicit
+  return Request.Seed.Height == ELevelLabelHeightMode::Explicit
              ? ExplicitLabelLocalPointFromSeed(Request)
              : ReferenceLabelLocalPointFromSeed(Request);
 }
@@ -215,7 +215,7 @@ inline bool NatureFeatureNeedsLabel(ENatureFeatureKind Kind) {
 } // namespace detail
 
 inline FLevelBlockSpawn
-BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSpawnRequest &Request) {
+BuildBlockSpawn(const FLevelBlockSpawnRequest &Request) {
   const FVector Scale =
       detail::ScaleFromSeed({Request.Seed.Scale, Request.Geometry});
   return {Request.Seed.Name,
@@ -227,7 +227,7 @@ BuildRuntimeBlockSpawn(const FLevelRuntimeBlockSpawnRequest &Request) {
 }
 
 inline FLevelLabelSpawn
-BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSpawnRequest &Request) {
+BuildLabelSpawn(const FLevelLabelSpawnRequest &Request) {
   return {Request.Seed.Text,
           LevelLayoutAdapters::ToWorld(
               {Request.TerrainData,
@@ -237,34 +237,34 @@ BuildRuntimeLabelSpawn(const FLevelRuntimeLabelSpawnRequest &Request) {
               Request.Seed.WorldSizeScale};
 }
 
-inline FLevelRuntimeSectionSpawn
-BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSpawnRequest &Request) {
-  return {func::map_array<FLevelRuntimeBlockSeed, FLevelBlockSpawn>(
+inline FLevelSectionSpawn
+BuildSectionSpawn(const FLevelSectionSpawnRequest &Request) {
+  return {func::map_array<FLevelBlockSeed, FLevelBlockSpawn>(
               Request.Seed.Blocks,
-              [&Request](const FLevelRuntimeBlockSeed &BlockSeed) {
-                return BuildRuntimeBlockSpawn(
+              [&Request](const FLevelBlockSeed &BlockSeed) {
+                return BuildBlockSpawn(
                     {BlockSeed, Request.TerrainData, Request.Geometry});
               }),
-          func::map_array<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
+          func::map_array<FLevelLabelSeed, FLevelLabelSpawn>(
               Request.Seed.Labels,
-              [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
-                return BuildRuntimeLabelSpawn(
+              [&Request](const FLevelLabelSeed &LabelSeed) {
+                return BuildLabelSpawn(
                     {LabelSeed, Request.TerrainData, Request.Geometry});
               })};
 }
 
-inline FLevelRuntimeSectionSpawn
+inline FLevelSectionSpawn
 BuildOverlaySectionSpawn(const FLevelOverlaySectionSpawnRequest &Request) {
   return {TArray<FLevelBlockSpawn>(),
-          func::map_array<FLevelRuntimeLabelSeed, FLevelLabelSpawn>(
+          func::map_array<FLevelLabelSeed, FLevelLabelSpawn>(
               Request.Seed.OverlayLabels,
-              [&Request](const FLevelRuntimeLabelSeed &LabelSeed) {
-                return BuildRuntimeLabelSpawn(
+              [&Request](const FLevelLabelSeed &LabelSeed) {
+                return BuildLabelSpawn(
                     {LabelSeed, Request.TerrainData, Request.Geometry});
               })};
 }
 
-inline FLevelRuntimeSectionSpawn
+inline FLevelSectionSpawn
 BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
   return {func::map_array<FLandmark, FLevelBlockSpawn>(
               Request.Landmarks,
@@ -285,7 +285,7 @@ BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
               })};
 }
 
-inline FLevelRuntimeSectionSpawn
+inline FLevelSectionSpawn
 BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
   return {func::map_array<FNatureFeatureSeed, FLevelBlockSpawn>(
               Request.Features,
@@ -364,7 +364,7 @@ inline FLevelSystemState CreateInitialState() {
 inline const rtk::Slice<FLevelSystemState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FLevelSystemState>> Slice =
       func::lazy([]() -> rtk::Slice<FLevelSystemState> {
-        // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
+        // RTK guidance: slice names are reducer/action metadata, not authored gameplay data.
         return rtk::createSlice<FLevelSystemState>(
             TEXT("systems/level"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FLevelSystemState>
@@ -376,22 +376,22 @@ inline const rtk::Slice<FLevelSystemState> &GetSlice() {
   return func::eval(Slice);
 }
 
-inline FLevelRuntimeSectionSpawn
-BuildRuntimeSectionSpawn(const FLevelRuntimeSectionSpawnRequest &Request) {
-  return LevelSystemReducers::BuildRuntimeSectionSpawn(Request);
+inline FLevelSectionSpawn
+BuildSectionSpawn(const FLevelSectionSpawnRequest &Request) {
+  return LevelSystemReducers::BuildSectionSpawn(Request);
 }
 
-inline FLevelRuntimeSectionSpawn
+inline FLevelSectionSpawn
 BuildOverlaySectionSpawn(const FLevelOverlaySectionSpawnRequest &Request) {
   return LevelSystemReducers::BuildOverlaySectionSpawn(Request);
 }
 
-inline FLevelRuntimeSectionSpawn
+inline FLevelSectionSpawn
 BuildLandmarkSectionSpawn(const FLevelLandmarkSectionSpawnRequest &Request) {
   return LevelSystemReducers::BuildLandmarkSectionSpawn(Request);
 }
 
-inline FLevelRuntimeSectionSpawn
+inline FLevelSectionSpawn
 BuildNatureSectionSpawn(const FLevelNatureSectionSpawnRequest &Request) {
   return LevelSystemReducers::BuildNatureSectionSpawn(Request);
 }

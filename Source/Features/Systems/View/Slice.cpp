@@ -32,8 +32,8 @@ TArray<FVector> ReduceWorldRoute(const TArray<FLevelLocalPoint> &Route,
       []() { return TArray<FVector>(); });
 }
 
-void ReduceAppendSection(TArray<FLevelRuntimeSectionSpawn> &Sections,
-                         const FLevelRuntimeSectionSpawn &Section) {
+void ReduceAppendSection(TArray<FLevelSectionSpawn> &Sections,
+                         const FLevelSectionSpawn &Section) {
   Sections.Add(Section);
 }
 
@@ -73,9 +73,9 @@ FLevelLabelSpawn ReduceLabelDistanceLod(
       .val;
 }
 
-FLevelRuntimeSectionSpawn ReduceSectionDistanceLod(
+FLevelSectionSpawn ReduceSectionDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
-    const FLevelRuntimeSectionSpawn &Section) {
+    const FLevelSectionSpawn &Section) {
   const TArray<FLevelBlockSpawn> Blocks =
       func::map_array<FLevelBlockSpawn, FLevelBlockSpawn>(
           Section.Blocks, [&Request](const FLevelBlockSpawn &Block) {
@@ -168,7 +168,7 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
     const FRuntimeLevelViewPayloadRequest &Request) {
   check(Request.TerrainData);
   check(Request.OrthoData);
-  check(Request.RuntimeLayout);
+  check(Request.Layout);
   check(Request.Geometry);
 
   FRuntimeLevelViewPayload Payload;
@@ -182,8 +182,8 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
   ReduceAppendSection(Payload.Sections,
                       ReduceSectionDistanceLod(
                           LodRequest,
-                          LevelSystemReducers::BuildRuntimeSectionSpawn(
-                              {Request.RuntimeLayout->Terrain,
+                          LevelSystemReducers::BuildSectionSpawn(
+                              {Request.Layout->Terrain,
                                *Request.TerrainData, *Request.Geometry})));
   ReduceAppendSection(Payload.Sections,
                       ReduceSectionDistanceLod(
@@ -200,20 +200,20 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
   ReduceAppendSection(Payload.Sections,
                       ReduceSectionDistanceLod(
                           LodRequest,
-                          LevelSystemReducers::BuildRuntimeSectionSpawn(
-                              {Request.RuntimeLayout->Town,
+                          LevelSystemReducers::BuildSectionSpawn(
+                              {Request.Layout->Town,
                                *Request.TerrainData, *Request.Geometry})));
   ReduceAppendSection(Payload.Sections,
                       ReduceSectionDistanceLod(
                           LodRequest,
-                          LevelSystemReducers::BuildRuntimeSectionSpawn(
-                              {Request.RuntimeLayout->Mine,
+                          LevelSystemReducers::BuildSectionSpawn(
+                              {Request.Layout->Mine,
                                *Request.TerrainData, *Request.Geometry})));
   ReduceAppendSection(Payload.Sections,
                       ReduceSectionDistanceLod(
                           LodRequest,
                           LevelSystemReducers::BuildOverlaySectionSpawn(
-                              {*Request.RuntimeLayout, *Request.TerrainData,
+                              {*Request.Layout, *Request.TerrainData,
                                *Request.Geometry})));
 
   const TArray<FRuntimeTownspersonViewSpawn> Townspeople =

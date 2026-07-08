@@ -1,7 +1,7 @@
 #include "Features/Systems/Level/Adapters.h"
 
 #include "Features/Components/Data/Json/Read/Adapters.h"
-#include "Features/Systems/Level/RuntimeLayout/Adapters.h"
+#include "Features/Systems/Level/Layout/Adapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -10,20 +10,25 @@ namespace LevelAdapters {
 
 namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
-FLevelRuntimeLayoutSeed LoadRuntimeLayoutSeed(const ForbocAI::Game::Data::FLevelDataSourceSettings &DataSources) {
-  const TSharedPtr<FJsonObject> TerrainRoot =
-      JsonAdapters::LoadRequiredObjectFromContent({DataSources.TerrainJsonPath});
-  const TSharedPtr<FJsonObject> TownRoot =
-      JsonAdapters::LoadRequiredObjectFromContent({DataSources.TownJsonPath});
-  const TSharedPtr<FJsonObject> MineRoot =
-      JsonAdapters::LoadRequiredObjectFromContent({DataSources.MineJsonPath});
-  const TSharedPtr<FJsonObject> OverlayRoot =
-      JsonAdapters::LoadRequiredObjectFromContent({DataSources.OverlayLabelsJsonPath});
-
-  const func::Maybe<FLevelRuntimeLayoutSeed> Layout =
-      RuntimeLayout::LayoutFromJson({TerrainRoot, TownRoot, MineRoot, OverlayRoot});
-  checkf(Layout.hasValue, TEXT("Runtime layout JSON is invalid"));
-  return Layout.value;
+FLevelLayoutSeed LoadLayoutSeed(const ForbocAI::Game::Data::FLevelDataSourceSettings &DataSources) {
+  const func::Maybe<FLevelLayoutSeed> ParsedLayout =
+      Layout::LayoutFromJson(
+          {{JsonAdapters::LoadRequiredArrayFromContent(
+                {DataSources.TerrainBlocksJsonPath}),
+            JsonAdapters::LoadRequiredArrayFromContent(
+                {DataSources.TerrainLabelsJsonPath})},
+           {JsonAdapters::LoadRequiredArrayFromContent(
+                {DataSources.TownBlocksJsonPath}),
+            JsonAdapters::LoadRequiredArrayFromContent(
+                {DataSources.TownLabelsJsonPath})},
+           {JsonAdapters::LoadRequiredArrayFromContent(
+                {DataSources.MineBlocksJsonPath}),
+            JsonAdapters::LoadRequiredArrayFromContent(
+                {DataSources.MineLabelsJsonPath})},
+           JsonAdapters::LoadRequiredArrayFromContent(
+               {DataSources.OverlayLabelsJsonPath})});
+  checkf(ParsedLayout.hasValue, TEXT("Level layout JSON is invalid"));
+  return ParsedLayout.value;
 }
 
 } // namespace LevelAdapters

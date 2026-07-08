@@ -1,0 +1,9 @@
+{
+  "sample_interval": 15,
+  "sampled_action_types": [
+    "botPosition/moved",
+    "botPosition/patrolAdvanceObserved",
+    "systems/bots/pipeline/observed",
+    "townspeople/interactionOverlapObserved"
+  ]
+}

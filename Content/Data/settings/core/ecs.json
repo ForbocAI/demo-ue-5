@@ -1,0 +1,320 @@
+{
+  "domain_registry": [
+    {
+      "path": "Components",
+      "kind": 0
+    },
+    {
+      "path": "Components/Attributes",
+      "kind": 0
+    },
+    {
+      "path": "Components/Bots",
+      "kind": 0
+    },
+    {
+      "path": "Components/Data",
+      "kind": 6
+    },
+    {
+      "path": "Components/Data/Json",
+      "kind": 6
+    },
+    {
+      "path": "Components/Data/Json/Values",
+      "kind": 6
+    },
+    {
+      "path": "Components/Frame",
+      "kind": 0
+    },
+    {
+      "path": "Components/Framebuffer",
+      "kind": 0
+    },
+    {
+      "path": "Components/Geometry",
+      "kind": 0
+    },
+    {
+      "path": "Components/Glyphs",
+      "kind": 0
+    },
+    {
+      "path": "Components/Health",
+      "kind": 0
+    },
+    {
+      "path": "Components/Input",
+      "kind": 7
+    },
+    {
+      "path": "Components/Interaction",
+      "kind": 0
+    },
+    {
+      "path": "Components/Level",
+      "kind": 6
+    },
+    {
+      "path": "Components/Level/TerrainGeometry",
+      "kind": 6
+    },
+    {
+      "path": "Components/Lifecycle",
+      "kind": 0
+    },
+    {
+      "path": "Components/Narrative",
+      "kind": 12
+    },
+    {
+      "path": "Components/Position",
+      "kind": 0
+    },
+    {
+      "path": "Components/Random",
+      "kind": 0
+    },
+    {
+      "path": "Components/Rendering",
+      "kind": 9
+    },
+    {
+      "path": "Components/Spatial",
+      "kind": 0
+    },
+    {
+      "path": "Components/Stats",
+      "kind": 0
+    },
+    {
+      "path": "Components/UI",
+      "kind": 3
+    },
+    {
+      "path": "Entities",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Characters",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Characters/Bots",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Characters/Bots/Horses",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Characters/Bots/Townspeople",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Characters/Player",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Environments",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Environments/Landmarks",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Environments/Nature",
+      "kind": 1
+    },
+    {
+      "path": "Entities/Session",
+      "kind": 5
+    },
+    {
+      "path": "Systems",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/AI",
+      "kind": 11
+    },
+    {
+      "path": "Systems/Bots/Core",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/Goals",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/Horses",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/Orchestrator",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/Orchestrator/Factories",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/Pipeline",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/Position",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/Stats",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Bots/Townspeople",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Capabilities",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Dialogue",
+      "kind": 12
+    },
+    {
+      "path": "Systems/Factories",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Input",
+      "kind": 7
+    },
+    {
+      "path": "Systems/Interaction",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Landmarks",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Level",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Level/Layout",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Level/Layout/Enums",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Level/Layout/Scales",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Level/Layout/Blocks",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Level/Layout/Labels",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Level/Layout/Sections",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Level/TerrainGeometry",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Nature",
+      "kind": 13
+    },
+    {
+      "path": "Systems/Projection",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Projection/Bots",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Projection/Bots/AI",
+      "kind": 11
+    },
+    {
+      "path": "Systems/Projection/Bots/Goals",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Projection/Bots/Position",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Projection/Bots/Stats",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Projection/Interaction",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Projection/Runtime",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Projection/Spawn",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Projection/Terrain",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Rendering",
+      "kind": 9
+    },
+    {
+      "path": "Systems/Runtime",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Services",
+      "kind": 4
+    },
+    {
+      "path": "Systems/Spawn",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Speech",
+      "kind": 12
+    },
+    {
+      "path": "Systems/Terrain",
+      "kind": 2
+    },
+    {
+      "path": "Systems/Transformations",
+      "kind": 2
+    },
+    {
+      "path": "Systems/UI",
+      "kind": 3
+    },
+    {
+      "path": "Systems/Utils",
+      "kind": 4
+    }
+  ]
+}
