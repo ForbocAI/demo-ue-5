@@ -185,11 +185,11 @@ FRuntimeStatsViewModel SelectRuntimeStats(
           PacingStats.AppHasFocus,
           PacingStats.CpuThrottleEnabled,
           PacingStats.AllWindowsHidden,
-          ReducerDiagnostics.LastRootReducerMilliseconds,
-          ReducerDiagnostics.LastCombinedReducerMilliseconds,
-          ReducerDiagnostics.LastProjectionMilliseconds,
-          ReducerDiagnostics.LastProjectedEntityCount,
-          ReducerDiagnostics.LastProjectedComponentTypeCount};
+          ReducerDiagnostics.RootReducerMilliseconds,
+          ReducerDiagnostics.CombinedReducerMilliseconds,
+          ReducerDiagnostics.ProjectionMilliseconds,
+          ReducerDiagnostics.ProjectedEntityCount,
+          ReducerDiagnostics.ProjectedComponentTypeCount};
 }
 
 void RequestRuntimeBudgetScreenshot(

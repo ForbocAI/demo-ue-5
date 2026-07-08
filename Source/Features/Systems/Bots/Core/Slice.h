@@ -17,9 +17,9 @@ inline FBotCoreRuntimeState ReduceBotTicked(
   return (func::pipe(State) |
           [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.TickCount++;
-            Next.Memory.TimeSinceLastSeenPlayer += Action.PayloadValue.DeltaTime;
+            Next.Memory.TimeSinceSeenPlayer += Action.PayloadValue.DeltaTime;
             Next.Memory.bHasAggro =
-                Next.Memory.TimeSinceLastSeenPlayer >
+                Next.Memory.TimeSinceSeenPlayer >
                         Next.Settings.AggroTimeoutSeconds
                     ? false
                     : Next.Memory.bHasAggro;
@@ -63,9 +63,9 @@ inline FBotCoreRuntimeState ReduceBotEnemySpotted(
     const rtk::PayloadAction<FBotEnemySpottedPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
-            Next.Memory.LastKnownPlayerPos = Action.PayloadValue.EnemyLocation;
-            Next.Memory.TimeSinceLastSeenPlayer =
-                Next.Settings.EnemySpottedTimeSinceLastSeenPlayer;
+            Next.Memory.KnownPlayerPos = Action.PayloadValue.EnemyLocation;
+            Next.Memory.TimeSinceSeenPlayer =
+                Next.Settings.EnemySpottedTimeSinceSeenPlayer;
             Next.Memory.bHasAggro = true;
             Next.Phase = Next.Phase != EBotCorePhase::Flee
                              ? EBotCorePhase::Combat
@@ -81,7 +81,7 @@ inline FBotCoreRuntimeState ReduceBotFleeRequested(
   return (func::pipe(State) |
           [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.Phase = EBotCorePhase::Flee;
-            Next.Memory.LastKnownPlayerPos = Action.PayloadValue.AwayFrom;
+            Next.Memory.KnownPlayerPos = Action.PayloadValue.AwayFrom;
             Next.Memory.bHasAggro = true;
             return Next;
           })
@@ -148,7 +148,7 @@ namespace BotCoreSlice {
 inline FBotCoreState CreateInitialState() {
   return (func::pipe(FBotCoreState{}) |
           [](FBotCoreState State) -> FBotCoreState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bReady = false;
             return State;
           })

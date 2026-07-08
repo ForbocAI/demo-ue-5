@@ -25,16 +25,16 @@ inline bool SelectReady(const FBotCoreState &State) {
 }
 
 /**
- * @brief Selects the last bot core action id if one exists.
- * @signature inline func::Maybe<FString> SelectLastActionId(const FBotCoreState &State)
- * @return A Maybe containing the last action id, or Nothing before action flow.
+ * @brief Selects the bot core action id if one exists.
+ * @signature inline func::Maybe<FString> SelectActionId(const FBotCoreState &State)
+ * @return A Maybe containing the action id, or Nothing before action flow.
  *
  * User story: As runtime diagnostics, action lineage should stay as optional
  * FP data exposed through selectors rather than direct state access.
  */
-inline func::Maybe<FString> SelectLastActionId(
+inline func::Maybe<FString> SelectActionId(
     const FBotCoreState &State) {
-  return State.LastActionId;
+  return State.ActionId;
 }
 
 } // namespace BotCoreSelectors

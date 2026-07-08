@@ -20,18 +20,18 @@ inline bool SelectReady(const FDialogueState &State) {
 }
 
 /**
- * @brief Selector for the last dialogue action id.
+ * @brief Selector for the dialogue action id.
  */
-inline func::Maybe<FString> SelectLastActionId(
+inline func::Maybe<FString> SelectActionId(
     const FDialogueState &State) {
-  return State.LastActionId;
+  return State.ActionId;
 }
 
 /**
- * @brief Selector for the last reducer-owned reply.
+ * @brief Selector for the reducer-owned reply.
  */
-inline func::Maybe<FString> SelectLastReply(const FDialogueState &State) {
-  return State.LastReply;
+inline func::Maybe<FString> SelectReply(const FDialogueState &State) {
+  return State.Reply;
 }
 
 } // namespace DialogueSelectors

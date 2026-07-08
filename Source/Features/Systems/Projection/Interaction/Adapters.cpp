@@ -55,9 +55,9 @@ struct TComponentSourceProjector<FInteractionState> {
   ecs::FComponentValue
   operator()(const FInteractionState &Interaction) const {
     return ComponentValueMap(
-        {{"Origin", Interaction.LastOrigin},
-         {"MaxDistance", Interaction.LastMaxDistance},
-         {"Candidates", InteractionCandidateList(Interaction.LastCandidates)},
+        {{"Origin", Interaction.Origin},
+         {"MaxDistance", Interaction.MaxDistance},
+         {"Candidates", InteractionCandidateList(Interaction.Candidates)},
          {"SelectedCandidate",
           InteractionSelectionValue(Interaction.SelectedCandidate)}});
   }

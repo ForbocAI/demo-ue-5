@@ -82,9 +82,9 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
       const auto &Settings = RuntimeSelectors::SelectUISettings(State).StatsOverlay;
 
       double BudgetClockSeconds = RenderingAdapters::SelectRuntimeBudgetClockSeconds();
-    float WallDeltaSeconds = (RenderState.LastFrameClockSeconds == 0.0)
+    float WallDeltaSeconds = (RenderState.FrameClockSeconds == 0.0)
         ? 0.0f
-        : (BudgetClockSeconds - RenderState.LastFrameClockSeconds);
+        : (BudgetClockSeconds - RenderState.FrameClockSeconds);
 
     bool bRefreshPolyCount = (RenderState.PolyCountRefreshElapsedSeconds + WallDeltaSeconds) >= Settings.PolyCountRefreshIntervalSeconds;
     bool bRefreshStats = (RenderState.StatsRefreshElapsedSeconds + WallDeltaSeconds) >= Settings.StatsRefreshIntervalSeconds;
@@ -109,20 +109,20 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
     bRefreshStats ? PresentRuntimeStatsDebugMessage(Payload.Stats.value, Settings), void() : void();
 
     bool bShouldLog = bRefreshStats && RenderingSelectors::ShouldRunRuntimeBudgetWallInterval(
-                {BudgetClockSeconds, RenderState.BudgetLogLastSeconds,
+                {BudgetClockSeconds, RenderState.BudgetLogPreviousSeconds,
                  Settings.BudgetLogIntervalSeconds});
 
     bShouldLog ? LogRuntimeBudgetSample(Payload.Stats.value), void() : void();
-    Payload.BudgetLogLastSeconds = bShouldLog ? BudgetClockSeconds : RenderState.BudgetLogLastSeconds;
+    Payload.BudgetLogPreviousSeconds = bShouldLog ? BudgetClockSeconds : RenderState.BudgetLogPreviousSeconds;
 
     float BudgetScreenshotIntervalSeconds = RenderingAdapters::SelectRuntimeBudgetScreenshotIntervalSeconds(Settings);
     bool bShouldScreenshot = bRefreshStats && RenderingSelectors::ShouldRunRuntimeBudgetScreenshot(
-                {BudgetClockSeconds, RenderState.BudgetScreenshotLastSeconds,
+                {BudgetClockSeconds, RenderState.BudgetScreenshotPreviousSeconds,
                  BudgetScreenshotIntervalSeconds}, Settings);
 
     Payload.BudgetScreenshotIndex = bShouldScreenshot ? RenderState.BudgetScreenshotIndex + Settings.BudgetScreenshotIndexStep : RenderState.BudgetScreenshotIndex;
     bShouldScreenshot ? RenderingAdapters::RequestRuntimeBudgetScreenshot(Settings, Payload.BudgetScreenshotIndex), void() : void();
-      Payload.BudgetScreenshotLastSeconds = bShouldScreenshot ? BudgetClockSeconds : RenderState.BudgetScreenshotLastSeconds;
+      Payload.BudgetScreenshotPreviousSeconds = bShouldScreenshot ? BudgetClockSeconds : RenderState.BudgetScreenshotPreviousSeconds;
 
       Dispatch(RenderingActions::RuntimeStatsSampled()(Payload));
       Resolve();

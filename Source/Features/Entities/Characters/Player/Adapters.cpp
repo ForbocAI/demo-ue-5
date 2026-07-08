@@ -8,12 +8,12 @@ namespace ComponentsAdapters {
 
 namespace {
 
-bool HasLastActionId(func::Maybe<FString> LastActionId) {
-  return LastActionId.hasValue;
+bool HasActionId(func::Maybe<FString> ActionId) {
+  return ActionId.hasValue;
 }
 
-FString LastActionIdText(func::Maybe<FString> LastActionId) {
-  return LastActionId.hasValue ? LastActionId.value : FString();
+FString ActionIdText(func::Maybe<FString> ActionId) {
+  return ActionId.hasValue ? ActionId.value : FString();
 }
 
 } // namespace
@@ -24,8 +24,8 @@ template <> struct TComponentSourceValueFieldRegistry<FPlayerState> {
     static const TArray<TComponentSourceValueFieldDeclaration<FPlayerState>>
         RegisteredFields = {
             {"Ready", &FPlayerState::bReady},
-            {"HasLastActionId", &FPlayerState::LastActionId, HasLastActionId},
-            {"LastActionId", &FPlayerState::LastActionId, LastActionIdText}};
+            {"HasActionId", &FPlayerState::ActionId, HasActionId},
+            {"ActionId", &FPlayerState::ActionId, ActionIdText}};
     return RegisteredFields;
   }
 };
@@ -34,7 +34,7 @@ template <>
 struct TComponentSourceProjector<FPlayerState> {
   ecs::FComponentValue operator()(const FPlayerState &Player) const {
     return ComponentSourceValueMap(
-        Player, {"Ready", "HasLastActionId", "LastActionId"});
+        Player, {"Ready", "HasActionId", "ActionId"});
   }
 };
 
@@ -60,7 +60,7 @@ ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload) {
           },
           RegisteredComponentGroups<FPlayerState>(
               {{"Components/Lifecycle", {"Ready"}},
-               {"Components/Data", {"HasLastActionId", "LastActionId"}}})});
+               {"Components/Data", {"HasActionId", "ActionId"}}})});
 }
 
 } // namespace EntitiesAdapters

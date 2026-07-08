@@ -9,8 +9,8 @@ FDataState
 ReduceDataLoaded(const FDataState &State,
                  const rtk::PayloadAction<FDataLoadedPayload> &Action) {
   FDataState Next = State;
-  Next.LastPath = func::just(Action.PayloadValue.RelativePath);
-  Next.bLastLoadSucceeded = Action.PayloadValue.bLoaded;
+  Next.Path = func::just(Action.PayloadValue.RelativePath);
+  Next.bLoadSucceeded = Action.PayloadValue.bLoaded;
   Next.LoadedObjectCount =
       Action.PayloadValue.bLoaded ? State.LoadedObjectCount + 1
                                   : State.LoadedObjectCount;

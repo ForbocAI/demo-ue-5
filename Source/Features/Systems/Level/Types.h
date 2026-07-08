@@ -145,7 +145,7 @@ struct FLevelSystemPayload {
 };
 
 struct FLevelSystemState {
-  func::Maybe<FString> LastActionId = func::nothing<FString>();
+  func::Maybe<FString> ActionId = func::nothing<FString>();
   ForbocAI::Game::Data::FLevelTerrainSourceSettings TerrainSources;
   ForbocAI::Game::Data::FLevelDataSourceSettings DataSources;
   ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
@@ -168,9 +168,9 @@ inline bool operator==(const FLevelSystemState &Left,
          Left.TerrainSources == Right.TerrainSources &&
          Left.DataSources == Right.DataSources &&
          Left.Geometry == Right.Geometry &&
-         Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
-         (!Left.LastActionId.hasValue ||
-          Left.LastActionId.value == Right.LastActionId.value);
+         Left.ActionId.hasValue == Right.ActionId.hasValue &&
+         (!Left.ActionId.hasValue ||
+          Left.ActionId.value == Right.ActionId.value);
 }
 
 inline bool operator!=(const FLevelSystemState &Left,

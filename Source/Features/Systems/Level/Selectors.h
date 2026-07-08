@@ -17,8 +17,8 @@ inline bool SelectReady(const FLevelSystemState &State) {
 }
 
 inline func::Maybe<FString>
-SelectLastActionId(const FLevelSystemState &State) {
-  return State.LastActionId;
+SelectActionId(const FLevelSystemState &State) {
+  return State.ActionId;
 }
 
 inline const ForbocAI::Game::Data::FLevelTerrainSourceSettings &

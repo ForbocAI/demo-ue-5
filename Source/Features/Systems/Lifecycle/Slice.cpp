@@ -38,7 +38,7 @@ FRuntimeLifecycleState ReduceSpawnRejected(
     const rtk::PayloadAction<FString> &Action) {
   FRuntimeLifecycleState Next =
       WithPlayerSpawnStatus(State, ERuntimeLoadStatus::Failed);
-  Next.LastError = Action.PayloadValue;
+  Next.Error = Action.PayloadValue;
   return Next;
 }
 
@@ -59,7 +59,7 @@ FRuntimeLifecycleState ReduceLevelViewRejected(
     const rtk::PayloadAction<FString> &Action) {
   FRuntimeLifecycleState Next =
       WithLevelViewStatus(State, ERuntimeLoadStatus::Failed);
-  Next.LastError = Action.PayloadValue;
+  Next.Error = Action.PayloadValue;
   return Next;
 }
 

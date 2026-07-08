@@ -162,7 +162,7 @@ TArray<FNatureFeatureSeed> SelectNatureFeatures(const FRuntimeState &State) {
 
 const FRuntimeTownspersonInteractionRequest &
 SelectTownspersonInteractionRequest(const FRuntimeState &State) {
-  return State.LastTownspersonInteractionRequest;
+  return State.TownspersonInteractionRequest;
 }
 
 const FInteractionSelection &SelectInteractionSelection(

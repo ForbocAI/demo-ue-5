@@ -86,6 +86,7 @@ void URuntimeStatsWidget::NativeConstruct() {
 
   const auto &Settings =
       FG::RuntimeSelectors::SelectUISettings(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState())
           .StatsOverlay;
   SetPositionInViewport(FVector2D(Settings.ViewportLeft, Settings.ViewportTop),
@@ -229,6 +230,7 @@ void URuntimeStatsWidget::NativeTick(const FGeometry &MyGeometry,
 void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
   FG::RuntimeActions::DispatchObserveRuntimeStatsTick(GetWorld(), DeltaSeconds);
 
+  // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
   const auto &State = FG::RuntimeSelectors::SelectState();
   const FG::FRuntimeStatsPresentationModel &Presentation =
       FG::RuntimeSelectors::SelectRuntimeStatsPresentation(State);

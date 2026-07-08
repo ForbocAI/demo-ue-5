@@ -170,9 +170,9 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
       JSON_SETTINGS_ATOMS(
           InitialName, InitialHealth, InitialMaxHealth, InitialMana,
           InitialMaxMana, InitialStamina, InitialMaxStamina, MinimumHealth,
-          InitialPosition, InitialRotation, InitialLastKnownPlayerPosition,
-          InitialTimeSinceLastSeenPlayer,
-          EnemySpottedTimeSinceLastSeenPlayer, bInitialHasAggro,
+          InitialPosition, InitialRotation, InitialKnownPlayerPosition,
+          InitialTimeSinceSeenPlayer,
+          EnemySpottedTimeSinceSeenPlayer, bInitialHasAggro,
           bDefaultHazardOverlapping, bDefaultVisibilityCanSeeEnemy,
           InitialPhase, InitialTickCount, AggroTimeoutSeconds,
           DamageFleeHealthRatio, PhaseFleeHealthRatio,

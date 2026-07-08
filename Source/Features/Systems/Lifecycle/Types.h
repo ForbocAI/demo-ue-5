@@ -27,14 +27,14 @@ enum class ERuntimeLoadStatus : uint8 {
 struct FRuntimeLifecycleState {
   ERuntimeLoadStatus PlayerSpawnStatus = ERuntimeLoadStatus::Idle;
   ERuntimeLoadStatus LevelViewStatus = ERuntimeLoadStatus::Idle;
-  FString LastError;
+  FString Error;
 };
 
 inline bool operator==(const FRuntimeLifecycleState &Left,
                        const FRuntimeLifecycleState &Right) {
   return Left.PlayerSpawnStatus == Right.PlayerSpawnStatus &&
          Left.LevelViewStatus == Right.LevelViewStatus &&
-         Left.LastError == Right.LastError;
+         Left.Error == Right.Error;
 }
 
 inline bool operator!=(const FRuntimeLifecycleState &Left,

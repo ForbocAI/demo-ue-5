@@ -17,8 +17,8 @@ inline bool SelectReady(const FBotOrchestratorState &State) {
 }
 
 inline func::Maybe<FString>
-SelectLastActionId(const FBotOrchestratorState &State) {
-  return State.LastActionId;
+SelectActionId(const FBotOrchestratorState &State) {
+  return State.ActionId;
 }
 
 } // namespace BotOrchestratorSelectors

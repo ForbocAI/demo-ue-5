@@ -8,8 +8,8 @@ namespace Game {
 namespace Data {
 namespace DataSelectors {
 
-func::Maybe<FString> SelectLastPath(const FDataState &State);
-bool SelectLastLoadSucceeded(const FDataState &State);
+func::Maybe<FString> SelectPath(const FDataState &State);
+bool SelectLoadSucceeded(const FDataState &State);
 int32 SelectLoadedObjectCount(const FDataState &State);
 
 } // namespace DataSelectors

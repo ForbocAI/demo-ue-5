@@ -38,12 +38,12 @@ struct FRuntimeEcsState {
 };
 
 struct FRuntimeReducerDiagnosticsState {
-  FString LastActionType;
-  double LastCombinedReducerMilliseconds = double{};
-  double LastProjectionMilliseconds = double{};
-  double LastRootReducerMilliseconds = double{};
-  int32 LastProjectedEntityCount = int32{};
-  int32 LastProjectedComponentTypeCount = int32{};
+  FString ReducedActionType;
+  double CombinedReducerMilliseconds = double{};
+  double ProjectionMilliseconds = double{};
+  double RootReducerMilliseconds = double{};
+  int32 ProjectedEntityCount = int32{};
+  int32 ProjectedComponentTypeCount = int32{};
 };
 
 struct FRuntimeState {
@@ -55,7 +55,7 @@ struct FRuntimeState {
   FRuntimeEcsState Ecs;
   FRuntimeReducerDiagnosticsState ReducerDiagnostics;
   FRuntimeLifecycleState Lifecycle;
-  FRuntimeTownspersonInteractionRequest LastTownspersonInteractionRequest;
+  FRuntimeTownspersonInteractionRequest TownspersonInteractionRequest;
   FPlayerState Player;
   FSystemsState Systems;
   FLevelSystemState Level;
@@ -93,16 +93,16 @@ inline bool operator!=(const FRuntimeEcsState &Left,
 
 inline bool operator==(const FRuntimeReducerDiagnosticsState &Left,
                        const FRuntimeReducerDiagnosticsState &Right) {
-  return Left.LastActionType == Right.LastActionType &&
-         FMath::IsNearlyEqual(Left.LastCombinedReducerMilliseconds,
-                              Right.LastCombinedReducerMilliseconds) &&
-         FMath::IsNearlyEqual(Left.LastProjectionMilliseconds,
-                              Right.LastProjectionMilliseconds) &&
-         FMath::IsNearlyEqual(Left.LastRootReducerMilliseconds,
-                              Right.LastRootReducerMilliseconds) &&
-         Left.LastProjectedEntityCount == Right.LastProjectedEntityCount &&
-         Left.LastProjectedComponentTypeCount ==
-             Right.LastProjectedComponentTypeCount;
+  return Left.ReducedActionType == Right.ReducedActionType &&
+         FMath::IsNearlyEqual(Left.CombinedReducerMilliseconds,
+                              Right.CombinedReducerMilliseconds) &&
+         FMath::IsNearlyEqual(Left.ProjectionMilliseconds,
+                              Right.ProjectionMilliseconds) &&
+         FMath::IsNearlyEqual(Left.RootReducerMilliseconds,
+                              Right.RootReducerMilliseconds) &&
+         Left.ProjectedEntityCount == Right.ProjectedEntityCount &&
+         Left.ProjectedComponentTypeCount ==
+             Right.ProjectedComponentTypeCount;
 }
 
 inline bool operator!=(const FRuntimeReducerDiagnosticsState &Left,
@@ -120,8 +120,8 @@ inline bool operator==(const FRuntimeState &Left,
          Left.Ecs == Right.Ecs &&
          Left.ReducerDiagnostics == Right.ReducerDiagnostics &&
          Left.Lifecycle == Right.Lifecycle &&
-         Left.LastTownspersonInteractionRequest ==
-             Right.LastTownspersonInteractionRequest &&
+         Left.TownspersonInteractionRequest ==
+             Right.TownspersonInteractionRequest &&
          Left.Player == Right.Player &&
          Left.Terrain == Right.Terrain &&
          Left.Systems == Right.Systems && Left.Level == Right.Level &&

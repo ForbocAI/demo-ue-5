@@ -15,13 +15,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "HAL/FileManager.h"
+#include "Features/Systems/Capture/Actions.h"
+#include "Features/Systems/Capture/Selectors.h"
 #include "InputCoreTypes.h"
 #include "Kismet/GameplayStatics.h"
-#include "Misc/CommandLine.h"
-#include "Misc/Parse.h"
-#include "Misc/Paths.h"
-#include "UnrealClient.h"
 #include "Views/Player/Character/View.h"
 #include "Views/Chat/View.h"
 #include "Views/Marketing/Menu/View.h"
@@ -29,6 +26,8 @@
 #include "Views/Townsperson/View.h"
 
 namespace FG = ForbocAI::Game::Level;
+namespace FCS = FG::CaptureSelectors;
+namespace FCA = FG::CaptureActions;
 using FMarketingCaptureSettings =
     ForbocAI::Game::Data::FMarketingCaptureSettings;
 using FMarketingCaptureViewSettings =
@@ -74,6 +73,7 @@ FG::FInteractionCandidatesObserved ObserveTownspersonCandidates(
   FG::FInteractionCandidatesObserved Observation;
   const ForbocAI::Game::Data::FObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectObservationIds(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   Observation.Id = Ids.TownspersonCandidatesObserved;
   Observation.MaxDistance = InteractionDistance;
@@ -111,42 +111,37 @@ void PresentMissingInteraction(const FString &Message) {
   check(GEngine);
   const ForbocAI::Game::Data::FDebugMessageSettings &Debug =
       FG::RuntimeSelectors::SelectDebugMessages(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   GEngine->AddOnScreenDebugMessage(Debug.OnScreenKey, Debug.DurationSeconds,
                                    Debug.Color, Message);
 }
 
-float CommandLineFloat(const FString &Key, float Fallback) {
-  float Value = Fallback;
-  FParse::Value(FCommandLine::Get(), *Key, Value);
-  return Value;
-}
 
-FString CommandLineString(const FString &Key, const FString &Fallback) {
-  FString Value = Fallback;
-  FParse::Value(FCommandLine::Get(), *Key, Value);
-  return Value;
-}
 
 const FMarketingCaptureSettings &MarketingCaptureSettings() {
   return FG::RuntimeSelectors::SelectMarketingCaptureSettings(
+      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
       FG::RuntimeSelectors::SelectState());
 }
 
 const FFlyModeSettings &FlyModeSettings() {
   return FG::RuntimeSelectors::SelectUISettings(
+             // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
              FG::RuntimeSelectors::SelectState())
       .FlyMode;
 }
 
 const FScaleAuditCaptureSettings &ScaleAuditCaptureSettings() {
   return FG::RuntimeSelectors::SelectUISettings(
+             // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
              FG::RuntimeSelectors::SelectState())
       .ScaleAuditCapture;
 }
 
 FVector PostOfficeWorldCenter() {
   return FG::RuntimeSelectors::SelectPostOfficeWorldCenter(
+      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
       FG::RuntimeSelectors::SelectState());
 }
 
@@ -162,6 +157,7 @@ ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request,
   const FVector TownCenter = PostOfficeWorldCenter();
   const FVector ActorCenter =
       FG::RuntimeSelectors::SelectActorRouteBoundsCenter(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState(), TownCenter);
   return {{Settings.WholeOutputName,
            TopDownCameraLocation(TerrainCenter, Request.WholeCaptureHeight),
@@ -205,6 +201,7 @@ TArray<FScaleAuditCaptureView> MarketingBrochureCaptureViews(
   const FVector TownCenter = PostOfficeWorldCenter();
   const FVector ActorCenter =
       FG::RuntimeSelectors::SelectActorRouteBoundsCenter(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState(), TownCenter);
   return func::map_array<FMarketingCaptureViewSettings,
                          FScaleAuditCaptureView>(
@@ -221,6 +218,7 @@ TArray<FScaleAuditCaptureView> MarketingBrochureCaptureViews(
 APlayerRuntimeControllerView::APlayerRuntimeControllerView()
     : InteractionDistance(
           FG::RuntimeSelectors::SelectTownspersonInteractionDistance(
+              // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
               FG::RuntimeSelectors::SelectState())),
       RuntimeConversationWidgetClass(URuntimeChatWidget::StaticClass()),
       RuntimeConversationWidget(nullptr),
@@ -229,6 +227,7 @@ APlayerRuntimeControllerView::APlayerRuntimeControllerView()
       MarketingMenuWidgetClass(URuntimeMarketingMenuWidget::StaticClass()),
       MarketingMenuWidget(nullptr),
       FlyModeSpeed(FG::RuntimeSelectors::SelectPlayerPresentation(
+                       // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
                        FG::RuntimeSelectors::SelectState())
                        .FlyModeSpeed),
       bRuntimeFlyModeEnabled(false), bFlyAscending(false),
@@ -299,6 +298,7 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
   FG::RuntimeActions::DispatchTownspersonCandidatesObserved(Observation);
   const FG::FInteractionSelection Selection =
       FG::RuntimeSelectors::SelectInteractionSelection(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
 
   const bool bCanInteract =
@@ -311,6 +311,7 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
               ObserveTownspersonInteractionSource(*Townsperson));
           const ForbocAI::Game::UI::FRuntimeConversationViewModel
               Conversation = FG::RuntimeSelectors::SelectRuntimeConversation(
+                  // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
                   FG::RuntimeSelectors::SelectState());
           const FString Reply = Conversation.NpcReply;
           Townsperson->ShowDialogueReply(Reply);
@@ -342,6 +343,7 @@ void APlayerRuntimeControllerView::PresentRuntimeStatsWidget() {
           check(RuntimeStatsWidget);
           RuntimeStatsWidget->AddToViewport(
               FG::RuntimeSelectors::SelectUISettings(
+                  // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
                   FG::RuntimeSelectors::SelectState())
                   .StatsOverlay.ZOrder);
         }(), void());
@@ -484,13 +486,11 @@ void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
   const FMarketingCaptureSettings &MarketingSettings =
       MarketingCaptureSettings();
   const bool bMarketingRequested =
-      FParse::Param(FCommandLine::Get(),
-                    *MarketingSettings.CaptureCommandLineKey);
+      FCS::SelectCommandLineParam(MarketingSettings.CaptureCommandLineKey);
   const FScaleAuditCaptureSettings &ScaleAuditSettings =
       ScaleAuditCaptureSettings();
   const bool bScaleRequested =
-      FParse::Param(FCommandLine::Get(),
-                    *ScaleAuditSettings.CaptureCommandLineKey);
+      FCS::SelectCommandLineParam(ScaleAuditSettings.CaptureCommandLineKey);
   bMarketingCaptureEnabled = bMarketingRequested;
   bScaleAuditCaptureEnabled = bScaleRequested || bMarketingRequested;
   bScaleAuditCaptureEnabled
@@ -501,62 +501,39 @@ void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
 }
 
 void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() {
+  // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
   const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
   const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry =
       FG::RuntimeSelectors::SelectLevelGeometry(State);
   const FScaleAuditCaptureSettings &Settings =
       ScaleAuditCaptureSettings();
-  const FString DefaultOutputDirectory = FPaths::ConvertRelativePathToFull(
-      FPaths::Combine(FPaths::ProjectDir(), Settings.DefaultOutputDirectory));
-  bScaleAuditQuitWhenDone =
-      FParse::Param(FCommandLine::Get(), *Settings.QuitWhenDoneCommandLineKey);
-  ScaleAuditOutputDirectory = CommandLineString(
-      Settings.OutputDirectoryCommandLineKey, DefaultOutputDirectory);
-  ScaleAuditInitialDelaySeconds = CommandLineFloat(
-      Settings.InitialDelayCommandLineKey, Settings.InitialDelaySeconds);
-  ScaleAuditSettleSeconds =
-      CommandLineFloat(Settings.SettleSecondsCommandLineKey,
-                       Settings.SettleSeconds);
-  ScaleAuditBetweenSeconds =
-      CommandLineFloat(Settings.BetweenSecondsCommandLineKey,
-                       Settings.BetweenSeconds);
-  ScaleAuditWholeOrthoWidth = CommandLineFloat(
-      Settings.WholeOrthoWidthCommandLineKey, Geometry.TerrainWorldSize);
-  ScaleAuditTownOrthoWidth = CommandLineFloat(
-      Settings.TownOrthoWidthCommandLineKey, Geometry.TerrainWorldSize);
-  ScaleAuditActorsOrthoWidth = CommandLineFloat(
-      Settings.ActorsOrthoWidthCommandLineKey, Geometry.TerrainWorldSize);
-  ScaleAuditWholeCaptureHeight = CommandLineFloat(
-      Settings.WholeCaptureHeightCommandLineKey,
-      Geometry.TerrainWorldSize);
-  ScaleAuditTownCaptureHeight = CommandLineFloat(
-      Settings.TownCaptureHeightCommandLineKey, ScaleAuditTownOrthoWidth);
-  ScaleAuditActorsCaptureHeight = CommandLineFloat(
-      Settings.ActorsCaptureHeightCommandLineKey,
-      ScaleAuditActorsOrthoWidth);
+  const FCS::FScaleAuditCaptureConfig Config =
+      FCS::SelectScaleAuditCommandLineConfig(Settings, Geometry.TerrainWorldSize);
+  bScaleAuditQuitWhenDone = Config.bQuitWhenDone;
+  ScaleAuditOutputDirectory = Config.OutputDirectory;
+  ScaleAuditInitialDelaySeconds = Config.InitialDelaySeconds;
+  ScaleAuditSettleSeconds = Config.SettleSeconds;
+  ScaleAuditBetweenSeconds = Config.BetweenSeconds;
+  ScaleAuditWholeOrthoWidth = Config.WholeOrthoWidth;
+  ScaleAuditTownOrthoWidth = Config.TownOrthoWidth;
+  ScaleAuditActorsOrthoWidth = Config.ActorsOrthoWidth;
+  ScaleAuditWholeCaptureHeight = Config.WholeCaptureHeight;
+  ScaleAuditTownCaptureHeight = Config.TownCaptureHeight;
+  ScaleAuditActorsCaptureHeight = Config.ActorsCaptureHeight;
   ScaleAuditCaptureIndex = int32();
-  IFileManager::Get().MakeDirectory(*ScaleAuditOutputDirectory, true);
 }
 
 void APlayerRuntimeControllerView::ConfigureMarketingBrochureCapture() {
   const FMarketingCaptureSettings &Settings =
       MarketingCaptureSettings();
-  const FString DefaultOutputDirectory = FPaths::ConvertRelativePathToFull(
-      FPaths::Combine(FPaths::ProjectDir(), Settings.DefaultOutputDirectory));
-  bScaleAuditQuitWhenDone =
-      FParse::Param(FCommandLine::Get(), *Settings.QuitWhenDoneCommandLineKey);
-  ScaleAuditOutputDirectory = CommandLineString(
-      Settings.OutputDirectoryCommandLineKey, DefaultOutputDirectory);
-  ScaleAuditInitialDelaySeconds = CommandLineFloat(
-      Settings.InitialDelayCommandLineKey, Settings.InitialDelaySeconds);
-  ScaleAuditSettleSeconds =
-      CommandLineFloat(Settings.SettleSecondsCommandLineKey,
-                       Settings.SettleSeconds);
-  ScaleAuditBetweenSeconds =
-      CommandLineFloat(Settings.BetweenSecondsCommandLineKey,
-                       Settings.BetweenSeconds);
+  const FCS::FMarketingCaptureConfig Config =
+      FCS::SelectMarketingCommandLineConfig(Settings);
+  bScaleAuditQuitWhenDone = Config.bQuitWhenDone;
+  ScaleAuditOutputDirectory = Config.OutputDirectory;
+  ScaleAuditInitialDelaySeconds = Config.InitialDelaySeconds;
+  ScaleAuditSettleSeconds = Config.SettleSeconds;
+  ScaleAuditBetweenSeconds = Config.BetweenSeconds;
   ScaleAuditCaptureIndex = int32();
-  IFileManager::Get().MakeDirectory(*ScaleAuditOutputDirectory, true);
 }
 
 void APlayerRuntimeControllerView::ScheduleScaleAuditCaptureStep(
@@ -639,9 +616,8 @@ void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() {
 }
 
 void APlayerRuntimeControllerView::RequestScaleAuditScreenshot() {
-  const FString OutputPath =
-      FPaths::Combine(ScaleAuditOutputDirectory, ScaleAuditCurrentOutputName);
-  FScreenshotRequest::RequestScreenshot(OutputPath, false, false);
+  FCA::DispatchRequestCaptureScreenshot(ScaleAuditOutputDirectory,
+                                        ScaleAuditCurrentOutputName);
   ++ScaleAuditCaptureIndex;
   UWorld *World = GetWorld();
   check(World);

@@ -17,8 +17,8 @@ inline bool SelectReady(const FPlayerState &State) {
 }
 
 inline func::Maybe<FString>
-SelectLastActionId(const FPlayerState &State) {
-  return State.LastActionId;
+SelectActionId(const FPlayerState &State) {
+  return State.ActionId;
 }
 
 inline const FPlayerPresentationViewModel &

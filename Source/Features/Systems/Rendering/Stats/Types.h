@@ -16,36 +16,47 @@ using FStatsOverlaySettings =
     ForbocAI::Game::Data::FStatsOverlaySettings;
 
 struct FStatsTextElementRequest {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UWidgetTree *Tree;
   FString Text;
   FLinearColor Color;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   const FStatsOverlaySettings *Settings;
 };
 
 struct FStatsMetricRowRequest {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UWidgetTree *Tree;
   FString Label;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UTextBlock **ValueTextElement;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   const FStatsOverlaySettings *Settings;
 };
 
 struct FStatsValueUpdateRequest {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UTextBlock *TextElement;
   int64 Value;
   int32 MediumThreshold;
   int32 HighThreshold;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   const FStatsOverlaySettings *Settings;
 };
 
 struct FStatsDecimalValueUpdateRequest {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UTextBlock *TextElement;
   double Value;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   const FStatsOverlaySettings *Settings;
 };
 
 struct FStatsPlainValueUpdateRequest {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UTextBlock *TextElement;
   int64 Value;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   const FStatsOverlaySettings *Settings;
 };
 

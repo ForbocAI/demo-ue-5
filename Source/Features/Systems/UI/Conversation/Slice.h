@@ -37,7 +37,7 @@ inline FUIState ReduceConversationPresented(
     const rtk::PayloadAction<FUIPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FUIState Next) -> FUIState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.Conversation = Action.PayloadValue.Conversation;
             Next.bConversationVisible = true;
             return Next;

@@ -13,8 +13,8 @@ struct FDataLoadedPayload {
 
 
 struct FDataState {
-  func::Maybe<FString> LastPath = func::nothing<FString>();
-  bool bLastLoadSucceeded = false;
+  func::Maybe<FString> Path = func::nothing<FString>();
+  bool bLoadSucceeded = false;
   int32 LoadedObjectCount = 0;
 };
 
@@ -31,10 +31,10 @@ inline bool operator!=(const FDataLoadedPayload &Left,
 }
 
 inline bool operator==(const FDataState &Left, const FDataState &Right) {
-  return Left.LastPath.hasValue == Right.LastPath.hasValue &&
-         (!Left.LastPath.hasValue ||
-          Left.LastPath.value == Right.LastPath.value) &&
-         Left.bLastLoadSucceeded == Right.bLastLoadSucceeded &&
+  return Left.Path.hasValue == Right.Path.hasValue &&
+         (!Left.Path.hasValue ||
+          Left.Path.value == Right.Path.value) &&
+         Left.bLoadSucceeded == Right.bLoadSucceeded &&
          Left.LoadedObjectCount == Right.LoadedObjectCount;
 }
 

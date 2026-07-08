@@ -70,6 +70,7 @@ struct FTownspersonState {
   TArray<FTownspersonSeed> DialogueTownspeople;
   TArray<FTownspersonSeed> MemoryTownspeople;
   TArray<FTownspersonSeed> CombatValidationTownspeople;
+  // boundary-allow: RTK-TYPES-003 explicit boundary payload for view projection
   FTownspersonViewDefaults ViewDefaults;
 };
 

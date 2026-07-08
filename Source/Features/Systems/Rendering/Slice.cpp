@@ -23,7 +23,7 @@ FRenderingState ReduceRenderingProfileObserved(
     const rtk::PayloadAction<FRenderingPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FRenderingState Next) -> FRenderingState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.RuntimeProfile = Action.PayloadValue.RuntimeProfile;
             Next.TextureCatalog = Action.PayloadValue.TextureCatalog;
             Next.DistanceLodStages = Action.PayloadValue.DistanceLodStages;
@@ -141,13 +141,13 @@ FRenderingState ReduceRuntimeStatsSampled(
             const auto &Payload = Action.PayloadValue;
             const auto &Settings = Payload.StatsOverlay;
 
-            Next.LastFrameClockSeconds = Payload.BudgetClockSeconds;
-            Next.BudgetLogLastSeconds = Payload.BudgetLogLastSeconds;
-            Next.BudgetScreenshotLastSeconds = Payload.BudgetScreenshotLastSeconds;
+            Next.FrameClockSeconds = Payload.BudgetClockSeconds;
+            Next.BudgetLogPreviousSeconds = Payload.BudgetLogPreviousSeconds;
+            Next.BudgetScreenshotPreviousSeconds = Payload.BudgetScreenshotPreviousSeconds;
             Next.BudgetScreenshotIndex = Payload.BudgetScreenshotIndex;
-            float WallDeltaSeconds = (State.LastFrameClockSeconds == 0.0)
+            float WallDeltaSeconds = (State.FrameClockSeconds == 0.0)
                                          ? 0.0f
-                                         : Payload.BudgetClockSeconds - State.LastFrameClockSeconds;
+                                         : Payload.BudgetClockSeconds - State.FrameClockSeconds;
             Next.StatsRefreshElapsedSeconds += WallDeltaSeconds;
             Next.PolyCountRefreshElapsedSeconds += WallDeltaSeconds;
 
@@ -195,7 +195,7 @@ namespace RenderingSlice {
 FRenderingState CreateInitialState() {
   return (func::pipe(FRenderingState{}) |
           [](FRenderingState State) -> FRenderingState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bReady = false;
             return State;
           })

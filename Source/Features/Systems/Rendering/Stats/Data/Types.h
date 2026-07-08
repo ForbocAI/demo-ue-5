@@ -77,7 +77,7 @@ struct FFramePacingQuery {
 // Groups the wall-clock interval parameters for budget checks.
 struct FBudgetCheckParams {
   double CurrentSeconds;
-  double LastSeconds;
+  double PreviousSeconds;
   float IntervalSeconds;
 };
 
@@ -215,8 +215,8 @@ inline bool operator!=(const FRuntimeStatsPresentationModel &Left, const FRuntim
 struct FRuntimeStatsSamplePayload {
   float DeltaSeconds;
   double BudgetClockSeconds;
-  double BudgetLogLastSeconds;
-  double BudgetScreenshotLastSeconds;
+  double BudgetLogPreviousSeconds;
+  double BudgetScreenshotPreviousSeconds;
   int32 BudgetScreenshotIndex;
   func::Maybe<FRuntimePolyCountStats> PolyCount;
   func::Maybe<FRuntimeStatsViewModel> Stats;

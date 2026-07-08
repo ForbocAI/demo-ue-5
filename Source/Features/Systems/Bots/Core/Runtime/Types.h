@@ -17,8 +17,8 @@ struct FBotCoreStats {
 };
 
 struct FBotCoreMemory {
-  FVector LastKnownPlayerPos;
-  float TimeSinceLastSeenPlayer;
+  FVector KnownPlayerPos;
+  float TimeSinceSeenPlayer;
   bool bHasAggro;
 };
 
@@ -54,8 +54,8 @@ CreateBotCoreStats(const ForbocAI::Game::Data::FBotSettings &Settings) {
 
 inline FBotCoreMemory
 CreateBotCoreMemory(const ForbocAI::Game::Data::FBotSettings &Settings) {
-  return {Settings.InitialLastKnownPlayerPosition,
-          Settings.InitialTimeSinceLastSeenPlayer, Settings.bInitialHasAggro};
+  return {Settings.InitialKnownPlayerPosition,
+          Settings.InitialTimeSinceSeenPlayer, Settings.bInitialHasAggro};
 }
 
 inline FBotCoreRuntimeState

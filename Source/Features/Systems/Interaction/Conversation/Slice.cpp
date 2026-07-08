@@ -16,11 +16,11 @@ FRuntimeState ReduceTownspersonInteractionSourceObserved(
     const rtk::PayloadAction<FRuntimeTownspersonInteractionSource> &Action) {
   return (func::pipe(State) |
           [&Action](FRuntimeState Next) -> FRuntimeState {
-            Next.LastTownspersonInteractionRequest =
+            Next.TownspersonInteractionRequest =
                 ReduceTownspersonInteractionRequest(Action.PayloadValue);
             const FRuntimeTownspersonInteractionPayload Payload =
                 ReduceTownspersonInteractionPayload(
-                    {Next.LastTownspersonInteractionRequest,
+                    {Next.TownspersonInteractionRequest,
                      Next.Dialogue.Settings, Next.UI.Settings});
             Next.Dialogue = DialogueReducers::ReduceLocalReplyResolved(
                 Next.Dialogue, {Payload.DialogueReply.Id,

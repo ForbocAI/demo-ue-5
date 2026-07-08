@@ -328,7 +328,7 @@ ReduceLevelObserved(const FLevelSystemState &State,
                     const rtk::PayloadAction<FLevelSystemPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FLevelSystemState Next) -> FLevelSystemState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.bReady = true;
             return Next;
           })
@@ -354,7 +354,7 @@ namespace LevelSystemSlice {
 inline FLevelSystemState CreateInitialState() {
   return (func::pipe(FLevelSystemState{}) |
           [](FLevelSystemState State) -> FLevelSystemState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bReady = false;
             return State;
           })

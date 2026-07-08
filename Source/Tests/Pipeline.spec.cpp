@@ -156,7 +156,7 @@ bool FPipelineAwareness::RunTest(const FString &Parameters) {
   TestEqual(TEXT("Phase is Combat"),
             (int32)Result.NewState.Phase, (int32)EBotCorePhase::Combat);
   TestEqual(TEXT("Remembers enemy position"),
-            Result.NewState.Memory.LastKnownPlayerPos,
+            Result.NewState.Memory.KnownPlayerPos,
             PipelineEnemyPosition());
 
   return true;
@@ -174,7 +174,7 @@ bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
   LowHealth.Stats.Health = PipelineFleeHealth();
   LowHealth.Phase = EBotCorePhase::Combat;
   LowHealth.Memory.bHasAggro = true;
-  LowHealth.Memory.LastKnownPlayerPos = PipelineEnemyPosition();
+  LowHealth.Memory.KnownPlayerPos = PipelineEnemyPosition();
 
   FBotPipelineWorldSnapshot World = DefaultWorld(LowHealth, PipelineTickDelta());
 

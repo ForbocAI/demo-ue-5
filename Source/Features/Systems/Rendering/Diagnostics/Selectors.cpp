@@ -88,7 +88,7 @@ int32 SelectRuntimeGpuIndex(
 
 bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params) {
   return Params.IntervalSeconds > 0.0f &&
-         Params.CurrentSeconds - Params.LastSeconds >= Params.IntervalSeconds;
+         Params.CurrentSeconds - Params.PreviousSeconds >= Params.IntervalSeconds;
 }
 
 bool ShouldRunRuntimeBudgetScreenshot(

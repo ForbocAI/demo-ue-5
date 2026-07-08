@@ -22,11 +22,13 @@ namespace {
 FG::FTownspersonViewDefaults ObserveTownspersonViewDefaults(
     const FG::FTownspersonViewDefaultsRequest &Request) {
   return FG::RuntimeSelectors::SelectTownspersonViewDefaults(
+      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
       FG::RuntimeSelectors::SelectState(), Request);
 }
 
 FG::FTownspersonPresentationViewModel ObserveTownspersonPresentation() {
   return FG::RuntimeSelectors::SelectTownspersonPresentation(
+      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
       FG::RuntimeSelectors::SelectState());
 }
 
@@ -56,12 +58,14 @@ ATownspersonView::ATownspersonView()
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =
       FG::RuntimeSelectors::SelectBotSettings(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState())
           .PatrolTickIntervalSeconds;
   const FG::FTownspersonPresentationViewModel Presentation =
       ObserveTownspersonPresentation();
   const ForbocAI::Game::Data::FViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectViewNames(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   WalkSpeed = Presentation.WalkSpeed;
   PauseDuration = Presentation.PauseDuration;
@@ -167,6 +171,7 @@ void ATownspersonView::ConfigureTownsperson(
   ApplyDistanceLod(Config.Lod);
   PauseRemaining =
       FG::RuntimeSelectors::SelectBotSettings(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState())
           .InitialPatrolPauseRemainingSeconds;
 
@@ -214,6 +219,7 @@ void ATownspersonView::ShowDialogueReply(const FString &Reply) {
                               CurrentLod.bLabelsVisible);
   const ForbocAI::Game::Data::FTextSettings &Text =
       FG::RuntimeSelectors::SelectText(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   const FString ReplyLog =
       frmt::RuntimeString(Text.NpcReplyLog, frmt::Args({frmt::Arg(Reply)}));
@@ -264,6 +270,7 @@ void ATownspersonView::ConfigureSampleCharacterAsset() {
 void ATownspersonView::RefreshText() {
   const ForbocAI::Game::Data::FTextSettings &Text =
       FG::RuntimeSelectors::SelectText(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   NameText->SetText(FText::FromString(frmt::RuntimeString(
       Text.TownspersonNameRoleFormat,

@@ -60,7 +60,7 @@ inline FDialogueState ReduceDialogueObserved(
     const rtk::PayloadAction<FDialoguePayload> &Action) {
   return (func::pipe(State) |
           [&Action](FDialogueState Next) -> FDialogueState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.bReady = true;
             return Next;
           })
@@ -75,11 +75,11 @@ inline FDialogueState ReduceLocalReplyResolved(
     const rtk::PayloadAction<FDialogueReplyPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FDialogueState Next) -> FDialogueState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
-            Next.LastReply = func::just(Action.PayloadValue.Reply);
-            Next.LastSpeakerName =
+            Next.ActionId = func::just(Action.PayloadValue.Id);
+            Next.Reply = func::just(Action.PayloadValue.Reply);
+            Next.SpeakerName =
                 func::just(Action.PayloadValue.Request.Name);
-            Next.LastError = func::nothing<FString>();
+            Next.Error = func::nothing<FString>();
             Next.bReady = true;
             return Next;
           })
@@ -108,7 +108,7 @@ namespace DialogueSlice {
 inline FDialogueState CreateInitialState() {
   return (func::pipe(FDialogueState{}) |
           [](FDialogueState State) -> FDialogueState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bReady = false;
             return State;
           })

@@ -11,8 +11,12 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 
+// rtk:suppress RTK-TYPES-001 — imperative side-effect parameter struct,
+// not stored in reducer state; raw UE pointers are intentional.
 struct FLevelRetroTextureApply {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UStaticMeshComponent *Part;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UMaterialInterface *BaseMaterial;
   ELevelRetroTexture Texture;
   TArray<FLevelRetroTextureSpec> TextureCatalog;

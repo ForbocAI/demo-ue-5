@@ -14,13 +14,14 @@ struct FBotPipelinePayload {
 };
 
 struct FBotPipelineState {
-  func::Maybe<FString> LastActionId = func::nothing<FString>();
+  func::Maybe<FString> ActionId = func::nothing<FString>();
   bool bReady;
 };
 
 struct FBotPipelineOverlapSnapshot {
   bool bOverlapping;
   float DamagePerSecond;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   AActor *HazardSource;
 };
 
@@ -106,9 +107,9 @@ struct FBotPipelineTickInput {
 inline bool operator==(const FBotPipelineState &Left,
                        const FBotPipelineState &Right) {
   return Left.bReady == Right.bReady &&
-         Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
-         (!Left.LastActionId.hasValue ||
-          Left.LastActionId.value == Right.LastActionId.value);
+         Left.ActionId.hasValue == Right.ActionId.hasValue &&
+         (!Left.ActionId.hasValue ||
+          Left.ActionId.value == Right.ActionId.value);
 }
 
 inline bool operator!=(const FBotPipelineState &Left,

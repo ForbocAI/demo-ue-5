@@ -59,12 +59,12 @@ struct FInteractionSelection {
  * @brief Interaction slice state in the single runtime store.
  */
 struct FInteractionState {
-  func::Maybe<FString> LastActionId = func::nothing<FString>();
-  FVector LastOrigin = FVector::ZeroVector;
-  float LastMaxDistance = 0.0f;
+  func::Maybe<FString> ActionId = func::nothing<FString>();
+  FVector Origin = FVector::ZeroVector;
+  float MaxDistance = 0.0f;
   float TownspersonMaxDistance = 0.0f;
   FString NoTownspersonMessage;
-  TArray<FInteractionCandidate> LastCandidates;
+  TArray<FInteractionCandidate> Candidates;
   FInteractionSelection SelectedCandidate;
 };
 
@@ -119,15 +119,15 @@ inline bool operator!=(const FInteractionSelection &Left,
 
 inline bool operator==(const FInteractionState &Left,
                        const FInteractionState &Right) {
-  return Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
-         (!Left.LastActionId.hasValue ||
-          Left.LastActionId.value == Right.LastActionId.value) &&
-         Left.LastOrigin == Right.LastOrigin &&
-         FMath::IsNearlyEqual(Left.LastMaxDistance, Right.LastMaxDistance) &&
+  return Left.ActionId.hasValue == Right.ActionId.hasValue &&
+         (!Left.ActionId.hasValue ||
+          Left.ActionId.value == Right.ActionId.value) &&
+         Left.Origin == Right.Origin &&
+         FMath::IsNearlyEqual(Left.MaxDistance, Right.MaxDistance) &&
          FMath::IsNearlyEqual(Left.TownspersonMaxDistance,
                               Right.TownspersonMaxDistance) &&
          Left.NoTownspersonMessage == Right.NoTownspersonMessage &&
-         Left.LastCandidates == Right.LastCandidates &&
+         Left.Candidates == Right.Candidates &&
          Left.SelectedCandidate == Right.SelectedCandidate;
 }
 

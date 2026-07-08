@@ -16,9 +16,9 @@ inline bool SelectReady(const FSystemsState &State) {
       .val;
 }
 
-inline func::Maybe<FString> SelectLastActionId(
+inline func::Maybe<FString> SelectActionId(
     const FSystemsState &State) {
-  return State.LastActionId;
+  return State.ActionId;
 }
 
 } // namespace SystemsSelectors

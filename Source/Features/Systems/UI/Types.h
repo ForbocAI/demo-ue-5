@@ -137,7 +137,7 @@ struct FUIPayload {
  * state. Selectors read it and views apply it.
  */
 struct FUIState {
-  func::Maybe<FString> LastActionId = func::nothing<FString>();
+  func::Maybe<FString> ActionId = func::nothing<FString>();
   ForbocAI::Game::Data::FUISettings Settings;
   ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation;
   TArray<ForbocAI::Game::UI::FChatMessageViewModel> Messages;
@@ -166,9 +166,9 @@ inline bool operator!=(
 
 inline bool operator==(const FUIState &Left,
                        const FUIState &Right) {
-  return Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
-         (!Left.LastActionId.hasValue ||
-          Left.LastActionId.value == Right.LastActionId.value) &&
+  return Left.ActionId.hasValue == Right.ActionId.hasValue &&
+         (!Left.ActionId.hasValue ||
+          Left.ActionId.value == Right.ActionId.value) &&
          Left.Settings == Right.Settings &&
          Left.Conversation == Right.Conversation &&
          Left.Messages == Right.Messages &&

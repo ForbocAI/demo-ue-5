@@ -26,6 +26,7 @@ namespace FG = ForbocAI::Game::Level;
 namespace {
 FG::FPlayerPresentationViewModel ObservePlayerPresentation() {
   return FG::RuntimeSelectors::SelectPlayerPresentation(
+      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
       FG::RuntimeSelectors::SelectState());
 }
 
@@ -46,6 +47,7 @@ APlayerCharacterView::APlayerCharacterView()
       ObservePlayerPresentation();
   const ForbocAI::Game::Data::FViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectViewNames(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   MeshRelativeLocation = Presentation.MeshRelativeLocation;
   MeshRelativeRotation = Presentation.MeshRelativeRotation;
@@ -143,6 +145,7 @@ void APlayerCharacterView::DoMove(float Right, float Forward) {
   check(Controller);
   const ForbocAI::Game::Data::FObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectObservationIds(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   const ForbocAI::Game::Level::FPlayerMovementInputViewModel Model =
       FG::RuntimeSelectors::SelectPlayerMovementInput(

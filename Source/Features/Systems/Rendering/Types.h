@@ -21,7 +21,7 @@ namespace Game {
 namespace Level {
 
 struct FRenderingState {
-  func::Maybe<FString> LastActionId = func::nothing<FString>();
+  func::Maybe<FString> ActionId = func::nothing<FString>();
   FLevelRetroRenderProfile RuntimeProfile;
   TArray<FLevelRetroTextureSpec> TextureCatalog;
   TArray<FLevelDistanceLodStage> DistanceLodStages;
@@ -32,9 +32,9 @@ struct FRenderingState {
   FRuntimeStatsPresentationModel StatsPresentation;
   double StatsRefreshElapsedSeconds = 0.0;
   double PolyCountRefreshElapsedSeconds = 0.0;
-  double LastFrameClockSeconds = 0.0;
-  double BudgetLogLastSeconds = 0.0;
-  double BudgetScreenshotLastSeconds = 0.0;
+  double FrameClockSeconds = 0.0;
+  double BudgetLogPreviousSeconds = 0.0;
+  double BudgetScreenshotPreviousSeconds = 0.0;
   int32 BudgetScreenshotIndex = 0;
   int64 CachedPolyCount = 0;
   double CachedPolyCountMilliseconds = 0.0;
@@ -43,9 +43,9 @@ struct FRenderingState {
 
 inline bool operator==(const FRenderingState &Left,
                        const FRenderingState &Right) {
-  return Left.LastActionId.hasValue == Right.LastActionId.hasValue &&
-         (!Left.LastActionId.hasValue ||
-          Left.LastActionId.value == Right.LastActionId.value) &&
+  return Left.ActionId.hasValue == Right.ActionId.hasValue &&
+         (!Left.ActionId.hasValue ||
+          Left.ActionId.value == Right.ActionId.value) &&
          Left.RuntimeProfile == Right.RuntimeProfile &&
          Left.TextureCatalog == Right.TextureCatalog &&
          Left.DistanceLodStages == Right.DistanceLodStages &&
@@ -56,9 +56,9 @@ inline bool operator==(const FRenderingState &Left,
          Left.StatsPresentation == Right.StatsPresentation &&
          FMath::IsNearlyEqual(Left.StatsRefreshElapsedSeconds, Right.StatsRefreshElapsedSeconds) &&
          FMath::IsNearlyEqual(Left.PolyCountRefreshElapsedSeconds, Right.PolyCountRefreshElapsedSeconds) &&
-         FMath::IsNearlyEqual(Left.LastFrameClockSeconds, Right.LastFrameClockSeconds) &&
-         FMath::IsNearlyEqual(Left.BudgetLogLastSeconds, Right.BudgetLogLastSeconds) &&
-         FMath::IsNearlyEqual(Left.BudgetScreenshotLastSeconds, Right.BudgetScreenshotLastSeconds) &&
+         FMath::IsNearlyEqual(Left.FrameClockSeconds, Right.FrameClockSeconds) &&
+         FMath::IsNearlyEqual(Left.BudgetLogPreviousSeconds, Right.BudgetLogPreviousSeconds) &&
+         FMath::IsNearlyEqual(Left.BudgetScreenshotPreviousSeconds, Right.BudgetScreenshotPreviousSeconds) &&
          Left.BudgetScreenshotIndex == Right.BudgetScreenshotIndex &&
          Left.CachedPolyCount == Right.CachedPolyCount &&
          FMath::IsNearlyEqual(Left.CachedPolyCountMilliseconds, Right.CachedPolyCountMilliseconds) &&

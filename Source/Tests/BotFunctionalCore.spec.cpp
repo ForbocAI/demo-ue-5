@@ -156,8 +156,8 @@ void FBotFunctionalCoreSpec::Define()
                 
                 auto State = Store.getState();
                 TestTrue(Labels.Next(), State.Memory.bHasAggro);
-                TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Memory.TimeSinceLastSeenPlayer, Settings.EnemySpottedTimeSinceLastSeenPlayer));
-                TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Memory.LastKnownPlayerPos.X, Settings.MoveActionOffset.X));
+                TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Memory.TimeSinceSeenPlayer, Settings.EnemySpottedTimeSinceSeenPlayer));
+                TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Memory.KnownPlayerPos.X, Settings.MoveActionOffset.X));
                 TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Combat);
             });
         });
@@ -183,7 +183,7 @@ void FBotFunctionalCoreSpec::Define()
                 auto Store = ConfigureStore(Settings.InitialName);
                 
                 Store.dispatch(BotCoreActions::BotEnemySpotted()(
-                    FBotEnemySpottedPayload{Settings.InitialLastKnownPlayerPosition}));
+                    FBotEnemySpottedPayload{Settings.InitialKnownPlayerPosition}));
                 
                 TestTrue(Labels.Next(), Store.getState().Memory.bHasAggro);
 

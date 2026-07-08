@@ -18,11 +18,14 @@ namespace Layout {
  * unary payload before the typed seed reaches RTK thunks and reducers.
  */
 struct FLevelJsonObjectRequest {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   TSharedPtr<FJsonObject> Object;
 };
 
 struct FLevelSectionLeaves {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   TArray<TSharedPtr<FJsonValue>> Blocks;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   TArray<TSharedPtr<FJsonValue>> Labels;
 };
 
@@ -30,6 +33,7 @@ struct FLevelLayoutLeaves {
   FLevelSectionLeaves Terrain;
   FLevelSectionLeaves Town;
   FLevelSectionLeaves Mine;
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   TArray<TSharedPtr<FJsonValue>> OverlayLabels;
 };
 

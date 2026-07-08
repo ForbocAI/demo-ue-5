@@ -27,8 +27,8 @@ inline FSpeechState ReduceSpeechStarted(
     const rtk::PayloadAction<FSpeechPayload> &Action) {
   return (func::pipe(State) |
           [&State, &Action](FSpeechState Next) -> FSpeechState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
-            Next.LastSpokenText = func::just(Action.PayloadValue.Text);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
+            Next.SpokenText = func::just(Action.PayloadValue.Text);
             Next.ActivePhonemes = SpeechOps::EstimatePhonemesFromText(
                 Action.PayloadValue.Text, State.Settings);
             Next.CurrentViseme = SpeechOps::RestViseme(State.Settings);
@@ -43,7 +43,7 @@ inline FSpeechState ReduceSpeechStopped(
     const rtk::PayloadAction<FSpeechPayload> &Action) {
   return (func::pipe(State) |
           [&State, &Action](FSpeechState Next) -> FSpeechState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.ActivePhonemes.Empty();
             Next.CurrentViseme = SpeechOps::RestViseme(State.Settings);
             Next.bSpeaking = false;
@@ -79,8 +79,8 @@ namespace SpeechSlice {
 inline FSpeechState CreateInitialState() {
   return (func::pipe(FSpeechState{}) |
           [](FSpeechState State) -> FSpeechState {
-            State.LastActionId = func::nothing<FString>();
-            State.LastSpokenText = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
+            State.SpokenText = func::nothing<FString>();
             State.CurrentViseme = FVisemeMapping{};
             State.bSpeaking = false;
             return State;

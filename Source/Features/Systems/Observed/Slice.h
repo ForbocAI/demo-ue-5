@@ -14,7 +14,7 @@ ReduceSystemsObserved(const FSystemsState &State,
                       const rtk::PayloadAction<FSystemsPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FSystemsState Next) -> FSystemsState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.bReady = true;
             return Next;
           })
@@ -41,7 +41,7 @@ namespace SystemsSlice {
 inline FSystemsState CreateInitialState() {
   return (func::pipe(FSystemsState{}) |
           [](FSystemsState State) -> FSystemsState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bReady = false;
             return State;
           })

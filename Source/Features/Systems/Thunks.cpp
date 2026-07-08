@@ -1,6 +1,7 @@
 #include "Features/Systems/Thunks.h"
 
 #include "Features/Components/Level/Types.h"
+#include "Features/Systems/Lifecycle/Types.h"
 #include "Features/Components/Spatial/Level/Layout/Adapters.h"
 #include "Features/Entities/Characters/Bots/Adapters.h"
 #include "Features/Entities/Environments/Landmarks/Adapters.h"
@@ -177,6 +178,14 @@ FString RequestLevelViewPayloadTypePrefix() {
 const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
                             FRuntimeState> &
 RequestPlayerSpawnAsyncThunk() {
+  // RTK-THUNK-004: condition guard – skip if already loading / loaded.
+  const auto Condition =
+      rtk::ConditionCallback<rtk::FEmptyPayload, FRuntimeState>(
+          [](const rtk::FEmptyPayload &,
+             const rtk::ThunkApi<FRuntimeState> &Api) -> bool {
+            return RuntimeSelectors::SelectRuntimeLifecycle(Api.getState())
+                       .PlayerSpawnStatus == ERuntimeLoadStatus::Idle;
+          });
   static const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
                                      FRuntimeState>
       Config = rtk::createAsyncThunk<FSpawnPointPayload, rtk::FEmptyPayload,
@@ -204,7 +213,8 @@ RequestPlayerSpawnAsyncThunk() {
                                          DataSources, Geometry});
                   Resolve(RuntimeSelectors::SelectPlayerSpawn(Api.getState()));
                 });
-          });
+          },
+          Condition);
   return Config;
 }
 
@@ -215,6 +225,14 @@ rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
 const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload, rtk::FEmptyPayload,
                             FRuntimeState> &
 RequestLevelViewPayloadAsyncThunk() {
+  // RTK-THUNK-004: condition guard – skip if already loading / loaded.
+  const auto Condition =
+      rtk::ConditionCallback<rtk::FEmptyPayload, FRuntimeState>(
+          [](const rtk::FEmptyPayload &,
+             const rtk::ThunkApi<FRuntimeState> &Api) -> bool {
+            return RuntimeSelectors::SelectRuntimeLifecycle(Api.getState())
+                       .LevelViewStatus == ERuntimeLoadStatus::Idle;
+          });
   static const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload,
                                      rtk::FEmptyPayload, FRuntimeState>
       Config = rtk::createAsyncThunk<FRuntimeLevelViewPayload,
@@ -249,7 +267,8 @@ RequestLevelViewPayloadAsyncThunk() {
                       Api.getState(), {&TerrainData, &OrthoData, &Layout,
                                        &Geometry}));
                 });
-          });
+          },
+          Condition);
   return Config;
 }
 

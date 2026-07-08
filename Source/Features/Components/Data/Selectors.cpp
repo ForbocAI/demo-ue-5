@@ -5,12 +5,12 @@ namespace Game {
 namespace Data {
 namespace DataSelectors {
 
-func::Maybe<FString> SelectLastPath(const FDataState &State) {
-  return State.LastPath;
+func::Maybe<FString> SelectPath(const FDataState &State) {
+  return State.Path;
 }
 
-bool SelectLastLoadSucceeded(const FDataState &State) {
-  return State.bLastLoadSucceeded;
+bool SelectLoadSucceeded(const FDataState &State) {
+  return State.bLoadSucceeded;
 }
 
 int32 SelectLoadedObjectCount(const FDataState &State) {

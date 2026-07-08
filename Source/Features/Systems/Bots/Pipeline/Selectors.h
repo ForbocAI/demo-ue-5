@@ -17,8 +17,8 @@ inline bool SelectReady(const FBotPipelineState &State) {
 }
 
 inline func::Maybe<FString>
-SelectLastActionId(const FBotPipelineState &State) {
-  return State.LastActionId;
+SelectActionId(const FBotPipelineState &State) {
+  return State.ActionId;
 }
 
 } // namespace BotPipelineSelectors

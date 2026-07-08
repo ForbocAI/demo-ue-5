@@ -107,10 +107,10 @@ inline FInteractionState ReduceTownspersonCandidatesObserved(
     const rtk::PayloadAction<FInteractionCandidatesObserved> &Action) {
   return (func::pipe(State) |
           [&Action](FInteractionState Next) -> FInteractionState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
-            Next.LastOrigin = Action.PayloadValue.Origin;
-            Next.LastMaxDistance = Action.PayloadValue.MaxDistance;
-            Next.LastCandidates = Action.PayloadValue.Candidates;
+            Next.ActionId = func::just(Action.PayloadValue.Id);
+            Next.Origin = Action.PayloadValue.Origin;
+            Next.MaxDistance = Action.PayloadValue.MaxDistance;
+            Next.Candidates = Action.PayloadValue.Candidates;
             Next.SelectedCandidate =
                 ReduceNearestCandidate(
                     {Action.PayloadValue, Next.NoTownspersonMessage});
@@ -140,7 +140,7 @@ namespace InteractionSlice {
 inline FInteractionState CreateInitialState() {
   return (func::pipe(FInteractionState{}) |
           [](FInteractionState State) -> FInteractionState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             return State;
           })
       .val;

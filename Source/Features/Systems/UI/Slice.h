@@ -24,7 +24,7 @@ namespace UISlice {
 inline FUIState CreateInitialState() {
   return (func::pipe(FUIState{}) |
           [](FUIState State) -> FUIState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bConversationVisible = false;
             return State;
           })

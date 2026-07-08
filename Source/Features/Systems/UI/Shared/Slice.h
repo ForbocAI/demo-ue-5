@@ -104,7 +104,7 @@ FUIState ReducePayloadActionFields(
     const TReducePayloadActionFieldsRequest<Value> &Request) {
   return (func::pipe(State) |
           [&Request](FUIState Next) -> FUIState {
-            Next.LastActionId = func::just(Request.Action.PayloadValue.Id);
+            Next.ActionId = func::just(Request.Action.PayloadValue.Id);
             return Next;
           } |
           [&Request](const FUIState &Next) -> FUIState {

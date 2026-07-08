@@ -48,6 +48,7 @@ ARuntimeLevelView::ARuntimeLevelView()
     : CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
   PrimaryActorTick.bCanEverTick = false;
 
+  // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
   const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
   const FG::FRenderingAssetPaths AssetPaths =
       FG::RuntimeSelectors::SelectRenderingAssetPaths(State);
@@ -71,10 +72,12 @@ void ARuntimeLevelView::BeginPlay() {
 void ARuntimeLevelView::RenderLevel() {
   const FG::FLevelRetroRenderProfile Profile =
       FG::RuntimeSelectors::SelectRuntimeProfile(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   FG::RenderingActions::ApplyRuntimeProfile(
       {GetWorld(), Profile,
        FG::RuntimeSelectors::SelectRenderingSettings(
+           // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
            FG::RuntimeSelectors::SelectState())});
   auto Payload = FG::FRuntimeLevelViewPayload();
   const auto Result = FG::RuntimeActions::DispatchRequestLevelViewPayload();
@@ -83,11 +86,14 @@ void ARuntimeLevelView::RenderLevel() {
   });
   func::executeAsync(Result);
   TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog(
+      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
       FG::RuntimeSelectors::SelectState());
   LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry(
+      // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
       FG::RuntimeSelectors::SelectState());
   RenderingSettings =
       FG::RuntimeSelectors::SelectRenderingSettings(
+          // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
   RenderLevelPayload(Payload);
 }

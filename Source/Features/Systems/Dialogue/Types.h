@@ -42,10 +42,10 @@ struct FDialogueReplyPayload {
  * selectors and render; they do not infer dialogue lifecycle state.
  */
 struct FDialogueState {
-  func::Maybe<FString> LastActionId = func::nothing<FString>();
-  func::Maybe<FString> LastReply = func::nothing<FString>();
-  func::Maybe<FString> LastSpeakerName = func::nothing<FString>();
-  func::Maybe<FString> LastError = func::nothing<FString>();
+  func::Maybe<FString> ActionId = func::nothing<FString>();
+  func::Maybe<FString> Reply = func::nothing<FString>();
+  func::Maybe<FString> SpeakerName = func::nothing<FString>();
+  func::Maybe<FString> Error = func::nothing<FString>();
   ForbocAI::Game::Data::FDialogueSettings Settings;
   bool bReady = false;
 };
@@ -68,10 +68,10 @@ inline bool operator!=(const FDialoguePayload &Left,
 
 inline bool operator==(const FDialogueState &Left,
                        const FDialogueState &Right) {
-  return MaybeStringEquals(Left.LastActionId, Right.LastActionId) &&
-         MaybeStringEquals(Left.LastReply, Right.LastReply) &&
-         MaybeStringEquals(Left.LastSpeakerName, Right.LastSpeakerName) &&
-         MaybeStringEquals(Left.LastError, Right.LastError) &&
+  return MaybeStringEquals(Left.ActionId, Right.ActionId) &&
+         MaybeStringEquals(Left.Reply, Right.Reply) &&
+         MaybeStringEquals(Left.SpeakerName, Right.SpeakerName) &&
+         MaybeStringEquals(Left.Error, Right.Error) &&
          Left.Settings == Right.Settings &&
          Left.bReady == Right.bReady;
 }

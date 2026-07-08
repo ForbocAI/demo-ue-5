@@ -15,7 +15,7 @@ ReducePlayerObserved(const FPlayerState &State,
                      const rtk::PayloadAction<FPlayerPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FPlayerState Next) -> FPlayerState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.bReady = true;
             return Next;
           })
@@ -89,7 +89,7 @@ inline FPlayerState ReducePlayerPresentationRequested(
     const rtk::PayloadAction<FPlayerPresentationRequest> &Action) {
   return (func::pipe(State) |
           [&Action](FPlayerState Next) -> FPlayerState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             return Next;
           })
       .val;
@@ -114,7 +114,7 @@ namespace PlayerSlice {
 inline FPlayerState CreateInitialState() {
   return (func::pipe(FPlayerState{}) |
           [](FPlayerState State) -> FPlayerState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bReady = false;
             return State;
           })

@@ -15,7 +15,7 @@ inline FBotOrchestratorFactoriesState ReduceFactoriesObserved(
   return (func::pipe(State) |
           [&Action](FBotOrchestratorFactoriesState Next)
               -> FBotOrchestratorFactoriesState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.bReady = true;
             return Next;
           })
@@ -42,7 +42,7 @@ inline FBotOrchestratorFactoriesState CreateInitialState() {
   return (func::pipe(FBotOrchestratorFactoriesState{}) |
           [](FBotOrchestratorFactoriesState State)
               -> FBotOrchestratorFactoriesState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bReady = false;
             return State;
           })

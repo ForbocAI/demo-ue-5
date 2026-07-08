@@ -29,7 +29,7 @@ ReduceDefaultInputSnapshot(const FBotPipelineDefaultInputRequest &Request) {
        {Request.State.Settings.bDefaultHazardOverlapping,
         Request.State.Settings.MinimumHealth, nullptr},
        {Request.State.Settings.bDefaultVisibilityCanSeeEnemy,
-        Request.State.Settings.InitialLastKnownPlayerPosition,
+        Request.State.Settings.InitialKnownPlayerPosition,
         Request.State.Settings.MinimumHealth},
        {Request.State.Position, Request.DeltaTime,
         Request.State.Settings.DefaultMovementInterpSpeed}});
@@ -41,7 +41,7 @@ inline FBotPipelineState ReducePipelineObserved(
   return (func::pipe(State) |
           [&Action](FBotPipelineState Next)
               -> FBotPipelineState {
-            Next.LastActionId = func::just(Action.PayloadValue.Id);
+            Next.ActionId = func::just(Action.PayloadValue.Id);
             Next.bReady = true;
             return Next;
           })
@@ -82,7 +82,7 @@ inline func::Maybe<rtk::AnyAction> ReduceMovementAction(
 inline bool ReduceAlreadyHasAggro(
     const FBotPipelineAwarenessActionRequest &Request) {
   return Request.State.Memory.bHasAggro &&
-         FVector::DistSquared(Request.State.Memory.LastKnownPlayerPos,
+         FVector::DistSquared(Request.State.Memory.KnownPlayerPos,
                               Request.Visibility.EnemyPosition) <
              Request.State.Settings.AggroPositionToleranceSquared;
 }
@@ -109,7 +109,7 @@ inline func::Maybe<rtk::AnyAction> ReducePhaseAction(
              ? func::just<rtk::AnyAction>(
                    BotCoreActions::BotFleeRequested()(
                        FBotFleeRequestedPayload{
-                           Request.State.Memory.LastKnownPlayerPos}))
+                           Request.State.Memory.KnownPlayerPos}))
              : func::nothing<rtk::AnyAction>();
 }
 
@@ -218,7 +218,7 @@ namespace BotPipelineSlice {
 inline FBotPipelineState CreateInitialState() {
   return (func::pipe(FBotPipelineState{}) |
           [](FBotPipelineState State) -> FBotPipelineState {
-            State.LastActionId = func::nothing<FString>();
+            State.ActionId = func::nothing<FString>();
             State.bReady = false;
             return State;
           })

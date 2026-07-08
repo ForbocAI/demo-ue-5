@@ -26,11 +26,11 @@ inline float SelectTownspersonInteractionDistance(
 }
 
 /**
- * @brief Selector for the last observed candidate payload.
+ * @brief Selector for the observed candidate payload.
  */
 inline TArray<FInteractionCandidate>
-SelectLastCandidates(const FInteractionState &State) {
-  return State.LastCandidates;
+SelectCandidates(const FInteractionState &State) {
+  return State.Candidates;
 }
 
 } // namespace InteractionSelectors

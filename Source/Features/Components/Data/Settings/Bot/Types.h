@@ -35,9 +35,9 @@ struct FBotSettings {
   float MinimumHealth;
   FVector InitialPosition;
   FRotator InitialRotation;
-  FVector InitialLastKnownPlayerPosition;
-  float InitialTimeSinceLastSeenPlayer;
-  float EnemySpottedTimeSinceLastSeenPlayer;
+  FVector InitialKnownPlayerPosition;
+  float InitialTimeSinceSeenPlayer;
+  float EnemySpottedTimeSinceSeenPlayer;
   bool bInitialHasAggro;
   bool bDefaultHazardOverlapping;
   bool bDefaultVisibilityCanSeeEnemy;
@@ -227,12 +227,12 @@ inline bool operator==(const FBotSettings &Left,
          FMath::IsNearlyEqual(Left.MinimumHealth, Right.MinimumHealth) &&
          Left.InitialPosition == Right.InitialPosition &&
          Left.InitialRotation == Right.InitialRotation &&
-         Left.InitialLastKnownPlayerPosition ==
-             Right.InitialLastKnownPlayerPosition &&
-         FMath::IsNearlyEqual(Left.InitialTimeSinceLastSeenPlayer,
-                              Right.InitialTimeSinceLastSeenPlayer) &&
-         FMath::IsNearlyEqual(Left.EnemySpottedTimeSinceLastSeenPlayer,
-                              Right.EnemySpottedTimeSinceLastSeenPlayer) &&
+         Left.InitialKnownPlayerPosition ==
+             Right.InitialKnownPlayerPosition &&
+         FMath::IsNearlyEqual(Left.InitialTimeSinceSeenPlayer,
+                              Right.InitialTimeSinceSeenPlayer) &&
+         FMath::IsNearlyEqual(Left.EnemySpottedTimeSinceSeenPlayer,
+                              Right.EnemySpottedTimeSinceSeenPlayer) &&
          Left.bInitialHasAggro == Right.bInitialHasAggro &&
          Left.bDefaultHazardOverlapping ==
              Right.bDefaultHazardOverlapping &&

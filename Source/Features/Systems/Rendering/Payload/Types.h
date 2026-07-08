@@ -15,7 +15,10 @@ namespace Level {
 // Public multi-input boundary for applying a runtime render profile to a
 // world. Grouped into one request struct so the entry point stays unary
 // instead of widening into a World/Profile/Settings parameter list.
+// rtk:suppress RTK-TYPES-001 — imperative side-effect parameter struct,
+// not stored in reducer state; raw UWorld pointer is intentional.
 struct FRuntimeProfileApplyRequest {
+  // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UWorld *World;
   FLevelRetroRenderProfile Profile;
   ForbocAI::Game::Data::FRenderingSettings Settings;
