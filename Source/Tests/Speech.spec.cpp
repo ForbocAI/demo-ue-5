@@ -34,22 +34,22 @@ template <typename Item> const Item &RequiredFirst(const TArray<Item> &Items) {
   return Items[int32{}];
 }
 
-const ForbocAI::Game::Data::FSpeechVisemeMappingSettings &
+const ForbocAI::Game::Data::FVisemeMappingSettings &
 RequiredNonSilenceMapping(
     const ForbocAI::Game::Data::FSpeechSettings &Settings) {
-  const func::Maybe<ForbocAI::Game::Data::FSpeechVisemeMappingSettings>
+  const func::Maybe<ForbocAI::Game::Data::FVisemeMappingSettings>
       Mapping = func::find_array<
-          ForbocAI::Game::Data::FSpeechVisemeMappingSettings>(
+          ForbocAI::Game::Data::FVisemeMappingSettings>(
           Settings.VisemeMappings, [&Settings](
                                        const ForbocAI::Game::Data::
-                                           FSpeechVisemeMappingSettings &Item) {
+                                           FVisemeMappingSettings &Item) {
             return Item.Phoneme != Settings.SilencePhoneme;
           });
   check(Mapping.hasValue);
-  const ForbocAI::Game::Data::FSpeechVisemeMappingSettings *Found =
+  const ForbocAI::Game::Data::FVisemeMappingSettings *Found =
       Settings.VisemeMappings.FindByPredicate(
           [&Mapping](
-              const ForbocAI::Game::Data::FSpeechVisemeMappingSettings &Item) {
+              const ForbocAI::Game::Data::FVisemeMappingSettings &Item) {
             return Item == Mapping.value;
           });
   check(Found != nullptr);
@@ -171,7 +171,7 @@ bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
     return Idx >= Settings.VowelPhonemes.Num()
                ? void()
                : [&]() {
-                   const ForbocAI::Game::Data::FSpeechVowelPhonemeSettings
+                   const ForbocAI::Game::Data::FVowelPhonemeSettings
                        Vowel = Settings.VowelPhonemes[Idx];
                    TestTrue(Label(Settings.Automation.VowelMappedLabelFormat,
                                   Vowel.Character),
@@ -197,9 +197,9 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
       LoadSpeechSettings();
   const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
   const FVisemeMapping Rest = SpeechOps::RestViseme(Settings);
-  const ForbocAI::Game::Data::FSpeechVisemeMappingSettings &Primary =
+  const ForbocAI::Game::Data::FVisemeMappingSettings &Primary =
       RequiredNonSilenceMapping(Settings);
-  const ForbocAI::Game::Data::FSpeechVowelPhonemeSettings &SecondaryVowel =
+  const ForbocAI::Game::Data::FVowelPhonemeSettings &SecondaryVowel =
       RequiredFirst(Settings.VowelPhonemes);
 
   TArray<FPhonemeEvent> Phonemes;
@@ -287,7 +287,7 @@ bool FSpeechVisemeLookup::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSpeechSettings Settings =
       LoadSpeechSettings();
   const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
-  const ForbocAI::Game::Data::FSpeechVisemeMappingSettings &KnownMapping =
+  const ForbocAI::Game::Data::FVisemeMappingSettings &KnownMapping =
       RequiredNonSilenceMapping(Settings);
 
   const func::Maybe<FVisemeMapping> Known =

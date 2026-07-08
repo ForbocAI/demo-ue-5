@@ -8,7 +8,7 @@ namespace Level {
 namespace SpatialSelectors {
 
 float SelectTownLotWorldUnits(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return LevelLayoutAdapters::TownLotWorldUnits(Geometry);
 }
 

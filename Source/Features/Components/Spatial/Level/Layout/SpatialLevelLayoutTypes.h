@@ -14,58 +14,58 @@ struct FLevelLocalPoint {
   float HeightOffset;
 };
 
-struct FLevelLayoutLotsRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+struct FLotsRequest {
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   float EastLots = 0.0f;
   float NorthLots = 0.0f;
   float HeightOffset = 0.0f;
 };
 
-struct FLevelLayoutPointRequest {
+struct FPointRequest {
   float EastWest = 0.0f;
   float NorthSouth = 0.0f;
   float HeightOffset = 0.0f;
 };
 
 struct FLevelCenteredOnGroundRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   FLevelLocalPoint Point;
   FVector Scale = FVector::OneVector;
   float GroundClearance = 0.0f;
 };
 
 struct FLevelAboveBlockRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   FLevelLocalPoint Point;
   FVector Scale = FVector::OneVector;
 };
 
 struct FLevelLabelHeightRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   FVector Scale = FVector::OneVector;
 };
 
 struct FLevelActorFeetRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   float Feet = 0.0f;
 };
 
 struct FLevelBuildingScaleRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   float FrontageFeet = 0.0f;
   float DepthFeet = 0.0f;
   float Stories = 0.0f;
 };
 
 struct FLevelLongFeatureScaleRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   float WidthFeet = 0.0f;
   float LengthLots = 0.0f;
   float HeightFeet = 0.0f;
 };
 
 struct FLevelPadScaleRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   float WidthFeet = 0.0f;
   float DepthFeet = 0.0f;
   float HeightFeet = 0.0f;

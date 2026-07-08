@@ -1,7 +1,7 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
 #include "Core/ue_fp.hpp"
-#include "Features/Systems/Rendering/Profile/Runtime/RuntimeThunks.h"
+#include "Features/Systems/Rendering/Profile/ProfileThunks.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -42,6 +42,13 @@ template <typename Value> struct TProfileFieldDeclaration {
       : Name(RenderingProfileDispatchAtom(InName)), Member(InMember) {}
 };
 
+template <typename Value>
+TArray<TProfileFieldDeclaration<Value>>
+ProfileFieldDeclarations(
+    std::initializer_list<TProfileFieldDeclaration<Value>> Declarations) {
+  return TArray<TProfileFieldDeclaration<Value>>(Declarations);
+}
+
 template <typename Apply> struct TRenderingDispatchDeclaration {
   FString Name;
   Apply Run;
@@ -62,29 +69,32 @@ template <typename Value> struct TProfileFieldRegistry;
 
 template <> struct TProfileFieldRegistry<int32> {
   static const TArray<TProfileFieldDeclaration<int32>> &Fields() {
-    static const TArray<TProfileFieldDeclaration<int32>> RegisteredFields = {
-        {"anti_aliasing_method",
-         &FLevelRetroRenderProfile::AntiAliasingMethod},
-        {"post_process_aa_quality",
-         &FLevelRetroRenderProfile::PostProcessAAQuality},
-        {"shadow_cascades", &FLevelRetroRenderProfile::ShadowCascades},
-        {"shadow_max_resolution",
-         &FLevelRetroRenderProfile::ShadowMaxResolution}};
-    return RegisteredFields;
+    static const TArray<TProfileFieldDeclaration<int32>> ProfileFields =
+        ProfileFieldDeclarations<int32>(
+            {{"anti_aliasing_method",
+              &FLevelRetroRenderProfile::AntiAliasingMethod},
+             {"post_process_aa_quality",
+              &FLevelRetroRenderProfile::PostProcessAAQuality},
+             {"shadow_cascades", &FLevelRetroRenderProfile::ShadowCascades},
+             {"shadow_max_resolution",
+              &FLevelRetroRenderProfile::ShadowMaxResolution}});
+    return ProfileFields;
   }
 };
 
 template <> struct TProfileFieldRegistry<float> {
   static const TArray<TProfileFieldDeclaration<float>> &Fields() {
-    static const TArray<TProfileFieldDeclaration<float>> RegisteredFields = {
-        {"screen_percentage", &FLevelRetroRenderProfile::ScreenPercentage},
-        {"view_distance_scale",
-         &FLevelRetroRenderProfile::ViewDistanceScale},
-        {"foliage_density_scale",
-         &FLevelRetroRenderProfile::FoliageDensityScale},
-        {"grass_density_scale",
-         &FLevelRetroRenderProfile::GrassDensityScale}};
-    return RegisteredFields;
+    static const TArray<TProfileFieldDeclaration<float>> ProfileFields =
+        ProfileFieldDeclarations<float>(
+            {{"screen_percentage",
+              &FLevelRetroRenderProfile::ScreenPercentage},
+             {"view_distance_scale",
+              &FLevelRetroRenderProfile::ViewDistanceScale},
+             {"foliage_density_scale",
+              &FLevelRetroRenderProfile::FoliageDensityScale},
+             {"grass_density_scale",
+              &FLevelRetroRenderProfile::GrassDensityScale}});
+    return ProfileFields;
   }
 };
 

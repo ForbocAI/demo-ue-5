@@ -38,11 +38,11 @@ inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request) {
 /**
  * @brief Pure reducer helper that wraps local reply text in an RTK payload.
  */
-inline FDialogueReplyPayload
+inline FReplyPayload
 ReduceLocalReplyPayload(
     const FLocalDialogueReplyRequest &Request,
     const ForbocAI::Game::Data::FDialogueSettings &Settings) {
-  FDialogueReplyPayload Payload;
+  FReplyPayload Payload;
   Payload.Id = frmt::RuntimeString(
       Settings.ReplyPayloadIdFormat,
       frmt::Args(
@@ -72,7 +72,7 @@ inline FDialogueState ReduceDialogueObserved(
  */
 inline FDialogueState ReduceLocalReplyResolved(
     const FDialogueState &State,
-    const rtk::PayloadAction<FDialogueReplyPayload> &Action) {
+    const rtk::PayloadAction<FReplyPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FDialogueState Next) -> FDialogueState {
             Next.ActionId = func::just(Action.PayloadValue.Id);

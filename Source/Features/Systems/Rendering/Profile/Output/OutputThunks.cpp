@@ -4,7 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/PostProcessVolume.h"
-#include "Features/Systems/Rendering/Profile/Runtime/RuntimeThunks.h"
+#include "Features/Systems/Rendering/Profile/ProfileThunks.h"
 #include "GameFramework/GameUserSettings.h"
 
 namespace ForbocAI {
@@ -24,7 +24,7 @@ FName RuntimeProfilePostProcessTag() {
 // Grouped 4-channel declaration fed to one FVector4 composer, mirroring the
 // shared ProfileLinearColor composer.
 FVector4 ProfileVector4(const FLevelRetroRenderProfile &Profile,
-                        const FProfileColorChannels &Channels) {
+                        const FChannels &Channels) {
   return FVector4(Profile.*Channels.R, Profile.*Channels.G,
                   Profile.*Channels.B, Profile.*Channels.A);
 }

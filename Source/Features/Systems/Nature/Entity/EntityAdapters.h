@@ -8,7 +8,7 @@ namespace Game {
 namespace Level {
 namespace NatureAdapters {
 
-const rtk::EntityAdapter<FNatureFeatureSeed> &NatureAdapter();
+const rtk::EntityAdapter<FFeatureSeed> &NatureAdapter();
 
 } // namespace NatureAdapters
 } // namespace Level

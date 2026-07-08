@@ -13,13 +13,13 @@ template <> struct TComponentSourceValueFieldRegistry<FBotPositionComponent> {
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<
         FBotPositionComponent>>
-        RegisteredFields = {
+        SourceFields = ComponentSourceFieldDeclarations<FBotPositionComponent>({
             {"Id", &FBotPositionComponent::Id},
             {"LocalLocation", &FBotPositionComponent::LocalLocation},
             {"WorldLocation", &FBotPositionComponent::WorldLocation},
             {"HasWorldLocation", &FBotPositionComponent::bHasWorldLocation},
-            {"FacingRight", &FBotPositionComponent::bFacingRight}};
-    return RegisteredFields;
+            {"FacingRight", &FBotPositionComponent::bFacingRight}});
+    return SourceFields;
   }
 };
 

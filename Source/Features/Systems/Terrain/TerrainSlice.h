@@ -11,20 +11,20 @@ namespace TerrainReducers {
 
 FTerrainState
 ReduceTerrainLoaded(const FTerrainState &State,
-                    const rtk::PayloadAction<FTerrainLoadedPayload> &Action);
+                    const rtk::PayloadAction<FLoadedPayload> &Action);
 
 /**
  * Groups the source data needed to build a terrain mesh.
  * Pure data — no behavior.
  */
-struct FTerrainMeshBuildRequest {
+struct FMeshBuildRequest {
   const FLevelTerrainData &TerrainData;
   const FLevelOrthoData &OrthoData;
-  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry;
+  const ForbocAI::Game::Data::FGeometrySettings &Geometry;
 };
 
-FTerrainMeshPayload
-BuildTerrainMeshPayload(const FTerrainMeshBuildRequest &Request);
+FMeshPayload
+BuildTerrainMeshPayload(const FMeshBuildRequest &Request);
 
 } // namespace TerrainReducers
 } // namespace Level
@@ -43,8 +43,8 @@ namespace TerrainSlice {
 
 const rtk::Slice<FTerrainState> &GetSlice();
 
-inline FTerrainMeshPayload
-BuildTerrainMeshPayload(const TerrainReducers::FTerrainMeshBuildRequest &Request) {
+inline FMeshPayload
+BuildTerrainMeshPayload(const TerrainReducers::FMeshBuildRequest &Request) {
   return TerrainReducers::BuildTerrainMeshPayload(Request);
 }
 
@@ -61,7 +61,7 @@ namespace Level {
 namespace TerrainFactories {
 
 FTerrainState CreateInitialState();
-FTerrainLoadedPayload LoadedPayload(const FTerrainLoadedSource &Source);
+FLoadedPayload LoadedPayload(const FLoadedSource &Source);
 
 } // namespace TerrainFactories
 } // namespace Level

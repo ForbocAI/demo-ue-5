@@ -21,7 +21,7 @@ class UTextRenderComponent;
  * presentation.
  */
 USTRUCT(BlueprintType)
-struct FTownspersonViewConfig {
+struct FViewIdentity {
   GENERATED_BODY()
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
@@ -35,6 +35,11 @@ struct FTownspersonViewConfig {
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString Persona;
+};
+
+USTRUCT(BlueprintType)
+struct FViewConversation {
+  GENERATED_BODY()
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString InteractionPrompt;
@@ -44,6 +49,17 @@ struct FTownspersonViewConfig {
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   FString PinnedResponse;
+};
+
+USTRUCT(BlueprintType)
+struct FTownspersonViewConfig {
+  GENERATED_BODY()
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FViewIdentity Identity;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
+  FViewConversation Conversation;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
   TArray<FVector> PatrolRoute;

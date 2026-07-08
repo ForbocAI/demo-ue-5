@@ -12,7 +12,7 @@ namespace InteractionSelectors {
 /**
  * @brief Selector for the reducer-owned selected candidate.
  */
-inline const FInteractionSelection &
+inline const FSelection &
 SelectSelectedCandidate(const FInteractionState &State) {
   return State.SelectedCandidate;
 }
@@ -28,7 +28,7 @@ inline float SelectTownspersonInteractionDistance(
 /**
  * @brief Selector for the observed candidate payload.
  */
-inline TArray<FInteractionCandidate>
+inline TArray<FCandidate>
 SelectCandidates(const FInteractionState &State) {
   return State.Candidates;
 }

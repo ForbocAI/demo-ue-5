@@ -5,11 +5,11 @@ namespace Game {
 namespace Level {
 namespace TerrainActions {
 
-const rtk::ActionCreator<FTerrainLoadedPayload> &TerrainLoaded() {
-  static const func::Lazy<rtk::ActionCreator<FTerrainLoadedPayload>> Creator =
-      func::lazy([]() -> rtk::ActionCreator<FTerrainLoadedPayload> {
+const rtk::ActionCreator<FLoadedPayload> &TerrainLoaded() {
+  static const func::Lazy<rtk::ActionCreator<FLoadedPayload>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<FLoadedPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FTerrainLoadedPayload>(TEXT("terrain/loaded"));
+        return rtk::createAction<FLoadedPayload>(TEXT("terrain/loaded"));
       });
   return func::eval(Creator);
 }

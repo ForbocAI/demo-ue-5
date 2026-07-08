@@ -31,23 +31,24 @@ using FRuntimeDispatch =
 struct FRuntimeDataLoadRequest {
   FLevelTerrainData &TerrainData;
   FLevelOrthoData &OrthoData;
-  ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FTerrainSourceSettings Sources;
+  ForbocAI::Game::Data::FCsvSettings Csv;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 struct FRuntimeSeedDispatchRequest {
   const FRuntimeDispatch &Dispatch;
   const FLevelTerrainData &TerrainData;
   const FLevelOrthoData &OrthoData;
-  ForbocAI::Game::Data::FLevelDataSourceSettings DataSources;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FDataSourceSettings DataSources;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 struct FRuntimeSeedSource {
   const FLevelTerrainData &TerrainData;
   const FLevelOrthoData &OrthoData;
-  ForbocAI::Game::Data::FLevelDataSourceSettings DataSources;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FDataSourceSettings DataSources;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 using FRuntimeSeedActionBuilder =
@@ -57,13 +58,14 @@ struct FRuntimeSeedActionDeclaration {
   FRuntimeSeedActionBuilder Build;
 };
 
-struct FRuntimeSeedActionCatalog {};
+struct FRuntimeSeedActionPlan {};
 
 template <typename Catalog> struct TRuntimeThunkRegistry;
 
 void LoadRuntimeData(const FRuntimeDataLoadRequest &Request) {
-  Request.TerrainData.LoadFromContent({Request.Sources, Request.Geometry});
-  Request.OrthoData.LoadFromContent({Request.Sources});
+  Request.TerrainData.LoadFromContent(
+      {Request.Sources, Request.Csv, Request.Geometry});
+  Request.OrthoData.LoadFromContent({Request.Sources, Request.Csv});
 }
 
 FRuntimeSeedSource RuntimeSeedSource(
@@ -117,7 +119,7 @@ rtk::AnyAction NatureSeededAction(const FRuntimeSeedSource &Source) {
           {Source.DataSources.NatureJsonPath, Source.Geometry}));
 }
 
-template <> struct TRuntimeThunkRegistry<FRuntimeSeedActionCatalog> {
+template <> struct TRuntimeThunkRegistry<FRuntimeSeedActionPlan> {
   static const TArray<FRuntimeSeedActionDeclaration> &Declarations() {
     static const TArray<FRuntimeSeedActionDeclaration>
         RegisteredDeclarations = {{TerrainLoadedSeedAction},
@@ -157,7 +159,7 @@ void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
       RuntimeSeedActions(
           RuntimeSeedSource(Request),
           TRuntimeThunkRegistry<
-              FRuntimeSeedActionCatalog>::Declarations()));
+              FRuntimeSeedActionPlan>::Declarations()));
 }
 
 } // namespace
@@ -175,7 +177,7 @@ FString RequestLevelViewPayloadTypePrefix() {
 // a rejected action on failure instead of swallowing the error. The public
 // signature stays a ThunkAction (the config's operator()), so callers and the
 // EnhancedStore thunk-dispatch path are unchanged.
-const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
+const rtk::AsyncThunkConfig<FPointPayload, rtk::FEmptyPayload,
                             FRuntimeState> &
 RequestPlayerSpawnAsyncThunk() {
   // RTK-THUNK-004: condition guard – skip if already loading / loaded.
@@ -186,29 +188,32 @@ RequestPlayerSpawnAsyncThunk() {
             return RuntimeSelectors::SelectRuntimeLifecycle(Api.getState())
                        .PlayerSpawnStatus == ERuntimeLoadStatus::Idle;
           });
-  static const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
+  static const rtk::AsyncThunkConfig<FPointPayload, rtk::FEmptyPayload,
                                      FRuntimeState>
-      Config = rtk::createAsyncThunk<FSpawnPointPayload, rtk::FEmptyPayload,
+      Config = rtk::createAsyncThunk<FPointPayload, rtk::FEmptyPayload,
                                      FRuntimeState>(
           RequestPlayerSpawnTypePrefix(),
           [](const rtk::FEmptyPayload &,
              const rtk::ThunkApi<FRuntimeState> &Api)
-              -> func::AsyncResult<FSpawnPointPayload> {
-            return func::createAsyncResult<FSpawnPointPayload>(
-                [Api](std::function<void(FSpawnPointPayload)> Resolve,
+              -> func::AsyncResult<FPointPayload> {
+            return func::createAsyncResult<FPointPayload>(
+                [Api](std::function<void(FPointPayload)> Resolve,
                       std::function<void(std::string)>) {
                   FLevelTerrainData TerrainData;
                   FLevelOrthoData OrthoData;
                   const FRuntimeState &State = Api.getState();
-                  const ForbocAI::Game::Data::FLevelTerrainSourceSettings
+                  const ForbocAI::Game::Data::FTerrainSourceSettings
                       Sources =
                           RuntimeSelectors::SelectLevelTerrainSources(State);
-                  const ForbocAI::Game::Data::FLevelDataSourceSettings
+                  const ForbocAI::Game::Data::FDataSourceSettings
                       DataSources =
                           RuntimeSelectors::SelectLevelDataSources(State);
-                  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
+                  const ForbocAI::Game::Data::FCsvSettings Csv =
+                      RuntimeSelectors::SelectLevelCsv(State);
+                  const ForbocAI::Game::Data::FGeometrySettings Geometry =
                       RuntimeSelectors::SelectLevelGeometry(State);
-                  LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
+                  LoadRuntimeData(
+                      {TerrainData, OrthoData, Sources, Csv, Geometry});
                   DispatchRuntimeSeeded({Api.dispatch, TerrainData, OrthoData,
                                          DataSources, Geometry});
                   Resolve(RuntimeSelectors::SelectPlayerSpawn(Api.getState()));
@@ -218,7 +223,7 @@ RequestPlayerSpawnAsyncThunk() {
   return Config;
 }
 
-rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
+rtk::ThunkAction<FPointPayload, FRuntimeState> RequestPlayerSpawn() {
   return RequestPlayerSpawnAsyncThunk()(rtk::FEmptyPayload{});
 }
 
@@ -247,16 +252,19 @@ RequestLevelViewPayloadAsyncThunk() {
                   FLevelTerrainData TerrainData;
                   FLevelOrthoData OrthoData;
                   const FRuntimeState &State = Api.getState();
-                  const ForbocAI::Game::Data::FLevelTerrainSourceSettings
+                  const ForbocAI::Game::Data::FTerrainSourceSettings
                       Sources =
                           RuntimeSelectors::SelectLevelTerrainSources(State);
-                  const ForbocAI::Game::Data::FLevelDataSourceSettings
+                  const ForbocAI::Game::Data::FDataSourceSettings
                       DataSources =
                           RuntimeSelectors::SelectLevelDataSources(State);
-                  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
+                  const ForbocAI::Game::Data::FCsvSettings Csv =
+                      RuntimeSelectors::SelectLevelCsv(State);
+                  const ForbocAI::Game::Data::FGeometrySettings Geometry =
                       RuntimeSelectors::SelectLevelGeometry(State);
-                  LoadRuntimeData({TerrainData, OrthoData, Sources, Geometry});
-                  const FLevelLayoutSeed Layout =
+                  LoadRuntimeData(
+                      {TerrainData, OrthoData, Sources, Csv, Geometry});
+                  const FLayoutSeed Layout =
                       LevelAdapters::LoadLayoutSeed(DataSources);
                   DispatchRuntimeSeeded({Api.dispatch, TerrainData, OrthoData,
                                          DataSources, Geometry});

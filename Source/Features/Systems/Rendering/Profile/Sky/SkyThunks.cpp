@@ -7,7 +7,7 @@
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
-#include "Features/Systems/Rendering/Profile/Runtime/RuntimeThunks.h"
+#include "Features/Systems/Rendering/Profile/ProfileThunks.h"
 #include "Features/Systems/Rendering/Profile/Sky/SkySlice.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
@@ -32,30 +32,34 @@ struct FRuntimePixelMaterialEval {
   FLinearColor Color;
 };
 
+FName SkyAtom(const char *Atom) {
+  return FName(UTF8_TO_TCHAR(Atom));
+}
+
 // --- Actor tags -----------------------------------------------------------
 
 FName RuntimeProfileSkyDomeTag() {
-  static const FName Tag(TEXT("ForbocRuntimeProfileSkyDome"));
+  static const FName Tag(SkyAtom("ForbocRuntimeProfileSkyDome"));
   return Tag;
 }
 
 FName RuntimeProfileMoonDiscTag() {
-  static const FName Tag(TEXT("ForbocRuntimeProfileMoonDisc"));
+  static const FName Tag(SkyAtom("ForbocRuntimeProfileMoonDisc"));
   return Tag;
 }
 
 FName RuntimeProfilePointStarsTag() {
-  static const FName Tag(TEXT("ForbocRuntimeProfilePointStars"));
+  static const FName Tag(SkyAtom("ForbocRuntimeProfilePointStars"));
   return Tag;
 }
 
 FName RuntimeProfileMoonPixelsComponentName() {
-  static const FName Name(TEXT("ForbocRuntimeProfileMoonPixels"));
+  static const FName Name(SkyAtom("ForbocRuntimeProfileMoonPixels"));
   return Name;
 }
 
 FName RuntimeProfilePointStarsComponentName() {
-  static const FName Name(TEXT("ForbocRuntimeProfilePointStars"));
+  static const FName Name(SkyAtom("ForbocRuntimeProfilePointStars"));
   return Name;
 }
 
@@ -90,34 +94,34 @@ Component *FindActorComponentByName(AActor *Actor, const FName &Name) {
 void ApplyRuntimeEmissiveColor(UMaterialInstanceDynamic *Material,
                                const FLinearColor &Color) {
   check(Material);
-  Material->SetVectorParameterValue(TEXT("BaseColor"), Color);
-  Material->SetVectorParameterValue(TEXT("Color"), Color);
-  Material->SetVectorParameterValue(TEXT("TintColor"), Color);
-  Material->SetVectorParameterValue(TEXT("DiffuseColor"), Color);
-  Material->SetVectorParameterValue(TEXT("EmissiveColor"), Color);
+  Material->SetVectorParameterValue(SkyAtom("BaseColor"), Color);
+  Material->SetVectorParameterValue(SkyAtom("Color"), Color);
+  Material->SetVectorParameterValue(SkyAtom("TintColor"), Color);
+  Material->SetVectorParameterValue(SkyAtom("DiffuseColor"), Color);
+  Material->SetVectorParameterValue(SkyAtom("EmissiveColor"), Color);
 }
 
 void ApplyRuntimeSkyDomeMaterialParameters(
     UMaterialInstanceDynamic *Material,
     const FLevelRetroRenderProfile &Profile) {
   check(Material);
-  Material->SetScalarParameterValue(TEXT("SkyBrightness"),
+  Material->SetScalarParameterValue(SkyAtom("SkyBrightness"),
                                     Profile.SkyDomeSkyBrightness);
-  Material->SetScalarParameterValue(TEXT("CloudBrightness"),
+  Material->SetScalarParameterValue(SkyAtom("CloudBrightness"),
                                     Profile.SkyDomeCloudBrightness);
-  Material->SetScalarParameterValue(TEXT("CloudDarkness"),
+  Material->SetScalarParameterValue(SkyAtom("CloudDarkness"),
                                     Profile.SkyDomeCloudDarkness);
-  Material->SetScalarParameterValue(TEXT("RimBrightness"),
+  Material->SetScalarParameterValue(SkyAtom("RimBrightness"),
                                     Profile.SkyDomeRimBrightness);
-  Material->SetScalarParameterValue(TEXT("Stars"), 0.0f);
+  Material->SetScalarParameterValue(SkyAtom("Stars"), 0.0f);
   Material->SetVectorParameterValue(
-      TEXT("StarColor"),
+      SkyAtom("StarColor"),
       RenderingProfileSkyReducers::SkyDomeTextureStarMaskColor(Profile));
   Material->SetVectorParameterValue(
-      TEXT("HorizonColor"),
+      SkyAtom("HorizonColor"),
       RenderingProfileSkyReducers::SkyDomeHorizonColor(Profile));
   Material->SetVectorParameterValue(
-      TEXT("ZenithColor"),
+      SkyAtom("ZenithColor"),
       RenderingProfileSkyReducers::SkyDomeZenithColor(Profile));
 }
 

@@ -11,7 +11,7 @@ namespace RenderingProfileColorTypes {
 
 using FProfileColorChannel = float FLevelRetroRenderProfile::*;
 
-struct FProfileColorChannels {
+struct FChannels {
   FProfileColorChannel R;
   FProfileColorChannel G;
   FProfileColorChannel B;
@@ -20,7 +20,7 @@ struct FProfileColorChannels {
 
 inline FLinearColor ProfileLinearColor(
     const FLevelRetroRenderProfile &Profile,
-    const FProfileColorChannels &Channels) {
+    const FChannels &Channels) {
   return FLinearColor(Profile.*Channels.R, Profile.*Channels.G,
                       Profile.*Channels.B, Profile.*Channels.A);
 }

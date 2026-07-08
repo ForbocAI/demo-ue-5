@@ -18,7 +18,7 @@ namespace SettingsAdapters {
 FSettings
 ReadSettings(const TSharedPtr<FJsonObject> &Object);
 
-ecs::FDomainRegistry EcsDomainRegistry(const FEcsSettings &Settings);
+ecs::FDomainGraph EcsDomainRegistry(const FEcsSettings &Settings);
 
 /**
  * @brief Loads all authored UE runtime runtime settings from JSON.

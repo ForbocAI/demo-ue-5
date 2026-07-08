@@ -11,15 +11,15 @@ namespace Data {
 
 // --- Request structs (data contracts) ------------------------------------
 
-struct FJsonContentObjectRequest {
+struct FContentObjectRequest {
   FString RelativePath;
 };
 
-struct FJsonContentArrayRequest {
+struct FContentArrayRequest {
   FString RelativePath;
 };
 
-struct FJsonFieldRequest {
+struct FFieldRequest {
   TSharedPtr<FJsonObject> Object;
   FString FieldName;
 };
@@ -28,7 +28,7 @@ struct FJsonFieldRequest {
  * User story: As a data adapter author, I can validate authored array entries
  * without a feature system owning neutral JSON error-shaping logic.
  */
-struct FJsonArrayValueObjectRequest {
+struct FArrayValueObjectRequest {
   TSharedPtr<FJsonValue> Value;
   FString FieldName;
   int32 Index = 0;
@@ -36,33 +36,33 @@ struct FJsonArrayValueObjectRequest {
 
 // --- Equality operators --------------------------------------------------
 
-inline bool operator==(const FJsonContentObjectRequest &Left,
-                       const FJsonContentObjectRequest &Right) {
+inline bool operator==(const FContentObjectRequest &Left,
+                       const FContentObjectRequest &Right) {
   return Left.RelativePath == Right.RelativePath;
 }
 
-inline bool operator!=(const FJsonContentObjectRequest &Left,
-                       const FJsonContentObjectRequest &Right) {
+inline bool operator!=(const FContentObjectRequest &Left,
+                       const FContentObjectRequest &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FJsonContentArrayRequest &Left,
-                       const FJsonContentArrayRequest &Right) {
+inline bool operator==(const FContentArrayRequest &Left,
+                       const FContentArrayRequest &Right) {
   return Left.RelativePath == Right.RelativePath;
 }
 
-inline bool operator!=(const FJsonContentArrayRequest &Left,
-                       const FJsonContentArrayRequest &Right) {
+inline bool operator!=(const FContentArrayRequest &Left,
+                       const FContentArrayRequest &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FJsonFieldRequest &Left,
-                       const FJsonFieldRequest &Right) {
+inline bool operator==(const FFieldRequest &Left,
+                       const FFieldRequest &Right) {
   return Left.Object == Right.Object && Left.FieldName == Right.FieldName;
 }
 
-inline bool operator!=(const FJsonFieldRequest &Left,
-                       const FJsonFieldRequest &Right) {
+inline bool operator!=(const FFieldRequest &Left,
+                       const FFieldRequest &Right) {
   return !(Left == Right);
 }
 

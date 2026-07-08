@@ -20,7 +20,7 @@ namespace BotsAdapters {
 
 struct FBotSeedBuildRequest {
   FString RelativeJsonPath;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 TArray<FTownspersonSeed> BuildTownspersonSeed(

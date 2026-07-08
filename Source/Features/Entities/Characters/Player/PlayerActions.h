@@ -19,13 +19,13 @@ inline const rtk::ActionCreator<FPlayerPayload> &PlayerObserved() {
   return func::eval(Creator);
 }
 
-inline const rtk::ActionCreator<FPlayerMovementInputRequest> &
+inline const rtk::ActionCreator<FMovementInputRequest> &
 PlayerMovementInputObserved() {
-  static const func::Lazy<rtk::ActionCreator<FPlayerMovementInputRequest>>
+  static const func::Lazy<rtk::ActionCreator<FMovementInputRequest>>
       Creator =
-          func::lazy([]() -> rtk::ActionCreator<FPlayerMovementInputRequest> {
+          func::lazy([]() -> rtk::ActionCreator<FMovementInputRequest> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-            return rtk::createAction<FPlayerMovementInputRequest>(
+            return rtk::createAction<FMovementInputRequest>(
                 TEXT("entities/player/movementInputObserved"));
           });
   return func::eval(Creator);

@@ -30,8 +30,8 @@ template <typename Source> struct TBotRuntimeActionDeclaration {
   rtk::AnyAction (*Build)(const Source &);
 };
 
-struct FBotTickActionCatalog {};
-struct FBotRegistrationActionCatalog {};
+struct FBotTickActionPlan {};
+struct FBotRegistrationActionPlan {};
 
 template <typename Declaration> struct TBotOrchestratorRegistry;
 
@@ -118,7 +118,7 @@ rtk::AnyAction OrchestratorObservedFromRegistrationSource(
   return OrchestratorObservedAction(Source.Registration.Id);
 }
 
-template <> struct TBotOrchestratorRegistry<FBotTickActionCatalog> {
+template <> struct TBotOrchestratorRegistry<FBotTickActionPlan> {
   static const TArray<TBotRuntimeActionDeclaration<FBotPositionPayloadSource>>
       &Declarations() {
     static const TArray<
@@ -130,7 +130,7 @@ template <> struct TBotOrchestratorRegistry<FBotTickActionCatalog> {
 };
 
 template <>
-struct TBotOrchestratorRegistry<FBotRegistrationActionCatalog> {
+struct TBotOrchestratorRegistry<FBotRegistrationActionPlan> {
   static const TArray<
       TBotRuntimeActionDeclaration<FBotRegistrationDispatchSource>>
       &Declarations() {
@@ -213,14 +213,14 @@ int32 ObservationBehaviorState(const FBotObservationSource &Source) {
 
 void DispatchRuntimeActionsForTick(const FBotPositionPayloadSource &Source) {
   DispatchRuntimeActions<FBotPositionPayloadSource>(
-      Source, TBotOrchestratorRegistry<FBotTickActionCatalog>::Declarations());
+      Source, TBotOrchestratorRegistry<FBotTickActionPlan>::Declarations());
 }
 
 void DispatchRuntimeActionsForRegistration(
     const FBotRegistrationDispatchSource &Source) {
   DispatchRuntimeActions<FBotRegistrationDispatchSource>(
       Source,
-      TBotOrchestratorRegistry<FBotRegistrationActionCatalog>::Declarations());
+      TBotOrchestratorRegistry<FBotRegistrationActionPlan>::Declarations());
 }
 
 bool RunBotActionDispatch(const FBotActionDispatchRequest &Request) {

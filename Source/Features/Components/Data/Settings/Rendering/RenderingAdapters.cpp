@@ -9,13 +9,13 @@ namespace JsonAdapters {
 
 JSON_SETTINGS_REGISTRY(FRenderingRgbSettings, R, G, B);
 
-JSON_SETTINGS_REGISTRY(FRenderingTextureHashSettings, XMultiplier,
+JSON_SETTINGS_REGISTRY(FHashSettings, XMultiplier,
                        YMultiplier, SaltMultiplier, XorShift);
 
 JSON_SETTINGS_REGISTRY(FRenderingConsoleVariableSettings, Name, ValueKind,
                        ProfileField, IntValue, FloatValue);
 
-JSON_SETTINGS_REGISTRY(FRenderingDistanceLodStageSettings, Id, MaxDistance,
+JSON_SETTINGS_REGISTRY(FStageSettings, Id, MaxDistance,
                        StaticMeshForcedLodModel, SkeletalMeshForcedLodModel,
                        SkeletalMeshMinLodModel, CullDistance,
                        ActorTickIntervalSeconds, bStaticVisible,
@@ -23,21 +23,21 @@ JSON_SETTINGS_REGISTRY(FRenderingDistanceLodStageSettings, Id, MaxDistance,
                        bUpdateRateOptimizationsEnabled,
                        bPatrolEnabled, bCollisionEnabled, bCastShadow);
 
-JSON_SETTINGS_REGISTRY(FRenderingTexturePredicateSettings, Kind, XMultiplier,
+JSON_SETTINGS_REGISTRY(FPredicateSettings, Kind, XMultiplier,
                        YMultiplier, NoiseMultiplier, XDivisor, YDivisor,
                        Modulus, Equals, LessThan);
 
 template <>
-struct TJsonSettingsRegistry<FRenderingTextureColorResultSettings> {
-  static const TArray<TJsonSettingsField<FRenderingTextureColorResultSettings>>
+struct TJsonSettingsRegistry<FColorResultSettings> {
+  static const TArray<TField<FColorResultSettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FRenderingTextureColorResultSettings>>
+    static const TArray<TField<FColorResultSettings>>
         RegisteredFields = {
-            JSON_SETTING_FIELDS(FRenderingTextureColorResultSettings, Kind,
+            JSON_SETTING_FIELDS(FColorResultSettings, Kind,
                                 NumeratorBase, NumeratorNoiseModulus,
                                 Denominator),
             JSON_OBJECT_SETTING_FIELDS(
-                FRenderingTextureColorResultSettings,
+                FColorResultSettings,
                 ReadSettingsWith<FRenderingRgbSettings>(
                     JSON_SETTINGS_ATOMS(R, G, B)),
                 Color, ColorA, ColorB)};
@@ -45,21 +45,21 @@ struct TJsonSettingsRegistry<FRenderingTextureColorResultSettings> {
   }
 };
 
-template <> struct TJsonSettingsRegistry<FRenderingTextureRuleSettings> {
-  static const TArray<TJsonSettingsField<FRenderingTextureRuleSettings>>
+template <> struct TJsonSettingsRegistry<FRuleSettings> {
+  static const TArray<TField<FRuleSettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FRenderingTextureRuleSettings>>
+    static const TArray<TField<FRuleSettings>>
         RegisteredFields = {
             JSON_OBJECT_SETTING_FIELD(
-                FRenderingTextureRuleSettings,
-                ReadSettingsWith<FRenderingTexturePredicateSettings>(
+                FRuleSettings,
+                ReadSettingsWith<FPredicateSettings>(
                     JSON_SETTINGS_ATOMS(Kind, XMultiplier, YMultiplier,
                                         NoiseMultiplier, XDivisor, YDivisor,
                                         Modulus, Equals, LessThan)),
                 Predicate),
             JSON_OBJECT_SETTING_FIELD(
-                FRenderingTextureRuleSettings,
-                ReadSettingsWith<FRenderingTextureColorResultSettings>(
+                FRuleSettings,
+                ReadSettingsWith<FColorResultSettings>(
                     JSON_SETTINGS_ATOMS(Kind, NumeratorBase,
                                         NumeratorNoiseModulus, Denominator,
                                         Color, ColorA, ColorB)),
@@ -68,15 +68,15 @@ template <> struct TJsonSettingsRegistry<FRenderingTextureRuleSettings> {
   }
 };
 
-template <> struct TJsonSettingsRegistry<FRenderingTexturePaletteSettings> {
-  static const TArray<TJsonSettingsField<FRenderingTexturePaletteSettings>>
+template <> struct TJsonSettingsRegistry<FPaletteSettings> {
+  static const TArray<TField<FPaletteSettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FRenderingTexturePaletteSettings>>
+    static const TArray<TField<FPaletteSettings>>
         RegisteredFields = {
-            JSON_SETTING_FIELDS(FRenderingTexturePaletteSettings, Texture),
+            JSON_SETTING_FIELDS(FPaletteSettings, Texture),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
-                FRenderingTexturePaletteSettings,
-                ReadSettingsWith<FRenderingTextureRuleSettings>(
+                FPaletteSettings,
+                ReadSettingsWith<FRuleSettings>(
                     JSON_SETTINGS_ATOMS(Predicate, Result)),
                 Rules)};
     return RegisteredFields;
@@ -86,7 +86,7 @@ template <> struct TJsonSettingsRegistry<FRenderingTexturePaletteSettings> {
 JSON_SETTINGS_REGISTRY(FRenderingAssetPathSettings, LevelCubeMeshPath,
                        BlockoutMaterialPath);
 
-JSON_SETTINGS_REGISTRY(FRenderingProfileSettings, TimeOfDayHour,
+JSON_SETTINGS_REGISTRY(FProfileSettings, TimeOfDayHour,
                        AntiAliasingMethod, PostProcessAAQuality,
                        ScreenPercentage, MinimumScreenPercentage,
                        InternalRenderWidth, InternalRenderHeight,
@@ -140,18 +140,18 @@ JSON_SETTINGS_REGISTRY(FRenderingProfileSettings, TimeOfDayHour,
                        FogMaxOpacity, FogColorR, FogColorG, FogColorB,
                        FogColorA);
 
-JSON_SETTINGS_REGISTRY(FRenderingTextureSpecSettings, Texture, Name, Use, Size);
+JSON_SETTINGS_REGISTRY(FSpecSettings, Texture, Name, Use, Size);
 
 template <> struct TJsonSettingsRegistry<FRenderingSettings> {
-  static const TArray<TJsonSettingsField<FRenderingSettings>> &Fields() {
-    static const TArray<TJsonSettingsField<FRenderingSettings>>
+  static const TArray<TField<FRenderingSettings>> &Fields() {
+    static const TArray<TField<FRenderingSettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(FRenderingSettings, TextureChannels,
                                 TextureAlpha, TextureCacheKeyFormat,
                                 MaterialTextureParameter),
             JSON_OBJECT_SETTING_FIELD(
                 FRenderingSettings,
-                ReadSettingsWith<FRenderingTextureHashSettings>(
+                ReadSettingsWith<FHashSettings>(
                     JSON_SETTINGS_ATOMS(XMultiplier, YMultiplier,
                                         SaltMultiplier, XorShift)),
                 TextureHash)};
@@ -159,13 +159,13 @@ template <> struct TJsonSettingsRegistry<FRenderingSettings> {
   }
 };
 
-template <> struct TJsonSettingsRegistry<FRenderingDistanceLodSettings> {
-  static const TArray<TJsonSettingsField<FRenderingDistanceLodSettings>>
+template <> struct TJsonSettingsRegistry<FLodSettings> {
+  static const TArray<TField<FLodSettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FRenderingDistanceLodSettings>>
+    static const TArray<TField<FLodSettings>>
         RegisteredFields = {JSON_OBJECT_ARRAY_SETTING_FIELD(
-            FRenderingDistanceLodSettings,
-                ReadSettingsWith<FRenderingDistanceLodStageSettings>(
+            FLodSettings,
+                ReadSettingsWith<FStageSettings>(
                     JSON_SETTINGS_ATOMS(Id, MaxDistance, StaticMeshForcedLodModel,
                                     SkeletalMeshForcedLodModel,
                                     SkeletalMeshMinLodModel, CullDistance,
@@ -183,17 +183,17 @@ namespace RenderingSettingsAdapters {
 namespace Json = JsonAdapters;
 namespace {
 
-FRenderingTexturePaletteSettings
+FPaletteSettings
 ReadRenderingTexturePaletteSource(const FString &Source) {
-  return Json::ReadSettingsWith<FRenderingTexturePaletteSettings>(
+  return Json::ReadSettingsWith<FPaletteSettings>(
       JSON_SETTINGS_ATOMS(Texture, Rules))(
       Json::ReadObjectField(Json::LoadRequiredObjectFromContent({Source}),
                             "TexturePalette"));
 }
 
-TArray<FRenderingTexturePaletteSettings>
+TArray<FPaletteSettings>
 ReadRenderingTexturePaletteSources(const TSharedPtr<FJsonObject> &Object) {
-  return func::map_array<FString, FRenderingTexturePaletteSettings>(
+  return func::map_array<FString, FPaletteSettings>(
       Json::ReadStringArrayField(Object, "TexturePaletteSources"),
       ReadRenderingTexturePaletteSource);
 }
@@ -206,9 +206,9 @@ ReadRenderingAssetPathSettings(const TSharedPtr<FJsonObject> &Object) {
       Object, JSON_SETTINGS_ATOMS(LevelCubeMeshPath, BlockoutMaterialPath));
 }
 
-FRenderingProfileSettings
+FProfileSettings
 ReadRenderingProfileSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FRenderingProfileSettings>(
+  return Json::ReadSettingsFields<FProfileSettings>(
       Object, JSON_SETTINGS_ATOMS(TimeOfDayHour, AntiAliasingMethod,
                                   PostProcessAAQuality, ScreenPercentage,
                                   MinimumScreenPercentage, InternalRenderWidth,
@@ -278,20 +278,20 @@ ReadRenderingProfileSettings(const TSharedPtr<FJsonObject> &Object) {
                                   FogColorB, FogColorA));
 }
 
-FRenderingTextureSpecSettings
+FSpecSettings
 ReadRenderingTextureSpecSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FRenderingTextureSpecSettings>(
+  return Json::ReadSettingsFields<FSpecSettings>(
       Object, JSON_SETTINGS_ATOMS(Texture, Name, Use, Size));
 }
 
-TArray<FRenderingTextureSpecSettings>
+TArray<FSpecSettings>
 ReadTextureCatalogSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadObjectArrayField<FRenderingTextureSpecSettings>(
+  return Json::ReadObjectArrayField<FSpecSettings>(
       Object, "TextureCatalog", ReadRenderingTextureSpecSettings);
 }
 
 FRenderingSettings
-ReadRenderingSettings(const FRenderingSettingsRequest &Request) {
+ReadRenderingSettings(const FSettingsRequest &Request) {
   FRenderingSettings Settings =
       Json::ReadSettingsFields<FRenderingSettings>(
           Request.TextureSettings,
@@ -308,9 +308,9 @@ ReadRenderingSettings(const FRenderingSettingsRequest &Request) {
   return Settings;
 }
 
-FRenderingDistanceLodSettings
+FLodSettings
 ReadRenderingDistanceLodSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FRenderingDistanceLodSettings>(
+  return Json::ReadSettingsFields<FLodSettings>(
       Object, JSON_SETTINGS_ATOMS(Stages));
 }
 

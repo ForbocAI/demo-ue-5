@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FPlayerPresentationSettings {
+struct FPresentationSettings {
   float CapsuleRadius;
   float CapsuleHalfHeight;
   float FollowCameraArmLength;

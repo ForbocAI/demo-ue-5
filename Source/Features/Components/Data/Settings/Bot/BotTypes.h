@@ -16,7 +16,7 @@ struct FTownspersonDefaultsSettings {
 };
 
 
-struct FBotStatPresetSettings {
+struct FStatPresetSettings {
   float MoveSpeed;
   float AwarenessRange;
   float Resolve;
@@ -53,8 +53,8 @@ struct FBotSettings {
   FString PatrolGoalIdFormat;
   bool bPatrolGoalInitialCompleted;
   bool bActiveGoalComponentHasActiveGoal;
-  FBotStatPresetSettings TownspersonStats;
-  FBotStatPresetSettings HorseStats;
+  FStatPresetSettings TownspersonStats;
+  FStatPresetSettings HorseStats;
   float ObservationIntervalSeconds;
   float InitialObservationTimeSeconds;
   bool bOrchestratorCanEverTick;
@@ -117,16 +117,16 @@ struct FHorsePresentationSettings {
 };
 
 
-inline bool operator==(const FBotStatPresetSettings &Left,
-                       const FBotStatPresetSettings &Right) {
+inline bool operator==(const FStatPresetSettings &Left,
+                       const FStatPresetSettings &Right) {
   return FMath::IsNearlyEqual(Left.MoveSpeed, Right.MoveSpeed) &&
          FMath::IsNearlyEqual(Left.AwarenessRange, Right.AwarenessRange) &&
          FMath::IsNearlyEqual(Left.Resolve, Right.Resolve) &&
          Left.bCanTalk == Right.bCanTalk;
 }
 
-inline bool operator!=(const FBotStatPresetSettings &Left,
-                       const FBotStatPresetSettings &Right) {
+inline bool operator!=(const FStatPresetSettings &Left,
+                       const FStatPresetSettings &Right) {
   return !(Left == Right);
 }
 

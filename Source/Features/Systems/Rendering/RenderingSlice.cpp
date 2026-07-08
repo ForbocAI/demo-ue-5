@@ -13,7 +13,7 @@ FRenderingAssetPaths ReduceRenderingAssetPaths(
 }
 
 FRenderingPayload ReduceRenderingPayload(
-    const FRenderingPayloadRequest &Request) {
+    const FPayloadRequest &Request) {
   return {Request.Id, Request.RuntimeProfile, Request.TextureCatalog,
           Request.DistanceLodStages, Request.Settings};
 }
@@ -23,23 +23,24 @@ FRenderingState ReduceRenderingProfileObserved(
     const rtk::PayloadAction<FRenderingPayload> &Action) {
   return (func::pipe(State) |
           [&Action](FRenderingState Next) -> FRenderingState {
-            Next.ActionId = func::just(Action.PayloadValue.Id);
-            Next.RuntimeProfile = Action.PayloadValue.RuntimeProfile;
-            Next.TextureCatalog = Action.PayloadValue.TextureCatalog;
-            Next.DistanceLodStages = Action.PayloadValue.DistanceLodStages;
-            Next.Settings = Action.PayloadValue.Settings;
-            Next.bReady = true;
+            Next.Profile.ActionId = func::just(Action.PayloadValue.Id);
+            Next.Profile.RuntimeProfile = Action.PayloadValue.RuntimeProfile;
+            Next.Catalog.TextureCatalog = Action.PayloadValue.TextureCatalog;
+            Next.Catalog.DistanceLodStages =
+                Action.PayloadValue.DistanceLodStages;
+            Next.Profile.Settings = Action.PayloadValue.Settings;
+            Next.Profile.bReady = true;
             return Next;
           })
       .val;
 }
 
-struct FStatsFormatContext {
+struct FFormatContext {
   const FString *Format;
   int32 BufferCharacterCount;
 };
 
-inline FString FormatRuntimeStatsText(FStatsFormatContext Context, ...) {
+inline FString FormatRuntimeStatsText(FFormatContext Context, ...) {
   TArray<TCHAR> Buffer;
   Buffer.SetNumZeroed(Context.BufferCharacterCount);
   const TCHAR *FormatPtr = **Context.Format;
@@ -141,23 +142,29 @@ FRenderingState ReduceRuntimeStatsSampled(
             const auto &Payload = Action.PayloadValue;
             const auto &Settings = Payload.StatsOverlay;
 
-            Next.FrameClockSeconds = Payload.BudgetClockSeconds;
-            Next.BudgetLogPreviousSeconds = Payload.BudgetLogPreviousSeconds;
-            Next.BudgetScreenshotPreviousSeconds = Payload.BudgetScreenshotPreviousSeconds;
-            Next.BudgetScreenshotIndex = Payload.BudgetScreenshotIndex;
-            float WallDeltaSeconds = (State.FrameClockSeconds == 0.0)
+            Next.StatsClock.FrameClockSeconds = Payload.BudgetClockSeconds;
+            Next.BudgetClock.BudgetLogPreviousSeconds =
+                Payload.BudgetLogPreviousSeconds;
+            Next.BudgetClock.BudgetScreenshotPreviousSeconds =
+                Payload.BudgetScreenshotPreviousSeconds;
+            Next.BudgetClock.BudgetScreenshotIndex =
+                Payload.BudgetScreenshotIndex;
+            float WallDeltaSeconds = (State.StatsClock.FrameClockSeconds == 0.0)
                                          ? 0.0f
-                                         : Payload.BudgetClockSeconds - State.FrameClockSeconds;
-            Next.StatsRefreshElapsedSeconds += WallDeltaSeconds;
-            Next.PolyCountRefreshElapsedSeconds += WallDeltaSeconds;
+                                         : Payload.BudgetClockSeconds -
+                                               State.StatsClock.FrameClockSeconds;
+            Next.StatsClock.StatsRefreshElapsedSeconds += WallDeltaSeconds;
+            Next.StatsClock.PolyCountRefreshElapsedSeconds += WallDeltaSeconds;
 
             Next = func::match(
                 Payload.PolyCount,
                 [&Next, &Settings](const FRuntimePolyCountStats &PolyCount) {
                   FRenderingState Updated = Next;
-                  Updated.CachedPolyCount = PolyCount.PolyCount;
-                  Updated.CachedPolyCountMilliseconds = PolyCount.MeasurementMilliseconds;
-                  Updated.PolyCountRefreshElapsedSeconds = Settings.IntervalResetElapsedSeconds;
+                  Updated.PolyCache.CachedPolyCount = PolyCount.PolyCount;
+                  Updated.PolyCache.CachedPolyCountMilliseconds =
+                      PolyCount.MeasurementMilliseconds;
+                  Updated.StatsClock.PolyCountRefreshElapsedSeconds =
+                      Settings.IntervalResetElapsedSeconds;
                   return Updated;
                 },
                 [&Next]() { return Next; });
@@ -166,9 +173,11 @@ FRenderingState ReduceRuntimeStatsSampled(
                 Payload.Stats,
                 [&Next, &Settings](const FRuntimeStatsViewModel &Stats) {
                   FRenderingState Updated = Next;
-                  Updated.StatsPresentation = ReduceRuntimeStatsPresentationModel(Stats, Settings);
+                  Updated.Presentation.StatsPresentation =
+                      ReduceRuntimeStatsPresentationModel(Stats, Settings);
 
-                  Updated.StatsRefreshElapsedSeconds = Settings.IntervalResetElapsedSeconds;
+                  Updated.StatsClock.StatsRefreshElapsedSeconds =
+                      Settings.IntervalResetElapsedSeconds;
                   return Updated;
                 },
                 [&Next]() { return Next; });
@@ -195,8 +204,8 @@ namespace RenderingSlice {
 FRenderingState CreateInitialState() {
   return (func::pipe(FRenderingState{}) |
           [](FRenderingState State) -> FRenderingState {
-            State.ActionId = func::nothing<FString>();
-            State.bReady = false;
+            State.Profile.ActionId = func::nothing<FString>();
+            State.Profile.bReady = false;
             return State;
           })
       .val;

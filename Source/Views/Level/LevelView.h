@@ -20,9 +20,9 @@ class UStaticMesh;
 namespace ForbocAI {
 namespace Game {
 namespace Level {
-struct FLevelBlockSpawn;
-struct FLevelLabelSpawn;
-struct FLevelSectionSpawn;
+struct FBlockSpawn;
+struct FLabelSpawn;
+struct FSectionSpawn;
 struct FRuntimeHorseViewSpawn;
 struct FRuntimeLevelViewPayload;
 struct FRuntimeTownspersonViewSpawn;
@@ -61,7 +61,7 @@ private:
   UStaticMesh *CubeMesh;
   UMaterialInterface *BlockBaseMaterial;
   TArray<ForbocAI::Game::Level::FLevelRetroTextureSpec> TextureCatalog;
-  ForbocAI::Game::Data::FLevelGeometrySettings LevelGeometrySettings;
+  ForbocAI::Game::Data::FGeometrySettings LevelGeometrySettings;
   ForbocAI::Game::Data::FRenderingSettings RenderingSettings;
 
   /**
@@ -86,20 +86,20 @@ private:
       const TArray<ForbocAI::Game::Level::FRuntimeHorseViewSpawn> &Horses,
       int32 Index);
   void RenderSections(
-      const TArray<ForbocAI::Game::Level::FLevelSectionSpawn> &Sections,
+      const TArray<ForbocAI::Game::Level::FSectionSpawn> &Sections,
       int32 Index);
 
   void RenderSection(
-      const ForbocAI::Game::Level::FLevelSectionSpawn &Section);
+      const ForbocAI::Game::Level::FSectionSpawn &Section);
   void RenderBlocks(
-      const TArray<ForbocAI::Game::Level::FLevelBlockSpawn> &Blocks,
+      const TArray<ForbocAI::Game::Level::FBlockSpawn> &Blocks,
       int32 Index);
   void RenderLabels(
-      const TArray<ForbocAI::Game::Level::FLevelLabelSpawn> &Labels,
+      const TArray<ForbocAI::Game::Level::FLabelSpawn> &Labels,
       int32 Index);
   AStaticMeshActor *RenderBlock(
-      const ForbocAI::Game::Level::FLevelBlockSpawn &BlockSpawn);
-  void RenderLabel(const ForbocAI::Game::Level::FLevelLabelSpawn &LabelSpawn);
+      const ForbocAI::Game::Level::FBlockSpawn &BlockSpawn);
+  void RenderLabel(const ForbocAI::Game::Level::FLabelSpawn &LabelSpawn);
   ATownspersonView *RenderTownsperson(
       const ForbocAI::Game::Level::FRuntimeTownspersonViewSpawn &Spawn);
   AHorseView *RenderHorse(

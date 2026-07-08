@@ -7,20 +7,67 @@ namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-JSON_SETTINGS_REGISTRY(FLevelTerrainSourceSettings, TerrainCsvPath,
+JSON_SETTINGS_REGISTRY(FTerrainSourceSettings, TerrainCsvPath,
                        OrthoCsvPath);
 
-JSON_SETTINGS_REGISTRY(FLevelDataSourceSettings, TerrainBlocksJsonPath,
+JSON_SETTINGS_REGISTRY(FCsvSyntaxSettings, CommentPrefix, CellDelimiter,
+                       ColorChannelDelimiter);
+
+JSON_SETTINGS_REGISTRY(FCsvColorSettings, ChannelCount, RedChannelIndex,
+                       GreenChannelIndex, BlueChannelIndex, Alpha);
+
+JSON_SETTINGS_REGISTRY(FCsvGridSettings, EmptyCount, MinimumGridSize,
+                       TerminalOffset);
+
+JSON_SETTINGS_REGISTRY(FCsvMessageSettings, OrthoRowWidthMismatchFormat,
+                       OrthoBadColorCellFormat, OrthoInvalidFormat,
+                       OrthoLoadedFormat, TerrainLoadedFormat);
+
+template <> struct TJsonSettingsRegistry<FCsvSettings> {
+  static const TArray<TField<FCsvSettings>> &Fields() {
+    static const TArray<TField<FCsvSettings>> RegisteredFields = {
+        JSON_OBJECT_SETTING_FIELD(
+            FCsvSettings,
+            ReadSettingsWith<FCsvSyntaxSettings>(
+                JSON_SETTINGS_ATOMS(CommentPrefix, CellDelimiter,
+                                    ColorChannelDelimiter)),
+            Syntax),
+        JSON_OBJECT_SETTING_FIELD(
+            FCsvSettings,
+            ReadSettingsWith<FCsvColorSettings>(
+                JSON_SETTINGS_ATOMS(ChannelCount, RedChannelIndex,
+                                    GreenChannelIndex, BlueChannelIndex,
+                                    Alpha)),
+            Color),
+        JSON_OBJECT_SETTING_FIELD(
+            FCsvSettings,
+            ReadSettingsWith<FCsvGridSettings>(
+                JSON_SETTINGS_ATOMS(EmptyCount, MinimumGridSize,
+                                    TerminalOffset)),
+            Grid),
+        JSON_OBJECT_SETTING_FIELD(
+            FCsvSettings,
+            ReadSettingsWith<FCsvMessageSettings>(
+                JSON_SETTINGS_ATOMS(OrthoRowWidthMismatchFormat,
+                                    OrthoBadColorCellFormat,
+                                    OrthoInvalidFormat, OrthoLoadedFormat,
+                                    TerrainLoadedFormat)),
+            Messages)};
+    return RegisteredFields;
+  }
+};
+
+JSON_SETTINGS_REGISTRY(FDataSourceSettings, TerrainBlocksJsonPath,
                        TerrainLabelsJsonPath, TownBlocksJsonPath,
                        TownLabelsJsonPath, MineBlocksJsonPath,
                        MineLabelsJsonPath, OverlayLabelsJsonPath,
                        LandmarksJsonPath, TownspeopleJsonPath,
                        HorsesJsonPath, NatureJsonPath);
 
-JSON_SETTINGS_REGISTRY(FLevelValidationSettings, TerrainGridSize,
+JSON_SETTINGS_REGISTRY(FValidationSettings, TerrainGridSize,
                        OrthoGridSize, TerrainMinReliefMeters);
 
-JSON_SETTINGS_REGISTRY(FLevelGeometrySettings, TerrainWorldSize,
+JSON_SETTINGS_REGISTRY(FGeometrySettings, TerrainWorldSize,
                        TerrainElevationScale, TerrainLotsAcross,
                        PostOfficeEastLots, PostOfficeNorthLots, CubeMeshSize,
                        BlockScalePerFoot, HeightScalePerStory,
@@ -46,15 +93,21 @@ JSON_SETTINGS_REGISTRY(FLevelGeometrySettings, TerrainWorldSize,
 namespace LevelSettingsAdapters {
 namespace Json = JsonAdapters;
 
-FLevelTerrainSourceSettings
+FTerrainSourceSettings
 ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FLevelTerrainSourceSettings>(
+  return Json::ReadSettingsFields<FTerrainSourceSettings>(
       Object, JSON_SETTINGS_ATOMS(TerrainCsvPath, OrthoCsvPath));
 }
 
-FLevelDataSourceSettings
+FCsvSettings
+ReadLevelCsvSettings(const TSharedPtr<FJsonObject> &Object) {
+  return Json::ReadSettingsFields<FCsvSettings>(
+      Object, JSON_SETTINGS_ATOMS(Syntax, Color, Grid, Messages));
+}
+
+FDataSourceSettings
 ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FLevelDataSourceSettings>(
+  return Json::ReadSettingsFields<FDataSourceSettings>(
       Object, JSON_SETTINGS_ATOMS(TerrainBlocksJsonPath,
                                   TerrainLabelsJsonPath,
                                   TownBlocksJsonPath, TownLabelsJsonPath,
@@ -64,16 +117,16 @@ ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object) {
                                   NatureJsonPath));
 }
 
-FLevelValidationSettings
+FValidationSettings
 ReadLevelValidationSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FLevelValidationSettings>(
+  return Json::ReadSettingsFields<FValidationSettings>(
       Object, JSON_SETTINGS_ATOMS(TerrainGridSize, OrthoGridSize,
                                   TerrainMinReliefMeters));
 }
 
-FLevelGeometrySettings
+FGeometrySettings
 ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FLevelGeometrySettings>(
+  return Json::ReadSettingsFields<FGeometrySettings>(
       Object, JSON_SETTINGS_ATOMS(TerrainWorldSize, TerrainElevationScale,
                                   TerrainLotsAcross, PostOfficeEastLots,
                                   PostOfficeNorthLots, CubeMeshSize,

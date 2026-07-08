@@ -127,7 +127,7 @@ void ARuntimeLevelView::RenderTerrain(
 }
 
 void ARuntimeLevelView::RenderSections(
-    const TArray<FG::FLevelSectionSpawn> &Sections, int32 Index) {
+    const TArray<FG::FSectionSpawn> &Sections, int32 Index) {
   Index >= Sections.Num()
       ? void()
       : (RenderSection(Sections[Index]),
@@ -135,13 +135,13 @@ void ARuntimeLevelView::RenderSections(
 }
 
 void ARuntimeLevelView::RenderSection(
-    const FG::FLevelSectionSpawn &Section) {
+    const FG::FSectionSpawn &Section) {
   RenderBlocks(Section.Blocks, LevelGeometrySettings.FirstRenderIndex);
   RenderLabels(Section.Labels, LevelGeometrySettings.FirstRenderIndex);
 }
 
 void ARuntimeLevelView::RenderBlocks(
-    const TArray<FG::FLevelBlockSpawn> &Blocks, int32 Index) {
+    const TArray<FG::FBlockSpawn> &Blocks, int32 Index) {
   Index >= Blocks.Num()
       ? void()
       : (RenderBlock(Blocks[Index]),
@@ -149,7 +149,7 @@ void ARuntimeLevelView::RenderBlocks(
 }
 
 void ARuntimeLevelView::RenderLabels(
-    const TArray<FG::FLevelLabelSpawn> &Labels, int32 Index) {
+    const TArray<FG::FLabelSpawn> &Labels, int32 Index) {
   Index >= Labels.Num()
       ? void()
       : (RenderLabel(Labels[Index]),
@@ -175,7 +175,7 @@ void ARuntimeLevelView::RenderHorses(
 }
 
 AStaticMeshActor *ARuntimeLevelView::RenderBlock(
-    const FG::FLevelBlockSpawn &BlockSpawn) {
+    const FG::FBlockSpawn &BlockSpawn) {
   UWorld *World = GetWorld();
   return func::match(
       func::from_nullable_value(World, World != nullptr && CubeMesh != nullptr),
@@ -210,7 +210,7 @@ AStaticMeshActor *ARuntimeLevelView::RenderBlock(
 }
 
 void ARuntimeLevelView::RenderLabel(
-    const FG::FLevelLabelSpawn &LabelSpawn) {
+    const FG::FLabelSpawn &LabelSpawn) {
   UWorld *World = GetWorld();
   func::match(
       func::from_nullable_value(World, World != nullptr),
@@ -247,13 +247,16 @@ ATownspersonView *ARuntimeLevelView::RenderTownsperson(
                 Spawn.PatrolRoute[LevelGeometrySettings.InitialPatrolRouteIndex],
                 FRotator::ZeroRotator);
         FTownspersonViewConfig Config;
-        Config.Id = Spawn.Id;
-        Config.Name = Spawn.Name;
-        Config.Role = Spawn.Role;
-        Config.Persona = Spawn.Persona;
-        Config.InteractionPrompt = Spawn.InteractionPrompt;
-        Config.DefaultPlayerLine = Spawn.DefaultPlayerLine;
-        Config.PinnedResponse = Spawn.PinnedResponse;
+        Config.Identity.Id = Spawn.Identity.Id;
+        Config.Identity.Name = Spawn.Identity.Name;
+        Config.Identity.Role = Spawn.Identity.Role;
+        Config.Identity.Persona = Spawn.Identity.Persona;
+        Config.Conversation.InteractionPrompt =
+            Spawn.Conversation.InteractionPrompt;
+        Config.Conversation.DefaultPlayerLine =
+            Spawn.Conversation.DefaultPlayerLine;
+        Config.Conversation.PinnedResponse =
+            Spawn.Conversation.PinnedResponse;
         Config.PatrolRoute = Spawn.PatrolRoute;
         Config.Lod = Spawn.Lod;
         return Townsperson ? (Townsperson->ConfigureTownsperson(Config),

@@ -35,17 +35,29 @@ inline bool operator!=(const FChatMessageViewModel &Left,
  * User story: As a player, I see the selected townsperson reply without the
  * widget owning dialogue rules or reaching into gameplay state.
  */
-struct FRuntimeConversationViewModel {
+struct FRuntimeConversationText {
   FString Title;
   FString PlayerLine;
   FString NpcReply;
+};
+
+struct FRuntimeConversationColors {
   FLinearColor PanelColor;
   FLinearColor TitleColor;
   FLinearColor PlayerColor;
   FLinearColor ReplyColor;
+};
+
+struct FRuntimeConversationLayout {
   float PanelPadding;
   float TitleSize;
   float BodySize;
+};
+
+struct FRuntimeConversationViewModel {
+  FRuntimeConversationText Text;
+  FRuntimeConversationColors Colors;
+  FRuntimeConversationLayout Layout;
 };
 
 } // namespace UI
@@ -59,7 +71,7 @@ namespace Level {
 /**
  * @brief Unary request for the UI reducer that builds one chat message model.
  */
-struct FUIChatMessageViewModelRequest {
+struct FChatMessageViewModelRequest {
   FString Role;
   FString Text;
 };
@@ -68,53 +80,53 @@ struct FUIChatMessageViewModelRequest {
  * @brief Request object for reducing persisted dialogue history into view
  * models.
  */
-struct FUIChatHistoryViewModelsRequest {
+struct FChatHistoryViewModelsRequest {
   TArray<FString> History;
 };
 
 /**
  * @brief Request object for composing the runtime conversation UI model.
  */
-struct FUIRuntimeConversationViewModelRequest {
+struct FRuntimeConversationViewModelRequest {
   FString NpcName;
   FString Role;
   FString PlayerLine;
   FString NpcReply;
 };
 
-struct FUIBindDialogueViewModelRequest {
+struct FBindDialogueViewModelRequest {
   FString Persona;
   TArray<FString> History;
   bool bBound = false;
 };
 
-struct FUIChatInputViewModelRequest {
+struct FChatInputViewModelRequest {
   FText Text;
   ETextCommit::Type CommitMethod = ETextCommit::Default;
   bool bDialogueBound = false;
 };
 
-struct FUIDialogueResponseViewModelRequest {
+struct FDialogueResponseViewModelRequest {
   FString Persona;
   FString NPCText;
   bool bBound = false;
 };
 
-struct FUIBindDialogueViewModel {
+struct FBindDialogueViewModel {
   bool bBound = false;
   FString Persona;
   ForbocAI::Game::UI::FChatMessageViewModel ConnectionMessage;
   TArray<ForbocAI::Game::UI::FChatMessageViewModel> HistoryMessages;
 };
 
-struct FUIChatInputViewModel {
+struct FChatInputViewModel {
   bool bShouldSend = false;
   FString InputText;
   ForbocAI::Game::UI::FChatMessageViewModel PlayerMessage;
   ForbocAI::Game::UI::FChatMessageViewModel ErrorMessage;
 };
 
-struct FUIDialogueResponseViewModel {
+struct FDialogueResponseViewModel {
   ForbocAI::Game::UI::FChatMessageViewModel Message;
 };
 
@@ -147,15 +159,18 @@ struct FUIState {
 inline bool operator==(
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Left,
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Right) {
-  return Left.Title == Right.Title && Left.PlayerLine == Right.PlayerLine &&
-         Left.NpcReply == Right.NpcReply &&
-         Left.PanelColor == Right.PanelColor &&
-         Left.TitleColor == Right.TitleColor &&
-         Left.PlayerColor == Right.PlayerColor &&
-         Left.ReplyColor == Right.ReplyColor &&
-         FMath::IsNearlyEqual(Left.PanelPadding, Right.PanelPadding) &&
-         FMath::IsNearlyEqual(Left.TitleSize, Right.TitleSize) &&
-         FMath::IsNearlyEqual(Left.BodySize, Right.BodySize);
+  return Left.Text.Title == Right.Text.Title &&
+         Left.Text.PlayerLine == Right.Text.PlayerLine &&
+         Left.Text.NpcReply == Right.Text.NpcReply &&
+         Left.Colors.PanelColor == Right.Colors.PanelColor &&
+         Left.Colors.TitleColor == Right.Colors.TitleColor &&
+         Left.Colors.PlayerColor == Right.Colors.PlayerColor &&
+         Left.Colors.ReplyColor == Right.Colors.ReplyColor &&
+         FMath::IsNearlyEqual(Left.Layout.PanelPadding,
+                              Right.Layout.PanelPadding) &&
+         FMath::IsNearlyEqual(Left.Layout.TitleSize,
+                              Right.Layout.TitleSize) &&
+         FMath::IsNearlyEqual(Left.Layout.BodySize, Right.Layout.BodySize);
 }
 
 inline bool operator!=(

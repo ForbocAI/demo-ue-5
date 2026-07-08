@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FRenderingDistanceLodStageSettings {
+struct FStageSettings {
   FString Id;
   float MaxDistance;
   int32 StaticMeshForcedLodModel;
@@ -24,12 +24,12 @@ struct FRenderingDistanceLodStageSettings {
   bool bCastShadow;
 };
 
-struct FRenderingDistanceLodSettings {
-  TArray<FRenderingDistanceLodStageSettings> Stages;
+struct FLodSettings {
+  TArray<FStageSettings> Stages;
 };
 
-inline bool operator==(const FRenderingDistanceLodStageSettings &Left,
-                       const FRenderingDistanceLodStageSettings &Right) {
+inline bool operator==(const FStageSettings &Left,
+                       const FStageSettings &Right) {
   return Left.Id == Right.Id &&
          FMath::IsNearlyEqual(Left.MaxDistance, Right.MaxDistance) &&
          Left.StaticMeshForcedLodModel == Right.StaticMeshForcedLodModel &&
@@ -49,18 +49,18 @@ inline bool operator==(const FRenderingDistanceLodStageSettings &Left,
          Left.bCastShadow == Right.bCastShadow;
 }
 
-inline bool operator!=(const FRenderingDistanceLodStageSettings &Left,
-                       const FRenderingDistanceLodStageSettings &Right) {
+inline bool operator!=(const FStageSettings &Left,
+                       const FStageSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FRenderingDistanceLodSettings &Left,
-                       const FRenderingDistanceLodSettings &Right) {
+inline bool operator==(const FLodSettings &Left,
+                       const FLodSettings &Right) {
   return Left.Stages == Right.Stages;
 }
 
-inline bool operator!=(const FRenderingDistanceLodSettings &Left,
-                       const FRenderingDistanceLodSettings &Right) {
+inline bool operator!=(const FLodSettings &Left,
+                       const FLodSettings &Right) {
   return !(Left == Right);
 }
 

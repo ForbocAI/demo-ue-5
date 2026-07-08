@@ -10,7 +10,7 @@ namespace SpawnReducers {
 
 FSpawnState
 ReducePlayerSpawnAnchored(const FSpawnState &State,
-                          const rtk::PayloadAction<FSpawnPointPayload> &Action);
+                          const rtk::PayloadAction<FPointPayload> &Action);
 
 } // namespace SpawnReducers
 } // namespace Level
@@ -42,7 +42,7 @@ namespace Level {
 namespace SpawnFactories {
 
 FSpawnState CreateInitialState();
-FSpawnPointPayload SpawnPointPayload(const FSpawnPointSource &Source);
+FPointPayload SpawnPointPayload(const FPointSource &Source);
 
 } // namespace SpawnFactories
 } // namespace Level

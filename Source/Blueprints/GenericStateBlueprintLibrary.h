@@ -6,6 +6,19 @@
 #include "Serialization/JsonSerializer.h"
 #include "GenericStateBlueprintLibrary.generated.h"
 
+USTRUCT(BlueprintType)
+struct FGenericStateFieldRequest {
+  GENERATED_BODY()
+
+  UPROPERTY(BlueprintReadWrite, EditAnywhere,
+            Category = "ForbocAI|GenericState")
+  FString JsonData;
+
+  UPROPERTY(BlueprintReadWrite, EditAnywhere,
+            Category = "ForbocAI|GenericState")
+  FString FieldName;
+};
+
 /**
  * UGenericStateBlueprintLibrary — Blueprint-callable helpers for
  * manipulating FAgentState.JsonData from Blueprints.
@@ -86,8 +99,7 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
             meta = (DisplayName = "Set State String"))
-  static FString SetStateString(const FString &JsonData,
-                                 const FString &FieldName,
+  static FString SetStateString(const FGenericStateFieldRequest &Request,
                                  const FString &Value);
 
   /**
@@ -97,8 +109,8 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
             meta = (DisplayName = "Set State Float"))
-  static FString SetStateFloat(const FString &JsonData,
-                                const FString &FieldName, float Value);
+  static FString SetStateFloat(const FGenericStateFieldRequest &Request,
+                               float Value);
 
   /**
    * Set an integer field in JSON state data.
@@ -107,8 +119,8 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
             meta = (DisplayName = "Set State Int"))
-  static FString SetStateInt(const FString &JsonData,
-                              const FString &FieldName, int32 Value);
+  static FString SetStateInt(const FGenericStateFieldRequest &Request,
+                             int32 Value);
 
   /**
    * Set a boolean field in JSON state data.
@@ -117,8 +129,8 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
             meta = (DisplayName = "Set State Bool"))
-  static FString SetStateBool(const FString &JsonData,
-                               const FString &FieldName, bool Value);
+  static FString SetStateBool(const FGenericStateFieldRequest &Request,
+                              bool Value);
 
   // ── Utility ──
 

@@ -15,11 +15,11 @@ namespace {
 
 using FSettingsSourceCatalog = TMap<FString, TSharedPtr<FJsonObject>>;
 
-struct FSettingsSourceGroup {
+struct FSourceGroup {
   const char *Parent;
   TArray<const char *> Children;
 
-  FSettingsSourceGroup(const char *InParent,
+  FSourceGroup(const char *InParent,
                               std::initializer_list<const char *> InChildren)
       : Parent(InParent), Children(InChildren) {}
 };
@@ -45,8 +45,8 @@ LoadSettingsSource(const TSharedPtr<FJsonObject> &Manifest,
       {Json::ReadStringField(Manifest, FieldAtom)});
 }
 
-const TArray<FSettingsSourceGroup> &SettingsSourceGroups() {
-  static const TArray<FSettingsSourceGroup> Groups = {
+const TArray<FSourceGroup> &SettingsSourceGroups() {
+  static const TArray<FSourceGroup> Groups = {
       {"Root",
        {"Player", "Interaction", "Level", "Rendering", "Bots", "Dialogue",
         "Speech", "UI", "Core"}},
@@ -63,7 +63,7 @@ const TArray<FSettingsSourceGroup> &SettingsSourceGroups() {
 
 FSettingsSourceCatalog
 LoadSettingsSourceGroup(const FSettingsSourceCatalog &Sources,
-                               const FSettingsSourceGroup &Group) {
+                               const FSourceGroup &Group) {
   const TSharedPtr<FJsonObject> Parent =
       SettingsSource(Sources, Group.Parent);
   return func::fold_indexed(
@@ -81,7 +81,7 @@ FSettingsSourceCatalog
 LoadSettingsSources(const TSharedPtr<FJsonObject> &Object) {
   FSettingsSourceCatalog Seed;
   Seed.Add(SettingsSourceKey("Root"), Object);
-  const TArray<FSettingsSourceGroup> &Groups =
+  const TArray<FSourceGroup> &Groups =
       SettingsSourceGroups();
   return func::fold_indexed(
       Groups, static_cast<size_t>(Groups.Num()), Seed,
@@ -105,7 +105,7 @@ EcsDomainPathRegistration(const FEcsDomainRegistrationSettings &Settings) {
   return Registration;
 }
 
-ecs::FDomainRegistry EcsDomainRegistry(const FEcsSettings &Settings) {
+ecs::FDomainGraph EcsDomainRegistry(const FEcsSettings &Settings) {
   return ecs::createDomainRegistry(
       func::map_array<FEcsDomainRegistrationSettings,
                       ecs::FDomainPathRegistration>(
@@ -129,6 +129,9 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
   Settings.LevelTerrainSources = LevelSettingsAdapters::
       ReadLevelTerrainSourceSettings(Json::ReadObjectField(
           SettingsSource(Sources, "Level"), "LevelTerrainSources"));
+  Settings.LevelCsv = LevelSettingsAdapters::ReadLevelCsvSettings(
+      Json::ReadObjectField(SettingsSource(Sources, "Level"),
+                            "LevelCsv"));
   Settings.LevelDataSources = LevelSettingsAdapters::
       ReadLevelDataSourceSettings(Json::ReadObjectField(
           SettingsSource(Sources, "Level"), "LevelDataSources"));
@@ -235,7 +238,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
       JSON_SETTINGS_ATOMS(DomainRegistry))(
       SettingsSource(Sources, "Ecs"));
   Settings.Automation =
-      Json::ReadSettingsWith<FAutomationSettings>(
+      Json::ReadSettingsWith<Automation::FSettings>(
           JSON_SETTINGS_ATOMS(Store, ContentAssets, RtkCompliance,
                               BotFunctionalCore, Pipeline,
                               ConversationUI, ProtocolLoop))(

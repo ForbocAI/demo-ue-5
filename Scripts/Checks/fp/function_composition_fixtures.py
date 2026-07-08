@@ -33,7 +33,7 @@ class Case:
 CASES: list[Case] = [
     Case(
         "wide-automation-settings",
-        "Source/Features/Components/Data/Settings/SettingsTypes.h",
+        "Source/Features/Components/Data/Settings/Automation/Conversation/UI/ConversationUITypes.h",
         """
 struct FAutomationSettings {
   int32 Count;
@@ -109,6 +109,23 @@ struct FAutomationSettings {
         "struct FThingManager { int32 Count; };",
         {"FP-COMP-001"},
     ),
+    Case(
+        "template-registry-composer",
+        "Source/Features/Demo/Data/Registry/RegistryAdapters.h",
+        """
+template <typename Value> struct TValueRegistry;
+
+template <> struct TValueRegistry<FThing> {
+  static int32 Apply() { return 1; }
+};
+
+struct FThingFields {
+  FString Name;
+};
+""",
+        {"FP-COMP-004"},
+        message_contains=("`FThingFields`",),
+    ),
 ]
 
 
@@ -116,7 +133,12 @@ def run_case(root: Path, case: Case) -> list[comp.Issue]:
     path = root / case.rel
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(case.body, encoding="utf-8")
-    return comp.scan_file(path)
+    paths = [path]
+    return comp.scan_file(
+        path,
+        comp.struct_name_context(paths),
+        comp.qualified_name_context(paths),
+    )
 
 
 def main() -> int:

@@ -10,14 +10,22 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 
-struct FRuntimeTownspersonViewSpawn {
+struct FRuntimeTownspersonIdentity {
   FString Id;
   FString Name;
   FString Role;
   FString Persona;
+};
+
+struct FRuntimeTownspersonConversation {
   FString InteractionPrompt;
   FString DefaultPlayerLine;
   FString PinnedResponse;
+};
+
+struct FRuntimeTownspersonViewSpawn {
+  FRuntimeTownspersonIdentity Identity;
+  FRuntimeTownspersonConversation Conversation;
   TArray<FVector> PatrolRoute;
   FLevelDistanceLodStage Lod;
 };
@@ -41,11 +49,16 @@ struct FRuntimeHorseViewSpawnRequest {
 
 inline bool operator==(const FRuntimeTownspersonViewSpawn &Left,
                        const FRuntimeTownspersonViewSpawn &Right) {
-  return Left.Id == Right.Id && Left.Name == Right.Name && Left.Role == Right.Role &&
-         Left.Persona == Right.Persona &&
-         Left.InteractionPrompt == Right.InteractionPrompt &&
-         Left.DefaultPlayerLine == Right.DefaultPlayerLine &&
-         Left.PinnedResponse == Right.PinnedResponse &&
+  return Left.Identity.Id == Right.Identity.Id &&
+         Left.Identity.Name == Right.Identity.Name &&
+         Left.Identity.Role == Right.Identity.Role &&
+         Left.Identity.Persona == Right.Identity.Persona &&
+         Left.Conversation.InteractionPrompt ==
+             Right.Conversation.InteractionPrompt &&
+         Left.Conversation.DefaultPlayerLine ==
+             Right.Conversation.DefaultPlayerLine &&
+         Left.Conversation.PinnedResponse ==
+             Right.Conversation.PinnedResponse &&
          Left.PatrolRoute == Right.PatrolRoute && Left.Lod == Right.Lod;
 }
 

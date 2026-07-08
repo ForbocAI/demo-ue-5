@@ -42,8 +42,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeController, Log, All);
 // Payload for one orthographic scale-audit capture step. Named at file scope
 // (not the anonymous namespace) so APlayerRuntimeControllerView member methods
 // can take it by const reference.
-struct FScaleAuditCaptureView {
-  FString OutputName;
+struct FScaleAuditCameraView {
   FVector Location = FVector::ZeroVector;
   FRotator ControlRotation = FRotator::ZeroRotator;
   float OrthoWidth = float();
@@ -51,8 +50,17 @@ struct FScaleAuditCaptureView {
       ECameraProjectionMode::Orthographic;
   float FieldOfView = float();
   float SpringArmLength = float();
+};
+
+struct FScaleAuditVisibilityView {
   bool bHidePlayerMesh = true;
   bool bPreserveFieldOfView = true;
+};
+
+struct FScaleAuditCaptureView {
+  FString OutputName;
+  FScaleAuditCameraView Camera;
+  FScaleAuditVisibilityView Visibility;
 };
 
 namespace {
@@ -67,10 +75,20 @@ struct FScaleAuditCaptureViewsRequest {
   float ActorsCaptureHeight = float();
 };
 
-FG::FInteractionCandidatesObserved ObserveTownspersonCandidates(
-    const APlayerRuntimeControllerView &Controller, float InteractionDistance,
-    TArray<ATownspersonView *> &ObservedTownspeople) {
-  FG::FInteractionCandidatesObserved Observation;
+struct FTownspersonCandidateObservation {
+  FG::FCandidatesObserved Observation;
+  TArray<ATownspersonView *> Townspeople;
+};
+
+struct FMarketingCaptureCenters {
+  FVector TownCenter = FVector::ZeroVector;
+  FVector ActorCenter = FVector::ZeroVector;
+};
+
+FTownspersonCandidateObservation ObserveTownspersonCandidates(
+    const APlayerRuntimeControllerView &Controller, float InteractionDistance) {
+  FG::FCandidatesObserved Observation;
+  TArray<ATownspersonView *> ObservedTownspeople;
   const ForbocAI::Game::Data::FObservationIdSettings &Ids =
       FG::RuntimeSelectors::SelectObservationIds(
           // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
@@ -97,7 +115,7 @@ FG::FInteractionCandidatesObserved ObserveTownspersonCandidates(
                                     Candidate->GetActorLocation(),
                                     Candidate->IsPlayerNearby()});
       });
-  return Observation;
+  return {Observation, ObservedTownspeople};
 }
 
 FG::FRuntimeTownspersonInteractionSource ObserveTownspersonInteractionSource(
@@ -160,38 +178,33 @@ ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request,
           // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState(), TownCenter);
   return {{Settings.WholeOutputName,
-           TopDownCameraLocation(TerrainCenter, Request.WholeCaptureHeight),
-           Settings.TopDownRotation, Request.WholeOrthoWidth},
+           {TopDownCameraLocation(TerrainCenter, Request.WholeCaptureHeight),
+            Settings.TopDownRotation, Request.WholeOrthoWidth}},
           {Settings.TownOutputName,
-           TopDownCameraLocation(TownCenter, Request.TownCaptureHeight),
-           Settings.TopDownRotation, Request.TownOrthoWidth},
+           {TopDownCameraLocation(TownCenter, Request.TownCaptureHeight),
+            Settings.TopDownRotation, Request.TownOrthoWidth}},
           {Settings.ActorsOutputName,
-           TopDownCameraLocation(ActorCenter, Request.ActorsCaptureHeight),
-           Settings.TopDownRotation, Request.ActorsOrthoWidth}};
+           {TopDownCameraLocation(ActorCenter, Request.ActorsCaptureHeight),
+            Settings.TopDownRotation, Request.ActorsOrthoWidth}}};
 }
 
-FVector MarketingCaptureAnchor(
-    const FMarketingCaptureViewSettings &ViewSettings,
-    const FVector &TownCenter, const FVector &ActorCenter) {
-  return ViewSettings.bUseActorRouteCenter ? ActorCenter : TownCenter;
+FVector MarketingCaptureAnchor(const FMarketingCaptureViewSettings &ViewSettings,
+                               const FMarketingCaptureCenters &Centers) {
+  return ViewSettings.bUseActorRouteCenter ? Centers.ActorCenter
+                                           : Centers.TownCenter;
 }
 
 FScaleAuditCaptureView MarketingBrochureCaptureView(
     const FMarketingCaptureViewSettings &ViewSettings,
-    const FVector &TownCenter, const FVector &ActorCenter) {
-  const FVector Anchor =
-      MarketingCaptureAnchor(ViewSettings, TownCenter, ActorCenter);
+    const FMarketingCaptureCenters &Centers) {
+  const FVector Anchor = MarketingCaptureAnchor(ViewSettings, Centers);
   const FVector CameraLocation = Anchor + ViewSettings.CameraOffset;
   const FVector TargetLocation = Anchor + ViewSettings.TargetOffset;
   return {ViewSettings.OutputName,
-          CameraLocation,
-          (TargetLocation - CameraLocation).Rotation(),
-          ViewSettings.OrthoWidth,
-          ECameraProjectionMode::Perspective,
-          ViewSettings.FieldOfView,
-          ViewSettings.SpringArmLength,
-          ViewSettings.bHidePlayerMesh,
-          false};
+          {CameraLocation, (TargetLocation - CameraLocation).Rotation(),
+           ViewSettings.OrthoWidth, ECameraProjectionMode::Perspective,
+           ViewSettings.FieldOfView, ViewSettings.SpringArmLength},
+          {ViewSettings.bHidePlayerMesh, false}};
 }
 
 TArray<FScaleAuditCaptureView> MarketingBrochureCaptureViews(
@@ -203,13 +216,12 @@ TArray<FScaleAuditCaptureView> MarketingBrochureCaptureViews(
       FG::RuntimeSelectors::SelectActorRouteBoundsCenter(
           // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState(), TownCenter);
+  const FMarketingCaptureCenters Centers{TownCenter, ActorCenter};
   return func::map_array<FMarketingCaptureViewSettings,
                          FScaleAuditCaptureView>(
       Settings.CaptureViews,
-      [TownCenter, ActorCenter](
-          const FMarketingCaptureViewSettings &ViewSettings) {
-        return MarketingBrochureCaptureView(ViewSettings, TownCenter,
-                                            ActorCenter);
+      [Centers](const FMarketingCaptureViewSettings &ViewSettings) {
+        return MarketingBrochureCaptureView(ViewSettings, Centers);
       });
 }
 
@@ -292,11 +304,14 @@ void APlayerRuntimeControllerView::SetupInputComponent() {
 }
 
 void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
-  TArray<ATownspersonView *> Townspeople;
-  const FG::FInteractionCandidatesObserved Observation =
-      ObserveTownspersonCandidates(*this, InteractionDistance, Townspeople);
+  const FTownspersonCandidateObservation CandidateObservation =
+      ObserveTownspersonCandidates(*this, InteractionDistance);
+  const FG::FCandidatesObserved Observation =
+      CandidateObservation.Observation;
+  const TArray<ATownspersonView *> Townspeople =
+      CandidateObservation.Townspeople;
   FG::RuntimeActions::DispatchTownspersonCandidatesObserved(Observation);
-  const FG::FInteractionSelection Selection =
+  const FG::FSelection Selection =
       FG::RuntimeSelectors::SelectInteractionSelection(
           // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
           FG::RuntimeSelectors::SelectState());
@@ -313,7 +328,7 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
               Conversation = FG::RuntimeSelectors::SelectRuntimeConversation(
                   // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
                   FG::RuntimeSelectors::SelectState());
-          const FString Reply = Conversation.NpcReply;
+          const FString Reply = Conversation.Text.NpcReply;
           Townsperson->ShowDialogueReply(Reply);
           PresentConversationViewModel(Conversation);
           PresentMissingInteraction(Reply);
@@ -503,23 +518,23 @@ void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
 void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() {
   // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
   const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
-  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry =
+  const ForbocAI::Game::Data::FGeometrySettings &Geometry =
       FG::RuntimeSelectors::SelectLevelGeometry(State);
   const FScaleAuditCaptureSettings &Settings =
       ScaleAuditCaptureSettings();
   const FCS::FScaleAuditCaptureConfig Config =
       FCS::SelectScaleAuditCommandLineConfig(Settings, Geometry.TerrainWorldSize);
-  bScaleAuditQuitWhenDone = Config.bQuitWhenDone;
-  ScaleAuditOutputDirectory = Config.OutputDirectory;
-  ScaleAuditInitialDelaySeconds = Config.InitialDelaySeconds;
-  ScaleAuditSettleSeconds = Config.SettleSeconds;
-  ScaleAuditBetweenSeconds = Config.BetweenSeconds;
-  ScaleAuditWholeOrthoWidth = Config.WholeOrthoWidth;
-  ScaleAuditTownOrthoWidth = Config.TownOrthoWidth;
-  ScaleAuditActorsOrthoWidth = Config.ActorsOrthoWidth;
-  ScaleAuditWholeCaptureHeight = Config.WholeCaptureHeight;
-  ScaleAuditTownCaptureHeight = Config.TownCaptureHeight;
-  ScaleAuditActorsCaptureHeight = Config.ActorsCaptureHeight;
+  bScaleAuditQuitWhenDone = Config.Run.bQuitWhenDone;
+  ScaleAuditOutputDirectory = Config.Run.OutputDirectory;
+  ScaleAuditInitialDelaySeconds = Config.Timing.InitialDelaySeconds;
+  ScaleAuditSettleSeconds = Config.Timing.SettleSeconds;
+  ScaleAuditBetweenSeconds = Config.Timing.BetweenSeconds;
+  ScaleAuditWholeOrthoWidth = Config.Ortho.WholeWidth;
+  ScaleAuditTownOrthoWidth = Config.Ortho.TownWidth;
+  ScaleAuditActorsOrthoWidth = Config.Ortho.ActorsWidth;
+  ScaleAuditWholeCaptureHeight = Config.Height.WholeHeight;
+  ScaleAuditTownCaptureHeight = Config.Height.TownHeight;
+  ScaleAuditActorsCaptureHeight = Config.Height.ActorsHeight;
   ScaleAuditCaptureIndex = int32();
 }
 
@@ -528,11 +543,11 @@ void APlayerRuntimeControllerView::ConfigureMarketingBrochureCapture() {
       MarketingCaptureSettings();
   const FCS::FMarketingCaptureConfig Config =
       FCS::SelectMarketingCommandLineConfig(Settings);
-  bScaleAuditQuitWhenDone = Config.bQuitWhenDone;
-  ScaleAuditOutputDirectory = Config.OutputDirectory;
-  ScaleAuditInitialDelaySeconds = Config.InitialDelaySeconds;
-  ScaleAuditSettleSeconds = Config.SettleSeconds;
-  ScaleAuditBetweenSeconds = Config.BetweenSeconds;
+  bScaleAuditQuitWhenDone = Config.Run.bQuitWhenDone;
+  ScaleAuditOutputDirectory = Config.Run.OutputDirectory;
+  ScaleAuditInitialDelaySeconds = Config.Timing.InitialDelaySeconds;
+  ScaleAuditSettleSeconds = Config.Timing.SettleSeconds;
+  ScaleAuditBetweenSeconds = Config.Timing.BetweenSeconds;
   ScaleAuditCaptureIndex = int32();
 }
 
@@ -584,15 +599,16 @@ void APlayerRuntimeControllerView::ApplyScaleAuditCaptureView(
   CacheScaleAuditCameraState(Camera, CameraBoom);
   CacheScaleAuditMeshState(PlayerMesh);
   ScaleAuditCurrentOutputName = View.OutputName;
-  PlayerMesh->SetHiddenInGame(View.bHidePlayerMesh);
-  CameraBoom->TargetArmLength = View.SpringArmLength;
-  Camera->ProjectionMode = View.ProjectionMode;
+  PlayerMesh->SetHiddenInGame(View.Visibility.bHidePlayerMesh);
+  CameraBoom->TargetArmLength = View.Camera.SpringArmLength;
+  Camera->ProjectionMode = View.Camera.ProjectionMode;
   Camera->SetFieldOfView(
-      View.bPreserveFieldOfView ? PreviousFieldOfView : View.FieldOfView);
-  Camera->SetOrthoWidth(View.OrthoWidth);
-  RuntimeCharacter->SetActorLocation(View.Location, false, nullptr,
+      View.Visibility.bPreserveFieldOfView ? PreviousFieldOfView
+                                           : View.Camera.FieldOfView);
+  Camera->SetOrthoWidth(View.Camera.OrthoWidth);
+  RuntimeCharacter->SetActorLocation(View.Camera.Location, false, nullptr,
                                      ETeleportType::TeleportPhysics);
-  SetControlRotation(View.ControlRotation);
+  SetControlRotation(View.Camera.ControlRotation);
   World->GetTimerManager().SetTimer(
       ScaleAuditScreenshotTimer, this,
       &APlayerRuntimeControllerView::RequestScaleAuditScreenshot,

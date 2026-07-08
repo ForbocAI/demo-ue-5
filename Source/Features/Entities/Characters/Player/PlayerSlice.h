@@ -23,14 +23,14 @@ ReducePlayerObserved(const FPlayerState &State,
 }
 
 inline FRotator
-ReduceYawRotation(const FPlayerMovementInputRequest &Request) {
+ReduceYawRotation(const FMovementInputRequest &Request) {
   return FRotator(0.0f, Request.ControlRotation.Yaw, 0.0f);
 }
 
-inline FPlayerMovementInputViewModel ReduceMovementInput(
-    const FPlayerMovementInputRequest &Request) {
+inline FMovementInputViewModel ReduceMovementInput(
+    const FMovementInputRequest &Request) {
   const FRotator YawRotation = ReduceYawRotation(Request);
-  FPlayerMovementInputViewModel Model;
+  FMovementInputViewModel Model;
   Model.ForwardDirection =
       FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
   Model.RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
@@ -43,16 +43,16 @@ inline FPlayerMovementInputViewModel ReduceMovementInput(
 /**
  * @brief Maps JSON-backed player presentation settings into selector state.
  *
- * @signature FPlayerPresentationViewModel ReducePlayerPresentation(const
- * ForbocAI::Game::Data::FPlayerPresentationSettings &Settings)
+ * @signature FPresentationViewModel ReducePlayerPresentation(const
+ * ForbocAI::Game::Data::FPresentationSettings &Settings)
  *
  * User story: As a player, camera, movement, mesh, and input assets can be
  * tuned from data while the Redux reducer remains the owner of presentation
  * state.
  */
-inline FPlayerPresentationViewModel ReducePlayerPresentation(
-    const ForbocAI::Game::Data::FPlayerPresentationSettings &Settings) {
-  FPlayerPresentationViewModel Model;
+inline FPresentationViewModel ReducePlayerPresentation(
+    const ForbocAI::Game::Data::FPresentationSettings &Settings) {
+  FPresentationViewModel Model;
   Model.CapsuleRadius = Settings.CapsuleRadius;
   Model.CapsuleHalfHeight = Settings.CapsuleHalfHeight;
   Model.FollowCameraArmLength = Settings.FollowCameraArmLength;

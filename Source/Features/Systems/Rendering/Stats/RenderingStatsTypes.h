@@ -15,7 +15,7 @@ namespace Level {
 using FStatsOverlaySettings =
     ForbocAI::Game::Data::FStatsOverlaySettings;
 
-struct FStatsTextElementRequest {
+struct FTextElementRequest {
   // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UWidgetTree *Tree;
   FString Text;
@@ -24,7 +24,7 @@ struct FStatsTextElementRequest {
   const FStatsOverlaySettings *Settings;
 };
 
-struct FStatsMetricRowRequest {
+struct FMetricRowRequest {
   // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UWidgetTree *Tree;
   FString Label;
@@ -34,7 +34,7 @@ struct FStatsMetricRowRequest {
   const FStatsOverlaySettings *Settings;
 };
 
-struct FStatsValueUpdateRequest {
+struct FValueUpdateRequest {
   // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UTextBlock *TextElement;
   int64 Value;
@@ -44,7 +44,7 @@ struct FStatsValueUpdateRequest {
   const FStatsOverlaySettings *Settings;
 };
 
-struct FStatsDecimalValueUpdateRequest {
+struct FDecimalValueUpdateRequest {
   // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UTextBlock *TextElement;
   double Value;
@@ -52,7 +52,7 @@ struct FStatsDecimalValueUpdateRequest {
   const FStatsOverlaySettings *Settings;
 };
 
-struct FStatsPlainValueUpdateRequest {
+struct FPlainValueUpdateRequest {
   // boundary-allow: RTK-TYPES-001 imperative boundary payload, not stored in reducer state
   UTextBlock *TextElement;
   int64 Value;

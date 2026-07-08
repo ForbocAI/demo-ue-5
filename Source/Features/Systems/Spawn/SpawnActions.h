@@ -8,7 +8,7 @@ namespace Game {
 namespace Level {
 namespace SpawnActions {
 
-const rtk::ActionCreator<FSpawnPointPayload> &PlayerSpawnAnchored();
+const rtk::ActionCreator<FPointPayload> &PlayerSpawnAnchored();
 
 } // namespace SpawnActions
 } // namespace Level

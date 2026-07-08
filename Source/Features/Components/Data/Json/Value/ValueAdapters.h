@@ -12,13 +12,13 @@ namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
-void LogInvalidField(const FJsonFieldRequest &Request);
+void LogInvalidField(const FFieldRequest &Request);
 
-func::Maybe<FString> ReadRequiredString(const FJsonFieldRequest &Request);
-func::Maybe<float> ReadRequiredFloat(const FJsonFieldRequest &Request);
-func::Maybe<TSharedPtr<FJsonObject>> ReadRequiredObject(const FJsonFieldRequest &Request);
-func::Maybe<TArray<TSharedPtr<FJsonValue>>> ReadRequiredArray(const FJsonFieldRequest &Request);
-func::Maybe<TSharedPtr<FJsonObject>> ReadArrayObject(const FJsonArrayValueObjectRequest &Request);
+func::Maybe<FString> ReadRequiredString(const FFieldRequest &Request);
+func::Maybe<float> ReadRequiredFloat(const FFieldRequest &Request);
+func::Maybe<TSharedPtr<FJsonObject>> ReadRequiredObject(const FFieldRequest &Request);
+func::Maybe<TArray<TSharedPtr<FJsonValue>>> ReadRequiredArray(const FFieldRequest &Request);
+func::Maybe<TSharedPtr<FJsonObject>> ReadArrayObject(const FArrayValueObjectRequest &Request);
 
 template <typename Output>
 TFunction<func::Maybe<TArray<Output>>(
@@ -44,36 +44,36 @@ inline FString RequiredFieldName(const char *FieldAtom) {
   return JsonAdapters::SettingsFieldName(FieldAtom);
 }
 
-inline FJsonFieldRequest RequiredField(const TSharedPtr<FJsonObject> &Object,
+inline FFieldRequest RequiredField(const TSharedPtr<FJsonObject> &Object,
                                        const char *FieldAtom) {
   return {Object, RequiredFieldName(FieldAtom)};
 }
 
 template <typename Value>
-func::Maybe<Value> ReadRequiredValue(const FJsonFieldRequest &Request);
+func::Maybe<Value> ReadRequiredValue(const FFieldRequest &Request);
 
 template <>
 inline func::Maybe<FString>
-ReadRequiredValue<FString>(const FJsonFieldRequest &Request) {
+ReadRequiredValue<FString>(const FFieldRequest &Request) {
   return ReadRequiredString(Request);
 }
 
 template <>
 inline func::Maybe<float>
-ReadRequiredValue<float>(const FJsonFieldRequest &Request) {
+ReadRequiredValue<float>(const FFieldRequest &Request) {
   return ReadRequiredFloat(Request);
 }
 
 template <>
 inline func::Maybe<TSharedPtr<FJsonObject>>
-ReadRequiredValue<TSharedPtr<FJsonObject>>(const FJsonFieldRequest &Request) {
+ReadRequiredValue<TSharedPtr<FJsonObject>>(const FFieldRequest &Request) {
   return ReadRequiredObject(Request);
 }
 
 template <>
 inline func::Maybe<TArray<TSharedPtr<FJsonValue>>>
 ReadRequiredValue<TArray<TSharedPtr<FJsonValue>>>(
-    const FJsonFieldRequest &Request) {
+    const FFieldRequest &Request) {
   return ReadRequiredArray(Request);
 }
 
@@ -94,7 +94,7 @@ func::Maybe<State> AssignRequiredField(Value State::*Member,
 
 template <typename Output>
 func::Maybe<TArray<Output>> ReadRequiredObjectArray(
-    const FJsonFieldRequest &Request,
+    const FFieldRequest &Request,
     func::Maybe<Output> (*MapObject)(const TSharedPtr<FJsonObject> &)) {
   return func::mbind(
       ReadRequiredArray(Request),
@@ -109,18 +109,18 @@ template <typename Output> struct TRequiredJsonObjectMapper;
 
 template <typename Output>
 func::Maybe<TArray<Output>>
-ReadRequiredMappedObjectArray(const FJsonFieldRequest &Request) {
+ReadRequiredMappedObjectArray(const FFieldRequest &Request) {
   return ReadRequiredObjectArray<Output>(
       Request, TRequiredJsonObjectMapper<Output>::Read);
 }
 
 template <typename State> struct TRequiredJsonFieldDeclaration {
   FString FieldName;
-  TFunction<func::Maybe<State>(const FJsonFieldRequest &, const State &)> Apply;
+  TFunction<func::Maybe<State>(const FFieldRequest &, const State &)> Apply;
 
   TRequiredJsonFieldDeclaration()
       : FieldName(),
-        Apply([](const FJsonFieldRequest &, const State &Current) {
+        Apply([](const FFieldRequest &, const State &Current) {
           return func::just(Current);
         }) {}
 
@@ -128,7 +128,7 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
   TRequiredJsonFieldDeclaration(const char *FieldAtom,
                                 TArray<Output> State::*Member)
       : FieldName(RequiredFieldName(FieldAtom)),
-        Apply([Member](const FJsonFieldRequest &Request,
+        Apply([Member](const FFieldRequest &Request,
                        const State &Current) {
           return func::mbind(
               ReadRequiredMappedObjectArray<Output>(Request),
@@ -141,7 +141,7 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
   template <typename Value>
   TRequiredJsonFieldDeclaration(const char *FieldAtom, Value State::*Member)
       : FieldName(RequiredFieldName(FieldAtom)),
-        Apply([Member](const FJsonFieldRequest &Request,
+        Apply([Member](const FFieldRequest &Request,
                        const State &Current) {
           return func::mbind(
               ReadRequiredValue<Value>(Request),
@@ -154,9 +154,9 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
   template <typename Value>
   TRequiredJsonFieldDeclaration(
       const char *FieldAtom, Value State::*Member,
-      func::Maybe<Value> (*ReadField)(const FJsonFieldRequest &))
+      func::Maybe<Value> (*ReadField)(const FFieldRequest &))
       : FieldName(RequiredFieldName(FieldAtom)),
-        Apply([Member, ReadField](const FJsonFieldRequest &Request,
+        Apply([Member, ReadField](const FFieldRequest &Request,
                                   const State &Current) {
           return func::mbind(
               ReadField(Request), [Member, Current](const Value &FieldValue) {
@@ -170,7 +170,7 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
       const char *FieldAtom, TArray<Output> State::*Member,
       func::Maybe<Output> (*MapObject)(const TSharedPtr<FJsonObject> &))
       : FieldName(RequiredFieldName(FieldAtom)),
-        Apply([Member, MapObject](const FJsonFieldRequest &Request,
+        Apply([Member, MapObject](const FFieldRequest &Request,
                                   const State &Current) {
           return func::mbind(
               ReadRequiredObjectArray<Output>(Request, MapObject),

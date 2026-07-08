@@ -34,12 +34,13 @@ template <> struct TComponentSourceValueFieldRegistry<FBotEntity> {
   static const TArray<TComponentSourceValueFieldDeclaration<FBotEntity>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FBotEntity>>
-        RegisteredFields = {{"Id", &FBotEntity::Id},
-                            {"DisplayName", &FBotEntity::DisplayName},
-                            {"Kind", &FBotEntity::Kind},
-                            {"Alignment", &FBotEntity::Alignment},
-                            {"Active", &FBotEntity::bActive}};
-    return RegisteredFields;
+        SourceFields = ComponentSourceFieldDeclarations<FBotEntity>(
+            {{"Id", &FBotEntity::Id},
+             {"DisplayName", &FBotEntity::DisplayName},
+             {"Kind", &FBotEntity::Kind},
+             {"Alignment", &FBotEntity::Alignment},
+             {"Active", &FBotEntity::bActive}});
+    return SourceFields;
   }
 };
 
@@ -62,7 +63,7 @@ ecs::EntityKey BotEntityKey(const FString &Id) {
 }
 
 ecs::FWorld ProjectBot(const FProjectBotEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectBotEntityPayload &PayloadValue) {

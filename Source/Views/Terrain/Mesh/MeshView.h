@@ -14,7 +14,7 @@ class UMaterialInterface;
 namespace ForbocAI {
 namespace Game {
 namespace Level {
-struct FTerrainMeshPayload;
+struct FMeshPayload;
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI
@@ -22,7 +22,7 @@ struct FTerrainMeshPayload;
 /**
  * @brief Procedural terrain display actor for reducer/thunk-owned mesh data.
  *
- * Architecture: Terrain systems select or load FTerrainMeshPayload below the
+ * Architecture: Terrain systems select or load FMeshPayload below the
  * view layer. This actor only applies the payload to Unreal procedural mesh
  * components.
  *
@@ -42,7 +42,7 @@ public:
    * @return true when the mesh section was created.
    */
   bool ApplyTerrainMeshPayload(
-      const ForbocAI::Game::Level::FTerrainMeshPayload &Payload);
+      const ForbocAI::Game::Level::FMeshPayload &Payload);
 
 private:
   UPROPERTY()

@@ -6,41 +6,41 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 
-struct FSpawnPointPayload {
+struct FPointPayload {
   FVector Location;
   FRotator Rotation;
   FString AnchorLabel;
 };
 
-struct FSpawnPointSource {
+struct FPointSource {
   FVector Location;
   FRotator Rotation;
   FString AnchorLabel;
 };
 
 struct FSpawnState {
-  FSpawnPointPayload PlayerSpawn;
+  FPointPayload PlayerSpawn;
 };
 
-inline bool operator==(const FSpawnPointPayload &Left,
-                       const FSpawnPointPayload &Right) {
+inline bool operator==(const FPointPayload &Left,
+                       const FPointPayload &Right) {
   return Left.Location == Right.Location && Left.Rotation == Right.Rotation &&
          Left.AnchorLabel == Right.AnchorLabel;
 }
 
-inline bool operator!=(const FSpawnPointPayload &Left,
-                       const FSpawnPointPayload &Right) {
+inline bool operator!=(const FPointPayload &Left,
+                       const FPointPayload &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FSpawnPointSource &Left,
-                       const FSpawnPointSource &Right) {
+inline bool operator==(const FPointSource &Left,
+                       const FPointSource &Right) {
   return Left.Location == Right.Location && Left.Rotation == Right.Rotation &&
          Left.AnchorLabel == Right.AnchorLabel;
 }
 
-inline bool operator!=(const FSpawnPointSource &Left,
-                       const FSpawnPointSource &Right) {
+inline bool operator!=(const FPointSource &Left,
+                       const FPointSource &Right) {
   return !(Left == Right);
 }
 

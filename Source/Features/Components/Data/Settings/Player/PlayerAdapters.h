@@ -9,12 +9,12 @@ namespace PlayerSettingsAdapters {
 
 /**
  * @brief Reads player presentation settings from one JSON object.
- * @signature FPlayerPresentationSettings ReadPlayerPresentationSettings(const TSharedPtr<FJsonObject> &Object)
+ * @signature FPresentationSettings ReadPlayerPresentationSettings(const TSharedPtr<FJsonObject> &Object)
  *
  * User story: As a player reducer author, authored player presentation data is
  * converted to a typed payload before it enters the RTK store.
  */
-FPlayerPresentationSettings
+FPresentationSettings
 ReadPlayerPresentationSettings(const TSharedPtr<FJsonObject> &Object);
 
 /**

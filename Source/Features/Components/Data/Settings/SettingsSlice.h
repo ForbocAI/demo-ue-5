@@ -12,6 +12,10 @@ namespace SettingsReducers {
 
 namespace Json = JsonAdapters;
 
+inline FString SettingsAtom(const char *Atom) {
+  return FString(UTF8_TO_TCHAR(Atom));
+}
+
 /**
  * @brief Reads an FColor from a JSON object with r/g/b/a int fields.
  * @signature FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object)
@@ -21,10 +25,10 @@ namespace Json = JsonAdapters;
  */
 inline FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonIntReader Int = Json::IntIn(Object);
-  return FColor(static_cast<uint8>(Int(TEXT("r"))),
-                static_cast<uint8>(Int(TEXT("g"))),
-                static_cast<uint8>(Int(TEXT("b"))),
-                static_cast<uint8>(Int(TEXT("a"))));
+  return FColor(static_cast<uint8>(Int(*SettingsAtom("r"))),
+                static_cast<uint8>(Int(*SettingsAtom("g"))),
+                static_cast<uint8>(Int(*SettingsAtom("b"))),
+                static_cast<uint8>(Int(*SettingsAtom("a"))));
 }
 
 /**
@@ -36,8 +40,10 @@ inline FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object) {
  */
 inline FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonFloatReader Float = Json::FloatIn(Object);
-  return FLinearColor(Float(TEXT("r")), Float(TEXT("g")), Float(TEXT("b")),
-                      Float(TEXT("a")));
+  return FLinearColor(Float(*SettingsAtom("r")),
+                      Float(*SettingsAtom("g")),
+                      Float(*SettingsAtom("b")),
+                      Float(*SettingsAtom("a")));
 }
 
 } // namespace SettingsReducers

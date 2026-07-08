@@ -157,16 +157,17 @@ void ATownspersonView::Tick(float DeltaTime) {
 
 void ATownspersonView::ConfigureTownsperson(
     const FTownspersonViewConfig &Config) {
-  TownspersonId = Config.Id;
-  TownspersonName = Config.Name;
-  TownspersonRole = Config.Role;
-  Persona = Config.Persona;
+  TownspersonId = Config.Identity.Id;
+  TownspersonName = Config.Identity.Name;
+  TownspersonRole = Config.Identity.Role;
+  Persona = Config.Identity.Persona;
   const ForbocAI::Game::Level::FTownspersonViewDefaults Defaults =
       ObserveTownspersonViewDefaults(
-          {Config.InteractionPrompt, Config.DefaultPlayerLine});
+          {Config.Conversation.InteractionPrompt,
+           Config.Conversation.DefaultPlayerLine});
   InteractionPrompt = Defaults.InteractionPrompt;
   DefaultPlayerLine = Defaults.DefaultPlayerLine;
-  PinnedResponse = Config.PinnedResponse;
+  PinnedResponse = Config.Conversation.PinnedResponse;
   PatrolRoute = Config.PatrolRoute;
   ApplyDistanceLod(Config.Lod);
   PauseRemaining =
@@ -246,10 +247,13 @@ FString ATownspersonView::GetDefaultPlayerLine() const {
 FString ATownspersonView::GetPinnedResponse() const { return PinnedResponse; }
 
 void ATownspersonView::AdvancePatrol(float DeltaTime) {
+  const ForbocAI::Game::Level::FBotPatrolAdvanceRequest Request{
+      PatrolRoute,
+      {PatrolIndex, PauseRemaining},
+      {PauseDuration, WalkSpeed, DeltaTime, PatrolArrivalDistance},
+      {GetActorLocation()}};
   const ForbocAI::Game::Level::FBotPatrolAdvancePayload Advance =
-      ObserveTownspersonPatrolAdvance(
-          {PatrolRoute, PatrolIndex, PauseRemaining, PauseDuration, WalkSpeed,
-           DeltaTime, GetActorLocation(), PatrolArrivalDistance});
+      ObserveTownspersonPatrolAdvance(Request);
   PatrolIndex = Advance.PatrolIndex;
   PauseRemaining = Advance.PauseRemaining;
   Advance.bShouldMove ? (SetActorLocation(Advance.Location), void()) : void();

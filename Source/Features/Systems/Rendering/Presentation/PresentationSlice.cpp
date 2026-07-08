@@ -9,13 +9,13 @@ namespace Level {
 namespace RenderingPresentationReducers {
 namespace {
 
-float WorldFeet(const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry,
+float WorldFeet(const ForbocAI::Game::Data::FGeometrySettings &Geometry,
                 float Feet) {
   return LevelLayoutAdapters::ActorWorldUnitsFromFeet({Geometry, Feet});
 }
 
 FVector ReduceWorldFeetVector(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry,
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry,
     const FVector &Feet) {
   return FVector(WorldFeet(Geometry, Feet.X), WorldFeet(Geometry, Feet.Y),
                  WorldFeet(Geometry, Feet.Z));
@@ -27,7 +27,7 @@ FTownspersonPresentationViewModel ReduceTownspersonPresentation(
     const FTownspersonPresentationReduceRequest &Request) {
   const ForbocAI::Game::Data::FTownspersonPresentationSettings &Settings =
       Request.Settings;
-  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry =
+  const ForbocAI::Game::Data::FGeometrySettings &Geometry =
       Request.Geometry;
   const float CharacterHeight = WorldFeet(Geometry, Settings.CharacterHeightFeet);
   const float PromptTextZ =
@@ -72,7 +72,7 @@ FHorsePresentationViewModel ReduceHorsePresentation(
     const FHorsePresentationReduceRequest &Request) {
   const ForbocAI::Game::Data::FHorsePresentationSettings &Settings =
       Request.Settings;
-  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry =
+  const ForbocAI::Game::Data::FGeometrySettings &Geometry =
       Request.Geometry;
   FHorsePresentationViewModel Model;
   Model.DefaultName = Settings.DefaultName;

@@ -10,13 +10,13 @@ namespace Layout {
 /**
  * @brief Parses authored level layout leaf arrays.
  *
- * @signature func::Maybe<FLevelLayoutSeed> LayoutFromJson(const FLevelLayoutLeaves &Leaves)
+ * @signature func::Maybe<FLayoutSeed> LayoutFromJson(const FLeaves &Leaves)
  *
  * User story: As a Level thunk author, atomic JSON leaves compose into one
  * layout seed before entering unidirectional RTK flow.
  */
-func::Maybe<FLevelLayoutSeed>
-LayoutFromJson(const FLevelLayoutLeaves &Leaves);
+func::Maybe<FLayoutSeed>
+LayoutFromJson(const FLeaves &Leaves);
 
 } // namespace Layout
 } // namespace Level

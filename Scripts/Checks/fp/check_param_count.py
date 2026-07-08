@@ -48,6 +48,7 @@ UE_CALLBACKS = {
     "Tick",
     "TickComponent",
     "SetupInputComponent",
+    "InitGame",
     "NativeConstruct",
     "HandleInteractionBegin",
     "HandleInteractionEnd",
@@ -120,12 +121,12 @@ def is_mut_sink(segment: str) -> bool:
     return ("&" in segment or "*" in segment) and "const" not in segment
 
 
-def classify(name: str, segments: list[str]) -> str:
+def classify(name: str, segments: list[str], tail: str) -> str:
     # Mirrors Therapy 12's classify_function: only genuinely reducible
     # ("actionable") functions fail the guard; the other buckets are
     # irreducible by design and stay at two parameters.
     simple_name = strip_receiver(name)
-    if simple_name in UE_CALLBACKS:
+    if simple_name in UE_CALLBACKS or re.search(r"\boverride\b", tail):
         return "ue-callback"
     if any(FN_TYPE_RE.search(segment) for segment in segments):
         return "fn-arg"
@@ -165,7 +166,7 @@ def scan_file(path: pathlib.Path):
         ):
             continue
         segments = data_segments(body)
-        yield name, len(segments), text[: match.start()].count("\n") + 1, classify(name, segments)
+        yield name, len(segments), text[: match.start()].count("\n") + 1, classify(name, segments, tail)
 
 
 def gather(root: pathlib.Path):

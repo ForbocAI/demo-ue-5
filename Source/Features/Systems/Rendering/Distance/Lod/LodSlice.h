@@ -13,7 +13,7 @@ namespace RenderingDistanceLodReducers {
  * @brief Maps authored distance LOD settings into feature-owned stages.
  */
 TArray<FLevelDistanceLodStage> ReduceDistanceLodStages(
-    const ForbocAI::Game::Data::FRenderingDistanceLodSettings &Settings);
+    const ForbocAI::Game::Data::FLodSettings &Settings);
 
 /**
  * @brief Selects the authored LOD stage for one world-space location.

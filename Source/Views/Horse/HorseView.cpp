@@ -116,10 +116,13 @@ void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
 }
 
 void AHorseView::AdvancePatrol(float DeltaTime) {
+  const ForbocAI::Game::Level::FBotPatrolAdvanceRequest Request{
+      PatrolRoute,
+      {PatrolIndex, PauseRemaining},
+      {PauseDuration, WalkSpeed, DeltaTime, PatrolArrivalDistance},
+      {GetActorLocation()}};
   const ForbocAI::Game::Level::FBotPatrolAdvancePayload Advance =
-      ObserveHorsePatrolAdvance(
-          {PatrolRoute, PatrolIndex, PauseRemaining, PauseDuration, WalkSpeed,
-           DeltaTime, GetActorLocation(), PatrolArrivalDistance});
+      ObserveHorsePatrolAdvance(Request);
   PatrolIndex = Advance.PatrolIndex;
   PauseRemaining = Advance.PauseRemaining;
   Advance.bShouldMove ? (SetActorLocation(Advance.Location), void()) : void();

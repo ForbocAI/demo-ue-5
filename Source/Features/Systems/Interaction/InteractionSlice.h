@@ -31,47 +31,47 @@ inline FString ReduceNoTownspersonMessage(
  * @brief Maps JSON-backed interaction range settings into world units.
  *
  * @signature float ReduceTownspersonInteractionDistance(const
- * FInteractionDistanceSettingsRequest &Request)
+ * FDistanceSettingsRequest &Request)
  *
  * User story: As a level designer, interaction range can be tuned in JSON
  * while RTK state remains the authority for gameplay distance.
  */
 inline float ReduceTownspersonInteractionDistance(
-    const FInteractionDistanceSettingsRequest &Request) {
+    const FDistanceSettingsRequest &Request) {
   return LevelLayoutAdapters::TownLotWorldUnits(Request.Geometry) *
          Request.Interaction.TownspersonMaxDistanceLots;
 }
 
-inline FInteractionSelection ReduceEmptySelection(const FString &Message) {
-  FInteractionSelection Selection;
+inline FSelection ReduceEmptySelection(const FString &Message) {
+  FSelection Selection;
   Selection.MissingMessage = Message;
   return Selection;
 }
 
 inline float ReduceDistanceSquared(
-    const FInteractionCandidatesObserved &Request,
-    const FInteractionCandidate &Candidate) {
+    const FCandidatesObserved &Request,
+    const FCandidate &Candidate) {
   return FVector::DistSquared(Request.Origin, Candidate.Location);
 }
 
 inline bool ReduceCandidateWithinRange(
-    const FInteractionCandidatesObserved &Request,
-    const FInteractionCandidate &Candidate) {
+    const FCandidatesObserved &Request,
+    const FCandidate &Candidate) {
   return Candidate.bCanInteract &&
          ReduceDistanceSquared(Request, Candidate) <=
              FMath::Square(Request.MaxDistance);
 }
 
 inline bool ReduceCandidateIsCloser(float CandidateDistanceSquared,
-                                    const FInteractionSelection &Current) {
+                                    const FSelection &Current) {
   return !Current.bFound ||
          CandidateDistanceSquared < Current.DistanceSquared;
 }
 
-inline FInteractionSelection ReduceCloserCandidate(
-    FInteractionSelection Current,
-    const FInteractionNearestCandidateRequest &Request,
-    const FInteractionCandidate &Candidate) {
+inline FSelection ReduceCloserCandidate(
+    FSelection Current,
+    const FNearestCandidateRequest &Request,
+    const FCandidate &Candidate) {
   const float CandidateDistanceSquared =
       ReduceDistanceSquared(Request.Observation, Candidate);
   const bool bSelected =
@@ -87,14 +87,14 @@ inline FInteractionSelection ReduceCloserCandidate(
   return Current;
 }
 
-inline FInteractionSelection ReduceNearestCandidate(
-    const FInteractionNearestCandidateRequest &Request) {
+inline FSelection ReduceNearestCandidate(
+    const FNearestCandidateRequest &Request) {
   return func::fold_indexed(
       Request.Observation.Candidates,
       static_cast<size_t>(Request.Observation.Candidates.Num()),
       ReduceEmptySelection(Request.MissingMessage),
-      [&Request](const FInteractionSelection &Current,
-                 const FInteractionCandidate &Candidate) {
+      [&Request](const FSelection &Current,
+                 const FCandidate &Candidate) {
         return ReduceCloserCandidate(Current, Request, Candidate);
       });
 }
@@ -104,7 +104,7 @@ inline FInteractionSelection ReduceNearestCandidate(
  */
 inline FInteractionState ReduceTownspersonCandidatesObserved(
     const FInteractionState &State,
-    const rtk::PayloadAction<FInteractionCandidatesObserved> &Action) {
+    const rtk::PayloadAction<FCandidatesObserved> &Action) {
   return (func::pipe(State) |
           [&Action](FInteractionState Next) -> FInteractionState {
             Next.ActionId = func::just(Action.PayloadValue.Id);
@@ -166,7 +166,7 @@ inline const rtk::Slice<FInteractionState> &GetSlice() {
 
 inline rtk::AnyAction
 TownspersonCandidatesObserved(
-    const FInteractionCandidatesObserved &Payload) {
+    const FCandidatesObserved &Payload) {
   return InteractionActions::TownspersonCandidatesObserved()(Payload);
 }
 

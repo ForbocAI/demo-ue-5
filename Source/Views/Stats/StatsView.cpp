@@ -21,14 +21,14 @@ namespace {
 using FStatsOverlaySettings =
     ForbocAI::Game::Data::FStatsOverlaySettings;
 
-struct FStatsTextElementRequest {
+struct FTextElementRequest {
   UWidgetTree *Tree;
   FString Text;
   FLinearColor Color;
   const FStatsOverlaySettings *Settings;
 };
 
-struct FStatsMetricRowRequest {
+struct FMetricRowRequest {
   UWidgetTree *Tree;
   FString Label;
   UTextBlock **ValueTextElement;
@@ -37,7 +37,7 @@ struct FStatsMetricRowRequest {
 
 // --- View helpers (UMG widget construction) ---
 
-UTextBlock *BuildStatsTextElement(const FStatsTextElementRequest &Request) {
+UTextBlock *BuildStatsTextElement(const FTextElementRequest &Request) {
   check(Request.Tree);
   check(Request.Settings);
   UTextBlock *Element =
@@ -52,7 +52,7 @@ UTextBlock *BuildStatsTextElement(const FStatsTextElementRequest &Request) {
   return Element;
 }
 
-UHorizontalBox *BuildStatsMetricRow(const FStatsMetricRowRequest &Request) {
+UHorizontalBox *BuildStatsMetricRow(const FMetricRowRequest &Request) {
   check(Request.Tree);
   check(Request.ValueTextElement);
   check(Request.Settings);

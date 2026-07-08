@@ -15,23 +15,54 @@
 
 #include "NPC/NPCModule.h"
 #include "Bridge/BridgeModule.h"
+#include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "HAL/PlatformMisc.h"
 #include "Misc/AutomationTest.h"
 #include "RuntimeConfig.h"
+
+namespace {
+
+using FProtocolLoopSettings =
+    ForbocAI::Game::Data::Automation::Protocol::Loop::FSettings;
+
+const FProtocolLoopSettings &ProtocolLoopSettings() {
+  static const ForbocAI::Game::Data::FSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
+  return Settings.Automation.ProtocolLoop;
+}
+
+FString ProtocolAssertion(const int32 Index) {
+  const TArray<FString> &Assertions = ProtocolLoopSettings().Assertions;
+  check(Assertions.IsValidIndex(Index));
+  return Assertions[Index];
+}
+
+FString ProtocolGroup(const int32 Index) {
+  const TArray<FString> &Groups = ProtocolLoopSettings().Groups;
+  check(Groups.IsValidIndex(Index));
+  return Groups[Index];
+}
+
+FString ProtocolCase(const int32 Index) {
+  const TArray<FString> &Cases = ProtocolLoopSettings().Cases;
+  check(Cases.IsValidIndex(Index));
+  return Cases[Index];
+}
+
+} // namespace
 
 DEFINE_SPEC(FProtocolLoopSpec, "ForbocAI.SDK.ProtocolLoop", EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
 void FProtocolLoopSpec::Define() {
   const auto ShouldSkipUntilApiWorkResumes = []() {
     return FPlatformMisc::GetEnvironmentVariable(
-               TEXT("FORBOC_RUN_API_PROTOCOL_LOOP_TESTS"))
+               *ProtocolLoopSettings().Gate.Variable)
         .IsEmpty();
   };
   const auto SkipUntilApiWorkResumes = [this,
                                         ShouldSkipUntilApiWorkResumes]() {
     return ShouldSkipUntilApiWorkResumes()
-               ? (AddWarning(TEXT("Skipping API protocol-loop test until API "
-                                  "work resumes.")),
+               ? (AddWarning(*ProtocolLoopSettings().Gate.Warning),
                   true)
                : false;
   };
@@ -40,77 +71,83 @@ void FProtocolLoopSpec::Define() {
         return SkipUntilApiWorkResumes() ? void() : Body();
       };
 
-  Describe("Agent Creation", [this, RunApiTest]() {
-    It("Should create an agent via AgentFactory with valid config",
+  Describe(ProtocolGroup(0), [this, RunApiTest]() {
+    It(ProtocolCase(0),
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            FAgentConfig Config;
-           Config.Persona = TEXT("TestNPC");
-           SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
+           Config.Persona = ProtocolLoopSettings().Personas.Agent;
+           SDKConfig::SetApiConfig(*ProtocolLoopSettings().Connection.Url,
+                                   TEXT(""));
 
            const FAgent Agent = AgentFactory::Create(Config);
 
-           TestFalse("Agent ID is not empty", Agent.Id.IsEmpty());
-           TestEqual("Persona matches", Agent.Persona, TEXT("TestNPC"));
+           TestFalse(ProtocolAssertion(0), Agent.Id.IsEmpty());
+           TestEqual(ProtocolAssertion(1), Agent.Persona,
+                     ProtocolLoopSettings().Personas.Agent);
          });
       });
 
-    It("Should create an immutable agent wrapped in TSharedPtr",
+    It(ProtocolCase(1),
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            FAgentConfig Config;
-           Config.Persona = TEXT("Immutable-Test");
-           SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
+           Config.Persona = ProtocolLoopSettings().Personas.Immutable;
+           SDKConfig::SetApiConfig(*ProtocolLoopSettings().Connection.Url,
+                                   TEXT(""));
 
            TSharedPtr<const FAgent> AgentPtr =
                MakeShared<const FAgent>(AgentFactory::Create(Config));
 
-           TestTrue("Agent pointer is valid", AgentPtr.IsValid());
-           TestEqual("Persona preserved", AgentPtr->Persona,
-                     TEXT("Immutable-Test"));
+           TestTrue(ProtocolAssertion(2), AgentPtr.IsValid());
+           TestEqual(ProtocolAssertion(3), AgentPtr->Persona,
+                     ProtocolLoopSettings().Personas.Immutable);
          });
        });
   });
 
-  Describe("State Updates", [this, RunApiTest]() {
-    It("Should return a new agent on WithState (immutable update)",
+  Describe(ProtocolGroup(1), [this, RunApiTest]() {
+    It(ProtocolCase(2),
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            FAgentConfig Config;
-           Config.Persona = TEXT("StateTester");
-           SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
+           Config.Persona = ProtocolLoopSettings().Personas.State;
+           SDKConfig::SetApiConfig(*ProtocolLoopSettings().Connection.Url,
+                                   TEXT(""));
 
            const FAgent Original = AgentFactory::Create(Config);
            const FAgentState NewState =
-               TypeFactory::AgentState(TEXT("{") TEXT("\"mood\": \"alert\"}"));
+               TypeFactory::AgentState(ProtocolLoopSettings().State.Json);
            const FAgent Updated = AgentOps::WithState(Original, NewState);
 
            // Original should be unchanged (immutable pattern)
-           TestEqual("Original ID preserved", Original.Id, Updated.Id);
+           TestEqual(ProtocolAssertion(4), Original.Id, Updated.Id);
            // The updated agent should carry the new state
-           TestTrue("Updated state contains mood",
-                    Updated.State.JsonData.Contains(TEXT("alert")));
+           TestTrue(ProtocolAssertion(5),
+                    Updated.State.JsonData.Contains(
+                        ProtocolLoopSettings().State.Needle));
          });
        });
   });
 
-  Describe("Async Process Pipeline", [this, RunApiTest]() {
-    It("Should invoke AgentOps::Process without crashing",
+  Describe(ProtocolGroup(2), [this, RunApiTest]() {
+    It(ProtocolCase(3),
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            // This test verifies the pipeline can be invoked without a crash.
            // In disconnected mode (no live API), the callback may not fire,
            // but the call itself must not stall or segfault.
            FAgentConfig Config;
-           Config.Persona = TEXT("AsyncTester");
-           SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
+           Config.Persona = ProtocolLoopSettings().Personas.Async;
+           SDKConfig::SetApiConfig(*ProtocolLoopSettings().Connection.Url,
+                                   TEXT(""));
 
            TSharedPtr<const FAgent> Agent =
                MakeShared<const FAgent>(AgentFactory::Create(Config));
 
            bool bCallbackFired = false;
 
-           AgentOps::Process(*Agent, TEXT("Hello, who are you?"), {})
+           AgentOps::Process(*Agent, ProtocolLoopSettings().Async.Prompt, {})
                .then([&bCallbackFired](FAgentResponse Response) {
                  bCallbackFired = true;
                })
@@ -124,27 +161,29 @@ void FProtocolLoopSpec::Define() {
        });
   });
 
-  Describe("Bridge Validation", [this, RunApiTest]() {
-    It("Should create RPG rules via BridgeOps preset", [this, RunApiTest]() {
+  Describe(ProtocolGroup(3), [this, RunApiTest]() {
+    It(ProtocolCase(4), [this, RunApiTest]() {
       return RunApiTest([this]() {
         TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();
 
-        TestTrue("RPG rules are not empty", Rules.Num() > 0);
+        TestTrue(ProtocolAssertion(6),
+                 Rules.Num() > ProtocolLoopSettings().Bridge.MinimumRules);
       });
     });
 
-    It("Should validate a valid action against RPG rules",
+    It(ProtocolCase(5),
        [this, RunApiTest]() {
          return RunApiTest([this]() {
            FAgentConfig Config;
-           Config.Persona = TEXT("BridgeTester");
-           SDKConfig::SetApiConfig(TEXT("http://localhost:8080"), TEXT(""));
+           Config.Persona = ProtocolLoopSettings().Personas.Bridge;
+           SDKConfig::SetApiConfig(*ProtocolLoopSettings().Connection.Url,
+                                   TEXT(""));
 
            const FAgent Agent = AgentFactory::Create(Config);
            TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();
 
            FAgentAction Action;
-           Action.Type = TEXT("MOVE");
+           Action.Type = ProtocolLoopSettings().Bridge.Action;
 
            const FBridgeRuleContext Context =
                BridgeFactory::CreateContext(&Agent.State, {});
@@ -153,7 +192,7 @@ void FProtocolLoopSpec::Define() {
                BridgeOps::Validate(Action, Rules, Context);
 
            // MOVE should be valid under RPG rules
-           TestTrue("MOVE action is valid", Result.bValid);
+           TestTrue(ProtocolAssertion(7), Result.bValid);
          });
        });
   });

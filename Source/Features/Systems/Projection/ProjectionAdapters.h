@@ -5,7 +5,7 @@
 namespace ForbocAI {
 namespace Game {
 namespace Level {
-namespace SystemsProjectionRuntimeAdapters {
+namespace SystemsProjectionAdapters {
 
 /**
  * @brief Projects post-reducer runtime root state into a fresh ECS world.
@@ -17,7 +17,7 @@ namespace SystemsProjectionRuntimeAdapters {
  */
 ecs::FWorld ProjectRuntimeWorld(const FProjectRuntimePayload &Payload);
 
-} // namespace SystemsProjectionRuntimeAdapters
+} // namespace SystemsProjectionAdapters
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI

@@ -226,9 +226,9 @@
     "clean_violation_count": 0
   },
   "bot_functional_core": {
-    "spec_name": "ForbocAI.Bot.FunctionalCore",
-    "test_names": [],
-    "group_labels": [
+    "spec": "ForbocAI.Bot.FunctionalCore",
+    "tests": [],
+    "groups": [
       "State Creation",
       "Reducers",
       "Movement",
@@ -236,7 +236,7 @@
       "Awareness",
       "Tick Update"
     ],
-    "case_labels": [
+    "cases": [
       "Should create initial state with correct defaults",
       "Should update position to target",
       "Should reduce health when taking damage",
@@ -246,7 +246,7 @@
       "Should increment tick count",
       "Should decay Aggro after timeout"
     ],
-    "assertion_labels": [
+    "assertions": [
       "Name",
       "Health",
       "Phase",
@@ -265,8 +265,8 @@
     ]
   },
   "pipeline": {
-    "spec_name": "",
-    "test_names": [
+    "spec": "",
+    "tests": [
       "ForbocAI.Pipeline.IdleTickAdvancesState",
       "ForbocAI.Pipeline.HazardCausesDamage",
       "ForbocAI.Pipeline.AwarenessTriggersAggro",
@@ -274,9 +274,9 @@
       "ForbocAI.Pipeline.MultiBotIndependent",
       "ForbocAI.Pipeline.DeterministicOrder"
     ],
-    "group_labels": [],
-    "case_labels": [],
-    "assertion_labels": [
+    "groups": [],
+    "cases": [],
+    "assertions": [
       "Tick count advanced",
       "At least 1 action dispatched",
       "Health unchanged",
@@ -298,7 +298,8 @@
     ]
   },
   "conversation_ui": {
-    "labels": [
+    "test": "ForbocAI.UI.ConversationViewModels",
+    "assertions": [
       "Player message is role-prefixed",
       "Player message uses cyan channel",
       "History produces view models",
@@ -309,31 +310,58 @@
       "Conversation player line is labeled",
       "Conversation reply is labeled"
     ],
-    "player_role": "Player",
-    "player_text": "Hello",
-    "expected_player_message_text": "[Player] Hello",
-    "expected_player_message_green": 0.85,
-    "history": [
-      "NPC: Welcome back",
-      "Unlabeled message"
-    ],
-    "expected_history_count": 2,
-    "tagged_history_index": 0,
-    "expected_tagged_history_text": "[NPC] Welcome back",
-    "untagged_history_index": 1,
-    "expected_untagged_history_text": "[Unknown] Unlabeled message",
-    "submitted_input": "  Ask around  ",
-    "expected_submitted_text": "Ask around",
-    "speaker_name": "Clara Bell",
-    "speaker_role": "Postmaster",
-    "conversation_player_line": "Any mail?",
-    "conversation_npc_reply": "Only dust today.",
-    "expected_conversation_title": "Clara Bell - Postmaster",
-    "expected_conversation_player_line": "Player: Any mail?",
-    "expected_conversation_npc_reply": "NPC: Only dust today."
+    "player_message": {
+      "role": "Player",
+      "text": "Hello",
+      "expected_text": "[Player] Hello",
+      "expected_green": 0.85
+    },
+    "history": {
+      "lines": [
+        "NPC: Welcome back",
+        "Unlabeled message"
+      ],
+      "expected_count": 2,
+      "tagged": {
+        "index": 0,
+        "expected_text": "[NPC] Welcome back"
+      },
+      "untagged": {
+        "index": 1,
+        "expected_text": "[Unknown] Unlabeled message"
+      }
+    },
+    "submitted": {
+      "input": "  Ask around  ",
+      "expected_text": "Ask around"
+    },
+    "dialogue": {
+      "speaker_name": "Clara Bell",
+      "speaker_role": "Postmaster",
+      "player_line": "Any mail?",
+      "npc_reply": "Only dust today.",
+      "expected_title": "Clara Bell - Postmaster",
+      "expected_player_line": "Player: Any mail?",
+      "expected_npc_reply": "NPC: Only dust today."
+    }
   },
   "protocol_loop": {
-    "labels": [
+    "spec": "ForbocAI.SDK.ProtocolLoop",
+    "groups": [
+      "Agent Creation",
+      "State Updates",
+      "Async Process Pipeline",
+      "Bridge Validation"
+    ],
+    "cases": [
+      "Should create an agent via AgentFactory with valid config",
+      "Should create an immutable agent wrapped in TSharedPtr",
+      "Should return a new agent on WithState (immutable update)",
+      "Should invoke AgentOps::Process without crashing",
+      "Should create RPG rules via BridgeOps preset",
+      "Should validate a valid action against RPG rules"
+    ],
+    "assertions": [
       "Agent ID is not empty",
       "Persona matches",
       "Agent pointer is valid",
@@ -343,19 +371,31 @@
       "RPG rules are not empty",
       "MOVE action is valid"
     ],
-    "run_environment_variable": "FORBOC_RUN_API_PROTOCOL_LOOP_TESTS",
-    "skip_warning": "Skipping API protocol-loop test until API work resumes.",
-    "api_url": "http://localhost:8080",
-    "agent_persona": "TestNPC",
-    "immutable_persona": "Immutable-Test",
-    "state_persona": "StateTester",
-    "state_json": "{\"mood\": \"alert\"}",
-    "state_needle": "alert",
-    "async_persona": "AsyncTester",
-    "async_prompt": "Hello, who are you?",
-    "bridge_persona": "BridgeTester",
-    "bridge_action_type": "MOVE",
-    "minimum_rule_count": 0
+    "gate": {
+      "variable": "FORBOC_RUN_API_PROTOCOL_LOOP_TESTS",
+      "warning": "Skipping API protocol-loop test until API work resumes."
+    },
+    "connection": {
+      "url": "http://localhost:8080"
+    },
+    "personas": {
+      "agent": "TestNPC",
+      "immutable": "Immutable-Test",
+      "state": "StateTester",
+      "async": "AsyncTester",
+      "bridge": "BridgeTester"
+    },
+    "state": {
+      "json": "{\"mood\": \"alert\"}",
+      "needle": "alert"
+    },
+    "async": {
+      "prompt": "Hello, who are you?"
+    },
+    "bridge": {
+      "action": "MOVE",
+      "minimum_rules": 0
+    }
   },
   "store": {
     "data_backed_map_labels": [

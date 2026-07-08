@@ -8,12 +8,12 @@
 
 namespace {
 
-using FForbiddenSourcePatternSettings =
-    ForbocAI::Game::Data::FForbiddenSourcePatternSettings;
-using FRTKComplianceAutomationSettings =
-    ForbocAI::Game::Data::FRTKComplianceAutomationSettings;
+using FForbiddenSourcePattern =
+    ForbocAI::Game::Data::Automation::Rtk::Compliance::FPattern;
+using FRTKComplianceSettings =
+    ForbocAI::Game::Data::Automation::Rtk::Compliance::FSettings;
 
-const FRTKComplianceAutomationSettings &RTKComplianceSettings() {
+const FRTKComplianceSettings &RTKComplianceSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   return Settings.Automation.RtkCompliance;
@@ -45,7 +45,7 @@ bool ShouldAuditFile(const FString &Path) {
 
 TArray<FString> SourceFiles() {
   TArray<FString> Files;
-  const FRTKComplianceAutomationSettings &Settings = RTKComplianceSettings();
+  const FRTKComplianceSettings &Settings = RTKComplianceSettings();
   const FString SourceDir =
       FPaths::Combine(FPaths::ProjectDir(), Settings.SourceDirectoryName);
   IFileManager::Get().FindFilesRecursive(
@@ -59,43 +59,49 @@ func::Maybe<FString> LoadSourceContent(const FString &Path) {
       Content, FFileHelper::LoadFileToString(Content, *Path));
 }
 
+FString ComplianceMessage(const FString &Format,
+                          const TArray<FStringFormatArg> &Args) {
+  return FString::Format(*Format, Args);
+}
+
 int32 CountPatternViolation(FAutomationTestBase &Test, const FString &Path,
                             const FString &Content,
-                            const FForbiddenSourcePatternSettings &Pattern) {
-  const FRTKComplianceAutomationSettings &Settings = RTKComplianceSettings();
+                            const FForbiddenSourcePattern &Pattern) {
+  const FRTKComplianceSettings &Settings = RTKComplianceSettings();
   return Content.Contains(Pattern.Token)
-             ? (Test.AddError(FString::Printf(*Settings.ViolationMessageFormat,
-                                               *Path, *Pattern.Message,
-                                               *Pattern.Token)),
+             ? (Test.AddError(ComplianceMessage(
+                    Settings.ViolationMessageFormat,
+                    {FStringFormatArg(Path), FStringFormatArg(Pattern.Message),
+                     FStringFormatArg(Pattern.Token)})),
                 Settings.ViolationCountIncrement)
              : Settings.CleanViolationCount;
 }
 
 int32 CountForbiddenSourcePatternsInFile(
     FAutomationTestBase &Test,
-    const TArray<FForbiddenSourcePatternSettings> &Patterns,
+    const TArray<FForbiddenSourcePattern> &Patterns,
     const FString &Path) {
   return func::match(
       LoadSourceContent(Path),
       [&Test, &Patterns, &Path](const FString &Content) {
-        return func::fold_array<FForbiddenSourcePatternSettings, int32>(
+        return func::fold_array<FForbiddenSourcePattern, int32>(
             Patterns, RTKComplianceSettings().CleanViolationCount,
             [&Test, &Path, &Content](
                 const int32 &Count,
-                const FForbiddenSourcePatternSettings &Pattern) -> int32 {
+                const FForbiddenSourcePattern &Pattern) -> int32 {
               return Count + CountPatternViolation(Test, Path, Content, Pattern);
             });
       },
       [&Test, &Path]() -> int32 {
-        Test.AddError(FString::Printf(
-            *RTKComplianceSettings().SourceReadFailureFormat,
-                                      *Path));
+        Test.AddError(ComplianceMessage(
+            RTKComplianceSettings().SourceReadFailureFormat,
+            {FStringFormatArg(Path)}));
         return RTKComplianceSettings().ViolationCountIncrement;
       });
 }
 
 int32 CountForbiddenSourcePatterns(FAutomationTestBase &Test) {
-  const TArray<FForbiddenSourcePatternSettings> Patterns =
+  const TArray<FForbiddenSourcePattern> Patterns =
       RTKComplianceSettings().ForbiddenPatterns;
   return func::fold_array<FString, int32>(
       SourceFiles(), RTKComplianceSettings().CleanViolationCount,

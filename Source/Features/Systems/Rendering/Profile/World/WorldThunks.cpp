@@ -5,7 +5,7 @@
 #include "Core/ue_fp.hpp"
 #include "Engine/DirectionalLight.h"
 #include "Engine/ExponentialHeightFog.h"
-#include "Features/Systems/Rendering/Profile/Runtime/RuntimeThunks.h"
+#include "Features/Systems/Rendering/Profile/ProfileThunks.h"
 
 namespace ForbocAI {
 namespace Game {

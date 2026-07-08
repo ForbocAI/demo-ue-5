@@ -9,17 +9,17 @@ namespace Game {
 namespace Level {
 namespace Layout {
 
-struct FLevelLotLocationFields {
+struct FLevelLotLocationSource {
   float EastLots;
   float NorthLots;
 };
 
-func::Maybe<ELevelAnchorMode>
+func::Maybe<EAnchorMode>
 ReadBlockAnchorModeField(
-    const ForbocAI::Game::Data::FJsonFieldRequest &Request);
+    const ForbocAI::Game::Data::FFieldRequest &Request);
 
 func::Maybe<ELevelRetroTexture>
-ReadTextureField(const ForbocAI::Game::Data::FJsonFieldRequest &Request);
+ReadTextureField(const ForbocAI::Game::Data::FFieldRequest &Request);
 
 } // namespace Layout
 } // namespace Level
@@ -32,31 +32,31 @@ namespace Data {
 namespace JsonValueAdapters {
 
 JSON_REQUIRED_FIELD_REGISTRY(
-    ForbocAI::Game::Level::Layout::FLevelLotLocationFields,
+    ForbocAI::Game::Level::Layout::FLevelLotLocationSource,
     EastLots, NorthLots);
 
 template <>
-struct TRequiredJsonFieldRegistry<ForbocAI::Game::Level::FLevelBlockSeed> {
+struct TRequiredJsonFieldRegistry<ForbocAI::Game::Level::FBlockSeed> {
   static const TArray<
       TRequiredJsonFieldDeclaration<
-          ForbocAI::Game::Level::FLevelBlockSeed>> &
+          ForbocAI::Game::Level::FBlockSeed>> &
   Fields() {
     static const TArray<
         TRequiredJsonFieldDeclaration<
-            ForbocAI::Game::Level::FLevelBlockSeed>>
+            ForbocAI::Game::Level::FBlockSeed>>
         RegisteredFields = {
-            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLevelBlockSeed,
+            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FBlockSeed,
                                  Id, Name, YawDegrees),
             JSON_REQUIRED_FIELD_READER(
-                ForbocAI::Game::Level::FLevelBlockSeed,
+                ForbocAI::Game::Level::FBlockSeed,
                 ForbocAI::Game::Level::Layout::
                     ReadBlockAnchorModeField,
                 Anchor),
             JSON_REQUIRED_FIELD_READER(
-                ForbocAI::Game::Level::FLevelBlockSeed,
+                ForbocAI::Game::Level::FBlockSeed,
                 ForbocAI::Game::Level::Layout::ReadScaleSeed, Scale),
             JSON_REQUIRED_FIELD_READER(
-                ForbocAI::Game::Level::FLevelBlockSeed,
+                ForbocAI::Game::Level::FBlockSeed,
                 ForbocAI::Game::Level::Layout::ReadTextureField,
                 Texture)};
     return RegisteredFields;
@@ -75,41 +75,41 @@ namespace Layout {
 namespace {
 
 namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
-using FJsonFieldRequest = ForbocAI::Game::Data::FJsonFieldRequest;
+using FFieldRequest = ForbocAI::Game::Data::FFieldRequest;
 
-typedef func::Maybe<FLevelBlockSeed> (*FBlockLocationReader)(
-    const TSharedPtr<FJsonObject> &, const FLevelBlockSeed &);
+typedef func::Maybe<FBlockSeed> (*FBlockLocationReader)(
+    const TSharedPtr<FJsonObject> &, const FBlockSeed &);
 
 struct FLevelBlockLocationDeclaration {
-  ELevelAnchorMode Anchor;
+  EAnchorMode Anchor;
   FBlockLocationReader Read;
 
   FLevelBlockLocationDeclaration() = default;
 
-  FLevelBlockLocationDeclaration(ELevelAnchorMode InAnchor,
+  FLevelBlockLocationDeclaration(EAnchorMode InAnchor,
                                         FBlockLocationReader InRead)
       : Anchor(InAnchor), Read(InRead) {}
 };
 
-FLevelBlockSeed AssignWorldBlockLocation(
-    const FLevelBlockSeed &Seed, const FVector &Location) {
-  FLevelBlockSeed Next = Seed;
+FBlockSeed AssignWorldBlockLocation(
+    const FBlockSeed &Seed, const FVector &Location) {
+  FBlockSeed Next = Seed;
   Next.WorldLocation = Location;
   return Next;
 }
 
-FLevelBlockSeed AssignLotBlockLocation(
-    const FLevelBlockSeed &Seed,
-    const FLevelLotLocationFields &Fields) {
-  FLevelBlockSeed Next = Seed;
+FBlockSeed AssignLotBlockLocation(
+    const FBlockSeed &Seed,
+    const FLevelLotLocationSource &Fields) {
+  FBlockSeed Next = Seed;
   Next.EastLots = Fields.EastLots;
   Next.NorthLots = Fields.NorthLots;
   return Next;
 }
 
-func::Maybe<FLevelBlockSeed>
+func::Maybe<FBlockSeed>
 ReadWorldBlockLocation(const TSharedPtr<FJsonObject> &Object,
-                       const FLevelBlockSeed &Seed) {
+                       const FBlockSeed &Seed) {
   return func::mbind(
       JsonValues::ReadRequiredField<TSharedPtr<FJsonObject>>(Object,
                                                              "WorldLocation"),
@@ -122,12 +122,12 @@ ReadWorldBlockLocation(const TSharedPtr<FJsonObject> &Object,
       });
 }
 
-func::Maybe<FLevelBlockSeed>
+func::Maybe<FBlockSeed>
 ReadLotBlockLocation(const TSharedPtr<FJsonObject> &Object,
-                     const FLevelBlockSeed &Seed) {
+                     const FBlockSeed &Seed) {
   return func::fmap(
-      JsonValues::ReadRequiredFields<FLevelLotLocationFields>({FLevelLotLocationFields(), Object}, JSON_REQUIRED_ATOMS(EastLots, NorthLots)),
-      [Seed](const FLevelLotLocationFields &Fields) {
+      JsonValues::ReadRequiredFields<FLevelLotLocationSource>({FLevelLotLocationSource(), Object}, JSON_REQUIRED_ATOMS(EastLots, NorthLots)),
+      [Seed](const FLevelLotLocationSource &Fields) {
         return AssignLotBlockLocation(Seed, Fields);
       });
 }
@@ -135,15 +135,15 @@ ReadLotBlockLocation(const TSharedPtr<FJsonObject> &Object,
 const TArray<FLevelBlockLocationDeclaration> &
 BlockLocationDeclarations() {
   static const TArray<FLevelBlockLocationDeclaration> Declarations = {
-      {ELevelAnchorMode::World, ReadWorldBlockLocation},
-      {ELevelAnchorMode::BuildingLots, ReadLotBlockLocation},
-      {ELevelAnchorMode::FeatureLots, ReadLotBlockLocation},
-      {ELevelAnchorMode::PostOfficeLots, ReadLotBlockLocation}};
+      {EAnchorMode::World, ReadWorldBlockLocation},
+      {EAnchorMode::BuildingLots, ReadLotBlockLocation},
+      {EAnchorMode::FeatureLots, ReadLotBlockLocation},
+      {EAnchorMode::PostOfficeLots, ReadLotBlockLocation}};
   return Declarations;
 }
 
 func::Maybe<FLevelBlockLocationDeclaration>
-FindBlockLocationDeclaration(ELevelAnchorMode Anchor) {
+FindBlockLocationDeclaration(EAnchorMode Anchor) {
   return func::find_array<FLevelBlockLocationDeclaration>(
       BlockLocationDeclarations(),
       [Anchor](const FLevelBlockLocationDeclaration &Declaration) {
@@ -151,25 +151,25 @@ FindBlockLocationDeclaration(ELevelAnchorMode Anchor) {
       });
 }
 
-func::Maybe<FLevelBlockSeed>
+func::Maybe<FBlockSeed>
 CompleteBlockLocation(const TSharedPtr<FJsonObject> &Object,
-                      const FLevelBlockSeed &Seed) {
+                      const FBlockSeed &Seed) {
   return func::match(
       FindBlockLocationDeclaration(Seed.Anchor),
       [Object, Seed](const FLevelBlockLocationDeclaration
                          &Declaration) { return Declaration.Read(Object, Seed); },
-      []() { return func::nothing<FLevelBlockSeed>(); });
+      []() { return func::nothing<FBlockSeed>(); });
 }
 
-func::Maybe<FLevelBlockSeed>
+func::Maybe<FBlockSeed>
 ReadBlockSeedFields(const FLevelJsonObjectRequest &Request) {
-  return JsonValues::ReadRequiredFields<FLevelBlockSeed>({FLevelBlockSeed(), Request.Object}, JSON_REQUIRED_ATOMS(Id, Name, Anchor, YawDegrees, Scale, Texture));
+  return JsonValues::ReadRequiredFields<FBlockSeed>({FBlockSeed(), Request.Object}, JSON_REQUIRED_ATOMS(Id, Name, Anchor, YawDegrees, Scale, Texture));
 }
 
 } // namespace
 
-func::Maybe<ELevelAnchorMode>
-ReadBlockAnchorModeField(const FJsonFieldRequest &Request) {
+func::Maybe<EAnchorMode>
+ReadBlockAnchorModeField(const FFieldRequest &Request) {
   return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
                      [Request](const FString &Text) {
                        return ParseAnchorMode({Text, Request.FieldName});
@@ -177,18 +177,18 @@ ReadBlockAnchorModeField(const FJsonFieldRequest &Request) {
 }
 
 func::Maybe<ELevelRetroTexture>
-ReadTextureField(const FJsonFieldRequest &Request) {
+ReadTextureField(const FFieldRequest &Request) {
   return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
                      [Request](const FString &Text) {
                        return ParseTexture({Text, Request.FieldName});
                      });
 }
 
-func::Maybe<FLevelBlockSeed>
+func::Maybe<FBlockSeed>
 BlockFromJson(const FLevelJsonObjectRequest &Request) {
   return func::mbind(
       ReadBlockSeedFields(Request),
-      [Request](const FLevelBlockSeed &Seed) {
+      [Request](const FBlockSeed &Seed) {
         return CompleteBlockLocation(Request.Object, Seed);
       });
 }

@@ -16,7 +16,7 @@ namespace JsonAdapters {
 using JsonReducers::SettingsFieldName;
 
 // --- Reader type aliases (data contracts) --------------------------------
-typedef TFunction<FJsonFieldRequest(const TCHAR *)> FJsonFieldFactory;
+typedef TFunction<FFieldRequest(const TCHAR *)> FJsonFieldFactory;
 typedef TFunction<FString(const TCHAR *)> FJsonStringReader;
 typedef TFunction<float(const TCHAR *)> FJsonFloatReader;
 typedef TFunction<int32(const TCHAR *)> FJsonIntReader;
@@ -37,13 +37,13 @@ typedef TFunction<FRotator(const TCHAR *)> FJsonRotatorReader;
 
 /**
  * @brief Creates a JSON field request from one object and authored field name.
- * @signature FJsonFieldRequest Field(const TSharedPtr<FJsonObject> &Object,
+ * @signature FFieldRequest Field(const TSharedPtr<FJsonObject> &Object,
  * const TCHAR *Name)
  *
  * User story: As a data adapter author, I need field lookup requests to be
  * constructed through one neutral factory before higher domains parse payloads.
  */
-FJsonFieldRequest Field(const TSharedPtr<FJsonObject> &Object,
+FFieldRequest Field(const TSharedPtr<FJsonObject> &Object,
                         const TCHAR *Name);
 
 /**
@@ -57,31 +57,31 @@ FJsonFieldFactory FieldIn(const TSharedPtr<FJsonObject> &Object);
 
 // --- Content loading -----------------------------------------------------
 
-TSharedPtr<FJsonObject> ReadObjectValue(const FJsonFieldRequest &Request);
+TSharedPtr<FJsonObject> ReadObjectValue(const FFieldRequest &Request);
 
 func::Maybe<TSharedPtr<FJsonObject>>
-LoadObjectFromContent(const FJsonContentObjectRequest &Request);
+LoadObjectFromContent(const FContentObjectRequest &Request);
 
 TSharedPtr<FJsonObject>
-LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request);
+LoadRequiredObjectFromContent(const FContentObjectRequest &Request);
 
 func::Maybe<TArray<TSharedPtr<FJsonValue>>>
-LoadArrayFromContent(const FJsonContentArrayRequest &Request);
+LoadArrayFromContent(const FContentArrayRequest &Request);
 
 TArray<TSharedPtr<FJsonValue>>
-LoadRequiredArrayFromContent(const FJsonContentArrayRequest &Request);
+LoadRequiredArrayFromContent(const FContentArrayRequest &Request);
 
 // --- Typed value readers -------------------------------------------------
 
-FString ReadString(const FJsonFieldRequest &Request);
-float ReadFloat(const FJsonFieldRequest &Request);
-int32 ReadInt(const FJsonFieldRequest &Request);
-bool ReadBool(const FJsonFieldRequest &Request);
-TArray<TSharedPtr<FJsonValue>> ReadArray(const FJsonFieldRequest &Request);
+FString ReadString(const FFieldRequest &Request);
+float ReadFloat(const FFieldRequest &Request);
+int32 ReadInt(const FFieldRequest &Request);
+bool ReadBool(const FFieldRequest &Request);
+TArray<TSharedPtr<FJsonValue>> ReadArray(const FFieldRequest &Request);
 func::Maybe<TSharedPtr<FJsonObject>>
-ReadObject(const FJsonFieldRequest &Request);
-FVector ReadVector(const FJsonFieldRequest &Request);
-FRotator ReadRotator(const FJsonFieldRequest &Request);
+ReadObject(const FFieldRequest &Request);
+FVector ReadVector(const FFieldRequest &Request);
+FRotator ReadRotator(const FFieldRequest &Request);
 
 // --- Object-scoped reader factories --------------------------------------
 
@@ -97,48 +97,48 @@ FJsonRotatorReader RotatorIn(const TSharedPtr<FJsonObject> &Object);
 
 // --- ReadFieldValue dispatch (type-driven reader selection) ---------------
 
-template <typename Value> Value ReadFieldValue(const FJsonFieldRequest &Request);
+template <typename Value> Value ReadFieldValue(const FFieldRequest &Request);
 
 template <>
-inline FString ReadFieldValue<FString>(const FJsonFieldRequest &Request) {
+inline FString ReadFieldValue<FString>(const FFieldRequest &Request) {
   return ReadString(Request);
 }
 
 template <>
-inline float ReadFieldValue<float>(const FJsonFieldRequest &Request) {
+inline float ReadFieldValue<float>(const FFieldRequest &Request) {
   return ReadFloat(Request);
 }
 
 template <>
-inline int32 ReadFieldValue<int32>(const FJsonFieldRequest &Request) {
+inline int32 ReadFieldValue<int32>(const FFieldRequest &Request) {
   return ReadInt(Request);
 }
 
 template <>
-inline bool ReadFieldValue<bool>(const FJsonFieldRequest &Request) {
+inline bool ReadFieldValue<bool>(const FFieldRequest &Request) {
   return ReadBool(Request);
 }
 
 template <>
 inline TSharedPtr<FJsonObject>
-ReadFieldValue<TSharedPtr<FJsonObject>>(const FJsonFieldRequest &Request) {
+ReadFieldValue<TSharedPtr<FJsonObject>>(const FFieldRequest &Request) {
   return ReadObjectValue(Request);
 }
 
 template <>
 inline TArray<TSharedPtr<FJsonValue>>
 ReadFieldValue<TArray<TSharedPtr<FJsonValue>>>(
-    const FJsonFieldRequest &Request) {
+    const FFieldRequest &Request) {
   return ReadArray(Request);
 }
 
 template <>
-inline FVector ReadFieldValue<FVector>(const FJsonFieldRequest &Request) {
+inline FVector ReadFieldValue<FVector>(const FFieldRequest &Request) {
   return ReadVector(Request);
 }
 
 template <>
-inline FRotator ReadFieldValue<FRotator>(const FJsonFieldRequest &Request) {
+inline FRotator ReadFieldValue<FRotator>(const FFieldRequest &Request) {
   return ReadRotator(Request);
 }
 
@@ -156,13 +156,13 @@ ReadStringArrayValue(const TArray<TSharedPtr<FJsonValue>> &Values) {
       });
 }
 
-inline TArray<FString> ReadStringArray(const FJsonFieldRequest &Request) {
+inline TArray<FString> ReadStringArray(const FFieldRequest &Request) {
   return ReadStringArrayValue(ReadArray(Request));
 }
 
 template <>
 inline TArray<FString>
-ReadFieldValue<TArray<FString>>(const FJsonFieldRequest &Request) {
+ReadFieldValue<TArray<FString>>(const FFieldRequest &Request) {
   return ReadStringArray(Request);
 }
 

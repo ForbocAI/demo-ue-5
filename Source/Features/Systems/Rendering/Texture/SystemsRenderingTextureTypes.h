@@ -23,18 +23,18 @@ struct FLevelRetroTextureApply {
   ForbocAI::Game::Data::FRenderingSettings Settings;
 };
 
-struct FRenderingTextureSpecRequest {
+struct FSpecRequest {
   ELevelRetroTexture Texture;
   TArray<FLevelRetroTextureSpec> Catalog;
 };
 
-inline bool operator==(const FRenderingTextureSpecRequest &Left,
-                       const FRenderingTextureSpecRequest &Right) {
+inline bool operator==(const FSpecRequest &Left,
+                       const FSpecRequest &Right) {
   return Left.Texture == Right.Texture && Left.Catalog == Right.Catalog;
 }
 
-inline bool operator!=(const FRenderingTextureSpecRequest &Left,
-                       const FRenderingTextureSpecRequest &Right) {
+inline bool operator!=(const FSpecRequest &Left,
+                       const FSpecRequest &Right) {
   return !(Left == Right);
 }
 

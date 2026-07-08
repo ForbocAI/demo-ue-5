@@ -75,7 +75,7 @@ Item RequireRenderingCatalogItem(const TArray<Item> &Catalog,
 }
 
 FLevelRetroTextureSpec ReduceTextureCatalogItem(
-    const ForbocAI::Game::Data::FRenderingTextureSpecSettings &Settings) {
+    const ForbocAI::Game::Data::FSpecSettings &Settings) {
   return {ReduceTextureKind(Settings.Texture), Settings.Name, Settings.Use,
           FIntPoint(Settings.Size, Settings.Size)};
 }
@@ -96,15 +96,15 @@ ELevelRetroTexture ReduceTextureKind(const FString &Texture) {
 }
 
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
-    const TArray<ForbocAI::Game::Data::FRenderingTextureSpecSettings>
+    const TArray<ForbocAI::Game::Data::FSpecSettings>
         &Settings) {
   return func::map_array<
-      ForbocAI::Game::Data::FRenderingTextureSpecSettings,
+      ForbocAI::Game::Data::FSpecSettings,
       FLevelRetroTextureSpec>(Settings, ReduceTextureCatalogItem);
 }
 
 FLevelRetroTextureSpec
-ReduceTextureSpec(const FRenderingTextureSpecRequest &Request) {
+ReduceTextureSpec(const FSpecRequest &Request) {
   check(!Request.Catalog.IsEmpty());
   return RequireRenderingCatalogItem<FLevelRetroTextureSpec>(
       Request.Catalog, [&Request](const FLevelRetroTextureSpec &Spec) {

@@ -31,15 +31,27 @@ struct FBotPositionMoved {
   bool bFacingRight;
 };
 
-struct FBotPatrolAdvanceRequest {
-  TArray<FVector> PatrolRoute;
+struct FBotPatrolProgress {
   int32 PatrolIndex = 0;
   float PauseRemaining = 0.0f;
+};
+
+struct FBotPatrolTiming {
   float PauseDuration = 0.0f;
   float WalkSpeed = 0.0f;
   float DeltaTime = 0.0f;
-  FVector CurrentLocation = FVector::ZeroVector;
   float ArrivalDistance = 0.0f;
+};
+
+struct FBotPatrolPose {
+  FVector CurrentLocation = FVector::ZeroVector;
+};
+
+struct FBotPatrolAdvanceRequest {
+  TArray<FVector> PatrolRoute;
+  FBotPatrolProgress Progress;
+  FBotPatrolTiming Timing;
+  FBotPatrolPose Pose;
 };
 
 struct FBotPatrolMovementDelta {
@@ -111,13 +123,18 @@ inline bool operator!=(const FBotPositionMoved &Left,
 inline bool operator==(const FBotPatrolAdvanceRequest &Left,
                        const FBotPatrolAdvanceRequest &Right) {
   return Left.PatrolRoute == Right.PatrolRoute &&
-         Left.PatrolIndex == Right.PatrolIndex &&
-         FMath::IsNearlyEqual(Left.PauseRemaining, Right.PauseRemaining) &&
-         FMath::IsNearlyEqual(Left.PauseDuration, Right.PauseDuration) &&
-         FMath::IsNearlyEqual(Left.WalkSpeed, Right.WalkSpeed) &&
-         FMath::IsNearlyEqual(Left.DeltaTime, Right.DeltaTime) &&
-         Left.CurrentLocation == Right.CurrentLocation &&
-         FMath::IsNearlyEqual(Left.ArrivalDistance, Right.ArrivalDistance);
+         Left.Progress.PatrolIndex == Right.Progress.PatrolIndex &&
+         FMath::IsNearlyEqual(Left.Progress.PauseRemaining,
+                              Right.Progress.PauseRemaining) &&
+         FMath::IsNearlyEqual(Left.Timing.PauseDuration,
+                              Right.Timing.PauseDuration) &&
+         FMath::IsNearlyEqual(Left.Timing.WalkSpeed,
+                              Right.Timing.WalkSpeed) &&
+         FMath::IsNearlyEqual(Left.Timing.DeltaTime,
+                              Right.Timing.DeltaTime) &&
+         Left.Pose.CurrentLocation == Right.Pose.CurrentLocation &&
+         FMath::IsNearlyEqual(Left.Timing.ArrivalDistance,
+                              Right.Timing.ArrivalDistance);
 }
 
 inline bool operator!=(const FBotPatrolAdvanceRequest &Left,

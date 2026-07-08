@@ -9,11 +9,11 @@ namespace Game {
 namespace Level {
 namespace LevelSystemActions {
 
-inline const rtk::ActionCreator<FLevelSystemPayload> &LevelObserved() {
-  static const func::Lazy<rtk::ActionCreator<FLevelSystemPayload>>
-      Creator = func::lazy([]() -> rtk::ActionCreator<FLevelSystemPayload> {
+inline const rtk::ActionCreator<FSystemPayload> &LevelObserved() {
+  static const func::Lazy<rtk::ActionCreator<FSystemPayload>>
+      Creator = func::lazy([]() -> rtk::ActionCreator<FSystemPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FLevelSystemPayload>(
+        return rtk::createAction<FSystemPayload>(
             TEXT("systems/level/observed"));
       });
   return func::eval(Creator);

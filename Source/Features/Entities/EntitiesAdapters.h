@@ -21,7 +21,7 @@ struct FProjectLandmarkEntityPayload {
 
 struct FProjectNatureFeatureEntityPayload {
   ecs::FWorld World;
-  const FNatureFeatureSeed &Feature;
+  const FFeatureSeed &Feature;
 };
 
 struct FProjectTownspersonEntityPayload {

@@ -30,12 +30,14 @@ const FRuntimeState &SelectState();
 
 const FPlayerState &SelectPlayerState(const FRuntimeState &State);
 const FSystemsState &SelectSystemsState(const FRuntimeState &State);
-const FLevelSystemState &SelectLevelState(const FRuntimeState &State);
-const ForbocAI::Game::Data::FLevelTerrainSourceSettings &
+const FSystemState &SelectLevelState(const FRuntimeState &State);
+const ForbocAI::Game::Data::FTerrainSourceSettings &
 SelectLevelTerrainSources(const FRuntimeState &State);
-const ForbocAI::Game::Data::FLevelDataSourceSettings &
+const ForbocAI::Game::Data::FCsvSettings &
+SelectLevelCsv(const FRuntimeState &State);
+const ForbocAI::Game::Data::FDataSourceSettings &
 SelectLevelDataSources(const FRuntimeState &State);
-const ForbocAI::Game::Data::FLevelGeometrySettings &
+const ForbocAI::Game::Data::FGeometrySettings &
 SelectLevelGeometry(const FRuntimeState &State);
 const FRenderingState &SelectRenderingState(const FRuntimeState &State);
 const FDialogueState &SelectDialogueState(const FRuntimeState &State);
@@ -48,7 +50,7 @@ bool SelectTerrainLoaded(const FRuntimeState &State);
 TArray<FLandmark> SelectLandmarks(const FRuntimeState &State);
 func::Maybe<FLandmark> SelectLandmarkById(const FRuntimeState &State,
                                           const FString &Id);
-FSpawnPointPayload SelectPlayerSpawn(const FRuntimeState &State);
+FPointPayload SelectPlayerSpawn(const FRuntimeState &State);
 TArray<FTownspersonSeed> SelectTownspeople(const FRuntimeState &State);
 func::Maybe<FTownspersonSeed> SelectTownspersonById(
     const FRuntimeState &State, const FString &Id);
@@ -59,13 +61,13 @@ SelectMemoryTownspeople(const FRuntimeState &State);
 const TArray<FTownspersonSeed> &
 SelectCombatValidationTownspeople(const FRuntimeState &State);
 TArray<FHorseRouteSeed> SelectHorses(const FRuntimeState &State);
-TArray<FNatureFeatureSeed> SelectNatureFeatures(const FRuntimeState &State);
+TArray<FFeatureSeed> SelectNatureFeatures(const FRuntimeState &State);
 const FRuntimeTownspersonInteractionRequest &
 SelectTownspersonInteractionRequest(const FRuntimeState &State);
-const FInteractionSelection &SelectInteractionSelection(
+const FSelection &SelectInteractionSelection(
     const FRuntimeState &State);
 float SelectTownspersonInteractionDistance(const FRuntimeState &State);
-const FPlayerPresentationViewModel &
+const FPresentationViewModel &
 SelectPlayerPresentation(const FRuntimeState &State);
 const FLevelRetroRenderProfile &
 SelectRuntimeProfile(const FRuntimeState &State);
@@ -82,8 +84,8 @@ FBotInitialPatrolLocationPayload SelectBotInitialPatrolLocation(
     const FBotInitialPatrolLocationRequest &Request);
 FBotPatrolAdvancePayload
 SelectBotPatrolAdvance(const FBotPatrolAdvanceRequest &Request);
-FPlayerMovementInputViewModel
-SelectPlayerMovementInput(const FPlayerMovementInputRequest &Request);
+FMovementInputViewModel
+SelectPlayerMovementInput(const FMovementInputRequest &Request);
 FVector SelectPostOfficeWorldCenter(const FRuntimeState &State);
 FTownspersonViewDefaults
 SelectTownspersonViewDefaults(const FRuntimeState &State);

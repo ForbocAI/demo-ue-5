@@ -5,11 +5,11 @@ namespace Game {
 namespace Level {
 namespace NatureAdapters {
 
-const rtk::EntityAdapter<FNatureFeatureSeed> &NatureAdapter() {
-  static const func::Lazy<rtk::EntityAdapter<FNatureFeatureSeed>> Adapter =
-      func::lazy([]() -> rtk::EntityAdapter<FNatureFeatureSeed> {
-        return rtk::createEntityAdapter<FNatureFeatureSeed>(
-          [](const FNatureFeatureSeed &Feature) -> FString {
+const rtk::EntityAdapter<FFeatureSeed> &NatureAdapter() {
+  static const func::Lazy<rtk::EntityAdapter<FFeatureSeed>> Adapter =
+      func::lazy([]() -> rtk::EntityAdapter<FFeatureSeed> {
+        return rtk::createEntityAdapter<FFeatureSeed>(
+          [](const FFeatureSeed &Feature) -> FString {
             return Feature.Id;
           });
       });

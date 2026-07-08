@@ -13,7 +13,7 @@ namespace {
 
 /**
  * @brief Resolves a content-relative JSON path into a project content path.
- * @signature FString ResolveContentPath(const FJsonContentObjectRequest &Request)
+ * @signature FString ResolveContentPath(const FContentObjectRequest &Request)
  *
  * User story: As a data adapter author, content path assembly should be one
  * neutral function below every authored JSON domain.
@@ -22,11 +22,11 @@ FString ResolveContentPath(const FString &RelativePath) {
   return FPaths::ProjectContentDir() / RelativePath;
 }
 
-FString ResolveContentPath(const FJsonContentObjectRequest &Request) {
+FString ResolveContentPath(const FContentObjectRequest &Request) {
   return ResolveContentPath(Request.RelativePath);
 }
 
-FString ResolveContentPath(const FJsonContentArrayRequest &Request) {
+FString ResolveContentPath(const FContentArrayRequest &Request) {
   return ResolveContentPath(Request.RelativePath);
 }
 
@@ -73,7 +73,7 @@ ParseArraySource(const FString &Source) {
 
 } // namespace
 
-FJsonFieldRequest Field(const TSharedPtr<FJsonObject> &Object,
+FFieldRequest Field(const TSharedPtr<FJsonObject> &Object,
                         const TCHAR *Name) {
   return {Object, FString(Name)};
 }
@@ -82,14 +82,14 @@ FJsonFieldFactory FieldIn(const TSharedPtr<FJsonObject> &Object) {
   return [Object](const TCHAR *Name) { return Field(Object, Name); };
 }
 
-TSharedPtr<FJsonObject> ReadObjectValue(const FJsonFieldRequest &Request) {
+TSharedPtr<FJsonObject> ReadObjectValue(const FFieldRequest &Request) {
   const func::Maybe<TSharedPtr<FJsonObject>> Value = ReadObject(Request);
   check(Value.hasValue);
   return Value.value;
 }
 
 func::Maybe<TSharedPtr<FJsonObject>>
-LoadObjectFromContent(const FJsonContentObjectRequest &Request) {
+LoadObjectFromContent(const FContentObjectRequest &Request) {
   const FString SourcePath = ResolveContentPath(Request);
   return func::mbind(ReadSourceFile(SourcePath),
                      [](const FString &Source) {
@@ -98,14 +98,14 @@ LoadObjectFromContent(const FJsonContentObjectRequest &Request) {
 }
 
 TSharedPtr<FJsonObject>
-LoadRequiredObjectFromContent(const FJsonContentObjectRequest &Request) {
+LoadRequiredObjectFromContent(const FContentObjectRequest &Request) {
   const func::Maybe<TSharedPtr<FJsonObject>> Root = LoadObjectFromContent(Request);
   check(Root.hasValue);
   return Root.value;
 }
 
 func::Maybe<TArray<TSharedPtr<FJsonValue>>>
-LoadArrayFromContent(const FJsonContentArrayRequest &Request) {
+LoadArrayFromContent(const FContentArrayRequest &Request) {
   const FString SourcePath = ResolveContentPath(Request);
   return func::mbind(ReadSourceFile(SourcePath),
                      [](const FString &Source) {
@@ -114,14 +114,14 @@ LoadArrayFromContent(const FJsonContentArrayRequest &Request) {
 }
 
 TArray<TSharedPtr<FJsonValue>>
-LoadRequiredArrayFromContent(const FJsonContentArrayRequest &Request) {
+LoadRequiredArrayFromContent(const FContentArrayRequest &Request) {
   const func::Maybe<TArray<TSharedPtr<FJsonValue>>> Root =
       LoadArrayFromContent(Request);
   check(Root.hasValue);
   return Root.value;
 }
 
-FString ReadString(const FJsonFieldRequest &Request) {
+FString ReadString(const FFieldRequest &Request) {
   FString Value;
   const bool bRead = Request.Object.IsValid() &&
                      Request.Object->TryGetStringField(Request.FieldName, Value);
@@ -129,7 +129,7 @@ FString ReadString(const FJsonFieldRequest &Request) {
   return Value;
 }
 
-float ReadFloat(const FJsonFieldRequest &Request) {
+float ReadFloat(const FFieldRequest &Request) {
   double Value = 0.0;
   const bool bRead = Request.Object.IsValid() &&
                      Request.Object->TryGetNumberField(Request.FieldName, Value);
@@ -137,11 +137,11 @@ float ReadFloat(const FJsonFieldRequest &Request) {
   return static_cast<float>(Value);
 }
 
-int32 ReadInt(const FJsonFieldRequest &Request) {
+int32 ReadInt(const FFieldRequest &Request) {
   return static_cast<int32>(ReadFloat(Request));
 }
 
-bool ReadBool(const FJsonFieldRequest &Request) {
+bool ReadBool(const FFieldRequest &Request) {
   bool Value = false;
   const bool bRead = Request.Object.IsValid() &&
                      Request.Object->TryGetBoolField(Request.FieldName, Value);
@@ -149,7 +149,7 @@ bool ReadBool(const FJsonFieldRequest &Request) {
   return Value;
 }
 
-TArray<TSharedPtr<FJsonValue>> ReadArray(const FJsonFieldRequest &Request) {
+TArray<TSharedPtr<FJsonValue>> ReadArray(const FFieldRequest &Request) {
   const TArray<TSharedPtr<FJsonValue>> *Values = nullptr;
   const bool bRead =
       Request.Object.IsValid() &&
@@ -160,7 +160,7 @@ TArray<TSharedPtr<FJsonValue>> ReadArray(const FJsonFieldRequest &Request) {
 }
 
 func::Maybe<TSharedPtr<FJsonObject>>
-ReadObject(const FJsonFieldRequest &Request) {
+ReadObject(const FFieldRequest &Request) {
   const TSharedPtr<FJsonObject> *Child = nullptr;
   const bool bHasChild =
       Request.Object.IsValid() &&
@@ -170,14 +170,14 @@ ReadObject(const FJsonFieldRequest &Request) {
              : func::nothing<TSharedPtr<FJsonObject>>();
 }
 
-FVector ReadVector(const FJsonFieldRequest &Request) {
+FVector ReadVector(const FFieldRequest &Request) {
   const TSharedPtr<FJsonObject> Object = ReadObjectValue(Request);
   return FVector(ReadFloat(Field(Object, TEXT("x"))),
                  ReadFloat(Field(Object, TEXT("y"))),
                  ReadFloat(Field(Object, TEXT("z"))));
 }
 
-FRotator ReadRotator(const FJsonFieldRequest &Request) {
+FRotator ReadRotator(const FFieldRequest &Request) {
   const TSharedPtr<FJsonObject> Object = ReadObjectValue(Request);
   return FRotator(ReadFloat(Field(Object, TEXT("pitch"))),
                   ReadFloat(Field(Object, TEXT("yaw"))),

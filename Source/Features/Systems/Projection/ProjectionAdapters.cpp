@@ -1,4 +1,4 @@
-#include "Features/Systems/Projection/Runtime/RuntimeAdapters.h"
+#include "Features/Systems/Projection/ProjectionAdapters.h"
 
 #include "Features/Components/ComponentsAdapters.h"
 #include "Features/Entities/EntitiesAdapters.h"
@@ -11,7 +11,7 @@
 namespace ForbocAI {
 namespace Game {
 namespace Level {
-namespace SystemsProjectionRuntimeAdapters {
+namespace SystemsProjectionAdapters {
 namespace {
 
 struct FResourceProjectionBinding {
@@ -45,13 +45,13 @@ ecs::FWorld applyProjection(const FRuntimeState &State,
                             TArray<Row> (*SelectRows)(const FRuntimeState &),
                             ecs::FWorld (*Project)(const Payload &)) {
   return ecs::projectRowsIntoWorld<Row>(
-      World, SelectRows(State),
+      SelectRows(State),
       [Project](const ecs::FWorld &Acc, const Row &SelectedRow) {
         return projectPayload<Row, Payload>(Project, Acc, SelectedRow);
-      });
+      })(World);
 }
 
-struct FApplyRuntimeProjection {
+struct FApplyProjection {
   const FRuntimeState &State;
 
   template <typename Select, typename Project>
@@ -67,7 +67,7 @@ ecs::FWorld applyResourceProjection(const ecs::FWorld &World,
       {World, Binding.Name, Binding.Value});
 }
 
-ecs::FWorld RuntimeProjectionWorld(const FRuntimeState &State) {
+ecs::FWorld ProjectionWorld(const FRuntimeState &State) {
   using namespace EntitiesAdapters;
   using namespace RuntimeSelectors;
   using namespace SystemsProjectionBotAdapters;
@@ -75,8 +75,7 @@ ecs::FWorld RuntimeProjectionWorld(const FRuntimeState &State) {
   using namespace SystemsProjectionSpawnAdapters;
   using namespace SystemsProjectionTerrainAdapters;
 
-	  const ecs::FWorld Projected = ecs::projectWorldCatalogPairs(
-	      ecs::createWorld(State.Ecs.World.Domains),
+  const ecs::FWorld Projected = func::zip_catalog_fold(
       func::catalog(SelectPlayerState, SelectTerrainState, SelectSpawnState,
                     SelectInteractionState, SelectLandmarks,
                     SelectNatureFeatures, SelectTownspeople, SelectHorses,
@@ -87,9 +86,10 @@ ecs::FWorld RuntimeProjectionWorld(const FRuntimeState &State) {
                     ProjectTownsperson, ProjectHorse, ProjectBot,
                     ProjectBotStats, ProjectBotPosition, ProjectBotAI,
                     ProjectBotGoal),
-      FApplyRuntimeProjection{State});
+      ecs::createWorld(State.Ecs.World.Domains),
+      FApplyProjection{State});
   return applyResourceProjection(
-      Projected, resourceProjection(TEXT("Systems/Runtime/Projected"),
+      Projected, resourceProjection(TEXT("Systems/Projection/Projected"),
                                     ecs::createBoolComponentValue(true)));
 }
 
@@ -97,10 +97,10 @@ ecs::FWorld RuntimeProjectionWorld(const FRuntimeState &State) {
 
 ecs::FWorld
 ProjectRuntimeWorld(const FProjectRuntimePayload &Payload) {
-  return RuntimeProjectionWorld(Payload.State);
+  return ProjectionWorld(Payload.State);
 }
 
-} // namespace SystemsProjectionRuntimeAdapters
+} // namespace SystemsProjectionAdapters
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI

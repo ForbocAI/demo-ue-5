@@ -23,15 +23,15 @@ TArray<Output> ReadLeafObjects(
   return Result.value;
 }
 
-FLevelSectionSeed
+FSectionSeed
 SectionFromLeaves(const FLevelSectionLeaves &Leaves) {
-  FLevelSectionSeed Seed;
-  Seed.Blocks = ReadLeafObjects<FLevelBlockSeed>(
+  FSectionSeed Seed;
+  Seed.Blocks = ReadLeafObjects<FBlockSeed>(
       Leaves.Blocks, TEXT("blocks"),
       [](const TSharedPtr<FJsonObject> &Object) {
         return BlockFromJson({Object});
       });
-  Seed.Labels = ReadLeafObjects<FLevelLabelSeed>(
+  Seed.Labels = ReadLeafObjects<FLabelSeed>(
       Leaves.Labels, TEXT("labels"),
       [](const TSharedPtr<FJsonObject> &Object) {
         return LabelFromJson({Object});
@@ -41,13 +41,13 @@ SectionFromLeaves(const FLevelSectionLeaves &Leaves) {
 
 } // namespace
 
-func::Maybe<FLevelLayoutSeed>
-LayoutFromJson(const FLevelLayoutLeaves &Leaves) {
-  FLevelLayoutSeed Seed;
+func::Maybe<FLayoutSeed>
+LayoutFromJson(const FLeaves &Leaves) {
+  FLayoutSeed Seed;
   Seed.Terrain = SectionFromLeaves(Leaves.Terrain);
   Seed.Town = SectionFromLeaves(Leaves.Town);
   Seed.Mine = SectionFromLeaves(Leaves.Mine);
-  Seed.OverlayLabels = ReadLeafObjects<FLevelLabelSeed>(
+  Seed.OverlayLabels = ReadLeafObjects<FLabelSeed>(
       Leaves.OverlayLabels, TEXT("overlay_labels"),
       [](const TSharedPtr<FJsonObject> &Object) {
         return LabelFromJson({Object});

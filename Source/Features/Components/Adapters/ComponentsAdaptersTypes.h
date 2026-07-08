@@ -98,13 +98,13 @@ struct FRegisteredComponentFieldDeclaration {
       const char *InName, std::initializer_list<const char *> InPath);
 };
 
-struct FRegisteredComponentFields {
+struct FRegisteredComponentFieldSet {
   TArray<FRegisteredComponentFieldDeclaration> Fields;
 };
 
 struct FRegisteredComponentGroupDeclaration {
   FString Domain;
-  FRegisteredComponentFields Fields;
+  FRegisteredComponentFieldSet Fields;
 
   FRegisteredComponentGroupDeclaration() {}
 

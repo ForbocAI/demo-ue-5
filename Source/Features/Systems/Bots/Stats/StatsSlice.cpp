@@ -99,7 +99,7 @@ namespace BotStatsFactories {
 namespace {
 
 template <typename Seed> struct TBotStatsDefaults {
-  Data::FBotStatPresetSettings Data::FBotSettings::*Preset;
+  Data::FStatPresetSettings Data::FBotSettings::*Preset;
   bool (*SelectMountedRider)(const Seed &SeedValue);
 };
 
@@ -122,14 +122,14 @@ const TBotStatsDefaults<FHorseRouteSeed> HorseStatsDefaults = {
     &Data::FBotSettings::HorseStats, HorseMountedRider};
 
 template <typename Seed>
-const Data::FBotStatPresetSettings &
+const Data::FStatPresetSettings &
 StatsPreset(const TBotStatsSourceRequest<Seed> &Request) {
   return Request.Settings.*(Request.Defaults.Preset);
 }
 
 template <typename Seed>
 FBotStatsSource StatsSource(const TBotStatsSourceRequest<Seed> &Request) {
-  const Data::FBotStatPresetSettings &Preset = StatsPreset<Seed>(Request);
+  const Data::FStatPresetSettings &Preset = StatsPreset<Seed>(Request);
   return {Request.SeedValue.Id,
           Preset.MoveSpeed,
           Preset.AwarenessRange,

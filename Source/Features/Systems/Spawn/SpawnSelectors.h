@@ -9,7 +9,7 @@ namespace Game {
 namespace Level {
 namespace SpawnSelectors {
 
-FSpawnPointPayload SelectPlayerSpawn(const FSpawnState &State);
+FPointPayload SelectPlayerSpawn(const FSpawnState &State);
 
 } // namespace SpawnSelectors
 } // namespace Level

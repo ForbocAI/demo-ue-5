@@ -21,25 +21,25 @@ WorldLocationFromJson(const FLevelJsonObjectRequest &Request);
 /**
  * @brief Parses one authored scale seed object.
  *
- * @signature func::Maybe<FLevelScaleSeed> ScaleFromJson(const FLevelJsonObjectRequest &Request)
+ * @signature func::Maybe<FScaleSeed> ScaleFromJson(const FLevelJsonObjectRequest &Request)
  *
  * User story: As a Level system author, scale mode data is validated into a
  * typed seed before RTK reducers derive geometry.
  */
-func::Maybe<FLevelScaleSeed>
+func::Maybe<FScaleSeed>
 ScaleFromJson(const FLevelJsonObjectRequest &Request);
 
 /**
  * @brief Reads and parses one required scale seed field.
  *
- * @signature func::Maybe<FLevelScaleSeed> ReadScaleSeed(const ForbocAI::Game::Data::FJsonFieldRequest &Request)
+ * @signature func::Maybe<FScaleSeed> ReadScaleSeed(const ForbocAI::Game::Data::FFieldRequest &Request)
  *
  * User story: As a higher Level adapter, I can import downward into shared
  * JSON primitives while keeping scale parsing in the Level layout
  * subdomain.
  */
-func::Maybe<FLevelScaleSeed>
-ReadScaleSeed(const ForbocAI::Game::Data::FJsonFieldRequest &Request);
+func::Maybe<FScaleSeed>
+ReadScaleSeed(const ForbocAI::Game::Data::FFieldRequest &Request);
 
 } // namespace Layout
 } // namespace Level

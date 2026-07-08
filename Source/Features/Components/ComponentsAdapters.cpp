@@ -65,8 +65,7 @@ ecs::FComponentValue ProjectComponentValue(const TArray<FString> &Value) {
 }
 
 ecs::FWorld ProjectResource(const FProjectResourcePayload &Payload) {
-  return ecs::setResource(ecs::createSetResourceRequest(
-      Payload.World, Payload.Name, Payload.Value));
+  return ecs::setResource({Payload.World, Payload.Name, Payload.Value});
 }
 
 namespace {
@@ -144,13 +143,13 @@ ComponentSteps(const ecs::EntityKey &Entity,
 }
 
 ecs::FWorld ProjectDomain(const FProjectDomainPayload &Payload) {
-  return ecs::setEntityDomain(ecs::createSetEntityDomainRequest(
-      Payload.World, Payload.Entity, DomainKey(Payload.Segments)));
+  return ecs::setEntityDomain(
+      {Payload.World, Payload.Entity, DomainKey(Payload.Segments)});
 }
 
 ecs::FWorld ProjectComponent(const FProjectComponentPayload &Payload) {
-  return ecs::setComponent(ecs::createSetComponentRequest(
-      Payload.World, Payload.Entity, Payload.Type, Payload.Value));
+  return ecs::setComponent(
+      {Payload.World, Payload.Entity, Payload.Type, Payload.Value});
 }
 
 ecs::FWorld ProjectDomainStep(const ecs::FWorld &World,

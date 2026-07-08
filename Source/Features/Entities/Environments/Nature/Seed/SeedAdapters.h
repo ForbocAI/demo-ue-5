@@ -11,13 +11,13 @@ namespace Game {
 namespace Level {
 namespace NatureAdapters {
 
-struct FNatureSeedBuildRequest {
+struct FBuildRequest {
   FString RelativeJsonPath;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
-TArray<FNatureFeatureSeed> BuildNatureSeed(
-    const FNatureSeedBuildRequest &Request);
+TArray<FFeatureSeed> BuildNatureSeed(
+    const FBuildRequest &Request);
 
 } // namespace NatureAdapters
 } // namespace Level

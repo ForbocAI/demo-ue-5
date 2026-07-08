@@ -15,10 +15,10 @@ namespace Game {
 namespace Level {
 namespace RuntimeActions {
 
-func::AsyncResult<FSpawnPointPayload> DispatchRequestPlayerSpawn();
+func::AsyncResult<FPointPayload> DispatchRequestPlayerSpawn();
 func::AsyncResult<FRuntimeLevelViewPayload> DispatchRequestLevelViewPayload();
 void DispatchTownspersonCandidatesObserved(
-    const FInteractionCandidatesObserved &Payload);
+    const FCandidatesObserved &Payload);
 void DispatchTownspersonInteractionSourceObserved(
     const FRuntimeTownspersonInteractionSource &Payload);
 void DispatchObserveRuntimeStatsTick(::UWorld *World, float DeltaSeconds);

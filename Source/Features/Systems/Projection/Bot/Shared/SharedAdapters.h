@@ -38,7 +38,7 @@ ecs::FWorld ProjectBotPayload(const Payload &PayloadValue,
                               const FBotProjectionRequest<ComponentCatalog> &Request,
                               TFunctionRef<FString(const typename TTypeWrapper<Payload>::Type &)> SelectIdValue,
                               TFunctionRef<const Component &(const typename TTypeWrapper<Payload>::Type &)> SelectSourceValue) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       PayloadValue,
       ComponentsAdapters::TEntityCatalogProjection{
           [SelectIdValue](const Payload &SelectedPayload) {

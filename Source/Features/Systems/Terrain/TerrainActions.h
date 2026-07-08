@@ -8,7 +8,7 @@ namespace Game {
 namespace Level {
 namespace TerrainActions {
 
-const rtk::ActionCreator<FTerrainLoadedPayload> &TerrainLoaded();
+const rtk::ActionCreator<FLoadedPayload> &TerrainLoaded();
 
 } // namespace TerrainActions
 } // namespace Level

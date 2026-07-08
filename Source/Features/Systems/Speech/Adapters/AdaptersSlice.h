@@ -21,18 +21,18 @@ inline bool DurationAlways(const FSpeechDurationRuleEval &Eval);
 
 template <typename Item> struct TSpeechMapRegistry;
 
-template <> struct TSpeechMapRegistry<FSpeechVisemeMappingSettings> {
+template <> struct TSpeechMapRegistry<FVisemeMappingSettings> {
   typedef FString Key;
   typedef FVisemeMapping Value;
 
-  static const TSpeechMapDeclaration<FSpeechVisemeMappingSettings, Key, Value>
+  static const TSpeechMapDeclaration<FVisemeMappingSettings, Key, Value>
       &Declaration() {
-    static const TSpeechMapDeclaration<FSpeechVisemeMappingSettings, Key, Value>
+    static const TSpeechMapDeclaration<FVisemeMappingSettings, Key, Value>
         RegisteredDeclaration = {
-            [](const FSpeechVisemeMappingSettings &Mapping) {
+            [](const FVisemeMappingSettings &Mapping) {
               return Mapping.Phoneme;
             },
-            [](const FSpeechVisemeMappingSettings &Mapping) {
+            [](const FVisemeMappingSettings &Mapping) {
               return FVisemeMapping{Mapping.MorphTargetName,
                                     Mapping.BlendWeight};
             }};
@@ -140,7 +140,7 @@ inline FVisemeMapping RestViseme(
 
 inline TMap<FString, FVisemeMapping> VisemeMapFromSettings(
     const FSpeechSettings &Settings) {
-  return BuildSpeechMap<FSpeechVisemeMappingSettings>(Settings.VisemeMappings);
+  return BuildSpeechMap<FVisemeMappingSettings>(Settings.VisemeMappings);
 }
 
 template <typename Key, typename Value>
@@ -218,12 +218,12 @@ inline func::Maybe<FString> LookupVowelPhoneme(
     const FSpeechSettings &Settings) {
   const FString Character = UpperString(FChar::ToUpper(Ch));
   return func::fmap(
-      func::find_array<FSpeechVowelPhonemeSettings>(
+      func::find_array<FVowelPhonemeSettings>(
           Settings.VowelPhonemes,
-          [Character](const FSpeechVowelPhonemeSettings &Mapping) {
+          [Character](const FVowelPhonemeSettings &Mapping) {
             return Mapping.Character == Character;
           }),
-      [](const FSpeechVowelPhonemeSettings &Mapping) {
+      [](const FVowelPhonemeSettings &Mapping) {
         return Mapping.Phoneme;
       });
 }
@@ -243,10 +243,10 @@ inline func::Maybe<FString> EstimatePhonemeForChar(
 
 inline float EstimatePhonemeDuration(const FString &Phoneme,
                                      const FSpeechSettings &Settings) {
-  const func::Maybe<FSpeechPhonemeDurationRuleSettings> Rule =
-      func::find_array<FSpeechPhonemeDurationRuleSettings>(
+  const func::Maybe<FPhonemeDurationRuleSettings> Rule =
+      func::find_array<FPhonemeDurationRuleSettings>(
           Settings.DurationRules,
-          [&Phoneme](const FSpeechPhonemeDurationRuleSettings &Candidate) {
+          [&Phoneme](const FPhonemeDurationRuleSettings &Candidate) {
             return DurationRuleMatches({Phoneme, Candidate});
           });
   check(Rule.hasValue);

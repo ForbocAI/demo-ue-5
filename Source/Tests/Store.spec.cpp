@@ -32,7 +32,8 @@ using namespace ForbocAI::Game::Level;
 namespace {
 
 using ForbocAI::Game::Data::FSettings;
-using ForbocAI::Game::Data::FStoreAutomationSettings;
+using FStoreSettings =
+    ForbocAI::Game::Data::Automation::Store::FSettings;
 
 /**
  * @brief Request object for recursively searching captured redux log lines.
@@ -161,7 +162,7 @@ FString ReduxLoggerActionTitleNeedle(const FString &Prefix,
 
 void TestAuthoredDomainRegistry(FAutomationTestBase *Test,
                                 const FString &Label,
-                                const ecs::FDomainRegistry &Registry,
+                                const ecs::FDomainGraph &Registry,
                                 const FSettings &Settings) {
   func::for_each_indexed(
       Settings.Ecs.DomainRegistry,
@@ -232,24 +233,26 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
-  const FStoreAutomationSettings StoreAutomation = Settings.Automation.Store;
+  const FStoreSettings StoreAutomation = Settings.Automation.Store;
   FAutomationTestLabelCursor Labels = AutomationTestLabels(
       StoreAutomation.DataBackedMapLabels);
-  const ForbocAI::Game::Data::FLevelTerrainSourceSettings Sources =
+  const ForbocAI::Game::Data::FTerrainSourceSettings Sources =
       Settings.LevelTerrainSources;
-  const ForbocAI::Game::Data::FLevelDataSourceSettings DataSources =
+  const ForbocAI::Game::Data::FDataSourceSettings DataSources =
       Settings.LevelDataSources;
-  const ForbocAI::Game::Data::FLevelValidationSettings Validation =
+  const ForbocAI::Game::Data::FValidationSettings Validation =
       Settings.Validation;
-  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
+  const ForbocAI::Game::Data::FCsvSettings Csv =
+      Settings.LevelCsv;
+  const ForbocAI::Game::Data::FGeometrySettings Geometry =
       Settings.LevelGeometry;
   FLevelTerrainData TerrainData;
   FLevelOrthoData OrthoData;
 
   TestTrue(Labels.Next(),
-           TerrainData.LoadFromContent({Sources, Geometry}));
+           TerrainData.LoadFromContent({Sources, Csv, Geometry}));
   TestTrue(Labels.Next(),
-           OrthoData.LoadFromContent({Sources}));
+           OrthoData.LoadFromContent({Sources, Csv}));
   TestEqual(Labels.Next(),
             TerrainData.GetGridSize(), Validation.TerrainGridSize);
   TestEqual(Labels.Next(),
@@ -278,7 +281,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
                LevelLayoutAdapters::ActorWorldUnitsFromFeet(
                    {Geometry, CharacterHeightFeet}));
 
-  const FLevelLayoutSeed Layout =
+  const FLayoutSeed Layout =
       LevelAdapters::LoadLayoutSeed(DataSources);
   TestTrue(Labels.Next(),
            !Layout.Town.Labels.IsEmpty());
@@ -288,7 +291,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
                 Layout.Town.Labels[Layout.Town.Labels.Num() -
                                          Layout.Town.Labels.Num()]
                     .Height),
-            static_cast<int32>(ELevelLabelHeightMode::Explicit));
+            static_cast<int32>(ELabelHeightMode::Explicit));
   TestTrue(Labels.Next(),
            !Layout.OverlayLabels.IsEmpty());
   TestTrue(Labels.Next(),
@@ -326,7 +329,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
       BotsAdapters::BuildHorseRouteSeed({DataSources.HorsesJsonPath, Geometry});
   EnhancedStoreValue.dispatch(HorseActions::HorsesSeeded()(HorseRouteSeeds));
 
-  const TArray<FNatureFeatureSeed> NatureFeatureSeeds =
+  const TArray<FFeatureSeed> NatureFeatureSeeds =
       NatureAdapters::BuildNatureSeed({DataSources.NatureJsonPath, Geometry});
   EnhancedStoreValue.dispatch(NatureActions::NatureSeeded()(NatureFeatureSeeds));
 
@@ -352,7 +355,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestEqual(Labels.Next(), PostOffice.value.Label,
             FirstLandmark.Label);
 
-  const FSpawnPointPayload Spawn =
+  const FPointPayload Spawn =
       RuntimeSelectors::SelectPlayerSpawn(State);
   TestEqual(Labels.Next(), Spawn.AnchorLabel,
             LevelLayoutAdapters::PlayerSpawnAnchorLabel(Geometry));
@@ -492,7 +495,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FLevelRetroRenderProfile &RetroProfile =
       RenderingSelectors::SelectRuntimeProfile(
           RuntimeSelectors::SelectRenderingState(State));
-  const ForbocAI::Game::Data::FRenderingProfileSettings &ExpectedProfile =
+  const ForbocAI::Game::Data::FProfileSettings &ExpectedProfile =
       Settings.RenderingProfile;
   TestEqual(Labels.Next(),
             RetroProfile.TimeOfDayHour, ExpectedProfile.TimeOfDayHour);
@@ -621,7 +624,7 @@ bool FStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
 
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
-  const FStoreAutomationSettings StoreAutomation = Settings.Automation.Store;
+  const FStoreSettings StoreAutomation = Settings.Automation.Store;
   FAutomationTestLabelCursor Labels = AutomationTestLabels(
       StoreAutomation.ReduxLoggerMiddlewareLabels);
   TArray<FString> CapturedLines;

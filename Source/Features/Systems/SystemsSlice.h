@@ -56,7 +56,7 @@ const rtk::Slice<FRuntimeState> &GetSlice();
 /**
  * @brief Public thunk re-export for player spawn loading.
  */
-rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn();
+rtk::ThunkAction<FPointPayload, FRuntimeState> RequestPlayerSpawn();
 
 /**
  * @brief Public thunk re-export for runtime level view payload loading.

@@ -12,7 +12,7 @@ struct FRenderingAssetPathSettings {
 };
 
 
-struct FRenderingProfileSettings {
+struct FProfileSettings {
   float TimeOfDayHour;
   int32 AntiAliasingMethod;
   int32 PostProcessAAQuality;

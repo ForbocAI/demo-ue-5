@@ -11,7 +11,7 @@ namespace Game {
 namespace Level {
 namespace RuntimeActions {
 
-func::AsyncResult<FSpawnPointPayload> DispatchRequestPlayerSpawn() {
+func::AsyncResult<FPointPayload> DispatchRequestPlayerSpawn() {
   return Store::GetStore().dispatch(RuntimeSlice::RequestPlayerSpawn());
 }
 
@@ -20,7 +20,7 @@ func::AsyncResult<FRuntimeLevelViewPayload> DispatchRequestLevelViewPayload() {
 }
 
 void DispatchTownspersonCandidatesObserved(
-    const FInteractionCandidatesObserved &Payload) {
+    const FCandidatesObserved &Payload) {
   Store::GetStore().dispatch(
       InteractionSlice::TownspersonCandidatesObserved(Payload));
 }
@@ -64,8 +64,8 @@ Dispatch(const rtk::ThunkAction<Result, FRuntimeState> &Thunk) {
   return Store::GetStore().dispatch(Thunk);
 }
 
-template func::AsyncResult<FSpawnPointPayload>
-Dispatch(const rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> &Thunk);
+template func::AsyncResult<FPointPayload>
+Dispatch(const rtk::ThunkAction<FPointPayload, FRuntimeState> &Thunk);
 
 template func::AsyncResult<FRuntimeLevelViewPayload>
 Dispatch(const rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState> &Thunk);

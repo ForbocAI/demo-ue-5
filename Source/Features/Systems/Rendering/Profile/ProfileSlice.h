@@ -13,13 +13,13 @@ namespace RenderingProfileReducers {
  * @brief Maps JSON-backed runtime rendering settings into RTK state.
  *
  * @signature FLevelRetroRenderProfile ReduceRuntimeProfile(const
- * ForbocAI::Game::Data::FRenderingProfileSettings &Settings)
+ * ForbocAI::Game::Data::FProfileSettings &Settings)
  *
  * User story: As a runtime operator, runtime rendering quality can be tuned from
  * data while the rendering slice remains the owner of store semantics.
  */
 FLevelRetroRenderProfile ReduceRuntimeProfile(
-    const ForbocAI::Game::Data::FRenderingProfileSettings &Settings);
+    const ForbocAI::Game::Data::FProfileSettings &Settings);
 
 } // namespace RenderingProfileReducers
 } // namespace Level

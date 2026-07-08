@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 
-struct FTerrainLoadedPayload {
+struct FLoadedPayload {
   FString TerrainSource;
   FString OrthoSource;
   int32 GridSize;
@@ -14,7 +14,7 @@ struct FTerrainLoadedPayload {
   float MaxElevationMeters;
 };
 
-struct FTerrainLoadedSource {
+struct FLoadedSource {
   FString TerrainSource;
   FString OrthoSource;
   int32 GridSize;
@@ -22,7 +22,7 @@ struct FTerrainLoadedSource {
   float MaxElevationMeters;
 };
 
-struct FTerrainMeshPayload {
+struct FMeshPayload {
   bool bLoaded = false;
   int32 MaterialSlotIndex = int32{};
   int32 MeshSectionIndex = int32{};
@@ -43,8 +43,8 @@ struct FTerrainState {
   float MaxElevationMeters = float{};
 };
 
-inline bool operator==(const FTerrainLoadedPayload &Left,
-                       const FTerrainLoadedPayload &Right) {
+inline bool operator==(const FLoadedPayload &Left,
+                       const FLoadedPayload &Right) {
   return Left.TerrainSource == Right.TerrainSource &&
          Left.OrthoSource == Right.OrthoSource &&
          Left.GridSize == Right.GridSize &&
@@ -54,13 +54,13 @@ inline bool operator==(const FTerrainLoadedPayload &Left,
                               Right.MaxElevationMeters);
 }
 
-inline bool operator!=(const FTerrainLoadedPayload &Left,
-                       const FTerrainLoadedPayload &Right) {
+inline bool operator!=(const FLoadedPayload &Left,
+                       const FLoadedPayload &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FTerrainLoadedSource &Left,
-                       const FTerrainLoadedSource &Right) {
+inline bool operator==(const FLoadedSource &Left,
+                       const FLoadedSource &Right) {
   return Left.TerrainSource == Right.TerrainSource &&
          Left.OrthoSource == Right.OrthoSource &&
          Left.GridSize == Right.GridSize &&
@@ -70,8 +70,8 @@ inline bool operator==(const FTerrainLoadedSource &Left,
                               Right.MaxElevationMeters);
 }
 
-inline bool operator!=(const FTerrainLoadedSource &Left,
-                       const FTerrainLoadedSource &Right) {
+inline bool operator!=(const FLoadedSource &Left,
+                       const FLoadedSource &Right) {
   return !(Left == Right);
 }
 
@@ -92,8 +92,8 @@ inline bool operator!=(const FTerrainState &Left,
   return !(Left == Right);
 }
 
-inline bool operator==(const FTerrainMeshPayload &Left,
-                       const FTerrainMeshPayload &Right) {
+inline bool operator==(const FMeshPayload &Left,
+                       const FMeshPayload &Right) {
   return Left.bLoaded == Right.bLoaded &&
          Left.MaterialSlotIndex == Right.MaterialSlotIndex &&
          Left.MeshSectionIndex == Right.MeshSectionIndex &&
@@ -103,8 +103,8 @@ inline bool operator==(const FTerrainMeshPayload &Left,
          Left.UVs == Right.UVs && Left.VertexColors == Right.VertexColors;
 }
 
-inline bool operator!=(const FTerrainMeshPayload &Left,
-                       const FTerrainMeshPayload &Right) {
+inline bool operator!=(const FMeshPayload &Left,
+                       const FMeshPayload &Right) {
   return !(Left == Right);
 }
 

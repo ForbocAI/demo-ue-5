@@ -16,19 +16,19 @@ NormalizeTextureApply(const FLevelRetroTextureApply &Input);
  * @brief Maps JSON-backed texture records into rendering texture specs.
  *
  * @signature TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(const
- * TArray<ForbocAI::Game::Data::FRenderingTextureSpecSettings> &Settings)
+ * TArray<ForbocAI::Game::Data::FSpecSettings> &Settings)
  *
  * User story: As an environment artist, prototype material labels and sizes
  * can be changed in JSON without adding view logic.
  */
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
-    const TArray<ForbocAI::Game::Data::FRenderingTextureSpecSettings>
+    const TArray<ForbocAI::Game::Data::FSpecSettings>
         &Settings);
 
 ELevelRetroTexture ReduceTextureKind(const FString &Texture);
 
 FLevelRetroTextureSpec
-ReduceTextureSpec(const FRenderingTextureSpecRequest &Request);
+ReduceTextureSpec(const FSpecRequest &Request);
 
 } // namespace RenderingTextureReducers
 } // namespace Level

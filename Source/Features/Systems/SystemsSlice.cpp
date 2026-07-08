@@ -49,7 +49,7 @@ struct FRuntimeActionReducerDeclaration {
   FRuntimeActionReducer Reduce;
 };
 
-struct FRuntimeActionReducerCatalog {};
+struct FRuntimeActionReducerPlan {};
 
 template <typename Catalog> struct TRuntimeReducerRegistry;
 
@@ -108,7 +108,7 @@ func::Maybe<FRuntimeState> ReduceRuntimeActionMaybe(
 
 namespace {
 
-template <> struct TRuntimeReducerRegistry<FRuntimeActionReducerCatalog> {
+template <> struct TRuntimeReducerRegistry<FRuntimeActionReducerPlan> {
   static const TArray<FRuntimeActionReducerDeclaration> &Declarations() {
     static const TArray<FRuntimeActionReducerDeclaration>
         RegisteredDeclarations = {
@@ -131,7 +131,7 @@ FRuntimeState ReduceRuntimeAction(const FRuntimeState &State,
       ReduceRuntimeActionMaybe(
           {State, Action},
           TRuntimeReducerRegistry<
-              FRuntimeActionReducerCatalog>::Declarations()),
+              FRuntimeActionReducerPlan>::Declarations()),
       State);
 }
 
@@ -207,8 +207,8 @@ FRuntimeState ReduceRootWithDiagnostics(
       RuntimeMilliseconds(ProjectionFinishedSeconds - ProjectionStartedSeconds,
                           Projected),
       RuntimeMilliseconds(RootFinishedSeconds - RootStartedSeconds, Projected),
-      Inspection.EntityCount,
-      Inspection.ComponentTypeCount};
+      Inspection.Storage.EntityCount,
+      Inspection.Storage.ComponentTypeCount};
   return Projected;
 }
 
@@ -271,7 +271,7 @@ const rtk::Slice<FRuntimeState> &GetSlice() {
   return func::eval(Slice);
 }
 
-rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn() {
+rtk::ThunkAction<FPointPayload, FRuntimeState> RequestPlayerSpawn() {
   return RuntimeThunks::RequestPlayerSpawn();
 }
 
@@ -371,24 +371,25 @@ FRuntimeState CreateInitialState() {
   State.Text = Settings.Text;
   State.Bot = Settings.Bot;
   State.Level.TerrainSources = Settings.LevelTerrainSources;
+  State.Level.Csv = Settings.LevelCsv;
   State.Level.DataSources = Settings.LevelDataSources;
   State.Level.Geometry = Settings.LevelGeometry;
   State.Player.Presentation =
       PlayerReducers::ReducePlayerPresentation(Settings.PlayerPresentation);
-  State.Rendering.RuntimeProfile =
+  State.Rendering.Profile.RuntimeProfile =
       RenderingProfileReducers::ReduceRuntimeProfile(Settings.RenderingProfile);
-  State.Rendering.TextureCatalog =
+  State.Rendering.Catalog.TextureCatalog =
       RenderingTextureReducers::ReduceTextureCatalog(Settings.TextureCatalog);
-  State.Rendering.DistanceLodStages =
+  State.Rendering.Catalog.DistanceLodStages =
       RenderingDistanceLodReducers::ReduceDistanceLodStages(
           Settings.RenderingDistanceLod);
-  State.Rendering.Settings = Settings.Rendering;
-  State.Rendering.AssetPaths =
+  State.Rendering.Profile.Settings = Settings.Rendering;
+  State.Rendering.Profile.AssetPaths =
       RenderingReducers::ReduceRenderingAssetPaths(Settings.RenderingAssets);
-  State.Rendering.TownspersonPresentation =
+  State.Rendering.Presentation.TownspersonPresentation =
       RenderingPresentationReducers::ReduceTownspersonPresentation(
           {Settings.TownspersonPresentation, Settings.LevelGeometry});
-  State.Rendering.HorsePresentation =
+  State.Rendering.Presentation.HorsePresentation =
       RenderingPresentationReducers::ReduceHorsePresentation(
           {Settings.HorsePresentation, Settings.LevelGeometry});
   State.Interaction.TownspersonMaxDistance =

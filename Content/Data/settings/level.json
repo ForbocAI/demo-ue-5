@@ -3,6 +3,32 @@
     "terrain_csv_path": "Map/Heightmaps/french_gulch_ca_terrain_65.csv",
     "ortho_csv_path": "Map/Heightmaps/french_gulch_ca_ortho_65.csv"
   },
+  "level_csv": {
+    "syntax": {
+      "comment_prefix": "#",
+      "cell_delimiter": ",",
+      "color_channel_delimiter": ":"
+    },
+    "color": {
+      "channel_count": 3,
+      "red_channel_index": 0,
+      "green_channel_index": 1,
+      "blue_channel_index": 2,
+      "alpha": 255
+    },
+    "grid": {
+      "empty_count": 0,
+      "minimum_grid_size": 1,
+      "terminal_offset": 1
+    },
+    "messages": {
+      "ortho_row_width_mismatch_format": "Level: Ortho row width mismatch in {0}",
+      "ortho_bad_color_cell_format": "Level: Bad ortho color cell '{0}' in {1}",
+      "ortho_invalid_format": "Level: Invalid ortho CSV in {0}",
+      "ortho_loaded_format": "Level: Loaded {0}x{1} USGS ortho color CSV from {2}",
+      "terrain_loaded_format": "Level: Loaded {0}x{1} terrain CSV from {2} ({3}m..{4}m)"
+    }
+  },
   "level_data_sources": {
     "terrain_blocks_json_path": "Data/levels/french_gulch/terrain/blocks.json",
     "terrain_labels_json_path": "Data/levels/french_gulch/terrain/labels.json",

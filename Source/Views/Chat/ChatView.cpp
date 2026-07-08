@@ -28,18 +28,18 @@ void URuntimeChatWidget::NativeConstruct() {
             // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
             ForbocAI::Game::Level::RuntimeSelectors::SelectState());
 
-    TitleTextElement = BuildTextElement(Conversation.Title,
-                                        Conversation.TitleColor,
-                                        Conversation.TitleSize);
-    PlayerTextElement = BuildTextElement(Conversation.PlayerLine,
-                                         Conversation.PlayerColor,
-                                         Conversation.BodySize);
-    ReplyTextElement = BuildTextElement(Conversation.NpcReply,
-                                        Conversation.ReplyColor,
-                                        Conversation.BodySize);
+    TitleTextElement = BuildTextElement(Conversation.Text.Title,
+                                        Conversation.Colors.TitleColor,
+                                        Conversation.Layout.TitleSize);
+    PlayerTextElement = BuildTextElement(Conversation.Text.PlayerLine,
+                                         Conversation.Colors.PlayerColor,
+                                         Conversation.Layout.BodySize);
+    ReplyTextElement = BuildTextElement(Conversation.Text.NpcReply,
+                                        Conversation.Colors.ReplyColor,
+                                        Conversation.Layout.BodySize);
 
-    PanelElement->SetPadding(FMargin(Conversation.PanelPadding));
-    PanelElement->SetBrushColor(Conversation.PanelColor);
+    PanelElement->SetPadding(FMargin(Conversation.Layout.PanelPadding));
+    PanelElement->SetBrushColor(Conversation.Colors.PanelColor);
     PanelElement->SetContent(StackElement);
     StackElement->AddChildToVerticalBox(TitleTextElement);
     StackElement->AddChildToVerticalBox(PlayerTextElement);
@@ -59,9 +59,9 @@ void URuntimeChatWidget::ApplyConversationViewModel(
   check(TitleTextElement);
   check(PlayerTextElement);
   check(ReplyTextElement);
-  TitleTextElement->SetText(FText::FromString(Conversation.Title));
-  PlayerTextElement->SetText(FText::FromString(Conversation.PlayerLine));
-  ReplyTextElement->SetText(FText::FromString(Conversation.NpcReply));
+  TitleTextElement->SetText(FText::FromString(Conversation.Text.Title));
+  PlayerTextElement->SetText(FText::FromString(Conversation.Text.PlayerLine));
+  ReplyTextElement->SetText(FText::FromString(Conversation.Text.NpcReply));
 }
 
 UTextBlock *URuntimeChatWidget::BuildTextElement(

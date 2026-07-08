@@ -16,7 +16,7 @@ inline FLinearColor ReduceChatColorForRole(const FString &Role,
 }
 
 inline FChatMessageViewModel ReduceChatMessageViewModel(
-    const FUIChatMessageViewModelRequest &Request,
+    const FChatMessageViewModelRequest &Request,
     const FUISettings &Settings) {
   return {frmt::RuntimeString(
               Settings.ChatMessageFormat,
@@ -57,14 +57,14 @@ inline FUIState ReduceChatHistoryRendered(
 }
 
 inline ForbocAI::Game::UI::FChatMessageViewModel ReduceChatMessageViewModel(
-    const FUIChatMessageViewModelRequest &Request,
+    const FChatMessageViewModelRequest &Request,
     const ForbocAI::Game::Data::FUISettings &Settings) {
   return detail::ReduceChatMessageViewModel(Request, Settings);
 }
 
 inline TArray<ForbocAI::Game::UI::FChatMessageViewModel>
 ReduceChatHistoryViewModels(
-    const FUIChatHistoryViewModelsRequest &Request,
+    const FChatHistoryViewModelsRequest &Request,
     const ForbocAI::Game::Data::FUISettings &Settings) {
   return detail::MapWithContext<FString, detail::FChatMessageViewModel,
                                 detail::FUISettings>(
@@ -72,15 +72,15 @@ ReduceChatHistoryViewModels(
 }
 
 inline FString ReduceNormalizedSubmittedChatText(
-    const FUIChatInputViewModelRequest &Request) {
+    const FChatInputViewModelRequest &Request) {
   return detail::ReduceSubmittedChatText(Request.Text);
 }
 
-inline FUIChatInputViewModel ReduceChatInputViewModel(
-    const FUIChatInputViewModelRequest &Request,
+inline FChatInputViewModel ReduceChatInputViewModel(
+    const FChatInputViewModelRequest &Request,
     const ForbocAI::Game::Data::FUISettings &Settings) {
   const FString InputText = ReduceNormalizedSubmittedChatText(Request);
-  FUIChatInputViewModel Model;
+  FChatInputViewModel Model;
   Model.bShouldSend =
       Request.CommitMethod == ETextCommit::OnEnter && !InputText.IsEmpty();
   Model.InputText = InputText;

@@ -6,24 +6,24 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FSpeechVisemeMappingSettings {
+struct FVisemeMappingSettings {
   FString Phoneme;
   FString MorphTargetName;
   float BlendWeight;
 };
 
-struct FSpeechVowelPhonemeSettings {
+struct FVowelPhonemeSettings {
   FString Character;
   FString Phoneme;
 };
 
-struct FSpeechPhonemeDurationRuleSettings {
+struct FPhonemeDurationRuleSettings {
   FString Kind;
   FString Phoneme;
   float Multiplier;
 };
 
-struct FSpeechAutomationSettings {
+struct FAutomationSettings {
   FString PhonemeEstimationText;
   FString SilenceText;
   FString UnknownPhoneme;
@@ -55,7 +55,7 @@ struct FSpeechSettings {
   float InitialPlaybackTime;
   bool bInitialSpeechActive;
   float EstimatedBasePhonemeSeconds;
-  TArray<FSpeechVowelPhonemeSettings> VowelPhonemes;
+  TArray<FVowelPhonemeSettings> VowelPhonemes;
   FString SilenceCharacters;
   FString SilencePhoneme;
   float VisemeChangeTolerance;
@@ -69,47 +69,47 @@ struct FSpeechSettings {
   FString SpeechStartLogFormat;
   FString SpeechAudioReceivedLogFormat;
   TArray<FString> ResetMorphTargets;
-  TArray<FSpeechVisemeMappingSettings> VisemeMappings;
-  TArray<FSpeechPhonemeDurationRuleSettings> DurationRules;
-  FSpeechAutomationSettings Automation;
+  TArray<FVisemeMappingSettings> VisemeMappings;
+  TArray<FPhonemeDurationRuleSettings> DurationRules;
+  FAutomationSettings Automation;
 };
 
 
-inline bool operator==(const FSpeechVisemeMappingSettings &Left,
-                       const FSpeechVisemeMappingSettings &Right) {
+inline bool operator==(const FVisemeMappingSettings &Left,
+                       const FVisemeMappingSettings &Right) {
   return Left.Phoneme == Right.Phoneme &&
          Left.MorphTargetName == Right.MorphTargetName &&
          FMath::IsNearlyEqual(Left.BlendWeight, Right.BlendWeight);
 }
 
-inline bool operator!=(const FSpeechVisemeMappingSettings &Left,
-                       const FSpeechVisemeMappingSettings &Right) {
+inline bool operator!=(const FVisemeMappingSettings &Left,
+                       const FVisemeMappingSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FSpeechVowelPhonemeSettings &Left,
-                       const FSpeechVowelPhonemeSettings &Right) {
+inline bool operator==(const FVowelPhonemeSettings &Left,
+                       const FVowelPhonemeSettings &Right) {
   return Left.Character == Right.Character && Left.Phoneme == Right.Phoneme;
 }
 
-inline bool operator!=(const FSpeechVowelPhonemeSettings &Left,
-                       const FSpeechVowelPhonemeSettings &Right) {
+inline bool operator!=(const FVowelPhonemeSettings &Left,
+                       const FVowelPhonemeSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FSpeechPhonemeDurationRuleSettings &Left,
-                       const FSpeechPhonemeDurationRuleSettings &Right) {
+inline bool operator==(const FPhonemeDurationRuleSettings &Left,
+                       const FPhonemeDurationRuleSettings &Right) {
   return Left.Kind == Right.Kind && Left.Phoneme == Right.Phoneme &&
          FMath::IsNearlyEqual(Left.Multiplier, Right.Multiplier);
 }
 
-inline bool operator!=(const FSpeechPhonemeDurationRuleSettings &Left,
-                       const FSpeechPhonemeDurationRuleSettings &Right) {
+inline bool operator!=(const FPhonemeDurationRuleSettings &Left,
+                       const FPhonemeDurationRuleSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FSpeechAutomationSettings &Left,
-                       const FSpeechAutomationSettings &Right) {
+inline bool operator==(const FAutomationSettings &Left,
+                       const FAutomationSettings &Right) {
   return Left.PhonemeEstimationText == Right.PhonemeEstimationText &&
          Left.SilenceText == Right.SilenceText &&
          Left.UnknownPhoneme == Right.UnknownPhoneme &&
@@ -134,8 +134,8 @@ inline bool operator==(const FSpeechAutomationSettings &Left,
          Left.UnknownPhonemeLabelFormat == Right.UnknownPhonemeLabelFormat;
 }
 
-inline bool operator!=(const FSpeechAutomationSettings &Left,
-                       const FSpeechAutomationSettings &Right) {
+inline bool operator!=(const FAutomationSettings &Left,
+                       const FAutomationSettings &Right) {
   return !(Left == Right);
 }
 

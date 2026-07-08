@@ -25,18 +25,18 @@ struct FRetroHashCell {
   int32 X;
   int32 Y;
   int32 Salt;
-  const ForbocAI::Game::Data::FRenderingTextureHashSettings *Hash;
+  const ForbocAI::Game::Data::FHashSettings *Hash;
 };
 
 struct FRetroPredicateEval {
-  ForbocAI::Game::Data::FRenderingTexturePredicateSettings Predicate;
+  ForbocAI::Game::Data::FPredicateSettings Predicate;
   int32 X;
   int32 Y;
   int32 Noise;
 };
 
 struct FRetroResultEval {
-  ForbocAI::Game::Data::FRenderingTextureColorResultSettings Result;
+  ForbocAI::Game::Data::FColorResultSettings Result;
   int32 Noise;
   int32 Alpha;
 };
@@ -176,15 +176,15 @@ FColor ResolveColor(const FRetroResultEval &Eval) {
   return RequiredColorDeclaration(Eval.Result.Kind).Run(Eval);
 }
 
-ForbocAI::Game::Data::FRenderingTexturePaletteSettings
+ForbocAI::Game::Data::FPaletteSettings
 RequiredPalette(const FRetroTextureCell &Cell) {
   check(Cell.Settings);
-  const func::Maybe<ForbocAI::Game::Data::FRenderingTexturePaletteSettings>
+  const func::Maybe<ForbocAI::Game::Data::FPaletteSettings>
       Palette = func::find_indexed(
           Cell.Settings->TexturePalettes,
           static_cast<size_t>(Cell.Settings->TexturePalettes.Num()),
           [&Cell](
-              const ForbocAI::Game::Data::FRenderingTexturePaletteSettings
+              const ForbocAI::Game::Data::FPaletteSettings
                   &Candidate) {
             return RenderingTextureReducers::ReduceTextureKind(Candidate.Texture) ==
                    Cell.Texture;
@@ -198,13 +198,13 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
   const int32 Noise =
       HashCell({Cell.X, Cell.Y, static_cast<int32>(Cell.Texture),
                 &Cell.Settings->TextureHash});
-  const ForbocAI::Game::Data::FRenderingTexturePaletteSettings Palette =
+  const ForbocAI::Game::Data::FPaletteSettings Palette =
       RequiredPalette(Cell);
-  const func::Maybe<ForbocAI::Game::Data::FRenderingTextureRuleSettings> Rule =
+  const func::Maybe<ForbocAI::Game::Data::FRuleSettings> Rule =
       func::find_indexed(
           Palette.Rules, static_cast<size_t>(Palette.Rules.Num()),
           [&Cell, Noise](
-              const ForbocAI::Game::Data::FRenderingTextureRuleSettings
+              const ForbocAI::Game::Data::FRuleSettings
                   &Candidate) {
             return PredicateMatches(
                 {Candidate.Predicate, Cell.X, Cell.Y, Noise});

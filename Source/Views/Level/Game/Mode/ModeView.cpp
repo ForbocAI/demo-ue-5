@@ -26,7 +26,7 @@ ARuntimeLevelView *FindRuntimeLevelView(UWorld *World) {
 }
 
 FTransform LoadPlayerSpawnTransform() {
-  auto Spawn = FG::FSpawnPointPayload();
+  auto Spawn = FG::FPointPayload();
   const auto Result = FG::RuntimeActions::DispatchRequestPlayerSpawn();
   func::thenAsync(Result, [&Spawn](auto Resolved) { Spawn = Resolved; });
   func::executeAsync(Result);

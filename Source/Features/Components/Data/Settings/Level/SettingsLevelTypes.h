@@ -6,13 +6,47 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FLevelTerrainSourceSettings {
+struct FTerrainSourceSettings {
   FString TerrainCsvPath;
   FString OrthoCsvPath;
 };
 
+struct FCsvSyntaxSettings {
+  FString CommentPrefix;
+  FString CellDelimiter;
+  FString ColorChannelDelimiter;
+};
 
-struct FLevelDataSourceSettings {
+struct FCsvColorSettings {
+  int32 ChannelCount;
+  int32 RedChannelIndex;
+  int32 GreenChannelIndex;
+  int32 BlueChannelIndex;
+  int32 Alpha;
+};
+
+struct FCsvGridSettings {
+  int32 EmptyCount;
+  int32 MinimumGridSize;
+  int32 TerminalOffset;
+};
+
+struct FCsvMessageSettings {
+  FString OrthoRowWidthMismatchFormat;
+  FString OrthoBadColorCellFormat;
+  FString OrthoInvalidFormat;
+  FString OrthoLoadedFormat;
+  FString TerrainLoadedFormat;
+};
+
+struct FCsvSettings {
+  FCsvSyntaxSettings Syntax;
+  FCsvColorSettings Color;
+  FCsvGridSettings Grid;
+  FCsvMessageSettings Messages;
+};
+
+struct FDataSourceSettings {
   FString TerrainBlocksJsonPath;
   FString TerrainLabelsJsonPath;
   FString TownBlocksJsonPath;
@@ -27,14 +61,14 @@ struct FLevelDataSourceSettings {
 };
 
 
-struct FLevelValidationSettings {
+struct FValidationSettings {
   int32 TerrainGridSize;
   int32 OrthoGridSize;
   float TerrainMinReliefMeters;
 };
 
 
-struct FLevelGeometrySettings {
+struct FGeometrySettings {
   float TerrainWorldSize;
   float TerrainElevationScale;
   float TerrainLotsAcross;
@@ -78,19 +112,83 @@ struct FLevelGeometrySettings {
 };
 
 
-inline bool operator==(const FLevelTerrainSourceSettings &Left,
-                       const FLevelTerrainSourceSettings &Right) {
+inline bool operator==(const FTerrainSourceSettings &Left,
+                       const FTerrainSourceSettings &Right) {
   return Left.TerrainCsvPath == Right.TerrainCsvPath &&
          Left.OrthoCsvPath == Right.OrthoCsvPath;
 }
 
-inline bool operator!=(const FLevelTerrainSourceSettings &Left,
-                       const FLevelTerrainSourceSettings &Right) {
+inline bool operator!=(const FTerrainSourceSettings &Left,
+                       const FTerrainSourceSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelDataSourceSettings &Left,
-                       const FLevelDataSourceSettings &Right) {
+inline bool operator==(const FCsvSyntaxSettings &Left,
+                       const FCsvSyntaxSettings &Right) {
+  return Left.CommentPrefix == Right.CommentPrefix &&
+         Left.CellDelimiter == Right.CellDelimiter &&
+         Left.ColorChannelDelimiter == Right.ColorChannelDelimiter;
+}
+
+inline bool operator!=(const FCsvSyntaxSettings &Left,
+                       const FCsvSyntaxSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCsvColorSettings &Left,
+                       const FCsvColorSettings &Right) {
+  return Left.ChannelCount == Right.ChannelCount &&
+         Left.RedChannelIndex == Right.RedChannelIndex &&
+         Left.GreenChannelIndex == Right.GreenChannelIndex &&
+         Left.BlueChannelIndex == Right.BlueChannelIndex &&
+         Left.Alpha == Right.Alpha;
+}
+
+inline bool operator!=(const FCsvColorSettings &Left,
+                       const FCsvColorSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCsvGridSettings &Left,
+                       const FCsvGridSettings &Right) {
+  return Left.EmptyCount == Right.EmptyCount &&
+         Left.MinimumGridSize == Right.MinimumGridSize &&
+         Left.TerminalOffset == Right.TerminalOffset;
+}
+
+inline bool operator!=(const FCsvGridSettings &Left,
+                       const FCsvGridSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCsvMessageSettings &Left,
+                       const FCsvMessageSettings &Right) {
+  return Left.OrthoRowWidthMismatchFormat ==
+             Right.OrthoRowWidthMismatchFormat &&
+         Left.OrthoBadColorCellFormat == Right.OrthoBadColorCellFormat &&
+         Left.OrthoInvalidFormat == Right.OrthoInvalidFormat &&
+         Left.OrthoLoadedFormat == Right.OrthoLoadedFormat &&
+         Left.TerrainLoadedFormat == Right.TerrainLoadedFormat;
+}
+
+inline bool operator!=(const FCsvMessageSettings &Left,
+                       const FCsvMessageSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCsvSettings &Left,
+                       const FCsvSettings &Right) {
+  return Left.Syntax == Right.Syntax && Left.Color == Right.Color &&
+         Left.Grid == Right.Grid && Left.Messages == Right.Messages;
+}
+
+inline bool operator!=(const FCsvSettings &Left,
+                       const FCsvSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FDataSourceSettings &Left,
+                       const FDataSourceSettings &Right) {
   return Left.TerrainBlocksJsonPath == Right.TerrainBlocksJsonPath &&
          Left.TerrainLabelsJsonPath == Right.TerrainLabelsJsonPath &&
          Left.TownBlocksJsonPath == Right.TownBlocksJsonPath &&
@@ -104,13 +202,13 @@ inline bool operator==(const FLevelDataSourceSettings &Left,
          Left.NatureJsonPath == Right.NatureJsonPath;
 }
 
-inline bool operator!=(const FLevelDataSourceSettings &Left,
-                       const FLevelDataSourceSettings &Right) {
+inline bool operator!=(const FDataSourceSettings &Left,
+                       const FDataSourceSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelGeometrySettings &Left,
-                       const FLevelGeometrySettings &Right) {
+inline bool operator==(const FGeometrySettings &Left,
+                       const FGeometrySettings &Right) {
   return FMath::IsNearlyEqual(Left.TerrainWorldSize,
                               Right.TerrainWorldSize) &&
          FMath::IsNearlyEqual(Left.TerrainElevationScale,
@@ -178,8 +276,8 @@ inline bool operator==(const FLevelGeometrySettings &Left,
          Left.InitialPatrolRouteIndex == Right.InitialPatrolRouteIndex;
 }
 
-inline bool operator!=(const FLevelGeometrySettings &Left,
-                       const FLevelGeometrySettings &Right) {
+inline bool operator!=(const FGeometrySettings &Left,
+                       const FGeometrySettings &Right) {
   return !(Left == Right);
 }
 

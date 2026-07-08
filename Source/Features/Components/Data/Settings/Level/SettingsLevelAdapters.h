@@ -9,42 +9,45 @@ namespace LevelSettingsAdapters {
 
 /**
  * @brief Reads level terrain source settings from one JSON object.
- * @signature FLevelTerrainSourceSettings ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object)
+ * @signature FTerrainSourceSettings ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object)
  *
  * User story: As a terrain thunk author, authored terrain source paths become
  * typed data before the terrain loaded action is dispatched.
  */
-FLevelTerrainSourceSettings
+FTerrainSourceSettings
 ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object);
+
+FCsvSettings
+ReadLevelCsvSettings(const TSharedPtr<FJsonObject> &Object);
 
 /**
  * @brief Reads authored level data source paths from one JSON object.
- * @signature FLevelDataSourceSettings ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object)
+ * @signature FDataSourceSettings ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object)
  *
  * User story: As a runtime thunk author, every authored data file path should
  * enter the single RTK store as settings data instead of feature constants.
  */
-FLevelDataSourceSettings
+FDataSourceSettings
 ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object);
 
 /**
  * @brief Reads runtime validation settings from one JSON object.
- * @signature FLevelValidationSettings ReadLevelValidationSettings(const TSharedPtr<FJsonObject> &Object)
+ * @signature FValidationSettings ReadLevelValidationSettings(const TSharedPtr<FJsonObject> &Object)
  *
  * User story: As an automation test author, expected authored data dimensions
  * should live in JSON beside the source data instead of test constants.
  */
-FLevelValidationSettings
+FValidationSettings
 ReadLevelValidationSettings(const TSharedPtr<FJsonObject> &Object);
 
 /**
  * @brief Reads level geometry settings from one JSON object.
- * @signature FLevelGeometrySettings ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object)
+ * @signature FGeometrySettings ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object)
  *
  * User story: As a level reducer author, authored geometry constants are
  * reduced into state once and reused by selectors and ECS projections.
  */
-FLevelGeometrySettings
+FGeometrySettings
 ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object);
 
 } // namespace LevelSettingsAdapters

@@ -63,21 +63,26 @@ const FSystemsState &SelectSystemsState(const FRuntimeState &State) {
   return State.Systems;
 }
 
-const FLevelSystemState &SelectLevelState(const FRuntimeState &State) {
+const FSystemState &SelectLevelState(const FRuntimeState &State) {
   return State.Level;
 }
 
-const ForbocAI::Game::Data::FLevelTerrainSourceSettings &
+const ForbocAI::Game::Data::FTerrainSourceSettings &
 SelectLevelTerrainSources(const FRuntimeState &State) {
   return LevelSystemSelectors::SelectTerrainSources(State.Level);
 }
 
-const ForbocAI::Game::Data::FLevelDataSourceSettings &
+const ForbocAI::Game::Data::FCsvSettings &
+SelectLevelCsv(const FRuntimeState &State) {
+  return LevelSystemSelectors::SelectCsv(State.Level);
+}
+
+const ForbocAI::Game::Data::FDataSourceSettings &
 SelectLevelDataSources(const FRuntimeState &State) {
   return LevelSystemSelectors::SelectDataSources(State.Level);
 }
 
-const ForbocAI::Game::Data::FLevelGeometrySettings &
+const ForbocAI::Game::Data::FGeometrySettings &
 SelectLevelGeometry(const FRuntimeState &State) {
   return LevelSystemSelectors::SelectGeometry(State.Level);
 }
@@ -123,7 +128,7 @@ func::Maybe<FLandmark> SelectLandmarkById(const FRuntimeState &State,
   return LandmarkSelectors::SelectById(State.Landmarks, Id);
 }
 
-FSpawnPointPayload SelectPlayerSpawn(const FRuntimeState &State) {
+FPointPayload SelectPlayerSpawn(const FRuntimeState &State) {
   return SpawnSelectors::SelectPlayerSpawn(State.Spawn);
 }
 
@@ -156,7 +161,7 @@ TArray<FHorseRouteSeed> SelectHorses(const FRuntimeState &State) {
   return HorseSelectors::SelectAll(State.Horses);
 }
 
-TArray<FNatureFeatureSeed> SelectNatureFeatures(const FRuntimeState &State) {
+TArray<FFeatureSeed> SelectNatureFeatures(const FRuntimeState &State) {
   return NatureSelectors::SelectAll(State.Nature);
 }
 
@@ -165,7 +170,7 @@ SelectTownspersonInteractionRequest(const FRuntimeState &State) {
   return State.TownspersonInteractionRequest;
 }
 
-const FInteractionSelection &SelectInteractionSelection(
+const FSelection &SelectInteractionSelection(
     const FRuntimeState &State) {
   return InteractionSelectors::SelectSelectedCandidate(State.Interaction);
 }
@@ -175,7 +180,7 @@ float SelectTownspersonInteractionDistance(const FRuntimeState &State) {
       State.Interaction);
 }
 
-const FPlayerPresentationViewModel &
+const FPresentationViewModel &
 SelectPlayerPresentation(const FRuntimeState &State) {
   return PlayerSelectors::SelectPresentation(State.Player);
 }
@@ -219,13 +224,13 @@ SelectBotPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
   return BotPositionReducers::ReducePatrolAdvance(Request);
 }
 
-FPlayerMovementInputViewModel
-SelectPlayerMovementInput(const FPlayerMovementInputRequest &Request) {
+FMovementInputViewModel
+SelectPlayerMovementInput(const FMovementInputRequest &Request) {
   return PlayerReducers::ReduceMovementInput(Request);
 }
 
 FVector SelectPostOfficeWorldCenter(const FRuntimeState &State) {
-  const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry =
+  const ForbocAI::Game::Data::FGeometrySettings &Geometry =
       RuntimeSelectors::SelectLevelGeometry(State);
   const FLevelLocalPoint Point =
       LevelLayoutAdapters::FromPostOfficeLots({Geometry, float(), float(),
@@ -373,15 +378,13 @@ const ecs::FWorld &SelectWorld(const FRuntimeState &State) {
 func::Maybe<ecs::FComponentValue>
 SelectComponent(const FRuntimeState &State,
                    const FEntityComponentLookup &Lookup) {
-  return ecs::getComponent(
-      ecs::createGetComponentRequest(SelectWorld(State), Lookup.Entity,
-                                     Lookup.Type));
+  return ecs::getComponent({SelectWorld(State), Lookup.Entity, Lookup.Type});
 }
 
 bool SelectEntityInDomain(const FRuntimeState &State,
                              const FEntityDomainLookup &Lookup) {
-  return ecs::isEntityInDomain(ecs::createEntityInDomainRequest(
-      SelectWorld(State), Lookup.Entity, Lookup.Domain));
+  return ecs::isEntityInDomain(
+      {SelectWorld(State), Lookup.Entity, Lookup.Domain});
 }
 
 ecs::FEntityInspection

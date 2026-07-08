@@ -10,7 +10,7 @@ namespace Level {
 namespace SpatialSelectors {
 
 float SelectTownLotWorldUnits(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry);
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry);
 float SelectActorWorldUnitsFromFeet(const FLevelActorFeetRequest &Request);
 
 } // namespace SpatialSelectors

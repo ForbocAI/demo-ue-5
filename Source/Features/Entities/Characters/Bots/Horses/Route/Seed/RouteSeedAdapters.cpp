@@ -12,12 +12,12 @@ namespace BotsAdapters {
 
 namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
-struct FHorseRoutePointFields {
+struct FHorseRoutePointSource {
   float EastLots;
   float NorthLots;
 };
 
-struct FHorseRouteFields {
+struct FHorseRouteSource {
   FString Id;
   FString Name;
   bool bMountedRider;
@@ -36,11 +36,11 @@ namespace JsonAdapters {
 
 namespace BotSeedTypes = ForbocAI::Game::Level::BotsAdapters;
 
-using FHorseRouteFields = BotSeedTypes::FHorseRouteFields;
-using FHorseRoutePointFields = BotSeedTypes::FHorseRoutePointFields;
+using FHorseRouteSource = BotSeedTypes::FHorseRouteSource;
+using FHorseRoutePointSource = BotSeedTypes::FHorseRoutePointSource;
 
-JSON_SETTINGS_REGISTRY(FHorseRoutePointFields, EastLots, NorthLots);
-JSON_SETTINGS_REGISTRY(FHorseRouteFields, Id, Name, bMountedRider,
+JSON_SETTINGS_REGISTRY(FHorseRoutePointSource, EastLots, NorthLots);
+JSON_SETTINGS_REGISTRY(FHorseRouteSource, Id, Name, bMountedRider,
                        PatrolRoute);
 
 } // namespace JsonAdapters
@@ -55,7 +55,7 @@ namespace BotsAdapters {
 namespace {
 
 struct FRouteLotsRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   float EastLots;
   float NorthLots;
 };
@@ -64,13 +64,13 @@ typedef FLevelLocalPoint (*FRouteLotsProjector)(const FRouteLotsRequest &);
 
 struct FPatrolRouteFieldsRequest {
   TArray<TSharedPtr<FJsonValue>> Points;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   FRouteLotsProjector ProjectLots;
 };
 
 struct FHorseRouteBuildRequest {
-  FHorseRouteFields Fields;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  FHorseRouteSource Fields;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 FLevelLocalPoint HorseRouteLots(const FRouteLotsRequest &Request) {
@@ -81,13 +81,13 @@ FLevelLocalPoint HorseRouteLots(const FRouteLotsRequest &Request) {
 
 TArray<FLevelLocalPoint>
 PatrolRouteFromFields(const FPatrolRouteFieldsRequest &Request) {
-  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
+  const ForbocAI::Game::Data::FGeometrySettings Geometry =
       Request.Geometry;
   const FRouteLotsProjector ProjectLots = Request.ProjectLots;
-  return func::map_array<FHorseRoutePointFields, FLevelLocalPoint>(
-      JsonAdapters::MapSettingsJsonValues<FHorseRoutePointFields>(
+  return func::map_array<FHorseRoutePointSource, FLevelLocalPoint>(
+      JsonAdapters::MapSettingsJsonValues<FHorseRoutePointSource>(
           Request.Points, JSON_SETTINGS_ATOMS(EastLots, NorthLots)),
-      [Geometry, ProjectLots](const FHorseRoutePointFields &Fields) {
+      [Geometry, ProjectLots](const FHorseRoutePointSource &Fields) {
         return ProjectLots({Geometry, Fields.EastLots, Fields.NorthLots});
       });
 }
@@ -107,12 +107,12 @@ FHorseRouteSeed HorseRouteFromFields(
 
 TArray<FHorseRouteSeed> BuildHorseRouteSeed(
     const FBotSeedBuildRequest &Request) {
-  return func::map_array<FHorseRouteFields, FHorseRouteSeed>(
-      JsonAdapters::MapSettingsJsonValues<FHorseRouteFields>(
+  return func::map_array<FHorseRouteSource, FHorseRouteSeed>(
+      JsonAdapters::MapSettingsJsonValues<FHorseRouteSource>(
           JsonAdapters::LoadRequiredArrayFromContent(
               {Request.RelativeJsonPath}),
           JSON_SETTINGS_ATOMS(Id, Name, bMountedRider, PatrolRoute)),
-      [&Request](const FHorseRouteFields &Fields) {
+      [&Request](const FHorseRouteSource &Fields) {
         return HorseRouteFromFields({Fields, Request.Geometry});
       });
 }
@@ -131,11 +131,12 @@ template <> struct TComponentSourceValueFieldRegistry<FHorseRouteSeed> {
   static const TArray<TComponentSourceValueFieldDeclaration<FHorseRouteSeed>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FHorseRouteSeed>>
-        RegisteredFields = {{"Id", &FHorseRouteSeed::Id},
-                            {"Name", &FHorseRouteSeed::Name},
-                            {"MountedRider", &FHorseRouteSeed::bMountedRider},
-                            {"PatrolRoute", &FHorseRouteSeed::PatrolRoute}};
-    return RegisteredFields;
+        SourceFields = ComponentSourceFieldDeclarations<FHorseRouteSeed>(
+            {{"Id", &FHorseRouteSeed::Id},
+             {"Name", &FHorseRouteSeed::Name},
+             {"MountedRider", &FHorseRouteSeed::bMountedRider},
+             {"PatrolRoute", &FHorseRouteSeed::PatrolRoute}});
+    return SourceFields;
   }
 };
 
@@ -156,7 +157,7 @@ using ComponentsAdapters::RegisteredComponentGroups;
 extern ecs::EntityKey BotEntityKey(const FString &Id);
 
 ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectHorseEntityPayload &PayloadValue) {

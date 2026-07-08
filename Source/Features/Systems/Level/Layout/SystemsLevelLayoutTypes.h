@@ -29,7 +29,7 @@ struct FLevelSectionLeaves {
   TArray<TSharedPtr<FJsonValue>> Labels;
 };
 
-struct FLevelLayoutLeaves {
+struct FLeaves {
   FLevelSectionLeaves Terrain;
   FLevelSectionLeaves Town;
   FLevelSectionLeaves Mine;

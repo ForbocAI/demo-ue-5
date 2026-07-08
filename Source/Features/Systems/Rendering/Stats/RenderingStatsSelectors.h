@@ -17,7 +17,7 @@ namespace RenderingStatsSelectors {
 using FStatsOverlaySettings =
     ForbocAI::Game::Data::FStatsOverlaySettings;
 
-struct FStatsFormatContext {
+struct FFormatContext {
   const FString *Format;
   int32 BufferCharacterCount;
 };
@@ -27,7 +27,7 @@ inline const FStatsOverlaySettings &SelectStatsOverlaySettings() {
       .StatsOverlay;
 }
 
-inline FString FormatRuntimeStatsText(FStatsFormatContext Context, ...) {
+inline FString FormatRuntimeStatsText(FFormatContext Context, ...) {
   TArray<TCHAR> Buffer;
   Buffer.SetNumZeroed(Context.BufferCharacterCount);
   const TCHAR *FormatPtr = **Context.Format;
@@ -53,7 +53,7 @@ inline FString FormatRuntimeStatsDecimalValue(
 }
 
 inline FLinearColor SelectRuntimeStatsValueColor(
-    const FStatsValueUpdateRequest &Request) {
+    const FValueUpdateRequest &Request) {
   return Request.Value >= Request.HighThreshold
              ? Request.Settings->HighValueColor
              : (Request.Value >= Request.MediumThreshold

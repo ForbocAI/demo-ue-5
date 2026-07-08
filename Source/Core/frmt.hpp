@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/ue_fp.hpp"
 
 #include <initializer_list>
 
@@ -120,14 +121,6 @@ inline int32 FirstRuntimeFormatTokenIndex(const FString &Pattern) {
 
 inline int32 RuntimeFormatTokenWidth() { return FString(TEXT("%s")).Len(); }
 
-inline int32 FirstRuntimeFormatArgumentIndex() {
-  return INDEX_NONE + static_cast<int32>(true);
-}
-
-inline int32 NextRuntimeFormatArgumentIndex(int32 Index) {
-  return Index + static_cast<int32>(true);
-}
-
 /**
  * @brief Replaces the first supported runtime format token with one value.
  * @signature inline FString ReplaceRuntimeFormatToken(const FString &Pattern, const FString &Value)
@@ -146,24 +139,6 @@ inline FString ReplaceRuntimeFormatToken(const FString &Pattern,
 }
 
 /**
- * @brief Recursively applies formatter values starting at one argument index.
- * @signature inline FString FormatRuntimeStringAt(const FString &Pattern, const TArray<FString> &Values, int32 Index)
- * @return The formatted string after consuming all available values.
- *
- * User Story: As FP-style runtime formatting, recursive value application keeps
- * UI text and RTK logger text as deterministic data transformations.
- */
-inline FString FormatRuntimeStringAt(const FString &Pattern,
-                                     const TArray<FString> &Values,
-                                     int32 Index) {
-  return Index >= Values.Num()
-             ? Pattern
-             : FormatRuntimeStringAt(
-                   ReplaceRuntimeFormatToken(Pattern, Values[Index]), Values,
-                   NextRuntimeFormatArgumentIndex(Index));
-}
-
-/**
  * @brief Formats a runtime string by replacing supported tokens in order.
  * @signature inline FString RuntimeString(const FString &Pattern, const TArray<FString> &Values)
  * @return The pattern formatted with the supplied argument values.
@@ -174,8 +149,11 @@ inline FString FormatRuntimeStringAt(const FString &Pattern,
  */
 inline FString RuntimeString(const FString &Pattern,
                              const TArray<FString> &Values) {
-  return FormatRuntimeStringAt(Pattern, Values,
-                               FirstRuntimeFormatArgumentIndex());
+  return func::fold_array<FString, FString>(
+      Values, Pattern,
+      [](const FString &Current, const FString &Value) {
+        return ReplaceRuntimeFormatToken(Current, Value);
+      });
 }
 
 } // namespace frmt

@@ -3,7 +3,7 @@
 #include "Core/ue_fp.hpp"
 #include "Misc/AutomationTest.h"
 #include "Features/Systems/Bots/Core/CoreActions.h"
-#include "Features/Systems/Bots/Core/Runtime/RuntimeTypes.h"
+#include "Features/Systems/Bots/Core/BotsCoreTypes.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Features/Systems/Bots/Pipeline/PipelineSlice.h"
 
@@ -17,6 +17,19 @@ PipelineBotSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   return Settings.Bot;
+}
+
+const ForbocAI::Game::Data::Automation::Pipeline::FSettings &
+PipelineSettings() {
+  static const ForbocAI::Game::Data::FSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
+  return Settings.Automation.Pipeline;
+}
+
+FString PipelineAssertion(const int32 Index) {
+  const TArray<FString> &Assertions = PipelineSettings().Assertions;
+  check(Assertions.IsValidIndex(Index));
+  return Assertions[Index];
 }
 
 FString PipelineInitialBotName() {
@@ -98,12 +111,10 @@ bool FPipelineIdleTick::RunTest(const FString &Parameters) {
   const FBotPipelineOutputResult Result =
       ReduceIdlePipeline(Initial, PipelineTickDelta());
 
-  TestTrue(TEXT("Tick count advanced"),
-           Result.NewState.TickCount > Initial.TickCount);
-  TestTrue(TEXT("At least 1 action dispatched"),
-           Result.ActionsDispatched >
-               static_cast<int32>(Initial.TickCount));
-  TestEqual(TEXT("Health unchanged"), Result.NewState.Stats.Health,
+  TestTrue(PipelineAssertion(0), Result.NewState.TickCount > Initial.TickCount);
+  TestTrue(PipelineAssertion(1),
+           Result.ActionsDispatched > static_cast<int32>(Initial.TickCount));
+  TestEqual(PipelineAssertion(2), Result.NewState.Stats.Health,
             PipelineBotSettings().InitialHealth);
 
   return true;
@@ -126,11 +137,11 @@ bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
-  TestTrue(TEXT("Health reduced by hazard"),
+  TestTrue(PipelineAssertion(3),
            Result.NewState.Stats.Health <
                PipelineBotSettings().InitialHealth);
-  TestEqual(TEXT("Health after 1s hazard (25 DPS)"),
-            Result.NewState.Stats.Health, PipelineExpectedHazardHealth());
+  TestEqual(PipelineAssertion(4), Result.NewState.Stats.Health,
+            PipelineExpectedHazardHealth());
 
   return true;
 }
@@ -152,10 +163,10 @@ bool FPipelineAwareness::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
-  TestTrue(TEXT("Bot has aggro"), Result.NewState.Memory.bHasAggro);
-  TestEqual(TEXT("Phase is Combat"),
+  TestTrue(PipelineAssertion(5), Result.NewState.Memory.bHasAggro);
+  TestEqual(PipelineAssertion(6),
             (int32)Result.NewState.Phase, (int32)EBotCorePhase::Combat);
-  TestEqual(TEXT("Remembers enemy position"),
+  TestEqual(PipelineAssertion(7),
             Result.NewState.Memory.KnownPlayerPos,
             PipelineEnemyPosition());
 
@@ -180,7 +191,7 @@ bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(LowHealth, World);
 
-  TestEqual(TEXT("Phase transitioned to Flee"),
+  TestEqual(PipelineAssertion(8),
             (int32)Result.NewState.Phase, (int32)EBotCorePhase::Flee);
 
   return true;
@@ -221,23 +232,23 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
   const TArray<FBotPipelineOutputResult> Results =
       ReduceMultiBotPipeline(Inputs);
 
-  TestEqual(TEXT("3 bots processed"), Results.Num(), Inputs.Num());
+  TestEqual(PipelineAssertion(9), Results.Num(), Inputs.Num());
 
   func::for_each_indexed(
       Results, static_cast<size_t>(Results.Num()),
       [this, &Idle, &Hazard, &Aware](const FBotPipelineOutputResult &Result) {
         Result.NewState.Name == Idle.State.Name
             ? static_cast<void>(TestEqual(
-                  TEXT("Bot 1 full health"), Result.NewState.Stats.Health,
+                  PipelineAssertion(10), Result.NewState.Stats.Health,
                   PipelineBotSettings().InitialHealth))
             : void();
         Result.NewState.Name == Hazard.State.Name
             ? static_cast<void>(TestEqual(
-                  TEXT("Bot 2 took hazard damage"),
-                  Result.NewState.Stats.Health, PipelineExpectedHazardHealth()))
+                  PipelineAssertion(11), Result.NewState.Stats.Health,
+                  PipelineExpectedHazardHealth()))
             : void();
         Result.NewState.Name == Aware.State.Name
-            ? static_cast<void>(TestTrue(TEXT("Bot 3 has aggro"),
+            ? static_cast<void>(TestTrue(PipelineAssertion(12),
                                          Result.NewState.Memory.bHasAggro))
             : void();
       });
@@ -266,16 +277,15 @@ bool FPipelineDeterministic::RunTest(const FString &Parameters) {
   const FBotPipelineOutputResult Run1 = ReducePipeline(Initial, World);
   const FBotPipelineOutputResult Run2 = ReducePipeline(Initial, World);
 
-  TestEqual(TEXT("Health deterministic"), Run1.NewState.Stats.Health,
+  TestEqual(PipelineAssertion(13), Run1.NewState.Stats.Health,
             Run2.NewState.Stats.Health);
-  TestEqual(TEXT("Position deterministic"), Run1.NewState.Position,
+  TestEqual(PipelineAssertion(14), Run1.NewState.Position,
             Run2.NewState.Position);
-  TestEqual(TEXT("Phase deterministic"), (int32)Run1.NewState.Phase,
+  TestEqual(PipelineAssertion(15), (int32)Run1.NewState.Phase,
             (int32)Run2.NewState.Phase);
-  TestEqual(TEXT("Aggro deterministic"), Run1.NewState.Memory.bHasAggro,
+  TestEqual(PipelineAssertion(16), Run1.NewState.Memory.bHasAggro,
             Run2.NewState.Memory.bHasAggro);
-  TestEqual(TEXT("Action count deterministic"), Run1.ActionsDispatched,
-            Run2.ActionsDispatched);
+  TestEqual(PipelineAssertion(17), Run1.ActionsDispatched, Run2.ActionsDispatched);
 
   return true;
 }

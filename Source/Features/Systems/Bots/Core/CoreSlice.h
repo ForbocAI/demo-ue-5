@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Bots/Core/CoreActions.h"
-#include "Features/Systems/Bots/Core/Runtime/RuntimeTypes.h"
+#include "Features/Systems/Bots/Core/BotsCoreTypes.h"
 
 namespace ForbocAI {
 namespace Game {

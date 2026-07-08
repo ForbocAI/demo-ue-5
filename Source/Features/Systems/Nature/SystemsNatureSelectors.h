@@ -9,7 +9,7 @@ namespace Game {
 namespace Level {
 namespace NatureSelectors {
 
-TArray<FNatureFeatureSeed> SelectAll(const FNatureState &State);
+TArray<FFeatureSeed> SelectAll(const FNatureState &State);
 
 } // namespace NatureSelectors
 } // namespace Level

@@ -82,12 +82,16 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
       const auto &Settings = RuntimeSelectors::SelectUISettings(State).StatsOverlay;
 
       double BudgetClockSeconds = RenderingAdapters::SelectRuntimeBudgetClockSeconds();
-    float WallDeltaSeconds = (RenderState.FrameClockSeconds == 0.0)
+    float WallDeltaSeconds = (RenderState.StatsClock.FrameClockSeconds == 0.0)
         ? 0.0f
-        : (BudgetClockSeconds - RenderState.FrameClockSeconds);
+        : (BudgetClockSeconds - RenderState.StatsClock.FrameClockSeconds);
 
-    bool bRefreshPolyCount = (RenderState.PolyCountRefreshElapsedSeconds + WallDeltaSeconds) >= Settings.PolyCountRefreshIntervalSeconds;
-    bool bRefreshStats = (RenderState.StatsRefreshElapsedSeconds + WallDeltaSeconds) >= Settings.StatsRefreshIntervalSeconds;
+    bool bRefreshPolyCount =
+        (RenderState.StatsClock.PolyCountRefreshElapsedSeconds +
+         WallDeltaSeconds) >= Settings.PolyCountRefreshIntervalSeconds;
+    bool bRefreshStats =
+        (RenderState.StatsClock.StatsRefreshElapsedSeconds +
+         WallDeltaSeconds) >= Settings.StatsRefreshIntervalSeconds;
 
     FRuntimeStatsSamplePayload Payload;
     Payload.DeltaSeconds = DeltaSeconds;
@@ -95,7 +99,9 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
 
     FRuntimePolyCountStats PolyCount = bRefreshPolyCount
         ? RenderingAdapters::SelectRuntimePolyCountStats(World, Settings)
-        : FRuntimePolyCountStats{RenderState.CachedPolyCount, RenderState.CachedPolyCountMilliseconds};
+        : FRuntimePolyCountStats{
+              RenderState.PolyCache.CachedPolyCount,
+              RenderState.PolyCache.CachedPolyCountMilliseconds};
     Payload.PolyCount = bRefreshPolyCount ? func::just(PolyCount) : func::nothing<FRuntimePolyCountStats>();
 
     Payload.StatsOverlay = Settings;
@@ -109,20 +115,31 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
     bRefreshStats ? PresentRuntimeStatsDebugMessage(Payload.Stats.value, Settings), void() : void();
 
     bool bShouldLog = bRefreshStats && RenderingSelectors::ShouldRunRuntimeBudgetWallInterval(
-                {BudgetClockSeconds, RenderState.BudgetLogPreviousSeconds,
+                {BudgetClockSeconds,
+                 RenderState.BudgetClock.BudgetLogPreviousSeconds,
                  Settings.BudgetLogIntervalSeconds});
 
     bShouldLog ? LogRuntimeBudgetSample(Payload.Stats.value), void() : void();
-    Payload.BudgetLogPreviousSeconds = bShouldLog ? BudgetClockSeconds : RenderState.BudgetLogPreviousSeconds;
+    Payload.BudgetLogPreviousSeconds =
+        bShouldLog ? BudgetClockSeconds
+                   : RenderState.BudgetClock.BudgetLogPreviousSeconds;
 
     float BudgetScreenshotIntervalSeconds = RenderingAdapters::SelectRuntimeBudgetScreenshotIntervalSeconds(Settings);
     bool bShouldScreenshot = bRefreshStats && RenderingSelectors::ShouldRunRuntimeBudgetScreenshot(
-                {BudgetClockSeconds, RenderState.BudgetScreenshotPreviousSeconds,
+                {BudgetClockSeconds,
+                 RenderState.BudgetClock.BudgetScreenshotPreviousSeconds,
                  BudgetScreenshotIntervalSeconds}, Settings);
 
-    Payload.BudgetScreenshotIndex = bShouldScreenshot ? RenderState.BudgetScreenshotIndex + Settings.BudgetScreenshotIndexStep : RenderState.BudgetScreenshotIndex;
+    Payload.BudgetScreenshotIndex =
+        bShouldScreenshot
+            ? RenderState.BudgetClock.BudgetScreenshotIndex +
+                  Settings.BudgetScreenshotIndexStep
+            : RenderState.BudgetClock.BudgetScreenshotIndex;
     bShouldScreenshot ? RenderingAdapters::RequestRuntimeBudgetScreenshot(Settings, Payload.BudgetScreenshotIndex), void() : void();
-      Payload.BudgetScreenshotPreviousSeconds = bShouldScreenshot ? BudgetClockSeconds : RenderState.BudgetScreenshotPreviousSeconds;
+      Payload.BudgetScreenshotPreviousSeconds =
+          bShouldScreenshot
+              ? BudgetClockSeconds
+              : RenderState.BudgetClock.BudgetScreenshotPreviousSeconds;
 
       Dispatch(RenderingActions::RuntimeStatsSampled()(Payload));
       Resolve();

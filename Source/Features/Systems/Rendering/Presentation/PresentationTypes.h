@@ -13,12 +13,12 @@ struct FRenderingPresentationRequest {
 
 struct FTownspersonPresentationReduceRequest {
   ForbocAI::Game::Data::FTownspersonPresentationSettings Settings;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 struct FHorsePresentationReduceRequest {
   ForbocAI::Game::Data::FHorsePresentationSettings Settings;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 struct FTownspersonPresentationViewModel {

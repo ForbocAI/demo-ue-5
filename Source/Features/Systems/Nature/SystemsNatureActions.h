@@ -8,7 +8,7 @@ namespace Game {
 namespace Level {
 namespace NatureActions {
 
-const rtk::ActionCreator<TArray<FNatureFeatureSeed>> &NatureSeeded();
+const rtk::ActionCreator<TArray<FFeatureSeed>> &NatureSeeded();
 
 } // namespace NatureActions
 } // namespace Level

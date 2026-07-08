@@ -5,9 +5,9 @@ namespace Game {
 namespace Level {
 namespace SpawnSelectors {
 
-FSpawnPointPayload SelectPlayerSpawn(const FSpawnState &State) {
+FPointPayload SelectPlayerSpawn(const FSpawnState &State) {
   return (func::pipe(State.PlayerSpawn) |
-         [](const FSpawnPointPayload &PlayerSpawn) -> FSpawnPointPayload {
+         [](const FPointPayload &PlayerSpawn) -> FPointPayload {
     return PlayerSpawn;
   }).val;
 }

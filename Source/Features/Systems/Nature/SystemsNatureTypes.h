@@ -7,7 +7,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 
-enum class ENatureFeatureKind {
+enum class EFeatureKind {
   Water,
   Rock,
   TreeGrove,
@@ -16,27 +16,27 @@ enum class ENatureFeatureKind {
   WaterSystemMarker
 };
 
-struct FNatureFeatureSeed {
+struct FFeatureSeed {
   FString Id;
   FString Name;
-  ENatureFeatureKind Kind;
+  EFeatureKind Kind;
   FLevelLocalPoint Location;
   FVector Scale;
 };
 
 struct FNatureState {
-  rtk::EntityState<FNatureFeatureSeed> Items;
+  rtk::EntityState<FFeatureSeed> Items;
 };
 
-inline bool operator==(const FNatureFeatureSeed &Left,
-                       const FNatureFeatureSeed &Right) {
+inline bool operator==(const FFeatureSeed &Left,
+                       const FFeatureSeed &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name &&
          Left.Kind == Right.Kind && Left.Location == Right.Location &&
          Left.Scale == Right.Scale;
 }
 
-inline bool operator!=(const FNatureFeatureSeed &Left,
-                       const FNatureFeatureSeed &Right) {
+inline bool operator!=(const FFeatureSeed &Left,
+                       const FFeatureSeed &Right) {
   return !(Left == Right);
 }
 

@@ -26,7 +26,7 @@ struct FRuntimeTownspersonInteractionSource {
 };
 
 struct FRuntimeTownspersonInteractionPayload {
-  FDialogueReplyPayload DialogueReply;
+  FReplyPayload DialogueReply;
   FUIPayload UI;
 };
 

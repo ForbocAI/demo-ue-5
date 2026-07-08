@@ -14,27 +14,27 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 
-enum class ELevelScaleMode {
+enum class EScaleMode {
   Building,
   LongFeature,
   Pad
 };
 
-enum class ELevelAnchorMode {
+enum class EAnchorMode {
   BuildingLots,
   FeatureLots,
   PostOfficeLots,
   World
 };
 
-enum class ELevelLabelHeightMode {
+enum class ELabelHeightMode {
   Explicit,
   LabelForScale,
   AboveBlock
 };
 
-struct FLevelScaleSeed {
-  ELevelScaleMode Mode;
+struct FScaleSeed {
+  EScaleMode Mode;
   float WidthFeet;
   float DepthFeet;
   float HeightFeet;
@@ -43,43 +43,43 @@ struct FLevelScaleSeed {
   float LengthLots;
 };
 
-struct FLevelBlockSeed {
+struct FBlockSeed {
   FString Id;
   FString Name;
-  ELevelAnchorMode Anchor;
+  EAnchorMode Anchor;
   float EastLots;
   float NorthLots;
   FVector WorldLocation;
   float YawDegrees;
-  FLevelScaleSeed Scale;
+  FScaleSeed Scale;
   ELevelRetroTexture Texture;
 };
 
-struct FLevelLabelSeed {
+struct FLabelSeed {
   FString Id;
   FString Text;
-  ELevelAnchorMode Anchor;
-  ELevelLabelHeightMode Height;
+  EAnchorMode Anchor;
+  ELabelHeightMode Height;
   float EastLots;
   float NorthLots;
   float HeightOffset;
   float WorldSizeScale;
-  FLevelScaleSeed ReferenceScale;
+  FScaleSeed ReferenceScale;
 };
 
-struct FLevelSectionSeed {
-  TArray<FLevelBlockSeed> Blocks;
-  TArray<FLevelLabelSeed> Labels;
+struct FSectionSeed {
+  TArray<FBlockSeed> Blocks;
+  TArray<FLabelSeed> Labels;
 };
 
-struct FLevelLayoutSeed {
-  FLevelSectionSeed Terrain;
-  FLevelSectionSeed Town;
-  FLevelSectionSeed Mine;
-  TArray<FLevelLabelSeed> OverlayLabels;
+struct FLayoutSeed {
+  FSectionSeed Terrain;
+  FSectionSeed Town;
+  FSectionSeed Mine;
+  TArray<FLabelSeed> OverlayLabels;
 };
 
-struct FLevelBlockSpawn {
+struct FBlockSpawn {
   FString Name;
   FVector Location = FVector::ZeroVector;
   FRotator Rotation = FRotator::ZeroRotator;
@@ -88,84 +88,86 @@ struct FLevelBlockSpawn {
   FLevelDistanceLodStage Lod;
 };
 
-struct FLevelLabelSpawn {
+struct FLabelSpawn {
   FString Text;
   FVector Location = FVector::ZeroVector;
   float WorldSize = 42.0f;
   FLevelDistanceLodStage Lod;
 };
 
-struct FLevelSectionSpawn {
-  TArray<FLevelBlockSpawn> Blocks;
-  TArray<FLevelLabelSpawn> Labels;
+struct FSectionSpawn {
+  TArray<FBlockSpawn> Blocks;
+  TArray<FLabelSpawn> Labels;
 };
 
-struct FLevelBlockSpawnRequest {
-  FLevelBlockSeed Seed;
+struct FBlockSpawnRequest {
+  FBlockSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
-struct FLevelLabelSpawnRequest {
-  FLevelLabelSeed Seed;
+struct FLabelSpawnRequest {
+  FLabelSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
-struct FLevelSectionSpawnRequest {
-  FLevelSectionSeed Seed;
+struct FSectionSpawnRequest {
+  FSectionSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
-struct FLevelOverlaySectionSpawnRequest {
-  FLevelLayoutSeed Seed;
+struct FOverlaySectionSpawnRequest {
+  FLayoutSeed Seed;
   FLevelTerrainData TerrainData;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
-struct FLevelNatureSectionSpawnRequest {
-  TArray<FNatureFeatureSeed> Features;
+struct FNatureSectionSpawnRequest {
+  TArray<FFeatureSeed> Features;
   FLevelTerrainData TerrainData;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
-struct FLevelLandmarkSectionSpawnRequest {
+struct FLandmarkSectionSpawnRequest {
   TArray<FLandmark> Landmarks;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
-struct FLevelWorldRouteRequest {
+struct FWorldRouteRequest {
   TArray<FLevelLocalPoint> Route;
   FLevelTerrainData TerrainData;
 };
 
-struct FLevelSystemPayload {
+struct FSystemPayload {
   FString Id;
 };
 
-struct FLevelSystemState {
+struct FSystemState {
   func::Maybe<FString> ActionId = func::nothing<FString>();
-  ForbocAI::Game::Data::FLevelTerrainSourceSettings TerrainSources;
-  ForbocAI::Game::Data::FLevelDataSourceSettings DataSources;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FTerrainSourceSettings TerrainSources;
+  ForbocAI::Game::Data::FCsvSettings Csv;
+  ForbocAI::Game::Data::FDataSourceSettings DataSources;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   bool bReady = false;
 };
 
-inline bool operator==(const FLevelSystemPayload &Left,
-                       const FLevelSystemPayload &Right) {
+inline bool operator==(const FSystemPayload &Left,
+                       const FSystemPayload &Right) {
   return Left.Id == Right.Id;
 }
 
-inline bool operator!=(const FLevelSystemPayload &Left,
-                       const FLevelSystemPayload &Right) {
+inline bool operator!=(const FSystemPayload &Left,
+                       const FSystemPayload &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelSystemState &Left,
-                       const FLevelSystemState &Right) {
+inline bool operator==(const FSystemState &Left,
+                       const FSystemState &Right) {
   return Left.bReady == Right.bReady &&
          Left.TerrainSources == Right.TerrainSources &&
+         Left.Csv == Right.Csv &&
          Left.DataSources == Right.DataSources &&
          Left.Geometry == Right.Geometry &&
          Left.ActionId.hasValue == Right.ActionId.hasValue &&
@@ -173,13 +175,13 @@ inline bool operator==(const FLevelSystemState &Left,
           Left.ActionId.value == Right.ActionId.value);
 }
 
-inline bool operator!=(const FLevelSystemState &Left,
-                       const FLevelSystemState &Right) {
+inline bool operator!=(const FSystemState &Left,
+                       const FSystemState &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelScaleSeed &Left,
-                       const FLevelScaleSeed &Right) {
+inline bool operator==(const FScaleSeed &Left,
+                       const FScaleSeed &Right) {
   return Left.Mode == Right.Mode &&
          FMath::IsNearlyEqual(Left.WidthFeet, Right.WidthFeet) &&
          FMath::IsNearlyEqual(Left.DepthFeet, Right.DepthFeet) &&
@@ -189,13 +191,13 @@ inline bool operator==(const FLevelScaleSeed &Left,
          FMath::IsNearlyEqual(Left.LengthLots, Right.LengthLots);
 }
 
-inline bool operator!=(const FLevelScaleSeed &Left,
-                       const FLevelScaleSeed &Right) {
+inline bool operator!=(const FScaleSeed &Left,
+                       const FScaleSeed &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelBlockSeed &Left,
-                       const FLevelBlockSeed &Right) {
+inline bool operator==(const FBlockSeed &Left,
+                       const FBlockSeed &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name &&
          Left.Anchor == Right.Anchor &&
          FMath::IsNearlyEqual(Left.EastLots, Right.EastLots) &&
@@ -205,13 +207,13 @@ inline bool operator==(const FLevelBlockSeed &Left,
          Left.Scale == Right.Scale && Left.Texture == Right.Texture;
 }
 
-inline bool operator!=(const FLevelBlockSeed &Left,
-                       const FLevelBlockSeed &Right) {
+inline bool operator!=(const FBlockSeed &Left,
+                       const FBlockSeed &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelLabelSeed &Left,
-                       const FLevelLabelSeed &Right) {
+inline bool operator==(const FLabelSeed &Left,
+                       const FLabelSeed &Right) {
   return Left.Id == Right.Id && Left.Text == Right.Text &&
          Left.Anchor == Right.Anchor && Left.Height == Right.Height &&
          FMath::IsNearlyEqual(Left.EastLots, Right.EastLots) &&
@@ -221,63 +223,63 @@ inline bool operator==(const FLevelLabelSeed &Left,
          Left.ReferenceScale == Right.ReferenceScale;
 }
 
-inline bool operator!=(const FLevelLabelSeed &Left,
-                       const FLevelLabelSeed &Right) {
+inline bool operator!=(const FLabelSeed &Left,
+                       const FLabelSeed &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelSectionSeed &Left,
-                       const FLevelSectionSeed &Right) {
+inline bool operator==(const FSectionSeed &Left,
+                       const FSectionSeed &Right) {
   return Left.Blocks == Right.Blocks && Left.Labels == Right.Labels;
 }
 
-inline bool operator!=(const FLevelSectionSeed &Left,
-                       const FLevelSectionSeed &Right) {
+inline bool operator!=(const FSectionSeed &Left,
+                       const FSectionSeed &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelLayoutSeed &Left,
-                       const FLevelLayoutSeed &Right) {
+inline bool operator==(const FLayoutSeed &Left,
+                       const FLayoutSeed &Right) {
   return Left.Terrain == Right.Terrain && Left.Town == Right.Town &&
          Left.Mine == Right.Mine && Left.OverlayLabels == Right.OverlayLabels;
 }
 
-inline bool operator!=(const FLevelLayoutSeed &Left,
-                       const FLevelLayoutSeed &Right) {
+inline bool operator!=(const FLayoutSeed &Left,
+                       const FLayoutSeed &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelBlockSpawn &Left,
-                       const FLevelBlockSpawn &Right) {
+inline bool operator==(const FBlockSpawn &Left,
+                       const FBlockSpawn &Right) {
   return Left.Name == Right.Name && Left.Location == Right.Location &&
          Left.Rotation.Equals(Right.Rotation) && Left.Scale == Right.Scale &&
          Left.Texture == Right.Texture && Left.Lod == Right.Lod;
 }
 
-inline bool operator!=(const FLevelBlockSpawn &Left,
-                       const FLevelBlockSpawn &Right) {
+inline bool operator!=(const FBlockSpawn &Left,
+                       const FBlockSpawn &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelLabelSpawn &Left,
-                       const FLevelLabelSpawn &Right) {
+inline bool operator==(const FLabelSpawn &Left,
+                       const FLabelSpawn &Right) {
   return Left.Text == Right.Text && Left.Location == Right.Location &&
          FMath::IsNearlyEqual(Left.WorldSize, Right.WorldSize) &&
          Left.Lod == Right.Lod;
 }
 
-inline bool operator!=(const FLevelLabelSpawn &Left,
-                       const FLevelLabelSpawn &Right) {
+inline bool operator!=(const FLabelSpawn &Left,
+                       const FLabelSpawn &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FLevelSectionSpawn &Left,
-                       const FLevelSectionSpawn &Right) {
+inline bool operator==(const FSectionSpawn &Left,
+                       const FSectionSpawn &Right) {
   return Left.Blocks == Right.Blocks && Left.Labels == Right.Labels;
 }
 
-inline bool operator!=(const FLevelSectionSpawn &Left,
-                       const FLevelSectionSpawn &Right) {
+inline bool operator!=(const FSectionSpawn &Left,
+                       const FSectionSpawn &Right) {
   return !(Left == Right);
 }
 

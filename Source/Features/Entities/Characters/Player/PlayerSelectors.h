@@ -21,7 +21,7 @@ SelectActionId(const FPlayerState &State) {
   return State.ActionId;
 }
 
-inline const FPlayerPresentationViewModel &
+inline const FPresentationViewModel &
 SelectPresentation(const FPlayerState &State) {
   return State.Presentation;
 }

@@ -13,15 +13,14 @@ template <> struct TComponentSourceValueFieldRegistry<FBotStatsComponent> {
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<
         FBotStatsComponent>>
-        RegisteredFields = {{"Id", &FBotStatsComponent::Id},
-                            {"MoveSpeed", &FBotStatsComponent::MoveSpeed},
-                            {"AwarenessRange",
-                             &FBotStatsComponent::AwarenessRange},
-                            {"Resolve", &FBotStatsComponent::Resolve},
-                            {"CanTalk", &FBotStatsComponent::bCanTalk},
-                            {"MountedRider",
-                             &FBotStatsComponent::bMountedRider}};
-    return RegisteredFields;
+        SourceFields = ComponentSourceFieldDeclarations<FBotStatsComponent>(
+            {{"Id", &FBotStatsComponent::Id},
+             {"MoveSpeed", &FBotStatsComponent::MoveSpeed},
+             {"AwarenessRange", &FBotStatsComponent::AwarenessRange},
+             {"Resolve", &FBotStatsComponent::Resolve},
+             {"CanTalk", &FBotStatsComponent::bCanTalk},
+             {"MountedRider", &FBotStatsComponent::bMountedRider}});
+    return SourceFields;
   }
 };
 

@@ -121,7 +121,7 @@ inline FRegisteredComponentFieldDeclaration::FRegisteredComponentFieldDeclaratio
     const char *InName, std::initializer_list<const char *> InPath)
     : Name(ComponentAtom(InName)), Path(ComponentAtoms(InPath)) {}
 
-inline FRegisteredComponentFields
+inline FRegisteredComponentFieldSet
 RegisteredComponentFields(
     std::initializer_list<FRegisteredComponentFieldDeclaration> Declarations) {
   return {TArray<FRegisteredComponentFieldDeclaration>(Declarations)};

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Bots/Core/Runtime/RuntimeTypes.h"
+#include "Features/Systems/Bots/Core/BotsCoreTypes.h"
 
 class AActor;
 

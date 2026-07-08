@@ -45,15 +45,15 @@ template <> struct TComponentSourceValueFieldRegistry<FBotStrategicGoal> {
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<
         FBotStrategicGoal>>
-        RegisteredFields = {
+        SourceFields = ComponentSourceFieldDeclarations<FBotStrategicGoal>({
             {"id", &FBotStrategicGoal::Id},
             {"type", &FBotStrategicGoal::Type},
             {"priority", &FBotStrategicGoal::Priority},
             {"targetEntityId", &FBotStrategicGoal::TargetEntityId},
             {"targetLocation", &FBotStrategicGoal::TargetLocation},
             {"hasTargetLocation", &FBotStrategicGoal::bHasTargetLocation},
-            {"completed", &FBotStrategicGoal::bCompleted}};
-    return RegisteredFields;
+            {"completed", &FBotStrategicGoal::bCompleted}});
+    return SourceFields;
   }
 };
 
@@ -63,10 +63,10 @@ template <> struct TComponentSourceValueFieldRegistry<FBotKnowledgeBase> {
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<
         FBotKnowledgeBase>>
-        RegisteredFields = {
+        SourceFields = ComponentSourceFieldDeclarations<FBotKnowledgeBase>({
             {"KnownLandmarkIds", &FBotKnowledgeBase::KnownLandmarkIds},
-            {"KnownBotIds", &FBotKnowledgeBase::KnownBotIds}};
-    return RegisteredFields;
+            {"KnownBotIds", &FBotKnowledgeBase::KnownBotIds}});
+    return SourceFields;
   }
 };
 
@@ -76,14 +76,14 @@ template <> struct TComponentSourceValueFieldRegistry<FBotGoalComponent> {
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<
         FBotGoalComponent>>
-        RegisteredFields = {
+        SourceFields = ComponentSourceFieldDeclarations<FBotGoalComponent>({
             {"Id", &FBotGoalComponent::Id},
             {"HasActiveGoal", &FBotGoalComponent::bHasActiveGoal},
             {"ActiveGoal", &FBotGoalComponent::ActiveGoal,
              StrategicGoalValue},
             {"GoalQueue", &FBotGoalComponent::GoalQueue, StrategicGoalList},
-            {"Knowledge", &FBotGoalComponent::Knowledge, BotKnowledgeValue}};
-    return RegisteredFields;
+            {"Knowledge", &FBotGoalComponent::Knowledge, BotKnowledgeValue}});
+    return SourceFields;
   }
 };
 

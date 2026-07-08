@@ -9,7 +9,7 @@ namespace Game {
 namespace Level {
 namespace LevelSystemSelectors {
 
-inline bool SelectReady(const FLevelSystemState &State) {
+inline bool SelectReady(const FSystemState &State) {
   return (func::pipe(State.bReady) | [](bool bReady) -> bool {
             return bReady;
           })
@@ -17,22 +17,27 @@ inline bool SelectReady(const FLevelSystemState &State) {
 }
 
 inline func::Maybe<FString>
-SelectActionId(const FLevelSystemState &State) {
+SelectActionId(const FSystemState &State) {
   return State.ActionId;
 }
 
-inline const ForbocAI::Game::Data::FLevelTerrainSourceSettings &
-SelectTerrainSources(const FLevelSystemState &State) {
+inline const ForbocAI::Game::Data::FTerrainSourceSettings &
+SelectTerrainSources(const FSystemState &State) {
   return State.TerrainSources;
 }
 
-inline const ForbocAI::Game::Data::FLevelDataSourceSettings &
-SelectDataSources(const FLevelSystemState &State) {
+inline const ForbocAI::Game::Data::FCsvSettings &
+SelectCsv(const FSystemState &State) {
+  return State.Csv;
+}
+
+inline const ForbocAI::Game::Data::FDataSourceSettings &
+SelectDataSources(const FSystemState &State) {
   return State.DataSources;
 }
 
-inline const ForbocAI::Game::Data::FLevelGeometrySettings &
-SelectGeometry(const FLevelSystemState &State) {
+inline const ForbocAI::Game::Data::FGeometrySettings &
+SelectGeometry(const FSystemState &State) {
   return State.Geometry;
 }
 

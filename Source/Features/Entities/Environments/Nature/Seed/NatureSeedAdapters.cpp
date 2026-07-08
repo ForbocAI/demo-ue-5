@@ -14,23 +14,23 @@ namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
 enum class ENatureScaleMode { LongFeature, Pad };
 
-struct FNatureScaleModeFields {
+struct FNatureScaleModeSource {
   FString Mode;
 };
 
-struct FNaturePadScaleFields {
+struct FNaturePadScaleSource {
   float WidthFeet;
   float DepthFeet;
   float HeightFeet;
 };
 
-struct FNatureLongFeatureScaleFields {
+struct FNatureLongFeatureScaleSource {
   float WidthFeet;
   float LengthLots;
   float HeightFeet;
 };
 
-struct FNatureFeatureFields {
+struct FNatureFeatureSource {
   FString Id;
   FString Name;
   FString Kind;
@@ -40,14 +40,14 @@ struct FNatureFeatureFields {
 };
 
 struct FFeatureLotsRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   float EastLots;
   float NorthLots;
   FVector Scale;
 };
 
 struct FScaleFieldsRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   TSharedPtr<FJsonObject> Object;
 };
 
@@ -65,8 +65,8 @@ struct FScaleProjectorDeclaration {
 };
 
 struct FFeatureBuildRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
-  FNatureFeatureFields Fields;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
+  FNatureFeatureSource Fields;
 };
 
 } // namespace NatureAdapters
@@ -82,25 +82,25 @@ namespace JsonAdapters {
 namespace LevelTypes = ForbocAI::Game::Level;
 namespace NatureTypes = ForbocAI::Game::Level::NatureAdapters;
 
-using ENatureFeatureKind = LevelTypes::ENatureFeatureKind;
+using EFeatureKind = LevelTypes::EFeatureKind;
 using ENatureScaleMode = NatureTypes::ENatureScaleMode;
-using FNatureFeatureFields = NatureTypes::FNatureFeatureFields;
-using FNatureLongFeatureScaleFields =
-    NatureTypes::FNatureLongFeatureScaleFields;
-using FNaturePadScaleFields = NatureTypes::FNaturePadScaleFields;
-using FNatureScaleModeFields = NatureTypes::FNatureScaleModeFields;
+using FNatureFeatureSource = NatureTypes::FNatureFeatureSource;
+using FNatureLongFeatureScaleSource =
+    NatureTypes::FNatureLongFeatureScaleSource;
+using FNaturePadScaleSource = NatureTypes::FNaturePadScaleSource;
+using FNatureScaleModeSource = NatureTypes::FNatureScaleModeSource;
 
 template <>
-struct TJsonTextValueRegistry<ENatureFeatureKind> {
-  static const TArray<TTextValueDeclaration<ENatureFeatureKind>> &Values() {
-    static const TArray<TTextValueDeclaration<ENatureFeatureKind>>
-        RegisteredValues = {{"water", ENatureFeatureKind::Water},
-                            {"rock", ENatureFeatureKind::Rock},
-                            {"tree_grove", ENatureFeatureKind::TreeGrove},
-                            {"shrub", ENatureFeatureKind::Shrub},
+struct TJsonTextValueRegistry<EFeatureKind> {
+  static const TArray<TTextValueDeclaration<EFeatureKind>> &Values() {
+    static const TArray<TTextValueDeclaration<EFeatureKind>>
+        RegisteredValues = {{"water", EFeatureKind::Water},
+                            {"rock", EFeatureKind::Rock},
+                            {"tree_grove", EFeatureKind::TreeGrove},
+                            {"shrub", EFeatureKind::Shrub},
                             {"water_system_marker",
-                             ENatureFeatureKind::WaterSystemMarker},
-                            {"pcg_marker", ENatureFeatureKind::PCGMarker}};
+                             EFeatureKind::WaterSystemMarker},
+                            {"pcg_marker", EFeatureKind::PCGMarker}};
     return RegisteredValues;
   }
 };
@@ -116,11 +116,11 @@ struct TJsonTextValueRegistry<ENatureScaleMode> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FNatureScaleModeFields, Mode);
-JSON_SETTINGS_REGISTRY(FNaturePadScaleFields, WidthFeet, DepthFeet, HeightFeet);
-JSON_SETTINGS_REGISTRY(FNatureLongFeatureScaleFields, WidthFeet, LengthLots,
+JSON_SETTINGS_REGISTRY(FNatureScaleModeSource, Mode);
+JSON_SETTINGS_REGISTRY(FNaturePadScaleSource, WidthFeet, DepthFeet, HeightFeet);
+JSON_SETTINGS_REGISTRY(FNatureLongFeatureScaleSource, WidthFeet, LengthLots,
                        HeightFeet);
-JSON_SETTINGS_REGISTRY(FNatureFeatureFields, Id, Name, Kind, EastLots,
+JSON_SETTINGS_REGISTRY(FNatureFeatureSource, Id, Name, Kind, EastLots,
                        NorthLots, Scale);
 
 } // namespace JsonAdapters
@@ -143,8 +143,8 @@ FLevelLocalPoint FeatureLots(const FFeatureLotsRequest &Request) {
       LevelLayoutAdapters::RoadSurfaceClearance(Request.Geometry)});
 }
 
-ENatureFeatureKind NatureKindFromJson(const FString &Kind) {
-  return JsonAdapters::RequireRegisteredTextValue<ENatureFeatureKind>(
+EFeatureKind NatureKindFromJson(const FString &Kind) {
+  return JsonAdapters::RequireRegisteredTextValue<EFeatureKind>(
       Kind, TEXT("nature feature kind"));
 }
 
@@ -154,8 +154,8 @@ ENatureScaleMode NatureScaleModeFromJson(const FString &Mode) {
 }
 
 FVector PadScaleFromFields(const FScaleFieldsRequest &Request) {
-  const FNaturePadScaleFields Fields =
-      JsonAdapters::ReadSettingsFields<FNaturePadScaleFields>(
+  const FNaturePadScaleSource Fields =
+      JsonAdapters::ReadSettingsFields<FNaturePadScaleSource>(
           Request.Object, JSON_SETTINGS_ATOMS(WidthFeet, DepthFeet,
                                               HeightFeet));
   return LevelLayoutAdapters::PadScaleFromFeet(
@@ -164,8 +164,8 @@ FVector PadScaleFromFields(const FScaleFieldsRequest &Request) {
 }
 
 FVector LongFeatureScaleFromFields(const FScaleFieldsRequest &Request) {
-  const FNatureLongFeatureScaleFields Fields =
-      JsonAdapters::ReadSettingsFields<FNatureLongFeatureScaleFields>(
+  const FNatureLongFeatureScaleSource Fields =
+      JsonAdapters::ReadSettingsFields<FNatureLongFeatureScaleSource>(
           Request.Object, JSON_SETTINGS_ATOMS(WidthFeet, LengthLots,
                                               HeightFeet));
   return LevelLayoutAdapters::LongFeatureScale(
@@ -190,8 +190,8 @@ FindScaleProjector(ENatureScaleMode Mode) {
 }
 
 FVector ScaleObjectFromFields(const FScaleFieldsRequest &Request) {
-  const FNatureScaleModeFields Fields =
-      JsonAdapters::ReadSettingsFields<FNatureScaleModeFields>(
+  const FNatureScaleModeSource Fields =
+      JsonAdapters::ReadSettingsFields<FNatureScaleModeSource>(
           Request.Object, JSON_SETTINGS_ATOMS(Mode));
   const func::Maybe<FScaleProjectorDeclaration> Projector =
       FindScaleProjector(NatureScaleModeFromJson(Fields.Mode));
@@ -203,9 +203,9 @@ FVector ScaleFromFields(const FFeatureBuildRequest &Request) {
   return ScaleObjectFromFields({Request.Geometry, Request.Fields.Scale});
 }
 
-FNatureFeatureSeed FeatureFromFields(const FFeatureBuildRequest &Request) {
+FFeatureSeed FeatureFromFields(const FFeatureBuildRequest &Request) {
   const FVector Scale = ScaleFromFields(Request);
-  FNatureFeatureSeed Seed;
+  FFeatureSeed Seed;
   Seed.Id = Request.Fields.Id;
   Seed.Name = Request.Fields.Name;
   Seed.Kind = NatureKindFromJson(Request.Fields.Kind);
@@ -218,16 +218,16 @@ FNatureFeatureSeed FeatureFromFields(const FFeatureBuildRequest &Request) {
 
 } // namespace
 
-TArray<FNatureFeatureSeed> BuildNatureSeed(
-    const FNatureSeedBuildRequest &Request) {
-  return func::map_array<FNatureFeatureFields, FNatureFeatureSeed>(
-      JsonAdapters::MapJsonValues<FNatureFeatureFields>(
+TArray<FFeatureSeed> BuildNatureSeed(
+    const FBuildRequest &Request) {
+  return func::map_array<FNatureFeatureSource, FFeatureSeed>(
+      JsonAdapters::MapJsonValues<FNatureFeatureSource>(
           JsonAdapters::LoadRequiredArrayFromContent(
               {Request.RelativeJsonPath}),
-          JsonAdapters::ReadSettingsWith<FNatureFeatureFields>(
+          JsonAdapters::ReadSettingsWith<FNatureFeatureSource>(
               JSON_SETTINGS_ATOMS(Id, Name, Kind, EastLots, NorthLots,
                                   Scale))),
-      [&Request](const FNatureFeatureFields &Fields) {
+      [&Request](const FNatureFeatureSource &Fields) {
         return FeatureFromFields({Request.Geometry, Fields});
       });
 }
@@ -242,40 +242,41 @@ namespace Game {
 namespace Level {
 namespace ComponentsAdapters {
 
-template <> struct TComponentTextRegistry<ENatureFeatureKind> {
-  static const TArray<TComponentTextDeclaration<ENatureFeatureKind>>
+template <> struct TComponentTextRegistry<EFeatureKind> {
+  static const TArray<TComponentTextDeclaration<EFeatureKind>>
       &Declarations() {
-    static const TArray<TComponentTextDeclaration<ENatureFeatureKind>>
-        RegisteredCases = {{ENatureFeatureKind::Water, "Water"},
-                           {ENatureFeatureKind::Rock, "Rock"},
-                           {ENatureFeatureKind::TreeGrove, "TreeGrove"},
-                           {ENatureFeatureKind::Shrub, "Shrub"},
-                           {ENatureFeatureKind::PCGMarker, "PCGMarker"},
-                           {ENatureFeatureKind::WaterSystemMarker,
+    static const TArray<TComponentTextDeclaration<EFeatureKind>>
+        RegisteredCases = {{EFeatureKind::Water, "Water"},
+                           {EFeatureKind::Rock, "Rock"},
+                           {EFeatureKind::TreeGrove, "TreeGrove"},
+                           {EFeatureKind::Shrub, "Shrub"},
+                           {EFeatureKind::PCGMarker, "PCGMarker"},
+                           {EFeatureKind::WaterSystemMarker,
                             "WaterSystemMarker"}};
     return RegisteredCases;
   }
 };
 
-template <> struct TComponentSourceValueFieldRegistry<FNatureFeatureSeed> {
+template <> struct TComponentSourceValueFieldRegistry<FFeatureSeed> {
   static const TArray<
-      TComponentSourceValueFieldDeclaration<FNatureFeatureSeed>>
+      TComponentSourceValueFieldDeclaration<FFeatureSeed>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<
-        FNatureFeatureSeed>>
-        RegisteredFields = {{"Id", &FNatureFeatureSeed::Id},
-                            {"Name", &FNatureFeatureSeed::Name},
-                            {"Kind", &FNatureFeatureSeed::Kind},
-                            {"LocalLocation", &FNatureFeatureSeed::Location},
-                            {"Scale", &FNatureFeatureSeed::Scale}};
-    return RegisteredFields;
+        FFeatureSeed>>
+        SourceFields = ComponentSourceFieldDeclarations<FFeatureSeed>(
+            {{"Id", &FFeatureSeed::Id},
+             {"Name", &FFeatureSeed::Name},
+             {"Kind", &FFeatureSeed::Kind},
+             {"LocalLocation", &FFeatureSeed::Location},
+             {"Scale", &FFeatureSeed::Scale}});
+    return SourceFields;
   }
 };
 
 template <>
-struct TComponentSourceProjector<FNatureFeatureSeed> {
+struct TComponentSourceProjector<FFeatureSeed> {
   ecs::FComponentValue
-  operator()(const FNatureFeatureSeed &NatureFeature) const {
+  operator()(const FFeatureSeed &NatureFeature) const {
     return ComponentSourceValueMap(
         NatureFeature, {"Id", "Name", "Kind", "LocalLocation", "Scale"});
   }
@@ -293,7 +294,7 @@ ecs::EntityKey NatureEntityKey(const FString &Id) {
 
 ecs::FWorld
 ProjectNatureFeature(const FProjectNatureFeatureEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectNatureFeatureEntityPayload &PayloadValue) {
@@ -304,10 +305,10 @@ ProjectNatureFeature(const FProjectNatureFeatureEntityPayload &Payload) {
                   {{"Entities", "Environments", "Nature"},
                    {"Systems", "Nature"}})),
           [](const FProjectNatureFeatureEntityPayload &PayloadValue)
-              -> const FNatureFeatureSeed & {
+              -> const FFeatureSeed & {
             return PayloadValue.Feature;
           },
-          RegisteredComponentGroups<FNatureFeatureSeed>(
+          RegisteredComponentGroups<FFeatureSeed>(
               {{"Components/Data", {"Id", "Name", "Kind"}},
                {"Components/Spatial", {"LocalLocation", "Scale"}}})});
 }

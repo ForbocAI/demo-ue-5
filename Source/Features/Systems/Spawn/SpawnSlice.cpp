@@ -7,7 +7,7 @@ namespace SpawnReducers {
 
 FSpawnState
 ReducePlayerSpawnAnchored(const FSpawnState &State,
-                          const rtk::PayloadAction<FSpawnPointPayload> &Action) {
+                          const rtk::PayloadAction<FPointPayload> &Action) {
   return (func::pipe(State) | [&](FSpawnState Next) -> FSpawnState {
   Next.PlayerSpawn = Action.PayloadValue;
   return Next;
@@ -59,8 +59,8 @@ FSpawnState CreateInitialState() {
   return State;
 }
 
-FSpawnPointPayload SpawnPointPayload(const FSpawnPointSource &Source) {
-  FSpawnPointPayload Payload;
+FPointPayload SpawnPointPayload(const FPointSource &Source) {
+  FPointPayload Payload;
   Payload.Location = Source.Location;
   Payload.Rotation = Source.Rotation;
   Payload.AnchorLabel = Source.AnchorLabel;

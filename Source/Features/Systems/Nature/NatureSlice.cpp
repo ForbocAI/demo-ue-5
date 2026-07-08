@@ -9,7 +9,7 @@ namespace NatureReducers {
 
 FNatureState ReduceNatureSeeded(
     const FNatureState &State,
-    const rtk::PayloadAction<TArray<FNatureFeatureSeed>> &Action) {
+    const rtk::PayloadAction<TArray<FFeatureSeed>> &Action) {
   return (func::pipe(State) | [&](FNatureState Next) -> FNatureState {
   Next.Items =
       NatureAdapters::NatureAdapter().setAll(State.Items, Action.PayloadValue);

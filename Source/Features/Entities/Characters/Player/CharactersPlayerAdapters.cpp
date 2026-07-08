@@ -22,11 +22,11 @@ template <> struct TComponentSourceValueFieldRegistry<FPlayerState> {
   static const TArray<TComponentSourceValueFieldDeclaration<FPlayerState>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FPlayerState>>
-        RegisteredFields = {
+        SourceFields = ComponentSourceFieldDeclarations<FPlayerState>({
             {"Ready", &FPlayerState::bReady},
             {"HasActionId", &FPlayerState::ActionId, HasActionId},
-            {"ActionId", &FPlayerState::ActionId, ActionIdText}};
-    return RegisteredFields;
+            {"ActionId", &FPlayerState::ActionId, ActionIdText}});
+    return SourceFields;
   }
 };
 
@@ -47,7 +47,7 @@ using ComponentsAdapters::RegisteredComponentGroups;
 ecs::EntityKey PlayerEntityKey() { return TEXT("player:local"); }
 
 ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectPlayerEntityPayload &) { return PlayerEntityKey(); },

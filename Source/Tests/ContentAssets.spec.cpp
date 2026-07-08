@@ -12,33 +12,22 @@
 
 namespace {
 
-using FContentAssetExpectationSettings =
-    ForbocAI::Game::Data::FContentAssetExpectationSettings;
-using FContentAssetsAutomationSettings =
-    ForbocAI::Game::Data::FContentAssetsAutomationSettings;
-using FContentConfigExpectationSettings =
-    ForbocAI::Game::Data::FContentConfigExpectationSettings;
+using FContentAssetExpectation =
+    ForbocAI::Game::Data::Automation::Content::Assets::FPackage;
+using FContentAssetsSettings =
+    ForbocAI::Game::Data::Automation::Content::Assets::FSettings;
+using FContentConfigExpectation =
+    ForbocAI::Game::Data::Automation::Content::Assets::FConfig;
 
-const FContentAssetsAutomationSettings &ContentAssetsSettings() {
+const FContentAssetsSettings &ContentAssetsSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   return Settings.Automation.ContentAssets;
 }
 
-FString Label(const FString &Format, const FString &Value) {
-  return FString::Format(*Format, {FStringFormatArg(Value)});
-}
-
-FString Label(const FString &Format, const FString &First, int32 Second) {
-  return FString::Format(
-      *Format, {FStringFormatArg(First), FStringFormatArg(Second)});
-}
-
-FString Label(const FString &Format, const FString &First, int32 Second,
-              int32 Third, uint32 Fourth) {
-  return FString::Format(*Format,
-                         {FStringFormatArg(First), FStringFormatArg(Second),
-                          FStringFormatArg(Third), FStringFormatArg(Fourth)});
+FString Label(const FString &Format,
+              std::initializer_list<FStringFormatArg> Args) {
+  return FString::Format(*Format, Args);
 }
 
 bool PackageExists(const FString &PackageName) {
@@ -77,16 +66,16 @@ FString ConfigValue(const FString &Section, const FString &Key) {
 
 void AuditNativeSkeletalMeshLods(
     FAutomationTestBase &Test,
-    const FContentAssetsAutomationSettings &Settings,
-    const FContentAssetExpectationSettings &Expectation) {
+    const FContentAssetsSettings &Settings,
+    const FContentAssetExpectation &Expectation) {
   USkeletalMesh *Mesh = LoadSkeletalMesh(Expectation.Path);
   Test.TestNotNull(*Label(Settings.SkeletalMeshLoadsLabelFormat,
-                          Expectation.Label),
+                          {FStringFormatArg(Expectation.Label)}),
                    Mesh);
   const FSkeletalMeshRenderData *RenderData =
       Mesh ? Mesh->GetResourceForRendering() : nullptr;
   Test.TestTrue(*Label(Settings.SkeletalMeshLodDataLabelFormat,
-                       Expectation.Label),
+                       {FStringFormatArg(Expectation.Label)}),
                 RenderData != nullptr &&
                     !RenderData->LODRenderData.IsEmpty());
   func::match(
@@ -94,9 +83,10 @@ void AuditNativeSkeletalMeshLods(
           RenderData, RenderData != nullptr),
       [&Test, &Settings,
        &Expectation](const FSkeletalMeshRenderData *RenderDataValue) {
-        Test.AddInfo(Label(Settings.NativeLodAuditCountFormat,
-                           Expectation.Label,
-                           RenderDataValue->LODRenderData.Num()));
+        Test.AddInfo(Label(
+            Settings.NativeLodAuditCountFormat,
+            {FStringFormatArg(Expectation.Label),
+             FStringFormatArg(RenderDataValue->LODRenderData.Num())}));
         const TArray<int32> LodIndices =
             func::index_range(RenderDataValue->LODRenderData.Num());
         func::for_each_indexed(
@@ -105,9 +95,12 @@ void AuditNativeSkeletalMeshLods(
              RenderDataValue](const int32 &LodIndex) {
               const FSkeletalMeshLODRenderData &Lod =
                   RenderDataValue->LODRenderData[LodIndex];
-              Test.AddInfo(Label(Settings.NativeLodAuditEntryFormat,
-                                 Expectation.Label, LodIndex,
-                                 Lod.GetTotalFaces(), Lod.GetNumVertices()));
+              Test.AddInfo(Label(
+                  Settings.NativeLodAuditEntryFormat,
+                  {FStringFormatArg(Expectation.Label),
+                   FStringFormatArg(LodIndex),
+                   FStringFormatArg(Lod.GetTotalFaces()),
+                   FStringFormatArg(Lod.GetNumVertices())}));
             });
       },
       []() {});
@@ -122,47 +115,47 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FContentAssetsProjectOwnedRuntimeSurface::RunTest(
     const FString &Parameters) {
-  const FContentAssetsAutomationSettings &Settings = ContentAssetsSettings();
+  const FContentAssetsSettings &Settings = ContentAssetsSettings();
 
   func::for_each_indexed(
       Settings.Packages, static_cast<size_t>(Settings.Packages.Num()),
-      [this](const FContentAssetExpectationSettings &Expectation) {
+      [this](const FContentAssetExpectation &Expectation) {
         TestTrue(Expectation.Label, PackageExists(Expectation.Path));
       });
   func::for_each_indexed(
       Settings.Classes, static_cast<size_t>(Settings.Classes.Num()),
-      [this](const FContentAssetExpectationSettings &Expectation) {
+      [this](const FContentAssetExpectation &Expectation) {
         TestTrue(Expectation.Label, ClassLoads(Expectation.Path));
       });
   func::for_each_indexed(
       Settings.SpeechComponentClasses,
       static_cast<size_t>(Settings.SpeechComponentClasses.Num()),
-      [this](const FContentAssetExpectationSettings &Expectation) {
+      [this](const FContentAssetExpectation &Expectation) {
         TestTrue(Expectation.Label,
                  ActorClassHasSpeechComponent(Expectation.Path));
       });
   func::for_each_indexed(
       Settings.ConfigValues, static_cast<size_t>(Settings.ConfigValues.Num()),
-      [this](const FContentConfigExpectationSettings &Expectation) {
+      [this](const FContentConfigExpectation &Expectation) {
         TestEqual(Expectation.Label,
                   ConfigValue(Expectation.Section, Expectation.Key),
                   Expectation.Expected);
       });
   func::for_each_indexed(
       Settings.Assets, static_cast<size_t>(Settings.Assets.Num()),
-      [this](const FContentAssetExpectationSettings &Expectation) {
+      [this](const FContentAssetExpectation &Expectation) {
         TestTrue(Expectation.Label, AssetLoads(Expectation.Path));
       });
   func::for_each_indexed(
       Settings.SkeletalMeshLods,
       static_cast<size_t>(Settings.SkeletalMeshLods.Num()),
-      [this, &Settings](const FContentAssetExpectationSettings &Expectation) {
+      [this, &Settings](const FContentAssetExpectation &Expectation) {
         AuditNativeSkeletalMeshLods(*this, Settings, Expectation);
       });
   func::for_each_indexed(
       Settings.MissingPackages,
       static_cast<size_t>(Settings.MissingPackages.Num()),
-      [this](const FContentAssetExpectationSettings &Expectation) {
+      [this](const FContentAssetExpectation &Expectation) {
         TestFalse(Expectation.Label, PackageExists(Expectation.Path));
       });
 

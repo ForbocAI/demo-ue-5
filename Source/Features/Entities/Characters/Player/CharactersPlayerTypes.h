@@ -14,7 +14,7 @@ struct FPlayerPresentationRequest {
   FString Id;
 };
 
-struct FPlayerMovementInputRequest {
+struct FMovementInputRequest {
   FString Id;
   FRotator ControlRotation = FRotator::ZeroRotator;
   float Right = 0.0f;
@@ -22,7 +22,7 @@ struct FPlayerMovementInputRequest {
   bool bControllerAvailable = false;
 };
 
-struct FPlayerMovementInputViewModel {
+struct FMovementInputViewModel {
   FVector ForwardDirection = FVector::ZeroVector;
   FVector RightDirection = FVector::ZeroVector;
   float ForwardScale = 0.0f;
@@ -30,7 +30,7 @@ struct FPlayerMovementInputViewModel {
   bool bShouldMove = false;
 };
 
-struct FPlayerPresentationViewModel {
+struct FPresentationViewModel {
   float CapsuleRadius = 0.0f;
   float CapsuleHalfHeight = 0.0f;
   float FollowCameraArmLength = 0.0f;
@@ -62,7 +62,7 @@ struct FPlayerPresentationViewModel {
 
 struct FPlayerState {
   func::Maybe<FString> ActionId = func::nothing<FString>();
-  FPlayerPresentationViewModel Presentation;
+  FPresentationViewModel Presentation;
   bool bReady = false;
 };
 
@@ -86,8 +86,8 @@ inline bool operator!=(const FPlayerPresentationRequest &Left,
   return !(Left == Right);
 }
 
-inline bool operator==(const FPlayerMovementInputRequest &Left,
-                       const FPlayerMovementInputRequest &Right) {
+inline bool operator==(const FMovementInputRequest &Left,
+                       const FMovementInputRequest &Right) {
   return Left.Id == Right.Id &&
          Left.ControlRotation == Right.ControlRotation &&
          FMath::IsNearlyEqual(Left.Right, Right.Right) &&
@@ -95,13 +95,13 @@ inline bool operator==(const FPlayerMovementInputRequest &Left,
          Left.bControllerAvailable == Right.bControllerAvailable;
 }
 
-inline bool operator!=(const FPlayerMovementInputRequest &Left,
-                       const FPlayerMovementInputRequest &Right) {
+inline bool operator!=(const FMovementInputRequest &Left,
+                       const FMovementInputRequest &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FPlayerMovementInputViewModel &Left,
-                       const FPlayerMovementInputViewModel &Right) {
+inline bool operator==(const FMovementInputViewModel &Left,
+                       const FMovementInputViewModel &Right) {
   return Left.ForwardDirection == Right.ForwardDirection &&
          Left.RightDirection == Right.RightDirection &&
          FMath::IsNearlyEqual(Left.ForwardScale, Right.ForwardScale) &&
@@ -109,13 +109,13 @@ inline bool operator==(const FPlayerMovementInputViewModel &Left,
          Left.bShouldMove == Right.bShouldMove;
 }
 
-inline bool operator!=(const FPlayerMovementInputViewModel &Left,
-                       const FPlayerMovementInputViewModel &Right) {
+inline bool operator!=(const FMovementInputViewModel &Left,
+                       const FMovementInputViewModel &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FPlayerPresentationViewModel &Left,
-                       const FPlayerPresentationViewModel &Right) {
+inline bool operator==(const FPresentationViewModel &Left,
+                       const FPresentationViewModel &Right) {
   return FMath::IsNearlyEqual(Left.CapsuleRadius, Right.CapsuleRadius) &&
          FMath::IsNearlyEqual(Left.CapsuleHalfHeight,
                               Right.CapsuleHalfHeight) &&
@@ -155,8 +155,8 @@ inline bool operator==(const FPlayerPresentationViewModel &Left,
          Left.MouseMappingContextPath == Right.MouseMappingContextPath;
 }
 
-inline bool operator!=(const FPlayerPresentationViewModel &Left,
-                       const FPlayerPresentationViewModel &Right) {
+inline bool operator!=(const FPresentationViewModel &Left,
+                       const FPresentationViewModel &Right) {
   return !(Left == Right);
 }
 

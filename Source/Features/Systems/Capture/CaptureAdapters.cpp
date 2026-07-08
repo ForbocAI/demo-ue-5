@@ -49,28 +49,29 @@ FScaleAuditCaptureConfig ParseScaleAuditCommandLine(
   const FString DefaultOutputDirectory =
       ResolveCaptureOutputPath(Settings.DefaultOutputDirectory);
   FScaleAuditCaptureConfig Config;
-  Config.bQuitWhenDone = CommandLineParam(Settings.QuitWhenDoneCommandLineKey);
-  Config.OutputDirectory = CommandLineString(
+  Config.Run.bQuitWhenDone =
+      CommandLineParam(Settings.QuitWhenDoneCommandLineKey);
+  Config.Run.OutputDirectory = CommandLineString(
       Settings.OutputDirectoryCommandLineKey, DefaultOutputDirectory);
-  Config.InitialDelaySeconds = CommandLineFloat(
+  Config.Timing.InitialDelaySeconds = CommandLineFloat(
       Settings.InitialDelayCommandLineKey, Settings.InitialDelaySeconds);
-  Config.SettleSeconds = CommandLineFloat(
+  Config.Timing.SettleSeconds = CommandLineFloat(
       Settings.SettleSecondsCommandLineKey, Settings.SettleSeconds);
-  Config.BetweenSeconds = CommandLineFloat(
+  Config.Timing.BetweenSeconds = CommandLineFloat(
       Settings.BetweenSecondsCommandLineKey, Settings.BetweenSeconds);
-  Config.WholeOrthoWidth = CommandLineFloat(
+  Config.Ortho.WholeWidth = CommandLineFloat(
       Settings.WholeOrthoWidthCommandLineKey, TerrainWorldSize);
-  Config.TownOrthoWidth = CommandLineFloat(
+  Config.Ortho.TownWidth = CommandLineFloat(
       Settings.TownOrthoWidthCommandLineKey, TerrainWorldSize);
-  Config.ActorsOrthoWidth = CommandLineFloat(
+  Config.Ortho.ActorsWidth = CommandLineFloat(
       Settings.ActorsOrthoWidthCommandLineKey, TerrainWorldSize);
-  Config.WholeCaptureHeight = CommandLineFloat(
+  Config.Height.WholeHeight = CommandLineFloat(
       Settings.WholeCaptureHeightCommandLineKey, TerrainWorldSize);
-  Config.TownCaptureHeight = CommandLineFloat(
-      Settings.TownCaptureHeightCommandLineKey, Config.TownOrthoWidth);
-  Config.ActorsCaptureHeight = CommandLineFloat(
-      Settings.ActorsCaptureHeightCommandLineKey, Config.ActorsOrthoWidth);
-  CreateCaptureOutputDirectory(Config.OutputDirectory);
+  Config.Height.TownHeight = CommandLineFloat(
+      Settings.TownCaptureHeightCommandLineKey, Config.Ortho.TownWidth);
+  Config.Height.ActorsHeight = CommandLineFloat(
+      Settings.ActorsCaptureHeightCommandLineKey, Config.Ortho.ActorsWidth);
+  CreateCaptureOutputDirectory(Config.Run.OutputDirectory);
   return Config;
 }
 
@@ -79,16 +80,17 @@ FMarketingCaptureConfig ParseMarketingCommandLine(
   const FString DefaultOutputDirectory =
       ResolveCaptureOutputPath(Settings.DefaultOutputDirectory);
   FMarketingCaptureConfig Config;
-  Config.bQuitWhenDone = CommandLineParam(Settings.QuitWhenDoneCommandLineKey);
-  Config.OutputDirectory = CommandLineString(
+  Config.Run.bQuitWhenDone =
+      CommandLineParam(Settings.QuitWhenDoneCommandLineKey);
+  Config.Run.OutputDirectory = CommandLineString(
       Settings.OutputDirectoryCommandLineKey, DefaultOutputDirectory);
-  Config.InitialDelaySeconds = CommandLineFloat(
+  Config.Timing.InitialDelaySeconds = CommandLineFloat(
       Settings.InitialDelayCommandLineKey, Settings.InitialDelaySeconds);
-  Config.SettleSeconds = CommandLineFloat(
+  Config.Timing.SettleSeconds = CommandLineFloat(
       Settings.SettleSecondsCommandLineKey, Settings.SettleSeconds);
-  Config.BetweenSeconds = CommandLineFloat(
+  Config.Timing.BetweenSeconds = CommandLineFloat(
       Settings.BetweenSecondsCommandLineKey, Settings.BetweenSeconds);
-  CreateCaptureOutputDirectory(Config.OutputDirectory);
+  CreateCaptureOutputDirectory(Config.Run.OutputDirectory);
   return Config;
 }
 

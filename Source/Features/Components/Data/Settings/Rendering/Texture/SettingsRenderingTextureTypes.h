@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FRenderingTextureSpecSettings {
+struct FSpecSettings {
   FString Texture;
   FString Name;
   FString Use;
@@ -21,7 +21,7 @@ struct FRenderingRgbSettings {
 };
 
 
-struct FRenderingTextureHashSettings {
+struct FHashSettings {
   int32 XMultiplier;
   int32 YMultiplier;
   int32 SaltMultiplier;
@@ -38,7 +38,7 @@ struct FRenderingConsoleVariableSettings {
 };
 
 
-struct FRenderingTexturePredicateSettings {
+struct FPredicateSettings {
   FString Kind;
   int32 XMultiplier;
   int32 YMultiplier;
@@ -51,7 +51,7 @@ struct FRenderingTexturePredicateSettings {
 };
 
 
-struct FRenderingTextureColorResultSettings {
+struct FColorResultSettings {
   FString Kind;
   FRenderingRgbSettings Color;
   FRenderingRgbSettings ColorA;
@@ -62,15 +62,15 @@ struct FRenderingTextureColorResultSettings {
 };
 
 
-struct FRenderingTextureRuleSettings {
-  FRenderingTexturePredicateSettings Predicate;
-  FRenderingTextureColorResultSettings Result;
+struct FRuleSettings {
+  FPredicateSettings Predicate;
+  FColorResultSettings Result;
 };
 
 
-struct FRenderingTexturePaletteSettings {
+struct FPaletteSettings {
   FString Texture;
-  TArray<FRenderingTextureRuleSettings> Rules;
+  TArray<FRuleSettings> Rules;
 };
 
 
@@ -79,9 +79,9 @@ struct FRenderingSettings {
   int32 TextureAlpha;
   FString TextureCacheKeyFormat;
   FString MaterialTextureParameter;
-  FRenderingTextureHashSettings TextureHash;
+  FHashSettings TextureHash;
   TArray<FRenderingConsoleVariableSettings> ConsoleVariables;
-  TArray<FRenderingTexturePaletteSettings> TexturePalettes;
+  TArray<FPaletteSettings> TexturePalettes;
 };
 
 inline bool operator==(const FRenderingRgbSettings &Left,
@@ -94,16 +94,16 @@ inline bool operator!=(const FRenderingRgbSettings &Left,
   return !(Left == Right);
 }
 
-inline bool operator==(const FRenderingTextureHashSettings &Left,
-                       const FRenderingTextureHashSettings &Right) {
+inline bool operator==(const FHashSettings &Left,
+                       const FHashSettings &Right) {
   return Left.XMultiplier == Right.XMultiplier &&
          Left.YMultiplier == Right.YMultiplier &&
          Left.SaltMultiplier == Right.SaltMultiplier &&
          Left.XorShift == Right.XorShift;
 }
 
-inline bool operator!=(const FRenderingTextureHashSettings &Left,
-                       const FRenderingTextureHashSettings &Right) {
+inline bool operator!=(const FHashSettings &Left,
+                       const FHashSettings &Right) {
   return !(Left == Right);
 }
 
@@ -120,8 +120,8 @@ inline bool operator!=(const FRenderingConsoleVariableSettings &Left,
   return !(Left == Right);
 }
 
-inline bool operator==(const FRenderingTexturePredicateSettings &Left,
-                       const FRenderingTexturePredicateSettings &Right) {
+inline bool operator==(const FPredicateSettings &Left,
+                       const FPredicateSettings &Right) {
   return Left.Kind == Right.Kind && Left.XMultiplier == Right.XMultiplier &&
          Left.YMultiplier == Right.YMultiplier &&
          Left.NoiseMultiplier == Right.NoiseMultiplier &&
@@ -130,13 +130,13 @@ inline bool operator==(const FRenderingTexturePredicateSettings &Left,
          Left.Equals == Right.Equals && Left.LessThan == Right.LessThan;
 }
 
-inline bool operator!=(const FRenderingTexturePredicateSettings &Left,
-                       const FRenderingTexturePredicateSettings &Right) {
+inline bool operator!=(const FPredicateSettings &Left,
+                       const FPredicateSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FRenderingTextureColorResultSettings &Left,
-                       const FRenderingTextureColorResultSettings &Right) {
+inline bool operator==(const FColorResultSettings &Left,
+                       const FColorResultSettings &Right) {
   return Left.Kind == Right.Kind && Left.Color == Right.Color &&
          Left.ColorA == Right.ColorA && Left.ColorB == Right.ColorB &&
          Left.NumeratorBase == Right.NumeratorBase &&
@@ -144,28 +144,28 @@ inline bool operator==(const FRenderingTextureColorResultSettings &Left,
          Left.Denominator == Right.Denominator;
 }
 
-inline bool operator!=(const FRenderingTextureColorResultSettings &Left,
-                       const FRenderingTextureColorResultSettings &Right) {
+inline bool operator!=(const FColorResultSettings &Left,
+                       const FColorResultSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FRenderingTextureRuleSettings &Left,
-                       const FRenderingTextureRuleSettings &Right) {
+inline bool operator==(const FRuleSettings &Left,
+                       const FRuleSettings &Right) {
   return Left.Predicate == Right.Predicate && Left.Result == Right.Result;
 }
 
-inline bool operator!=(const FRenderingTextureRuleSettings &Left,
-                       const FRenderingTextureRuleSettings &Right) {
+inline bool operator!=(const FRuleSettings &Left,
+                       const FRuleSettings &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FRenderingTexturePaletteSettings &Left,
-                       const FRenderingTexturePaletteSettings &Right) {
+inline bool operator==(const FPaletteSettings &Left,
+                       const FPaletteSettings &Right) {
   return Left.Texture == Right.Texture && Left.Rules == Right.Rules;
 }
 
-inline bool operator!=(const FRenderingTexturePaletteSettings &Left,
-                       const FRenderingTexturePaletteSettings &Right) {
+inline bool operator!=(const FPaletteSettings &Left,
+                       const FPaletteSettings &Right) {
   return !(Left == Right);
 }
 

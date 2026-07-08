@@ -12,13 +12,13 @@ namespace InteractionActions {
 /**
  * @brief RTK action creator for observed townsperson interaction candidates.
  */
-inline const rtk::ActionCreator<FInteractionCandidatesObserved> &
+inline const rtk::ActionCreator<FCandidatesObserved> &
 TownspersonCandidatesObserved() {
-  static const func::Lazy<rtk::ActionCreator<FInteractionCandidatesObserved>>
+  static const func::Lazy<rtk::ActionCreator<FCandidatesObserved>>
       Creator = func::lazy(
-          []() -> rtk::ActionCreator<FInteractionCandidatesObserved> {
+          []() -> rtk::ActionCreator<FCandidatesObserved> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-            return rtk::createAction<FInteractionCandidatesObserved>(
+            return rtk::createAction<FCandidatesObserved>(
                 TEXT("systems/interaction/townspersonCandidatesObserved"));
           });
   return func::eval(Creator);

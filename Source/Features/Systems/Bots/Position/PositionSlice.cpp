@@ -11,9 +11,9 @@ namespace {
 FBotPatrolAdvancePayload
 ReduceIdlePatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
   FBotPatrolAdvancePayload Payload;
-  Payload.Location = Request.CurrentLocation;
-  Payload.PatrolIndex = Request.PatrolIndex;
-  Payload.PauseRemaining = Request.PauseRemaining;
+  Payload.Location = Request.Pose.CurrentLocation;
+  Payload.PatrolIndex = Request.Progress.PatrolIndex;
+  Payload.PauseRemaining = Request.Progress.PauseRemaining;
   return Payload;
 }
 
@@ -21,15 +21,17 @@ FBotPatrolAdvancePayload
 ReducePauseCountdownPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
   FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
   Payload.PauseRemaining =
-      FMath::Max(0.0f, Request.PauseRemaining - Request.DeltaTime);
+      FMath::Max(0.0f, Request.Progress.PauseRemaining -
+                           Request.Timing.DeltaTime);
   return Payload;
 }
 
 FBotPatrolAdvancePayload
 ReduceArrivedPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
   FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
-  Payload.PatrolIndex = (Request.PatrolIndex + 1) % Request.PatrolRoute.Num();
-  Payload.PauseRemaining = Request.PauseDuration;
+  Payload.PatrolIndex =
+      (Request.Progress.PatrolIndex + 1) % Request.PatrolRoute.Num();
+  Payload.PauseRemaining = Request.Timing.PauseDuration;
   return Payload;
 }
 
@@ -38,9 +40,10 @@ ReduceMovingPatrolAdvance(const FBotPatrolAdvanceRequest &Request,
                           const FBotPatrolMovementDelta &Movement) {
   FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
   Payload.Location =
-      Request.CurrentLocation +
+      Request.Pose.CurrentLocation +
       Movement.Delta.GetSafeNormal() *
-          FMath::Min(Movement.Distance, Request.WalkSpeed * Request.DeltaTime);
+          FMath::Min(Movement.Distance,
+                     Request.Timing.WalkSpeed * Request.Timing.DeltaTime);
   Payload.Rotation = Movement.Delta.Rotation();
   Payload.bShouldMove = true;
   Payload.bShouldRotate = true;
@@ -126,15 +129,16 @@ FBotPatrolAdvancePayload
 ReducePatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
   return Request.PatrolRoute.Num() < 2
              ? ReduceIdlePatrolAdvance(Request)
-             : Request.PauseRemaining > 0.0f
+             : Request.Progress.PauseRemaining > 0.0f
                    ? ReducePauseCountdownPatrolAdvance(Request)
                    : [&]() {
                        const FVector Target =
-                           Request.PatrolRoute[Request.PatrolIndex];
-                       const FVector Delta = Target - Request.CurrentLocation;
+                           Request.PatrolRoute[Request.Progress.PatrolIndex];
+                       const FVector Delta =
+                           Target - Request.Pose.CurrentLocation;
                        const float Distance = Delta.Size();
                        const FBotPatrolMovementDelta Movement{Delta, Distance};
-                       return Distance < Request.ArrivalDistance
+                       return Distance < Request.Timing.ArrivalDistance
                                   ? ReduceArrivedPatrolAdvance(Request)
                                   : ReduceMovingPatrolAdvance(Request,
                                                               Movement);

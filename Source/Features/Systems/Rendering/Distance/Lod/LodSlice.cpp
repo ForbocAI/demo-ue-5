@@ -9,7 +9,7 @@ namespace RenderingDistanceLodReducers {
 namespace {
 
 FLevelDistanceLodStage ReduceDistanceLodStageSettings(
-    const ForbocAI::Game::Data::FRenderingDistanceLodStageSettings &Settings) {
+    const ForbocAI::Game::Data::FStageSettings &Settings) {
   return {Settings.Id,
           Settings.MaxDistance,
           Settings.StaticMeshForcedLodModel,
@@ -35,9 +35,9 @@ bool DistanceWithinStage(float Distance,
 } // namespace
 
 TArray<FLevelDistanceLodStage> ReduceDistanceLodStages(
-    const ForbocAI::Game::Data::FRenderingDistanceLodSettings &Settings) {
+    const ForbocAI::Game::Data::FLodSettings &Settings) {
   return func::map_array<
-      ForbocAI::Game::Data::FRenderingDistanceLodStageSettings,
+      ForbocAI::Game::Data::FStageSettings,
       FLevelDistanceLodStage>(Settings.Stages, ReduceDistanceLodStageSettings);
 }
 

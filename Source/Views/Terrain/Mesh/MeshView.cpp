@@ -29,7 +29,7 @@ ATerrainMeshView::ATerrainMeshView() {
 }
 
 bool ATerrainMeshView::ApplyTerrainMeshPayload(
-    const ForbocAI::Game::Level::FTerrainMeshPayload &Payload) {
+    const ForbocAI::Game::Level::FMeshPayload &Payload) {
   TArray<FProcMeshTangent> Tangents;
   return Payload.bLoaded
              ? (TerrainMaterial

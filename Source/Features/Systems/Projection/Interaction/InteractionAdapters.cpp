@@ -9,13 +9,13 @@ namespace {
 
 /**
  * @brief Converts one interaction candidate into an ECS map value.
- * @signature ecs::FComponentValue InteractionCandidateValue(const FInteractionCandidate &Candidate)
+ * @signature ecs::FComponentValue InteractionCandidateValue(const FCandidate &Candidate)
  *
  * User Story: As an ECS inspector, I need candidate details normalized as
  * component map fields instead of view-owned transient structs.
  */
 ecs::FComponentValue
-InteractionCandidateValue(const FInteractionCandidate &Candidate) {
+InteractionCandidateValue(const FCandidate &Candidate) {
   return ComponentsAdapters::ComponentValueMap(
       {{"index", Candidate.Index},
        {"entityId", Candidate.EntityId},
@@ -25,21 +25,21 @@ InteractionCandidateValue(const FInteractionCandidate &Candidate) {
 
 /**
  * @brief Converts selected interaction candidates into ECS list values.
- * @signature TArray<ecs::FComponentValue> InteractionCandidateList(const TArray<FInteractionCandidate> &Candidates)
+ * @signature TArray<ecs::FComponentValue> InteractionCandidateList(const TArray<FCandidate> &Candidates)
  *
  * User Story: As systems projection code, interaction candidate mapping should
  * reuse neutral list projection instead of a sibling-domain helper.
  */
 TArray<ecs::FComponentValue> InteractionCandidateList(
-    const TArray<FInteractionCandidate> &Candidates) {
-  return ecs::mapComponentValues<FInteractionCandidate>(
-      Candidates, [](const FInteractionCandidate &Candidate) {
+    const TArray<FCandidate> &Candidates) {
+  return ecs::mapComponentValues<FCandidate>(
+      Candidates, [](const FCandidate &Candidate) {
         return InteractionCandidateValue(Candidate);
       });
 }
 
 ecs::FComponentValue
-InteractionSelectionValue(const FInteractionSelection &Selection) {
+InteractionSelectionValue(const FSelection &Selection) {
   return ComponentsAdapters::ComponentValueMap(
       {{"Found", Selection.bFound},
        {"EntityId", Selection.EntityId},
@@ -97,7 +97,7 @@ TArray<TArray<FString>> BuildInteractionDomains() {
 
 ecs::FWorld
 ProjectInteraction(const FProjectInteractionPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           func::constant<ecs::EntityKey>(InteractionEntityKey()),

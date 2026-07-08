@@ -5,11 +5,11 @@ namespace Game {
 namespace Level {
 namespace NatureActions {
 
-const rtk::ActionCreator<TArray<FNatureFeatureSeed>> &NatureSeeded() {
-  static const func::Lazy<rtk::ActionCreator<TArray<FNatureFeatureSeed>>> Creator =
-      func::lazy([]() -> rtk::ActionCreator<TArray<FNatureFeatureSeed>> {
+const rtk::ActionCreator<TArray<FFeatureSeed>> &NatureSeeded() {
+  static const func::Lazy<rtk::ActionCreator<TArray<FFeatureSeed>>> Creator =
+      func::lazy([]() -> rtk::ActionCreator<TArray<FFeatureSeed>> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<TArray<FNatureFeatureSeed>>(TEXT("nature/seeded"));
+        return rtk::createAction<TArray<FFeatureSeed>>(TEXT("nature/seeded"));
       });
   return func::eval(Creator);
 }

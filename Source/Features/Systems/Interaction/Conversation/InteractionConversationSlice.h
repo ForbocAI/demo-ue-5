@@ -31,7 +31,7 @@ FLocalDialogueReplyRequest ReduceLocalDialogueReplyRequest(
     const FRuntimeTownspersonInteractionRequest &Request);
 
 FUIPayload ReduceConversationPresentedPayload(
-    const FDialogueReplyPayload &DialogueReply,
+    const FReplyPayload &DialogueReply,
     const ForbocAI::Game::Data::FUISettings &UISettings);
 
 /**

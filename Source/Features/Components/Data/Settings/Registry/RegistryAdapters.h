@@ -20,9 +20,9 @@ using SettingsReducers::ReadLinearColorSettings;
 namespace JsonAdapters {
 
 template <> struct TJsonSettingsRegistry<FStatsOverlaySettings> {
-  static const TArray<TJsonSettingsField<FStatsOverlaySettings>>
+  static const TArray<TField<FStatsOverlaySettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FStatsOverlaySettings>>
+    static const TArray<TField<FStatsOverlaySettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(
                 FStatsOverlaySettings, FramesPerSecondLabel,
@@ -92,9 +92,9 @@ JSON_SETTINGS_REGISTRY(FObservationIdSettings,
                        TownspersonCandidatesObserved);
 
 template <> struct TJsonSettingsRegistry<FDebugMessageSettings> {
-  static const TArray<TJsonSettingsField<FDebugMessageSettings>>
+  static const TArray<TField<FDebugMessageSettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FDebugMessageSettings>>
+    static const TArray<TField<FDebugMessageSettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(FDebugMessageSettings, OnScreenKey,
                                 DurationSeconds),
@@ -127,8 +127,8 @@ JSON_SETTINGS_REGISTRY(FReduxLogSettings, SampleInterval,
 JSON_SETTINGS_REGISTRY(FEcsDomainRegistrationSettings, Path, Kind);
 
 template <> struct TJsonSettingsRegistry<FEcsSettings> {
-  static const TArray<TJsonSettingsField<FEcsSettings>> &Fields() {
-    static const TArray<TJsonSettingsField<FEcsSettings>> RegisteredFields = {
+  static const TArray<TField<FEcsSettings>> &Fields() {
+    static const TArray<TField<FEcsSettings>> RegisteredFields = {
         JSON_OBJECT_ARRAY_SETTING_FIELDS(
             FEcsSettings,
             ReadSettingsWith<FEcsDomainRegistrationSettings>(
@@ -138,89 +138,206 @@ template <> struct TJsonSettingsRegistry<FEcsSettings> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FStoreAutomationSettings,
+JSON_SETTINGS_REGISTRY(Automation::Store::FSettings,
                        DataBackedMapLabels, ReduxLoggerMiddlewareLabels,
                        ProjectionGateLabels, ReduxLoggerCategory,
                        ReduxLoggerActionTitlePrefix, TerrainEntity,
                        TerrainProjectionDomain);
 
-JSON_SETTINGS_REGISTRY(FContentAssetExpectationSettings, Label, Path);
+JSON_SETTINGS_REGISTRY(Automation::Content::Assets::FPackage, Label, Path);
 
-JSON_SETTINGS_REGISTRY(FContentConfigExpectationSettings, Label, Section, Key,
-                       Expected);
+JSON_SETTINGS_REGISTRY(Automation::Content::Assets::FConfig, Label, Section,
+                       Key, Expected);
 
-JSON_SETTINGS_REGISTRY(FForbiddenSourcePatternSettings, Token, Message);
+JSON_SETTINGS_REGISTRY(Automation::Rtk::Compliance::FPattern, Token, Message);
 
-template <> struct TJsonSettingsRegistry<FContentAssetsAutomationSettings> {
-  static const TArray<TJsonSettingsField<FContentAssetsAutomationSettings>>
+template <>
+struct TJsonSettingsRegistry<Automation::Content::Assets::FSettings> {
+  static const TArray<TField<Automation::Content::Assets::FSettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FContentAssetsAutomationSettings>>
+    static const TArray<
+        TField<Automation::Content::Assets::FSettings>>
         RegisteredFields = {
-            JSON_SETTING_FIELDS(FContentAssetsAutomationSettings,
+            JSON_SETTING_FIELDS(Automation::Content::Assets::FSettings,
                                 SkeletalMeshLoadsLabelFormat,
                                 SkeletalMeshLodDataLabelFormat,
                                 NativeLodAuditCountFormat,
                                 NativeLodAuditEntryFormat),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
-                FContentAssetsAutomationSettings,
-                ReadSettingsWith<FContentAssetExpectationSettings>(
+                Automation::Content::Assets::FSettings,
+                ReadSettingsWith<Automation::Content::Assets::FPackage>(
                     JSON_SETTINGS_ATOMS(Label, Path)),
                 Packages, Classes, SpeechComponentClasses, Assets,
                 SkeletalMeshLods, MissingPackages),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
-                FContentAssetsAutomationSettings,
-                ReadSettingsWith<FContentConfigExpectationSettings>(
+                Automation::Content::Assets::FSettings,
+                ReadSettingsWith<Automation::Content::Assets::FConfig>(
                     JSON_SETTINGS_ATOMS(Label, Section, Key, Expected)),
                 ConfigValues)};
     return RegisteredFields;
   }
 };
 
-template <> struct TJsonSettingsRegistry<FRTKComplianceAutomationSettings> {
-  static const TArray<TJsonSettingsField<FRTKComplianceAutomationSettings>>
+template <>
+struct TJsonSettingsRegistry<Automation::Rtk::Compliance::FSettings> {
+  static const TArray<TField<Automation::Rtk::Compliance::FSettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FRTKComplianceAutomationSettings>>
+    static const TArray<
+        TField<Automation::Rtk::Compliance::FSettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(
-                FRTKComplianceAutomationSettings, SourceFileSuffixes,
+                Automation::Rtk::Compliance::FSettings, SourceFileSuffixes,
                 AllowedBoundaryFragments, SourceDirectoryName,
                 SourceSearchPattern, ViolationMessageFormat,
                 SourceReadFailureFormat, StoreBoundaryLabel,
                 ViolationCountIncrement, CleanViolationCount),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
-                FRTKComplianceAutomationSettings,
-                ReadSettingsWith<FForbiddenSourcePatternSettings>(
+                Automation::Rtk::Compliance::FSettings,
+                ReadSettingsWith<Automation::Rtk::Compliance::FPattern>(
                     JSON_SETTINGS_ATOMS(Token, Message)),
                 ForbiddenPatterns)};
     return RegisteredFields;
   }
 };
 
-JSON_SETTINGS_REGISTRY(
-    FConversationUITestAutomationSettings, Labels, PlayerRole, PlayerText,
-    ExpectedPlayerMessageText, ExpectedPlayerMessageGreen, History,
-    ExpectedHistoryCount, TaggedHistoryIndex, ExpectedTaggedHistoryText,
-    UntaggedHistoryIndex, ExpectedUntaggedHistoryText, SubmittedInput,
-    ExpectedSubmittedText, SpeakerName, SpeakerRole, ConversationPlayerLine,
-    ConversationNpcReply, ExpectedConversationTitle,
-    ExpectedConversationPlayerLine, ExpectedConversationNpcReply);
+JSON_SETTINGS_REGISTRY(Automation::Bot::Functional::Core::FSettings, Spec,
+                       Tests, Groups, Cases, Assertions);
 
-JSON_SETTINGS_REGISTRY(
-    FProtocolLoopAutomationSettings, Labels, RunEnvironmentVariable,
-    SkipWarning, ApiUrl, AgentPersona, ImmutablePersona, StatePersona,
-    StateJson, StateNeedle, AsyncPersona, AsyncPrompt, BridgePersona,
-    BridgeActionType, MinimumRuleCount);
+JSON_SETTINGS_REGISTRY(Automation::Pipeline::FSettings, Spec, Tests, Groups,
+                       Cases, Assertions);
 
-JSON_SETTINGS_REGISTRY(FAutomationTextSettings, SpecName, TestNames,
-                       GroupLabels, CaseLabels, AssertionLabels);
+JSON_SETTINGS_REGISTRY(Automation::Conversation::UI::FMessage, Role, Text,
+                       ExpectedText, ExpectedGreen);
 
-template <> struct TJsonSettingsRegistry<FAutomationSettings> {
-  static const TArray<TJsonSettingsField<FAutomationSettings>> &Fields() {
-    static const TArray<TJsonSettingsField<FAutomationSettings>>
+JSON_SETTINGS_REGISTRY(Automation::Conversation::UI::FLine, Index,
+                       ExpectedText);
+
+template <>
+struct TJsonSettingsRegistry<Automation::Conversation::UI::FHistory> {
+  static const TArray<TField<Automation::Conversation::UI::FHistory>>
+      &Fields() {
+    static const TArray<TField<
+        Automation::Conversation::UI::FHistory>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(Automation::Conversation::UI::FHistory, Lines,
+                                ExpectedCount),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Conversation::UI::FHistory,
+                ReadSettingsWith<Automation::Conversation::UI::FLine>(
+                    JSON_SETTINGS_ATOMS(Index, ExpectedText)),
+                Tagged, Untagged)};
+    return RegisteredFields;
+  }
+};
+
+JSON_SETTINGS_REGISTRY(Automation::Conversation::UI::FSubmitted, Input,
+                       ExpectedText);
+
+JSON_SETTINGS_REGISTRY(Automation::Conversation::UI::FDialogue, SpeakerName,
+                       SpeakerRole, PlayerLine, NpcReply, ExpectedTitle,
+                       ExpectedPlayerLine, ExpectedNpcReply);
+
+template <>
+struct TJsonSettingsRegistry<Automation::Conversation::UI::FSettings> {
+  static const TArray<TField<Automation::Conversation::UI::FSettings>>
+      &Fields() {
+    static const TArray<TField<
+        Automation::Conversation::UI::FSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(Automation::Conversation::UI::FSettings, Test,
+                                Assertions),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Conversation::UI::FSettings,
+                ReadSettingsWith<Automation::Conversation::UI::FMessage>(
+                    JSON_SETTINGS_ATOMS(Role, Text, ExpectedText,
+                                        ExpectedGreen)),
+                PlayerMessage),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Conversation::UI::FSettings,
+                ReadSettingsWith<Automation::Conversation::UI::FHistory>(
+                    JSON_SETTINGS_ATOMS(Lines, ExpectedCount, Tagged,
+                                        Untagged)),
+                History),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Conversation::UI::FSettings,
+                ReadSettingsWith<Automation::Conversation::UI::FSubmitted>(
+                    JSON_SETTINGS_ATOMS(Input, ExpectedText)),
+                Submitted),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Conversation::UI::FSettings,
+                ReadSettingsWith<Automation::Conversation::UI::FDialogue>(
+                    JSON_SETTINGS_ATOMS(
+                        SpeakerName, SpeakerRole, PlayerLine, NpcReply,
+                        ExpectedTitle, ExpectedPlayerLine, ExpectedNpcReply)),
+                Dialogue)};
+    return RegisteredFields;
+  }
+};
+
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FGate, Variable, Warning);
+
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FConnection, Url);
+
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FPersonas, Agent, Immutable,
+                       State, Async, Bridge);
+
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FState, Json, Needle);
+
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FAsync, Prompt);
+
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FBridge, Action,
+                       MinimumRules);
+
+template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> {
+  static const TArray<TField<Automation::Protocol::Loop::FSettings>>
+      &Fields() {
+    static const TArray<TField<
+        Automation::Protocol::Loop::FSettings>>
+        RegisteredFields = {
+            JSON_SETTING_FIELDS(Automation::Protocol::Loop::FSettings, Spec,
+                                Groups, Cases, Assertions),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FGate>(
+                    JSON_SETTINGS_ATOMS(Variable, Warning)),
+                Gate),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FConnection>(
+                    JSON_SETTINGS_ATOMS(Url)),
+                Connection),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FPersonas>(
+                    JSON_SETTINGS_ATOMS(Agent, Immutable, State, Async,
+                                        Bridge)),
+                Personas),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FState>(
+                    JSON_SETTINGS_ATOMS(Json, Needle)),
+                State),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FAsync>(
+                    JSON_SETTINGS_ATOMS(Prompt)),
+                Async),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Protocol::Loop::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FBridge>(
+                    JSON_SETTINGS_ATOMS(Action, MinimumRules)),
+                Bridge)};
+    return RegisteredFields;
+  }
+};
+
+template <> struct TJsonSettingsRegistry<Automation::FSettings> {
+  static const TArray<TField<Automation::FSettings>> &Fields() {
+    static const TArray<TField<Automation::FSettings>>
         RegisteredFields = {
             JSON_OBJECT_SETTING_FIELDS(
-                FAutomationSettings,
-                ReadSettingsWith<FStoreAutomationSettings>(
+                Automation::FSettings,
+                ReadSettingsWith<Automation::Store::FSettings>(
                     JSON_SETTINGS_ATOMS(
                         DataBackedMapLabels, ReduxLoggerMiddlewareLabels,
                         ProjectionGateLabels, ReduxLoggerCategory,
@@ -228,8 +345,8 @@ template <> struct TJsonSettingsRegistry<FAutomationSettings> {
                         TerrainProjectionDomain)),
                 Store),
             JSON_OBJECT_SETTING_FIELDS(
-                FAutomationSettings,
-                ReadSettingsWith<FContentAssetsAutomationSettings>(
+                Automation::FSettings,
+                ReadSettingsWith<Automation::Content::Assets::FSettings>(
                     JSON_SETTINGS_ATOMS(
                         Packages, Classes, SpeechComponentClasses,
                         ConfigValues, Assets, SkeletalMeshLods,
@@ -239,8 +356,8 @@ template <> struct TJsonSettingsRegistry<FAutomationSettings> {
                         NativeLodAuditEntryFormat)),
                 ContentAssets),
             JSON_OBJECT_SETTING_FIELDS(
-                FAutomationSettings,
-                ReadSettingsWith<FRTKComplianceAutomationSettings>(
+                Automation::FSettings,
+                ReadSettingsWith<Automation::Rtk::Compliance::FSettings>(
                     JSON_SETTINGS_ATOMS(
                         SourceFileSuffixes, AllowedBoundaryFragments,
                         SourceDirectoryName, SourceSearchPattern,
@@ -249,35 +366,29 @@ template <> struct TJsonSettingsRegistry<FAutomationSettings> {
                         ViolationCountIncrement, CleanViolationCount)),
                 RtkCompliance),
             JSON_OBJECT_SETTING_FIELDS(
-                FAutomationSettings,
-                ReadSettingsWith<FAutomationTextSettings>(
-                    JSON_SETTINGS_ATOMS(SpecName, TestNames, GroupLabels,
-                                        CaseLabels, AssertionLabels)),
-                BotFunctionalCore, Pipeline),
+                Automation::FSettings,
+                ReadSettingsWith<Automation::Bot::Functional::Core::FSettings>(
+                    JSON_SETTINGS_ATOMS(Spec, Tests, Groups, Cases,
+                                        Assertions)),
+                BotFunctionalCore),
             JSON_OBJECT_SETTING_FIELDS(
-                FAutomationSettings,
-                ReadSettingsWith<FConversationUITestAutomationSettings>(
-                    JSON_SETTINGS_ATOMS(
-                        Labels, PlayerRole, PlayerText,
-                        ExpectedPlayerMessageText,
-                        ExpectedPlayerMessageGreen, History,
-                        ExpectedHistoryCount, TaggedHistoryIndex,
-                        ExpectedTaggedHistoryText, UntaggedHistoryIndex,
-                        ExpectedUntaggedHistoryText, SubmittedInput,
-                        ExpectedSubmittedText, SpeakerName, SpeakerRole,
-                        ConversationPlayerLine, ConversationNpcReply,
-                        ExpectedConversationTitle,
-                        ExpectedConversationPlayerLine,
-                        ExpectedConversationNpcReply)),
+                Automation::FSettings,
+                ReadSettingsWith<Automation::Pipeline::FSettings>(
+                    JSON_SETTINGS_ATOMS(Spec, Tests, Groups, Cases,
+                                        Assertions)),
+                Pipeline),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::FSettings,
+                ReadSettingsWith<Automation::Conversation::UI::FSettings>(
+                    JSON_SETTINGS_ATOMS(Test, Assertions, PlayerMessage,
+                                        History, Submitted, Dialogue)),
                 ConversationUI),
             JSON_OBJECT_SETTING_FIELDS(
-                FAutomationSettings,
-                ReadSettingsWith<FProtocolLoopAutomationSettings>(
-                    JSON_SETTINGS_ATOMS(
-                        Labels, RunEnvironmentVariable, SkipWarning, ApiUrl,
-                        AgentPersona, ImmutablePersona, StatePersona,
-                        StateJson, StateNeedle, AsyncPersona, AsyncPrompt,
-                        BridgePersona, BridgeActionType, MinimumRuleCount)),
+                Automation::FSettings,
+                ReadSettingsWith<Automation::Protocol::Loop::FSettings>(
+                    JSON_SETTINGS_ATOMS(Spec, Groups, Cases, Assertions, Gate,
+                                        Connection, Personas, State, Async,
+                                        Bridge)),
                 ProtocolLoop)};
     return RegisteredFields;
   }
@@ -290,9 +401,9 @@ JSON_SETTINGS_REGISTRY(FMarketingCaptureViewSettings, OutputName,
 
 template <>
 struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
-  static const TArray<TJsonSettingsField<FMarketingCaptureSettings>>
+  static const TArray<TField<FMarketingCaptureSettings>>
       &Fields() {
-    static const TArray<TJsonSettingsField<FMarketingCaptureSettings>>
+    static const TArray<TField<FMarketingCaptureSettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(
                 FMarketingCaptureSettings, CaptureCommandLineKey,
@@ -337,8 +448,8 @@ JSON_SETTINGS_REGISTRY(
     SettleSeconds, BetweenSeconds, TopDownRotation);
 
 template <> struct TJsonSettingsRegistry<FUISettings> {
-  static const TArray<TJsonSettingsField<FUISettings>> &Fields() {
-    static const TArray<TJsonSettingsField<FUISettings>>
+  static const TArray<TField<FUISettings>> &Fields() {
+    static const TArray<TField<FUISettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(FUISettings, PlayerRoleLabel,
                                 SystemRoleLabel, NpcRoleLabel,
@@ -477,12 +588,12 @@ template <> struct TJsonSettingsRegistry<FUISettings> {
 
 JSON_SETTINGS_REGISTRY(FDialogueSettings, ReplyPayloadIdFormat);
 
-JSON_SETTINGS_REGISTRY(FBotStatPresetSettings, MoveSpeed, AwarenessRange,
+JSON_SETTINGS_REGISTRY(FStatPresetSettings, MoveSpeed, AwarenessRange,
                        Resolve, bCanTalk);
 
 template <> struct TJsonSettingsRegistry<FBotSettings> {
-  static const TArray<TJsonSettingsField<FBotSettings>> &Fields() {
-    static const TArray<TJsonSettingsField<FBotSettings>>
+  static const TArray<TField<FBotSettings>> &Fields() {
+    static const TArray<TField<FBotSettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(FBotSettings, InitialName,
                                 InitialHealth, InitialMaxHealth, InitialMana,
@@ -517,7 +628,7 @@ template <> struct TJsonSettingsRegistry<FBotSettings> {
                                 DefaultBehaviorState),
             JSON_OBJECT_SETTING_FIELDS(
                 FBotSettings,
-                ReadSettingsWith<FBotStatPresetSettings>(
+                ReadSettingsWith<FStatPresetSettings>(
                     JSON_SETTINGS_ATOMS(MoveSpeed, AwarenessRange, Resolve,
                                         bCanTalk)),
                 TownspersonStats, HorseStats)};
@@ -525,15 +636,15 @@ template <> struct TJsonSettingsRegistry<FBotSettings> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FSpeechVisemeMappingSettings, Phoneme,
+JSON_SETTINGS_REGISTRY(FVisemeMappingSettings, Phoneme,
                        MorphTargetName, BlendWeight);
 
-JSON_SETTINGS_REGISTRY(FSpeechVowelPhonemeSettings, Character, Phoneme);
+JSON_SETTINGS_REGISTRY(FVowelPhonemeSettings, Character, Phoneme);
 
-JSON_SETTINGS_REGISTRY(FSpeechPhonemeDurationRuleSettings, Kind, Phoneme,
+JSON_SETTINGS_REGISTRY(FPhonemeDurationRuleSettings, Kind, Phoneme,
                        Multiplier);
 
-JSON_SETTINGS_REGISTRY(FSpeechAutomationSettings, PhonemeEstimationText,
+JSON_SETTINGS_REGISTRY(FAutomationSettings, PhonemeEstimationText,
                        SilenceText, UnknownPhoneme, ActiveVisemeSampleRatio,
                        PastEndSampleRatio, ProducesPhonemesLabelFormat,
                        CorrectPhonemeCountLabel, FirstPhonemeStartLabel,
@@ -544,8 +655,8 @@ JSON_SETTINGS_REGISTRY(FSpeechAutomationSettings, PhonemeEstimationText,
                        UnknownPhonemeLabelFormat);
 
 template <> struct TJsonSettingsRegistry<FSpeechSettings> {
-  static const TArray<TJsonSettingsField<FSpeechSettings>> &Fields() {
-    static const TArray<TJsonSettingsField<FSpeechSettings>>
+  static const TArray<TField<FSpeechSettings>> &Fields() {
+    static const TArray<TField<FSpeechSettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(FSpeechSettings, RestViseme, RestWeight,
                                 SpeechRate, Volume, bEnableLipSync,
@@ -561,23 +672,23 @@ template <> struct TJsonSettingsRegistry<FSpeechSettings> {
                                 ResetMorphTargets),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
                 FSpeechSettings,
-                ReadSettingsWith<FSpeechVowelPhonemeSettings>(
+                ReadSettingsWith<FVowelPhonemeSettings>(
                     JSON_SETTINGS_ATOMS(Character, Phoneme)),
                 VowelPhonemes),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
                 FSpeechSettings,
-                ReadSettingsWith<FSpeechVisemeMappingSettings>(
+                ReadSettingsWith<FVisemeMappingSettings>(
                     JSON_SETTINGS_ATOMS(Phoneme, MorphTargetName,
                                         BlendWeight)),
                 VisemeMappings),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
                 FSpeechSettings,
-                ReadSettingsWith<FSpeechPhonemeDurationRuleSettings>(
+                ReadSettingsWith<FPhonemeDurationRuleSettings>(
                     JSON_SETTINGS_ATOMS(Kind, Phoneme, Multiplier)),
                 DurationRules),
             JSON_OBJECT_SETTING_FIELDS(
                 FSpeechSettings,
-                ReadSettingsWith<FSpeechAutomationSettings>(
+                ReadSettingsWith<FAutomationSettings>(
                     JSON_SETTINGS_ATOMS(
                         PhonemeEstimationText, SilenceText, UnknownPhoneme,
                         ActiveVisemeSampleRatio, PastEndSampleRatio,

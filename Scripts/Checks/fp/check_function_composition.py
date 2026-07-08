@@ -38,28 +38,6 @@ IGNORED_PARTS = {
     "__pycache__",
 }
 
-ROLE_SUFFIXES = {
-    "Action",
-    "Actions",
-    "Adapter",
-    "Adapters",
-    "Listener",
-    "Listeners",
-    "Reducer",
-    "Reducers",
-    "Selector",
-    "Selectors",
-    "Setting",
-    "Settings",
-    "Slice",
-    "Thunk",
-    "Thunks",
-    "Type",
-    "Types",
-    "View",
-    "Views",
-}
-
 LAZY_NOUNS = {
     "Bag": "A Bag name hides unrelated data. Split by subdomain and compose at the adapter/fold boundary.",
     "Fixture": "A Fixture name turns test data into a bag. Move authored values to subdomain JSON and select the real values in the test.",
@@ -117,7 +95,10 @@ COOKBOOK_CALL_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
 )
 
 WRAPPER_FAMILY_RE = re.compile(
-    r"\b(?:struct|class)\s+([A-Z][A-Za-z0-9_]*(?:Seeds|Declarations|Registry|Catalog|Fields|Rules|Cases))\b"
+    r"^\s*(?!template\b)(?:struct|class)\s+"
+    r"([A-Z][A-Za-z0-9_]*(?:Seeds|Declarations|Registry|Catalog|Fields|Rules|Cases))"
+    r"\b[^{;]*\{",
+    re.MULTILINE,
 )
 SCALAR_FIELD_RE = re.compile(
     r"^\s*(?:const\s+)?(?:"
@@ -127,14 +108,21 @@ SCALAR_FIELD_RE = re.compile(
     re.MULTILINE,
 )
 STRUCT_RE = re.compile(r"\bstruct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{", re.MULTILINE)
-FUNCTION_RE = re.compile(
-    r"(?:^|[;\n{}])\s*(?:[\w:<>&*\s]+\s+)?([A-Za-z_][A-Za-z0-9_:~]*)\s*\(",
+TYPE_DECL_RE = re.compile(
+    r"\b(?:class|enum(?:\s+class)?)\s+([A-Za-z_][A-Za-z0-9_]*)\b",
+    re.MULTILINE,
+)
+FUNCTION_DECL_RE = re.compile(
+    r"^\s*(?:(?:inline|static|virtual|FORCEINLINE|constexpr)\s+)*"
+    r"(?:[\w:<>,&*]+\s+)+([A-Za-z_][A-Za-z0-9_]*)"
+    r"\s*\([^;\n{}]*\)\s*(?:const\s*)?(?:\{|;)",
     re.MULTILINE,
 )
 IDENTIFIER_RE = re.compile(r"\b[AEFISTU][A-Z][A-Za-z0-9_]*\b")
 CONTROL_NAMES = {"if", "for", "while", "switch", "return", "sizeof", "TEXT"}
 WIDE_SCALAR_FIELD_COUNT = 6
 TEXT_ATOM_REPEAT_COUNT = 8
+TEXT_LITERAL_RE = re.compile(r'TEXT\("')
 VIOLATION_PREFIX = "FP/ECS violation, forward target: "
 
 
@@ -152,8 +140,8 @@ LAZY_NOUN = Rule(
 )
 REPEATED_PATH_TOKEN = Rule(
     "FP-COMP-002",
-    "identifier repeats folder/domain tokens",
-    "Move domain words into folders/namespaces and keep local names role-shaped.",
+    "identifier uses a wider domain atom qualifier than needed",
+    "Keep the shortest collision-free name derived from the path/namespace atom ladder.",
 )
 COOKBOOK_CALL = Rule(
     "FP-COMP-003",
@@ -196,6 +184,11 @@ class StructNameItem:
 @dataclass(frozen=True)
 class StructNameContext:
     expected_by_key: dict[tuple[Path, int, str], str]
+
+
+@dataclass(frozen=True)
+class QualifiedNameContext:
+    expected_by_path_name: dict[tuple[Path, str], str]
 
 
 def display(path: Path) -> str:
@@ -250,13 +243,6 @@ def strip_unreal_prefix(tokens: list[str]) -> list[str]:
     return tokens
 
 
-def strip_role_suffixes(tokens: list[str]) -> list[str]:
-    result = list(tokens)
-    while result and result[-1] in ROLE_SUFFIXES:
-        result.pop()
-    return result
-
-
 def split_unreal_name(name: str) -> tuple[str, list[str]]:
     simple = name.rsplit("::", 1)[-1].lstrip("~")
     if (
@@ -268,24 +254,94 @@ def split_unreal_name(name: str) -> tuple[str, list[str]]:
     return "", camel_tokens(simple)
 
 
-def split_role_suffix(tokens: list[str]) -> tuple[list[str], list[str]]:
-    result = list(tokens)
-    suffix: list[str] = []
-    while result and result[-1] in ROLE_SUFFIXES:
-        suffix.insert(0, result.pop())
-    return result, suffix
+def atom_domain_parts(path: Path) -> tuple[str, ...]:
+    try:
+        rel = path.relative_to(SOURCE_ROOT)
+    except ValueError:
+        return path.parent.parts
+    parts = rel.parent.parts
+    for marker in ("Features", "Views", "Tests"):
+        if marker in parts:
+            index = parts.index(marker)
+            return tuple(parts[index + 1 :])
+    return tuple(parts)
 
 
-def shortest_qualifier_candidates(name: str) -> tuple[str, ...]:
+def atom_groups(path: Path) -> tuple[tuple[str, ...], ...]:
+    return tuple(tuple(folder_tokens(part)) for part in atom_domain_parts(path))
+
+
+def atom_suffixes(path: Path) -> tuple[tuple[str, ...], ...]:
+    groups = atom_groups(path)
+    return tuple(
+        tuple(token for group in groups[index:] for token in group)
+        for index in range(len(groups) - 1, -1, -1)
+    )
+
+
+def atom_qualified_name_candidates(path: Path, name: str) -> tuple[str, ...]:
     unreal_prefix, tokens = split_unreal_name(name)
-    qualifier_tokens, suffix_tokens = split_role_suffix(tokens)
-    if not qualifier_tokens or not suffix_tokens:
-        return (name,)
-    candidates = [
-        unreal_prefix + "".join(qualifier_tokens[index:] + suffix_tokens)
-        for index in range(len(qualifier_tokens) - 1, -1, -1)
-    ]
-    return tuple(dict.fromkeys(candidates))
+    for qualifier in sorted(atom_suffixes(path), key=len, reverse=True):
+        if not qualifier:
+            continue
+        if len(tokens) <= len(qualifier):
+            continue
+        if tuple(tokens[: len(qualifier)]) != qualifier:
+            continue
+        local_tokens = tokens[len(qualifier) :]
+        candidates = [unreal_prefix + "".join(local_tokens)]
+        candidates.extend(
+            unreal_prefix + "".join(list(candidate) + local_tokens)
+            for candidate in atom_suffixes(path)
+            if candidate
+        )
+        return tuple(dict.fromkeys(candidates))
+    return ()
+
+
+def qualified_name_context(paths: list[Path]) -> QualifiedNameContext:
+    all_names: set[str] = set()
+    item_by_key: dict[tuple[Path, str], dict] = {}
+    for path in paths:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for pattern in (STRUCT_RE, TYPE_DECL_RE):
+            for match in pattern.finditer(text):
+                name = match.group(1)
+                simple = name.rsplit("::", 1)[-1].lstrip("~")
+                if simple in CONTROL_NAMES:
+                    continue
+                all_names.add(simple)
+                candidates = atom_qualified_name_candidates(path, simple)
+                if candidates:
+                    item_by_key.setdefault(
+                        (path, simple),
+                        {"path": path, "name": simple, "candidates": candidates, "index": 0},
+                    )
+
+    items = list(item_by_key.values())
+    while True:
+        changed = False
+        candidate_counts: dict[str, int] = {}
+        for item in items:
+            candidate = item["candidates"][item["index"]]
+            candidate_counts[candidate] = candidate_counts.get(candidate, 0) + 1
+
+        for item in items:
+            candidate = item["candidates"][item["index"]]
+            occupied_by_other = candidate in all_names and candidate != item["name"]
+            collides = candidate_counts[candidate] > 1 or occupied_by_other
+            if collides and item["index"] < len(item["candidates"]) - 1:
+                item["index"] += 1
+                changed = True
+        if not changed:
+            break
+
+    return QualifiedNameContext(
+        expected_by_path_name={
+            (item["path"], item["name"]): item["candidates"][item["index"]]
+            for item in items
+        }
+    )
 
 
 def struct_name_context(paths: list[Path]) -> StructNameContext:
@@ -297,7 +353,7 @@ def struct_name_context(paths: list[Path]) -> StructNameContext:
             name = match.group(1)
             key = (path, match.start(), name)
             existing.setdefault(name, []).append(key)
-            candidates = shortest_qualifier_candidates(name)
+            candidates = atom_qualified_name_candidates(path, name)
             if candidates:
                 items.append(
                     {"key": key, "name": name, "candidates": candidates, "index": 0}
@@ -330,25 +386,6 @@ def struct_name_context(paths: list[Path]) -> StructNameContext:
     )
 
 
-def semantic_identifier_tokens(name: str) -> list[str]:
-    simple = name.rsplit("::", 1)[-1].lstrip("~")
-    return strip_role_suffixes(strip_unreal_prefix(camel_tokens(simple)))
-
-
-def path_tokens(path: Path) -> set[str]:
-    try:
-        rel = path.relative_to(PROJECT_ROOT / "Source")
-    except ValueError:
-        try:
-            rel = path.relative_to(PROJECT_ROOT)
-        except ValueError:
-            rel = path
-    tokens: list[str] = []
-    for part in rel.parent.parts:
-        tokens.extend(folder_tokens(part))
-    return {normalize(token) for token in tokens}
-
-
 def lazy_noun_issues(path: Path, text: str, name: str, offset: int) -> list[Issue]:
     tokens = strip_unreal_prefix(camel_tokens(name.rsplit("::", 1)[-1].lstrip("~")))
     issues: list[Issue] = []
@@ -360,24 +397,29 @@ def lazy_noun_issues(path: Path, text: str, name: str, offset: int) -> list[Issu
     return issues
 
 
-def repeated_path_token_issue(path: Path, text: str, name: str, offset: int) -> Issue | None:
-    semantic_tokens = semantic_identifier_tokens(name)
-    if not semantic_tokens:
-        return None
-    repeated = [
-        token
-        for token in semantic_tokens
-        if normalize(token) in path_tokens(path)
-    ]
-    if not repeated:
-        return None
-    repeated_text = ", ".join(repeated)
-    return Issue(
-        path,
-        line_number(text, offset),
-        REPEATED_PATH_TOKEN.id,
-        f"Identifier repeats folder/domain token(s): {repeated_text}. Move those words into folders/namespaces and keep the local name role-shaped.",
+def repeated_path_token_issue(
+    path: Path,
+    text: str,
+    name: str,
+    offset: int,
+    context: QualifiedNameContext | None,
+) -> Issue | None:
+    simple = name.rsplit("::", 1)[-1].lstrip("~")
+    expected = (
+        context.expected_by_path_name.get((path, simple))
+        if context is not None
+        else None
     )
+    if expected is not None:
+        if expected == simple:
+            return None
+        return Issue(
+            path,
+            line_number(text, offset),
+            REPEATED_PATH_TOKEN.id,
+            f"Identifier `{simple}` uses a broader domain atom qualifier than needed; expected shortest collision-free name `{expected}`.",
+        )
+    return None
 
 
 def matching_brace_index(text: str, open_index: int) -> int | None:
@@ -441,6 +483,12 @@ def cookbook_call_issues(path: Path, text: str) -> list[Issue]:
 def wrapper_family_issues(path: Path, text: str) -> list[Issue]:
     issues: list[Issue] = []
     for match in WRAPPER_FAMILY_RE.finditer(text):
+        line_start = text.rfind("\n", 0, match.start()) + 1
+        previous_end = line_start - 1
+        previous_start = text.rfind("\n", 0, previous_end) + 1
+        previous_line = text[previous_start:previous_end].strip()
+        if previous_line.startswith("template"):
+            continue
         name = match.group(1)
         issues.append(
             Issue(
@@ -454,7 +502,7 @@ def wrapper_family_issues(path: Path, text: str) -> list[Issue]:
 
 
 def text_atom_repetition_issue(path: Path, text: str) -> Issue | None:
-    count = text.count("TEXT(\"")
+    count = authored_text_atom_count(text)
     if count < TEXT_ATOM_REPEAT_COUNT:
         return None
     if "JSON_SETTINGS_ATOMS" in text or "JSON_REQUIRED_ATOMS" in text:
@@ -467,7 +515,24 @@ def text_atom_repetition_issue(path: Path, text: str) -> Issue | None:
     )
 
 
-def scan_file(path: Path, context: StructNameContext | None = None) -> list[Issue]:
+def authored_text_atom_count(text: str) -> int:
+    count = 0
+    for match in TEXT_LITERAL_RE.finditer(text):
+        prefix = text[max(0, match.start() - 160) : match.start()]
+        if any(
+            marker in prefix
+            for marker in ("FString::Printf(", "checkf(", "UE_LOG(")
+        ):
+            continue
+        count += 1
+    return count
+
+
+def scan_file(
+    path: Path,
+    context: StructNameContext | None = None,
+    qualified_context: QualifiedNameContext | None = None,
+) -> list[Issue]:
     text = path.read_text(encoding="utf-8", errors="replace")
     name_context = context if context is not None else struct_name_context([path])
     issues: list[Issue] = []
@@ -483,12 +548,31 @@ def scan_file(path: Path, context: StructNameContext | None = None) -> list[Issu
         name = match.group(1)
         for issue in lazy_noun_issues(path, text, name, match.start()):
             add(issue)
-        repeated = repeated_path_token_issue(path, text, name, match.start())
+        repeated = repeated_path_token_issue(
+            path, text, name, match.start(), qualified_context
+        )
         if repeated is not None:
             add(repeated)
         wide = wide_struct_issue(path, text, match, name_context)
         if wide is not None:
             add(wide)
+
+    for match in TYPE_DECL_RE.finditer(text):
+        name = match.group(1)
+        for issue in lazy_noun_issues(path, text, name, match.start()):
+            add(issue)
+        repeated = repeated_path_token_issue(
+            path, text, name, match.start(), qualified_context
+        )
+        if repeated is not None:
+            add(repeated)
+
+    for match in FUNCTION_DECL_RE.finditer(text):
+        name = match.group(1)
+        if name in CONTROL_NAMES:
+            continue
+        for issue in lazy_noun_issues(path, text, name, match.start()):
+            add(issue)
 
     for issue in cookbook_call_issues(path, text):
         add(issue)
@@ -499,25 +583,6 @@ def scan_file(path: Path, context: StructNameContext | None = None) -> list[Issu
     text_atom_issue = text_atom_repetition_issue(path, text)
     if text_atom_issue is not None:
         add(text_atom_issue)
-
-    for match in FUNCTION_RE.finditer(text):
-        name = match.group(1)
-        simple = name.rsplit("::", 1)[-1].lstrip("~")
-        if simple in CONTROL_NAMES:
-            continue
-        for issue in lazy_noun_issues(path, text, simple, match.start()):
-            add(issue)
-        repeated = repeated_path_token_issue(path, text, simple, match.start())
-        if repeated is not None:
-            add(repeated)
-
-    for match in IDENTIFIER_RE.finditer(text):
-        name = match.group(0)
-        for issue in lazy_noun_issues(path, text, name, match.start()):
-            add(issue)
-        repeated = repeated_path_token_issue(path, text, name, match.start())
-        if repeated is not None:
-            add(repeated)
 
     return issues
 
@@ -536,8 +601,9 @@ def find_issues() -> list[Issue]:
     issues: list[Issue] = []
     files = iter_source_files()
     context = struct_name_context(files)
+    qualified_context = qualified_name_context(files)
     for path in files:
-        issues.extend(scan_file(path, context))
+        issues.extend(scan_file(path, context, qualified_context))
     return sorted(issues, key=lambda issue: (display(issue.path), issue.line, issue.message))
 
 

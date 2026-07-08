@@ -7,10 +7,10 @@ namespace Game {
 namespace Level {
 namespace NatureSelectors {
 
-TArray<FNatureFeatureSeed> SelectAll(const FNatureState &State) {
+TArray<FFeatureSeed> SelectAll(const FNatureState &State) {
   return (func::pipe(State.Items) |
-         [](const rtk::EntityState<FNatureFeatureSeed> &Items)
-             -> TArray<FNatureFeatureSeed> {
+         [](const rtk::EntityState<FFeatureSeed> &Items)
+             -> TArray<FFeatureSeed> {
     return NatureAdapters::NatureAdapter().getSelectors().selectAll(Items);
   }).val;
 }

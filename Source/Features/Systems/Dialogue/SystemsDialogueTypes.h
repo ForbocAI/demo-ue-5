@@ -29,7 +29,7 @@ struct FLocalDialogueReplyRequest {
 /**
  * @brief Payload for a resolved local dialogue reply.
  */
-struct FDialogueReplyPayload {
+struct FReplyPayload {
   FString Id;
   FLocalDialogueReplyRequest Request;
   FString Reply;
@@ -94,14 +94,14 @@ inline bool operator!=(const FLocalDialogueReplyRequest &Left,
   return !(Left == Right);
 }
 
-inline bool operator==(const FDialogueReplyPayload &Left,
-                       const FDialogueReplyPayload &Right) {
+inline bool operator==(const FReplyPayload &Left,
+                       const FReplyPayload &Right) {
   return Left.Id == Right.Id && Left.Request == Right.Request &&
          Left.Reply == Right.Reply;
 }
 
-inline bool operator!=(const FDialogueReplyPayload &Left,
-                       const FDialogueReplyPayload &Right) {
+inline bool operator!=(const FReplyPayload &Left,
+                       const FReplyPayload &Right) {
   return !(Left == Right);
 }
 

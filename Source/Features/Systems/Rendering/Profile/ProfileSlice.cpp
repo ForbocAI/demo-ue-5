@@ -8,7 +8,7 @@ namespace Level {
 namespace RenderingProfileReducers {
 
 FLevelRetroRenderProfile ReduceRuntimeProfile(
-    const ForbocAI::Game::Data::FRenderingProfileSettings &Settings) {
+    const ForbocAI::Game::Data::FProfileSettings &Settings) {
   return {Settings.TimeOfDayHour,
           Settings.AntiAliasingMethod,
           Settings.PostProcessAAQuality,

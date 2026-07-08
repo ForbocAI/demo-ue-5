@@ -15,7 +15,7 @@ namespace LandmarksAdapters {
 struct FLandmarkSeedBuildRequest {
   FString RelativeJsonPath;
   FLevelTerrainData TerrainData;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 TArray<FLandmark> BuildLandmarkSeed(

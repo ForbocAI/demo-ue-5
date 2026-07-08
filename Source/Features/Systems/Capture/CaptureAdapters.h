@@ -13,6 +13,29 @@ struct FMarketingCaptureSettings;
 namespace Level {
 namespace CaptureAdapters {
 
+struct FRunConfig {
+  bool bQuitWhenDone = false;
+  FString OutputDirectory;
+};
+
+struct FTimingConfig {
+  float InitialDelaySeconds = float();
+  float SettleSeconds = float();
+  float BetweenSeconds = float();
+};
+
+struct FScaleAuditOrthoConfig {
+  float WholeWidth = float();
+  float TownWidth = float();
+  float ActorsWidth = float();
+};
+
+struct FScaleAuditHeightConfig {
+  float WholeHeight = float();
+  float TownHeight = float();
+  float ActorsHeight = float();
+};
+
 /**
  * @brief Resolved command-line configuration for scale-audit captures.
  *
@@ -20,28 +43,18 @@ namespace CaptureAdapters {
  * directly, keeping IO behind the adapter boundary (RTK-VIEW-008).
  */
 struct FScaleAuditCaptureConfig {
-  bool bQuitWhenDone = false;
-  FString OutputDirectory;
-  float InitialDelaySeconds = float();
-  float SettleSeconds = float();
-  float BetweenSeconds = float();
-  float WholeOrthoWidth = float();
-  float TownOrthoWidth = float();
-  float ActorsOrthoWidth = float();
-  float WholeCaptureHeight = float();
-  float TownCaptureHeight = float();
-  float ActorsCaptureHeight = float();
+  FRunConfig Run;
+  FTimingConfig Timing;
+  FScaleAuditOrthoConfig Ortho;
+  FScaleAuditHeightConfig Height;
 };
 
 /**
  * @brief Resolved command-line configuration for marketing-brochure captures.
  */
 struct FMarketingCaptureConfig {
-  bool bQuitWhenDone = false;
-  FString OutputDirectory;
-  float InitialDelaySeconds = float();
-  float SettleSeconds = float();
-  float BetweenSeconds = float();
+  FRunConfig Run;
+  FTimingConfig Timing;
 };
 
 /**

@@ -11,12 +11,12 @@ namespace Layout {
 /**
  * @brief Parses one authored level label seed object.
  *
- * @signature func::Maybe<FLevelLabelSeed> LabelFromJson(const FLevelJsonObjectRequest &Request)
+ * @signature func::Maybe<FLabelSeed> LabelFromJson(const FLevelJsonObjectRequest &Request)
  *
  * User story: As a Level system author, label JSON becomes typed ECS seed data
  * before reducers compose display-ready text placement.
  */
-func::Maybe<FLevelLabelSeed>
+func::Maybe<FLabelSeed>
 LabelFromJson(const FLevelJsonObjectRequest &Request);
 
 } // namespace Layout
@@ -30,8 +30,8 @@ namespace Data {
 namespace JsonValueAdapters {
 
 template <>
-struct TRequiredJsonObjectMapper<ForbocAI::Game::Level::FLevelLabelSeed> {
-  static func::Maybe<ForbocAI::Game::Level::FLevelLabelSeed>
+struct TRequiredJsonObjectMapper<ForbocAI::Game::Level::FLabelSeed> {
+  static func::Maybe<ForbocAI::Game::Level::FLabelSeed>
   Read(const TSharedPtr<FJsonObject> &Object) {
     return ForbocAI::Game::Level::Layout::LabelFromJson({Object});
   }

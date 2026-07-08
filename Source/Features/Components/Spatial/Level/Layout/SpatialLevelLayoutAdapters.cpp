@@ -7,7 +7,7 @@ namespace LevelLayoutAdapters {
 namespace {
 
 FLevelLocalPoint PostOfficeGroundPoint(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return Point({Geometry.PostOfficeEastLots * TownLotWorldUnits(Geometry),
                 Geometry.PostOfficeNorthLots * TownLotWorldUnits(Geometry),
                 0.0f});
@@ -16,27 +16,27 @@ FLevelLocalPoint PostOfficeGroundPoint(
 } // namespace
 
 float TownLotWorldUnits(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return Geometry.TerrainWorldSize / Geometry.TerrainLotsAcross;
 }
 
 float CubeHalfExtent(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return Geometry.CubeMeshSize * 0.5f;
 }
 
 float BuildingFoundationHeight(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return CubeHalfExtent(Geometry) * Geometry.FoundationHeightRatio;
 }
 
 float RoadSurfaceClearance(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return CubeHalfExtent(Geometry) * Geometry.RoadClearanceRatio;
 }
 
 float CharacterHeightOffset(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return CubeHalfExtent(Geometry) * Geometry.CharacterHeightRatio;
 }
 
@@ -78,11 +78,11 @@ FVector PadScaleFromFeet(const FLevelPadScaleRequest &Request) {
                  Request.HeightFeet * Request.Geometry.BlockScalePerFoot);
 }
 
-FLevelLocalPoint Point(const FLevelLayoutPointRequest &Request) {
+FLevelLocalPoint Point(const FPointRequest &Request) {
   return {Request.EastWest, Request.NorthSouth, Request.HeightOffset};
 }
 
-FLevelLocalPoint FromPostOfficeLots(const FLevelLayoutLotsRequest &Request) {
+FLevelLocalPoint FromPostOfficeLots(const FLotsRequest &Request) {
   const FLevelLocalPoint PostOffice = PostOfficeGroundPoint(Request.Geometry);
   return Point({PostOffice.EastWest +
                     Request.EastLots * TownLotWorldUnits(Request.Geometry),
@@ -111,7 +111,7 @@ FVector ToWorld(const FLevelToWorldRequest &Request) {
 }
 
 FLevelLocalPoint PlayerSpawnPoint(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return FromPostOfficeLots(
       {Geometry, Geometry.PlayerSpawnEastLots, Geometry.PlayerSpawnNorthLots,
        CharacterHeightOffset(Geometry) +
@@ -119,12 +119,12 @@ FLevelLocalPoint PlayerSpawnPoint(
 }
 
 FRotator PlayerSpawnRotation(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return FRotator(0.0f, Geometry.MainStreetFacingYawDegrees, 0.0f);
 }
 
 FString PlayerSpawnAnchorLabel(
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return Geometry.PlayerSpawnAnchorLabel;
 }
 

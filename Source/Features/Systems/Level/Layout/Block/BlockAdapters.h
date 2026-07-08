@@ -11,12 +11,12 @@ namespace Layout {
 /**
  * @brief Parses one authored level block seed object.
  *
- * @signature func::Maybe<FLevelBlockSeed> BlockFromJson(const FLevelJsonObjectRequest &Request)
+ * @signature func::Maybe<FBlockSeed> BlockFromJson(const FLevelJsonObjectRequest &Request)
  *
  * User story: As a Level system author, block JSON is validated into ECS seed
  * data before RTK reducers derive display-ready spawn state.
  */
-func::Maybe<FLevelBlockSeed>
+func::Maybe<FBlockSeed>
 BlockFromJson(const FLevelJsonObjectRequest &Request);
 
 } // namespace Layout
@@ -30,8 +30,8 @@ namespace Data {
 namespace JsonValueAdapters {
 
 template <>
-struct TRequiredJsonObjectMapper<ForbocAI::Game::Level::FLevelBlockSeed> {
-  static func::Maybe<ForbocAI::Game::Level::FLevelBlockSeed>
+struct TRequiredJsonObjectMapper<ForbocAI::Game::Level::FBlockSeed> {
+  static func::Maybe<ForbocAI::Game::Level::FBlockSeed>
   Read(const TSharedPtr<FJsonObject> &Object) {
     return ForbocAI::Game::Level::Layout::BlockFromJson({Object});
   }

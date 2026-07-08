@@ -34,7 +34,9 @@ using ComponentsAdapters::RegisteredComponentGroups;
  * User Story: As terrain projection code, I need one stable entity key so
  * terrain components update the same ECS entity after every RTK action.
  */
-ecs::EntityKey TerrainEntityKey() { return TEXT("level:terrain"); }
+ecs::EntityKey TerrainEntityKey() {
+  return ComponentsAdapters::ComponentAtom("level:terrain");
+}
 
 /**
  * @brief Builds ECS domain steps for terrain projection.
@@ -44,15 +46,16 @@ ecs::EntityKey TerrainEntityKey() { return TEXT("level:terrain"); }
  * with component, system, and projection subdomains.
  */
 TArray<TArray<FString>> BuildTerrainDomains() {
-  return {{TEXT("Components"), TEXT("Level")},
-          {TEXT("Systems"), TEXT("Terrain")},
-          {TEXT("Systems"), TEXT("Projection"), TEXT("Terrain")}};
+  return ComponentsAdapters::ComponentDomains(
+      {{"Components", "Level"},
+       {"Systems", "Terrain"},
+       {"Systems", "Projection", "Terrain"}});
 }
 
 } // namespace
 
 ecs::FWorld ProjectTerrain(const FProjectTerrainPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           func::constant<ecs::EntityKey>(TerrainEntityKey()),

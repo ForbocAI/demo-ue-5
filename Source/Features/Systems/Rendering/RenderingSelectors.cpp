@@ -7,42 +7,42 @@ namespace RenderingSelectors {
 
 const FLevelRetroRenderProfile &
 SelectRuntimeProfile(const FRenderingState &State) {
-  return State.RuntimeProfile;
+  return State.Profile.RuntimeProfile;
 }
 
 const TArray<FLevelRetroTextureSpec> &
 SelectTextureCatalog(const FRenderingState &State) {
-  return State.TextureCatalog;
+  return State.Catalog.TextureCatalog;
 }
 
 const TArray<FLevelDistanceLodStage> &
 SelectDistanceLodStages(const FRenderingState &State) {
-  return State.DistanceLodStages;
+  return State.Catalog.DistanceLodStages;
 }
 
 const ForbocAI::Game::Data::FRenderingSettings &
 SelectRenderingSettings(const FRenderingState &State) {
-  return State.Settings;
+  return State.Profile.Settings;
 }
 
 const FRenderingAssetPaths &SelectRenderingAssetPaths(
     const FRenderingState &State) {
-  return State.AssetPaths;
+  return State.Profile.AssetPaths;
 }
 
 const FTownspersonPresentationViewModel &
 SelectTownspersonPresentation(const FRenderingState &State) {
-  return State.TownspersonPresentation;
+  return State.Presentation.TownspersonPresentation;
 }
 
 const FHorsePresentationViewModel &
 SelectHorsePresentation(const FRenderingState &State) {
-  return State.HorsePresentation;
+  return State.Presentation.HorsePresentation;
 }
 
 const FRuntimeStatsPresentationModel &
 SelectRuntimeStatsPresentation(const FRenderingState &State) {
-  return State.StatsPresentation;
+  return State.Presentation.StatsPresentation;
 }
 
 } // namespace RenderingSelectors

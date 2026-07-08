@@ -84,12 +84,12 @@ namespace SpeechOps {
 
 using FSpeechSettings =
     ForbocAI::Game::Data::FSpeechSettings;
-using FSpeechVisemeMappingSettings =
-    ForbocAI::Game::Data::FSpeechVisemeMappingSettings;
-using FSpeechVowelPhonemeSettings =
-    ForbocAI::Game::Data::FSpeechVowelPhonemeSettings;
-using FSpeechPhonemeDurationRuleSettings =
-    ForbocAI::Game::Data::FSpeechPhonemeDurationRuleSettings;
+using FVisemeMappingSettings =
+    ForbocAI::Game::Data::FVisemeMappingSettings;
+using FVowelPhonemeSettings =
+    ForbocAI::Game::Data::FVowelPhonemeSettings;
+using FPhonemeDurationRuleSettings =
+    ForbocAI::Game::Data::FPhonemeDurationRuleSettings;
 
 template <typename Item, typename Key, typename Value>
 struct TSpeechMapDeclaration {
@@ -110,7 +110,7 @@ struct FSpeechCharacterEval {
 
 struct FSpeechDurationRuleEval {
   FString Phoneme;
-  FSpeechPhonemeDurationRuleSettings Rule;
+  FPhonemeDurationRuleSettings Rule;
 };
 
 using FSpeechCharacterDispatchDeclaration =

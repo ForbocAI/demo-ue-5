@@ -23,15 +23,15 @@ template <> struct TComponentSourceValueFieldRegistry<FBotAIComponent> {
   static const TArray<TComponentSourceValueFieldDeclaration<FBotAIComponent>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FBotAIComponent>>
-        RegisteredFields = {
+        SourceFields = ComponentSourceFieldDeclarations<FBotAIComponent>({
             {"Id", &FBotAIComponent::Id},
             {"BehaviorState", &FBotAIComponent::BehaviorState},
             {"TargetEntityId", &FBotAIComponent::TargetEntityId},
             {"TargetLocation", &FBotAIComponent::TargetLocation},
             {"HasTargetLocation", &FBotAIComponent::bHasTargetLocation},
             {"PatrolIndex", &FBotAIComponent::PatrolIndex},
-            {"PatrolRoute", &FBotAIComponent::PatrolRoute}};
-    return RegisteredFields;
+            {"PatrolRoute", &FBotAIComponent::PatrolRoute}});
+    return SourceFields;
   }
 };
 

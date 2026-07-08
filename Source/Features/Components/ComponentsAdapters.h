@@ -94,6 +94,14 @@ TComponentSourceValueFieldDeclaration<Source>::TComponentSourceValueFieldDeclara
       }) {}
 
 template <typename Source>
+inline TArray<TComponentSourceValueFieldDeclaration<Source>>
+ComponentSourceFieldDeclarations(
+    std::initializer_list<TComponentSourceValueFieldDeclaration<Source>>
+        Declarations) {
+  return TArray<TComponentSourceValueFieldDeclaration<Source>>(Declarations);
+}
+
+template <typename Source>
 inline TMap<FString, ecs::FComponentValue> ComponentSourceValueFields(
     const Source &SourceValue,
     std::initializer_list<TComponentSourceValueFieldDeclaration<Source>>
@@ -201,7 +209,7 @@ template <typename Source> struct TAppendSelectedComponentProjection {
 template <typename Source>
 TArray<TComponentProjection<Source>>
 ComponentGroup(const FString &Domain,
-               const FRegisteredComponentFields &Fields) {
+               const FRegisteredComponentFieldSet &Fields) {
   return func::fold_array<FRegisteredComponentFieldDeclaration,
                           TArray<TComponentProjection<Source>>>(
       Fields.Fields, TArray<TComponentProjection<Source>>(),
@@ -244,7 +252,7 @@ ecs::FWorld ProjectEntity(const FProjectEntityPayload &Payload);
 
 template <typename Payload, typename SelectEntity, typename SelectDomains,
           typename SelectSource, typename ComponentCatalog>
-ecs::FWorld ProjectPayloadEntityCatalogWith(
+ecs::FWorld ProjectEntityCatalog(
     const Payload &PayloadValue,
     const TEntityCatalogProjection<SelectEntity, SelectDomains,
                                    SelectSource, ComponentCatalog>

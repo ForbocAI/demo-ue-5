@@ -33,7 +33,7 @@ ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
 
   // boundary-allow: RTK-VIEW-007 tick reads multiple domain selectors from one snapshot
   const FG::FRuntimeState &State = FG::RuntimeSelectors::SelectState();
-  const FG::FPlayerPresentationViewModel Presentation =
+  const FG::FPresentationViewModel Presentation =
       FG::RuntimeSelectors::SelectPlayerPresentation(State);
   USkeletalMesh *Mesh =
       LoadObject<USkeletalMesh>(nullptr, *Presentation.MeshPath);

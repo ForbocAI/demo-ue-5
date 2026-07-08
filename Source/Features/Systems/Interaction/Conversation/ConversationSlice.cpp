@@ -46,7 +46,7 @@ FLocalDialogueReplyRequest ReduceLocalDialogueReplyRequest(
 }
 
 FUIPayload ReduceConversationPresentedPayload(
-    const FDialogueReplyPayload &DialogueReply,
+    const FReplyPayload &DialogueReply,
     const ForbocAI::Game::Data::FUISettings &UISettings) {
   FUIPayload Payload;
   Payload.Id = frmt::RuntimeString(
@@ -62,7 +62,7 @@ FUIPayload ReduceConversationPresentedPayload(
 
 FRuntimeTownspersonInteractionPayload ReduceTownspersonInteractionPayload(
     const FRuntimeTownspersonInteractionPayloadRequest &Request) {
-  const FDialogueReplyPayload DialogueReply =
+  const FReplyPayload DialogueReply =
       DialogueReducers::ReduceLocalReplyPayload(
           ReduceLocalDialogueReplyRequest(Request.Request),
           Request.DialogueSettings);

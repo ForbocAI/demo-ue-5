@@ -10,8 +10,8 @@ namespace LevelAdapters {
 
 namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
-FLevelLayoutSeed LoadLayoutSeed(const ForbocAI::Game::Data::FLevelDataSourceSettings &DataSources) {
-  const func::Maybe<FLevelLayoutSeed> ParsedLayout =
+FLayoutSeed LoadLayoutSeed(const ForbocAI::Game::Data::FDataSourceSettings &DataSources) {
+  const func::Maybe<FLayoutSeed> ParsedLayout =
       Layout::LayoutFromJson(
           {{JsonAdapters::LoadRequiredArrayFromContent(
                 {DataSources.TerrainBlocksJsonPath}),

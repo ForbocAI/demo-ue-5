@@ -19,7 +19,7 @@ namespace {
 struct FRuntimeDistanceLodReduceRequest {
   FVector Origin;
   TArray<FLevelDistanceLodStage> Stages;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 TArray<FVector> ReduceWorldRoute(const TArray<FLevelLocalPoint> &Route,
@@ -32,8 +32,8 @@ TArray<FVector> ReduceWorldRoute(const TArray<FLevelLocalPoint> &Route,
       []() { return TArray<FVector>(); });
 }
 
-void ReduceAppendSection(TArray<FLevelSectionSpawn> &Sections,
-                         const FLevelSectionSpawn &Section) {
+void ReduceAppendSection(TArray<FSectionSpawn> &Sections,
+                         const FSectionSpawn &Section) {
   Sections.Add(Section);
 }
 
@@ -46,52 +46,52 @@ FLevelDistanceLodStage ReduceDistanceLodForLocation(
 
 FVector ReduceRouteLodLocation(
     const TArray<FVector> &PatrolRoute,
-    const ForbocAI::Game::Data::FLevelGeometrySettings &Geometry) {
+    const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   check(PatrolRoute.IsValidIndex(Geometry.InitialPatrolRouteIndex));
   return PatrolRoute[Geometry.InitialPatrolRouteIndex];
 }
 
-FLevelBlockSpawn ReduceBlockDistanceLod(
+FBlockSpawn ReduceBlockDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
-    const FLevelBlockSpawn &Block) {
+    const FBlockSpawn &Block) {
   return (func::pipe(Block) |
-          [&Request](FLevelBlockSpawn Next) -> FLevelBlockSpawn {
+          [&Request](FBlockSpawn Next) -> FBlockSpawn {
             Next.Lod = ReduceDistanceLodForLocation(Request, Next.Location);
             return Next;
           })
       .val;
 }
 
-FLevelLabelSpawn ReduceLabelDistanceLod(
+FLabelSpawn ReduceLabelDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
-    const FLevelLabelSpawn &Label) {
+    const FLabelSpawn &Label) {
   return (func::pipe(Label) |
-          [&Request](FLevelLabelSpawn Next) -> FLevelLabelSpawn {
+          [&Request](FLabelSpawn Next) -> FLabelSpawn {
             Next.Lod = ReduceDistanceLodForLocation(Request, Next.Location);
             return Next;
           })
       .val;
 }
 
-FLevelSectionSpawn ReduceSectionDistanceLod(
+FSectionSpawn ReduceSectionDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
-    const FLevelSectionSpawn &Section) {
-  const TArray<FLevelBlockSpawn> Blocks =
-      func::map_array<FLevelBlockSpawn, FLevelBlockSpawn>(
-          Section.Blocks, [&Request](const FLevelBlockSpawn &Block) {
+    const FSectionSpawn &Section) {
+  const TArray<FBlockSpawn> Blocks =
+      func::map_array<FBlockSpawn, FBlockSpawn>(
+          Section.Blocks, [&Request](const FBlockSpawn &Block) {
             return ReduceBlockDistanceLod(Request, Block);
           });
-  const TArray<FLevelLabelSpawn> Labels =
-      func::map_array<FLevelLabelSpawn, FLevelLabelSpawn>(
-          Section.Labels, [&Request](const FLevelLabelSpawn &Label) {
+  const TArray<FLabelSpawn> Labels =
+      func::map_array<FLabelSpawn, FLabelSpawn>(
+          Section.Labels, [&Request](const FLabelSpawn &Label) {
             return ReduceLabelDistanceLod(Request, Label);
           });
-  return {func::filter_array<FLevelBlockSpawn>(
-              Blocks, [](const FLevelBlockSpawn &Block) {
+  return {func::filter_array<FBlockSpawn>(
+              Blocks, [](const FBlockSpawn &Block) {
                 return Block.Lod.bStaticVisible;
               }),
-          func::filter_array<FLevelLabelSpawn>(
-              Labels, [](const FLevelLabelSpawn &Label) {
+          func::filter_array<FLabelSpawn>(
+              Labels, [](const FLabelSpawn &Label) {
                 return Label.Lod.bStaticVisible && Label.Lod.bLabelsVisible;
               })};
 }
@@ -123,7 +123,7 @@ FRuntimeHorseViewSpawn ReduceHorseDistanceLod(
       .val;
 }
 
-TArray<FNatureFeatureSeed> ReduceAllNature(const FNatureState &State) {
+TArray<FFeatureSeed> ReduceAllNature(const FNatureState &State) {
   return NatureAdapters::NatureAdapter().getSelectors().selectAll(State.Items);
 }
 
@@ -146,13 +146,10 @@ TArray<FHorseRouteSeed> ReduceAllHorses(const FHorseState &State) {
 
 FRuntimeTownspersonViewSpawn ReduceTownspersonViewSpawn(
     const FRuntimeTownspersonViewSpawnRequest &Request) {
-  return {Request.Seed.Id,
-          Request.Seed.Name,
-          Request.Seed.Role,
-          Request.Seed.Persona,
-          Request.Seed.InteractionPrompt,
-          Request.Seed.DefaultPlayerLine,
-          Request.Seed.PinnedResponse,
+  return {{Request.Seed.Id, Request.Seed.Name, Request.Seed.Role,
+           Request.Seed.Persona},
+          {Request.Seed.InteractionPrompt, Request.Seed.DefaultPlayerLine,
+           Request.Seed.PinnedResponse},
           ReduceWorldRoute(Request.Seed.PatrolRoute, Request.TerrainData)};
 }
 
@@ -176,7 +173,8 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
       {*Request.TerrainData, *Request.OrthoData, *Request.Geometry});
   Payload.bTerrainMeshLoaded = Payload.TerrainMesh.bLoaded;
   const FRuntimeDistanceLodReduceRequest LodRequest = {
-      State.Spawn.PlayerSpawn.Location, State.Rendering.DistanceLodStages,
+      State.Spawn.PlayerSpawn.Location,
+      State.Rendering.Catalog.DistanceLodStages,
       *Request.Geometry};
 
   ReduceAppendSection(Payload.Sections,

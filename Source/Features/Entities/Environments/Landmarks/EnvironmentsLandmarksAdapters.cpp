@@ -13,7 +13,7 @@ namespace LandmarksAdapters {
 
 namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
-struct FLandmarkFields {
+struct FLandmarkSource {
   FString Id;
   FString Label;
   FString Kind;
@@ -39,7 +39,7 @@ namespace LevelTypes = ForbocAI::Game::Level;
 namespace LandmarkTypes = ForbocAI::Game::Level::LandmarksAdapters;
 
 using ELandmarkKind = LevelTypes::ELandmarkKind;
-using FLandmarkFields = LandmarkTypes::FLandmarkFields;
+using FLandmarkSource = LandmarkTypes::FLandmarkSource;
 
 template <> struct TJsonTextValueRegistry<ELandmarkKind> {
   static const TArray<TTextValueDeclaration<ELandmarkKind>> &Values() {
@@ -55,7 +55,7 @@ template <> struct TJsonTextValueRegistry<ELandmarkKind> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FLandmarkFields, Id, Label, Kind, EastLots, NorthLots,
+JSON_SETTINGS_REGISTRY(FLandmarkSource, Id, Label, Kind, EastLots, NorthLots,
                        YawDegrees, FrontageFeet, DepthFeet, Stories);
 
 } // namespace JsonAdapters
@@ -71,8 +71,8 @@ namespace {
 
 struct FLandmarkBuildRequest {
   const FLevelTerrainData *TerrainData;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
-  FLandmarkFields Fields;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
+  FLandmarkSource Fields;
 };
 
 ELandmarkKind LandmarkKindFromJson(const FString &Kind) {
@@ -102,13 +102,13 @@ FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) {
 
 TArray<FLandmark>
 BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
-  return func::map_array<FLandmarkFields, FLandmark>(
-      JsonAdapters::MapSettingsJsonValues<FLandmarkFields>(
+  return func::map_array<FLandmarkSource, FLandmark>(
+      JsonAdapters::MapSettingsJsonValues<FLandmarkSource>(
           JsonAdapters::LoadRequiredArrayFromContent(
               {Request.RelativeJsonPath}),
           JSON_SETTINGS_ATOMS(Id, Label, Kind, EastLots, NorthLots,
                               YawDegrees, FrontageFeet, DepthFeet, Stories)),
-      [&Request](const FLandmarkFields &Fields) {
+      [&Request](const FLandmarkSource &Fields) {
         return LandmarkFromFields(
             {&Request.TerrainData, Request.Geometry, Fields});
       });
@@ -154,12 +154,13 @@ template <> struct TComponentSourceValueFieldRegistry<FLandmark> {
   static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>>
-        RegisteredFields = {{"Id", &FLandmark::Id},
-                            {"Label", &FLandmark::Label},
-                            {"Kind", &FLandmark::Kind},
-                            {"Location", &FLandmark::Location},
-                            {"Scale", &FLandmark::Scale}};
-    return RegisteredFields;
+        SourceFields = ComponentSourceFieldDeclarations<FLandmark>(
+            {{"Id", &FLandmark::Id},
+             {"Label", &FLandmark::Label},
+             {"Kind", &FLandmark::Kind},
+             {"Location", &FLandmark::Location},
+             {"Scale", &FLandmark::Scale}});
+    return SourceFields;
   }
 };
 
@@ -182,7 +183,7 @@ ecs::EntityKey LandmarkEntityKey(const FString &Id) {
 }
 
 ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectLandmarkEntityPayload &PayloadValue) {

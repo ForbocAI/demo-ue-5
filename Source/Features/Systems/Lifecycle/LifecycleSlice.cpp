@@ -29,7 +29,7 @@ FRuntimeLifecycleState ReduceSpawnPending(
 
 FRuntimeLifecycleState ReduceSpawnFulfilled(
     const FRuntimeLifecycleState &State,
-    const rtk::PayloadAction<FSpawnPointPayload> &) {
+    const rtk::PayloadAction<FPointPayload> &) {
   return WithPlayerSpawnStatus(State, ERuntimeLoadStatus::Ready);
 }
 
@@ -76,7 +76,7 @@ const rtk::Slice<FRuntimeLifecycleState> &GetSlice() {
         return rtk::createSlice<FRuntimeLifecycleState>(
             TEXT("runtime/lifecycle"), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FRuntimeLifecycleState> &Builder) {
-              const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
+              const rtk::AsyncThunkConfig<FPointPayload, rtk::FEmptyPayload,
                                           FRuntimeState> &Spawn =
                   RuntimeThunks::RequestPlayerSpawnAsyncThunk();
               const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload,

@@ -12,19 +12,19 @@ namespace BotsAdapters {
 
 namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
-struct FTownspersonRoutePointFields {
+struct FTownspersonRoutePointSource {
   float EastLots;
   float NorthLots;
 };
 
-struct FInteractionFields {
+struct FInteractionSource {
   FString Intent;
   FString Prompt;
   FString DefaultPlayerLine;
   FString PinnedResponse;
 };
 
-struct FTownspersonFields {
+struct FTownspersonSource {
   FString Id;
   FString Name;
   FString Role;
@@ -48,9 +48,9 @@ namespace BotSeedTypes = ForbocAI::Game::Level::BotsAdapters;
 
 using ETownspersonInteractionIntent =
     LevelTypes::ETownspersonInteractionIntent;
-using FInteractionFields = BotSeedTypes::FInteractionFields;
-using FTownspersonRoutePointFields = BotSeedTypes::FTownspersonRoutePointFields;
-using FTownspersonFields = BotSeedTypes::FTownspersonFields;
+using FInteractionSource = BotSeedTypes::FInteractionSource;
+using FTownspersonRoutePointSource = BotSeedTypes::FTownspersonRoutePointSource;
+using FTownspersonSource = BotSeedTypes::FTownspersonSource;
 
 template <>
 struct TJsonTextValueRegistry<ETownspersonInteractionIntent> {
@@ -67,10 +67,10 @@ struct TJsonTextValueRegistry<ETownspersonInteractionIntent> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FTownspersonRoutePointFields, EastLots, NorthLots);
-JSON_SETTINGS_REGISTRY(FInteractionFields, Intent, Prompt, DefaultPlayerLine,
+JSON_SETTINGS_REGISTRY(FTownspersonRoutePointSource, EastLots, NorthLots);
+JSON_SETTINGS_REGISTRY(FInteractionSource, Intent, Prompt, DefaultPlayerLine,
                        PinnedResponse);
-JSON_SETTINGS_REGISTRY(FTownspersonFields, Id, Name, Role, Persona,
+JSON_SETTINGS_REGISTRY(FTownspersonSource, Id, Name, Role, Persona,
                        Interaction, PatrolRoute);
 
 } // namespace JsonAdapters
@@ -85,7 +85,7 @@ namespace BotsAdapters {
 namespace {
 
 struct FTownspersonRouteLotsRequest {
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   float EastLots;
   float NorthLots;
 };
@@ -95,13 +95,13 @@ typedef FLevelLocalPoint (*FTownspersonRouteLotsProjector)(
 
 struct FTownspersonPatrolRouteFieldsRequest {
   TArray<TSharedPtr<FJsonValue>> Points;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
   FTownspersonRouteLotsProjector ProjectLots;
 };
 
 struct FTownspersonBuildRequest {
-  FTownspersonFields Fields;
-  ForbocAI::Game::Data::FLevelGeometrySettings Geometry;
+  FTownspersonSource Fields;
+  ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
 FLevelLocalPoint
@@ -121,21 +121,21 @@ ETownspersonInteractionIntent InteractionIntentFromJson(
 TArray<FLevelLocalPoint>
 TownspersonPatrolRouteFromFields(
     const FTownspersonPatrolRouteFieldsRequest &Request) {
-  const ForbocAI::Game::Data::FLevelGeometrySettings Geometry =
+  const ForbocAI::Game::Data::FGeometrySettings Geometry =
       Request.Geometry;
   const FTownspersonRouteLotsProjector ProjectLots = Request.ProjectLots;
-  return func::map_array<FTownspersonRoutePointFields, FLevelLocalPoint>(
-      JsonAdapters::MapSettingsJsonValues<FTownspersonRoutePointFields>(
+  return func::map_array<FTownspersonRoutePointSource, FLevelLocalPoint>(
+      JsonAdapters::MapSettingsJsonValues<FTownspersonRoutePointSource>(
           Request.Points, JSON_SETTINGS_ATOMS(EastLots, NorthLots)),
-      [Geometry, ProjectLots](const FTownspersonRoutePointFields &Fields) {
+      [Geometry, ProjectLots](const FTownspersonRoutePointSource &Fields) {
         return ProjectLots({Geometry, Fields.EastLots, Fields.NorthLots});
       });
 }
 
 FTownspersonSeed TownspersonFromFields(
     const FTownspersonBuildRequest &Request) {
-  const FInteractionFields Interaction =
-      JsonAdapters::ReadSettingsFields<FInteractionFields>(
+  const FInteractionSource Interaction =
+      JsonAdapters::ReadSettingsFields<FInteractionSource>(
           Request.Fields.Interaction,
           JSON_SETTINGS_ATOMS(Intent, Prompt, DefaultPlayerLine,
                               PinnedResponse));
@@ -157,13 +157,13 @@ FTownspersonSeed TownspersonFromFields(
 
 TArray<FTownspersonSeed> BuildTownspersonSeed(
     const FBotSeedBuildRequest &Request) {
-  return func::map_array<FTownspersonFields, FTownspersonSeed>(
-      JsonAdapters::MapSettingsJsonValues<FTownspersonFields>(
+  return func::map_array<FTownspersonSource, FTownspersonSeed>(
+      JsonAdapters::MapSettingsJsonValues<FTownspersonSource>(
           JsonAdapters::LoadRequiredArrayFromContent(
               {Request.RelativeJsonPath}),
           JSON_SETTINGS_ATOMS(Id, Name, Role, Persona, Interaction,
                               PatrolRoute)),
-      [&Request](const FTownspersonFields &Fields) {
+      [&Request](const FTownspersonSource &Fields) {
         return TownspersonFromFields({Fields, Request.Geometry});
       });
 }
@@ -200,7 +200,7 @@ template <> struct TComponentSourceValueFieldRegistry<FTownspersonSeed> {
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<
         FTownspersonSeed>>
-        RegisteredFields = {
+        SourceFields = ComponentSourceFieldDeclarations<FTownspersonSeed>({
             {"Id", &FTownspersonSeed::Id},
             {"Name", &FTownspersonSeed::Name},
             {"Role", &FTownspersonSeed::Role},
@@ -209,8 +209,8 @@ template <> struct TComponentSourceValueFieldRegistry<FTownspersonSeed> {
             {"DefaultPlayerLine", &FTownspersonSeed::DefaultPlayerLine},
             {"PinnedResponse", &FTownspersonSeed::PinnedResponse},
             {"InteractionIntent", &FTownspersonSeed::InteractionIntent},
-            {"PatrolRoute", &FTownspersonSeed::PatrolRoute}};
-    return RegisteredFields;
+            {"PatrolRoute", &FTownspersonSeed::PatrolRoute}});
+    return SourceFields;
   }
 };
 
@@ -236,7 +236,7 @@ extern ecs::EntityKey BotEntityKey(const FString &Id);
 
 ecs::FWorld
 ProjectTownsperson(const FProjectTownspersonEntityPayload &Payload) {
-  return ComponentsAdapters::ProjectPayloadEntityCatalogWith(
+  return ComponentsAdapters::ProjectEntityCatalog(
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectTownspersonEntityPayload &PayloadValue) {

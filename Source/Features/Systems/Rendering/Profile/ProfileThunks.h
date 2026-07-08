@@ -32,7 +32,7 @@ namespace Game {
 namespace Level {
 namespace RenderingThunks {
 
-using RenderingProfileColorTypes::FProfileColorChannels;
+using RenderingProfileColorTypes::FChannels;
 using RenderingProfileColorTypes::ProfileLinearColor;
 
 // One world+profile transition payload shared by every runtime profile

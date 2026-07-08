@@ -20,7 +20,7 @@ FRenderingAssetPaths ReduceRenderingAssetPaths(
     const ForbocAI::Game::Data::FRenderingAssetPathSettings &Settings);
 
 FRenderingPayload ReduceRenderingPayload(
-    const FRenderingPayloadRequest &Request);
+    const FPayloadRequest &Request);
 
 FRenderingState
 ReduceRenderingProfileObserved(const FRenderingState &State,

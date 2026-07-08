@@ -18,16 +18,10 @@ inline FRuntimeConversationViewModel
 ReduceRuntimeConversationViewModel(
     const FUIRuntimeConversationText &Text,
     const FUISettings &Settings) {
-  return {Text.Title,
-          Text.PlayerLine,
-          Text.NpcReply,
-          Settings.PanelColor,
-          Settings.TitleColor,
-          Settings.PlayerColor,
-          Settings.ReplyColor,
-          Settings.PanelPadding,
-          Settings.TitleSize,
-          Settings.BodySize};
+  return {{Text.Title, Text.PlayerLine, Text.NpcReply},
+          {Settings.PanelColor, Settings.TitleColor, Settings.PlayerColor,
+           Settings.ReplyColor},
+          {Settings.PanelPadding, Settings.TitleSize, Settings.BodySize}};
 }
 
 } // namespace detail
@@ -56,7 +50,7 @@ ReduceRuntimeConversationPlaceholder(
 
 inline ForbocAI::Game::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationViewModel(
-    const FUIRuntimeConversationViewModelRequest &Request,
+    const FRuntimeConversationViewModelRequest &Request,
     const ForbocAI::Game::Data::FUISettings &Settings) {
   return detail::ReduceRuntimeConversationViewModel(
       {frmt::RuntimeString(
@@ -75,10 +69,10 @@ ReduceRuntimeConversationViewModel(
       Settings);
 }
 
-inline FUIBindDialogueViewModel ReduceBindDialogueViewModel(
-    const FUIBindDialogueViewModelRequest &Request,
+inline FBindDialogueViewModel ReduceBindDialogueViewModel(
+    const FBindDialogueViewModelRequest &Request,
     const ForbocAI::Game::Data::FUISettings &Settings) {
-  FUIBindDialogueViewModel Model;
+  FBindDialogueViewModel Model;
   Model.bBound = Request.bBound;
   Model.Persona = Request.Persona;
   Model.ConnectionMessage = ReduceChatMessageViewModel(
@@ -93,10 +87,10 @@ inline FUIBindDialogueViewModel ReduceBindDialogueViewModel(
   return Model;
 }
 
-inline FUIDialogueResponseViewModel ReduceDialogueResponseViewModel(
-    const FUIDialogueResponseViewModelRequest &Request,
+inline FDialogueResponseViewModel ReduceDialogueResponseViewModel(
+    const FDialogueResponseViewModelRequest &Request,
     const ForbocAI::Game::Data::FUISettings &Settings) {
-  FUIDialogueResponseViewModel Model;
+  FDialogueResponseViewModel Model;
   Model.Message = ReduceChatMessageViewModel(
       {Settings.NpcRoleLabel, Request.NPCText}, Settings);
   return Model;

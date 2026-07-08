@@ -1,13 +1,13 @@
-#include "Features/Systems/Rendering/RenderingThunks.h"
+#include "Features/Systems/Rendering/Profile/ProfileThunks.h"
 
 #include "Core/ue_fp.hpp"
 #include "Features/Systems/Rendering/SystemsRenderingActions.h"
-#include "Features/Systems/Rendering/Profile/Runtime/RuntimeThunks.h"
+#include "Features/Systems/Rendering/RenderingThunks.h"
 #include "Features/Systems/Rendering/SystemsRenderingSlice.h"
 #include "Features/Systems/SystemsSelectors.h"
 
 // Runtime render profile orchestrator. The subdomain application passes live
-// in sibling translation units and share RenderingProfileRuntimeThunks.h:
+// in sibling translation units and share ProfileThunks.h:
 // - RenderingProfileConsoleThunks.cpp  console variable settings
 // - RenderingProfileWorldThunks.cpp    directional light + exponential fog
 // - RenderingProfileSkyThunks.cpp      atmosphere/light/dome/moon/stars

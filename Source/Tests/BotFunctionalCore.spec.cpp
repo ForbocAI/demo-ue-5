@@ -1,6 +1,6 @@
 #include "Misc/AutomationTest.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
-#include "Features/Systems/Bots/Core/Runtime/RuntimeTypes.h"
+#include "Features/Systems/Bots/Core/BotsCoreTypes.h"
 #include "Features/Systems/Bots/Core/CoreActions.h"
 #include "Features/Systems/Bots/Core/CoreSlice.h"
 
@@ -72,9 +72,9 @@ DEFINE_SPEC(FBotFunctionalCoreSpec, "ForbocAI.Bot.FunctionalCore", EAutomationTe
 void FBotFunctionalCoreSpec::Define()
 {
     FAutomationTestLabelCursor Labels = AutomationTestLabels(
-        BotFunctionalCoreAllSettings().Automation.BotFunctionalCoreLabels);
+        BotFunctionalCoreAllSettings().Automation.BotFunctionalCore.Assertions);
 
-    Describe("State Creation", [this]()
+    Describe("State Creation", [this, &Labels]()
     {
         It("Should create initial state with correct defaults", [this, &Labels]()
         {
@@ -92,9 +92,9 @@ void FBotFunctionalCoreSpec::Define()
         });
     });
 
-    Describe("Reducers", [this]()
+    Describe("Reducers", [this, &Labels]()
     {
-        Describe("Movement", [this]()
+        Describe("Movement", [this, &Labels]()
         {
             It("Should update position to target", [this, &Labels]()
             {
@@ -110,7 +110,7 @@ void FBotFunctionalCoreSpec::Define()
             });
         });
 
-        Describe("Combat", [this]()
+        Describe("Combat", [this, &Labels]()
         {
             It("Should reduce health when taking damage", [this, &Labels]()
             {
@@ -144,7 +144,7 @@ void FBotFunctionalCoreSpec::Define()
             });
         });
 
-        Describe("Awareness", [this]()
+        Describe("Awareness", [this, &Labels]()
         {
             It("Should update memory when spotting enemy", [this, &Labels]()
             {
@@ -162,7 +162,7 @@ void FBotFunctionalCoreSpec::Define()
             });
         });
 
-        Describe("Tick Update", [this]()
+        Describe("Tick Update", [this, &Labels]()
         {
             It("Should increment tick count", [this, &Labels]()
             {

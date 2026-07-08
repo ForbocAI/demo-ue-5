@@ -58,7 +58,7 @@ struct FRuntimeState {
   FRuntimeTownspersonInteractionRequest TownspersonInteractionRequest;
   FPlayerState Player;
   FSystemsState Systems;
-  FLevelSystemState Level;
+  FSystemState Level;
   FRenderingState Rendering;
   FDialogueState Dialogue;
   FInteractionState Interaction;

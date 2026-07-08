@@ -25,7 +25,7 @@ FString RequestLevelViewPayloadTypePrefix();
  * react to their pending/fulfilled/rejected lifecycle action creators via
  * builder.addCase (the canonical RTK extraReducers pattern).
  */
-const rtk::AsyncThunkConfig<FSpawnPointPayload, rtk::FEmptyPayload,
+const rtk::AsyncThunkConfig<FPointPayload, rtk::FEmptyPayload,
                             FRuntimeState> &
 RequestPlayerSpawnAsyncThunk();
 const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload, rtk::FEmptyPayload,
@@ -35,7 +35,7 @@ RequestLevelViewPayloadAsyncThunk();
 /**
  * @brief RTK thunk that loads runtime data and resolves the player spawn.
  */
-rtk::ThunkAction<FSpawnPointPayload, FRuntimeState> RequestPlayerSpawn();
+rtk::ThunkAction<FPointPayload, FRuntimeState> RequestPlayerSpawn();
 
 /**
  * @brief RTK thunk that seeds data and resolves the full runtime level view

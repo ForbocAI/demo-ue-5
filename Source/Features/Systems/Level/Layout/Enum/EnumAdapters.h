@@ -10,34 +10,34 @@ namespace Layout {
 /**
  * @brief Parses an authored level scale mode.
  *
- * @signature func::Maybe<ELevelScaleMode> ParseScaleMode(const FLevelEnumTextRequest &Request)
+ * @signature func::Maybe<EScaleMode> ParseScaleMode(const FLevelEnumTextRequest &Request)
  *
  * User story: As a Level data author, scale mode text becomes a typed ECS seed
  * value before the RTK reducer composes spawn payloads.
  */
-func::Maybe<ELevelScaleMode>
+func::Maybe<EScaleMode>
 ParseScaleMode(const FLevelEnumTextRequest &Request);
 
 /**
  * @brief Parses an authored level anchor mode.
  *
- * @signature func::Maybe<ELevelAnchorMode> ParseAnchorMode(const FLevelEnumTextRequest &Request)
+ * @signature func::Maybe<EAnchorMode> ParseAnchorMode(const FLevelEnumTextRequest &Request)
  *
  * User story: As a Level data author, anchor mode text is validated in the
  * adapter layer instead of view display code.
  */
-func::Maybe<ELevelAnchorMode>
+func::Maybe<EAnchorMode>
 ParseAnchorMode(const FLevelEnumTextRequest &Request);
 
 /**
  * @brief Parses an authored level label height mode.
  *
- * @signature func::Maybe<ELevelLabelHeightMode> ParseLabelHeightMode(const FLevelEnumTextRequest &Request)
+ * @signature func::Maybe<ELabelHeightMode> ParseLabelHeightMode(const FLevelEnumTextRequest &Request)
  *
  * User story: As a gameplay engineer, label height semantics stay in typed ECS
  * seed data before reducers derive world placement.
  */
-func::Maybe<ELevelLabelHeightMode>
+func::Maybe<ELabelHeightMode>
 ParseLabelHeightMode(const FLevelEnumTextRequest &Request);
 
 /**

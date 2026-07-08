@@ -5,52 +5,79 @@
 #include "Features/Systems/UI/Conversation/UIConversationSlice.h"
 #include "Misc/AutomationTest.h"
 
+namespace {
+
+using FConversationUISettings =
+    ForbocAI::Game::Data::Automation::Conversation::UI::FSettings;
+
+struct FAutomationTestLabelCursor {
+  const TArray<FString> *Labels = nullptr;
+  int32 Index = int32();
+
+  FString Next() {
+    check(Labels != nullptr);
+    check(Labels->IsValidIndex(Index));
+    const FString Label = (*Labels)[Index];
+    ++Index;
+    return Label;
+  }
+};
+
+FAutomationTestLabelCursor AutomationTestLabels(const TArray<FString> &Labels) {
+  return {&Labels, int32()};
+}
+
+} // namespace
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FConversationUIBuildsViewModels,
     "ForbocAI.UI.ConversationViewModels",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
-  const ForbocAI::Game::Data::FUISettings UISettings =
-      ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
-          .UI;
+  const ForbocAI::Game::Data::FSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
+  const ForbocAI::Game::Data::FUISettings UISettings = Settings.UI;
+  const FConversationUISettings Automation =
+      Settings.Automation.ConversationUI;
+  FAutomationTestLabelCursor Labels =
+      AutomationTestLabels(Automation.Assertions);
   const ForbocAI::Game::UI::FChatMessageViewModel PlayerMessage =
       ForbocAI::Game::Level::UIReducers::ReduceChatMessageViewModel(
-          {TEXT("Player"), TEXT("Hello")}, UISettings);
-  TestEqual(TEXT("Player message is role-prefixed"), PlayerMessage.Text,
-            FString(TEXT("[Player] Hello")));
-  TestEqual(TEXT("Player message uses cyan channel"), PlayerMessage.Color.G,
-            0.85f);
+          {Automation.PlayerMessage.Role, Automation.PlayerMessage.Text},
+          UISettings);
+  TestEqual(Labels.Next(), PlayerMessage.Text,
+            Automation.PlayerMessage.ExpectedText);
+  TestEqual(Labels.Next(), PlayerMessage.Color.G,
+            Automation.PlayerMessage.ExpectedGreen);
 
-  const TArray<FString> History = {TEXT("NPC: Welcome back"),
-                                   TEXT("Unlabeled message")};
   const TArray<ForbocAI::Game::UI::FChatMessageViewModel> Messages =
       ForbocAI::Game::Level::UIReducers::ReduceChatHistoryViewModels(
-          {History}, UISettings);
-  TestEqual(TEXT("History produces view models"), Messages.Num(), 2);
-  TestEqual(TEXT("Tagged history keeps role"), Messages[0].Text,
-            FString(TEXT("[NPC] Welcome back")));
-  TestEqual(TEXT("Untagged history is marked unknown"), Messages[1].Text,
-            FString(TEXT("[Unknown] Unlabeled message")));
+          {Automation.History.Lines}, UISettings);
+  TestEqual(Labels.Next(), Messages.Num(), Automation.History.ExpectedCount);
+  TestEqual(Labels.Next(), Messages[Automation.History.Tagged.Index].Text,
+            Automation.History.Tagged.ExpectedText);
+  TestEqual(Labels.Next(), Messages[Automation.History.Untagged.Index].Text,
+            Automation.History.Untagged.ExpectedText);
 
-  TestEqual(TEXT("Submitted text is trimmed"),
+  TestEqual(Labels.Next(),
             ForbocAI::Game::Level::UIReducers::
                 ReduceNormalizedSubmittedChatText(
-                    {FText::FromString(TEXT("  Ask around  ")),
+                    {FText::FromString(Automation.Submitted.Input),
                      ETextCommit::OnEnter, true}),
-            FString(TEXT("Ask around")));
+            Automation.Submitted.ExpectedText);
 
   const ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation =
       ForbocAI::Game::Level::UIReducers::ReduceRuntimeConversationViewModel(
-          {TEXT("Clara Bell"), TEXT("Postmaster"), TEXT("Any mail?"),
-           TEXT("Only dust today.")},
+          {Automation.Dialogue.SpeakerName, Automation.Dialogue.SpeakerRole,
+           Automation.Dialogue.PlayerLine, Automation.Dialogue.NpcReply},
           UISettings);
-  TestEqual(TEXT("Conversation title is composed"), Conversation.Title,
-            FString(TEXT("Clara Bell - Postmaster")));
-  TestEqual(TEXT("Conversation player line is labeled"),
-            Conversation.PlayerLine, FString(TEXT("Player: Any mail?")));
-  TestEqual(TEXT("Conversation reply is labeled"), Conversation.NpcReply,
-            FString(TEXT("NPC: Only dust today.")));
+  TestEqual(Labels.Next(), Conversation.Text.Title,
+            Automation.Dialogue.ExpectedTitle);
+  TestEqual(Labels.Next(), Conversation.Text.PlayerLine,
+            Automation.Dialogue.ExpectedPlayerLine);
+  TestEqual(Labels.Next(), Conversation.Text.NpcReply,
+            Automation.Dialogue.ExpectedNpcReply);
 
   return true;
 }

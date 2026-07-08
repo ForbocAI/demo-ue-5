@@ -9,7 +9,7 @@ namespace Level {
 namespace RenderingProfileSkyReducers {
 namespace {
 
-using RenderingProfileColorTypes::FProfileColorChannels;
+using RenderingProfileColorTypes::FChannels;
 using RenderingProfileColorTypes::ProfileLinearColor;
 
 // --- Moon pixel grid helpers (pure computation) --------------------------

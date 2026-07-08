@@ -9,7 +9,7 @@ namespace Game {
 namespace Level {
 namespace Layout {
 
-struct FLevelLabelExplicitHeightFields {
+struct FLevelLabelExplicitHeightSource {
   float HeightOffset;
 };
 
@@ -24,9 +24,9 @@ namespace Data {
 namespace JsonValueAdapters {
 
 template <>
-func::Maybe<ForbocAI::Game::Level::ELevelAnchorMode>
-ReadRequiredValue<ForbocAI::Game::Level::ELevelAnchorMode>(
-    const ForbocAI::Game::Data::FJsonFieldRequest &Request) {
+func::Maybe<ForbocAI::Game::Level::EAnchorMode>
+ReadRequiredValue<ForbocAI::Game::Level::EAnchorMode>(
+    const ForbocAI::Game::Data::FFieldRequest &Request) {
   return func::mbind(ReadRequiredValue<FString>(Request),
                      [Request](const FString &Text) {
                        return ForbocAI::Game::Level::Layout::
@@ -35,9 +35,9 @@ ReadRequiredValue<ForbocAI::Game::Level::ELevelAnchorMode>(
 }
 
 template <>
-func::Maybe<ForbocAI::Game::Level::ELevelLabelHeightMode>
-ReadRequiredValue<ForbocAI::Game::Level::ELevelLabelHeightMode>(
-    const ForbocAI::Game::Data::FJsonFieldRequest &Request) {
+func::Maybe<ForbocAI::Game::Level::ELabelHeightMode>
+ReadRequiredValue<ForbocAI::Game::Level::ELabelHeightMode>(
+    const ForbocAI::Game::Data::FFieldRequest &Request) {
   return func::mbind(ReadRequiredValue<FString>(Request),
                      [Request](const FString &Text) {
                        return ForbocAI::Game::Level::Layout::
@@ -47,20 +47,20 @@ ReadRequiredValue<ForbocAI::Game::Level::ELevelLabelHeightMode>(
 
 template <>
 struct TRequiredJsonFieldRegistry<
-    ForbocAI::Game::Level::FLevelLabelSeed> {
+    ForbocAI::Game::Level::FLabelSeed> {
   static const TArray<
       TRequiredJsonFieldDeclaration<
-          ForbocAI::Game::Level::FLevelLabelSeed>> &
+          ForbocAI::Game::Level::FLabelSeed>> &
   Fields() {
     static const TArray<
         TRequiredJsonFieldDeclaration<
-            ForbocAI::Game::Level::FLevelLabelSeed>>
+            ForbocAI::Game::Level::FLabelSeed>>
         RegisteredFields = {
-            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLevelLabelSeed,
+            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLabelSeed,
                                  Id, Text, Anchor),
             {"HeightMode",
-             &ForbocAI::Game::Level::FLevelLabelSeed::Height},
-            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLevelLabelSeed,
+             &ForbocAI::Game::Level::FLabelSeed::Height},
+            JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLabelSeed,
                                  EastLots, NorthLots, WorldSizeScale)};
     return RegisteredFields;
   }
@@ -68,7 +68,7 @@ struct TRequiredJsonFieldRegistry<
 
 JSON_REQUIRED_FIELD_REGISTRY(
     ForbocAI::Game::Level::Layout::
-        FLevelLabelExplicitHeightFields,
+        FLevelLabelExplicitHeightSource,
     HeightOffset);
 
 } // namespace JsonValueAdapters
@@ -84,67 +84,67 @@ namespace {
 
 namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
-typedef func::Maybe<FLevelLabelSeed> (*FLabelHeightReader)(
-    const TSharedPtr<FJsonObject> &, const FLevelLabelSeed &);
+typedef func::Maybe<FLabelSeed> (*FLabelHeightReader)(
+    const TSharedPtr<FJsonObject> &, const FLabelSeed &);
 
 struct FLevelLabelHeightDeclaration {
-  ELevelLabelHeightMode Height;
+  ELabelHeightMode Height;
   FLabelHeightReader Read;
 
   FLevelLabelHeightDeclaration() = default;
 
-  FLevelLabelHeightDeclaration(ELevelLabelHeightMode InHeight,
+  FLevelLabelHeightDeclaration(ELabelHeightMode InHeight,
                                       FLabelHeightReader InRead)
       : Height(InHeight), Read(InRead) {}
 };
 
-FLevelLabelSeed
-AssignExplicitHeight(const FLevelLabelSeed &Seed,
-                     const FLevelLabelExplicitHeightFields &Fields) {
-  FLevelLabelSeed Next = Seed;
+FLabelSeed
+AssignExplicitHeight(const FLabelSeed &Seed,
+                     const FLevelLabelExplicitHeightSource &Fields) {
+  FLabelSeed Next = Seed;
   Next.HeightOffset = Fields.HeightOffset;
   return Next;
 }
 
-FLevelLabelSeed
-AssignReferenceScale(const FLevelLabelSeed &Seed,
-                     const FLevelScaleSeed &ReferenceScale) {
-  FLevelLabelSeed Next = Seed;
+FLabelSeed
+AssignReferenceScale(const FLabelSeed &Seed,
+                     const FScaleSeed &ReferenceScale) {
+  FLabelSeed Next = Seed;
   Next.ReferenceScale = ReferenceScale;
   return Next;
 }
 
-func::Maybe<FLevelLabelSeed>
+func::Maybe<FLabelSeed>
 ReadExplicitHeightLabelSeed(const TSharedPtr<FJsonObject> &Object,
-                            const FLevelLabelSeed &Seed) {
+                            const FLabelSeed &Seed) {
   return func::fmap(
-      JsonValues::ReadRequiredFields<FLevelLabelExplicitHeightFields>({FLevelLabelExplicitHeightFields(), Object}, JSON_REQUIRED_ATOMS(HeightOffset)),
-      [Seed](const FLevelLabelExplicitHeightFields &Fields) {
+      JsonValues::ReadRequiredFields<FLevelLabelExplicitHeightSource>({FLevelLabelExplicitHeightSource(), Object}, JSON_REQUIRED_ATOMS(HeightOffset)),
+      [Seed](const FLevelLabelExplicitHeightSource &Fields) {
         return AssignExplicitHeight(Seed, Fields);
       });
 }
 
-func::Maybe<FLevelLabelSeed>
+func::Maybe<FLabelSeed>
 ReadReferenceScaleLabelSeed(const TSharedPtr<FJsonObject> &Object,
-                            const FLevelLabelSeed &Seed) {
+                            const FLabelSeed &Seed) {
   return func::fmap(
       ReadScaleSeed(JsonValues::RequiredField(Object, "ReferenceScale")),
-      [Seed](const FLevelScaleSeed &ReferenceScale) {
+      [Seed](const FScaleSeed &ReferenceScale) {
         return AssignReferenceScale(Seed, ReferenceScale);
       });
 }
 
 const TArray<FLevelLabelHeightDeclaration> &LabelHeightDeclarations() {
   static const TArray<FLevelLabelHeightDeclaration> Declarations = {
-      {ELevelLabelHeightMode::Explicit, ReadExplicitHeightLabelSeed},
-      {ELevelLabelHeightMode::LabelForScale,
+      {ELabelHeightMode::Explicit, ReadExplicitHeightLabelSeed},
+      {ELabelHeightMode::LabelForScale,
        ReadReferenceScaleLabelSeed},
-      {ELevelLabelHeightMode::AboveBlock, ReadReferenceScaleLabelSeed}};
+      {ELabelHeightMode::AboveBlock, ReadReferenceScaleLabelSeed}};
   return Declarations;
 }
 
 func::Maybe<FLevelLabelHeightDeclaration>
-FindLabelHeightDeclaration(ELevelLabelHeightMode Height) {
+FindLabelHeightDeclaration(ELabelHeightMode Height) {
   return func::find_array<FLevelLabelHeightDeclaration>(
       LabelHeightDeclarations(),
       [Height](const FLevelLabelHeightDeclaration &Declaration) {
@@ -152,30 +152,30 @@ FindLabelHeightDeclaration(ELevelLabelHeightMode Height) {
       });
 }
 
-func::Maybe<FLevelLabelSeed>
+func::Maybe<FLabelSeed>
 CompleteLabelHeight(const TSharedPtr<FJsonObject> &Object,
-                    const FLevelLabelSeed &Seed) {
+                    const FLabelSeed &Seed) {
   return func::match(
       FindLabelHeightDeclaration(Seed.Height),
       [Object, Seed](const FLevelLabelHeightDeclaration &Declaration) {
         return Declaration.Read(Object, Seed);
       },
-      []() { return func::nothing<FLevelLabelSeed>(); });
+      []() { return func::nothing<FLabelSeed>(); });
 }
 
-func::Maybe<FLevelLabelSeed>
+func::Maybe<FLabelSeed>
 ReadLabelSeedFields(const FLevelJsonObjectRequest &Request) {
-  return JsonValues::ReadRequiredFields<FLevelLabelSeed>({FLevelLabelSeed(), Request.Object}, JSON_REQUIRED_ATOMS(Id, Text, Anchor, HeightMode,
+  return JsonValues::ReadRequiredFields<FLabelSeed>({FLabelSeed(), Request.Object}, JSON_REQUIRED_ATOMS(Id, Text, Anchor, HeightMode,
                                           EastLots, NorthLots, WorldSizeScale));
 }
 
 } // namespace
 
-func::Maybe<FLevelLabelSeed>
+func::Maybe<FLabelSeed>
 LabelFromJson(const FLevelJsonObjectRequest &Request) {
   return func::mbind(
       ReadLabelSeedFields(Request),
-      [Request](const FLevelLabelSeed &Seed) {
+      [Request](const FLabelSeed &Seed) {
         return CompleteLabelHeight(Request.Object, Seed);
       });
 }

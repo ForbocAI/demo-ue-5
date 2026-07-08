@@ -7,12 +7,12 @@ namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
-void LogInvalidField(const FJsonFieldRequest &Request) {
+void LogInvalidField(const FFieldRequest &Request) {
   UE_LOG(LogTemp, Warning, TEXT("Invalid JSON field: %s"),
          *Request.FieldName);
 }
 
-func::Maybe<FString> ReadRequiredString(const FJsonFieldRequest &Request) {
+func::Maybe<FString> ReadRequiredString(const FFieldRequest &Request) {
   FString Value;
   return Request.Object.IsValid() &&
                  Request.Object->TryGetStringField(Request.FieldName, Value)
@@ -20,7 +20,7 @@ func::Maybe<FString> ReadRequiredString(const FJsonFieldRequest &Request) {
              : func::nothing<FString>();
 }
 
-func::Maybe<float> ReadRequiredFloat(const FJsonFieldRequest &Request) {
+func::Maybe<float> ReadRequiredFloat(const FFieldRequest &Request) {
   double Value = 0.0;
   return Request.Object.IsValid() &&
                  Request.Object->TryGetNumberField(Request.FieldName, Value)
@@ -29,14 +29,14 @@ func::Maybe<float> ReadRequiredFloat(const FJsonFieldRequest &Request) {
 }
 
 func::Maybe<TSharedPtr<FJsonObject>>
-ReadRequiredObject(const FJsonFieldRequest &Request) {
+ReadRequiredObject(const FFieldRequest &Request) {
   const func::Maybe<TSharedPtr<FJsonObject>> Value =
       JsonAdapters::ReadObject(Request);
   return Value.hasValue ? Value : func::nothing<TSharedPtr<FJsonObject>>();
 }
 
 func::Maybe<TArray<TSharedPtr<FJsonValue>>>
-ReadRequiredArray(const FJsonFieldRequest &Request) {
+ReadRequiredArray(const FFieldRequest &Request) {
   const TArray<TSharedPtr<FJsonValue>> *Values = nullptr;
   return Request.Object.IsValid() &&
                  Request.Object->TryGetArrayField(Request.FieldName, Values) &&
@@ -46,7 +46,7 @@ ReadRequiredArray(const FJsonFieldRequest &Request) {
 }
 
 func::Maybe<TSharedPtr<FJsonObject>>
-ReadArrayObject(const FJsonArrayValueObjectRequest &Request) {
+ReadArrayObject(const FArrayValueObjectRequest &Request) {
   const TSharedPtr<FJsonObject> Object =
       Request.Value.IsValid() ? Request.Value->AsObject()
                               : TSharedPtr<FJsonObject>();

@@ -10,44 +10,44 @@ namespace JsonAdapters {
 namespace LevelTypes = ForbocAI::Game::Level;
 
 using ELevelRetroTexture = LevelTypes::ELevelRetroTexture;
-using ELevelAnchorMode = LevelTypes::ELevelAnchorMode;
-using ELevelLabelHeightMode =
-    LevelTypes::ELevelLabelHeightMode;
-using ELevelScaleMode = LevelTypes::ELevelScaleMode;
+using EAnchorMode = LevelTypes::EAnchorMode;
+using ELabelHeightMode =
+    LevelTypes::ELabelHeightMode;
+using EScaleMode = LevelTypes::EScaleMode;
 
-template <> struct TJsonTextValueRegistry<ELevelScaleMode> {
-  static const TArray<TTextValueDeclaration<ELevelScaleMode>> &Values() {
-    static const TArray<TTextValueDeclaration<ELevelScaleMode>>
+template <> struct TJsonTextValueRegistry<EScaleMode> {
+  static const TArray<TTextValueDeclaration<EScaleMode>> &Values() {
+    static const TArray<TTextValueDeclaration<EScaleMode>>
         RegisteredValues = {
-            {"building", ELevelScaleMode::Building},
-            {"long_feature", ELevelScaleMode::LongFeature},
-            {"pad", ELevelScaleMode::Pad}};
+            {"building", EScaleMode::Building},
+            {"long_feature", EScaleMode::LongFeature},
+            {"pad", EScaleMode::Pad}};
     return RegisteredValues;
   }
 };
 
-template <> struct TJsonTextValueRegistry<ELevelAnchorMode> {
-  static const TArray<TTextValueDeclaration<ELevelAnchorMode>>
+template <> struct TJsonTextValueRegistry<EAnchorMode> {
+  static const TArray<TTextValueDeclaration<EAnchorMode>>
       &Values() {
-    static const TArray<TTextValueDeclaration<ELevelAnchorMode>>
+    static const TArray<TTextValueDeclaration<EAnchorMode>>
         RegisteredValues = {
-            {"building_lots", ELevelAnchorMode::BuildingLots},
-            {"feature_lots", ELevelAnchorMode::FeatureLots},
-            {"post_office_lots", ELevelAnchorMode::PostOfficeLots},
-            {"world", ELevelAnchorMode::World}};
+            {"building_lots", EAnchorMode::BuildingLots},
+            {"feature_lots", EAnchorMode::FeatureLots},
+            {"post_office_lots", EAnchorMode::PostOfficeLots},
+            {"world", EAnchorMode::World}};
     return RegisteredValues;
   }
 };
 
-template <> struct TJsonTextValueRegistry<ELevelLabelHeightMode> {
-  static const TArray<TTextValueDeclaration<ELevelLabelHeightMode>>
+template <> struct TJsonTextValueRegistry<ELabelHeightMode> {
+  static const TArray<TTextValueDeclaration<ELabelHeightMode>>
       &Values() {
-    static const TArray<TTextValueDeclaration<ELevelLabelHeightMode>>
+    static const TArray<TTextValueDeclaration<ELabelHeightMode>>
         RegisteredValues = {
-            {"explicit", ELevelLabelHeightMode::Explicit},
+            {"explicit", ELabelHeightMode::Explicit},
             {"label_for_scale",
-             ELevelLabelHeightMode::LabelForScale},
-            {"above_block", ELevelLabelHeightMode::AboveBlock}};
+             ELabelHeightMode::LabelForScale},
+            {"above_block", ELabelHeightMode::AboveBlock}};
     return RegisteredValues;
   }
 };
@@ -117,19 +117,19 @@ ParseEnumText(const FLevelEnumTextRequest &Request) {
 
 } // namespace
 
-func::Maybe<ELevelScaleMode>
+func::Maybe<EScaleMode>
 ParseScaleMode(const FLevelEnumTextRequest &Request) {
-  return ParseEnumText<ELevelScaleMode>(Request);
+  return ParseEnumText<EScaleMode>(Request);
 }
 
-func::Maybe<ELevelAnchorMode>
+func::Maybe<EAnchorMode>
 ParseAnchorMode(const FLevelEnumTextRequest &Request) {
-  return ParseEnumText<ELevelAnchorMode>(Request);
+  return ParseEnumText<EAnchorMode>(Request);
 }
 
-func::Maybe<ELevelLabelHeightMode>
+func::Maybe<ELabelHeightMode>
 ParseLabelHeightMode(const FLevelEnumTextRequest &Request) {
-  return ParseEnumText<ELevelLabelHeightMode>(Request);
+  return ParseEnumText<ELabelHeightMode>(Request);
 }
 
 func::Maybe<ELevelRetroTexture>

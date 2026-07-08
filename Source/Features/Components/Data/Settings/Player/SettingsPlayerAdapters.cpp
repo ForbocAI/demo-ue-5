@@ -7,7 +7,7 @@ namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-JSON_SETTINGS_REGISTRY(FPlayerPresentationSettings, CapsuleRadius,
+JSON_SETTINGS_REGISTRY(FPresentationSettings, CapsuleRadius,
                        CapsuleHalfHeight, FollowCameraArmLength,
                        RotationRateYaw, JumpZVelocity, AirControl,
                        MaxWalkSpeed, FlyModeSpeed, MinAnalogWalkSpeed,
@@ -28,9 +28,9 @@ JSON_SETTINGS_REGISTRY(FInteractionSettings, TownspersonMaxDistanceLots,
 namespace PlayerSettingsAdapters {
 namespace Json = JsonAdapters;
 
-FPlayerPresentationSettings
+FPresentationSettings
 ReadPlayerPresentationSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FPlayerPresentationSettings>(
+  return Json::ReadSettingsFields<FPresentationSettings>(
       Object, JSON_SETTINGS_ATOMS(CapsuleRadius, CapsuleHalfHeight,
                                   FollowCameraArmLength, RotationRateYaw,
                                   JumpZVelocity, AirControl, MaxWalkSpeed,
