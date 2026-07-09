@@ -54,6 +54,11 @@ template <typename Settings> struct TField {
           return Current;
         }) {}
 
+  TField(
+      const char *FieldAtom,
+      TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn)
+      : FieldName(SettingsFieldName(FieldAtom)), Apply(ApplyFn) {}
+
   template <typename Value>
   TField(const char *FieldAtom, Value Settings::*Member)
       : FieldName(SettingsFieldName(FieldAtom)),
@@ -170,6 +175,33 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 };
+
+template <typename Settings, typename Group, typename Value>
+struct TNestedFieldMembers {
+  Group Settings::*GroupMember;
+  Value Group::*ValueMember;
+};
+
+template <typename Settings, typename Group, typename Value>
+TNestedFieldMembers<Settings, Group, Value>
+NestedFieldMembers(Group Settings::*GroupMember, Value Group::*ValueMember) {
+  return {GroupMember, ValueMember};
+}
+
+template <typename Settings, typename Group, typename Value>
+TField<Settings>
+NestedSettingField(
+    const char *FieldAtom,
+    const TNestedFieldMembers<Settings, Group, Value> &Members) {
+  return TField<Settings>(
+      FieldAtom,
+      [Members](const FFieldRequest &Request, const Settings &Current) {
+        Settings Next = Current;
+        ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
+            ReadFieldValue<Value>(Request);
+        return Next;
+      });
+}
 
 } // namespace JsonAdapters
 } // namespace Data

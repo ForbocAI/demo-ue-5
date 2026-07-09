@@ -20,7 +20,7 @@ const FRTKComplianceSettings &RTKComplianceSettings() {
 }
 
 bool IsHeaderOrSourceFile(const FString &Path) {
-  return RTKComplianceSettings().SourceFileSuffixes.ContainsByPredicate(
+  return RTKComplianceSettings().Source.SourceFileSuffixes.ContainsByPredicate(
       [&Path](const FString &Suffix) {
         return Path.EndsWith(Suffix);
       });
@@ -33,7 +33,7 @@ FString NormalizedPath(FString Path) {
 
 bool IsAllowedStoreBoundary(const FString &Path) {
   const FString Normal = NormalizedPath(Path);
-  return RTKComplianceSettings().AllowedBoundaryFragments.ContainsByPredicate(
+  return RTKComplianceSettings().Source.AllowedBoundaryFragments.ContainsByPredicate(
       [&Normal](const FString &Fragment) {
         return Normal.Contains(Fragment) || Normal.EndsWith(Fragment);
       });
@@ -47,9 +47,9 @@ TArray<FString> SourceFiles() {
   TArray<FString> Files;
   const FRTKComplianceSettings &Settings = RTKComplianceSettings();
   const FString SourceDir =
-      FPaths::Combine(FPaths::ProjectDir(), Settings.SourceDirectoryName);
+      FPaths::Combine(FPaths::ProjectDir(), Settings.Source.SourceDirectoryName);
   IFileManager::Get().FindFilesRecursive(
-      Files, *SourceDir, *Settings.SourceSearchPattern, true, false);
+      Files, *SourceDir, *Settings.Source.SourceSearchPattern, true, false);
   return func::filter_array<FString>(Files, ShouldAuditFile);
 }
 
@@ -70,11 +70,11 @@ int32 CountPatternViolation(FAutomationTestBase &Test, const FString &Path,
   const FRTKComplianceSettings &Settings = RTKComplianceSettings();
   return Content.Contains(Pattern.Token)
              ? (Test.AddError(ComplianceMessage(
-                    Settings.ViolationMessageFormat,
+                    Settings.Violation.ViolationMessageFormat,
                     {FStringFormatArg(Path), FStringFormatArg(Pattern.Message),
                      FStringFormatArg(Pattern.Token)})),
-                Settings.ViolationCountIncrement)
-             : Settings.CleanViolationCount;
+                Settings.Violation.ViolationCountIncrement)
+             : Settings.Violation.CleanViolationCount;
 }
 
 int32 CountForbiddenSourcePatternsInFile(
@@ -85,7 +85,7 @@ int32 CountForbiddenSourcePatternsInFile(
       LoadSourceContent(Path),
       [&Test, &Patterns, &Path](const FString &Content) {
         return func::fold_array<FForbiddenSourcePattern, int32>(
-            Patterns, RTKComplianceSettings().CleanViolationCount,
+            Patterns, RTKComplianceSettings().Violation.CleanViolationCount,
             [&Test, &Path, &Content](
                 const int32 &Count,
                 const FForbiddenSourcePattern &Pattern) -> int32 {
@@ -94,9 +94,9 @@ int32 CountForbiddenSourcePatternsInFile(
       },
       [&Test, &Path]() -> int32 {
         Test.AddError(ComplianceMessage(
-            RTKComplianceSettings().SourceReadFailureFormat,
+            RTKComplianceSettings().Violation.SourceReadFailureFormat,
             {FStringFormatArg(Path)}));
-        return RTKComplianceSettings().ViolationCountIncrement;
+        return RTKComplianceSettings().Violation.ViolationCountIncrement;
       });
 }
 
@@ -104,7 +104,7 @@ int32 CountForbiddenSourcePatterns(FAutomationTestBase &Test) {
   const TArray<FForbiddenSourcePattern> Patterns =
       RTKComplianceSettings().ForbiddenPatterns;
   return func::fold_array<FString, int32>(
-      SourceFiles(), RTKComplianceSettings().CleanViolationCount,
+      SourceFiles(), RTKComplianceSettings().Violation.CleanViolationCount,
       [&Test, &Patterns](const int32 &Count, const FString &Path) -> int32 {
         return Count +
                CountForbiddenSourcePatternsInFile(Test, Patterns, Path);
@@ -120,8 +120,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 
 bool FRTKComplianceStoreBoundary::RunTest(const FString &Parameters) {
   (void)Parameters;
-  TestEqual(RTKComplianceSettings().StoreBoundaryLabel,
+  TestEqual(RTKComplianceSettings().StoreBoundary.StoreBoundaryLabel,
             CountForbiddenSourcePatterns(*this),
-            RTKComplianceSettings().CleanViolationCount);
+            RTKComplianceSettings().Violation.CleanViolationCount);
   return true;
 }

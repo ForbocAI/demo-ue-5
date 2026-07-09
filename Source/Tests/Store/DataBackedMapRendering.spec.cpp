@@ -11,7 +11,7 @@ bool FStoreDataBackedMapRendering::RunTest(const FString &Parameters) {
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   const FStoreSettings StoreAutomation = Settings.Automation.Store;
   FLabelCursor Labels = StoreLabels(
-      StoreAutomation.DataBackedMapLabels);
+      StoreAutomation.Labels.DataBackedMapLabels);
   rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
       Store::ConfigureStore();
   const FRuntimeState &State = EnhancedStoreValue.getState();

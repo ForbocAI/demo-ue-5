@@ -21,10 +21,10 @@ bool FStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   const FStoreSettings StoreAutomation = Settings.Automation.Store;
   FLabelCursor Labels = StoreLabels(
-      StoreAutomation.ReduxLoggerMiddlewareLabels);
+      StoreAutomation.Labels.ReduxLoggerMiddlewareLabels);
   TArray<FString> CapturedLines;
   FReduxLoggerCaptureDevice CaptureDevice(CapturedLines,
-                                          StoreAutomation.ReduxLoggerCategory);
+                                          StoreAutomation.Logger.ReduxLoggerCategory);
 
   GLog->AddOutputDevice(&CaptureDevice);
   rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
@@ -39,7 +39,7 @@ bool FStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
            ContainsReduxLoggerLine(
                {&CapturedLines,
                 ReduxLoggerActionTitleNeedle(
-                    StoreAutomation.ReduxLoggerActionTitlePrefix,
+                    StoreAutomation.Logger.ReduxLoggerActionTitlePrefix,
                     HydratedAction),
                 int32{}}));
   TestTrue(Labels.Next(),

@@ -10,7 +10,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   const FStoreSettings StoreAutomation = Settings.Automation.Store;
   FLabelCursor Labels = StoreLabels(
-      StoreAutomation.DataBackedMapLabels);
+      StoreAutomation.Labels.DataBackedMapLabels);
   const ForbocAI::Game::Data::FTerrainSourceSettings Sources =
       Settings.LevelTerrainSources;
   const ForbocAI::Game::Data::FDataSourceSettings DataSources =
@@ -117,8 +117,9 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestAuthoredDomainRegistry(this, Labels.Next(), EcsWorld.Domains, Settings);
   TestTrue(Labels.Next(),
            RuntimeSelectors::SelectEntityInDomain(
-               State, {StoreAutomation.TerrainEntity,
-                       DomainKeyFromPath(StoreAutomation.TerrainProjectionDomain)}));
+               State, {StoreAutomation.Terrain.TerrainEntity,
+                       DomainKeyFromPath(
+                           StoreAutomation.Terrain.TerrainProjectionDomain)}));
   TestEqual(Labels.Next(),
             RuntimeSelectors::SelectLandmarks(State).Num(),
             Landmarks.Num());

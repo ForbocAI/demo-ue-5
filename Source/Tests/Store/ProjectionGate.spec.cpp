@@ -21,7 +21,7 @@ bool FStoreProjectionGate::RunTest(const FString &Parameters) {
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   FLabelCursor Labels = StoreLabels(
-      Settings.Automation.Store.ProjectionGateLabels);
+      Settings.Automation.Store.Labels.ProjectionGateLabels);
   FBotPositionMoved MovePayload;
   FBotPatrolAdvanceRequest PatrolRequest;
   TestTrue(Labels.Next(),
