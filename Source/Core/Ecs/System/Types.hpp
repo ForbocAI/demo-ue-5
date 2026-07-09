@@ -7,7 +7,7 @@ namespace ecs {
 
 typedef TFunction<FWorld(const FSystemExecutionPayload &)> SystemFn;
 
-struct FSystemDescriptor {
+struct FDescriptor {
   TArray<ComponentType> RequiredComponents;
   TArray<Tag> RequiredTags;
   func::Maybe<DomainPathKey> Domain;
@@ -24,7 +24,7 @@ struct FRunSystemRequest {
 struct FRunSystemDescriptorRequest {
   FWorld World;
   TArray<EntityKey> Entities;
-  FSystemDescriptor Descriptor;
+  FDescriptor Descriptor;
 };
 
 /**
@@ -67,14 +67,14 @@ requireEntityOptionalDomain(const FWorld &World,
 
 /**
  * @brief Creates a reusable predicate for descriptor tag/domain requirements.
- * @signature inline std::function<bool(const EntityKey &)> requireSystemDescriptor(const FWorld &World, const FSystemDescriptor &Descriptor)
+ * @signature inline std::function<bool(const EntityKey &)> requireSystemDescriptor(const FWorld &World, const FDescriptor &Descriptor)
  *
  * User Story: As ECS system execution, descriptor matching should be a
  * functional composition of smaller entity predicates.
  */
 inline std::function<bool(const EntityKey &)>
 requireSystemDescriptor(const FWorld &World,
-                        const FSystemDescriptor &Descriptor) {
+                        const FDescriptor &Descriptor) {
   return func::all_pass<EntityKey>(
       {requireEntityTags(World, Descriptor.RequiredTags),
        requireEntityOptionalDomain(World, Descriptor.Domain)});
@@ -128,20 +128,20 @@ struct FValidateEntityDomainRequest {
 };
 
 struct FValidateSystemSpecRequest {
-  const FDomainGraph &Registry;
+  const FGraph &Registry;
   FSystemSpec Spec;
 };
 
 /**
  * @brief Creates a reusable domain-exists validator for a registry.
- * @signature inline std::function<func::Either<FString, bool>(const DomainPathKey &)> requireDomain(const FDomainGraph &Registry)
+ * @signature inline std::function<func::Either<FString, bool>(const DomainPathKey &)> requireDomain(const FGraph &Registry)
  *
  * User Story: As registry validation, domain validation should be a reusable
  * function factory over a registry.
  */
 inline std::function<func::Either<FString, bool>(const DomainPathKey &)>
-requireDomain(const FDomainGraph &Registry) {
-  return func::require_map_key<DomainPathKey, FDomainNode>(
+requireDomain(const FGraph &Registry) {
+  return func::require_map_key<DomainPathKey, FNode>(
       Registry.Nodes, [](const DomainPathKey &Domain) {
         return FString::Printf(TEXT("Missing ECS domain: %s"), *Domain);
       });
@@ -149,13 +149,13 @@ requireDomain(const FDomainGraph &Registry) {
 
 /**
  * @brief Creates a reusable component-schema validator for a registry.
- * @signature inline std::function<func::Either<FString, bool>(const ComponentType &)> requireComponentSchema(const FDomainGraph &Registry)
+ * @signature inline std::function<func::Either<FString, bool>(const ComponentType &)> requireComponentSchema(const FGraph &Registry)
  *
  * User Story: As registry validation, component schema validation should be a
  * reusable function factory over a registry.
  */
 inline std::function<func::Either<FString, bool>(const ComponentType &)>
-requireComponentSchema(const FDomainGraph &Registry) {
+requireComponentSchema(const FGraph &Registry) {
   return func::require_map_key<ComponentType, FComponentSchema>(
       Registry.ComponentSchemas, [](const ComponentType &Type) {
         return FString::Printf(TEXT("Missing ECS component schema: %s"),
@@ -165,13 +165,13 @@ requireComponentSchema(const FDomainGraph &Registry) {
 
 /**
  * @brief Builds a system-spec validation request payload.
- * @signature inline FValidateSystemSpecRequest createValidateSystemSpecRequest(const FDomainGraph &Registry, const FSystemSpec &Spec)
+ * @signature inline FValidateSystemSpecRequest createValidateSystemSpecRequest(const FGraph &Registry, const FSystemSpec &Spec)
  *
  * User Story: As registry validation, system spec validation remains one
  * payload at the public multi-input boundary.
  */
 inline FValidateSystemSpecRequest
-createValidateSystemSpecRequest(const FDomainGraph &Registry,
+createValidateSystemSpecRequest(const FGraph &Registry,
                                 const FSystemSpec &Spec) {
   return {Registry, Spec};
 }

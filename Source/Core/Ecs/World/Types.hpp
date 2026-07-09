@@ -70,7 +70,7 @@ struct FWorld {
   EventQueue Events;
   TMap<EntityKey, TArray<DomainPathKey>> EntityDomains;
   TMap<EntityKey, FRelationship> Relationships;
-  FDomainGraph Domains;
+  FGraph Domains;
   TArray<EntityKey> DirtyEntities;
   int64 Generation;
 };

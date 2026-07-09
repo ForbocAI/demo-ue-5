@@ -161,7 +161,7 @@ FString ReduxLoggerActionTitleNeedle(const FString &Prefix,
 
 void TestAuthoredDomainRegistry(FAutomationTestBase *Test,
                                 const FString &Label,
-                                const ecs::FDomainGraph &Registry,
+                                const ecs::FGraph &Registry,
                                 const FSettings &Settings) {
   func::for_each_indexed(
       Settings.Ecs.DomainRegistry,

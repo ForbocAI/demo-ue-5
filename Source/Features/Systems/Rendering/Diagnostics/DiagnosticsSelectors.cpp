@@ -43,11 +43,11 @@ int32 SelectRuntimeStatsFramesPerSecond(
 int32 SelectRuntimeStatsStackDepth(
     const ecs::FWorld &World,
     const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
-  TArray<ecs::FDomainNode> Nodes;
+  TArray<ecs::FNode> Nodes;
   World.Domains.Nodes.GenerateValueArray(Nodes);
-  return func::fold_array<ecs::FDomainNode, int32>(
+  return func::fold_array<ecs::FNode, int32>(
       Nodes, Settings.EmptyStackDepth,
-      [](const int32 &Depth, const ecs::FDomainNode &Node) {
+      [](const int32 &Depth, const ecs::FNode &Node) {
         return FMath::Max(Depth, Node.Path.Segments.Num());
       });
 }

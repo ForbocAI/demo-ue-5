@@ -3,7 +3,7 @@
 namespace ecs {
 
 
-enum class EDomainKind {
+enum class EKind {
   Component,
   Entity,
   System,
@@ -21,7 +21,7 @@ enum class EDomainKind {
   Unknown
 };
 
-struct FDomainPath {
+struct FPath {
   TArray<FString> Segments;
 };
 
@@ -72,9 +72,9 @@ struct FEventSpec {
   FString Description;
 };
 
-struct FDomainNode {
-  FDomainPath Path;
-  EDomainKind Kind;
+struct FNode {
+  FPath Path;
+  EKind Kind;
   TArray<DomainPathKey> Children;
   TArray<ComponentType> ComponentSchemas;
   TArray<FString> Capabilities;
@@ -83,8 +83,8 @@ struct FDomainNode {
   TArray<EventType> Events;
 };
 
-struct FDomainGraph {
-  TMap<DomainPathKey, FDomainNode> Nodes;
+struct FGraph {
+  TMap<DomainPathKey, FNode> Nodes;
   TMap<ComponentType, FComponentSchema> ComponentSchemas;
   TMap<FString, FCapabilitySpec> Capabilities;
   TMap<SystemName, FSystemSpec> Systems;
@@ -93,8 +93,8 @@ struct FDomainGraph {
 };
 
 struct FCreateDomainNodeRequest {
-  FDomainPath Path;
-  EDomainKind Kind = EDomainKind::Unknown;
+  FPath Path;
+  EKind Kind = EKind::Unknown;
 };
 
 struct FCreateFieldSchemaRequest {
@@ -145,24 +145,24 @@ struct FCreateEventSpecRequest {
 };
 
 struct FRegisterDomainRequest {
-  FDomainGraph Registry;
-  FDomainNode Node;
+  FGraph Registry;
+  FNode Node;
 };
 
 struct FRegisterDomainPathRequest {
-  FDomainGraph Registry;
+  FGraph Registry;
   TArray<FString> Segments;
-  EDomainKind Kind = EDomainKind::Unknown;
+  EKind Kind = EKind::Unknown;
 };
 
-struct FDomainPathRegistration {
+struct FPathRegistration {
   TArray<FString> Segments;
-  EDomainKind Kind = EDomainKind::Unknown;
+  EKind Kind = EKind::Unknown;
 
-  FDomainPathRegistration() {}
+  FPathRegistration() {}
 
-  FDomainPathRegistration(std::initializer_list<const char *> InSegments,
-                          EDomainKind InKind)
+  FPathRegistration(std::initializer_list<const char *> InSegments,
+                          EKind InKind)
       : Kind(InKind) {
     const TArray<const char *> SegmentAtoms(InSegments);
     Segments = func::map_array<const char *, FString>(
@@ -173,38 +173,38 @@ struct FDomainPathRegistration {
 };
 
 struct FRegisterDomainPathsRequest {
-  FDomainGraph Registry;
-  TArray<FDomainPathRegistration> Registrations;
+  FGraph Registry;
+  TArray<FPathRegistration> Registrations;
 };
 
 struct FRegisterComponentSchemaRequest {
-  FDomainGraph Registry;
+  FGraph Registry;
   FComponentSchema Schema;
 };
 
 struct FRegisterCapabilitySpecRequest {
-  FDomainGraph Registry;
+  FGraph Registry;
   FCapabilitySpec Spec;
 };
 
 struct FRegisterSystemSpecRequest {
-  FDomainGraph Registry;
+  FGraph Registry;
   FSystemSpec Spec;
 };
 
 struct FRegisterResourceSpecRequest {
-  FDomainGraph Registry;
+  FGraph Registry;
   FResourceSpec Spec;
 };
 
 struct FRegisterEventSpecRequest {
-  FDomainGraph Registry;
+  FGraph Registry;
   FEventSpec Spec;
 };
 
 /**
  * @brief Creates a neutral ECS domain path from ordered path segments.
- * @signature inline FDomainPath createDomainPath(const TArray<FString> &Segments)
+ * @signature inline FPath createDomainPath(const TArray<FString> &Segments)
  *
  * User Story: As a feature author, I need stable domain paths so higher
  * gameplay domains can import downward into shared ECS primitives.

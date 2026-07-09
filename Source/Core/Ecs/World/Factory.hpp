@@ -135,7 +135,7 @@ inline FWorld setEntityDomain(const FSetEntityDomainRequest &Request);
  * Architecture: The world is plain value state. RTK reducers may store and
  * replace it, but ECS never owns the runtime store or dispatch semantics.
  */
-inline FWorld createWorld(const FDomainGraph &Domains) {
+inline FWorld createWorld(const FGraph &Domains) {
   FWorld World;
   World.Allocator = createEntityAllocator();
   World.Domains = Domains;

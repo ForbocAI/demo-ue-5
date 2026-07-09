@@ -2,38 +2,38 @@
 
 namespace ecs {
 
-inline FDomainPath createDomainPath(const TArray<FString> &Segments) {
-  FDomainPath Path;
+inline FPath createDomainPath(const TArray<FString> &Segments) {
+  FPath Path;
   Path.Segments = Segments;
   return Path;
 }
 
-inline bool operator==(const FDomainPath &Left, const FDomainPath &Right) {
+inline bool operator==(const FPath &Left, const FPath &Right) {
   return Left.Segments == Right.Segments;
 }
 
-inline bool operator!=(const FDomainPath &Left, const FDomainPath &Right) {
+inline bool operator!=(const FPath &Left, const FPath &Right) {
   return !(Left == Right);
 }
 
 /**
  * @brief Converts a domain path into its registry key.
- * @signature inline DomainPathKey createDomainPathKey(const FDomainPath &Path)
+ * @signature inline DomainPathKey createDomainPathKey(const FPath &Path)
  */
-inline DomainPathKey createDomainPathKey(const FDomainPath &Path) {
+inline DomainPathKey createDomainPathKey(const FPath &Path) {
   const FString Separator = FString::Chr(TCHAR('/'));
   return FString::Join(Path.Segments, *Separator);
 }
 
 /**
  * @brief Creates a registry node describing a domain/subdomain boundary.
- * @signature inline FDomainNode createDomainNode(const FCreateDomainNodeRequest &Request)
+ * @signature inline FNode createDomainNode(const FCreateDomainNodeRequest &Request)
  *
  * User Story: As a feature maintainer, I need domain-node construction to use
  * one request payload so ECS taxonomy helpers stay unary and composable.
  */
-inline FDomainNode createDomainNode(const FCreateDomainNodeRequest &Request) {
-  FDomainNode Node;
+inline FNode createDomainNode(const FCreateDomainNodeRequest &Request) {
+  FNode Node;
   Node.Path = Request.Path;
   Node.Kind = Request.Kind;
   return Node;
@@ -208,7 +208,7 @@ inline bool operator!=(const FEventSpec &Left, const FEventSpec &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FDomainNode &Left, const FDomainNode &Right) {
+inline bool operator==(const FNode &Left, const FNode &Right) {
   return Left.Path == Right.Path && Left.Kind == Right.Kind &&
          Left.Children == Right.Children &&
          Left.ComponentSchemas == Right.ComponentSchemas &&
@@ -217,12 +217,12 @@ inline bool operator==(const FDomainNode &Left, const FDomainNode &Right) {
          Left.Events == Right.Events;
 }
 
-inline bool operator!=(const FDomainNode &Left, const FDomainNode &Right) {
+inline bool operator!=(const FNode &Left, const FNode &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FDomainGraph &Left,
-                       const FDomainGraph &Right) {
+inline bool operator==(const FGraph &Left,
+                       const FGraph &Right) {
   return Left.Nodes.OrderIndependentCompareEqual(Right.Nodes) &&
          Left.ComponentSchemas.OrderIndependentCompareEqual(
              Right.ComponentSchemas) &&
@@ -232,21 +232,21 @@ inline bool operator==(const FDomainGraph &Left,
          Left.EventSpecs.OrderIndependentCompareEqual(Right.EventSpecs);
 }
 
-inline bool operator!=(const FDomainGraph &Left,
-                       const FDomainGraph &Right) {
+inline bool operator!=(const FGraph &Left,
+                       const FGraph &Right) {
   return !(Left == Right);
 }
 
 /**
  * @brief Creates an empty ECS domain registry.
- * @signature inline FDomainGraph createDomainRegistry()
+ * @signature inline FGraph createDomainRegistry()
  *
  * User Story: As an ECS feature author, I need a fresh registry value before
  * composing domain registrations into a world.
  */
-inline FDomainGraph createDomainRegistry() { return FDomainGraph(); }
+inline FGraph createDomainRegistry() { return FGraph(); }
 
-typedef std::function<FDomainNode(const FDomainNode &)> FDomainNodeTransform;
-typedef std::function<FDomainGraph(const FDomainGraph &)>
+typedef std::function<FNode(const FNode &)> FDomainNodeTransform;
+typedef std::function<FGraph(const FGraph &)>
 
 } // namespace ecs

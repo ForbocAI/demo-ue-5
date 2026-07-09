@@ -98,18 +98,18 @@ TArray<FString> EcsDomainSegments(const FString &Path) {
   return Segments;
 }
 
-ecs::FDomainPathRegistration
+ecs::FPathRegistration
 EcsDomainPathRegistration(const FEcsDomainRegistrationSettings &Settings) {
-  ecs::FDomainPathRegistration Registration;
+  ecs::FPathRegistration Registration;
   Registration.Segments = EcsDomainSegments(Settings.Path);
-  Registration.Kind = static_cast<ecs::EDomainKind>(Settings.Kind);
+  Registration.Kind = static_cast<ecs::EKind>(Settings.Kind);
   return Registration;
 }
 
-ecs::FDomainGraph EcsDomainRegistry(const FEcsSettings &Settings) {
+ecs::FGraph EcsDomainRegistry(const FEcsSettings &Settings) {
   return ecs::createDomainRegistry(
       func::map_array<FEcsDomainRegistrationSettings,
-                      ecs::FDomainPathRegistration>(
+                      ecs::FPathRegistration>(
           Settings.DomainRegistry, EcsDomainPathRegistration));
 }
 
