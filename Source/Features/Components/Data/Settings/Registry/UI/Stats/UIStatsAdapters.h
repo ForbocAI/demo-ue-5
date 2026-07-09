@@ -93,21 +93,105 @@ template <> struct TJsonSettingsRegistry<FDebugMessageSettings> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FViewNameSettings, SceneRoot,
-                       TownspersonCharacterMesh,
-                       TownspersonInteractionSphere, TownspersonNameText,
-                       TownspersonPromptText, TownspersonDialogueText,
-                       TownspersonOverlapProfile, HorseImportedMesh,
-                       HorseMountedRiderMesh, HorseNameText, PlayerCameraBoom,
-                       PlayerFollowCamera, SpeechPresentationMesh,
-                       SpeechComponent);
+template <> struct TJsonSettingsRegistry<FViewNameSettings> {
+  static const TArray<TField<FViewNameSettings>> &Fields() {
+    static const TArray<TField<FViewNameSettings>> RegisteredFields = {
+        NestedSettingField(JSON_SETTING_ATOM(SceneRoot),
+                           NestedFieldMembers(&FViewNameSettings::Scene,
+                                              &FSceneViewNameSettings::Root)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(TownspersonCharacterMesh),
+            NestedFieldMembers(&FViewNameSettings::Townsperson,
+                               &FTownspersonViewNameSettings::CharacterMesh)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(TownspersonInteractionSphere),
+            NestedFieldMembers(&FViewNameSettings::Townsperson,
+                               &FTownspersonViewNameSettings::InteractionSphere)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(TownspersonNameText),
+            NestedFieldMembers(&FViewNameSettings::Townsperson,
+                               &FTownspersonViewNameSettings::NameText)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(TownspersonPromptText),
+            NestedFieldMembers(&FViewNameSettings::Townsperson,
+                               &FTownspersonViewNameSettings::PromptText)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(TownspersonDialogueText),
+            NestedFieldMembers(&FViewNameSettings::Townsperson,
+                               &FTownspersonViewNameSettings::DialogueText)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(TownspersonOverlapProfile),
+            NestedFieldMembers(&FViewNameSettings::Townsperson,
+                               &FTownspersonViewNameSettings::OverlapProfile)),
+        NestedSettingField(JSON_SETTING_ATOM(HorseImportedMesh),
+                           NestedFieldMembers(&FViewNameSettings::Horse,
+                                              &FHorseViewNameSettings::ImportedMesh)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(HorseMountedRiderMesh),
+            NestedFieldMembers(&FViewNameSettings::Horse,
+                               &FHorseViewNameSettings::MountedRiderMesh)),
+        NestedSettingField(JSON_SETTING_ATOM(HorseNameText),
+                           NestedFieldMembers(&FViewNameSettings::Horse,
+                                              &FHorseViewNameSettings::NameText)),
+        NestedSettingField(JSON_SETTING_ATOM(PlayerCameraBoom),
+                           NestedFieldMembers(&FViewNameSettings::Player,
+                                              &FPlayerViewNameSettings::CameraBoom)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(PlayerFollowCamera),
+            NestedFieldMembers(&FViewNameSettings::Player,
+                               &FPlayerViewNameSettings::FollowCamera)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(SpeechPresentationMesh),
+            NestedFieldMembers(&FViewNameSettings::Speech,
+                               &FSpeechViewNameSettings::PresentationMesh)),
+        NestedSettingField(JSON_SETTING_ATOM(SpeechComponent),
+                           NestedFieldMembers(&FViewNameSettings::Speech,
+                                              &FSpeechViewNameSettings::Component))};
+    return RegisteredFields;
+  }
+};
 
-JSON_SETTINGS_REGISTRY(FTextSettings, TownspersonNameRoleFormat,
-                       NpcReplyLog, TownspersonMissingMesh,
-                       TownspersonMissingAnimation, HorseMissingMesh,
-                       HorseMissingWalkAnimation, RiderMissingWalkAnimation,
-                       RiderMissingMesh, StartupSdkEnabled,
-                       StartupSdkDisabled);
+template <> struct TJsonSettingsRegistry<FTextSettings> {
+  static const TArray<TField<FTextSettings>> &Fields() {
+    static const TArray<TField<FTextSettings>> RegisteredFields = {
+        NestedSettingField(
+            JSON_SETTING_ATOM(TownspersonNameRoleFormat),
+            NestedFieldMembers(&FTextSettings::Townsperson,
+                               &FTownspersonTextSettings::NameRoleFormat)),
+        NestedSettingField(JSON_SETTING_ATOM(NpcReplyLog),
+                           NestedFieldMembers(&FTextSettings::Townsperson,
+                                              &FTownspersonTextSettings::NpcReplyLog)),
+        NestedSettingField(JSON_SETTING_ATOM(TownspersonMissingMesh),
+                           NestedFieldMembers(&FTextSettings::Townsperson,
+                                              &FTownspersonTextSettings::MissingMesh)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(TownspersonMissingAnimation),
+            NestedFieldMembers(&FTextSettings::Townsperson,
+                               &FTownspersonTextSettings::MissingAnimation)),
+        NestedSettingField(JSON_SETTING_ATOM(HorseMissingMesh),
+                           NestedFieldMembers(&FTextSettings::Horse,
+                                              &FHorseTextSettings::MissingMesh)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(HorseMissingWalkAnimation),
+            NestedFieldMembers(&FTextSettings::Horse,
+                               &FHorseTextSettings::MissingWalkAnimation)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(RiderMissingWalkAnimation),
+            NestedFieldMembers(&FTextSettings::Rider,
+                               &FRiderTextSettings::MissingWalkAnimation)),
+        NestedSettingField(JSON_SETTING_ATOM(RiderMissingMesh),
+                           NestedFieldMembers(&FTextSettings::Rider,
+                                              &FRiderTextSettings::MissingMesh)),
+        NestedSettingField(JSON_SETTING_ATOM(StartupSdkEnabled),
+                           NestedFieldMembers(&FTextSettings::Startup,
+                                              &FStartupTextSettings::SdkEnabled)),
+        NestedSettingField(
+            JSON_SETTING_ATOM(StartupSdkDisabled),
+            NestedFieldMembers(&FTextSettings::Startup,
+                               &FStartupTextSettings::SdkDisabled))};
+    return RegisteredFields;
+  }
+};
 
 JSON_SETTINGS_REGISTRY(FReduxLogSettings, SampleInterval,
                        SampledActionTypes);

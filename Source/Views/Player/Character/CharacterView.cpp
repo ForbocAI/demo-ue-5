@@ -84,14 +84,14 @@ APlayerCharacterView::APlayerCharacterView()
 
   CameraBoom =
       CreateDefaultSubobject<USpringArmComponent>(
-          FName(*ViewNames.PlayerCameraBoom));
+          FName(*ViewNames.Player.CameraBoom));
   CameraBoom->SetupAttachment(RootComponent);
   CameraBoom->TargetArmLength = Presentation.FollowCameraArmLength;
   CameraBoom->bUsePawnControlRotation = true;
 
   FollowCamera =
       CreateDefaultSubobject<UCameraComponent>(
-          FName(*ViewNames.PlayerFollowCamera));
+          FName(*ViewNames.Player.FollowCamera));
   FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
   FollowCamera->bUsePawnControlRotation = false;
 

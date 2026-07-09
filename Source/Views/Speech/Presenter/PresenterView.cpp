@@ -14,13 +14,13 @@ namespace FG = ForbocAI::Game::Level;
 
 ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
     : SceneRoot(CreateDefaultSubobject<USceneComponent>(
-          FName(*FG::RuntimeSelectors::SelectViewNames().SceneRoot))),
+          FName(*FG::RuntimeSelectors::SelectViewNames().Scene.Root))),
       PresentationMesh(CreateDefaultSubobject<USkeletalMeshComponent>(
           FName(*FG::RuntimeSelectors::SelectViewNames()
-                     .SpeechPresentationMesh))),
+                     .Speech.PresentationMesh))),
       SpeechComponent(CreateDefaultSubobject<USpeechComponent>(
           FName(*FG::RuntimeSelectors::SelectViewNames()
-                     .SpeechComponent))) {
+                     .Speech.Component))) {
   RootComponent = SceneRoot;
   PresentationMesh->SetupAttachment(SceneRoot);
   const FG::FPresentationViewModel Presentation =

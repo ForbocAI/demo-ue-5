@@ -84,7 +84,8 @@ void ATownspersonView::ShowDialogueReply(const FString &Reply) {
   const ForbocAI::Game::Data::FTextSettings &Text =
       FG::RuntimeSelectors::SelectText();
   const FString ReplyLog =
-      frmt::RuntimeString(Text.NpcReplyLog, frmt::Args({frmt::Arg(Reply)}));
+      frmt::RuntimeString(Text.Townsperson.NpcReplyLog,
+                          frmt::Args({frmt::Arg(Reply)}));
   UE_LOG(LogTemp, Display, TEXT("%s"), *ReplyLog);
 }
 
@@ -136,7 +137,7 @@ void ATownspersonView::RefreshText() {
   const ForbocAI::Game::Data::FTextSettings &Text =
       FG::RuntimeSelectors::SelectText();
   NameText->SetText(FText::FromString(frmt::RuntimeString(
-      Text.TownspersonNameRoleFormat,
+      Text.Townsperson.NameRoleFormat,
       frmt::Args({frmt::Arg(TownspersonName),
                   frmt::Arg(TownspersonRole)}))));
   PromptText->SetText(FText::FromString(

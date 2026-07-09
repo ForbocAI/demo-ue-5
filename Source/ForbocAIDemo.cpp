@@ -11,7 +11,7 @@ public:
         ForbocAI::Game::Data::SettingsAdapters::
             LoadSettings();
     UE_LOG(LogForbocAIRedux, Display, TEXT("%s"),
-           *Settings.Text.StartupSdkEnabled);
+           *Settings.Text.Startup.SdkEnabled);
   }
 };
 

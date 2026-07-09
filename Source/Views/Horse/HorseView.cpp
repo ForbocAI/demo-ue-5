@@ -54,12 +54,12 @@ AHorseView::AHorseView()
   RiderWalkAnimationPath = Presentation.RiderWalkAnimationPath;
 
   SceneRoot =
-      CreateDefaultSubobject<USceneComponent>(FName(*ViewNames.SceneRoot));
+      CreateDefaultSubobject<USceneComponent>(FName(*ViewNames.Scene.Root));
   RootComponent = SceneRoot;
 
   ImportedHorseMesh =
       CreateDefaultSubobject<USkeletalMeshComponent>(
-          FName(*ViewNames.HorseImportedMesh));
+          FName(*ViewNames.Horse.ImportedMesh));
   ImportedHorseMesh->SetupAttachment(SceneRoot);
   ImportedHorseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   ImportedHorseMesh->SetRelativeScale3D(Presentation.ImportedHorseScale);
@@ -67,7 +67,7 @@ AHorseView::AHorseView()
 
   MountedRiderMesh =
       CreateDefaultSubobject<USkeletalMeshComponent>(
-          FName(*ViewNames.HorseMountedRiderMesh));
+          FName(*ViewNames.Horse.MountedRiderMesh));
   MountedRiderMesh->SetupAttachment(SceneRoot);
   MountedRiderMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   MountedRiderMesh->SetRelativeLocation(Presentation.MountedRiderLocation);
@@ -76,7 +76,7 @@ AHorseView::AHorseView()
 
   NameText =
       CreateDefaultSubobject<UTextRenderComponent>(
-          FName(*ViewNames.HorseNameText));
+          FName(*ViewNames.Horse.NameText));
   NameText->SetupAttachment(SceneRoot);
   NameText->SetRelativeLocation(Presentation.NameTextLocation);
   NameText->SetHorizontalAlignment(EHTA_Center);

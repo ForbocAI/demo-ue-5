@@ -68,12 +68,12 @@ ATownspersonView::ATownspersonView()
       Presentation.AnimationBlueprintClassPath;
 
   SceneRoot =
-      CreateDefaultSubobject<USceneComponent>(FName(*ViewNames.SceneRoot));
+      CreateDefaultSubobject<USceneComponent>(FName(*ViewNames.Scene.Root));
   RootComponent = SceneRoot;
 
   CharacterMesh =
       CreateDefaultSubobject<USkeletalMeshComponent>(
-          FName(*ViewNames.TownspersonCharacterMesh));
+          FName(*ViewNames.Townsperson.CharacterMesh));
   CharacterMesh->SetupAttachment(SceneRoot);
   CharacterMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   CharacterMesh->SetRelativeLocation(Presentation.MannequinOffset);
@@ -84,15 +84,15 @@ ATownspersonView::ATownspersonView()
 
   InteractionSphere =
       CreateDefaultSubobject<USphereComponent>(
-          FName(*ViewNames.TownspersonInteractionSphere));
+          FName(*ViewNames.Townsperson.InteractionSphere));
   InteractionSphere->SetupAttachment(SceneRoot);
   InteractionSphere->SetSphereRadius(Presentation.InteractionRadius);
   InteractionSphere->SetCollisionProfileName(
-      FName(*ViewNames.TownspersonOverlapProfile));
+      FName(*ViewNames.Townsperson.OverlapProfile));
 
   NameText =
       CreateDefaultSubobject<UTextRenderComponent>(
-          FName(*ViewNames.TownspersonNameText));
+          FName(*ViewNames.Townsperson.NameText));
   NameText->SetupAttachment(SceneRoot);
   NameText->SetRelativeLocation(Presentation.NameTextLocation);
   NameText->SetHorizontalAlignment(EHTA_Center);
@@ -102,7 +102,7 @@ ATownspersonView::ATownspersonView()
 
   PromptText =
       CreateDefaultSubobject<UTextRenderComponent>(
-          FName(*ViewNames.TownspersonPromptText));
+          FName(*ViewNames.Townsperson.PromptText));
   PromptText->SetupAttachment(SceneRoot);
   PromptText->SetRelativeLocation(Presentation.PromptTextLocation);
   PromptText->SetHorizontalAlignment(EHTA_Center);
@@ -112,7 +112,7 @@ ATownspersonView::ATownspersonView()
 
   DialogueText =
       CreateDefaultSubobject<UTextRenderComponent>(
-          FName(*ViewNames.TownspersonDialogueText));
+          FName(*ViewNames.Townsperson.DialogueText));
   DialogueText->SetupAttachment(SceneRoot);
   DialogueText->SetRelativeLocation(Presentation.DialogueTextLocation);
   DialogueText->SetHorizontalAlignment(EHTA_Center);
