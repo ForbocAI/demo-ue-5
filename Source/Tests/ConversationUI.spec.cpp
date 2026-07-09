@@ -70,15 +70,17 @@ bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
 
   const ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation =
       ForbocAI::Game::Level::UIReducers::ReduceRuntimeConversationViewModel(
-          {Automation.Dialogue.SpeakerName, Automation.Dialogue.SpeakerRole,
-           Automation.Dialogue.PlayerLine, Automation.Dialogue.NpcReply},
+          {Automation.Dialogue.Speaker.SpeakerName,
+           Automation.Dialogue.Speaker.SpeakerRole,
+           Automation.Dialogue.Exchange.PlayerLine,
+           Automation.Dialogue.Exchange.NpcReply},
           UISettings);
   TestEqual(Labels.Next(), Conversation.Text.Title,
-            Automation.Dialogue.ExpectedTitle);
+            Automation.Dialogue.Expected.ExpectedTitle);
   TestEqual(Labels.Next(), Conversation.Text.PlayerLine,
-            Automation.Dialogue.ExpectedPlayerLine);
+            Automation.Dialogue.Expected.ExpectedPlayerLine);
   TestEqual(Labels.Next(), Conversation.Text.NpcReply,
-            Automation.Dialogue.ExpectedNpcReply);
+            Automation.Dialogue.Expected.ExpectedNpcReply);
 
   return true;
 }

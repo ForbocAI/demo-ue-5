@@ -33,14 +33,26 @@ struct FSubmitted {
   FString ExpectedText;
 };
 
-struct FDialogue {
+struct FSpeaker {
   FString SpeakerName;
   FString SpeakerRole;
+};
+
+struct FExchange {
   FString PlayerLine;
   FString NpcReply;
+};
+
+struct FExpected {
   FString ExpectedTitle;
   FString ExpectedPlayerLine;
   FString ExpectedNpcReply;
+};
+
+struct FDialogue {
+  FSpeaker Speaker;
+  FExchange Exchange;
+  FExpected Expected;
 };
 
 struct FSettings {
@@ -88,14 +100,38 @@ inline bool operator!=(const FSubmitted &Left, const FSubmitted &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FDialogue &Left, const FDialogue &Right) {
+inline bool operator==(const FSpeaker &Left, const FSpeaker &Right) {
   return Left.SpeakerName == Right.SpeakerName &&
-         Left.SpeakerRole == Right.SpeakerRole &&
-         Left.PlayerLine == Right.PlayerLine &&
-         Left.NpcReply == Right.NpcReply &&
-         Left.ExpectedTitle == Right.ExpectedTitle &&
+         Left.SpeakerRole == Right.SpeakerRole;
+}
+
+inline bool operator!=(const FSpeaker &Left, const FSpeaker &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FExchange &Left, const FExchange &Right) {
+  return Left.PlayerLine == Right.PlayerLine &&
+         Left.NpcReply == Right.NpcReply;
+}
+
+inline bool operator!=(const FExchange &Left, const FExchange &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FExpected &Left, const FExpected &Right) {
+  return Left.ExpectedTitle == Right.ExpectedTitle &&
          Left.ExpectedPlayerLine == Right.ExpectedPlayerLine &&
          Left.ExpectedNpcReply == Right.ExpectedNpcReply;
+}
+
+inline bool operator!=(const FExpected &Left, const FExpected &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FDialogue &Left, const FDialogue &Right) {
+  return Left.Speaker == Right.Speaker &&
+         Left.Exchange == Right.Exchange &&
+         Left.Expected == Right.Expected;
 }
 
 inline bool operator!=(const FDialogue &Left, const FDialogue &Right) {

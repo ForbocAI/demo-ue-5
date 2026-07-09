@@ -167,9 +167,53 @@ struct TJsonSettingsRegistry<Automation::Conversation::UI::FHistory> {
 JSON_SETTINGS_REGISTRY(Automation::Conversation::UI::FSubmitted, Input,
                        ExpectedText);
 
-JSON_SETTINGS_REGISTRY(Automation::Conversation::UI::FDialogue, SpeakerName,
-                       SpeakerRole, PlayerLine, NpcReply, ExpectedTitle,
-                       ExpectedPlayerLine, ExpectedNpcReply);
+template <>
+struct TJsonSettingsRegistry<Automation::Conversation::UI::FDialogue> {
+  static const TArray<TField<Automation::Conversation::UI::FDialogue>>
+      &Fields() {
+    static const TArray<TField<
+        Automation::Conversation::UI::FDialogue>>
+        RegisteredFields = {
+            NestedSettingField(
+                JSON_SETTING_ATOM(SpeakerName),
+                NestedFieldMembers(
+                    &Automation::Conversation::UI::FDialogue::Speaker,
+                    &Automation::Conversation::UI::FSpeaker::SpeakerName)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(SpeakerRole),
+                NestedFieldMembers(
+                    &Automation::Conversation::UI::FDialogue::Speaker,
+                    &Automation::Conversation::UI::FSpeaker::SpeakerRole)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(PlayerLine),
+                NestedFieldMembers(
+                    &Automation::Conversation::UI::FDialogue::Exchange,
+                    &Automation::Conversation::UI::FExchange::PlayerLine)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(NpcReply),
+                NestedFieldMembers(
+                    &Automation::Conversation::UI::FDialogue::Exchange,
+                    &Automation::Conversation::UI::FExchange::NpcReply)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(ExpectedTitle),
+                NestedFieldMembers(
+                    &Automation::Conversation::UI::FDialogue::Expected,
+                    &Automation::Conversation::UI::FExpected::ExpectedTitle)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(ExpectedPlayerLine),
+                NestedFieldMembers(
+                    &Automation::Conversation::UI::FDialogue::Expected,
+                    &Automation::Conversation::UI::FExpected::
+                        ExpectedPlayerLine)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(ExpectedNpcReply),
+                NestedFieldMembers(
+                    &Automation::Conversation::UI::FDialogue::Expected,
+                    &Automation::Conversation::UI::FExpected::
+                        ExpectedNpcReply))};
+    return RegisteredFields;
+  }
+};
 
 template <>
 struct TJsonSettingsRegistry<Automation::Conversation::UI::FSettings> {
