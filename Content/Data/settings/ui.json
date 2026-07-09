@@ -1,9 +1,11 @@
 {
-  "parts": [
-    "ui/base.json",
-    "ui/stats_overlay.json",
-    "ui/marketing_capture.json",
-    "ui/fly_mode.json",
-    "ui/scale_audit_capture.json"
-  ]
+  "parts": {
+    "merge": [
+      "ui/base.json"
+    ],
+    "stats_overlay": "ui/stats/overlay.json",
+    "marketing_capture": "ui/marketing/capture.json",
+    "fly_mode": "ui/fly/mode.json",
+    "scale_audit_capture": "ui/scale/audit/capture.json"
+  }
 }

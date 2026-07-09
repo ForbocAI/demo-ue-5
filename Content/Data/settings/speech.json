@@ -1,9 +1,11 @@
 {
-  "parts": [
-    "speech/base.json",
-    "speech/vowel_phonemes.json",
-    "speech/viseme_mappings.json",
-    "speech/duration_rules.json",
-    "speech/automation.json"
-  ]
+  "parts": {
+    "merge": [
+      "speech/base.json"
+    ],
+    "vowel_phonemes": "speech/vowel/phonemes.json",
+    "viseme_mappings": "speech/viseme/mappings.json",
+    "duration_rules": "speech/duration/rules.json",
+    "automation": "speech/automation.json"
+  }
 }

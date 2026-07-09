@@ -1,0 +1,54 @@
+{
+  "source_file_suffixes": [
+    ".h",
+    ".hpp",
+    ".cpp"
+  ],
+  "allowed_boundary_fragments": [
+    "/Source/Tests/",
+    "/Source/Store.cpp",
+    "/Source/Features/Systems/Actions.cpp",
+    "/Source/Features/Systems/Selectors.cpp"
+  ],
+  "source_directory_name": "Source",
+  "source_search_pattern": "*.*",
+  "forbidden_patterns": [
+    {
+      "token": "#include \"Store.h\"",
+      "message": "Use feature Actions/Selectors instead of importing Store.h"
+    },
+    {
+      "token": "Store::GetStore(",
+      "message": "Use feature Actions/Selectors instead of direct store access"
+    },
+    {
+      "token": "Store::GetStore().",
+      "message": "Use feature Actions/Selectors instead of direct store access"
+    },
+    {
+      "token": "LastInitialPatrol",
+      "message": "Patrol view models are derived data and must not live in RTK state"
+    },
+    {
+      "token": "LastPatrolAdvance",
+      "message": "Patrol view models are derived data and must not live in RTK state"
+    },
+    {
+      "token": "LastViewDefaults",
+      "message": "Townsperson default overrides are derived data and must not live in RTK state"
+    },
+    {
+      "token": "LastInteractionOverlap",
+      "message": "Overlap view models are derived data and must not live in RTK state"
+    },
+    {
+      "token": "State.MovementInput",
+      "message": "Player movement view models are derived data and must not live in RTK state"
+    }
+  ],
+  "violation_message_format": "%s: %s (%s)",
+  "source_read_failure_format": "Unable to read source file: %s",
+  "store_boundary_label": "No forbidden RTK store boundary or scratchpad patterns",
+  "violation_count_increment": 1,
+  "clean_violation_count": 0
+}

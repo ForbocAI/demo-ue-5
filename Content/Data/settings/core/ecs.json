@@ -1,5 +1,5 @@
 {
-  "parts": [
-    "ecs/domain_registry.json"
-  ]
+  "parts": {
+    "domain_registry": "ecs/domain/registry.json"
+  }
 }

@@ -77,14 +77,15 @@
 | 207 | `Source/Features/Components/Data/Settings/Registry/UI/Interface/InterfaceAdapters.h` |
 | 206 | `Source/Core/Ecs/World/Query.hpp` |
 | 206 | `Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.cpp` |
-| 204 | `Content/Data/settings/speech/viseme_mappings.json` |
 | 204 | `Source/Features/Components/Data/Settings/Rendering/Readers/ReadersAdapters.h` |
 | 204 | `Source/Tests/ProtocolLoop.spec.cpp` |
 | 203 | `Source/Features/Components/Level/Data/Csv/Parsing/ParsingAdapters.h` |
+| 202 | `Content/Data/settings/speech/viseme/mappings.json` |
 | 201 | `Source/Views/Townsperson/TownspersonView.h` |
 | 200 | `Source/Views/Horse/HorseView.cpp` |
 | 199 | `Source/Features/Systems/Level/Layout/Block/BlockAdapters.cpp` |
 | 198 | `Source/Features/Systems/Rendering/Diagnostics/Poly/Count/CountAdapters.cpp` |
+| 197 | `Source/Features/Components/Data/Json/Manifest/ManifestAdapters.h` |
 | 196 | `Scripts/Checks/fp/param_count.py` |
 | 196 | `Source/Features/Components/Data/Settings/Speech/SettingsSpeechTypes.h` |
 | 196 | `Source/Features/Systems/Presentation/PresentationSelectors.h` |
@@ -106,9 +107,9 @@
 | 176 | `Source/Features/Components/Projection/ProjectionSelectors.h` |
 | 176 | `Source/Features/Systems/Interaction/InteractionSlice.h` |
 | 175 | `Source/Features/Systems/Rendering/Profile/ProfileThunks.h` |
-| 174 | `Content/Data/settings/core/automation/content_assets.json` |
 | 174 | `Source/Views/Townsperson/Behavior/BehaviorView.h` |
 | 173 | `Source/Features/Components/Data/Settings/Rendering/Profile/SettingsRenderingProfileTypes.h` |
+| 172 | `Content/Data/settings/core/automation/content/assets.json` |
 | 171 | `Source/Features/Systems/Speech/Component/ComponentAdapters.cpp` |
 | 170 | `Source/Features/Components/Data/Settings/Level/SettingsLevelAdapters.cpp` |
 | 170 | `Source/Features/Systems/Rendering/Profile/ProfileSlice.cpp` |
@@ -153,10 +154,10 @@
 | 137 | `Source/Features/Systems/Level/Layout/Scale/ScaleAdapters.cpp` |
 | 136 | `Source/Features/Systems/Speech/Component/ComponentAdapters.h` |
 | 135 | `Content/Data/settings/bots.json` |
-| 135 | `Content/Data/settings/ui/stats_overlay.json` |
 | 135 | `Source/Store.cpp` |
 | 134 | `Source/Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.cpp` |
 | 134 | `Source/Features/Systems/Level/Spawn/LevelSpawnSlice.h` |
+| 133 | `Content/Data/settings/ui/stats/overlay.json` |
 | 133 | `Source/Views/Townsperson/Initialization/TownspersonInitializationView.h` |
 | 132 | `Content/Data/levels/french_gulch/townspeople.json` |
 | 132 | `Scripts/Checks/fp/branchless_source.py` |
@@ -197,9 +198,9 @@
 | 107 | `Source/Views/Level/LevelView.h` |
 | 107 | `Source/Views/Player/Character/CharacterView.h` |
 | 106 | `Source/Features/Systems/Projection/ProjectionAdapters.cpp` |
-| 105 | `Content/Data/settings/ui/marketing_capture.json` |
 | 105 | `Source/Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h` |
 | 104 | `Source/Features/Systems/Rendering/Diagnostics/DiagnosticsSelectors.cpp` |
+| 103 | `Content/Data/settings/ui/marketing/capture.json` |
 | 103 | `Source/Features/Systems/Bots/Behavior/BehaviorActions.h` |
 | 102 | `Source/Features/Systems/UI/Conversation/UIConversationSlice.h` |
 | 102 | `Source/Views/Horse/HorseView.h` |
@@ -217,9 +218,9 @@
 | 93 | `Source/Features/Components/Spatial/Level/Layout/LayoutTypes.h` |
 | 93 | `Source/Features/Systems/Bots/Stats/BotsStatsTypes.h` |
 | 92 | `Content/Data/levels/french_gulch/town/blocks/part-004.json` |
-| 92 | `Content/Data/settings/core/automation/store.json` |
 | 91 | `Content/Data/settings/rendering/lod.json` |
 | 91 | `Source/Features/Systems/Rendering/Profile/World/WorldThunks.cpp` |
+| 90 | `Content/Data/settings/core/automation/store.json` |
 | 90 | `Source/Features/Systems/Bots/Goals/GoalsSlice.h` |
 | 90 | `Source/Features/Systems/Interaction/Conversation/ConversationTypes.h` |
 | 90 | `Source/Features/Systems/Rendering/Profile/Sky/Pixel/PixelSlice.h` |
@@ -237,7 +238,6 @@
 | 84 | `Source/Tests/ConversationUI.spec.cpp` |
 | 83 | `Source/Features/Systems/Level/Presentation/Spawn/PresentationSpawnTypes.h` |
 | 82 | `Content/Data/settings/rendering/texture/catalog.json` |
-| 82 | `Source/Features/Components/Data/Json/Manifest/ManifestAdapters.h` |
 | 82 | `Source/Features/Entities/Environments/Nature/Seed/Project/ProjectAdapters.h` |
 | 81 | `Source/Features/Components/Data/Settings/Rendering/RenderingAdapters.h` |
 | 80 | `Source/Features/Components/Data/Settings/Automation/Content/Assets/AssetsTypes.h` |
@@ -293,13 +293,13 @@
 | 67 | `Source/Features/Systems/Rendering/Texture/TextureSlice.cpp` |
 | 66 | `Source/Features/Systems/Bots/Position/PositionActions.cpp` |
 | 66 | `style-guide.md` |
-| 65 | `Content/Data/settings/core/automation/bot.json` |
 | 64 | `Content/Data/settings/ui/base.json` |
 | 64 | `Source/Features/Entities/EntitiesAdapters.h` |
 | 64 | `Source/Features/Systems/Bots/AI/AISlice.h` |
 | 64 | `Source/Features/Systems/Bots/SystemsBotsTypes.h` |
 | 64 | `Source/Features/Systems/Projection/Bot/Position/BotPositionAdapters.cpp` |
 | 64 | `Source/Features/Systems/Rendering/Diagnostics/DiagnosticsSelectors.h` |
+| 63 | `Content/Data/settings/core/automation/bot.json` |
 | 62 | `.gitignore` |
 | 62 | `Source/Features/Components/Data/Settings/Player/SettingsPlayerAdapters.cpp` |
 | 62 | `Source/Views/Chat/ChatView.h` |
@@ -320,7 +320,6 @@
 | 57 | `Source/Features/Systems/Level/Layout/Enum/EnumAdapters.h` |
 | 57 | `Source/Features/Systems/Rendering/Profile/ProfileThunks.cpp` |
 | 57 | `Source/Features/Systems/Spawn/SystemsSpawnTypes.h` |
-| 56 | `Content/Data/settings/core/automation/rtk_compliance.json` |
 | 56 | `Source/Features/Components/Data/Settings/Level/SettingsLevelAdapters.h` |
 | 55 | `Scripts/Checks/redux/action_boundaries.py` |
 | 55 | `Scripts/Checks/redux/listener_boundaries.py` |
@@ -329,7 +328,7 @@
 | 55 | `Source/Features/Systems/Projection/Bot/Domains/DomainsAdapters.h` |
 | 55 | `Source/Features/Systems/SystemsAdapters.cpp` |
 | 55 | `Source/Features/Systems/SystemsListeners.cpp` |
-| 54 | `Content/Data/settings/core/automation/protocol_loop.json` |
+| 54 | `Content/Data/settings/core/automation/rtk/compliance.json` |
 | 54 | `Scripts/SDK/update-sdk.sh` |
 | 54 | `Source/Features/Systems/Bots/Townspeople/TownspeopleSelectors.cpp` |
 | 54 | `Source/Features/Systems/Rendering/Stats/Widget/WidgetAdapters.h` |
@@ -338,13 +337,13 @@
 | 53 | `Source/Features/Systems/Projection/Bot/ProjectionBotAdapters.h` |
 | 53 | `Source/Features/Systems/Speech/Phoneme/PhonemeTypes.h` |
 | 53 | `Source/Views/Terrain/Mesh/MeshView.h` |
+| 52 | `Content/Data/settings/core/automation/protocol/loop.json` |
 | 52 | `Source/Features/Components/Data/Settings/SettingsSlice.h` |
 | 52 | `Source/Features/Systems/Level/Layout/Document/DocumentAdapters.h` |
 | 52 | `Source/Tests/BotOrchestrator.spec.cpp` |
 | 52 | `Source/Views/Marketing/Menu/MenuView.h` |
 | 51 | `Source/Features/Systems/Rendering/RenderingSelectors.cpp` |
 | 51 | `Source/Tests/ContractParity.spec.cpp` |
-| 50 | `Content/Data/settings/core/automation/conversation_ui.json` |
 | 50 | `Source/Features/Systems/Landmarks/SystemsLandmarksSlice.h` |
 | 50 | `Source/Features/Systems/Spawn/SystemsSpawnSlice.h` |
 | 50 | `Source/Features/Systems/SystemsThunks.h` |
@@ -354,6 +353,7 @@
 | 49 | `Source/Features/Systems/Bots/Horses/HorsesSlice.h` |
 | 49 | `Source/Features/Systems/Bots/Townspeople/TownspeopleActions.cpp` |
 | 49 | `Source/Features/Systems/Nature/SystemsNatureSlice.h` |
+| 48 | `Content/Data/settings/core/automation/conversation/ui.json` |
 | 48 | `Source/Views/Skeletal/Lod/Clamp/ClampView.h` |
 | 47 | `Source/Features/Components/Data/State/DataStateTypes.h` |
 | 47 | `Source/Features/Systems/Level/Layout/Scale/ScaleAdapters.h` |
@@ -400,7 +400,6 @@
 | 36 | `Source/Features/Components/Data/DataSlice.h` |
 | 36 | `Source/Features/Systems/Rendering/RenderingThunks.h` |
 | 35 | `Content/Data/levels/french_gulch/landmarks.json` |
-| 35 | `Content/Data/settings/core/automation/pipeline.json` |
 | 35 | `Source/Features/Components/Data/Settings/DataSettingsAdapters.h` |
 | 35 | `Source/Features/Components/Data/Settings/UI/Fly/FlyTypes.h` |
 | 35 | `Source/Features/Systems/Rendering/SystemsRenderingSelectors.h` |
@@ -409,6 +408,7 @@
 | 34 | `Source/Features/Systems/Bots/Goals/GoalsSelectors.cpp` |
 | 34 | `Source/Features/Systems/Rendering/Texture/TextureThunks.cpp` |
 | 34 | `Source/Features/Systems/Speech/SpeechActions.h` |
+| 33 | `Content/Data/settings/core/automation/pipeline.json` |
 | 33 | `Source/Features/Components/Data/Settings/Player/PlayerAdapters.h` |
 | 33 | `Source/Features/Systems/Bots/Orchestrator/OrchestratorTypes.h` |
 | 33 | `Source/Features/Systems/Bots/Orchestrator/Readiness/ReadinessTypes.h` |
@@ -427,7 +427,6 @@
 | 29 | `Source/Features/Systems/Bots/BotsActions.cpp` |
 | 29 | `Source/Features/Systems/Bots/Position/PositionSelectors.cpp` |
 | 29 | `Source/Features/Systems/Bots/Stats/StatsSelectors.cpp` |
-| 28 | `Content/Data/settings/ui/scale_audit_capture.json` |
 | 28 | `Source/Features/Systems/Bots/Orchestrator/Readiness/ReadinessActions.h` |
 | 28 | `Source/Features/Systems/Dialogue/DialogueActions.h` |
 | 28 | `Source/Features/Systems/Level/Presentation/LevelPresentationSlice.h` |
@@ -445,7 +444,7 @@
 | 27 | `Source/Features/Systems/Observed/ObservedSelectors.h` |
 | 27 | `Source/Features/Systems/Rendering/Distance/Lod/LodSlice.h` |
 | 27 | `Source/Features/Systems/Rendering/Profile/ProfileSlice.h` |
-| 26 | `Content/Data/settings/speech/automation.json` |
+| 26 | `Content/Data/settings/ui/scale/audit/capture.json` |
 | 26 | `Source/Features/Components/Data/Settings/Dialogue/SettingsDialogueTypes.h` |
 | 26 | `Source/Features/Systems/Bots/Pipeline/PipelineActions.h` |
 | 26 | `Source/Features/Systems/Rendering/Texture/SystemsRenderingTextureTypes.h` |
@@ -457,7 +456,7 @@
 | 25 | `Source/Features/Systems/Level/SystemsLevelActions.h` |
 | 25 | `Source/Features/Systems/Observed/ObservedActions.h` |
 | 25 | `Source/Features/Systems/Rendering/SystemsRenderingActions.h` |
-| 24 | `Content/Data/settings/speech/vowel_phonemes.json` |
+| 24 | `Content/Data/settings/speech/automation.json` |
 | 24 | `Source/Features/Systems/Landmarks/LandmarksSelectors.cpp` |
 | 24 | `Source/Features/Systems/Level/Layout/SystemsLevelLayoutAdapters.h` |
 | 24 | `Source/Features/Systems/Lifecycle/LifecycleSlice.h` |
@@ -469,6 +468,7 @@
 | 23 | `Source/Features/Systems/Projection/Terrain/ProjectionTerrainAdapters.h` |
 | 23 | `Source/ForbocAIDemo.Build.cs` |
 | 22 | `Config/DefaultEngine.ini` |
+| 22 | `Content/Data/settings/speech/vowel/phonemes.json` |
 | 22 | `Source/Features/Components/Spatial/SpatialSelectors.cpp` |
 | 22 | `Source/Features/Systems/Bots/Goals/GoalsSelectors.h` |
 | 22 | `Source/Features/Systems/Bots/Position/BotsPositionAdapters.cpp` |
@@ -476,7 +476,6 @@
 | 22 | `Source/Features/Systems/Bots/Townspeople/TownspeopleAdapters.cpp` |
 | 22 | `Source/Features/Systems/Nature/Entity/EntityAdapters.cpp` |
 | 22 | `Source/Features/Systems/State/StateSlice.h` |
-| 21 | `Content/Data/settings/core/automation/tests.json` |
 | 21 | `Content/Data/settings/rendering/texture/settings.json` |
 | 21 | `Source/Features/Systems/Bots/Horses/HorsesSelectors.cpp` |
 | 21 | `Source/Features/Systems/Nature/NatureSelectors.cpp` |
@@ -498,6 +497,7 @@
 | 20 | `Source/Features/Systems/Spawn/SpawnActions.cpp` |
 | 20 | `Source/Features/Systems/Terrain/TerrainActions.cpp` |
 | 20 | `Source/Views/Procedural/Mesh/Element/ElementView.h` |
+| 19 | `Content/Data/settings/core/automation/tests.json` |
 | 19 | `Source/Features/Components/ComponentsSlice.h` |
 | 19 | `Source/Features/Components/Spatial/SpatialSelectors.h` |
 | 19 | `Source/Features/Systems/Bots/SystemsBotsSelectors.h` |
@@ -545,7 +545,6 @@
 | 15 | `Source/Features/Components/Data/ComponentsDataTypes.h` |
 | 15 | `Source/Features/Components/Data/Settings/Registry/Color/ColorAdapters.h` |
 | 15 | `Source/Features/Systems/Initialization/InitializationAdapters.h` |
-| 14 | `Content/Data/settings/speech/duration_rules.json` |
 | 14 | `Source/Features/Components/Rendering/ComponentsRenderingSlice.h` |
 | 14 | `Source/Features/Entities/Environments/EnvironmentsSlice.h` |
 | 13 | `Content/Data/Source/french_gulch/osm/overpass/roads/residential.json` |
@@ -556,6 +555,7 @@
 | 12 | `Content/Data/levels/french_gulch/town/labels.json` |
 | 12 | `Content/Data/settings/core/automation.json` |
 | 12 | `Content/Data/settings/core/text.json` |
+| 12 | `Content/Data/settings/speech/duration/rules.json` |
 | 12 | `Scripts/Capture/capture-brochure-shots.sh` |
 | 12 | `Scripts/Capture/capture-scale-audit.sh` |
 | 12 | `Source/Features/Components/Level/ComponentsLevelSlice.h` |
@@ -565,6 +565,8 @@
 | 11 | `Content/Data/Source/french_gulch/osm/overpass/roads/service.json` |
 | 11 | `Content/Data/Source/french_gulch/osm/overpass/terrain/trinity/mountain/road.json` |
 | 11 | `Content/Data/settings.json` |
+| 11 | `Content/Data/settings/speech.json` |
+| 11 | `Content/Data/settings/ui.json` |
 | 11 | `Source/Features/Entities/Characters/Bots/CharactersBotsActions.h` |
 | 11 | `Source/Features/Entities/Characters/Bots/CharactersBotsSelectors.h` |
 | 11 | `Source/Features/Entities/Characters/Bots/CharactersBotsTypes.h` |
@@ -574,15 +576,13 @@
 | 9 | `Content/Data/levels/french_gulch/terrain/blocks.json` |
 | 9 | `Content/Data/settings/core.json` |
 | 9 | `Content/Data/settings/core/redux/log.json` |
-| 9 | `Content/Data/settings/speech.json` |
-| 9 | `Content/Data/settings/ui.json` |
-| 9 | `Content/Data/settings/ui/fly_mode.json` |
 | 9 | `Source/Features/Components/ComponentsActions.h` |
 | 9 | `Source/Features/Components/ComponentsSelectors.h` |
 | 8 | `Content/Data/levels/french_gulch/town/blocks.json` |
 | 7 | `Config/DefaultGame.ini` |
 | 7 | `Content/Data/settings/core/observation/ids.json` |
 | 7 | `Content/Data/settings/rendering.json` |
+| 7 | `Content/Data/settings/ui/fly/mode.json` |
 | 7 | `Source/Features/Components/Data/Settings/UI/SettingsUITypes.h` |
 | 6 | `Content/Data/settings/interaction.json` |
 | 6 | `Content/Data/settings/rendering/assets.json` |
@@ -640,6 +640,6 @@
 | 1 | `Content/Data/levels/french_gulch/mine/labels.json` |
 | 1 | `Content/Data/levels/french_gulch/nature.json` |
 | 1 | `Content/Data/levels/french_gulch/terrain/labels.json` |
-| 1 | `Content/Data/settings/core/ecs/domain_registry.json` |
+| 1 | `Content/Data/settings/core/ecs/domain/registry.json` |
 | 1 | `Source/Features/Systems/Rendering/Profile/Sky/SkySlice.cpp` |
 | 1 | `Source/Tests/Store.spec.cpp` |

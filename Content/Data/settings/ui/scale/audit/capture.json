@@ -1,0 +1,26 @@
+{
+  "capture_command_line_key": "forbocScaleAuditCapture",
+  "quit_when_done_command_line_key": "forbocScaleAuditQuitWhenDone",
+  "output_directory_command_line_key": "forbocScaleAuditOutputDir=",
+  "initial_delay_command_line_key": "forbocScaleAuditInitialDelaySeconds=",
+  "settle_seconds_command_line_key": "forbocScaleAuditSettleSeconds=",
+  "between_seconds_command_line_key": "forbocScaleAuditBetweenSeconds=",
+  "whole_ortho_width_command_line_key": "forbocScaleAuditWholeOrthoWidth=",
+  "town_ortho_width_command_line_key": "forbocScaleAuditTownOrthoWidth=",
+  "actors_ortho_width_command_line_key": "forbocScaleAuditActorsOrthoWidth=",
+  "whole_capture_height_command_line_key": "forbocScaleAuditWholeCaptureHeight=",
+  "town_capture_height_command_line_key": "forbocScaleAuditTownCaptureHeight=",
+  "actors_capture_height_command_line_key": "forbocScaleAuditActorsCaptureHeight=",
+  "default_output_directory": "screenshots",
+  "whole_output_name": "scale-audit-ingame-whole-level.png",
+  "town_output_name": "scale-audit-ingame-town.png",
+  "actors_output_name": "scale-audit-ingame-people-horses.png",
+  "initial_delay_seconds": 0.0,
+  "settle_seconds": 0.0,
+  "between_seconds": 0.0,
+  "top_down_rotation": {
+    "pitch": -90.0,
+    "yaw": 0.0,
+    "roll": 0.0
+  }
+}

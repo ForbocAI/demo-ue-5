@@ -1,21 +1,19 @@
 {
-  "tests": {
-    "bdd": {
-      "spec": "ForbocAI.Game.NewBDD",
-      "group": "New Feature BDD",
-      "case": "Should prove BDD works in ForbocAIDemo",
-      "assertion": "BDD Works"
-    },
-    "contract_parity": {
-      "test": "ForbocAI.TestGame.ContractParity.HeadersPresent",
-      "headers_available_assertion": "Contract scenario headers are available",
-      "skip_warning": "Skipping API/test-game contract parity until that work is ready to resume.",
-      "run_environment_variable": "FORBOC_RUN_API_CONTRACT_PARITY_TESTS",
-      "minimum_scenario_steps": 0
-    },
-    "integration_verification": {
-      "test": "ForbocAI.Integration.QuarantinedUntilSdkSync",
-      "quarantine_warning": "Integration verification is quarantined until the UE SDK is synced with the API and TS SDK contracts."
-    }
+  "bdd": {
+    "spec": "ForbocAI.Game.NewBDD",
+    "group": "New Feature BDD",
+    "case": "Should prove BDD works in ForbocAIDemo",
+    "assertion": "BDD Works"
+  },
+  "contract_parity": {
+    "test": "ForbocAI.TestGame.ContractParity.HeadersPresent",
+    "headers_available_assertion": "Contract scenario headers are available",
+    "skip_warning": "Skipping API/test-game contract parity until that work is ready to resume.",
+    "run_environment_variable": "FORBOC_RUN_API_CONTRACT_PARITY_TESTS",
+    "minimum_scenario_steps": 0
+  },
+  "integration_verification": {
+    "test": "ForbocAI.Integration.QuarantinedUntilSdkSync",
+    "quarantine_warning": "Integration verification is quarantined until the UE SDK is synced with the API and TS SDK contracts."
   }
 }

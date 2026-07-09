@@ -1,0 +1,7 @@
+{
+  "enabled_message": "Fly mode on: WASD/mouse, Space up, C/Ctrl down, F off",
+  "disabled_message": "Fly mode off",
+  "flying_gravity_scale": 0.0,
+  "vertical_input_scale": 1.0,
+  "neutral_input_scale": 0.0
+}

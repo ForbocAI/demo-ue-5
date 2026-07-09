@@ -1,12 +1,12 @@
 {
-  "parts": [
-    "automation/tests.json",
-    "automation/content_assets.json",
-    "automation/rtk_compliance.json",
-    "automation/bot.json",
-    "automation/pipeline.json",
-    "automation/conversation_ui.json",
-    "automation/protocol_loop.json",
-    "automation/store.json"
-  ]
+  "parts": {
+    "tests": "automation/tests.json",
+    "content_assets": "automation/content/assets.json",
+    "rtk_compliance": "automation/rtk/compliance.json",
+    "bot": "automation/bot.json",
+    "pipeline": "automation/pipeline.json",
+    "conversation_ui": "automation/conversation/ui.json",
+    "protocol_loop": "automation/protocol/loop.json",
+    "store": "automation/store.json"
+  }
 }

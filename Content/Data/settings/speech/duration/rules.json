@@ -1,0 +1,12 @@
+[
+  {
+    "kind": "phoneme_equals",
+    "phoneme": "SIL",
+    "multiplier": 0.5
+  },
+  {
+    "kind": "always",
+    "phoneme": "",
+    "multiplier": 1.0
+  }
+]
