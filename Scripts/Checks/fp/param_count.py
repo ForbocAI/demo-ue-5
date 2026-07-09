@@ -16,8 +16,11 @@ reported as an informational summary and never fail the guard:
                    by-value state accumulator; leave at two.
     ue-callback  - a UE reflection/lifecycle callback owned by the engine.
 
-The reduction techniques (payload/request struct at a boundary, currying, and
-functions-as-arguments) are the ue_fp cookbook patterns; see Core/ue_fp.hpp.
+A payload/request struct is NOT a solution: bundling the arguments into one
+struct only hides the arity behind a wrapper -- the function still does too much.
+The real fix is to split the function into multiple smaller functions that
+compose (currying to capture the stable inputs, functions-as-arguments, and
+func::compose/pipe3/pipe4/converge2/folds); see Core/ue_fp.hpp.
 """
 
 from __future__ import annotations
@@ -63,8 +66,8 @@ ACTIONABLE = register(
         id="FP-ARITY-001",
         severity=Severity.HIGH,
         summary="function carries more than two reducible data parameters",
-        guidance="Reduce with the ue_fp cookbook: (1) group related inputs into one payload/request struct at a real domain boundary; (2) curry -- capture the stable inputs in a factory returning a unary function over the varying input; or (3) supply behavior as a function argument (func::compose/pipe/converge2, folds, catalogs, Dispatcher). A leading const &/* parameter is DATA -- do not widen a signature by threading more const inputs.",
-        skill="ue_fp.hpp cookbook: payload structs at boundaries, currying, functions-as-args",
+        guidance="A payload/request struct is NOT the fix -- it only hides the arity behind a wrapper. Split the function into multiple smaller functions that compose: (1) curry -- capture the stable inputs in a factory that returns a unary function over the varying input; (2) supply behavior as a function argument and compose the steps with func::compose/pipe3/pipe4/converge2, folds, catalogs, or a Dispatcher; (3) factor independent responsibilities into their own functions and wire them together. A leading const &/* parameter is DATA -- do not widen a signature by threading more const inputs.",
+        skill="ue_fp.hpp cookbook: split into composed functions (currying, functions-as-args), not a payload-struct wrapper",
     )
 )
 
