@@ -21,11 +21,11 @@ void ApplyTexture(const FLevelRetroTextureApply &Request) {
   UMaterialInstanceDynamic *Material =
       UMaterialInstanceDynamic::Create(Request.BaseMaterial, Request.Part);
   check(Material);
-  check(Request.Settings.TextureMaterialSlotIndex >= int32{});
+  check(Request.Settings.Buffer.MaterialSlotIndex >= int32{});
 
   Material->SetTextureParameterValue(
-      FName(*Request.Settings.MaterialTextureParameter), RetroTexture);
-  Request.Part->SetMaterial(Request.Settings.TextureMaterialSlotIndex, Material);
+      FName(*Request.Settings.Format.MaterialParameter), RetroTexture);
+  Request.Part->SetMaterial(Request.Settings.Buffer.MaterialSlotIndex, Material);
 }
 
 } // namespace RenderingThunks

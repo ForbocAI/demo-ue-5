@@ -60,13 +60,13 @@ template <typename Value> struct TProfileFieldRegistry;
 template <> struct TProfileFieldRegistry<int32> {
   static TArray<TProfileFieldDeclaration<int32>> Fields(
       const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
-    return {{Settings.ProfileFieldAntiAliasingMethod,
+    return {{Settings.IntegerProfile.AntiAliasingMethod,
              &FLevelRetroRenderProfile::AntiAliasingMethod},
-            {Settings.ProfileFieldPostProcessAaQuality,
+            {Settings.IntegerProfile.PostProcessAaQuality,
              &FLevelRetroRenderProfile::PostProcessAAQuality},
-            {Settings.ProfileFieldShadowCascades,
+            {Settings.IntegerProfile.ShadowCascades,
              &FLevelRetroRenderProfile::ShadowCascades},
-            {Settings.ProfileFieldShadowMaxResolution,
+            {Settings.IntegerProfile.ShadowMaxResolution,
              &FLevelRetroRenderProfile::ShadowMaxResolution}};
   }
 };
@@ -74,23 +74,23 @@ template <> struct TProfileFieldRegistry<int32> {
 template <> struct TProfileFieldRegistry<float> {
   static TArray<TProfileFieldDeclaration<float>> Fields(
       const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
-    return {{Settings.ProfileFieldScreenPercentage,
+    return {{Settings.FloatProfile.ScreenPercentage,
              &FLevelRetroRenderProfile::ScreenPercentage},
-            {Settings.ProfileFieldViewDistanceScale,
+            {Settings.FloatProfile.ViewDistanceScale,
              &FLevelRetroRenderProfile::ViewDistanceScale},
-            {Settings.ProfileFieldFoliageDensityScale,
+            {Settings.FloatProfile.FoliageDensityScale,
              &FLevelRetroRenderProfile::FoliageDensityScale},
-            {Settings.ProfileFieldGrassDensityScale,
+            {Settings.FloatProfile.GrassDensityScale,
              &FLevelRetroRenderProfile::GrassDensityScale}};
   }
 };
 
 TArray<FCVarApplyDeclaration> CVarApplyDeclarations(
     const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
-  return {{Settings.ValueKindFixedInt, ApplyFixedIntCVar},
-          {Settings.ValueKindProfileInt, ApplyProfileIntCVar},
-          {Settings.ValueKindFixedFloat, ApplyFixedFloatCVar},
-          {Settings.ValueKindProfileFloat, ApplyProfileFloatCVar}};
+  return {{Settings.Value.FixedInt, ApplyFixedIntCVar},
+          {Settings.Value.ProfileInt, ApplyProfileIntCVar},
+          {Settings.Value.FixedFloat, ApplyFixedFloatCVar},
+          {Settings.Value.ProfileFloat, ApplyProfileFloatCVar}};
 }
 
 FCVarApplyDeclaration RequiredCVarDeclaration(

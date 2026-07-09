@@ -3,6 +3,7 @@
 #include "Features/Components/Data/Settings/Rendering/RenderingAdapters.h"
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
+#include "Features/Components/Data/Settings/Rendering/Registry/Texture/TextureAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -17,18 +18,6 @@ JSON_SETTINGS_REGISTRY(FHashSettings, XMultiplier,
 JSON_SETTINGS_REGISTRY(FRenderingConsoleVariableSettings, Name, ValueKind,
                        ProfileField, IntValue, FloatValue);
 
-JSON_SETTINGS_REGISTRY(FRenderingConsoleSettings,
-                       ProfileFieldAntiAliasingMethod,
-                       ProfileFieldPostProcessAaQuality,
-                       ProfileFieldShadowCascades,
-                       ProfileFieldShadowMaxResolution,
-                       ProfileFieldScreenPercentage,
-                       ProfileFieldViewDistanceScale,
-                       ProfileFieldFoliageDensityScale,
-                       ProfileFieldGrassDensityScale, ValueKindFixedInt,
-                       ValueKindProfileInt, ValueKindFixedFloat,
-                       ValueKindProfileFloat);
-
 JSON_SETTINGS_REGISTRY(FStageSettings, Id, MaxDistance,
                        StaticMeshForcedLodModel, SkeletalMeshForcedLodModel,
                        SkeletalMeshMinLodModel, CullDistance,
@@ -36,10 +25,6 @@ JSON_SETTINGS_REGISTRY(FStageSettings, Id, MaxDistance,
                        bDynamicVisible, bLabelsVisible, bAnimated,
                        bUpdateRateOptimizationsEnabled,
                        bPatrolEnabled, bCollisionEnabled, bCastShadow);
-
-JSON_SETTINGS_REGISTRY(FPredicateSettings, Kind, XMultiplier,
-                       YMultiplier, NoiseMultiplier, XDivisor, YDivisor,
-                       Modulus, Equals, LessThan);
 
 template <>
 struct TJsonSettingsRegistry<FColorResultSettings> {
@@ -194,13 +179,47 @@ template <> struct TJsonSettingsRegistry<FRenderingSettings> {
   static const TArray<TField<FRenderingSettings>> &Fields() {
     static const TArray<TField<FRenderingSettings>>
         RegisteredFields = {
-            JSON_SETTING_FIELDS(FRenderingSettings, TextureChannels,
-                                TextureAlpha, TextureCacheKeyFormat,
-                                MaterialTextureParameter,
-                                PredicateAlwaysKind, PredicateModEqualsKind,
-                                PredicateModLessThanKind, ResultSolidKind,
-                                ResultMixKind, TextureMipIndex,
-                                TextureMaterialSlotIndex),
+            NestedSettingField(
+                JSON_SETTING_ATOM(TextureChannels),
+                NestedFieldMembers(&FRenderingSettings::Buffer,
+                                   &FBufferSettings::Channels)),
+            NestedSettingField(JSON_SETTING_ATOM(TextureAlpha),
+                               NestedFieldMembers(&FRenderingSettings::Buffer,
+                                                  &FBufferSettings::Alpha)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(TextureCacheKeyFormat),
+                NestedFieldMembers(&FRenderingSettings::Format,
+                                   &FFormatSettings::CacheKeyFormat)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(MaterialTextureParameter),
+                NestedFieldMembers(&FRenderingSettings::Format,
+                                   &FFormatSettings::MaterialParameter)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(PredicateAlwaysKind),
+                NestedFieldMembers(&FRenderingSettings::RuleNames,
+                                   &FRuleNameSettings::PredicateAlways)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(PredicateModEqualsKind),
+                NestedFieldMembers(&FRenderingSettings::RuleNames,
+                                   &FRuleNameSettings::PredicateModEquals)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(PredicateModLessThanKind),
+                NestedFieldMembers(&FRenderingSettings::RuleNames,
+                                   &FRuleNameSettings::PredicateModLessThan)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(ResultSolidKind),
+                NestedFieldMembers(&FRenderingSettings::RuleNames,
+                                   &FRuleNameSettings::ResultSolid)),
+            NestedSettingField(JSON_SETTING_ATOM(ResultMixKind),
+                               NestedFieldMembers(&FRenderingSettings::RuleNames,
+                                                  &FRuleNameSettings::ResultMix)),
+            NestedSettingField(JSON_SETTING_ATOM(TextureMipIndex),
+                               NestedFieldMembers(&FRenderingSettings::Buffer,
+                                                  &FBufferSettings::MipIndex)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(TextureMaterialSlotIndex),
+                NestedFieldMembers(&FRenderingSettings::Buffer,
+                                   &FBufferSettings::MaterialSlotIndex)),
             JSON_OBJECT_SETTING_FIELD(
                 FRenderingSettings,
                 ReadSettingsWith<FRenderingConsoleSettings>(

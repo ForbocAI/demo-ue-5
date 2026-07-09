@@ -79,15 +79,15 @@ FColor Mix(const FRetroResultEval &Eval);
 
 TArray<FPredicateApplyDeclaration> PredicateApplyDeclarations(
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {
-  return {{Settings.PredicateAlwaysKind, AlwaysPredicate},
-          {Settings.PredicateModEqualsKind, ModEqualsPredicate},
-          {Settings.PredicateModLessThanKind, ModLessThanPredicate}};
+  return {{Settings.RuleNames.PredicateAlways, AlwaysPredicate},
+          {Settings.RuleNames.PredicateModEquals, ModEqualsPredicate},
+          {Settings.RuleNames.PredicateModLessThan, ModLessThanPredicate}};
 }
 
 TArray<FColorResultDeclaration> ColorResultDeclarations(
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {
-  return {{Settings.ResultSolidKind, SolidColor},
-          {Settings.ResultMixKind, Mix}};
+  return {{Settings.RuleNames.ResultSolid, SolidColor},
+          {Settings.RuleNames.ResultMix, Mix}};
 }
 
 FPredicateApplyDeclaration RequiredPredicateDeclaration(
@@ -151,23 +151,27 @@ int32 HashCell(FRetroHashCell Cell) {
 }
 
 int32 PredicateTerm(const FRetroPredicateEval &Eval) {
-  check(Eval.Predicate.XDivisor > int32{});
-  check(Eval.Predicate.YDivisor > int32{});
-  return Eval.Predicate.XMultiplier * (Eval.X / Eval.Predicate.XDivisor) +
-         Eval.Predicate.YMultiplier * (Eval.Y / Eval.Predicate.YDivisor) +
-         Eval.Predicate.NoiseMultiplier * Eval.Noise;
+  check(Eval.Predicate.Term.XDivisor > int32{});
+  check(Eval.Predicate.Term.YDivisor > int32{});
+  return Eval.Predicate.Term.XMultiplier *
+             (Eval.X / Eval.Predicate.Term.XDivisor) +
+         Eval.Predicate.Term.YMultiplier *
+             (Eval.Y / Eval.Predicate.Term.YDivisor) +
+         Eval.Predicate.Term.NoiseMultiplier * Eval.Noise;
 }
 
 bool AlwaysPredicate(const FRetroPredicateEval &, int32) { return true; }
 
 bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term) {
-  check(Eval.Predicate.Modulus > int32{});
-  return Term % Eval.Predicate.Modulus == Eval.Predicate.Equals;
+  check(Eval.Predicate.Comparison.Modulus > int32{});
+  return Term % Eval.Predicate.Comparison.Modulus ==
+         Eval.Predicate.Comparison.Equals;
 }
 
 bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term) {
-  check(Eval.Predicate.Modulus > int32{});
-  return Term % Eval.Predicate.Modulus < Eval.Predicate.LessThan;
+  check(Eval.Predicate.Comparison.Modulus > int32{});
+  return Term % Eval.Predicate.Comparison.Modulus <
+         Eval.Predicate.Comparison.LessThan;
 }
 
 bool PredicateMatches(const FRetroPredicateEval &Eval) {
@@ -213,14 +217,14 @@ FColor PaletteColor(const FRetroTextureCell &Cell) {
           });
   check(Rule.hasValue);
   return ResolveColor({Rule.value.Result, Noise,
-                       Cell.Settings->TextureAlpha, Cell.Settings});
+                       Cell.Settings->Buffer.Alpha, Cell.Settings});
 }
 
 FString TextureCacheKey(
     const FLevelRetroTextureSpec &Spec,
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {
   return frmt::RuntimeString(
-      Settings.TextureCacheKeyFormat,
+      Settings.Format.CacheKeyFormat,
       frmt::Args({frmt::Arg(static_cast<int32>(Spec.Texture)),
                   frmt::Arg(Spec.Size.X), frmt::Arg(Spec.Size.Y)}));
 }
@@ -235,8 +239,8 @@ UTexture2D *CreateRetroTexture(
       UTexture2D::CreateTransient(Spec.Size.X, Spec.Size.Y, PF_B8G8R8A8);
   check(Result);
   check(Result->GetPlatformData());
-  check(Settings.TextureMipIndex >= int32{});
-  check(Result->GetPlatformData()->Mips.Num() > Settings.TextureMipIndex);
+  check(Settings.Buffer.MipIndex >= int32{});
+  check(Result->GetPlatformData()->Mips.Num() > Settings.Buffer.MipIndex);
 
   Result->Filter = TF_Nearest;
   Result->AddressX = TA_Wrap;
@@ -246,7 +250,7 @@ UTexture2D *CreateRetroTexture(
   Result->SRGB = true;
 
   FTexture2DMipMap &Mip =
-      Result->GetPlatformData()->Mips[Settings.TextureMipIndex];
+      Result->GetPlatformData()->Mips[Settings.Buffer.MipIndex];
   void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
   check(Data);
 
@@ -258,7 +262,7 @@ UTexture2D *CreateRetroTexture(
                              &Settings});
       });
   FMemory::Memcpy(Data, Pixels.data(),
-                  Pixels.size() * Settings.TextureChannels *
+                  Pixels.size() * Settings.Buffer.Channels *
                       sizeof(uint8));
   Mip.BulkData.Unlock();
 
