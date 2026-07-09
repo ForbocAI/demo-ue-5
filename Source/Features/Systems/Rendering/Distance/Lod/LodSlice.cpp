@@ -10,26 +10,25 @@ namespace {
 
 FLevelDistanceLodStage ReduceDistanceLodStageSettings(
     const ForbocAI::Game::Data::FStageSettings &Settings) {
-  return {Settings.Id,
-          Settings.MaxDistance,
-          Settings.StaticMeshForcedLodModel,
-          Settings.SkeletalMeshForcedLodModel,
-          Settings.SkeletalMeshMinLodModel,
-          Settings.CullDistance,
-          Settings.ActorTickIntervalSeconds,
-          Settings.bStaticVisible,
-          Settings.bDynamicVisible,
-          Settings.bLabelsVisible,
-          Settings.bAnimated,
-          Settings.bUpdateRateOptimizationsEnabled,
-          Settings.bPatrolEnabled,
-          Settings.bCollisionEnabled,
-          Settings.bCastShadow};
+  return {{Settings.Selection.Id, Settings.Selection.MaxDistance},
+          {Settings.Mesh.StaticMeshForcedLodModel,
+           Settings.Mesh.SkeletalMeshForcedLodModel,
+           Settings.Mesh.SkeletalMeshMinLodModel},
+          {Settings.Timing.CullDistance,
+           Settings.Timing.ActorTickIntervalSeconds},
+          {Settings.Visibility.bStaticVisible,
+           Settings.Visibility.bDynamicVisible,
+           Settings.Visibility.bLabelsVisible},
+          {Settings.Behavior.bAnimated,
+           Settings.Behavior.bUpdateRateOptimizationsEnabled,
+           Settings.Behavior.bPatrolEnabled,
+           Settings.Behavior.bCollisionEnabled,
+           Settings.Behavior.bCastShadow}};
 }
 
 bool DistanceWithinStage(float Distance,
                          const FLevelDistanceLodStage &Stage) {
-  return Distance <= Stage.MaxDistance;
+  return Distance <= Stage.Selection.MaxDistance;
 }
 
 } // namespace

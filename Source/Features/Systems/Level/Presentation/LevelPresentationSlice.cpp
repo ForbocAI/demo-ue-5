@@ -88,11 +88,12 @@ FSectionSpawn ReduceSectionDistanceLod(
           });
   return {func::filter_array<FBlockSpawn>(
               Blocks, [](const FBlockSpawn &Block) {
-                return Block.Lod.bStaticVisible;
+                return Block.Lod.Visibility.bStaticVisible;
               }),
           func::filter_array<FLabelSpawn>(
               Labels, [](const FLabelSpawn &Label) {
-                return Label.Lod.bStaticVisible && Label.Lod.bLabelsVisible;
+                return Label.Lod.Visibility.bStaticVisible &&
+                       Label.Lod.Visibility.bLabelsVisible;
               })};
 }
 
@@ -224,7 +225,7 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
           });
   Payload.Townspeople = func::filter_array<FRuntimeTownspersonViewSpawn>(
       Townspeople, [](const FRuntimeTownspersonViewSpawn &Spawn) {
-        return Spawn.Lod.bDynamicVisible;
+        return Spawn.Lod.Visibility.bDynamicVisible;
       });
   const TArray<FRuntimeHorseViewSpawn> Horses =
       func::map_array<FHorseRouteSeed, FRuntimeHorseViewSpawn>(
@@ -236,7 +237,7 @@ FRuntimeLevelViewPayload ReduceLevelViewPayload(
           });
   Payload.Horses = func::filter_array<FRuntimeHorseViewSpawn>(
       Horses, [](const FRuntimeHorseViewSpawn &Spawn) {
-        return Spawn.Lod.bDynamicVisible;
+        return Spawn.Lod.Visibility.bDynamicVisible;
       });
   return Payload;
 }

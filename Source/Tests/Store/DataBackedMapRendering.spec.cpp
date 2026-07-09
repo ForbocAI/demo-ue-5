@@ -100,7 +100,8 @@ bool FStoreDataBackedMapRendering::RunTest(const FString &Parameters) {
         const FLevelDistanceLodStage *RuntimeStage =
             DistanceLodStages.FindByPredicate(
                 [&ExpectedStage](const FLevelDistanceLodStage &Candidate) {
-                  return Candidate.Id == ExpectedStage.Id;
+                  return Candidate.Selection.Id ==
+                         ExpectedStage.Selection.Id;
                 });
         TestTrue(RuntimeLodStageLabel,
                  RuntimeStage != nullptr && *RuntimeStage == ExpectedStage);

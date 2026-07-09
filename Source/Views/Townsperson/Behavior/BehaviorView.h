@@ -13,7 +13,7 @@ void ATownspersonView::BeginPlay() {
 
 void ATownspersonView::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
-  CurrentLod.bPatrolEnabled ? AdvancePatrol(DeltaTime) : void();
+  CurrentLod.Behavior.bPatrolEnabled ? AdvancePatrol(DeltaTime) : void();
 }
 
 void ATownspersonView::ConfigureTownsperson(
@@ -44,39 +44,43 @@ void ATownspersonView::ConfigureTownsperson(
 void ATownspersonView::ApplyDistanceLod(
     const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) {
   CurrentLod = Lod;
-  PrimaryActorTick.TickInterval = Lod.ActorTickIntervalSeconds;
-  SetActorTickEnabled(Lod.bPatrolEnabled);
+  PrimaryActorTick.TickInterval = Lod.Timing.ActorTickIntervalSeconds;
+  SetActorTickEnabled(Lod.Behavior.bPatrolEnabled);
   ForbocAI::Game::Views::SkeletalLodClamp::Apply(
-      CharacterMesh, Lod.SkeletalMeshForcedLodModel,
-      Lod.SkeletalMeshMinLodModel);
-  CharacterMesh->SetCullDistance(Lod.CullDistance);
-  CharacterMesh->SetVisibility(Lod.bDynamicVisible);
-  CharacterMesh->SetHiddenInGame(!Lod.bDynamicVisible);
-  CharacterMesh->SetCollisionEnabled(Lod.bCollisionEnabled
+      CharacterMesh, Lod.Mesh.SkeletalMeshForcedLodModel,
+      Lod.Mesh.SkeletalMeshMinLodModel);
+  CharacterMesh->SetCullDistance(Lod.Timing.CullDistance);
+  CharacterMesh->SetVisibility(Lod.Visibility.bDynamicVisible);
+  CharacterMesh->SetHiddenInGame(!Lod.Visibility.bDynamicVisible);
+  CharacterMesh->SetCollisionEnabled(Lod.Behavior.bCollisionEnabled
                                          ? ECollisionEnabled::QueryOnly
                                          : ECollisionEnabled::NoCollision);
-  CharacterMesh->SetCastShadow(Lod.bCastShadow);
-  CharacterMesh->SetComponentTickEnabled(Lod.bAnimated);
+  CharacterMesh->SetCastShadow(Lod.Behavior.bCastShadow);
+  CharacterMesh->SetComponentTickEnabled(Lod.Behavior.bAnimated);
   CharacterMesh->bEnableUpdateRateOptimizations =
-      Lod.bUpdateRateOptimizationsEnabled;
-  InteractionSphere->SetCollisionEnabled(Lod.bCollisionEnabled
+      Lod.Behavior.bUpdateRateOptimizationsEnabled;
+  InteractionSphere->SetCollisionEnabled(Lod.Behavior.bCollisionEnabled
                                              ? ECollisionEnabled::QueryOnly
                                              : ECollisionEnabled::NoCollision);
-  NameText->SetVisibility(Lod.bDynamicVisible && Lod.bLabelsVisible);
-  NameText->SetHiddenInGame(!(Lod.bDynamicVisible && Lod.bLabelsVisible));
+  NameText->SetVisibility(Lod.Visibility.bDynamicVisible &&
+                          Lod.Visibility.bLabelsVisible);
+  NameText->SetHiddenInGame(
+      !(Lod.Visibility.bDynamicVisible && Lod.Visibility.bLabelsVisible));
   NameText->SetComponentTickEnabled(false);
   PromptText->SetVisibility(false);
-  PromptText->SetHiddenInGame(!(Lod.bDynamicVisible && Lod.bLabelsVisible));
+  PromptText->SetHiddenInGame(
+      !(Lod.Visibility.bDynamicVisible && Lod.Visibility.bLabelsVisible));
   PromptText->SetComponentTickEnabled(false);
   DialogueText->SetVisibility(false);
-  DialogueText->SetHiddenInGame(!(Lod.bDynamicVisible && Lod.bLabelsVisible));
+  DialogueText->SetHiddenInGame(
+      !(Lod.Visibility.bDynamicVisible && Lod.Visibility.bLabelsVisible));
   DialogueText->SetComponentTickEnabled(false);
 }
 
 void ATownspersonView::ShowDialogueReply(const FString &Reply) {
   DialogueText->SetText(FText::FromString(Reply));
-  DialogueText->SetVisibility(CurrentLod.bDynamicVisible &&
-                              CurrentLod.bLabelsVisible);
+  DialogueText->SetVisibility(CurrentLod.Visibility.bDynamicVisible &&
+                              CurrentLod.Visibility.bLabelsVisible);
   const ForbocAI::Game::Data::FTextSettings &Text =
       FG::RuntimeSelectors::SelectText();
   const FString ReplyLog =
@@ -151,8 +155,8 @@ void ATownspersonView::HandleInteractionBegin(
   Model.bShouldApply
       ? (bPlayerNearby = Model.bPlayerNearby,
          PromptText->SetVisibility(Model.bPromptVisible &&
-                                   CurrentLod.bDynamicVisible &&
-                                   CurrentLod.bLabelsVisible),
+                                   CurrentLod.Visibility.bDynamicVisible &&
+                                   CurrentLod.Visibility.bLabelsVisible),
          void())
       : void();
 }
@@ -167,8 +171,8 @@ void ATownspersonView::HandleInteractionEnd(
   Model.bShouldApply
       ? (bPlayerNearby = Model.bPlayerNearby,
          PromptText->SetVisibility(Model.bPromptVisible &&
-                                   CurrentLod.bDynamicVisible &&
-                                   CurrentLod.bLabelsVisible),
+                                   CurrentLod.Visibility.bDynamicVisible &&
+                                   CurrentLod.Visibility.bLabelsVisible),
          void())
       : void();
 }

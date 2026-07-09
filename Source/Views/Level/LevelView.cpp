@@ -31,14 +31,14 @@ struct FBlockLevelOfDetailApplyRequest {
 void ApplyBlockLevelOfDetail(const FBlockLevelOfDetailApplyRequest &Request) {
   check(Request.Component);
   Request.Component->SetForcedLodModel(
-      Request.Lod.StaticMeshForcedLodModel);
-  Request.Component->SetCullDistance(Request.Lod.CullDistance);
-  Request.Component->SetVisibility(Request.Lod.bStaticVisible);
-  Request.Component->SetHiddenInGame(!Request.Lod.bStaticVisible);
-  Request.Component->SetCollisionEnabled(Request.Lod.bCollisionEnabled
+      Request.Lod.Mesh.StaticMeshForcedLodModel);
+  Request.Component->SetCullDistance(Request.Lod.Timing.CullDistance);
+  Request.Component->SetVisibility(Request.Lod.Visibility.bStaticVisible);
+  Request.Component->SetHiddenInGame(!Request.Lod.Visibility.bStaticVisible);
+  Request.Component->SetCollisionEnabled(Request.Lod.Behavior.bCollisionEnabled
                                              ? ECollisionEnabled::QueryOnly
                                              : ECollisionEnabled::NoCollision);
-  Request.Component->SetCastShadow(Request.Lod.bCastShadow);
+  Request.Component->SetCastShadow(Request.Lod.Behavior.bCastShadow);
   Request.Component->SetComponentTickEnabled(false);
 }
 
@@ -207,9 +207,9 @@ void ARuntimeLevelView::RenderLabel(
                  Label->GetTextRender()->SetHorizontalAlignment(EHTA_Center),
                  Label->GetTextRender()->SetWorldSize(LabelSpawn.WorldSize),
                  Label->GetTextRender()->SetVisibility(
-                     LabelSpawn.Lod.bLabelsVisible),
+                     LabelSpawn.Lod.Visibility.bLabelsVisible),
                  Label->GetTextRender()->SetHiddenInGame(
-                     !LabelSpawn.Lod.bLabelsVisible),
+                     !LabelSpawn.Lod.Visibility.bLabelsVisible),
                  Label->GetTextRender()->SetComponentTickEnabled(false),
                  Label->SetActorTickEnabled(false),
                  true)

@@ -3,6 +3,7 @@
 #include "Features/Components/Data/Settings/Rendering/RenderingAdapters.h"
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
+#include "Features/Components/Data/Settings/Rendering/Registry/Lod/LodAdapters.h"
 #include "Features/Components/Data/Settings/Rendering/Registry/Texture/TextureAdapters.h"
 
 namespace ForbocAI {
@@ -17,14 +18,6 @@ JSON_SETTINGS_REGISTRY(FHashSettings, XMultiplier,
 
 JSON_SETTINGS_REGISTRY(FRenderingConsoleVariableSettings, Name, ValueKind,
                        ProfileField, IntValue, FloatValue);
-
-JSON_SETTINGS_REGISTRY(FStageSettings, Id, MaxDistance,
-                       StaticMeshForcedLodModel, SkeletalMeshForcedLodModel,
-                       SkeletalMeshMinLodModel, CullDistance,
-                       ActorTickIntervalSeconds, bStaticVisible,
-                       bDynamicVisible, bLabelsVisible, bAnimated,
-                       bUpdateRateOptimizationsEnabled,
-                       bPatrolEnabled, bCollisionEnabled, bCastShadow);
 
 template <>
 struct TJsonSettingsRegistry<FColorResultSettings> {

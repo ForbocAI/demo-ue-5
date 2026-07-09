@@ -87,7 +87,7 @@ AHorseView::AHorseView()
 
 void AHorseView::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
-  CurrentLod.bPatrolEnabled ? AdvancePatrol(DeltaTime) : void();
+  CurrentLod.Behavior.bPatrolEnabled ? AdvancePatrol(DeltaTime) : void();
 }
 
 void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
@@ -124,36 +124,40 @@ void AHorseView::AdvancePatrol(float DeltaTime) {
 void AHorseView::ApplyDistanceLod(
     const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) {
   CurrentLod = Lod;
-  PrimaryActorTick.TickInterval = Lod.ActorTickIntervalSeconds;
-  SetActorTickEnabled(Lod.bPatrolEnabled);
+  PrimaryActorTick.TickInterval = Lod.Timing.ActorTickIntervalSeconds;
+  SetActorTickEnabled(Lod.Behavior.bPatrolEnabled);
   ForbocAI::Game::Views::SkeletalLodClamp::Apply(
-      ImportedHorseMesh, Lod.SkeletalMeshForcedLodModel,
-      Lod.SkeletalMeshMinLodModel);
-  ImportedHorseMesh->SetCullDistance(Lod.CullDistance);
-  ImportedHorseMesh->SetVisibility(Lod.bDynamicVisible);
-  ImportedHorseMesh->SetHiddenInGame(!Lod.bDynamicVisible);
-  ImportedHorseMesh->SetCollisionEnabled(Lod.bCollisionEnabled
+      ImportedHorseMesh, Lod.Mesh.SkeletalMeshForcedLodModel,
+      Lod.Mesh.SkeletalMeshMinLodModel);
+  ImportedHorseMesh->SetCullDistance(Lod.Timing.CullDistance);
+  ImportedHorseMesh->SetVisibility(Lod.Visibility.bDynamicVisible);
+  ImportedHorseMesh->SetHiddenInGame(!Lod.Visibility.bDynamicVisible);
+  ImportedHorseMesh->SetCollisionEnabled(Lod.Behavior.bCollisionEnabled
                                              ? ECollisionEnabled::QueryOnly
                                              : ECollisionEnabled::NoCollision);
-  ImportedHorseMesh->SetCastShadow(Lod.bCastShadow);
-  ImportedHorseMesh->SetComponentTickEnabled(Lod.bAnimated);
+  ImportedHorseMesh->SetCastShadow(Lod.Behavior.bCastShadow);
+  ImportedHorseMesh->SetComponentTickEnabled(Lod.Behavior.bAnimated);
   ImportedHorseMesh->bEnableUpdateRateOptimizations =
-      Lod.bUpdateRateOptimizationsEnabled;
+      Lod.Behavior.bUpdateRateOptimizationsEnabled;
   ForbocAI::Game::Views::SkeletalLodClamp::Apply(
-      MountedRiderMesh, Lod.SkeletalMeshForcedLodModel,
-      Lod.SkeletalMeshMinLodModel);
-  MountedRiderMesh->SetCullDistance(Lod.CullDistance);
-  MountedRiderMesh->SetVisibility(Lod.bDynamicVisible && bMountedRider);
-  MountedRiderMesh->SetHiddenInGame(!(Lod.bDynamicVisible && bMountedRider));
-  MountedRiderMesh->SetCollisionEnabled(Lod.bCollisionEnabled
+      MountedRiderMesh, Lod.Mesh.SkeletalMeshForcedLodModel,
+      Lod.Mesh.SkeletalMeshMinLodModel);
+  MountedRiderMesh->SetCullDistance(Lod.Timing.CullDistance);
+  MountedRiderMesh->SetVisibility(Lod.Visibility.bDynamicVisible &&
+                                  bMountedRider);
+  MountedRiderMesh->SetHiddenInGame(
+      !(Lod.Visibility.bDynamicVisible && bMountedRider));
+  MountedRiderMesh->SetCollisionEnabled(Lod.Behavior.bCollisionEnabled
                                             ? ECollisionEnabled::QueryOnly
                                             : ECollisionEnabled::NoCollision);
-  MountedRiderMesh->SetCastShadow(Lod.bCastShadow);
-  MountedRiderMesh->SetComponentTickEnabled(Lod.bAnimated);
+  MountedRiderMesh->SetCastShadow(Lod.Behavior.bCastShadow);
+  MountedRiderMesh->SetComponentTickEnabled(Lod.Behavior.bAnimated);
   MountedRiderMesh->bEnableUpdateRateOptimizations =
-      Lod.bUpdateRateOptimizationsEnabled;
-  NameText->SetVisibility(Lod.bDynamicVisible && Lod.bLabelsVisible);
-  NameText->SetHiddenInGame(!(Lod.bDynamicVisible && Lod.bLabelsVisible));
+      Lod.Behavior.bUpdateRateOptimizationsEnabled;
+  NameText->SetVisibility(Lod.Visibility.bDynamicVisible &&
+                          Lod.Visibility.bLabelsVisible);
+  NameText->SetHiddenInGame(
+      !(Lod.Visibility.bDynamicVisible && Lod.Visibility.bLabelsVisible));
   NameText->SetComponentTickEnabled(false);
 }
 
@@ -169,9 +173,9 @@ void AHorseView::ConfigureImportedHorseAsset() {
   check(WalkAnimation);
 
   ImportedHorseMesh->SetSkeletalMesh(ImportedMesh);
-  ImportedHorseMesh->SetVisibility(CurrentLod.bDynamicVisible);
-  ImportedHorseMesh->SetHiddenInGame(!CurrentLod.bDynamicVisible);
-  CurrentLod.bAnimated ? (ImportedHorseMesh->PlayAnimation(WalkAnimation, true),
+  ImportedHorseMesh->SetVisibility(CurrentLod.Visibility.bDynamicVisible);
+  ImportedHorseMesh->SetHiddenInGame(!CurrentLod.Visibility.bDynamicVisible);
+  CurrentLod.Behavior.bAnimated ? (ImportedHorseMesh->PlayAnimation(WalkAnimation, true),
                           void())
                        : void();
 
@@ -184,9 +188,9 @@ void AHorseView::ConfigureImportedHorseAsset() {
           check(RiderMesh);
           check(RiderWalkAnimation);
           MountedRiderMesh->SetSkeletalMesh(RiderMesh);
-          MountedRiderMesh->SetVisibility(CurrentLod.bDynamicVisible);
-          MountedRiderMesh->SetHiddenInGame(!CurrentLod.bDynamicVisible);
-          CurrentLod.bAnimated
+          MountedRiderMesh->SetVisibility(CurrentLod.Visibility.bDynamicVisible);
+          MountedRiderMesh->SetHiddenInGame(!CurrentLod.Visibility.bDynamicVisible);
+          CurrentLod.Behavior.bAnimated
               ? (MountedRiderMesh->PlayAnimation(RiderWalkAnimation, true),
                  void())
               : void();
