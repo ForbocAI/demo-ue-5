@@ -11,7 +11,7 @@ JSON_SETTINGS_REGISTRY(Automation::Bot::FGroups,
                        StateCreation, Reducers, Movement, Combat, Awareness,
                        TickUpdate);
 
-JSON_SETTINGS_REGISTRY(Automation::Bot::FCases,
+JSON_SETTINGS_REGISTRY(Automation::Bot::FCaseLabels,
                        CreateInitialState, UpdatePosition, ReduceHealth,
                        TransitionToCombat, TransitionToFlee, UpdateMemory,
                        IncrementTick, DecayAggro);
@@ -19,7 +19,7 @@ JSON_SETTINGS_REGISTRY(Automation::Bot::FCases,
 JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorGroups,
                        Registration, Cycle, RuntimeStore);
 
-JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorCases,
+JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorCaseLabels,
                        RegisterBot, RespectObservationInterval, RegisterBots,
                        DispatchMovement);
 
@@ -44,7 +44,7 @@ struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorSettings> {
                 Groups),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Bot::FOrchestratorSettings,
-                ReadSettingsWith<Automation::Bot::FOrchestratorCases>(
+                ReadSettingsWith<Automation::Bot::FOrchestratorCaseLabels>(
                     JSON_SETTINGS_ATOMS(RegisterBot,
                                         RespectObservationInterval,
                                         RegisterBots, DispatchMovement)),
@@ -77,7 +77,7 @@ struct TJsonSettingsRegistry<Automation::Bot::FSettings> {
                 Groups),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Bot::FSettings,
-                ReadSettingsWith<Automation::Bot::FCases>(
+                ReadSettingsWith<Automation::Bot::FCaseLabels>(
                     JSON_SETTINGS_ATOMS(CreateInitialState, UpdatePosition,
                                         ReduceHealth, TransitionToCombat,
                                         TransitionToFlee, UpdateMemory,

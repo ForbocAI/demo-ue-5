@@ -48,7 +48,7 @@ BotFunctionalCoreGroups() {
   return BotFunctionalCoreAutomationSettings().Groups;
 }
 
-const ForbocAI::Game::Data::Automation::Bot::FCases &
+const ForbocAI::Game::Data::Automation::Bot::FCaseLabels &
 BotFunctionalCoreCases() {
   return BotFunctionalCoreAutomationSettings().Cases;
 }

@@ -24,7 +24,7 @@ JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FBridge, Action,
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FGroups, AgentCreation,
                        StateUpdates, AsyncProcessPipeline, BridgeValidation);
 
-JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FCases, CreateAgent,
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FCaseLabels, CreateAgent,
                        CreateImmutableAgent, WithStateUpdate, InvokeProcess,
                        CreateRpgRules, ValidateRpgAction);
 
@@ -50,7 +50,7 @@ template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> 
                 Groups),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
-                ReadSettingsWith<Automation::Protocol::Loop::FCases>(
+                ReadSettingsWith<Automation::Protocol::Loop::FCaseLabels>(
                     JSON_SETTINGS_ATOMS(CreateAgent, CreateImmutableAgent,
                                         WithStateUpdate, InvokeProcess,
                                         CreateRpgRules, ValidateRpgAction)),

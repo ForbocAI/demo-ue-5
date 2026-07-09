@@ -40,7 +40,7 @@ ProtocolGroups() {
   return ProtocolLoopSettings().Groups;
 }
 
-const ForbocAI::Game::Data::Automation::Protocol::Loop::FCases &
+const ForbocAI::Game::Data::Automation::Protocol::Loop::FCaseLabels &
 ProtocolCases() {
   return ProtocolLoopSettings().Cases;
 }

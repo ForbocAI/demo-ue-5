@@ -17,7 +17,7 @@ struct FGroups {
   FString TickUpdate;
 };
 
-struct FCases {
+struct FCaseLabels {
   FString CreateInitialState;
   FString UpdatePosition;
   FString ReduceHealth;
@@ -34,7 +34,7 @@ struct FOrchestratorGroups {
   FString RuntimeStore;
 };
 
-struct FOrchestratorCases {
+struct FOrchestratorCaseLabels {
   FString RegisterBot;
   FString RespectObservationInterval;
   FString RegisterBots;
@@ -55,7 +55,7 @@ struct FOrchestratorSettings {
   FString Persona;
   int32 WorldContextIndex;
   FOrchestratorGroups Groups;
-  FOrchestratorCases Cases;
+  FOrchestratorCaseLabels Cases;
   FOrchestratorAssertions Assertions;
 };
 
@@ -63,7 +63,7 @@ struct FSettings {
   FString Spec;
   TArray<FString> Tests;
   FGroups Groups;
-  FCases Cases;
+  FCaseLabels Cases;
   TArray<FString> Assertions;
   FOrchestratorSettings Orchestrator;
 };
@@ -79,7 +79,7 @@ inline bool operator!=(const FGroups &Left, const FGroups &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FCases &Left, const FCases &Right) {
+inline bool operator==(const FCaseLabels &Left, const FCaseLabels &Right) {
   return Left.CreateInitialState == Right.CreateInitialState &&
          Left.UpdatePosition == Right.UpdatePosition &&
          Left.ReduceHealth == Right.ReduceHealth &&
@@ -90,7 +90,7 @@ inline bool operator==(const FCases &Left, const FCases &Right) {
          Left.DecayAggro == Right.DecayAggro;
 }
 
-inline bool operator!=(const FCases &Left, const FCases &Right) {
+inline bool operator!=(const FCaseLabels &Left, const FCaseLabels &Right) {
   return !(Left == Right);
 }
 
@@ -106,16 +106,16 @@ inline bool operator!=(const FOrchestratorGroups &Left,
   return !(Left == Right);
 }
 
-inline bool operator==(const FOrchestratorCases &Left,
-                       const FOrchestratorCases &Right) {
+inline bool operator==(const FOrchestratorCaseLabels &Left,
+                       const FOrchestratorCaseLabels &Right) {
   return Left.RegisterBot == Right.RegisterBot &&
          Left.RespectObservationInterval == Right.RespectObservationInterval &&
          Left.RegisterBots == Right.RegisterBots &&
          Left.DispatchMovement == Right.DispatchMovement;
 }
 
-inline bool operator!=(const FOrchestratorCases &Left,
-                       const FOrchestratorCases &Right) {
+inline bool operator!=(const FOrchestratorCaseLabels &Left,
+                       const FOrchestratorCaseLabels &Right) {
   return !(Left == Right);
 }
 

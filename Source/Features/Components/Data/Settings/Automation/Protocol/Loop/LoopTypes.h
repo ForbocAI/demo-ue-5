@@ -47,7 +47,7 @@ struct FGroups {
   FString BridgeValidation;
 };
 
-struct FCases {
+struct FCaseLabels {
   FString CreateAgent;
   FString CreateImmutableAgent;
   FString WithStateUpdate;
@@ -70,7 +70,7 @@ struct FAssertions {
 struct FSettings {
   FString Spec;
   FGroups Groups;
-  FCases Cases;
+  FCaseLabels Cases;
   FAssertions Assertions;
   FGate Gate;
   FConnection Connection;
@@ -142,7 +142,7 @@ inline bool operator!=(const FGroups &Left, const FGroups &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FCases &Left, const FCases &Right) {
+inline bool operator==(const FCaseLabels &Left, const FCaseLabels &Right) {
   return Left.CreateAgent == Right.CreateAgent &&
          Left.CreateImmutableAgent == Right.CreateImmutableAgent &&
          Left.WithStateUpdate == Right.WithStateUpdate &&
@@ -151,7 +151,7 @@ inline bool operator==(const FCases &Left, const FCases &Right) {
          Left.ValidateRpgAction == Right.ValidateRpgAction;
 }
 
-inline bool operator!=(const FCases &Left, const FCases &Right) {
+inline bool operator!=(const FCaseLabels &Left, const FCaseLabels &Right) {
   return !(Left == Right);
 }
 
