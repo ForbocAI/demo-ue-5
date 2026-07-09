@@ -129,7 +129,7 @@ run_check "Checking feature C++ parameter discipline..." "${FP_CHECK_ENV[@]}" py
 run_check "Checking function/data composition naming discipline..." "${FP_CHECK_ENV[@]}" python3 "$SDK_FP_CHECK_ROOT/function_composition.py"
 run_check "Checking branchless FP source discipline..." "${FP_CHECK_ENV[@]}" python3 "$SDK_FP_CHECK_ROOT/branchless_source.py"
 run_check "Checking RTK boundary discipline (Features + Views)..." "${REDUX_CHECK_ENV[@]}" python3 "$SDK_CHECK_ROOT/check_redux.py" --project-root "$PROJECT_ROOT" --scan-root Source/Features --scan-root Source/Views
-run_check "Checking runtime rendering JSON tuning discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py"
+run_check "Checking runtime rendering JSON tuning discipline..." python3 "$SDK_CHECK_ROOT/check_source_for_data.py"
 run_check "Checking authored data naming discipline..." "${ECS_CHECK_ENV[@]}" python3 "$SDK_CHECK_ROOT/ecs/data_naming.py"
 run_check "Checking domain/subdomain path ownership..." "${ECS_CHECK_ENV[@]}" python3 "$SDK_CHECK_ROOT/ecs/domain_boundaries.py"
 run_check "Checking Source/Content file size discipline..." python3 "$SDK_CHECK_ROOT/check_line_count.py" --root "$PROJECT_ROOT"
