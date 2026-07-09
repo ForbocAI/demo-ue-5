@@ -12,6 +12,27 @@ PROJECT_FILE_ARG="$PROJECT_FILE"
 RUNTIME_BUDGET_SCRIPT="$PROJECT_ROOT/Scripts/Run/run-runtime-budget.sh"
 RUNTIME_BUDGET_POWERSHELL_SCRIPT="$PROJECT_ROOT/Scripts/Run/run-runtime-budget.ps1"
 RUNTIME_BUDGET_POWERSHELL_ARG="$RUNTIME_BUDGET_POWERSHELL_SCRIPT"
+SDK_SOURCE_ROOT="${FORBOC_SDK_SOURCE_PATH:-$(cd "$PROJECT_ROOT/.." && pwd)/sdk-ue-5}"
+SDK_CHECK_ROOT="$SDK_SOURCE_ROOT/scripts"
+SDK_FP_CHECK_ROOT="$SDK_SOURCE_ROOT/scripts/fp"
+FP_CHECK_ENV=(
+  env
+  "PYTHONDONTWRITEBYTECODE=1"
+  "FORBOC_FP_PROJECT_ROOT=$PROJECT_ROOT"
+  "FORBOC_FP_SOURCE_ROOT=$PROJECT_ROOT/Source"
+  "FORBOC_FP_UE_FP_HPP=$SDK_SOURCE_ROOT/Source/ForbocAI_SDK/Public/Core/ue_fp.hpp"
+)
+ECS_CHECK_ENV=(
+  env
+  "PYTHONDONTWRITEBYTECODE=1"
+  "FORBOCAI_ECS_PROJECT_ROOT=$PROJECT_ROOT"
+  "FORBOCAI_ECS_CORE_ROOT=$SDK_SOURCE_ROOT/Source/ForbocAI_SDK/Public/Core"
+)
+REDUX_CHECK_ENV=(
+  env
+  "PYTHONDONTWRITEBYTECODE=1"
+  "FORBOCAI_REDUX_PROJECT_ROOT=$PROJECT_ROOT"
+)
 RUNTIME_BUDGET_VIA_POWERSHELL=0
 UNREAL_BUILD=""
 UNREAL_BUILD_ARG=""
@@ -103,15 +124,16 @@ echo "Running ForbocAI.* tests..."
 
 run_check "Locking SDK submodule read-only..." bash "$PROJECT_ROOT/Scripts/SDK/lock_sdk_submodule.sh" --lock
 run_check "Checking SDK submodule immutability..." bash "$PROJECT_ROOT/Scripts/Checks/check_sdk_submodule_guard.sh"
-run_check "Checking feature C++ parameter discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/fp/param_count.py"
-run_check "Checking function/data composition naming discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/fp/function_composition.py"
-run_check "Checking branchless FP source discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/fp/branchless_source.py"
-run_check "Checking RTK/ECS boundary discipline (Features + Views)..." python3 "$PROJECT_ROOT/Scripts/Checks/check_redux.py"
+run_check "Checking legacy FP source conformance..." "${FP_CHECK_ENV[@]}" python3 "$SDK_FP_CHECK_ROOT/source_conformance.py"
+run_check "Checking feature C++ parameter discipline..." "${FP_CHECK_ENV[@]}" python3 "$SDK_FP_CHECK_ROOT/param_count.py"
+run_check "Checking function/data composition naming discipline..." "${FP_CHECK_ENV[@]}" python3 "$SDK_FP_CHECK_ROOT/function_composition.py"
+run_check "Checking branchless FP source discipline..." "${FP_CHECK_ENV[@]}" python3 "$SDK_FP_CHECK_ROOT/branchless_source.py"
+run_check "Checking RTK boundary discipline (Features + Views)..." "${REDUX_CHECK_ENV[@]}" python3 "$SDK_CHECK_ROOT/check_redux.py" --project-root "$PROJECT_ROOT" --scan-root Source/Features --scan-root Source/Views
 run_check "Checking runtime rendering JSON tuning discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/check_source_for_data.py"
-run_check "Checking authored data naming discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/ecs/data_naming.py"
-run_check "Checking domain/subdomain path ownership..." python3 "$PROJECT_ROOT/Scripts/Checks/ecs/domain_boundaries.py"
-run_check "Checking Source/Content file size discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/check_line_count.py"
-run_check "Checking for stale dead code/data (orphan files)..." python3 "$PROJECT_ROOT/Scripts/Checks/check_dead_code.py"
+run_check "Checking authored data naming discipline..." "${ECS_CHECK_ENV[@]}" python3 "$SDK_CHECK_ROOT/ecs/data_naming.py"
+run_check "Checking domain/subdomain path ownership..." "${ECS_CHECK_ENV[@]}" python3 "$SDK_CHECK_ROOT/ecs/domain_boundaries.py"
+run_check "Checking Source/Content file size discipline..." python3 "$SDK_CHECK_ROOT/check_line_count.py" --root "$PROJECT_ROOT"
+run_check "Checking for stale dead code/data (orphan files)..." python3 "$SDK_CHECK_ROOT/check_dead_code.py" --root "$PROJECT_ROOT"
 run_check "Validating authored data JSON..." validate_authored_data_json
 run_check "Updating file line count documentation..." python3 "$PROJECT_ROOT/Scripts/Docs/count_project_lines.py"
 run_check "Checking diff whitespace..." git -C "$PROJECT_ROOT" diff --check
