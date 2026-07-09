@@ -108,6 +108,9 @@ CONTROL_NAMES = {"if", "for", "while", "switch", "return", "sizeof", "TEXT"}
 WIDE_SCALAR_FIELD_COUNT = 6
 TEXT_ATOM_REPEAT_COUNT = 8
 TEXT_LITERAL_RE = re.compile(r'TEXT\("')
+EXTERNAL_UNREAL_TYPE_NAMES = {
+    "FEvent",
+}
 
 
 LAZY_NOUN = register(Rule(
@@ -229,7 +232,7 @@ def _resolve_shortest(items: list[dict], collides) -> None:
 
 
 def qualified_name_context(paths: list[Path]) -> QualifiedNameContext:
-    all_names: set[str] = set()
+    all_names: set[str] = set(EXTERNAL_UNREAL_TYPE_NAMES)
     item_by_key: dict[tuple[Path, str], dict] = {}
     for path in paths:
         text = path.read_text(encoding="utf-8", errors="replace")

@@ -257,8 +257,8 @@ inline TArray<FPhonemeEvent> EstimatePhonemesFromText(
     const FString &Text,
     const FSpeechSettings &Settings) {
   return func::fold_indexed(
-             Text, static_cast<size_t>(Text.Len()), FPhonemeEstimateState{},
-             [&Settings](const FPhonemeEstimateState &State,
+             Text, static_cast<size_t>(Text.Len()), FEstimateState{},
+             [&Settings](const FEstimateState &State,
                          const TCHAR &Character) {
                const func::Maybe<FString> Phoneme =
                    EstimatePhonemeForChar(Character, Settings);
@@ -268,7 +268,7 @@ inline TArray<FPhonemeEvent> EstimatePhonemesFromText(
                               const float Duration =
                                   EstimatePhonemeDuration(Phoneme.value,
                                                           Settings);
-                              FPhonemeEstimateState Next = State;
+                              FEstimateState Next = State;
                               Next.Phonemes.Add(
                                   {Phoneme.value, State.CurrentTime,
                                    Duration});

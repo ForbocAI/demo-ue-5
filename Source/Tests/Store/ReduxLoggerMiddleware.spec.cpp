@@ -20,7 +20,7 @@ bool FStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   const FStoreSettings StoreAutomation = Settings.Automation.Store;
-  FStoreLabelCursor Labels = StoreLabels(
+  FLabelCursor Labels = StoreLabels(
       StoreAutomation.ReduxLoggerMiddlewareLabels);
   TArray<FString> CapturedLines;
   FReduxLoggerCaptureDevice CaptureDevice(CapturedLines,

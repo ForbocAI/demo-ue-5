@@ -9,7 +9,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   const FStoreSettings StoreAutomation = Settings.Automation.Store;
-  FStoreLabelCursor Labels = StoreLabels(
+  FLabelCursor Labels = StoreLabels(
       StoreAutomation.DataBackedMapLabels);
   const ForbocAI::Game::Data::FTerrainSourceSettings Sources =
       Settings.LevelTerrainSources;

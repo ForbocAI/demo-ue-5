@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-
-class FJsonObject;
+#include "Dom/JsonObject.h"
 
 namespace ForbocAI {
 namespace Game {

@@ -98,7 +98,7 @@ private:
   FName Category;
 };
 
-struct FStoreLabelCursor {
+struct FLabelCursor {
   const TArray<FString> *Labels = nullptr;
   int32 Index = int32();
 
@@ -111,7 +111,7 @@ struct FStoreLabelCursor {
   }
 };
 
-FStoreLabelCursor
+FLabelCursor
 StoreLabels(const TArray<FString> &Labels) {
   return {&Labels, int32()};
 }

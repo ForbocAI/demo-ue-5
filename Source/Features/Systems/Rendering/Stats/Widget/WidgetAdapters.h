@@ -1,12 +1,12 @@
 #pragma once
 
+#include "Blueprint/WidgetTree.h"
 #include "Features/Components/Data/ComponentsDataTypes.h"
 
 // Runtime stats view types: request structs used by the stats overlay view.
 // Pure data contracts — no behavior, no Unreal widget references.
 
 class UTextBlock;
-class UWidgetTree;
 
 namespace ForbocAI {
 namespace Game {

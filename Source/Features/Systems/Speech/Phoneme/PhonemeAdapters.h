@@ -80,7 +80,7 @@ struct FVisemeQuery {
   const FVisemeMapping &Rest;
 };
 
-struct FPhonemeEstimateState {
+struct FEstimateState {
   TArray<FPhonemeEvent> Phonemes;
   float CurrentTime = 0.0f;
 };
