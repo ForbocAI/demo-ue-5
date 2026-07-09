@@ -111,6 +111,7 @@ run_check "Checking runtime rendering JSON tuning discipline..." python3 "$PROJE
 run_check "Checking authored data naming discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/ecs/data_naming.py"
 run_check "Checking domain/subdomain path ownership..." python3 "$PROJECT_ROOT/Scripts/Checks/ecs/domain_boundaries.py"
 run_check "Checking Source/Content file size discipline..." python3 "$PROJECT_ROOT/Scripts/Checks/check_line_count.py"
+run_check "Checking for stale dead code/data (orphan files)..." python3 "$PROJECT_ROOT/Scripts/Checks/check_dead_code.py"
 run_check "Validating authored data JSON..." validate_authored_data_json
 run_check "Updating file line count documentation..." python3 "$PROJECT_ROOT/Scripts/Docs/count_project_lines.py"
 run_check "Checking diff whitespace..." git -C "$PROJECT_ROOT" diff --check
