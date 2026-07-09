@@ -149,21 +149,22 @@ ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request,
 
 FVector MarketingCaptureAnchor(const FCaptureViewSettings &ViewSettings,
                                const FMarketingCaptureCenters &Centers) {
-  return ViewSettings.bUseActorRouteCenter ? Centers.ActorCenter
-                                           : Centers.TownCenter;
+  return ViewSettings.Visibility.bUseActorRouteCenter ? Centers.ActorCenter
+                                                      : Centers.TownCenter;
 }
 
 FScaleAuditCaptureView MarketingBrochureCaptureView(
     const FCaptureViewSettings &ViewSettings,
     const FMarketingCaptureCenters &Centers) {
   const FVector Anchor = MarketingCaptureAnchor(ViewSettings, Centers);
-  const FVector CameraLocation = Anchor + ViewSettings.CameraOffset;
-  const FVector TargetLocation = Anchor + ViewSettings.TargetOffset;
-  return {ViewSettings.OutputName,
+  const FVector CameraLocation = Anchor + ViewSettings.Camera.CameraOffset;
+  const FVector TargetLocation = Anchor + ViewSettings.Camera.TargetOffset;
+  return {ViewSettings.Output.OutputName,
           {CameraLocation, (TargetLocation - CameraLocation).Rotation(),
-           ViewSettings.OrthoWidth, ECameraProjectionMode::Perspective,
-           ViewSettings.FieldOfView, ViewSettings.SpringArmLength},
-          {ViewSettings.bHidePlayerMesh, false}};
+           ViewSettings.Camera.OrthoWidth, ECameraProjectionMode::Perspective,
+           ViewSettings.Camera.FieldOfView,
+           ViewSettings.Camera.SpringArmLength},
+          {ViewSettings.Visibility.bHidePlayerMesh, false}};
 }
 
 TArray<FScaleAuditCaptureView> MarketingBrochureCaptureViews(

@@ -8,10 +8,47 @@ namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-JSON_SETTINGS_REGISTRY(FCaptureViewSettings, OutputName,
-                       CameraOffset, TargetOffset, OrthoWidth, FieldOfView,
-                       SpringArmLength, bHidePlayerMesh,
-                       bUseActorRouteCenter);
+template <> struct TJsonSettingsRegistry<FCaptureViewSettings> {
+  static const TArray<TField<FCaptureViewSettings>> &Fields() {
+    static const TArray<TField<FCaptureViewSettings>>
+        RegisteredFields = {
+            NestedSettingField(
+                JSON_SETTING_ATOM(OutputName),
+                NestedFieldMembers(&FCaptureViewSettings::Output,
+                                   &FCaptureOutputSettings::OutputName)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(CameraOffset),
+                NestedFieldMembers(&FCaptureViewSettings::Camera,
+                                   &FCaptureCameraSettings::CameraOffset)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(TargetOffset),
+                NestedFieldMembers(&FCaptureViewSettings::Camera,
+                                   &FCaptureCameraSettings::TargetOffset)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(OrthoWidth),
+                NestedFieldMembers(&FCaptureViewSettings::Camera,
+                                   &FCaptureCameraSettings::OrthoWidth)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(FieldOfView),
+                NestedFieldMembers(&FCaptureViewSettings::Camera,
+                                   &FCaptureCameraSettings::FieldOfView)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(SpringArmLength),
+                NestedFieldMembers(&FCaptureViewSettings::Camera,
+                                   &FCaptureCameraSettings::SpringArmLength)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(bHidePlayerMesh),
+                NestedFieldMembers(
+                    &FCaptureViewSettings::Visibility,
+                    &FCaptureVisibilitySettings::bHidePlayerMesh)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(bUseActorRouteCenter),
+                NestedFieldMembers(
+                    &FCaptureViewSettings::Visibility,
+                    &FCaptureVisibilitySettings::bUseActorRouteCenter))};
+    return RegisteredFields;
+  }
+};
 
 template <>
 struct TJsonSettingsRegistry<FMarketingCaptureSettings> {

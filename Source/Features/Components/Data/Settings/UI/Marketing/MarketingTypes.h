@@ -7,15 +7,27 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FCaptureViewSettings {
+struct FCaptureOutputSettings {
   FString OutputName;
+};
+
+struct FCaptureCameraSettings {
   FVector CameraOffset;
   FVector TargetOffset;
   float OrthoWidth;
   float FieldOfView;
   float SpringArmLength;
+};
+
+struct FCaptureVisibilitySettings {
   bool bHidePlayerMesh;
   bool bUseActorRouteCenter;
+};
+
+struct FCaptureViewSettings {
+  FCaptureOutputSettings Output;
+  FCaptureCameraSettings Camera;
+  FCaptureVisibilitySettings Visibility;
 };
 
 struct FMarketingCaptureSettings {
@@ -52,16 +64,46 @@ struct FMarketingCaptureSettings {
   TArray<FCaptureViewSettings> CaptureViews;
 };
 
-inline bool operator==(const FCaptureViewSettings &Left,
-                       const FCaptureViewSettings &Right) {
-  return Left.OutputName == Right.OutputName &&
-         Left.CameraOffset == Right.CameraOffset &&
+inline bool operator==(const FCaptureOutputSettings &Left,
+                       const FCaptureOutputSettings &Right) {
+  return Left.OutputName == Right.OutputName;
+}
+
+inline bool operator!=(const FCaptureOutputSettings &Left,
+                       const FCaptureOutputSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCaptureCameraSettings &Left,
+                       const FCaptureCameraSettings &Right) {
+  return Left.CameraOffset == Right.CameraOffset &&
          Left.TargetOffset == Right.TargetOffset &&
          FMath::IsNearlyEqual(Left.OrthoWidth, Right.OrthoWidth) &&
          FMath::IsNearlyEqual(Left.FieldOfView, Right.FieldOfView) &&
-         FMath::IsNearlyEqual(Left.SpringArmLength, Right.SpringArmLength) &&
-         Left.bHidePlayerMesh == Right.bHidePlayerMesh &&
+         FMath::IsNearlyEqual(Left.SpringArmLength, Right.SpringArmLength);
+}
+
+inline bool operator!=(const FCaptureCameraSettings &Left,
+                       const FCaptureCameraSettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCaptureVisibilitySettings &Left,
+                       const FCaptureVisibilitySettings &Right) {
+  return Left.bHidePlayerMesh == Right.bHidePlayerMesh &&
          Left.bUseActorRouteCenter == Right.bUseActorRouteCenter;
+}
+
+inline bool operator!=(const FCaptureVisibilitySettings &Left,
+                       const FCaptureVisibilitySettings &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCaptureViewSettings &Left,
+                       const FCaptureViewSettings &Right) {
+  return Left.Output == Right.Output &&
+         Left.Camera == Right.Camera &&
+         Left.Visibility == Right.Visibility;
 }
 
 inline bool operator!=(const FCaptureViewSettings &Left,
