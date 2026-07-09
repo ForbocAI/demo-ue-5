@@ -27,7 +27,7 @@ bool ShouldCountPrimitiveComponent(UPrimitiveComponent *Component) {
 
 int64 CountStaticMeshTriangles(
     UStaticMeshComponent *Component,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return func::match(
       func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
                                                Component)),
@@ -50,11 +50,11 @@ int64 CountStaticMeshTriangles(
 
 int64 CountProceduralMeshSectionTriangles(
     UProceduralMeshComponent &Component, int32 SectionIndex,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 
 int64 CountExistingProceduralMeshSectionTriangles(
     UProceduralMeshComponent &Component, int32 SectionIndex,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FProcMeshSection *Section = Component.GetProcMeshSection(SectionIndex);
   return func::match(
       func::from_nullable_value(Section, Section != nullptr),
@@ -74,7 +74,7 @@ int64 CountExistingProceduralMeshSectionTriangles(
 
 int64 CountProceduralMeshSectionTriangles(
     UProceduralMeshComponent &Component, int32 SectionIndex,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return SectionIndex >= Component.GetNumSections()
              ? static_cast<int64>(Settings.EmptyTriangleCount)
              : CountExistingProceduralMeshSectionTriangles(Component,
@@ -84,7 +84,7 @@ int64 CountProceduralMeshSectionTriangles(
 
 int64 CountProceduralMeshTriangles(
     UProceduralMeshComponent *Component,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return func::match(
       func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
                                                Component)),
@@ -97,7 +97,7 @@ int64 CountProceduralMeshTriangles(
 
 int64 CountSkinnedMeshTriangles(
     USkinnedMeshComponent *Component,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return func::match(
       func::from_nullable_value(Component, ShouldCountPrimitiveComponent(
                                                Component)),
@@ -134,8 +134,8 @@ int64 CountActorComponentTriangles(
     AActor *Actor,
     int64 (*CountTriangles)(
         Component *,
-        const ForbocAI::Game::Data::FStatsOverlaySettings &),
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+        const ForbocAI::Game::Data::FOverlaySettings &),
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return func::match(
       func::from_nullable_value(Actor, Actor != nullptr),
       [CountTriangles, &Settings](AActor *ActorValue) {
@@ -153,7 +153,7 @@ int64 CountActorComponentTriangles(
 
 int64 CountActorTriangles(
     AActor *Actor,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return CountActorComponentTriangles<UStaticMeshComponent>(
              Actor, CountStaticMeshTriangles, Settings) +
          CountActorComponentTriangles<UProceduralMeshComponent>(
@@ -164,7 +164,7 @@ int64 CountActorTriangles(
 
 int64 CountWorldTriangles(
     UWorld *World,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return func::match(
       func::from_nullable_value(World, World != nullptr),
       [&Settings](UWorld *WorldValue) {
@@ -184,7 +184,7 @@ int64 CountWorldTriangles(
 
 FRuntimePolyCountStats SelectRuntimePolyCountStats(
     UWorld *World,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   const double StartedSeconds = SelectRuntimeBudgetClockSeconds();
   const int64 PolyCount = CountWorldTriangles(World, Settings);
   const double FinishedSeconds = SelectRuntimeBudgetClockSeconds();

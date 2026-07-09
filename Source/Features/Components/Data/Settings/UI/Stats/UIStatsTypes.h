@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FStatsOverlaySettings {
+struct FOverlaySettings {
   FString FramesPerSecondLabel;
   FString StackDepthLabel;
   FString PolyCountLabel;
@@ -115,8 +115,8 @@ struct FStatsOverlaySettings {
   FLinearColor HighValueColor;
 };
 
-inline bool operator==(const FStatsOverlaySettings &Left,
-                       const FStatsOverlaySettings &Right) {
+inline bool operator==(const FOverlaySettings &Left,
+                       const FOverlaySettings &Right) {
   return Left.FramesPerSecondLabel == Right.FramesPerSecondLabel &&
          Left.StackDepthLabel == Right.StackDepthLabel &&
          Left.PolyCountLabel == Right.PolyCountLabel &&
@@ -262,8 +262,8 @@ inline bool operator==(const FStatsOverlaySettings &Left,
          Left.HighValueColor == Right.HighValueColor;
 }
 
-inline bool operator!=(const FStatsOverlaySettings &Left,
-                       const FStatsOverlaySettings &Right) {
+inline bool operator!=(const FOverlaySettings &Left,
+                       const FOverlaySettings &Right) {
   return !(Left == Right);
 }
 

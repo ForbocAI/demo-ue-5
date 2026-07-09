@@ -25,7 +25,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeBudget, Log, All);
 
 void LogRuntimeBudgetSample(
     const FRuntimeStatsViewModel &Stats,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   const FString Message =
       RenderingStatsSelectors::FormatRuntimeStatsBudgetLogMessage(Stats,
                                                                   Settings);
@@ -34,7 +34,7 @@ void LogRuntimeBudgetSample(
 
 void PresentRuntimeStatsDebugMessage(
     const FRuntimeStatsViewModel &Stats,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   GEngine ? (GEngine->AddOnScreenDebugMessage(
                  Settings.DebugMessageKey,
                  Settings.DebugMessageDurationSeconds,

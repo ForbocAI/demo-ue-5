@@ -55,7 +55,7 @@ float SelectConsoleVariableFloat(const FString &Name, float DefaultValue) {
 
 FRuntimeFramePacingStats SelectRuntimeFramePacingStats(
     const FFramePacingQuery &Query,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   UGameUserSettings *GameUserSettings =
       GEngine != nullptr ? GEngine->GetGameUserSettings() : nullptr;
   return {
@@ -92,13 +92,13 @@ FRuntimeFramePacingStats SelectRuntimeFramePacingStats(
 }
 
 FString RuntimeBudgetScreenshotDirectory(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return FPaths::Combine(FPaths::ProjectDir(),
                          Settings.BudgetScreenshotDirectory);
 }
 
 FString RuntimeBudgetScreenshotPath(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings,
+    const ForbocAI::Game::Data::FOverlaySettings &Settings,
     int32 Index) {
   return FPaths::Combine(
       RuntimeBudgetScreenshotDirectory(Settings),
@@ -109,7 +109,7 @@ FString RuntimeBudgetScreenshotPath(
 } // namespace
 
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return SelectCommandLineFloat(
       Settings.BudgetScreenshotIntervalCommandLineKey,
       Settings.BudgetScreenshotIntervalSeconds);
@@ -118,7 +118,7 @@ float SelectRuntimeBudgetScreenshotIntervalSeconds(
 double SelectRuntimeBudgetClockSeconds() { return FPlatformTime::Seconds(); }
 
 FRuntimeMemoryStats SelectRuntimeMemoryStats(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   const FPlatformMemoryStats Stats = FPlatformMemory::GetStats();
   return {RenderingSelectors::SelectMemoryMegabytes(Stats.UsedPhysical, Settings),
           RenderingSelectors::SelectMemoryMegabytes(Stats.PeakUsedPhysical, Settings),
@@ -126,7 +126,7 @@ FRuntimeMemoryStats SelectRuntimeMemoryStats(
 }
 
 FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   const int32 GpuIndex = RenderingSelectors::SelectRuntimeGpuIndex(Settings);
   return {RenderingSelectors::SelectThreadMilliseconds(GGameThreadTime),
           RenderingSelectors::SelectThreadMilliseconds(GRenderThreadTime),
@@ -139,7 +139,7 @@ FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
 FRuntimeStatsViewModel SelectRuntimeStats(
     UWorld *, float DeltaSeconds, double WallDeltaSeconds, int64 PolyCount,
     double PolyCountMilliseconds,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   const double StartedSeconds = SelectRuntimeBudgetClockSeconds();
   const FRuntimeState &State = RuntimeSelectors::SelectState();
   const ecs::FWorld &EcsWorld = RuntimeSelectors::SelectWorld(State);
@@ -193,7 +193,7 @@ FRuntimeStatsViewModel SelectRuntimeStats(
 }
 
 void RequestRuntimeBudgetScreenshot(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings,
+    const ForbocAI::Game::Data::FOverlaySettings &Settings,
     int32 Index) {
   const FString Directory = RuntimeBudgetScreenshotDirectory(Settings);
   IFileManager::Get().MakeDirectory(

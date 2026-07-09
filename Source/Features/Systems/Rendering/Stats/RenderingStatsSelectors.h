@@ -14,8 +14,8 @@ namespace Game {
 namespace Level {
 namespace RenderingStatsSelectors {
 
-using FStatsOverlaySettings =
-    ForbocAI::Game::Data::FStatsOverlaySettings;
+using FOverlaySettings =
+    ForbocAI::Game::Data::FOverlaySettings;
 
 struct FFormatContext {
   const FString *Format;
@@ -25,10 +25,10 @@ struct FFormatContext {
 struct FRuntimeStatsMessageFormatRequest {
   const FRuntimeStatsViewModel *Stats;
   const FString *Format;
-  const FStatsOverlaySettings *Settings;
+  const FOverlaySettings *Settings;
 };
 
-inline const FStatsOverlaySettings &SelectStatsOverlaySettings() {
+inline const FOverlaySettings &SelectStatsOverlaySettings() {
   return RuntimeSelectors::SelectUISettings(RuntimeSelectors::SelectState())
       .StatsOverlay;
 }
@@ -45,14 +45,14 @@ inline FString FormatRuntimeStatsText(FFormatContext Context, ...) {
 }
 
 inline FString FormatRuntimeStatsValue(
-    int64 Value, const FStatsOverlaySettings &Settings) {
+    int64 Value, const FOverlaySettings &Settings) {
   return FormatRuntimeStatsText(
       {&Settings.ValueFormat, Settings.FormatBufferCharacterCount},
       static_cast<long long>(Value));
 }
 
 inline FString FormatRuntimeStatsDecimalValue(
-    double Value, const FStatsOverlaySettings &Settings) {
+    double Value, const FOverlaySettings &Settings) {
   return FormatRuntimeStatsText(
       {&Settings.DecimalValueFormat, Settings.FormatBufferCharacterCount},
       Value);
@@ -61,7 +61,7 @@ inline FString FormatRuntimeStatsDecimalValue(
 inline FString FormatRuntimeStatsMessage(
     const FRuntimeStatsMessageFormatRequest &Request) {
   const FRuntimeStatsViewModel &Stats = *Request.Stats;
-  const FStatsOverlaySettings &Settings = *Request.Settings;
+  const FOverlaySettings &Settings = *Request.Settings;
   return FormatRuntimeStatsText(
       {Request.Format, Settings.FormatBufferCharacterCount},
       Stats.FramesPerSecond, Stats.StackDepth,
@@ -100,14 +100,14 @@ inline bool ShouldRunInterval(float ElapsedSeconds, float IntervalSeconds) {
 
 inline FString FormatRuntimeStatsDebugMessage(
     const FRuntimeStatsViewModel &Stats,
-    const FStatsOverlaySettings &Settings) {
+    const FOverlaySettings &Settings) {
   return FormatRuntimeStatsMessage(
       {&Stats, &Settings.DebugMessageFormat, &Settings});
 }
 
 inline FString FormatRuntimeStatsBudgetLogMessage(
     const FRuntimeStatsViewModel &Stats,
-    const FStatsOverlaySettings &Settings) {
+    const FOverlaySettings &Settings) {
   return FormatRuntimeStatsMessage(
       {&Stats, &Settings.BudgetLogFormat, &Settings});
 }

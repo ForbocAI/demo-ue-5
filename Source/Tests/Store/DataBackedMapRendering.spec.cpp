@@ -106,9 +106,9 @@ bool FStoreDataBackedMapRendering::RunTest(const FString &Parameters) {
                  RuntimeStage != nullptr && *RuntimeStage == ExpectedStage);
       });
 
-  const ForbocAI::Game::Data::FStatsOverlaySettings &StatsOverlay =
+  const ForbocAI::Game::Data::FOverlaySettings &StatsOverlay =
       RuntimeSelectors::SelectUISettings(State).StatsOverlay;
-  const ForbocAI::Game::Data::FStatsOverlaySettings
+  const ForbocAI::Game::Data::FOverlaySettings
       &ExpectedStatsOverlay = Settings.UI.StatsOverlay;
   TestEqual(Labels.Next(),
             StatsOverlay.MemoryBytesPerMegabyte,

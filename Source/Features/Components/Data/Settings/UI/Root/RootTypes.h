@@ -38,10 +38,10 @@ struct FUISettings {
   float PanelPadding;
   float TitleSize;
   float BodySize;
-  FStatsOverlaySettings StatsOverlay;
+  FOverlaySettings StatsOverlay;
   FMarketingCaptureSettings MarketingCapture;
-  FFlyModeSettings FlyMode;
-  FScaleAuditCaptureSettings ScaleAuditCapture;
+  FModeSettings FlyMode;
+  FAuditCaptureSettings ScaleAuditCapture;
 
 inline bool operator==(const FUISettings &Left,
                        const FUISettings &Right) {

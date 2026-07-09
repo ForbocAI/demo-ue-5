@@ -8,7 +8,7 @@ namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-JSON_SETTINGS_REGISTRY(FMarketingCaptureViewSettings, OutputName,
+JSON_SETTINGS_REGISTRY(FCaptureViewSettings, OutputName,
                        CameraOffset, TargetOffset, OrthoWidth, FieldOfView,
                        SpringArmLength, bHidePlayerMesh,
                        bUseActorRouteCenter);
@@ -36,7 +36,7 @@ struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
                 MenuPanelColor, MenuTitleColor, MenuButtonTextColor),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
                 FMarketingCaptureSettings,
-                ReadSettingsWith<FMarketingCaptureViewSettings>(
+                ReadSettingsWith<FCaptureViewSettings>(
                     JSON_SETTINGS_ATOMS(OutputName, CameraOffset, TargetOffset,
                                         OrthoWidth, FieldOfView,
                                         SpringArmLength, bHidePlayerMesh,
@@ -46,12 +46,12 @@ struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FFlyModeSettings, EnabledMessage,
+JSON_SETTINGS_REGISTRY(FModeSettings, EnabledMessage,
                        DisabledMessage, FlyingGravityScale,
                        VerticalInputScale, NeutralInputScale);
 
 JSON_SETTINGS_REGISTRY(
-    FScaleAuditCaptureSettings, CaptureCommandLineKey,
+    FAuditCaptureSettings, CaptureCommandLineKey,
     QuitWhenDoneCommandLineKey, OutputDirectoryCommandLineKey,
     InitialDelayCommandLineKey, SettleSecondsCommandLineKey,
     BetweenSecondsCommandLineKey, WholeOrthoWidthCommandLineKey,
@@ -82,7 +82,7 @@ template <> struct TJsonSettingsRegistry<FUISettings> {
                 ReplyColor),
             JSON_OBJECT_SETTING_FIELDS(
                 FUISettings,
-                ReadSettingsWith<FStatsOverlaySettings>(
+                ReadSettingsWith<FOverlaySettings>(
                     JSON_SETTINGS_ATOMS(
                         FramesPerSecondLabel, StackDepthLabel, PolyCountLabel,
                         UsedPhysicalMemoryLabel, PeakPhysicalMemoryLabel,
@@ -172,7 +172,7 @@ template <> struct TJsonSettingsRegistry<FUISettings> {
                 MarketingCapture),
             JSON_OBJECT_SETTING_FIELDS(
                 FUISettings,
-                ReadSettingsWith<FFlyModeSettings>(
+                ReadSettingsWith<FModeSettings>(
                     JSON_SETTINGS_ATOMS(EnabledMessage, DisabledMessage,
                                         FlyingGravityScale,
                                         VerticalInputScale,
@@ -180,7 +180,7 @@ template <> struct TJsonSettingsRegistry<FUISettings> {
                 FlyMode),
             JSON_OBJECT_SETTING_FIELDS(
                 FUISettings,
-                ReadSettingsWith<FScaleAuditCaptureSettings>(
+                ReadSettingsWith<FAuditCaptureSettings>(
                     JSON_SETTINGS_ATOMS(
                         CaptureCommandLineKey, QuitWhenDoneCommandLineKey,
                         OutputDirectoryCommandLineKey,

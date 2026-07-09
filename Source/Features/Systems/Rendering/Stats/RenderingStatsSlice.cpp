@@ -23,7 +23,7 @@ inline FString FormatRuntimeStatsText(FFormatContext Context, ...) {
 
 inline FStatsTextModel ReduceRuntimeStatsValue(
     int64 Value, int32 MediumThreshold, int32 HighThreshold,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FStatsTextModel Model;
   Model.Text = FormatRuntimeStatsText(
       {&Settings.ValueFormat, Settings.FormatBufferCharacterCount},
@@ -38,7 +38,7 @@ inline FStatsTextModel ReduceRuntimeStatsValue(
 
 inline FStatsTextModel ReduceRuntimeStatsDecimalValue(
     double Value,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FStatsTextModel Model;
   Model.Text = FormatRuntimeStatsText(
       {&Settings.DecimalValueFormat, Settings.FormatBufferCharacterCount},
@@ -49,7 +49,7 @@ inline FStatsTextModel ReduceRuntimeStatsDecimalValue(
 
 inline FStatsTextModel ReduceRuntimeStatsPlainValue(
     int32 Value,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FStatsTextModel Model;
   Model.Text = FormatRuntimeStatsText(
       {&Settings.ValueFormat, Settings.FormatBufferCharacterCount},
@@ -60,7 +60,7 @@ inline FStatsTextModel ReduceRuntimeStatsPlainValue(
 
 inline FStatsTextModel ReduceRuntimeStatsPlainValue(
     int64 Value,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FStatsTextModel Model;
   Model.Text = FormatRuntimeStatsText(
       {&Settings.ValueFormat, Settings.FormatBufferCharacterCount},
@@ -71,7 +71,7 @@ inline FStatsTextModel ReduceRuntimeStatsPlainValue(
 
 inline FRuntimeStatsPresentationModel ReduceRuntimeStatsPresentationModel(
     const FRuntimeStatsViewModel &Stats,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FRuntimeStatsPresentationModel Presentation;
   Presentation.FramesPerSecond = ReduceRuntimeStatsValue(
       Stats.FramesPerSecond, Settings.FramesPerSecondMediumThreshold,

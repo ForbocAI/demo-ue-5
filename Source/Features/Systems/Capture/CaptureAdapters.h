@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 
 namespace Data {
-struct FScaleAuditCaptureSettings;
+struct FAuditCaptureSettings;
 struct FMarketingCaptureSettings;
 } // namespace Data
 
@@ -110,7 +110,7 @@ void RequestCaptureScreenshot(const FString &OutputDir,
  * fully-resolved config struct. Also creates the output directory.
  */
 FScaleAuditCaptureConfig ParseScaleAuditCommandLine(
-    const ForbocAI::Game::Data::FScaleAuditCaptureSettings &Settings,
+    const ForbocAI::Game::Data::FAuditCaptureSettings &Settings,
     float TerrainWorldSize);
 
 /**

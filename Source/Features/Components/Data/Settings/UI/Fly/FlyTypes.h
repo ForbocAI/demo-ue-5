@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FFlyModeSettings {
+struct FModeSettings {
   FString EnabledMessage;
   FString DisabledMessage;
   float FlyingGravityScale;
@@ -14,8 +14,8 @@ struct FFlyModeSettings {
   float NeutralInputScale;
 };
 
-inline bool operator==(const FFlyModeSettings &Left,
-                       const FFlyModeSettings &Right) {
+inline bool operator==(const FModeSettings &Left,
+                       const FModeSettings &Right) {
   return Left.EnabledMessage == Right.EnabledMessage &&
          Left.DisabledMessage == Right.DisabledMessage &&
          FMath::IsNearlyEqual(Left.FlyingGravityScale,
@@ -26,9 +26,10 @@ inline bool operator==(const FFlyModeSettings &Left,
                               Right.NeutralInputScale);
 }
 
-inline bool operator!=(const FFlyModeSettings &Left,
-                       const FFlyModeSettings &Right) {
+inline bool operator!=(const FModeSettings &Left,
+                       const FModeSettings &Right) {
   return !(Left == Right);
+}
 
 } // namespace Data
 } // namespace Game

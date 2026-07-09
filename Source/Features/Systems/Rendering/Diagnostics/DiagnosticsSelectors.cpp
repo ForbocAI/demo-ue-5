@@ -14,26 +14,26 @@ bool ShouldRunInterval(float ElapsedSeconds, float IntervalSeconds) {
 
 int32 SelectIntFromBool(
     bool bValue,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return bValue ? Settings.DiagnosticTrueIntValue
                 : Settings.DiagnosticFalseIntValue;
 }
 
 double SelectRuntimeMilliseconds(
     double Seconds,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return Seconds * Settings.SecondsToMilliseconds;
 }
 
 double SelectRuntimeElapsedMilliseconds(
     const FTimeInterval &Interval,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return SelectRuntimeMilliseconds(Interval.FinishedSeconds - Interval.StartedSeconds, Settings);
 }
 
 int32 SelectRuntimeStatsFramesPerSecond(
     float DeltaSeconds,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return DeltaSeconds > Settings.MinimumDeltaSeconds
              ? FMath::RoundToInt(Settings.FramesPerSecondNumerator /
                                  DeltaSeconds)
@@ -42,7 +42,7 @@ int32 SelectRuntimeStatsFramesPerSecond(
 
 int32 SelectRuntimeStatsStackDepth(
     const ecs::FWorld &World,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   TArray<ecs::FNode> Nodes;
   World.Domains.Nodes.GenerateValueArray(Nodes);
   return func::fold_array<ecs::FNode, int32>(
@@ -54,7 +54,7 @@ int32 SelectRuntimeStatsStackDepth(
 
 int32 SelectRuntimeStatsLodIndex(
     const FLodModelQuery &Query,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return Query.ForcedLodModel > Settings.ForcedLodAutomaticModel
              ? Query.ForcedLodModel - Settings.LodModelIndexOffset
              : Query.AutomaticLodIndex;
@@ -62,14 +62,14 @@ int32 SelectRuntimeStatsLodIndex(
 
 int32 ClampRuntimeStatsLodIndex(
     const FLodClampRange &Range,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return FMath::Clamp(Range.LodIndex, Settings.ForcedLodAutomaticModel,
                       Range.LodCount - Settings.LodModelIndexOffset);
 }
 
 int64 SelectMemoryMegabytes(
     uint64 Bytes,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   check(Settings.MemoryBytesPerMegabyte > Settings.EmptyMemoryMegabytes);
   return static_cast<int64>(
       Bytes / static_cast<uint64>(Settings.MemoryBytesPerMegabyte));
@@ -80,7 +80,7 @@ double SelectThreadMilliseconds(uint32 Cycles) {
 }
 
 int32 SelectRuntimeGpuIndex(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return FMath::Clamp(Settings.RhiStatsGpuIndex,
                       Settings.RhiStatsMinimumGpuIndex,
                       Settings.RhiStatsMaximumGpuIndex);
@@ -93,7 +93,7 @@ bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params) {
 
 bool ShouldRunRuntimeBudgetScreenshot(
     const FBudgetCheckParams &Params,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return Params.IntervalSeconds > Settings.BudgetScreenshotDisabledIntervalSeconds &&
          ShouldRunRuntimeBudgetWallInterval(Params);
 }

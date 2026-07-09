@@ -55,26 +55,26 @@ FRenderingState CreateInitialState();
 const rtk::Slice<FRenderingState> &GetSlice();
 void ApplyRuntimeProfile(const FRuntimeProfileApplyRequest &Request);
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 double SelectRuntimeBudgetClockSeconds();
 bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params);
 bool ShouldRunRuntimeBudgetScreenshot(
     const FBudgetCheckParams &Params,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 void RequestRuntimeBudgetScreenshot(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings,
+    const ForbocAI::Game::Data::FOverlaySettings &Settings,
     int32 Index);
 FRuntimeMemoryStats SelectRuntimeMemoryStats(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 FRuntimePolyCountStats SelectRuntimePolyCountStats(
     UWorld *World,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 FRuntimeStatsViewModel SelectRuntimeStats(
     UWorld *World, float DeltaSeconds, double WallDeltaSeconds,
     int64 PolyCount, double PolyCountMilliseconds,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 UMaterialInterface *LoadBlockoutMaterial(const FString &Path);
 void ApplyTexture(const FLevelRetroTextureApply &Request);
 

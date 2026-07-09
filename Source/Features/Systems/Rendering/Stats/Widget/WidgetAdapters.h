@@ -12,21 +12,21 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 
-using FStatsOverlaySettings =
-    ForbocAI::Game::Data::FStatsOverlaySettings;
+using FOverlaySettings =
+    ForbocAI::Game::Data::FOverlaySettings;
 
 struct FTextElementRequest {
   UWidgetTree *Tree;
   FString Text;
   FLinearColor Color;
-  const FStatsOverlaySettings *Settings;
+  const FOverlaySettings *Settings;
 };
 
 struct FMetricRowRequest {
   UWidgetTree *Tree;
   FString Label;
   UTextBlock **ValueTextElement;
-  const FStatsOverlaySettings *Settings;
+  const FOverlaySettings *Settings;
 };
 
 struct FValueUpdateRequest {
@@ -34,19 +34,19 @@ struct FValueUpdateRequest {
   int64 Value;
   int32 MediumThreshold;
   int32 HighThreshold;
-  const FStatsOverlaySettings *Settings;
+  const FOverlaySettings *Settings;
 };
 
 struct FDecimalValueUpdateRequest {
   UTextBlock *TextElement;
   double Value;
-  const FStatsOverlaySettings *Settings;
+  const FOverlaySettings *Settings;
 };
 
 struct FPlainValueUpdateRequest {
   UTextBlock *TextElement;
   int64 Value;
-  const FStatsOverlaySettings *Settings;
+  const FOverlaySettings *Settings;
 };
 
 } // namespace Level

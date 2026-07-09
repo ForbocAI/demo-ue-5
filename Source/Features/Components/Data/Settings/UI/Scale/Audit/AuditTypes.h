@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FScaleAuditCaptureSettings {
+struct FAuditCaptureSettings {
   FString CaptureCommandLineKey;
   FString QuitWhenDoneCommandLineKey;
   FString OutputDirectoryCommandLineKey;
@@ -29,8 +29,8 @@ struct FScaleAuditCaptureSettings {
   FRotator TopDownRotation;
 };
 
-inline bool operator==(const FScaleAuditCaptureSettings &Left,
-                       const FScaleAuditCaptureSettings &Right) {
+inline bool operator==(const FAuditCaptureSettings &Left,
+                       const FAuditCaptureSettings &Right) {
   return Left.CaptureCommandLineKey == Right.CaptureCommandLineKey &&
          Left.QuitWhenDoneCommandLineKey ==
              Right.QuitWhenDoneCommandLineKey &&
@@ -65,9 +65,10 @@ inline bool operator==(const FScaleAuditCaptureSettings &Left,
          Left.TopDownRotation.Equals(Right.TopDownRotation);
 }
 
-inline bool operator!=(const FScaleAuditCaptureSettings &Left,
-                       const FScaleAuditCaptureSettings &Right) {
+inline bool operator!=(const FAuditCaptureSettings &Left,
+                       const FAuditCaptureSettings &Right) {
   return !(Left == Right);
+}
 
 } // namespace Data
 } // namespace Game

@@ -44,7 +44,7 @@ void RequestCaptureScreenshot(const FString &OutputDir,
 }
 
 FScaleAuditCaptureConfig ParseScaleAuditCommandLine(
-    const ForbocAI::Game::Data::FScaleAuditCaptureSettings &Settings,
+    const ForbocAI::Game::Data::FAuditCaptureSettings &Settings,
     float TerrainWorldSize) {
   const FString DefaultOutputDirectory =
       ResolveCaptureOutputPath(Settings.DefaultOutputDirectory);

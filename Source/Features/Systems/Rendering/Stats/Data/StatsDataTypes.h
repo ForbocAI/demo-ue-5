@@ -220,7 +220,7 @@ struct FRuntimeStatsSamplePayload {
   int32 BudgetScreenshotIndex;
   func::Maybe<FRuntimePolyCountStats> PolyCount;
   func::Maybe<FRuntimeStatsViewModel> Stats;
-  ForbocAI::Game::Data::FStatsOverlaySettings StatsOverlay;
+  ForbocAI::Game::Data::FOverlaySettings StatsOverlay;
 };
 
 } // namespace Level

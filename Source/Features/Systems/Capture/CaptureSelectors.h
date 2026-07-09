@@ -36,7 +36,7 @@ inline bool SelectCommandLineParam(const FString &Key) {
  * Thin selector facade — delegates to CaptureAdapters::ParseScaleAuditCommandLine.
  */
 inline FScaleAuditCaptureConfig SelectScaleAuditCommandLineConfig(
-    const ForbocAI::Game::Data::FScaleAuditCaptureSettings &Settings,
+    const ForbocAI::Game::Data::FAuditCaptureSettings &Settings,
     float TerrainWorldSize) {
   return CaptureAdapters::ParseScaleAuditCommandLine(Settings,
                                                      TerrainWorldSize);

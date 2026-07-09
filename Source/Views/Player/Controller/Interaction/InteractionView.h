@@ -195,7 +195,7 @@ void APlayerRuntimeControllerView::ApplyRuntimeFlyModeEnabled() {
   PreviousMaxFlySpeed = Movement->MaxFlySpeed;
   PreviousGravityScale = Movement->GravityScale;
   Movement->MaxFlySpeed = FlyModeSpeed;
-  const FFlyModeSettings &Settings = FlyModeSettings();
+  const FModeSettings &Settings = FlyModeSettings();
   Movement->GravityScale = Settings.FlyingGravityScale;
   Movement->SetMovementMode(MOVE_Flying);
   bRuntimeFlyModeEnabled = true;
@@ -221,7 +221,7 @@ void APlayerRuntimeControllerView::ApplyRuntimeFlyModeDisabled() {
 
 void APlayerRuntimeControllerView::ApplyRuntimeFlyVerticalInput() {
   APawn *ControlledPawn = GetPawn();
-  const FFlyModeSettings &Settings = FlyModeSettings();
+  const FModeSettings &Settings = FlyModeSettings();
   const float UpScale =
       (bFlyAscending ? Settings.VerticalInputScale
                      : Settings.NeutralInputScale) -

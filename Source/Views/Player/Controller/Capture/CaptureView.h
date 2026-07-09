@@ -5,7 +5,7 @@ void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
       MarketingCaptureSettings();
   const bool bMarketingRequested =
       FCS::SelectCommandLineParam(MarketingSettings.CaptureCommandLineKey);
-  const FScaleAuditCaptureSettings &ScaleAuditSettings =
+  const FAuditCaptureSettings &ScaleAuditSettings =
       ScaleAuditCaptureSettings();
   const bool bScaleRequested =
       FCS::SelectCommandLineParam(ScaleAuditSettings.CaptureCommandLineKey);
@@ -21,7 +21,7 @@ void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
 void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() {
   const ForbocAI::Game::Data::FGeometrySettings &Geometry =
       FG::RuntimeSelectors::SelectLevelGeometry();
-  const FScaleAuditCaptureSettings &Settings =
+  const FAuditCaptureSettings &Settings =
       ScaleAuditCaptureSettings();
   const FCS::FScaleAuditCaptureConfig Config =
       FCS::SelectScaleAuditCommandLineConfig(Settings, Geometry.TerrainWorldSize);

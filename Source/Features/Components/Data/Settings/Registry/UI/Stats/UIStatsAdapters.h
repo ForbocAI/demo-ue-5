@@ -7,13 +7,13 @@ namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-template <> struct TJsonSettingsRegistry<FStatsOverlaySettings> {
-  static const TArray<TField<FStatsOverlaySettings>>
+template <> struct TJsonSettingsRegistry<FOverlaySettings> {
+  static const TArray<TField<FOverlaySettings>>
       &Fields() {
-    static const TArray<TField<FStatsOverlaySettings>>
+    static const TArray<TField<FOverlaySettings>>
         RegisteredFields = {
             JSON_SETTING_FIELDS(
-                FStatsOverlaySettings, FramesPerSecondLabel,
+                FOverlaySettings, FramesPerSecondLabel,
                 StackDepthLabel, PolyCountLabel,
                 UsedPhysicalMemoryLabel, PeakPhysicalMemoryLabel,
                 UsedVirtualMemoryLabel, GameThreadMillisecondsLabel,
@@ -65,7 +65,7 @@ template <> struct TJsonSettingsRegistry<FStatsOverlaySettings> {
                 PolyCountMediumThreshold, PolyCountHighThreshold,
                 MemoryMediumThreshold, MemoryHighThreshold),
             JSON_OBJECT_SETTING_FIELDS(
-                FStatsOverlaySettings,
+                FOverlaySettings,
                 SettingsAdapters::ReadLinearColorSettings, PanelColor,
                 TextColor, LowValueColor, MediumValueColor, HighValueColor)};
     return RegisteredFields;

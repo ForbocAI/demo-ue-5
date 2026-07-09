@@ -18,21 +18,21 @@ namespace FG = ForbocAI::Game::Level;
 
 namespace {
 
-using FStatsOverlaySettings =
-    ForbocAI::Game::Data::FStatsOverlaySettings;
+using FOverlaySettings =
+    ForbocAI::Game::Data::FOverlaySettings;
 
 struct FTextElementRequest {
   UWidgetTree *Tree;
   FString Text;
   FLinearColor Color;
-  const FStatsOverlaySettings *Settings;
+  const FOverlaySettings *Settings;
 };
 
 struct FMetricRowRequest {
   UWidgetTree *Tree;
   FString Label;
   UTextBlock **ValueTextElement;
-  const FStatsOverlaySettings *Settings;
+  const FOverlaySettings *Settings;
 };
 
 // --- View helpers (UMG widget construction) ---

@@ -5,12 +5,12 @@ namespace FCS = FG::CaptureSelectors;
 namespace FCA = FG::CaptureActions;
 using FMarketingCaptureSettings =
     ForbocAI::Game::Data::FMarketingCaptureSettings;
-using FMarketingCaptureViewSettings =
-    ForbocAI::Game::Data::FMarketingCaptureViewSettings;
-using FFlyModeSettings =
-    ForbocAI::Game::Data::FFlyModeSettings;
-using FScaleAuditCaptureSettings =
-    ForbocAI::Game::Data::FScaleAuditCaptureSettings;
+using FCaptureViewSettings =
+    ForbocAI::Game::Data::FCaptureViewSettings;
+using FModeSettings =
+    ForbocAI::Game::Data::FModeSettings;
+using FAuditCaptureSettings =
+    ForbocAI::Game::Data::FAuditCaptureSettings;
 
 DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeController, Log, All);
 
@@ -112,11 +112,11 @@ const FMarketingCaptureSettings &MarketingCaptureSettings() {
   return FG::RuntimeSelectors::SelectMarketingCaptureSettings();
 }
 
-const FFlyModeSettings &FlyModeSettings() {
+const FModeSettings &FlyModeSettings() {
   return FG::RuntimeSelectors::SelectUISettings().FlyMode;
 }
 
-const FScaleAuditCaptureSettings &ScaleAuditCaptureSettings() {
+const FAuditCaptureSettings &ScaleAuditCaptureSettings() {
   return FG::RuntimeSelectors::SelectUISettings().ScaleAuditCapture;
 }
 
@@ -130,7 +130,7 @@ FVector TopDownCameraLocation(const FVector &Center, float Height) {
 
 TArray<FScaleAuditCaptureView>
 ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request,
-                       const FScaleAuditCaptureSettings &Settings) {
+                       const FAuditCaptureSettings &Settings) {
   check(Request.World);
   const FVector TerrainCenter = FVector::ZeroVector;
   const FVector TownCenter = PostOfficeWorldCenter();
@@ -147,14 +147,14 @@ ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request,
             Settings.TopDownRotation, Request.ActorsOrthoWidth}}};
 }
 
-FVector MarketingCaptureAnchor(const FMarketingCaptureViewSettings &ViewSettings,
+FVector MarketingCaptureAnchor(const FCaptureViewSettings &ViewSettings,
                                const FMarketingCaptureCenters &Centers) {
   return ViewSettings.bUseActorRouteCenter ? Centers.ActorCenter
                                            : Centers.TownCenter;
 }
 
 FScaleAuditCaptureView MarketingBrochureCaptureView(
-    const FMarketingCaptureViewSettings &ViewSettings,
+    const FCaptureViewSettings &ViewSettings,
     const FMarketingCaptureCenters &Centers) {
   const FVector Anchor = MarketingCaptureAnchor(ViewSettings, Centers);
   const FVector CameraLocation = Anchor + ViewSettings.CameraOffset;
@@ -174,10 +174,10 @@ TArray<FScaleAuditCaptureView> MarketingBrochureCaptureViews(
   const FVector ActorCenter =
       FG::RuntimeSelectors::SelectActorRouteBoundsCenter(TownCenter);
   const FMarketingCaptureCenters Centers{TownCenter, ActorCenter};
-  return func::map_array<FMarketingCaptureViewSettings,
+  return func::map_array<FCaptureViewSettings,
                          FScaleAuditCaptureView>(
       Settings.CaptureViews,
-      [Centers](const FMarketingCaptureViewSettings &ViewSettings) {
+      [Centers](const FCaptureViewSettings &ViewSettings) {
         return MarketingBrochureCaptureView(ViewSettings, Centers);
       });
 }

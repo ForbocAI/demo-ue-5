@@ -7,7 +7,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FMarketingCaptureViewSettings {
+struct FCaptureViewSettings {
   FString OutputName;
   FVector CameraOffset;
   FVector TargetOffset;
@@ -49,10 +49,11 @@ struct FMarketingCaptureSettings {
   FLinearColor MenuPanelColor;
   FLinearColor MenuTitleColor;
   FLinearColor MenuButtonTextColor;
-  TArray<FMarketingCaptureViewSettings> CaptureViews;
+  TArray<FCaptureViewSettings> CaptureViews;
+};
 
-inline bool operator==(const FMarketingCaptureViewSettings &Left,
-                       const FMarketingCaptureViewSettings &Right) {
+inline bool operator==(const FCaptureViewSettings &Left,
+                       const FCaptureViewSettings &Right) {
   return Left.OutputName == Right.OutputName &&
          Left.CameraOffset == Right.CameraOffset &&
          Left.TargetOffset == Right.TargetOffset &&
@@ -63,8 +64,8 @@ inline bool operator==(const FMarketingCaptureViewSettings &Left,
          Left.bUseActorRouteCenter == Right.bUseActorRouteCenter;
 }
 
-inline bool operator!=(const FMarketingCaptureViewSettings &Left,
-                       const FMarketingCaptureViewSettings &Right) {
+inline bool operator!=(const FCaptureViewSettings &Left,
+                       const FCaptureViewSettings &Right) {
   return !(Left == Right);
 }
 
@@ -116,6 +117,7 @@ inline bool operator==(const FMarketingCaptureSettings &Left,
 inline bool operator!=(const FMarketingCaptureSettings &Left,
                        const FMarketingCaptureSettings &Right) {
   return !(Left == Right);
+}
 
 } // namespace Data
 } // namespace Game

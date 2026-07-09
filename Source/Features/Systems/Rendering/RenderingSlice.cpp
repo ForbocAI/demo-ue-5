@@ -84,7 +84,7 @@ void ApplyRuntimeProfile(const FRuntimeProfileApplyRequest &Request) {
 }
 
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return RenderingAdapters::SelectRuntimeBudgetScreenshotIntervalSeconds(
       Settings);
 }
@@ -99,36 +99,36 @@ bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params) {
 
 bool ShouldRunRuntimeBudgetScreenshot(
     const FBudgetCheckParams &Params,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return RenderingSelectors::ShouldRunRuntimeBudgetScreenshot(Params, Settings);
 }
 
 void RequestRuntimeBudgetScreenshot(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings,
+    const ForbocAI::Game::Data::FOverlaySettings &Settings,
     int32 Index) {
   RenderingAdapters::RequestRuntimeBudgetScreenshot(Settings, Index);
 }
 
 FRuntimeMemoryStats SelectRuntimeMemoryStats(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return RenderingAdapters::SelectRuntimeMemoryStats(Settings);
 }
 
 FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return RenderingAdapters::SelectRuntimeFrameTimingStats(Settings);
 }
 
 FRuntimePolyCountStats SelectRuntimePolyCountStats(
     UWorld *World,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return RenderingAdapters::SelectRuntimePolyCountStats(World, Settings);
 }
 
 FRuntimeStatsViewModel SelectRuntimeStats(
     UWorld *World, float DeltaSeconds, double WallDeltaSeconds,
     int64 PolyCount, double PolyCountMilliseconds,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings) {
+    const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return RenderingAdapters::SelectRuntimeStats(
       World, DeltaSeconds, WallDeltaSeconds, PolyCount,
       PolyCountMilliseconds, Settings);

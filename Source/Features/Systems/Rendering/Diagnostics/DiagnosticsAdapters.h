@@ -15,28 +15,28 @@ namespace Level {
 namespace RenderingAdapters {
 
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 
 double SelectRuntimeBudgetClockSeconds();
 
 void RequestRuntimeBudgetScreenshot(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings,
+    const ForbocAI::Game::Data::FOverlaySettings &Settings,
     int32 Index);
 
 FRuntimeMemoryStats SelectRuntimeMemoryStats(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 
 FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 
 FRuntimePolyCountStats SelectRuntimePolyCountStats(
     UWorld *World,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 
 FRuntimeStatsViewModel SelectRuntimeStats(
     UWorld *World, float DeltaSeconds, double WallDeltaSeconds,
     int64 PolyCount, double PolyCountMilliseconds,
-    const ForbocAI::Game::Data::FStatsOverlaySettings &Settings);
+    const ForbocAI::Game::Data::FOverlaySettings &Settings);
 
 } // namespace RenderingAdapters
 } // namespace Level
