@@ -17,15 +17,35 @@ struct FGroups {
   FString TickUpdate;
 };
 
-struct FCaseLabels {
+struct FStateCaseLabels {
   FString CreateInitialState;
+};
+
+struct FMovementCaseLabels {
   FString UpdatePosition;
+};
+
+struct FCombatCaseLabels {
   FString ReduceHealth;
   FString TransitionToCombat;
   FString TransitionToFlee;
+};
+
+struct FAwarenessCaseLabels {
   FString UpdateMemory;
+};
+
+struct FTickCaseLabels {
   FString IncrementTick;
   FString DecayAggro;
+};
+
+struct FCaseLabels {
+  FStateCaseLabels State;
+  FMovementCaseLabels Movement;
+  FCombatCaseLabels Combat;
+  FAwarenessCaseLabels Awareness;
+  FTickCaseLabels Tick;
 };
 
 struct FOrchestratorGroups {
@@ -79,15 +99,65 @@ inline bool operator!=(const FGroups &Left, const FGroups &Right) {
   return !(Left == Right);
 }
 
-inline bool operator==(const FCaseLabels &Left, const FCaseLabels &Right) {
-  return Left.CreateInitialState == Right.CreateInitialState &&
-         Left.UpdatePosition == Right.UpdatePosition &&
-         Left.ReduceHealth == Right.ReduceHealth &&
+inline bool operator==(const FStateCaseLabels &Left,
+                       const FStateCaseLabels &Right) {
+  return Left.CreateInitialState == Right.CreateInitialState;
+}
+
+inline bool operator!=(const FStateCaseLabels &Left,
+                       const FStateCaseLabels &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FMovementCaseLabels &Left,
+                       const FMovementCaseLabels &Right) {
+  return Left.UpdatePosition == Right.UpdatePosition;
+}
+
+inline bool operator!=(const FMovementCaseLabels &Left,
+                       const FMovementCaseLabels &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCombatCaseLabels &Left,
+                       const FCombatCaseLabels &Right) {
+  return Left.ReduceHealth == Right.ReduceHealth &&
          Left.TransitionToCombat == Right.TransitionToCombat &&
-         Left.TransitionToFlee == Right.TransitionToFlee &&
-         Left.UpdateMemory == Right.UpdateMemory &&
-         Left.IncrementTick == Right.IncrementTick &&
+         Left.TransitionToFlee == Right.TransitionToFlee;
+}
+
+inline bool operator!=(const FCombatCaseLabels &Left,
+                       const FCombatCaseLabels &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FAwarenessCaseLabels &Left,
+                       const FAwarenessCaseLabels &Right) {
+  return Left.UpdateMemory == Right.UpdateMemory;
+}
+
+inline bool operator!=(const FAwarenessCaseLabels &Left,
+                       const FAwarenessCaseLabels &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FTickCaseLabels &Left,
+                       const FTickCaseLabels &Right) {
+  return Left.IncrementTick == Right.IncrementTick &&
          Left.DecayAggro == Right.DecayAggro;
+}
+
+inline bool operator!=(const FTickCaseLabels &Left,
+                       const FTickCaseLabels &Right) {
+  return !(Left == Right);
+}
+
+inline bool operator==(const FCaseLabels &Left, const FCaseLabels &Right) {
+  return Left.State == Right.State &&
+         Left.Movement == Right.Movement &&
+         Left.Combat == Right.Combat &&
+         Left.Awareness == Right.Awareness &&
+         Left.Tick == Right.Tick;
 }
 
 inline bool operator!=(const FCaseLabels &Left, const FCaseLabels &Right) {

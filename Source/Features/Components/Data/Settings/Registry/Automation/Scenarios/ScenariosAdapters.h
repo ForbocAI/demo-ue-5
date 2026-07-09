@@ -10,11 +10,53 @@ namespace JsonAdapters {
 JSON_SETTINGS_REGISTRY(Automation::Bot::FGroups,
                        StateCreation, Reducers, Movement, Combat, Awareness,
                        TickUpdate);
-
-JSON_SETTINGS_REGISTRY(Automation::Bot::FCaseLabels,
-                       CreateInitialState, UpdatePosition, ReduceHealth,
-                       TransitionToCombat, TransitionToFlee, UpdateMemory,
-                       IncrementTick, DecayAggro);
+template <> struct TJsonSettingsRegistry<Automation::Bot::FCaseLabels> {
+  static const TArray<TField<Automation::Bot::FCaseLabels>> &Fields() {
+    static const TArray<TField<Automation::Bot::FCaseLabels>>
+        RegisteredFields = {
+            NestedSettingField(
+                JSON_SETTING_ATOM(CreateInitialState),
+                NestedFieldMembers(
+                    &Automation::Bot::FCaseLabels::State,
+                    &Automation::Bot::FStateCaseLabels::CreateInitialState)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(UpdatePosition),
+                NestedFieldMembers(
+                    &Automation::Bot::FCaseLabels::Movement,
+                    &Automation::Bot::FMovementCaseLabels::UpdatePosition)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(ReduceHealth),
+                NestedFieldMembers(
+                    &Automation::Bot::FCaseLabels::Combat,
+                    &Automation::Bot::FCombatCaseLabels::ReduceHealth)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(TransitionToCombat),
+                NestedFieldMembers(
+                    &Automation::Bot::FCaseLabels::Combat,
+                    &Automation::Bot::FCombatCaseLabels::TransitionToCombat)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(TransitionToFlee),
+                NestedFieldMembers(
+                    &Automation::Bot::FCaseLabels::Combat,
+                    &Automation::Bot::FCombatCaseLabels::TransitionToFlee)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(UpdateMemory),
+                NestedFieldMembers(
+                    &Automation::Bot::FCaseLabels::Awareness,
+                    &Automation::Bot::FAwarenessCaseLabels::UpdateMemory)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(IncrementTick),
+                NestedFieldMembers(
+                    &Automation::Bot::FCaseLabels::Tick,
+                    &Automation::Bot::FTickCaseLabels::IncrementTick)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(DecayAggro),
+                NestedFieldMembers(
+                    &Automation::Bot::FCaseLabels::Tick,
+                    &Automation::Bot::FTickCaseLabels::DecayAggro))};
+    return RegisteredFields;
+  }
+};
 
 JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorGroups,
                        Registration, Cycle, RuntimeStore);

@@ -91,7 +91,7 @@ void FBotFunctionalCoreSpec::Define()
 
     Describe(BotFunctionalCoreGroups().StateCreation, [this, &Labels]()
     {
-        It(BotFunctionalCoreCases().CreateInitialState, [this, &Labels]()
+        It(BotFunctionalCoreCases().State.CreateInitialState, [this, &Labels]()
         {
             const FString BotName = BotFunctionalCoreSettings().InitialName;
             auto Store = ConfigureStore(BotName);
@@ -111,7 +111,7 @@ void FBotFunctionalCoreSpec::Define()
     {
         Describe(BotFunctionalCoreGroups().Movement, [this, &Labels]()
         {
-            It(BotFunctionalCoreCases().UpdatePosition, [this, &Labels]()
+            It(BotFunctionalCoreCases().Movement.UpdatePosition, [this, &Labels]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -127,7 +127,7 @@ void FBotFunctionalCoreSpec::Define()
 
         Describe(BotFunctionalCoreGroups().Combat, [this, &Labels]()
         {
-            It(BotFunctionalCoreCases().ReduceHealth, [this, &Labels]()
+            It(BotFunctionalCoreCases().Combat.ReduceHealth, [this, &Labels]()
             {
                 const float Damage = FunctionalCoreHealthyDamage();
                 auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
@@ -138,7 +138,7 @@ void FBotFunctionalCoreSpec::Define()
                 TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Stats.Health, FunctionalCoreExpectedHealthAfterDamage(Damage)));
             });
 
-            It(BotFunctionalCoreCases().TransitionToCombat, [this, &Labels]()
+            It(BotFunctionalCoreCases().Combat.TransitionToCombat, [this, &Labels]()
             {
                 auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
                 Store.dispatch(BotCoreActions::BotDamageTaken()(
@@ -148,7 +148,7 @@ void FBotFunctionalCoreSpec::Define()
                 TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Combat);
             });
 
-            It(BotFunctionalCoreCases().TransitionToFlee, [this, &Labels]()
+            It(BotFunctionalCoreCases().Combat.TransitionToFlee, [this, &Labels]()
             {
                 auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
                 Store.dispatch(BotCoreActions::BotDamageTaken()(
@@ -161,7 +161,7 @@ void FBotFunctionalCoreSpec::Define()
 
         Describe(BotFunctionalCoreGroups().Awareness, [this, &Labels]()
         {
-            It(BotFunctionalCoreCases().UpdateMemory, [this, &Labels]()
+            It(BotFunctionalCoreCases().Awareness.UpdateMemory, [this, &Labels]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -179,7 +179,7 @@ void FBotFunctionalCoreSpec::Define()
 
         Describe(BotFunctionalCoreGroups().TickUpdate, [this, &Labels]()
         {
-            It(BotFunctionalCoreCases().IncrementTick, [this, &Labels]()
+            It(BotFunctionalCoreCases().Tick.IncrementTick, [this, &Labels]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -191,7 +191,7 @@ void FBotFunctionalCoreSpec::Define()
                 TestTrue(Labels.Next(), State.TickCount > static_cast<uint64>(Settings.InitialTickCount));
             });
 
-            It(BotFunctionalCoreCases().DecayAggro, [this, &Labels]()
+            It(BotFunctionalCoreCases().Tick.DecayAggro, [this, &Labels]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
