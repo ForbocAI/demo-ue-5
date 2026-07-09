@@ -154,12 +154,12 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
   template <typename Value>
   TRequiredJsonFieldDeclaration(
       const char *FieldAtom, Value State::*Member,
-      func::Maybe<Value> (*ReadField)(const FFieldRequest &))
+      func::Maybe<Value> (*ReadValue)(const FFieldRequest &))
       : FieldName(RequiredFieldName(FieldAtom)),
-        Apply([Member, ReadField](const FFieldRequest &Request,
+        Apply([Member, ReadValue](const FFieldRequest &Request,
                                   const State &Current) {
           return func::mbind(
-              ReadField(Request), [Member, Current](const Value &FieldValue) {
+              ReadValue(Request), [Member, Current](const Value &FieldValue) {
                 return AssignRequiredField<State, Value>(Member, Current,
                                                          FieldValue);
               });
