@@ -13,16 +13,28 @@ namespace LandmarksAdapters {
 
 namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
-struct FLandmarkSource {
+struct FIdentitySource {
   FString Id;
   FString Label;
   FString Kind;
+};
+
+struct FLotSource {
   float EastLots;
   float NorthLots;
   float YawDegrees;
+};
+
+struct FShapeSource {
   float FrontageFeet;
   float DepthFeet;
   float Stories;
+};
+
+struct FLandmarkSource {
+  FIdentitySource Identity;
+  FLotSource Lot;
+  FShapeSource Shape;
 };
 
 } // namespace LandmarksAdapters
@@ -55,8 +67,49 @@ template <> struct TJsonTextValueRegistry<ELandmarkKind> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FLandmarkSource, Id, Label, Kind, EastLots, NorthLots,
-                       YawDegrees, FrontageFeet, DepthFeet, Stories);
+template <> struct TJsonSettingsRegistry<FLandmarkSource> {
+  static const TArray<TField<FLandmarkSource>> &Fields() {
+    static const TArray<TField<FLandmarkSource>>
+        RegisteredFields = {
+            NestedSettingField(
+                JSON_SETTING_ATOM(Id),
+                NestedFieldMembers(&FLandmarkSource::Identity,
+                                   &LandmarkTypes::FIdentitySource::Id)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(Label),
+                NestedFieldMembers(&FLandmarkSource::Identity,
+                                   &LandmarkTypes::FIdentitySource::Label)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(Kind),
+                NestedFieldMembers(&FLandmarkSource::Identity,
+                                   &LandmarkTypes::FIdentitySource::Kind)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(EastLots),
+                NestedFieldMembers(&FLandmarkSource::Lot,
+                                   &LandmarkTypes::FLotSource::EastLots)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(NorthLots),
+                NestedFieldMembers(&FLandmarkSource::Lot,
+                                   &LandmarkTypes::FLotSource::NorthLots)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(YawDegrees),
+                NestedFieldMembers(&FLandmarkSource::Lot,
+                                   &LandmarkTypes::FLotSource::YawDegrees)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(FrontageFeet),
+                NestedFieldMembers(&FLandmarkSource::Shape,
+                                   &LandmarkTypes::FShapeSource::FrontageFeet)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(DepthFeet),
+                NestedFieldMembers(&FLandmarkSource::Shape,
+                                   &LandmarkTypes::FShapeSource::DepthFeet)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(Stories),
+                NestedFieldMembers(&FLandmarkSource::Shape,
+                                   &LandmarkTypes::FShapeSource::Stories))};
+    return RegisteredFields;
+  }
+};
 
 } // namespace JsonAdapters
 } // namespace Data
@@ -82,20 +135,20 @@ ELandmarkKind LandmarkKindFromJson(const FString &Kind) {
 
 FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) {
   const FVector Scale = LevelLayoutAdapters::BuildingScaleFromFeet(
-      {Request.Geometry, Request.Fields.FrontageFeet,
-       Request.Fields.DepthFeet, Request.Fields.Stories});
+      {Request.Geometry, Request.Fields.Shape.FrontageFeet,
+       Request.Fields.Shape.DepthFeet, Request.Fields.Shape.Stories});
   const FLevelLocalPoint Local = LevelLayoutAdapters::CenteredOnGround(
       {Request.Geometry,
        LevelLayoutAdapters::FromPostOfficeLots(
-           {Request.Geometry, Request.Fields.EastLots,
-            Request.Fields.NorthLots, 0.0f}),
+           {Request.Geometry, Request.Fields.Lot.EastLots,
+            Request.Fields.Lot.NorthLots, 0.0f}),
        Scale, LevelLayoutAdapters::BuildingFoundationHeight(Request.Geometry)});
 
   return LandmarkFactories::Landmark(
-      {Request.Fields.Id, Request.Fields.Label,
-       LandmarkKindFromJson(Request.Fields.Kind),
+      {Request.Fields.Identity.Id, Request.Fields.Identity.Label,
+       LandmarkKindFromJson(Request.Fields.Identity.Kind),
        LevelLayoutAdapters::ToWorld({*Request.TerrainData, Local}),
-       FRotator(0.0f, Request.Fields.YawDegrees, 0.0f), Scale});
+       FRotator(0.0f, Request.Fields.Lot.YawDegrees, 0.0f), Scale});
 }
 
 } // namespace
