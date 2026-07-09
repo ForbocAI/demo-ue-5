@@ -83,9 +83,9 @@ void FProtocolLoopSpec::Define() {
 
            const FAgent Agent = AgentFactory::Create(Config);
 
-           TestFalse(ProtocolAssertions().AgentIdNotEmpty,
+           TestFalse(ProtocolAssertions().Agent.AgentIdNotEmpty,
                      Agent.Id.IsEmpty());
-           TestEqual(ProtocolAssertions().PersonaMatches, Agent.Persona,
+           TestEqual(ProtocolAssertions().Agent.PersonaMatches, Agent.Persona,
                      ProtocolLoopSettings().Personas.Agent);
          });
       });
@@ -101,9 +101,9 @@ void FProtocolLoopSpec::Define() {
            TSharedPtr<const FAgent> AgentPtr =
                MakeShared<const FAgent>(AgentFactory::Create(Config));
 
-           TestTrue(ProtocolAssertions().AgentPointerValid,
+           TestTrue(ProtocolAssertions().Agent.AgentPointerValid,
                     AgentPtr.IsValid());
-           TestEqual(ProtocolAssertions().PersonaPreserved,
+           TestEqual(ProtocolAssertions().Immutable.PersonaPreserved,
                      AgentPtr->Persona,
                      ProtocolLoopSettings().Personas.Immutable);
          });
@@ -125,10 +125,10 @@ void FProtocolLoopSpec::Define() {
            const FAgent Updated = AgentOps::WithState(Original, NewState);
 
            // Original should be unchanged (immutable pattern)
-           TestEqual(ProtocolAssertions().OriginalIdPreserved, Original.Id,
+           TestEqual(ProtocolAssertions().Immutable.OriginalIdPreserved, Original.Id,
                      Updated.Id);
            // The updated agent should carry the new state
-           TestTrue(ProtocolAssertions().UpdatedStateContainsMood,
+           TestTrue(ProtocolAssertions().State.UpdatedStateContainsMood,
                     Updated.State.JsonData.Contains(
                         ProtocolLoopSettings().State.Needle));
          });
@@ -171,7 +171,7 @@ void FProtocolLoopSpec::Define() {
       return RunApiTest([this]() {
         TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();
 
-        TestTrue(ProtocolAssertions().RpgRulesNotEmpty,
+        TestTrue(ProtocolAssertions().Bridge.RpgRulesNotEmpty,
                  Rules.Num() > ProtocolLoopSettings().Bridge.MinimumRules);
       });
     });
@@ -197,7 +197,7 @@ void FProtocolLoopSpec::Define() {
                BridgeOps::Validate(Action, Rules, Context);
 
            // MOVE should be valid under RPG rules
-           TestTrue(ProtocolAssertions().MoveActionValid, Result.bValid);
+           TestTrue(ProtocolAssertions().Bridge.MoveActionValid, Result.bValid);
          });
        });
   });

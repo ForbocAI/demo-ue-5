@@ -28,11 +28,64 @@ JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FCaseLabels, CreateAgent,
                        CreateImmutableAgent, WithStateUpdate, InvokeProcess,
                        CreateRpgRules, ValidateRpgAction);
 
-JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FAssertions,
-                       AgentIdNotEmpty, PersonaMatches, AgentPointerValid,
-                       PersonaPreserved, OriginalIdPreserved,
-                       UpdatedStateContainsMood, RpgRulesNotEmpty,
-                       MoveActionValid);
+template <>
+struct TJsonSettingsRegistry<Automation::Protocol::Loop::FAssertions> {
+  static const TArray<TField<Automation::Protocol::Loop::FAssertions>>
+      &Fields() {
+    static const TArray<TField<
+        Automation::Protocol::Loop::FAssertions>>
+        RegisteredFields = {
+            NestedSettingField(
+                JSON_SETTING_ATOM(AgentIdNotEmpty),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Agent,
+                    &Automation::Protocol::Loop::FAgentAssertions::
+                        AgentIdNotEmpty)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(PersonaMatches),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Agent,
+                    &Automation::Protocol::Loop::FAgentAssertions::
+                        PersonaMatches)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(AgentPointerValid),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Agent,
+                    &Automation::Protocol::Loop::FAgentAssertions::
+                        AgentPointerValid)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(PersonaPreserved),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Immutable,
+                    &Automation::Protocol::Loop::FImmutableAssertions::
+                        PersonaPreserved)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(OriginalIdPreserved),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Immutable,
+                    &Automation::Protocol::Loop::FImmutableAssertions::
+                        OriginalIdPreserved)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(UpdatedStateContainsMood),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::State,
+                    &Automation::Protocol::Loop::FStateAssertions::
+                        UpdatedStateContainsMood)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(RpgRulesNotEmpty),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Bridge,
+                    &Automation::Protocol::Loop::FBridgeAssertions::
+                        RpgRulesNotEmpty)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(MoveActionValid),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Bridge,
+                    &Automation::Protocol::Loop::FBridgeAssertions::
+                        MoveActionValid))};
+    return RegisteredFields;
+  }
+};
 
 template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> {
   static const TArray<TField<Automation::Protocol::Loop::FSettings>>
