@@ -393,7 +393,7 @@ function Invoke-RuntimeBudgetValidation {
 
 $UnrealEditor = Resolve-UnrealEditorPath -ExplicitPath $UnrealEditor
 $BudgetPath = if ([string]::IsNullOrWhiteSpace($BudgetFile)) {
-  Find-DataJsonByKey -Key "runtime_budget"
+  Join-Path $DataRoot "runtime\performance\budget\ps3\baseline.json"
 } else {
   $BudgetFile
 }

@@ -11,27 +11,18 @@ import unreal
 
 
 PROJECT_ROOT = Path(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()))
-DATA_ROOT = PROJECT_ROOT / "Content" / "Data"
 
 
-def data_json_with_top_level_key(key):
-    matches = []
-    for path in sorted(DATA_ROOT.rglob("*.json")):
-        with path.open("r", encoding="utf-8") as source:
-            document = json.load(source)
-        if isinstance(document, dict) and isinstance(document.get(key), dict):
-            matches.append((path, document))
-    if len(matches) != 1:
-        discovered = ", ".join(str(path.relative_to(PROJECT_ROOT)) for path, _ in matches)
-        raise RuntimeError(
-            "Expected exactly one data JSON document with top-level key "
-            f"{key!r}; found {len(matches)}: {discovered}"
-        )
-    return matches[0][1]
+def load_data_json(content_relative_path):
+    path = PROJECT_ROOT / "Content" / content_relative_path
+    with path.open("r", encoding="utf-8") as source:
+        return json.load(source)
 
 
 def load_settings():
-    return data_json_with_top_level_key("skeletal_lod_generation")["skeletal_lod_generation"]
+    rendering_manifest = load_data_json("Data/settings/rendering.json")
+    pipeline_manifest = load_data_json(rendering_manifest["rendering_pipeline"])
+    return load_data_json(pipeline_manifest["skeletal_lod_generation"])["skeletal_lod_generation"]
 
 
 def require_skeletal_mesh(asset_path):

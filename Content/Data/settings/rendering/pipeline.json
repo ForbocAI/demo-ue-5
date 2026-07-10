@@ -2,5 +2,6 @@
   "texture_settings": "Data/settings/rendering/texture/settings.json",
   "console_settings": "Data/settings/rendering/console/settings.json",
   "console_variables": "Data/settings/rendering/console/variables.json",
-  "texture_palettes": "Data/settings/rendering/texture/palettes.json"
+  "texture_palettes": "Data/settings/rendering/texture/palettes.json",
+  "skeletal_lod_generation": "Data/settings/rendering/skeletal/lods.json"
 }

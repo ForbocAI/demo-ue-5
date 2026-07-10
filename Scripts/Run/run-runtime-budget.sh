@@ -8,7 +8,7 @@ PROJECT_FILE="$PROJECT_ROOT/ForbocAIDemo.uproject"
 PROJECT_FILE_ARG="$PROJECT_FILE"
 DATA_ROOT="$PROJECT_ROOT/Content/Data"
 MAP_PATH="${FORBOC_RUNTIME_BUDGET_MAP:-/Game/Map/Maps/Runtime}"
-BUDGET_FILE="${FORBOC_RUNTIME_BUDGET_FILE:-}"
+BUDGET_FILE="${FORBOC_RUNTIME_BUDGET_FILE:-$DATA_ROOT/runtime/performance/budget/ps3/baseline.json}"
 LOG_FILE="$PROJECT_ROOT/Saved/Automation/RuntimeBudgetLog.txt"
 LOG_FILE_ARG="$LOG_FILE"
 STDOUT_FILE="$PROJECT_ROOT/Saved/Automation/RuntimeBudgetStdout.txt"
@@ -86,9 +86,6 @@ if [ ! -f "$PROJECT_FILE" ]; then
   exit 1
 fi
 
-if [ -z "$BUDGET_FILE" ]; then
-  BUDGET_FILE="$(find_data_json_by_key runtime_budget)"
-fi
 PROFILE_FILE="$(find_data_json_by_key rendering_profile)"
 
 if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" == "win32"* ]]; then

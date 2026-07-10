@@ -20,7 +20,7 @@
 #include "InputCoreTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Views/Player/Character/CharacterView.h"
-#include "Views/Chat/ChatView.h"
+#include "Views/UI/UIView.h"
 #include "Views/Marketing/Menu/MenuView.h"
 #include "Views/Stats/StatsView.h"
 #include "Views/Townsperson/TownspersonView.h"
