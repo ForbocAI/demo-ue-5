@@ -73,12 +73,14 @@ float FunctionalCoreExpectedHealthAfterDamage(const float Damage) {
   return FMath::Max(Settings.MinimumHealth, Settings.InitialHealth - Damage);
 }
 
-rtk::EnhancedStore<FBotCoreRuntimeState> ConfigureStore(
-    const FString &BotName) {
-  return rtk::configureStore<FBotCoreRuntimeState>(
-      BotCoreReducers::BotReducer(),
-      CreateBotCoreRuntimeInitialState(
-          {BotName, BotFunctionalCoreSettings()}));
+FBotCoreRuntimeState CreateState(const FString &BotName) {
+  return CreateBotCoreRuntimeInitialState(
+      {BotName, BotFunctionalCoreSettings()});
+}
+
+FBotCoreRuntimeState ReduceState(const FBotCoreRuntimeState &State,
+                                 const rtk::AnyAction &Action) {
+  return BotCoreReducers::BotReducer()(State, Action);
 }
 } // namespace
 
@@ -94,8 +96,7 @@ void FBotFunctionalCoreSpec::Define()
         It(BotFunctionalCoreCases().State.CreateInitialState, [this, &Labels]()
         {
             const FString BotName = BotFunctionalCoreSettings().InitialName;
-            auto Store = ConfigureStore(BotName);
-            FBotCoreRuntimeState State = Store.getState();
+            const FBotCoreRuntimeState State = CreateState(BotName);
 
             TestEqual(Labels.Next(), State.Name, BotName);
             TestTrue(Labels.Next(),
@@ -115,12 +116,11 @@ void FBotFunctionalCoreSpec::Define()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
-                auto Store = ConfigureStore(Settings.MoveActionType);
-                Store.dispatch(BotCoreActions::BotMoved()(
-                    FBotMovePayload{Settings.MoveActionOffset,
-                                    Settings.DefaultMovementInterpSpeed}));
-
-                auto State = Store.getState();
+                const FBotCoreRuntimeState State = ReduceState(
+                    CreateState(Settings.MoveActionType),
+                    BotCoreActions::BotMoved()(FBotMovePayload{
+                        Settings.MoveActionOffset,
+                        Settings.DefaultMovementInterpSpeed}));
                 TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Position.X, Settings.MoveActionOffset.X));
             });
         });
@@ -130,31 +130,28 @@ void FBotFunctionalCoreSpec::Define()
             It(BotFunctionalCoreCases().Combat.ReduceHealth, [this, &Labels]()
             {
                 const float Damage = FunctionalCoreHealthyDamage();
-                auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
-                Store.dispatch(BotCoreActions::BotDamageTaken()(
-                    FBotDamageTakenPayload{Damage, nullptr}));
-                
-                auto State = Store.getState();
+                const FBotCoreRuntimeState State = ReduceState(
+                    CreateState(BotFunctionalCoreSettings().AttackActionType),
+                    BotCoreActions::BotDamageTaken()(
+                        FBotDamageTakenPayload{Damage, nullptr}));
                 TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Stats.Health, FunctionalCoreExpectedHealthAfterDamage(Damage)));
             });
 
             It(BotFunctionalCoreCases().Combat.TransitionToCombat, [this, &Labels]()
             {
-                auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
-                Store.dispatch(BotCoreActions::BotDamageTaken()(
-                    FBotDamageTakenPayload{FunctionalCoreHealthyDamage(), nullptr}));
-                
-                auto State = Store.getState();
+                const FBotCoreRuntimeState State = ReduceState(
+                    CreateState(BotFunctionalCoreSettings().AttackActionType),
+                    BotCoreActions::BotDamageTaken()(FBotDamageTakenPayload{
+                        FunctionalCoreHealthyDamage(), nullptr}));
                 TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Combat);
             });
 
             It(BotFunctionalCoreCases().Combat.TransitionToFlee, [this, &Labels]()
             {
-                auto Store = ConfigureStore(BotFunctionalCoreSettings().AttackActionType);
-                Store.dispatch(BotCoreActions::BotDamageTaken()(
-                    FBotDamageTakenPayload{FunctionalCoreFleeDamage(), nullptr}));
-                
-                auto State = Store.getState();
+                const FBotCoreRuntimeState State = ReduceState(
+                    CreateState(BotFunctionalCoreSettings().AttackActionType),
+                    BotCoreActions::BotDamageTaken()(FBotDamageTakenPayload{
+                        FunctionalCoreFleeDamage(), nullptr}));
                 TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Flee);
             });
         });
@@ -165,11 +162,10 @@ void FBotFunctionalCoreSpec::Define()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
-                auto Store = ConfigureStore(Settings.InitialName);
-                Store.dispatch(BotCoreActions::BotEnemySpotted()(
-                    FBotEnemySpottedPayload{Settings.MoveActionOffset}));
-                
-                auto State = Store.getState();
+                const FBotCoreRuntimeState State = ReduceState(
+                    CreateState(Settings.InitialName),
+                    BotCoreActions::BotEnemySpotted()(
+                        FBotEnemySpottedPayload{Settings.MoveActionOffset}));
                 TestTrue(Labels.Next(), State.Memory.bHasAggro);
                 TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Memory.TimeSinceSeenPlayer, Settings.EnemySpottedTimeSinceSeenPlayer));
                 TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Memory.KnownPlayerPos.X, Settings.MoveActionOffset.X));
@@ -183,11 +179,10 @@ void FBotFunctionalCoreSpec::Define()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
-                auto Store = ConfigureStore(Settings.InitialName);
-                Store.dispatch(BotCoreActions::BotTicked()(
-                    FBotTickPayload{Settings.PatrolTickIntervalSeconds}));
-                
-                auto State = Store.getState();
+                const FBotCoreRuntimeState State = ReduceState(
+                    CreateState(Settings.InitialName),
+                    BotCoreActions::BotTicked()(
+                        FBotTickPayload{Settings.PatrolTickIntervalSeconds}));
                 TestTrue(Labels.Next(), State.TickCount > static_cast<uint64>(Settings.InitialTickCount));
             });
 
@@ -195,18 +190,21 @@ void FBotFunctionalCoreSpec::Define()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
-                auto Store = ConfigureStore(Settings.InitialName);
-                
-                Store.dispatch(BotCoreActions::BotEnemySpotted()(
-                    FBotEnemySpottedPayload{Settings.InitialKnownPlayerPosition}));
-                
-                TestTrue(Labels.Next(), Store.getState().Memory.bHasAggro);
+                const FBotCoreRuntimeState AggroState = ReduceState(
+                    CreateState(Settings.InitialName),
+                    BotCoreActions::BotEnemySpotted()(
+                        FBotEnemySpottedPayload{
+                            Settings.InitialKnownPlayerPosition}));
 
-                Store.dispatch(BotCoreActions::BotTicked()(
-                    FBotTickPayload{Settings.AggroTimeoutSeconds +
-                                    Settings.PatrolTickIntervalSeconds}));
+                TestTrue(Labels.Next(), AggroState.Memory.bHasAggro);
 
-                TestFalse(Labels.Next(), Store.getState().Memory.bHasAggro);
+                const FBotCoreRuntimeState DecayedState = ReduceState(
+                    AggroState,
+                    BotCoreActions::BotTicked()(FBotTickPayload{
+                        Settings.AggroTimeoutSeconds +
+                        Settings.PatrolTickIntervalSeconds}));
+
+                TestFalse(Labels.Next(), DecayedState.Memory.bHasAggro);
             });
         });
     });
