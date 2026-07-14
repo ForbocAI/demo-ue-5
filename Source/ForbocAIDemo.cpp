@@ -1,6 +1,6 @@
 #include "ForbocAIDemo.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
-#include "ForbocAILog.h"
+#include "Features/Logging/LoggingTypes.h"
 #include "Modules/ModuleManager.h"
 
 class FForbocAIDemoModule : public FDefaultGameModuleImpl {

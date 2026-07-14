@@ -18,7 +18,7 @@
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "HAL/PlatformMisc.h"
 #include "Misc/AutomationTest.h"
-#include "RuntimeConfig.h"
+#include "Features/Config/ConfigAdapters.h"
 
 namespace {
 
