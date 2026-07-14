@@ -7,6 +7,6 @@
   "horse_missing_walk_animation": "Level: required horse walk animation is missing for %s.",
   "rider_missing_walk_animation": "Level: required mounted rider walk animation is missing for %s.",
   "rider_missing_mesh": "Level: required mounted rider mesh is missing for %s.",
-  "startup_sdk_enabled": "ForbocAIDemo: Redux logger active. Filter the Output Log by LogForbocAIRedux to inspect protocol actions and state deltas.",
+  "startup_sdk_enabled": "ForbocAIDemo: Redux logger active. Filter the Output Log by LogForbocAI to inspect protocol actions and state deltas.",
   "startup_sdk_disabled": "ForbocAIDemo: UE SDK feature gate closed. Running offline French Gulch prototype."
 }

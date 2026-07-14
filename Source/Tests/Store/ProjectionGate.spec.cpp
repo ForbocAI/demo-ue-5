@@ -1,5 +1,7 @@
 #include "Tests/Store/StoreSpecSupport.h"
 
+#include "Features/Systems/Projection/ProjectionSlice.h"
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FStoreProjectionGate,
     "ForbocAI.Runtime.Store.ProjectionGate",

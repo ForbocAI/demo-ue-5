@@ -25,8 +25,7 @@ template <> struct TJsonSettingsRegistry<Automation::FSettings> {
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::FSettings,
                 ReadSettingsWith<Automation::Tests::FSettings>(
-                    JSON_SETTINGS_ATOMS(Bdd, ContractParity,
-                                        IntegrationVerification)),
+                    JSON_SETTINGS_ATOMS(Bdd)),
                 Tests),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::FSettings,
@@ -70,9 +69,8 @@ template <> struct TJsonSettingsRegistry<Automation::FSettings> {
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::FSettings,
                 ReadSettingsWith<Automation::Protocol::Loop::FSettings>(
-                    JSON_SETTINGS_ATOMS(Spec, Groups, Cases, Assertions, Gate,
-                                        Connection, Personas, State, Async,
-                                        Bridge)),
+                    JSON_SETTINGS_ATOMS(Spec, Groups, Cases, Assertions,
+                                        Personas, State, Async, Bridge)),
                 ProtocolLoop)};
     return RegisteredFields;
   }

@@ -161,3 +161,7 @@ struct FLevelRetroRenderProfile {
   float FogColorB;
   float FogColorA;
 };
+
+} // namespace Level
+} // namespace Game
+} // namespace ForbocAI

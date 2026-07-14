@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Systems/Level/Geometry/LevelGeometrySlice.h"
+#include "Features/Systems/Level/Geometry/GeometrySlice.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -127,7 +127,6 @@ ReduceLevelObserved(const FSystemState &State,
       .val;
 }
 
-} // namespace LevelSystemReducers
 } // namespace LevelSystemReducers
 } // namespace Level
 } // namespace Game

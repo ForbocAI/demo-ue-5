@@ -10,7 +10,7 @@ public:
     const ForbocAI::Game::Data::FSettings Settings =
         ForbocAI::Game::Data::SettingsAdapters::
             LoadSettings();
-    UE_LOG(LogForbocAIRedux, Display, TEXT("%s"),
+    UE_LOG(LogForbocAI, Display, TEXT("%s"),
            *Settings.Text.Startup.SdkEnabled);
   }
 };

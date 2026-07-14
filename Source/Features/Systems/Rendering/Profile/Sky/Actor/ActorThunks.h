@@ -147,7 +147,6 @@ void ApplyRuntimeMoonDisc(const FRuntimeProfileEval &Eval) {
 }
 
 } // namespace
-} // namespace
 } // namespace RenderingThunks
 } // namespace Level
 } // namespace Game

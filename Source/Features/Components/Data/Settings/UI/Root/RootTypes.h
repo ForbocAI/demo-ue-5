@@ -42,6 +42,7 @@ struct FUISettings {
   FMarketingCaptureSettings MarketingCapture;
   FModeSettings FlyMode;
   FAuditCaptureSettings ScaleAuditCapture;
+};
 
 inline bool operator==(const FUISettings &Left,
                        const FUISettings &Right) {
@@ -81,6 +82,7 @@ inline bool operator==(const FUISettings &Left,
 inline bool operator!=(const FUISettings &Left,
                        const FUISettings &Right) {
   return !(Left == Right);
+}
 
 } // namespace Data
 } // namespace Game

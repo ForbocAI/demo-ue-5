@@ -53,13 +53,6 @@ template <> struct TJsonSettingsRegistry<Automation::Store::FSettings> {
 JSON_SETTINGS_REGISTRY(Automation::Tests::FBddSettings,
                        Spec, Group, Case, Assertion);
 
-JSON_SETTINGS_REGISTRY(Automation::Tests::FContractParitySettings,
-                       Test, HeadersAvailableAssertion, SkipWarning,
-                       RunEnvironmentVariable, MinimumScenarioSteps);
-
-JSON_SETTINGS_REGISTRY(Automation::Tests::FIntegrationVerificationSettings,
-                       Test, QuarantineWarning);
-
 template <>
 struct TJsonSettingsRegistry<Automation::Tests::FSettings> {
   static const TArray<TField<Automation::Tests::FSettings>>
@@ -70,20 +63,7 @@ struct TJsonSettingsRegistry<Automation::Tests::FSettings> {
                 Automation::Tests::FSettings,
                 ReadSettingsWith<Automation::Tests::FBddSettings>(
                     JSON_SETTINGS_ATOMS(Spec, Group, Case, Assertion)),
-                Bdd),
-            JSON_OBJECT_SETTING_FIELDS(
-                Automation::Tests::FSettings,
-                ReadSettingsWith<Automation::Tests::FContractParitySettings>(
-                    JSON_SETTINGS_ATOMS(Test, HeadersAvailableAssertion,
-                                        SkipWarning, RunEnvironmentVariable,
-                                        MinimumScenarioSteps)),
-                ContractParity),
-            JSON_OBJECT_SETTING_FIELDS(
-                Automation::Tests::FSettings,
-                ReadSettingsWith<
-                    Automation::Tests::FIntegrationVerificationSettings>(
-                    JSON_SETTINGS_ATOMS(Test, QuarantineWarning)),
-                IntegrationVerification)};
+                Bdd)};
     return RegisteredFields;
   }
 };

@@ -10,7 +10,7 @@
     "create_agent": "Should create an agent via AgentFactory with valid config",
     "create_immutable_agent": "Should create an immutable agent wrapped in TSharedPtr",
     "with_state_update": "Should return a new agent on WithState (immutable update)",
-    "invoke_process": "Should invoke AgentOps::Process without crashing",
+    "invoke_process": "Should complete AgentOps::Process through the live API",
     "create_rpg_rules": "Should create RPG rules via BridgeOps preset",
     "validate_rpg_action": "Should validate a valid action against RPG rules"
   },
@@ -21,15 +21,11 @@
     "persona_preserved": "Persona preserved",
     "original_id_preserved": "Original ID preserved",
     "updated_state_contains_mood": "Updated state contains mood",
+    "api_url_present": "FORBOCAI_API_URL is present",
+    "api_key_present": "FORBOCAI_API_KEY is present",
+    "response_payload_present": "AgentOps::Process returns a response payload",
     "rpg_rules_not_empty": "RPG rules are not empty",
     "move_action_valid": "MOVE action is valid"
-  },
-  "gate": {
-    "variable": "FORBOC_RUN_API_PROTOCOL_LOOP_TESTS",
-    "warning": "Skipping API protocol-loop test until API work resumes."
-  },
-  "connection": {
-    "url": "http://localhost:8080"
   },
   "personas": {
     "agent": "TestNPC",
@@ -43,7 +39,11 @@
     "needle": "alert"
   },
   "async": {
-    "prompt": "Hello, who are you?"
+    "prompt": "What do you notice?",
+    "api_url_variable": "FORBOCAI_API_URL",
+    "api_key_variable": "FORBOCAI_API_KEY",
+    "failure_prefix": "AgentOps::Process failed: ",
+    "timeout_seconds": 180
   },
   "bridge": {
     "action": "MOVE",

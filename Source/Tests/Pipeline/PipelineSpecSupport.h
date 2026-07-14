@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CoreMinimal.h"
 #include "Core/ue_fp.hpp"
 #include "Misc/AutomationTest.h"

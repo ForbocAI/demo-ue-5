@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CoreMinimal.h"
 #include "Core/ecs.hpp"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
@@ -20,7 +22,6 @@
 #include "Features/Systems/State/StateSlice.h"
 #include "Features/Systems/Spawn/SystemsSpawnSlice.h"
 #include "Features/Systems/Terrain/TerrainSlice.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleSlice.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleSlice.h"
 #include "Misc/AutomationTest.h"
 #include "Misc/OutputDevice.h"

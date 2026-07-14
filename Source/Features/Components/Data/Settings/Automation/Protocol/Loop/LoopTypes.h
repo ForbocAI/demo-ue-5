@@ -9,15 +9,6 @@ namespace Automation {
 namespace Protocol {
 namespace Loop {
 
-struct FGate {
-  FString Variable;
-  FString Warning;
-};
-
-struct FConnection {
-  FString Url;
-};
-
 struct FPersonas {
   FString Agent;
   FString Immutable;
@@ -33,6 +24,10 @@ struct FState {
 
 struct FAsync {
   FString Prompt;
+  FString ApiUrlVariable;
+  FString ApiKeyVariable;
+  FString FailurePrefix;
+  float TimeoutSeconds;
 };
 
 struct FBridge {
@@ -71,6 +66,12 @@ struct FStateAssertions {
   FString UpdatedStateContainsMood;
 };
 
+struct FAsyncAssertions {
+  FString ApiUrlPresent;
+  FString ApiKeyPresent;
+  FString ResponsePayloadPresent;
+};
+
 struct FBridgeAssertions {
   FString RpgRulesNotEmpty;
   FString MoveActionValid;
@@ -80,6 +81,7 @@ struct FAssertions {
   FAgentAssertions Agent;
   FImmutableAssertions Immutable;
   FStateAssertions State;
+  FAsyncAssertions Async;
   FBridgeAssertions Bridge;
 };
 
@@ -88,29 +90,11 @@ struct FSettings {
   FGroups Groups;
   FCaseLabels Cases;
   FAssertions Assertions;
-  FGate Gate;
-  FConnection Connection;
   FPersonas Personas;
   FState State;
   FAsync Async;
   FBridge Bridge;
 };
-
-inline bool operator==(const FGate &Left, const FGate &Right) {
-  return Left.Variable == Right.Variable && Left.Warning == Right.Warning;
-}
-
-inline bool operator!=(const FGate &Left, const FGate &Right) {
-  return !(Left == Right);
-}
-
-inline bool operator==(const FConnection &Left, const FConnection &Right) {
-  return Left.Url == Right.Url;
-}
-
-inline bool operator!=(const FConnection &Left, const FConnection &Right) {
-  return !(Left == Right);
-}
 
 inline bool operator==(const FPersonas &Left, const FPersonas &Right) {
   return Left.Agent == Right.Agent && Left.Immutable == Right.Immutable &&
@@ -131,7 +115,11 @@ inline bool operator!=(const FState &Left, const FState &Right) {
 }
 
 inline bool operator==(const FAsync &Left, const FAsync &Right) {
-  return Left.Prompt == Right.Prompt;
+  return Left.Prompt == Right.Prompt &&
+         Left.ApiUrlVariable == Right.ApiUrlVariable &&
+         Left.ApiKeyVariable == Right.ApiKeyVariable &&
+         Left.FailurePrefix == Right.FailurePrefix &&
+         Left.TimeoutSeconds == Right.TimeoutSeconds;
 }
 
 inline bool operator!=(const FAsync &Left, const FAsync &Right) {
@@ -204,6 +192,18 @@ inline bool operator!=(const FStateAssertions &Left,
   return !(Left == Right);
 }
 
+inline bool operator==(const FAsyncAssertions &Left,
+                       const FAsyncAssertions &Right) {
+  return Left.ApiUrlPresent == Right.ApiUrlPresent &&
+         Left.ApiKeyPresent == Right.ApiKeyPresent &&
+         Left.ResponsePayloadPresent == Right.ResponsePayloadPresent;
+}
+
+inline bool operator!=(const FAsyncAssertions &Left,
+                       const FAsyncAssertions &Right) {
+  return !(Left == Right);
+}
+
 inline bool operator==(const FBridgeAssertions &Left,
                        const FBridgeAssertions &Right) {
   return Left.RpgRulesNotEmpty == Right.RpgRulesNotEmpty &&
@@ -219,6 +219,7 @@ inline bool operator==(const FAssertions &Left, const FAssertions &Right) {
   return Left.Agent == Right.Agent &&
          Left.Immutable == Right.Immutable &&
          Left.State == Right.State &&
+         Left.Async == Right.Async &&
          Left.Bridge == Right.Bridge;
 }
 
@@ -229,7 +230,6 @@ inline bool operator!=(const FAssertions &Left, const FAssertions &Right) {
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Spec == Right.Spec && Left.Groups == Right.Groups &&
          Left.Cases == Right.Cases && Left.Assertions == Right.Assertions &&
-         Left.Gate == Right.Gate && Left.Connection == Right.Connection &&
          Left.Personas == Right.Personas && Left.State == Right.State &&
          Left.Async == Right.Async && Left.Bridge == Right.Bridge;
 }

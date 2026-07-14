@@ -1,4 +1,19 @@
-#pragma once
+#include "Features/Systems/SystemsSelectors.h"
+
+#include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
+#include "Features/Entities/Characters/Player/PlayerSelectors.h"
+#include "Features/Entities/Characters/Player/PlayerSlice.h"
+#include "Features/Systems/Bots/Horses/HorsesSelectors.h"
+#include "Features/Systems/Bots/Position/PositionSlice.h"
+#include "Features/Systems/Bots/Townspeople/TownspeopleSelectors.h"
+#include "Features/Systems/Bots/Townspeople/TownspeopleSlice.h"
+#include "Features/Systems/Interaction/InteractionSelectors.h"
+#include "Features/Systems/Landmarks/SystemsLandmarksSelectors.h"
+#include "Features/Systems/Level/SystemsLevelSelectors.h"
+#include "Features/Systems/Nature/SystemsNatureSelectors.h"
+#include "Features/Systems/Rendering/SystemsRenderingSelectors.h"
+#include "Features/Systems/Spawn/SpawnSelectors.h"
+#include "Features/Systems/Terrain/TerrainSelectors.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -258,3 +273,8 @@ FTownspersonViewDefaults SelectTownspersonViewDefaults(
     const FTownspersonViewDefaultsRequest &Request) {
   return SelectTownspersonViewDefaults(SelectState(), Request);
 }
+
+} // namespace RuntimeSelectors
+} // namespace Level
+} // namespace Game
+} // namespace ForbocAI

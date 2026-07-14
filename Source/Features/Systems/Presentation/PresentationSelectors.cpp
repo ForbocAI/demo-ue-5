@@ -1,4 +1,18 @@
-#pragma once
+#include "Features/Systems/SystemsSelectors.h"
+
+#include "Features/Systems/Bots/AI/AISelectors.h"
+#include "Features/Systems/Bots/Goals/GoalsSelectors.h"
+#include "Features/Systems/Bots/Position/PositionSelectors.h"
+#include "Features/Systems/Bots/Stats/BotsStatsSelectors.h"
+#include "Features/Systems/Bots/SystemsBotsSelectors.h"
+#include "Features/Systems/Bots/Townspeople/TownspeopleSlice.h"
+#include "Features/Systems/Rendering/SystemsRenderingSelectors.h"
+#include "Features/Systems/UI/UISelectors.h"
+
+namespace ForbocAI {
+namespace Game {
+namespace Level {
+namespace RuntimeSelectors {
 
 FTownspersonViewDefaults SelectTownspersonViewDefaults(
     const FRuntimeState &State,
@@ -194,3 +208,9 @@ ecs::FEntityInspection
 SelectEntityInspection(const FRuntimeState &State,
                           const ecs::EntityKey &Entity) {
   return ecs::inspectEntity(SelectWorld(State), Entity);
+}
+
+} // namespace RuntimeSelectors
+} // namespace Level
+} // namespace Game
+} // namespace ForbocAI

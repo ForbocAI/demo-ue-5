@@ -1,4 +1,9 @@
-#pragma once
+#include "Features/Systems/SystemsSelectors.h"
+
+namespace ForbocAI {
+namespace Game {
+namespace Level {
+namespace RuntimeSelectors {
 
 namespace {
 

@@ -61,19 +61,17 @@ struct FFieldPartRequest {
 TSharedPtr<FJsonObject> MergeJsonObjects(
     const TSharedPtr<FJsonObject> &Left,
     const TSharedPtr<FJsonObject> &Right) {
-  TMap<FString, TSharedPtr<FJsonValue>> Values = Left->Values;
-  Values.Append(Right->Values);
   TSharedPtr<FJsonObject> Merged = MakeShared<FJsonObject>();
-  Merged->Values = Values;
+  Merged->Values = Left->Values;
+  Merged->Values.Append(Right->Values);
   return Merged;
 }
 
 TSharedPtr<FJsonObject> SetJsonObjectField(
     const FSetJsonObjectFieldRequest &Request) {
-  TMap<FString, TSharedPtr<FJsonValue>> Values = Request.Object->Values;
-  Values.Add(Request.FieldName, Request.Value);
   TSharedPtr<FJsonObject> Next = MakeShared<FJsonObject>();
-  Next->Values = Values;
+  Next->Values = Request.Object->Values;
+  Next->SetField(Request.FieldName, Request.Value);
   return Next;
 }
 
@@ -99,12 +97,13 @@ TSharedPtr<FJsonObject>
 LoadObjectManifestMergeParts(const FString &RelativePath,
                              const TSharedPtr<FJsonObject> &ManifestParts) {
   const TArray<TSharedPtr<FJsonValue>> *MergeParts = nullptr;
+  const TSharedPtr<FJsonObject> Empty = MakeShared<FJsonObject>();
   return ManifestParts->TryGetArrayField(ManifestMergeFieldName(),
                                          MergeParts) &&
                  MergeParts != nullptr
              ? func::fold_indexed(
                    *MergeParts, static_cast<size_t>(MergeParts->Num()),
-                   MakeShared<FJsonObject>(),
+                   Empty,
                    [&RelativePath](const TSharedPtr<FJsonObject> &Current,
                                    const TSharedPtr<FJsonValue> &Part) {
                      const func::Maybe<TSharedPtr<FJsonObject>> Object =
@@ -118,12 +117,11 @@ LoadObjectManifestMergeParts(const FString &RelativePath,
 
 TSharedPtr<FJsonObject>
 LoadObjectManifestFieldPart(const FFieldPartRequest &Request) {
-  const TSharedPtr<FJsonValue> *PartValue =
-      Request.ManifestParts->Values.Find(Request.PartKey);
-  check(PartValue != nullptr);
-  check(PartValue->IsValid());
+  const TSharedPtr<FJsonValue> PartValue =
+      Request.ManifestParts->TryGetField(Request.PartKey);
+  check(PartValue.IsValid());
   const func::Maybe<TSharedPtr<FJsonValue>> Value =
-      LoadManifestFieldValue(Request.RelativePath, (*PartValue)->AsString());
+      LoadManifestFieldValue(Request.RelativePath, PartValue->AsString());
   check(Value.hasValue);
   return SetJsonObjectField({Request.Current, Request.PartKey, Value.value});
 }
@@ -131,8 +129,13 @@ LoadObjectManifestFieldPart(const FFieldPartRequest &Request) {
 TSharedPtr<FJsonObject>
 LoadObjectManifestFieldParts(const FString &RelativePath,
                              const TSharedPtr<FJsonObject> &ManifestParts) {
+  TArray<FJsonObject::FStringType> StoredPartKeys;
+  ManifestParts->Values.GenerateKeyArray(StoredPartKeys);
   const TArray<FString> PartKeys =
-      func::map_keys<FString, TSharedPtr<FJsonValue>>(ManifestParts->Values);
+      func::map_array<FJsonObject::FStringType, FString>(
+          StoredPartKeys, [](const FJsonObject::FStringType &PartKey) {
+            return FString(PartKey.ToView());
+          });
   return func::fold_indexed(
       PartKeys, static_cast<size_t>(PartKeys.Num()),
       LoadObjectManifestMergeParts(RelativePath, ManifestParts),
@@ -151,10 +154,11 @@ LoadObjectManifestParts(const FString &RelativePath,
                         const TSharedPtr<FJsonObject> &Manifest) {
   const TArray<TSharedPtr<FJsonValue>> *Parts = nullptr;
   const TSharedPtr<FJsonObject> *PartObject = nullptr;
+  const TSharedPtr<FJsonObject> Empty = MakeShared<FJsonObject>();
   return ReadPartValues(Manifest, Parts)
-             ? func::just(func::fold_indexed(
+             ? func::just<TSharedPtr<FJsonObject>>(func::fold_indexed(
                    *Parts, static_cast<size_t>(Parts->Num()),
-                   MakeShared<FJsonObject>(),
+                   Empty,
                    [&RelativePath](const TSharedPtr<FJsonObject> &Current,
                                    const TSharedPtr<FJsonValue> &Part) {
                      const func::Maybe<TSharedPtr<FJsonObject>> Object =

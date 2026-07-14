@@ -1,11 +1,14 @@
-#pragma once
+#include "Features/Systems/Rendering/Profile/Sky/SkySlice.h"
 
-#include "Features/Systems/Rendering/Profile/Sky/Geometry/SkyGeometrySlice.h"
+#include "Features/Systems/Rendering/Profile/Color/ColorTypes.h"
 
 namespace ForbocAI {
 namespace Game {
 namespace Level {
 namespace RenderingProfileSkyReducers {
+
+using RenderingProfileColorTypes::ProfileLinearColor;
+
 FLinearColor SkyAtmosphereSkyLuminance(
     const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
@@ -100,16 +103,6 @@ int32 ReduceMoonPixelGridSize(const FLevelRetroRenderProfile &Profile) {
   return Profile.MoonPixelGridSize;
 }
 
-TArray<func::GridIndex> ReduceMoonPixelIndices(
-    const FLevelRetroRenderProfile &Profile) {
-  return func::filter_array<func::GridIndex>(
-      func::map_grid_array<func::GridIndex>(
-          static_cast<size_t>(Profile.MoonPixelGridSize),
-          static_cast<size_t>(Profile.MoonPixelGridSize),
-          [](const func::GridIndex &Index) { return Index; }),
-      [&Profile](const func::GridIndex &Index) {
-        return MoonPixelVisible(Profile, Index);
-      });
 } // namespace RenderingProfileSkyReducers
 } // namespace Level
 } // namespace Game

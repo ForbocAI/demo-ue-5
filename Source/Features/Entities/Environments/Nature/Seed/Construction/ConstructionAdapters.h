@@ -10,6 +10,8 @@ namespace Game {
 namespace Level {
 namespace NatureAdapters {
 
+namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
+
 struct FFeatureLotsRequest {
   ForbocAI::Game::Data::FGeometrySettings Geometry;
   float EastLots;

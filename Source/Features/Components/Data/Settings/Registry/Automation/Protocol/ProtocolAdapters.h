@@ -7,16 +7,14 @@ namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FGate, Variable, Warning);
-
-JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FConnection, Url);
-
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FPersonas, Agent, Immutable,
                        State, Async, Bridge);
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FState, Json, Needle);
 
-JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FAsync, Prompt);
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FAsync, Prompt,
+                       ApiUrlVariable, ApiKeyVariable, FailurePrefix,
+                       TimeoutSeconds);
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FBridge, Action,
                        MinimumRules);
@@ -72,6 +70,24 @@ struct TJsonSettingsRegistry<Automation::Protocol::Loop::FAssertions> {
                     &Automation::Protocol::Loop::FStateAssertions::
                         UpdatedStateContainsMood)),
             NestedSettingField(
+                JSON_SETTING_ATOM(ApiUrlPresent),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Async,
+                    &Automation::Protocol::Loop::FAsyncAssertions::
+                        ApiUrlPresent)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(ApiKeyPresent),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Async,
+                    &Automation::Protocol::Loop::FAsyncAssertions::
+                        ApiKeyPresent)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(ResponsePayloadPresent),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Async,
+                    &Automation::Protocol::Loop::FAsyncAssertions::
+                        ResponsePayloadPresent)),
+            NestedSettingField(
                 JSON_SETTING_ATOM(RpgRulesNotEmpty),
                 NestedFieldMembers(
                     &Automation::Protocol::Loop::FAssertions::Bridge,
@@ -114,19 +130,10 @@ template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> 
                     JSON_SETTINGS_ATOMS(
                         AgentIdNotEmpty, PersonaMatches, AgentPointerValid,
                         PersonaPreserved, OriginalIdPreserved,
-                        UpdatedStateContainsMood, RpgRulesNotEmpty,
+                        UpdatedStateContainsMood, ApiUrlPresent, ApiKeyPresent,
+                        ResponsePayloadPresent, RpgRulesNotEmpty,
                         MoveActionValid)),
                 Assertions),
-            JSON_OBJECT_SETTING_FIELDS(
-                Automation::Protocol::Loop::FSettings,
-                ReadSettingsWith<Automation::Protocol::Loop::FGate>(
-                    JSON_SETTINGS_ATOMS(Variable, Warning)),
-                Gate),
-            JSON_OBJECT_SETTING_FIELDS(
-                Automation::Protocol::Loop::FSettings,
-                ReadSettingsWith<Automation::Protocol::Loop::FConnection>(
-                    JSON_SETTINGS_ATOMS(Url)),
-                Connection),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
                 ReadSettingsWith<Automation::Protocol::Loop::FPersonas>(
@@ -141,7 +148,8 @@ template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> 
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
                 ReadSettingsWith<Automation::Protocol::Loop::FAsync>(
-                    JSON_SETTINGS_ATOMS(Prompt)),
+                    JSON_SETTINGS_ATOMS(Prompt, ApiUrlVariable, ApiKeyVariable,
+                                        FailurePrefix, TimeoutSeconds)),
                 Async),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
