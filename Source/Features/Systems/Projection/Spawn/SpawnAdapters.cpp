@@ -9,6 +9,7 @@ namespace ComponentsAdapters {
 
 template <>
 struct TComponentSourceProjector<FPointPayload> {
+  /** User Story: As a systems projection spawn consumer, I need to invoke the callable value through a stable signature so the systems projection spawn workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FPointPayload &Spawn) const */
   ecs::FComponentValue operator()(const FPointPayload &Spawn) const {
     return ComponentValueMap({{"Location", Spawn.Location},
                               {"Rotation", Spawn.Rotation},
@@ -24,8 +25,8 @@ namespace {
 using ComponentsAdapters::RegisteredComponentGroups;
 
 /**
+ * @fn ecs::EntityKey SpawnEntityKey()
  * @brief Returns the stable ECS entity key for player spawn projection.
- * @signature ecs::EntityKey SpawnEntityKey()
  *
  * User Story: As spawn projection code, I need one stable entity key so
  * reducers update the player-spawn ECS record consistently.
@@ -35,8 +36,8 @@ ecs::EntityKey SpawnEntityKey() {
 }
 
 /**
+ * @fn TArray<TArray<FString>> BuildSpawnDomains()
  * @brief Builds ECS domain steps for player spawn projection.
- * @signature TArray<TArray<FString>> BuildSpawnDomains()
  *
  * User Story: As an ECS inspector, I need player spawn data to be visible
  * under systems/spawn, systems/projection/spawn, and player entity domains.
@@ -50,6 +51,7 @@ TArray<TArray<FString>> BuildSpawnDomains() {
 
 } // namespace
 
+/** User Story: As a systems projection spawn consumer, I need to invoke project spawn through a stable signature so the systems projection spawn workflow remains explicit and composable. @fn ecs::FWorld ProjectSpawn(const FProjectSpawnPayload &Payload) */
 ecs::FWorld ProjectSpawn(const FProjectSpawnPayload &Payload) {
   return ComponentsAdapters::ProjectEntityCatalog(
       Payload,

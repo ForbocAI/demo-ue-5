@@ -19,23 +19,33 @@
     "increment_tick": "Should increment tick count",
     "decay_aggro": "Should decay Aggro after timeout"
   },
-  "assertions": [
-    "Name",
-    "Health",
-    "Phase",
-    "ID is valid",
-    "Position.X",
-    "Health Reduced",
-    "Phase -> Combat",
-    "Phase -> Flee",
-    "Has Aggro",
-    "TimeSinceLastSeen",
-    "LastKnownPos.X",
-    "Phase -> Combat",
-    "TickCount",
-    "Initially Aggro",
-    "Lost Aggro"
-  ],
+  "assertions": {
+    "state": {
+      "name": "Name",
+      "health": "Health",
+      "phase": "Phase",
+      "id_valid": "ID is valid"
+    },
+    "movement": {
+      "position_x": "Position.X"
+    },
+    "combat": {
+      "health_reduced": "Health Reduced",
+      "phase_combat": "Phase -> Combat",
+      "phase_flee": "Phase -> Flee"
+    },
+    "awareness": {
+      "has_aggro": "Has Aggro",
+      "time_since_seen": "TimeSinceSeen",
+      "known_player_position_x": "KnownPlayerPosition.X",
+      "phase_combat": "Phase -> Combat"
+    },
+    "tick": {
+      "tick_count": "TickCount",
+      "initially_aggro": "Initially Aggro",
+      "lost_aggro": "Lost Aggro"
+    }
+  },
   "orchestrator": {
     "spec": "ForbocAI.Bot.Orchestrator",
     "multi_bot_spec": "ForbocAI.Bot.Orchestrator.MultiBot",

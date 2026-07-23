@@ -7,8 +7,8 @@
   "allowed_boundary_fragments": [
     "/Source/Tests/",
     "/Source/Store.cpp",
-    "/Source/Features/Systems/Actions.cpp",
-    "/Source/Features/Systems/Selectors.cpp"
+    "/Source/Features/Systems/SystemsActions.cpp",
+    "/Source/Features/Systems/SystemsSelectors.cpp"
   ],
   "source_directory_name": "Source",
   "source_search_pattern": "*.*",
@@ -46,8 +46,8 @@
       "message": "Player movement view models are derived data and must not live in RTK state"
     }
   ],
-  "violation_message_format": "%s: %s (%s)",
-  "source_read_failure_format": "Unable to read source file: %s",
+  "violation_message_format": "{0}: {1} ({2})",
+  "source_read_failure_format": "Unable to read source file: {0}",
   "store_boundary_label": "No forbidden RTK store boundary or scratchpad patterns",
   "violation_count_increment": 1,
   "clean_violation_count": 0

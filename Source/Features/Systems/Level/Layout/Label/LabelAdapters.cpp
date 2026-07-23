@@ -1,6 +1,6 @@
 #include "Features/Systems/Level/Layout/Label/LabelAdapters.h"
 
-#include "Features/Components/Data/Json/Value/ValueAdapters.h"
+#include "Features/Components/Data/Json/Value/JsonValueAdapters.h"
 #include "Features/Systems/Level/Layout/Enum/EnumAdapters.h"
 #include "Features/Systems/Level/Layout/Scale/ScaleAdapters.h"
 
@@ -48,12 +48,13 @@ ReadRequiredValue<ForbocAI::Game::Level::ELabelHeightMode>(
 template <>
 struct TRequiredJsonFieldRegistry<
     ForbocAI::Game::Level::FLabelSeed> {
+  /** User Story: As a level layout label consumer, I need to invoke fields through a stable signature so the level layout label workflow remains explicit and composable. @fn static const TArray< TJsonFieldDeclaration< ForbocAI::Game::Level::FLabelSeed>> & Fields() */
   static const TArray<
-      TRequiredJsonFieldDeclaration<
+      TJsonFieldDeclaration<
           ForbocAI::Game::Level::FLabelSeed>> &
   Fields() {
     static const TArray<
-        TRequiredJsonFieldDeclaration<
+        TJsonFieldDeclaration<
             ForbocAI::Game::Level::FLabelSeed>>
         RegisteredFields = {
             JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLabelSeed,
@@ -91,13 +92,16 @@ struct FLevelLabelHeightDeclaration {
   ELabelHeightMode Height;
   FLabelHeightReader Read;
 
+  /** User Story: As a level layout label consumer, I need to invoke flevel label height declaration through a stable signature so the level layout label workflow remains explicit and composable. @fn FLevelLabelHeightDeclaration() = default */
   FLevelLabelHeightDeclaration() = default;
 
+  /** User Story: As a level layout label consumer, I need to invoke flevel label height declaration through a stable signature so the level layout label workflow remains explicit and composable. @fn FLevelLabelHeightDeclaration(ELabelHeightMode InHeight, FLabelHeightReader InRead) */
   FLevelLabelHeightDeclaration(ELabelHeightMode InHeight,
                                       FLabelHeightReader InRead)
       : Height(InHeight), Read(InRead) {}
 };
 
+/** User Story: As a level layout label consumer, I need to invoke assign explicit height through a stable signature so the level layout label workflow remains explicit and composable. @fn FLabelSeed AssignExplicitHeight(const FLabelSeed &Seed, const FLevelLabelExplicitHeightSource &Fields) */
 FLabelSeed
 AssignExplicitHeight(const FLabelSeed &Seed,
                      const FLevelLabelExplicitHeightSource &Fields) {
@@ -106,6 +110,7 @@ AssignExplicitHeight(const FLabelSeed &Seed,
   return Next;
 }
 
+/** User Story: As a level layout label consumer, I need to invoke assign reference scale through a stable signature so the level layout label workflow remains explicit and composable. @fn FLabelSeed AssignReferenceScale(const FLabelSeed &Seed, const FScaleSeed &ReferenceScale) */
 FLabelSeed
 AssignReferenceScale(const FLabelSeed &Seed,
                      const FScaleSeed &ReferenceScale) {
@@ -114,6 +119,7 @@ AssignReferenceScale(const FLabelSeed &Seed,
   return Next;
 }
 
+/** User Story: As a level layout label consumer, I need to invoke read explicit height label seed through a stable signature so the level layout label workflow remains explicit and composable. @fn func::Maybe<FLabelSeed> ReadExplicitHeightLabelSeed(const TSharedPtr<FJsonObject> &Object, const FLabelSeed &Seed) */
 func::Maybe<FLabelSeed>
 ReadExplicitHeightLabelSeed(const TSharedPtr<FJsonObject> &Object,
                             const FLabelSeed &Seed) {
@@ -124,6 +130,7 @@ ReadExplicitHeightLabelSeed(const TSharedPtr<FJsonObject> &Object,
       });
 }
 
+/** User Story: As a level layout label consumer, I need to invoke read reference scale label seed through a stable signature so the level layout label workflow remains explicit and composable. @fn func::Maybe<FLabelSeed> ReadReferenceScaleLabelSeed(const TSharedPtr<FJsonObject> &Object, const FLabelSeed &Seed) */
 func::Maybe<FLabelSeed>
 ReadReferenceScaleLabelSeed(const TSharedPtr<FJsonObject> &Object,
                             const FLabelSeed &Seed) {
@@ -134,6 +141,7 @@ ReadReferenceScaleLabelSeed(const TSharedPtr<FJsonObject> &Object,
       });
 }
 
+/** User Story: As a level layout label consumer, I need to invoke label height declarations through a stable signature so the level layout label workflow remains explicit and composable. @fn const TArray<FLevelLabelHeightDeclaration> &LabelHeightDeclarations() */
 const TArray<FLevelLabelHeightDeclaration> &LabelHeightDeclarations() {
   static const TArray<FLevelLabelHeightDeclaration> Declarations = {
       {ELabelHeightMode::Explicit, ReadExplicitHeightLabelSeed},
@@ -143,6 +151,7 @@ const TArray<FLevelLabelHeightDeclaration> &LabelHeightDeclarations() {
   return Declarations;
 }
 
+/** User Story: As a level layout label consumer, I need to invoke find label height declaration through a stable signature so the level layout label workflow remains explicit and composable. @fn func::Maybe<FLevelLabelHeightDeclaration> FindLabelHeightDeclaration(ELabelHeightMode Height) */
 func::Maybe<FLevelLabelHeightDeclaration>
 FindLabelHeightDeclaration(ELabelHeightMode Height) {
   return func::find_array<FLevelLabelHeightDeclaration>(
@@ -152,6 +161,7 @@ FindLabelHeightDeclaration(ELabelHeightMode Height) {
       });
 }
 
+/** User Story: As a level layout label consumer, I need to invoke complete label height through a stable signature so the level layout label workflow remains explicit and composable. @fn func::Maybe<FLabelSeed> CompleteLabelHeight(const TSharedPtr<FJsonObject> &Object, const FLabelSeed &Seed) */
 func::Maybe<FLabelSeed>
 CompleteLabelHeight(const TSharedPtr<FJsonObject> &Object,
                     const FLabelSeed &Seed) {
@@ -163,6 +173,7 @@ CompleteLabelHeight(const TSharedPtr<FJsonObject> &Object,
       []() { return func::nothing<FLabelSeed>(); });
 }
 
+/** User Story: As a level layout label consumer, I need to invoke read label seed fields through a stable signature so the level layout label workflow remains explicit and composable. @fn func::Maybe<FLabelSeed> ReadLabelSeedFields(const FLevelJsonObjectRequest &Request) */
 func::Maybe<FLabelSeed>
 ReadLabelSeedFields(const FLevelJsonObjectRequest &Request) {
   return JsonValues::ReadRequiredFields<FLabelSeed>({FLabelSeed(), Request.Object}, JSON_REQUIRED_ATOMS(Id, Text, Anchor, HeightMode,
@@ -171,6 +182,7 @@ ReadLabelSeedFields(const FLevelJsonObjectRequest &Request) {
 
 } // namespace
 
+/** User Story: As a level layout label consumer, I need to invoke label from json through a stable signature so the level layout label workflow remains explicit and composable. @fn func::Maybe<FLabelSeed> LabelFromJson(const FLevelJsonObjectRequest &Request) */
 func::Maybe<FLabelSeed>
 LabelFromJson(const FLevelJsonObjectRequest &Request) {
   return func::mbind(

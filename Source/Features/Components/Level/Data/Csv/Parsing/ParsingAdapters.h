@@ -2,7 +2,7 @@
 
 #include "Features/Components/Level/Data/DataAdapters.h"
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
@@ -52,25 +52,30 @@ struct FTerrainLineReduceRequest {
   FString RawLine;
 };
 
+/** User Story: As a data csv parsing consumer, I need to invoke csv message through a stable signature so the data csv parsing workflow remains explicit and composable. @fn FString CsvMessage(const FString &Format, const TArray<FStringFormatArg> &Args) */
 FString CsvMessage(const FString &Format,
                    const TArray<FStringFormatArg> &Args) {
   return FString::Format(*Format, Args);
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke normalize csv line through a stable signature so the data csv parsing workflow remains explicit and composable. @fn FString NormalizeCsvLine(const FString &RawLine) */
 FString NormalizeCsvLine(const FString &RawLine) {
   return RawLine.TrimStartAndEnd();
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke is csv data line through a stable signature so the data csv parsing workflow remains explicit and composable. @fn bool IsCsvDataLine(const FCsvSettings &Csv, const FString &Line) */
 bool IsCsvDataLine(const FCsvSettings &Csv, const FString &Line) {
   return !Line.IsEmpty() && !Line.StartsWith(Csv.Syntax.CommentPrefix);
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke csv cells through a stable signature so the data csv parsing workflow remains explicit and composable. @fn TArray<FString> CsvCells(const FCsvSettings &Csv, const FString &Line) */
 TArray<FString> CsvCells(const FCsvSettings &Csv, const FString &Line) {
   TArray<FString> Cells;
   Line.ParseIntoArray(Cells, *Csv.Syntax.CellDelimiter, true);
   return Cells;
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke parse ortho color through a stable signature so the data csv parsing workflow remains explicit and composable. @fn func::Maybe<FColor> ParseOrthoColor(const FCsvSettings &Csv, const FString &Cell) */
 func::Maybe<FColor> ParseOrthoColor(const FCsvSettings &Csv,
                                     const FString &Cell) {
   TArray<FString> Channels;
@@ -87,6 +92,7 @@ func::Maybe<FColor> ParseOrthoColor(const FCsvSettings &Csv,
              : func::nothing<FColor>();
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke reduce ortho cell through a stable signature so the data csv parsing workflow remains explicit and composable. @fn FOrthoCsvParseState ReduceOrthoCell(const FOrthoCellReduceRequest &Request) */
 FOrthoCsvParseState ReduceOrthoCell(const FOrthoCellReduceRequest &Request) {
   return !Request.State.bValid
              ? Request.State
@@ -106,6 +112,7 @@ FOrthoCsvParseState ReduceOrthoCell(const FOrthoCellReduceRequest &Request) {
                    });
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke reduce ortho line through a stable signature so the data csv parsing workflow remains explicit and composable. @fn FOrthoCsvParseState ReduceOrthoLine(const FOrthoLineReduceRequest &Request) */
 FOrthoCsvParseState ReduceOrthoLine(const FOrthoLineReduceRequest &Request) {
   const FCsvSettings &Csv = *Request.Csv;
   const FString Line = NormalizeCsvLine(Request.RawLine);
@@ -134,6 +141,7 @@ FOrthoCsvParseState ReduceOrthoLine(const FOrthoLineReduceRequest &Request) {
                                   });
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke ortho csv parse error message through a stable signature so the data csv parsing workflow remains explicit and composable. @fn FString OrthoCsvParseErrorMessage(const FOrthoParseMessageRequest &Request) */
 FString OrthoCsvParseErrorMessage(const FOrthoParseMessageRequest &Request) {
   const FCsvSettings &Csv = *Request.Csv;
   return func::multi_match<FOrthoCsvParseState, FString>(
@@ -164,6 +172,7 @@ FString OrthoCsvParseErrorMessage(const FOrthoParseMessageRequest &Request) {
       });
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke reduce terrain cell through a stable signature so the data csv parsing workflow remains explicit and composable. @fn FTerrainCsvParseState ReduceTerrainCell(const FTerrainCsvParseState &State, const FString &Cell) */
 FTerrainCsvParseState
 ReduceTerrainCell(const FTerrainCsvParseState &State,
                   const FString &Cell) {
@@ -175,6 +184,7 @@ ReduceTerrainCell(const FTerrainCsvParseState &State,
   return Next;
 }
 
+/** User Story: As a data csv parsing consumer, I need to invoke reduce terrain line through a stable signature so the data csv parsing workflow remains explicit and composable. @fn FTerrainCsvParseState ReduceTerrainLine(const FTerrainLineReduceRequest &Request) */
 FTerrainCsvParseState
 ReduceTerrainLine(const FTerrainLineReduceRequest &Request) {
   const FCsvSettings &Csv = *Request.Csv;

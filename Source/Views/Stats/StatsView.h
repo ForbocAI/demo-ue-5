@@ -25,7 +25,9 @@ class FORBOCAIDEMO_API URuntimeStatsWidget : public UUserWidget {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a views stats consumer, I need to invoke native construct through a stable signature so the views stats workflow remains explicit and composable. @fn virtual void NativeConstruct() override */
   virtual void NativeConstruct() override;
+  /** User Story: As a views stats consumer, I need to invoke native tick through a stable signature so the views stats workflow remains explicit and composable. @fn virtual void NativeTick(const FGeometry &MyGeometry, float InDeltaTime) override */
   virtual void NativeTick(const FGeometry &MyGeometry,
                           float InDeltaTime) override;
 
@@ -138,7 +140,9 @@ private:
 
 
   /**
+   * @fn void RefreshStats(float DeltaSeconds)
    * @brief Refreshes the visible HUD text from current runtime counters.
+   * User Story: As a views stats consumer, I need to invoke refresh stats through a stable signature so the views stats workflow remains explicit and composable.
    */
   void RefreshStats(float DeltaSeconds);
 };

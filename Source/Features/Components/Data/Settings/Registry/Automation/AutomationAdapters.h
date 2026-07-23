@@ -10,6 +10,7 @@ namespace Data {
 namespace JsonAdapters {
 
 template <> struct TJsonSettingsRegistry<Automation::FSettings> {
+  /** User Story: As a settings registry automation consumer, I need to invoke fields through a stable signature so the settings registry automation workflow remains explicit and composable. @fn static const TArray<TField<Automation::FSettings>> &Fields() */
   static const TArray<TField<Automation::FSettings>> &Fields() {
     static const TArray<TField<Automation::FSettings>>
         RegisteredFields = {

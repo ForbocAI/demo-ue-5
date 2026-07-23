@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace SystemsActions {
 
+/** User Story: As a features systems observed consumer, I need to invoke systems observed through a stable signature so the features systems observed workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FSystemsPayload> &SystemsObserved() */
 inline const rtk::ActionCreator<FSystemsPayload> &SystemsObserved() {
   static const func::Lazy<rtk::ActionCreator<FSystemsPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FSystemsPayload> {

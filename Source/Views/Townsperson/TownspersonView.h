@@ -82,45 +82,60 @@ class FORBOCAIDEMO_API ATownspersonView : public AActor {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a views townsperson consumer, I need to invoke atownsperson view through a stable signature so the views townsperson workflow remains explicit and composable. @fn ATownspersonView() */
   ATownspersonView();
 
+  /** User Story: As a views townsperson consumer, I need to invoke begin play through a stable signature so the views townsperson workflow remains explicit and composable. @fn virtual void BeginPlay() override */
   virtual void BeginPlay() override;
+  /** User Story: As a views townsperson consumer, I need to invoke tick through a stable signature so the views townsperson workflow remains explicit and composable. @fn virtual void Tick(float DeltaTime) override */
   virtual void Tick(float DeltaTime) override;
 
   /**
+   * @fn void ConfigureTownsperson(const FTownspersonViewConfig &Config)
    * @brief Applies a store-derived spawn/config payload to this actor.
+   * User Story: As a views townsperson consumer, I need to invoke configure townsperson through a stable signature so the views townsperson workflow remains explicit and composable.
    */
   UFUNCTION(BlueprintCallable, Category = "Level|NPC")
   void ConfigureTownsperson(const FTownspersonViewConfig &Config);
 
   /**
+   * @fn void ShowDialogueReply(const FString &Reply)
    * @brief Applies a reducer/thunk-owned dialogue reply to presentation text.
+   * User Story: As a views townsperson consumer, I need to invoke show dialogue reply through a stable signature so the views townsperson workflow remains explicit and composable.
    */
   UFUNCTION(BlueprintCallable, Category = "Level|NPC")
   void ShowDialogueReply(const FString &Reply);
 
   /**
+   * @fn bool IsPlayerNearby() const
    * @brief Returns the current overlap observation for action payload building.
+   * User Story: As a views townsperson consumer, I need to invoke is player nearby through a stable signature so the views townsperson workflow remains explicit and composable.
    */
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
   bool IsPlayerNearby() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  /** User Story: As a views townsperson consumer, I need to invoke get townsperson id through a stable signature so the views townsperson workflow remains explicit and composable. @fn FString GetTownspersonId() const */
   FString GetTownspersonId() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  /** User Story: As a views townsperson consumer, I need to invoke get townsperson name through a stable signature so the views townsperson workflow remains explicit and composable. @fn FString GetTownspersonName() const */
   FString GetTownspersonName() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  /** User Story: As a views townsperson consumer, I need to invoke get role through a stable signature so the views townsperson workflow remains explicit and composable. @fn FString GetRole() const */
   FString GetRole() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  /** User Story: As a views townsperson consumer, I need to invoke get persona through a stable signature so the views townsperson workflow remains explicit and composable. @fn FString GetPersona() const */
   FString GetPersona() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  /** User Story: As a views townsperson consumer, I need to invoke get default player line through a stable signature so the views townsperson workflow remains explicit and composable. @fn FString GetDefaultPlayerLine() const */
   FString GetDefaultPlayerLine() const;
 
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level|NPC")
+  /** User Story: As a views townsperson consumer, I need to invoke get pinned response through a stable signature so the views townsperson workflow remains explicit and composable. @fn FString GetPinnedResponse() const */
   FString GetPinnedResponse() const;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level|NPC")
@@ -180,13 +195,18 @@ private:
   FString CharacterAnimationBlueprintClassPath;
   ForbocAI::Game::Level::FLevelDistanceLodStage CurrentLod;
 
+  /** User Story: As a views townsperson consumer, I need to invoke advance patrol through a stable signature so the views townsperson workflow remains explicit and composable. @fn void AdvancePatrol(float DeltaTime) */
   void AdvancePatrol(float DeltaTime);
+  /** User Story: As a views townsperson consumer, I need to invoke apply distance lod through a stable signature so the views townsperson workflow remains explicit and composable. @fn void ApplyDistanceLod( const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) */
   void ApplyDistanceLod(
       const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod);
+  /** User Story: As a views townsperson consumer, I need to invoke configure sample character asset through a stable signature so the views townsperson workflow remains explicit and composable. @fn void ConfigureSampleCharacterAsset() */
   void ConfigureSampleCharacterAsset();
+  /** User Story: As a views townsperson consumer, I need to invoke refresh text through a stable signature so the views townsperson workflow remains explicit and composable. @fn void RefreshText() */
   void RefreshText();
 
   UFUNCTION()
+  /** User Story: As a views townsperson consumer, I need to invoke handle interaction begin through a stable signature so the views townsperson workflow remains explicit and composable. @fn void HandleInteractionBegin(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult) */
   void HandleInteractionBegin(UPrimitiveComponent *OverlappedComponent,
                               AActor *OtherActor,
                               UPrimitiveComponent *OtherComp,
@@ -194,6 +214,7 @@ private:
                               const FHitResult &SweepResult);
 
   UFUNCTION()
+  /** User Story: As a views townsperson consumer, I need to invoke handle interaction end through a stable signature so the views townsperson workflow remains explicit and composable. @fn void HandleInteractionEnd(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex) */
   void HandleInteractionEnd(UPrimitiveComponent *OverlappedComponent,
                             AActor *OtherActor,
                             UPrimitiveComponent *OtherComp,

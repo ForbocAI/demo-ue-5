@@ -55,6 +55,7 @@ struct FGridIndex {
   int32 Column;
 };
 
+/** User Story: As a features systems terrain consumer, I need to invoke reserve terrain mesh payload through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FMeshPayload ReserveTerrainMeshPayload(const FMeshReserveRequest &Request) */
 FMeshPayload
 ReserveTerrainMeshPayload(const FMeshReserveRequest &Request) {
   return (func::pipe(FMeshPayload{}) |
@@ -82,11 +83,13 @@ ReserveTerrainMeshPayload(const FMeshReserveRequest &Request) {
       .val;
 }
 
+/** User Story: As a features systems terrain consumer, I need to invoke select terrain lod step through a stable signature so the features systems terrain workflow remains explicit and composable. @fn int32 SelectTerrainLodStep( const ForbocAI::Game::Data::FGeometrySettings &Geometry) */
 int32 SelectTerrainLodStep(
     const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return FMath::Max(Geometry.TerrainLodStep, Geometry.TerrainMinimumLodStep);
 }
 
+/** User Story: As a features systems terrain consumer, I need to invoke select terrain lod grid size through a stable signature so the features systems terrain workflow remains explicit and composable. @fn int32 SelectTerrainLodGridSize(const FLodGridSizeRequest &Request) */
 int32 SelectTerrainLodGridSize(const FLodGridSizeRequest &Request) {
   return ((Request.SourceGridSize -
            Request.Geometry.TerrainGridTerminalOffset) /
@@ -94,6 +97,7 @@ int32 SelectTerrainLodGridSize(const FLodGridSizeRequest &Request) {
          Request.Geometry.TerrainLodGridPadding;
 }
 
+/** User Story: As a features systems terrain consumer, I need to invoke select terrain source grid index through a stable signature so the features systems terrain workflow remains explicit and composable. @fn int32 SelectTerrainSourceGridIndex(const FMeshBuildContext &Context, int32 LodIndex) */
 int32 SelectTerrainSourceGridIndex(const FMeshBuildContext &Context,
                                    int32 LodIndex) {
   return LodIndex >= Context.Lod.LodGridLastIndex
@@ -101,11 +105,13 @@ int32 SelectTerrainSourceGridIndex(const FMeshBuildContext &Context,
              : LodIndex * Context.Lod.LodStep;
 }
 
+/** User Story: As a features systems terrain consumer, I need to invoke terrain vertex color through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FColor TerrainVertexColor(const FMeshBuildContext &Context, const FGridIndex &GridIndex) */
 FColor TerrainVertexColor(const FMeshBuildContext &Context,
                           const FGridIndex &GridIndex) {
   return Context.OrthoData.GetColorAt(GridIndex.Row, GridIndex.Column);
 }
 
+/** User Story: As a features systems terrain consumer, I need to invoke reduce terrain vertex through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FMeshPayload ReduceTerrainVertex(FMeshPayload Payload, const FMeshBuildContext &Context, const FGridIndex &GridIndex) */
 FMeshPayload ReduceTerrainVertex(FMeshPayload Payload,
                                         const FMeshBuildContext &Context,
                                      const FGridIndex &GridIndex) {
@@ -123,6 +129,7 @@ FMeshPayload ReduceTerrainVertex(FMeshPayload Payload,
   return Payload;
 }
 
+/** User Story: As a features systems terrain consumer, I need to invoke reduce terrain quad triangles through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FMeshPayload ReduceTerrainQuadTriangles( FMeshPayload Payload, const FMeshBuildContext &Context, const FGridIndex &GridIndex) */
 FMeshPayload ReduceTerrainQuadTriangles(
     FMeshPayload Payload,
     const FMeshBuildContext &Context,
@@ -141,6 +148,7 @@ FMeshPayload ReduceTerrainQuadTriangles(
 }
 
 
+/** User Story: As a features systems terrain consumer, I need to invoke build loaded terrain mesh payload through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FMeshPayload BuildLoadedTerrainMeshPayload( const FMeshBuildRequest &Request) */
 FMeshPayload BuildLoadedTerrainMeshPayload(
     const FMeshBuildRequest &Request) {
   const FLevelTerrainData &TerrainData = Request.TerrainData;
@@ -184,6 +192,7 @@ FMeshPayload BuildLoadedTerrainMeshPayload(
 
 } // namespace
 
+/** User Story: As a features systems terrain consumer, I need to invoke reduce terrain loaded through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FTerrainState ReduceTerrainLoaded(const FTerrainState &State, const rtk::PayloadAction<FLoadedPayload> &Action) */
 FTerrainState
 ReduceTerrainLoaded(const FTerrainState &State,
                     const rtk::PayloadAction<FLoadedPayload> &Action) {
@@ -198,6 +207,7 @@ ReduceTerrainLoaded(const FTerrainState &State,
   }).val;
 }
 
+/** User Story: As a features systems terrain consumer, I need to invoke build terrain mesh payload through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FMeshPayload BuildTerrainMeshPayload(const FMeshBuildRequest &Request) */
 FMeshPayload
 BuildTerrainMeshPayload(const FMeshBuildRequest &Request) {
   return Request.TerrainData.IsLoaded()
@@ -219,6 +229,7 @@ namespace Game {
 namespace Level {
 namespace TerrainSlice {
 
+/** User Story: As a features systems terrain consumer, I need to invoke get slice through a stable signature so the features systems terrain workflow remains explicit and composable. @fn const rtk::Slice<FTerrainState> &GetSlice() */
 const rtk::Slice<FTerrainState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FTerrainState>> Slice =
       func::lazy([]() -> rtk::Slice<FTerrainState> {
@@ -244,10 +255,12 @@ namespace Game {
 namespace Level {
 namespace TerrainFactories {
 
+/** User Story: As a features systems terrain consumer, I need to invoke create initial state through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FTerrainState CreateInitialState() */
 FTerrainState CreateInitialState() {
   return FTerrainState{};
 }
 
+/** User Story: As a features systems terrain consumer, I need to invoke loaded payload through a stable signature so the features systems terrain workflow remains explicit and composable. @fn FLoadedPayload LoadedPayload(const FLoadedSource &Source) */
 FLoadedPayload LoadedPayload(const FLoadedSource &Source) {
   FLoadedPayload Payload;
   Payload.TerrainSource = Source.TerrainSource;

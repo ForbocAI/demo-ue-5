@@ -22,25 +22,41 @@ struct FRuntimeFrameTimingStats {
   int32 RhiPrimitives;
 };
 
-struct FRuntimeFramePacingStats {
+struct FRuntimeDeltaStats {
   double WallDeltaMilliseconds;
   double InputDeltaMilliseconds;
   double StatsSelectionMilliseconds;
   double PolyCountMilliseconds;
   double EngineIdleMilliseconds;
   double EngineIdleOvershootMilliseconds;
+};
+
+struct FRuntimeRateStats {
   float MaxFps;
   float FrameRateLimit;
   float EffectiveMaxTickRate;
-  int32 FixedFrameRateEnabled;
   float FixedFrameRate;
+};
+
+struct FRuntimeModeStats {
+  int32 FixedFrameRateEnabled;
   int32 FixedTimeStepEnabled;
   double FixedDeltaMilliseconds;
   int32 VsyncEnabled;
   int32 IdleWhenNotForegroundEnabled;
   int32 AppHasFocus;
+};
+
+struct FRuntimeThrottleStats {
   int32 CpuThrottleEnabled;
   int32 AllWindowsHidden;
+};
+
+struct FRuntimeFramePacingStats {
+  FRuntimeDeltaStats Delta;
+  FRuntimeRateStats Rate;
+  FRuntimeModeStats Mode;
+  FRuntimeThrottleStats Throttle;
 };
 
 struct FRuntimePolyCountStats {
@@ -81,42 +97,30 @@ struct FBudgetCheckParams {
   float IntervalSeconds;
 };
 
-struct FRuntimeStatsViewModel {
+struct FRuntimeSummaryStats {
   int32 FramesPerSecond;
   int32 StackDepth;
   int64 PolyCount;
-  int64 UsedPhysicalMemoryMegabytes;
-  int64 PeakPhysicalMemoryMegabytes;
-  int64 UsedVirtualMemoryMegabytes;
-  double GameThreadMilliseconds;
-  double RenderThreadMilliseconds;
-  double RhiThreadMilliseconds;
-  double GpuMilliseconds;
-  int32 DrawCalls;
-  int32 RhiPrimitives;
-  double WallDeltaMilliseconds;
-  double InputDeltaMilliseconds;
-  double StatsSelectionMilliseconds;
-  double PolyCountMilliseconds;
-  double EngineIdleMilliseconds;
-  double EngineIdleOvershootMilliseconds;
-  float MaxFps;
-  float FrameRateLimit;
-  float EffectiveMaxTickRate;
-  int32 FixedFrameRateEnabled;
-  float FixedFrameRate;
-  int32 FixedTimeStepEnabled;
-  double FixedDeltaMilliseconds;
-  int32 VsyncEnabled;
-  int32 IdleWhenNotForegroundEnabled;
-  int32 AppHasFocus;
-  int32 CpuThrottleEnabled;
-  int32 AllWindowsHidden;
+};
+
+struct FRuntimeReducerStats {
   double RootReducerMilliseconds;
   double CombinedReducerMilliseconds;
+};
+
+struct FRuntimeProjectionStats {
   double EcsProjectionMilliseconds;
   int32 ProjectedEntityCount;
   int32 ProjectedComponentTypeCount;
+};
+
+struct FRuntimeStatsViewModel {
+  FRuntimeSummaryStats Summary;
+  FRuntimeMemoryStats Memory;
+  FRuntimeFrameTimingStats Timing;
+  FRuntimeFramePacingStats Pacing;
+  FRuntimeReducerStats Reducers;
+  FRuntimeProjectionStats Projection;
 };
 
 struct FStatsTextModel {
@@ -124,10 +128,12 @@ struct FStatsTextModel {
   FLinearColor Color;
 };
 
+/** User Story: As a rendering stats data consumer, I need to compare values for equality through a stable signature so the rendering stats data workflow remains explicit and composable. @fn inline bool operator==(const FStatsTextModel &Left, const FStatsTextModel &Right) */
 inline bool operator==(const FStatsTextModel &Left, const FStatsTextModel &Right) {
   return Left.Text == Right.Text && Left.Color == Right.Color;
 }
 
+/** User Story: As a rendering stats data consumer, I need to compare values for inequality through a stable signature so the rendering stats data workflow remains explicit and composable. @fn inline bool operator!=(const FStatsTextModel &Left, const FStatsTextModel &Right) */
 inline bool operator!=(const FStatsTextModel &Left, const FStatsTextModel &Right) {
   return !(Left == Right);
 }
@@ -170,6 +176,7 @@ struct FRuntimeStatsPresentationModel {
   FStatsTextModel ProjectedComponentTypeCount;
 };
 
+/** User Story: As a rendering stats data consumer, I need to compare values for equality through a stable signature so the rendering stats data workflow remains explicit and composable. @fn inline bool operator==(const FRuntimeStatsPresentationModel &Left, const FRuntimeStatsPresentationModel &Right) */
 inline bool operator==(const FRuntimeStatsPresentationModel &Left, const FRuntimeStatsPresentationModel &Right) {
   return Left.FramesPerSecond == Right.FramesPerSecond &&
          Left.StackDepth == Right.StackDepth &&
@@ -208,6 +215,7 @@ inline bool operator==(const FRuntimeStatsPresentationModel &Left, const FRuntim
          Left.ProjectedComponentTypeCount == Right.ProjectedComponentTypeCount;
 }
 
+/** User Story: As a rendering stats data consumer, I need to compare values for inequality through a stable signature so the rendering stats data workflow remains explicit and composable. @fn inline bool operator!=(const FRuntimeStatsPresentationModel &Left, const FRuntimeStatsPresentationModel &Right) */
 inline bool operator!=(const FRuntimeStatsPresentationModel &Left, const FRuntimeStatsPresentationModel &Right) {
   return !(Left == Right);
 }

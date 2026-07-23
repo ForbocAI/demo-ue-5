@@ -9,6 +9,7 @@ namespace Level {
 namespace UIActions {
 
 /**
+ * @fn inline const rtk::ActionCreator<FUIPayload> &ConversationPresented()
  * @brief RTK action creator for presenting a runtime conversation.
  *
  * @return Lazy ActionCreator<FUIPayload> with the
@@ -16,6 +17,7 @@ namespace UIActions {
  *
  * Architecture: This is an event-style action creator. Reducers decide how the
  * payload changes UI state; widgets never dispatch local state mutations.
+ * User Story: As a features systems ui consumer, I need to invoke conversation presented through a stable signature so the features systems ui workflow remains explicit and composable.
  */
 inline const rtk::ActionCreator<FUIPayload> &ConversationPresented() {
   static const func::Lazy<rtk::ActionCreator<FUIPayload>> Creator =
@@ -28,7 +30,9 @@ inline const rtk::ActionCreator<FUIPayload> &ConversationPresented() {
 }
 
 /**
+ * @fn inline const rtk::ActionCreator<FUIPayload> &ChatHistoryRendered()
  * @brief RTK action creator for committing rendered chat history to UI state.
+ * User Story: As a features systems ui consumer, I need to invoke chat history rendered through a stable signature so the features systems ui workflow remains explicit and composable.
  */
 inline const rtk::ActionCreator<FUIPayload> &ChatHistoryRendered() {
   static const func::Lazy<rtk::ActionCreator<FUIPayload>> Creator =

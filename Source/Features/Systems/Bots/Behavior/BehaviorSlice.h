@@ -11,6 +11,7 @@ namespace Level {
 
 namespace BotCoreReducers {
 
+/** User Story: As a systems bots behavior consumer, I need to invoke reduce bot ticked through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreRuntimeState ReduceBotTicked( const FBotCoreRuntimeState &State, const rtk::PayloadAction<FBotTickPayload> &Action) */
 inline FBotCoreRuntimeState ReduceBotTicked(
     const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotTickPayload> &Action) {
@@ -28,6 +29,7 @@ inline FBotCoreRuntimeState ReduceBotTicked(
       .val;
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke reduce bot moved through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreRuntimeState ReduceBotMoved( const FBotCoreRuntimeState &State, const rtk::PayloadAction<FBotMovePayload> &Action) */
 inline FBotCoreRuntimeState ReduceBotMoved(
     const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotMovePayload> &Action) {
@@ -39,6 +41,7 @@ inline FBotCoreRuntimeState ReduceBotMoved(
       .val;
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke reduce bot damage taken through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreRuntimeState ReduceBotDamageTaken( const FBotCoreRuntimeState &State, const rtk::PayloadAction<FBotDamageTakenPayload> &Action) */
 inline FBotCoreRuntimeState ReduceBotDamageTaken(
     const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotDamageTakenPayload> &Action) {
@@ -58,6 +61,7 @@ inline FBotCoreRuntimeState ReduceBotDamageTaken(
       .val;
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke reduce bot enemy spotted through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreRuntimeState ReduceBotEnemySpotted( const FBotCoreRuntimeState &State, const rtk::PayloadAction<FBotEnemySpottedPayload> &Action) */
 inline FBotCoreRuntimeState ReduceBotEnemySpotted(
     const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotEnemySpottedPayload> &Action) {
@@ -75,6 +79,7 @@ inline FBotCoreRuntimeState ReduceBotEnemySpotted(
       .val;
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke reduce bot flee requested through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreRuntimeState ReduceBotFleeRequested( const FBotCoreRuntimeState &State, const rtk::PayloadAction<FBotFleeRequestedPayload> &Action) */
 inline FBotCoreRuntimeState ReduceBotFleeRequested(
     const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotFleeRequestedPayload> &Action) {
@@ -88,12 +93,14 @@ inline FBotCoreRuntimeState ReduceBotFleeRequested(
       .val;
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke reduce bot attack requested through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreRuntimeState ReduceBotAttackRequested( const FBotCoreRuntimeState &State, const rtk::PayloadAction<FBotAttackRequestedPayload> &) */
 inline FBotCoreRuntimeState ReduceBotAttackRequested(
     const FBotCoreRuntimeState &State,
     const rtk::PayloadAction<FBotAttackRequestedPayload> &) {
   return State;
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke bot reducer through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline const rtk::CaseReducer<FBotCoreRuntimeState> &BotReducer() */
 inline const rtk::CaseReducer<FBotCoreRuntimeState> &BotReducer() {
   static const func::Lazy<rtk::CaseReducer<FBotCoreRuntimeState>> Reducer =
       func::lazy([]() -> rtk::CaseReducer<FBotCoreRuntimeState> {
@@ -115,6 +122,7 @@ inline const rtk::CaseReducer<FBotCoreRuntimeState> &BotReducer() {
   return func::eval(Reducer);
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke reduce bot core runtime through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreRuntimeState ReduceBotCoreRuntime(const FBotCoreRuntimeState &State, const rtk::AnyAction &Action) */
 inline FBotCoreRuntimeState
 ReduceBotCoreRuntime(const FBotCoreRuntimeState &State,
                      const rtk::AnyAction &Action) {
@@ -138,12 +146,13 @@ namespace Level {
 namespace BotCoreSlice {
 
 /**
+ * @fn inline FBotCoreState CreateInitialState()
  * @brief Builds the initial bot behavior RTK slice state.
- * @signature inline FBotCoreState CreateInitialState()
  * @return Bot behavior state with no last action and not ready.
  *
  * User story: As bot orchestration starts, readiness should be reducer-owned
  * and deterministic before ECS projections or runtime actions observe it.
+ * User Story: As a systems bots behavior consumer, I need to invoke create initial state through a stable signature so the systems bots behavior workflow remains explicit and composable.
  */
 inline FBotCoreState CreateInitialState() {
   return (func::pipe(FBotCoreState{}) |
@@ -156,12 +165,13 @@ inline FBotCoreState CreateInitialState() {
 }
 
 /**
+ * @fn inline const rtk::Slice<FBotCoreState> &GetSlice()
  * @brief Returns the lazily constructed bot behavior RTK slice.
- * @signature inline const rtk::Slice<FBotCoreState> &GetSlice()
  * @return The singleton bot behavior slice with its reducer map.
  *
  * User story: As bot systems evolve, core readiness actions should have one
  * RTK ownership boundary before selectors feed ECS and view projections.
+ * User Story: As a systems bots behavior consumer, I need to invoke get slice through a stable signature so the systems bots behavior workflow remains explicit and composable.
  */
 inline const rtk::Slice<FBotCoreState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FBotCoreState>> Slice =

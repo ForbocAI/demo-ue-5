@@ -5,6 +5,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Runtime.Store.DataBackedMap.Rendering",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests store consumer, I need to invoke run test through a stable signature so the tests store workflow remains explicit and composable. @fn bool FStoreDataBackedMapRendering::RunTest(const FString &Parameters) */
 bool FStoreDataBackedMapRendering::RunTest(const FString &Parameters) {
   (void)Parameters;
   const FSettings Settings =

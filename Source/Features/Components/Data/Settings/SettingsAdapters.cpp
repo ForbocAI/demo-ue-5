@@ -4,7 +4,7 @@
 #include "Features/Components/Data/Settings/Level/SettingsLevelAdapters.h"
 #include "Features/Components/Data/Settings/Player/PlayerAdapters.h"
 #include "Features/Components/Data/Settings/Rendering/RenderingAdapters.h"
-#include "Features/Components/Data/Settings/Registry/Catalog/CatalogAdapters.h"
+#include "Features/Components/Data/Settings/Registry/Catalog/RegistryCatalogAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -19,15 +19,18 @@ struct FSourceGroup {
   const char *Parent;
   TArray<const char *> Children;
 
+  /** User Story: As a components data settings consumer, I need to invoke fsource group through a stable signature so the components data settings workflow remains explicit and composable. @fn FSourceGroup(const char *InParent, std::initializer_list<const char *> InChildren) */
   FSourceGroup(const char *InParent,
                               std::initializer_list<const char *> InChildren)
       : Parent(InParent), Children(InChildren) {}
 };
 
+/** User Story: As a components data settings consumer, I need to invoke settings source key through a stable signature so the components data settings workflow remains explicit and composable. @fn FString SettingsSourceKey(const char *Atom) */
 FString SettingsSourceKey(const char *Atom) {
   return Json::SettingsFieldName(Atom);
 }
 
+/** User Story: As a components data settings consumer, I need to invoke settings source through a stable signature so the components data settings workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> SettingsSource(const FSettingsSourceCatalog &Sources, const char *Atom) */
 TSharedPtr<FJsonObject>
 SettingsSource(const FSettingsSourceCatalog &Sources,
                       const char *Atom) {
@@ -38,6 +41,7 @@ SettingsSource(const FSettingsSourceCatalog &Sources,
   return *Source;
 }
 
+/** User Story: As a components data settings consumer, I need to invoke load settings source through a stable signature so the components data settings workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> LoadSettingsSource(const TSharedPtr<FJsonObject> &Manifest, const char *FieldAtom) */
 TSharedPtr<FJsonObject>
 LoadSettingsSource(const TSharedPtr<FJsonObject> &Manifest,
                           const char *FieldAtom) {
@@ -45,6 +49,7 @@ LoadSettingsSource(const TSharedPtr<FJsonObject> &Manifest,
       {Json::ReadStringField(Manifest, FieldAtom)});
 }
 
+/** User Story: As a components data settings consumer, I need to invoke settings source groups through a stable signature so the components data settings workflow remains explicit and composable. @fn const TArray<FSourceGroup> &SettingsSourceGroups() */
 const TArray<FSourceGroup> &SettingsSourceGroups() {
   static const TArray<FSourceGroup> Groups = {
       {"Root",
@@ -62,6 +67,7 @@ const TArray<FSourceGroup> &SettingsSourceGroups() {
   return Groups;
 }
 
+/** User Story: As a components data settings consumer, I need to invoke load settings source group through a stable signature so the components data settings workflow remains explicit and composable. @fn FSettingsSourceCatalog LoadSettingsSourceGroup(const FSettingsSourceCatalog &Sources, const FSourceGroup &Group) */
 FSettingsSourceCatalog
 LoadSettingsSourceGroup(const FSettingsSourceCatalog &Sources,
                                const FSourceGroup &Group) {
@@ -78,6 +84,7 @@ LoadSettingsSourceGroup(const FSettingsSourceCatalog &Sources,
       });
 }
 
+/** User Story: As a components data settings consumer, I need to invoke load settings sources through a stable signature so the components data settings workflow remains explicit and composable. @fn FSettingsSourceCatalog LoadSettingsSources(const TSharedPtr<FJsonObject> &Object) */
 FSettingsSourceCatalog
 LoadSettingsSources(const TSharedPtr<FJsonObject> &Object) {
   FSettingsSourceCatalog Seed;
@@ -91,6 +98,7 @@ LoadSettingsSources(const TSharedPtr<FJsonObject> &Object) {
 
 } // namespace
 
+/** User Story: As a components data settings consumer, I need to invoke ecs domain segments through a stable signature so the components data settings workflow remains explicit and composable. @fn TArray<FString> EcsDomainSegments(const FString &Path) */
 TArray<FString> EcsDomainSegments(const FString &Path) {
   TArray<FString> Segments;
   const FString Separator = FString::Chr(TCHAR('/'));
@@ -98,21 +106,24 @@ TArray<FString> EcsDomainSegments(const FString &Path) {
   return Segments;
 }
 
+/** User Story: As a components data settings consumer, I need to invoke ecs domain path registration through a stable signature so the components data settings workflow remains explicit and composable. @fn ecs::FPathRegistration EcsDomainPathRegistration(const FDomainRegistrationSettings &Settings) */
 ecs::FPathRegistration
-EcsDomainPathRegistration(const FEcsDomainRegistrationSettings &Settings) {
+EcsDomainPathRegistration(const FDomainRegistrationSettings &Settings) {
   ecs::FPathRegistration Registration;
   Registration.Segments = EcsDomainSegments(Settings.Path);
   Registration.Kind = static_cast<ecs::EKind>(Settings.Kind);
   return Registration;
 }
 
+/** User Story: As a components data settings consumer, I need to invoke ecs domain registry through a stable signature so the components data settings workflow remains explicit and composable. @fn ecs::FGraph EcsDomainRegistry(const FEcsSettings &Settings) */
 ecs::FGraph EcsDomainRegistry(const FEcsSettings &Settings) {
   return ecs::createDomainRegistry(
-      func::map_array<FEcsDomainRegistrationSettings,
+      func::map_array<FDomainRegistrationSettings,
                       ecs::FPathRegistration>(
           Settings.DomainRegistry, EcsDomainPathRegistration));
 }
 
+/** User Story: As a components data settings consumer, I need to invoke read settings through a stable signature so the components data settings workflow remains explicit and composable. @fn FSettings ReadSettings(const TSharedPtr<FJsonObject> &Object) */
 FSettings
 ReadSettings(const TSharedPtr<FJsonObject> &Object) {
   const FSettingsSourceCatalog Sources =
@@ -124,7 +135,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
   Settings.Interaction = PlayerSettingsAdapters::ReadInteractionSettings(
       Json::ReadObjectField(SettingsSource(Sources, "Interaction"),
                             "Interaction"));
-  Settings.TownspersonDefaults = BotSettingsAdapters::
+  Settings.TownspersonDefaults = BotAdapters::
       ReadTownspersonDefaultsSettings(Json::ReadObjectField(
           SettingsSource(Sources, "Bots"), "TownspersonDefaults"));
   Settings.LevelTerrainSources = LevelSettingsAdapters::
@@ -196,11 +207,11 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
           StateObservationFormat, DefaultBehaviorState))(
       Json::ReadObjectField(SettingsSource(Sources, "Bots"),
                             "Bot"));
-  Settings.TownspersonPresentation = BotSettingsAdapters::
+  Settings.TownspersonPresentation = BotAdapters::
       ReadTownspersonPresentationSettings(Json::ReadObjectField(
           SettingsSource(Sources, "Bots"),
           "TownspersonPresentation"));
-  Settings.HorsePresentation = BotSettingsAdapters::
+  Settings.HorsePresentation = BotAdapters::
       ReadHorsePresentationSettings(Json::ReadObjectField(
           SettingsSource(Sources, "Bots"), "HorsePresentation"));
   Settings.ObservationIds =
@@ -273,6 +284,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
   return Settings;
 }
 
+/** User Story: As a components data settings consumer, I need to invoke load settings through a stable signature so the components data settings workflow remains explicit and composable. @fn FSettings LoadSettings() */
 FSettings LoadSettings() {
   return ReadSettings(Json::LoadRequiredObjectFromContent(
       {TEXT("Data/settings.json")}));

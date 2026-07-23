@@ -4,7 +4,7 @@
 
 #include "Components/StaticMeshComponent.h"
 #include "Core/frmt.hpp"
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Engine/Texture2D.h"
 #include "Features/Systems/Rendering/SystemsRenderingSlice.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -45,6 +45,7 @@ struct FRetroResultEval {
   const ForbocAI::Game::Data::FRenderingSettings *Settings;
 };
 
+/** User Story: As a rendering texture palette consumer, I need to invoke find texture rendering declaration index through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn template <typename Declaration> func::Maybe<int32> FindTextureRenderingDeclarationIndex( const FString &Name, const TArray<Declaration> &Declarations) */
 template <typename Declaration>
 func::Maybe<int32> FindTextureRenderingDeclarationIndex(
     const FString &Name, const TArray<Declaration> &Declarations) {
@@ -60,6 +61,7 @@ template <typename Apply> struct TTextureRenderingDispatchDeclaration {
   FString Name;
   Apply Run;
 
+  /** User Story: As a rendering texture palette consumer, I need to invoke ttexture rendering dispatch declaration through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn TTextureRenderingDispatchDeclaration(const FString &InName, Apply InRun) */
   TTextureRenderingDispatchDeclaration(const FString &InName, Apply InRun)
       : Name(InName), Run(InRun) {}
 };
@@ -71,12 +73,18 @@ using FPredicateApplyDeclaration =
 using FColorResultDeclaration =
     TTextureRenderingDispatchDeclaration<FColorResultApply>;
 
+/** User Story: As a rendering texture palette consumer, I need to invoke always predicate through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn bool AlwaysPredicate(const FRetroPredicateEval &Eval, int32 Term) */
 bool AlwaysPredicate(const FRetroPredicateEval &Eval, int32 Term);
+/** User Story: As a rendering texture palette consumer, I need to invoke mod equals predicate through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term) */
 bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term);
+/** User Story: As a rendering texture palette consumer, I need to invoke mod less than predicate through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term) */
 bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term);
+/** User Story: As a rendering texture palette consumer, I need to invoke solid color through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn FColor SolidColor(const FRetroResultEval &Eval) */
 FColor SolidColor(const FRetroResultEval &Eval);
+/** User Story: As a rendering texture palette consumer, I need to invoke mix through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn FColor Mix(const FRetroResultEval &Eval) */
 FColor Mix(const FRetroResultEval &Eval);
 
+/** User Story: As a rendering texture palette consumer, I need to invoke predicate apply declarations through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn TArray<FPredicateApplyDeclaration> PredicateApplyDeclarations( const ForbocAI::Game::Data::FRenderingSettings &Settings) */
 TArray<FPredicateApplyDeclaration> PredicateApplyDeclarations(
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {
   return {{Settings.RuleNames.PredicateAlways, AlwaysPredicate},
@@ -84,12 +92,14 @@ TArray<FPredicateApplyDeclaration> PredicateApplyDeclarations(
           {Settings.RuleNames.PredicateModLessThan, ModLessThanPredicate}};
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke color result declarations through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn TArray<FColorResultDeclaration> ColorResultDeclarations( const ForbocAI::Game::Data::FRenderingSettings &Settings) */
 TArray<FColorResultDeclaration> ColorResultDeclarations(
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {
   return {{Settings.RuleNames.ResultSolid, SolidColor},
           {Settings.RuleNames.ResultMix, Mix}};
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke required predicate declaration through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn FPredicateApplyDeclaration RequiredPredicateDeclaration( const FString &Name, const ForbocAI::Game::Data::FRenderingSettings &Settings) */
 FPredicateApplyDeclaration RequiredPredicateDeclaration(
     const FString &Name,
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {
@@ -101,6 +111,7 @@ FPredicateApplyDeclaration RequiredPredicateDeclaration(
   return Declarations[Found.value];
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke required color declaration through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn FColorResultDeclaration RequiredColorDeclaration( const FString &Name, const ForbocAI::Game::Data::FRenderingSettings &Settings) */
 FColorResultDeclaration RequiredColorDeclaration(
     const FString &Name,
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {
@@ -112,12 +123,14 @@ FColorResultDeclaration RequiredColorDeclaration(
   return Declarations[Found.value];
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke color through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn FColor Color(const ForbocAI::Game::Data::FRenderingRgbSettings &Rgb, int32 Alpha) */
 FColor Color(const ForbocAI::Game::Data::FRenderingRgbSettings &Rgb,
              int32 Alpha) {
   return FColor(static_cast<uint8>(Rgb.R), static_cast<uint8>(Rgb.G),
                 static_cast<uint8>(Rgb.B), static_cast<uint8>(Alpha));
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke mix through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn FColor Mix(const FRetroResultEval &Eval) */
 FColor Mix(const FRetroResultEval &Eval) {
   check(Eval.Result.Denominator > int32{});
   check(Eval.Result.NumeratorNoiseModulus > int32{});
@@ -137,10 +150,12 @@ FColor Mix(const FRetroResultEval &Eval) {
       static_cast<uint8>(Eval.Alpha));
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke solid color through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn FColor SolidColor(const FRetroResultEval &Eval) */
 FColor SolidColor(const FRetroResultEval &Eval) {
   return Color(Eval.Result.Color, Eval.Alpha);
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke hash cell through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn int32 HashCell(FRetroHashCell Cell) */
 int32 HashCell(FRetroHashCell Cell) {
   check(Cell.Hash);
   int32 Value = Cell.X * Cell.Hash->XMultiplier ^
@@ -150,6 +165,7 @@ int32 HashCell(FRetroHashCell Cell) {
   return FMath::Abs(Value);
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke predicate term through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn int32 PredicateTerm(const FRetroPredicateEval &Eval) */
 int32 PredicateTerm(const FRetroPredicateEval &Eval) {
   check(Eval.Predicate.Term.XDivisor > int32{});
   check(Eval.Predicate.Term.YDivisor > int32{});
@@ -160,20 +176,24 @@ int32 PredicateTerm(const FRetroPredicateEval &Eval) {
          Eval.Predicate.Term.NoiseMultiplier * Eval.Noise;
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke always predicate through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn bool AlwaysPredicate(const FRetroPredicateEval &, int32) */
 bool AlwaysPredicate(const FRetroPredicateEval &, int32) { return true; }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke mod equals predicate through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term) */
 bool ModEqualsPredicate(const FRetroPredicateEval &Eval, int32 Term) {
   check(Eval.Predicate.Comparison.Modulus > int32{});
   return Term % Eval.Predicate.Comparison.Modulus ==
          Eval.Predicate.Comparison.Equals;
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke mod less than predicate through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term) */
 bool ModLessThanPredicate(const FRetroPredicateEval &Eval, int32 Term) {
   check(Eval.Predicate.Comparison.Modulus > int32{});
   return Term % Eval.Predicate.Comparison.Modulus <
          Eval.Predicate.Comparison.LessThan;
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke predicate matches through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn bool PredicateMatches(const FRetroPredicateEval &Eval) */
 bool PredicateMatches(const FRetroPredicateEval &Eval) {
   check(Eval.Settings);
   const int32 Term = PredicateTerm(Eval);
@@ -181,109 +201,10 @@ bool PredicateMatches(const FRetroPredicateEval &Eval) {
       .Run(Eval, Term);
 }
 
+/** User Story: As a rendering texture palette consumer, I need to invoke resolve color through a stable signature so the rendering texture palette workflow remains explicit and composable. @fn FColor ResolveColor(const FRetroResultEval &Eval) */
 FColor ResolveColor(const FRetroResultEval &Eval) {
   check(Eval.Settings);
   return RequiredColorDeclaration(Eval.Result.Kind, *Eval.Settings).Run(Eval);
-}
-
-ForbocAI::Game::Data::FPaletteSettings
-RequiredPalette(const FRetroTextureCell &Cell) {
-  check(Cell.Settings);
-  const TArray<int32> Indices =
-      func::index_range(Cell.Settings->TexturePalettes.Num());
-  const func::Maybe<int32> PaletteIndex = func::find_indexed(
-      Indices, static_cast<size_t>(Indices.Num()), [&Cell](int32 Index) {
-        return static_cast<ELevelRetroTexture>(Index) == Cell.Texture;
-      });
-  check(PaletteIndex.hasValue);
-  return Cell.Settings->TexturePalettes[PaletteIndex.value];
-}
-
-FColor PaletteColor(const FRetroTextureCell &Cell) {
-  check(Cell.Settings);
-  const int32 Noise =
-      HashCell({Cell.X, Cell.Y, static_cast<int32>(Cell.Texture),
-                &Cell.Settings->TextureHash});
-  const ForbocAI::Game::Data::FPaletteSettings Palette =
-      RequiredPalette(Cell);
-  const func::Maybe<ForbocAI::Game::Data::FRuleSettings> Rule =
-      func::find_indexed(
-          Palette.Rules, static_cast<size_t>(Palette.Rules.Num()),
-          [&Cell, Noise](
-              const ForbocAI::Game::Data::FRuleSettings
-                  &Candidate) {
-            return PredicateMatches(
-                {Candidate.Predicate, Cell.X, Cell.Y, Noise, Cell.Settings});
-          });
-  check(Rule.hasValue);
-  return ResolveColor({Rule.value.Result, Noise,
-                       Cell.Settings->Buffer.Alpha, Cell.Settings});
-}
-
-FString TextureCacheKey(
-    const FLevelRetroTextureSpec &Spec,
-    const ForbocAI::Game::Data::FRenderingSettings &Settings) {
-  return frmt::RuntimeString(
-      Settings.Format.CacheKeyFormat,
-      frmt::Args({frmt::Arg(static_cast<int32>(Spec.Texture)),
-                  frmt::Arg(Spec.Size.X), frmt::Arg(Spec.Size.Y)}));
-}
-
-UTexture2D *CreateRetroTexture(
-    const FLevelRetroTextureSpec &Spec,
-    const ForbocAI::Game::Data::FRenderingSettings &Settings) {
-  check(Spec.Size.X > int32{});
-  check(Spec.Size.Y > int32{});
-
-  UTexture2D *Result =
-      UTexture2D::CreateTransient(Spec.Size.X, Spec.Size.Y, PF_B8G8R8A8);
-  check(Result);
-  check(Result->GetPlatformData());
-  check(Settings.Buffer.MipIndex >= int32{});
-  check(Result->GetPlatformData()->Mips.Num() > Settings.Buffer.MipIndex);
-
-  Result->Filter = TF_Nearest;
-  Result->AddressX = TA_Wrap;
-  Result->AddressY = TA_Wrap;
-  Result->MipGenSettings = TMGS_NoMipmaps;
-  Result->NeverStream = true;
-  Result->SRGB = true;
-
-  FTexture2DMipMap &Mip =
-      Result->GetPlatformData()->Mips[Settings.Buffer.MipIndex];
-  void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
-  check(Data);
-
-  const std::vector<FColor> Pixels = func::map_grid<FColor>(
-      static_cast<size_t>(Spec.Size.Y), static_cast<size_t>(Spec.Size.X),
-      [&Spec, &Settings](const func::GridIndex &Index) {
-        return PaletteColor({Spec.Texture, static_cast<int32>(Index.Column),
-                             static_cast<int32>(Index.Row),
-                             &Settings});
-      });
-  FMemory::Memcpy(Data, Pixels.data(),
-                  Pixels.size() * Settings.Buffer.Channels *
-                      sizeof(uint8));
-  Mip.BulkData.Unlock();
-
-  Result->UpdateResource();
-  Result->AddToRoot();
-  return Result;
-}
-
-UTexture2D *TextureFor(
-    const FLevelRetroTextureSpec &Spec,
-    const ForbocAI::Game::Data::FRenderingSettings &Settings) {
-  static TMap<FString, UTexture2D *> TextureCache;
-  const FString Key = TextureCacheKey(Spec, Settings);
-  UTexture2D **Cached = TextureCache.Find(Key);
-  return Cached ? *Cached
-                : [&]() {
-                    UTexture2D *Created =
-                        CreateRetroTexture(Spec, Settings);
-                    TextureCache.Add(Key, Created);
-                    return Created;
-                  }();
 }
 
 } // namespace

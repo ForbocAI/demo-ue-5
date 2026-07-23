@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Spatial/Level/Layout/LayoutTypes.h"
+#include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -72,6 +72,7 @@ struct FTownspersonState {
   TArray<FTownspersonSeed> CombatValidationTownspeople;
 };
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonSeed &Left, const FTownspersonSeed &Right) */
 inline bool operator==(const FTownspersonSeed &Left,
                        const FTownspersonSeed &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name &&
@@ -83,21 +84,25 @@ inline bool operator==(const FTownspersonSeed &Left,
          Left.PatrolRoute == Right.PatrolRoute;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonSeed &Left, const FTownspersonSeed &Right) */
 inline bool operator!=(const FTownspersonSeed &Left,
                        const FTownspersonSeed &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonIntentProjectionRequest &Left, const FTownspersonIntentProjectionRequest &Right) */
 inline bool operator==(const FTownspersonIntentProjectionRequest &Left,
                        const FTownspersonIntentProjectionRequest &Right) {
   return Left.Townspeople == Right.Townspeople && Left.Intent == Right.Intent;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonIntentProjectionRequest &Left, const FTownspersonIntentProjectionRequest &Right) */
 inline bool operator!=(const FTownspersonIntentProjectionRequest &Left,
                        const FTownspersonIntentProjectionRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonState &Left, const FTownspersonState &Right) */
 inline bool operator==(const FTownspersonState &Left,
                        const FTownspersonState &Right) {
   return Left.Items == Right.Items &&
@@ -108,22 +113,26 @@ inline bool operator==(const FTownspersonState &Left,
              Right.CombatValidationTownspeople;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonState &Left, const FTownspersonState &Right) */
 inline bool operator!=(const FTownspersonState &Left,
                        const FTownspersonState &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonViewDefaultsRequest &Left, const FTownspersonViewDefaultsRequest &Right) */
 inline bool operator==(const FTownspersonViewDefaultsRequest &Left,
                        const FTownspersonViewDefaultsRequest &Right) {
   return Left.InteractionPrompt == Right.InteractionPrompt &&
          Left.DefaultPlayerLine == Right.DefaultPlayerLine;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonViewDefaultsRequest &Left, const FTownspersonViewDefaultsRequest &Right) */
 inline bool operator!=(const FTownspersonViewDefaultsRequest &Left,
                        const FTownspersonViewDefaultsRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonViewDefaults &Left, const FTownspersonViewDefaults &Right) */
 inline bool operator==(const FTownspersonViewDefaults &Left,
                        const FTownspersonViewDefaults &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name &&
@@ -132,21 +141,25 @@ inline bool operator==(const FTownspersonViewDefaults &Left,
          Left.DefaultPlayerLine == Right.DefaultPlayerLine;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonViewDefaults &Left, const FTownspersonViewDefaults &Right) */
 inline bool operator!=(const FTownspersonViewDefaults &Left,
                        const FTownspersonViewDefaults &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonViewDefaultsReduceRequest &Left, const FTownspersonViewDefaultsReduceRequest &Right) */
 inline bool operator==(const FTownspersonViewDefaultsReduceRequest &Left,
                        const FTownspersonViewDefaultsReduceRequest &Right) {
   return Left.Request == Right.Request && Left.Defaults == Right.Defaults;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonViewDefaultsReduceRequest &Left, const FTownspersonViewDefaultsReduceRequest &Right) */
 inline bool operator!=(const FTownspersonViewDefaultsReduceRequest &Left,
                        const FTownspersonViewDefaultsReduceRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonInteractionOverlapRequest &Left, const FTownspersonInteractionOverlapRequest &Right) */
 inline bool operator==(const FTownspersonInteractionOverlapRequest &Left,
                        const FTownspersonInteractionOverlapRequest &Right) {
   return Left.bOtherActorPresent == Right.bOtherActorPresent &&
@@ -156,11 +169,13 @@ inline bool operator==(const FTownspersonInteractionOverlapRequest &Left,
          Left.bCurrentPlayerNearby == Right.bCurrentPlayerNearby;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonInteractionOverlapRequest &Left, const FTownspersonInteractionOverlapRequest &Right) */
 inline bool operator!=(const FTownspersonInteractionOverlapRequest &Left,
                        const FTownspersonInteractionOverlapRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonInteractionOverlapViewModel &Left, const FTownspersonInteractionOverlapViewModel &Right) */
 inline bool operator==(const FTownspersonInteractionOverlapViewModel &Left,
                        const FTownspersonInteractionOverlapViewModel &Right) {
   return Left.bShouldApply == Right.bShouldApply &&
@@ -168,6 +183,7 @@ inline bool operator==(const FTownspersonInteractionOverlapViewModel &Left,
          Left.bPromptVisible == Right.bPromptVisible;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonInteractionOverlapViewModel &Left, const FTownspersonInteractionOverlapViewModel &Right) */
 inline bool operator!=(const FTownspersonInteractionOverlapViewModel &Left,
                        const FTownspersonInteractionOverlapViewModel &Right) {
   return !(Left == Right);

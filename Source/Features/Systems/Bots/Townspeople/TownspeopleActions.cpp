@@ -5,6 +5,7 @@ namespace Game {
 namespace Level {
 namespace TownspersonActions {
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke townspeople seeded through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn const rtk::ActionCreator<TArray<FTownspersonSeed>> &TownspeopleSeeded() */
 const rtk::ActionCreator<TArray<FTownspersonSeed>> &TownspeopleSeeded() {
   static const func::Lazy<rtk::ActionCreator<TArray<FTownspersonSeed>>> Creator =
       func::lazy([]() -> rtk::ActionCreator<TArray<FTownspersonSeed>> {
@@ -15,6 +16,7 @@ const rtk::ActionCreator<TArray<FTownspersonSeed>> &TownspeopleSeeded() {
   return func::eval(Creator);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke view defaults requested through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn const rtk::ActionCreator<FTownspersonViewDefaultsRequest> & ViewDefaultsRequested() */
 const rtk::ActionCreator<FTownspersonViewDefaultsRequest> &
 ViewDefaultsRequested() {
   static const func::Lazy<rtk::ActionCreator<FTownspersonViewDefaultsRequest>>
@@ -28,6 +30,7 @@ ViewDefaultsRequested() {
   return func::eval(Creator);
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke interaction overlap observed through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn const rtk::ActionCreator<FTownspersonInteractionOverlapRequest> & InteractionOverlapObserved() */
 const rtk::ActionCreator<FTownspersonInteractionOverlapRequest> &
 InteractionOverlapObserved() {
   static const func::Lazy<

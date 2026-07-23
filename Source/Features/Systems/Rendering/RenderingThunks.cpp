@@ -23,6 +23,7 @@ namespace RenderingThunks {
 
 DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeBudget, Log, All);
 
+/** User Story: As a features systems rendering consumer, I need to invoke log runtime budget sample through a stable signature so the features systems rendering workflow remains explicit and composable. @fn void LogRuntimeBudgetSample( const FRuntimeStatsViewModel &Stats, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 void LogRuntimeBudgetSample(
     const FRuntimeStatsViewModel &Stats,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
@@ -32,6 +33,7 @@ void LogRuntimeBudgetSample(
   UE_LOG(LogForbocRuntimeBudget, Display, TEXT("%s"), *Message);
 }
 
+/** User Story: As a features systems rendering consumer, I need to invoke present runtime stats debug message through a stable signature so the features systems rendering workflow remains explicit and composable. @fn void PresentRuntimeStatsDebugMessage( const FRuntimeStatsViewModel &Stats, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 void PresentRuntimeStatsDebugMessage(
     const FRuntimeStatsViewModel &Stats,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
@@ -45,6 +47,7 @@ void PresentRuntimeStatsDebugMessage(
           : void();
 }
 
+/** User Story: As a features systems rendering consumer, I need to invoke observe runtime stats tick through a stable signature so the features systems rendering workflow remains explicit and composable. @fn rtk::ThunkAction<void, FRuntimeState> ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) */
 rtk::ThunkAction<void, FRuntimeState>
 ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
   return [World, DeltaSeconds](std::function<rtk::AnyAction(const rtk::AnyAction &)> Dispatch,

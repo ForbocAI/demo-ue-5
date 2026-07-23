@@ -22,8 +22,9 @@ using FNatureScaleModeSource = NatureTypes::FNatureScaleModeSource;
 
 template <>
 struct TJsonTextValueRegistry<EFeatureKind> {
-  static const TArray<TTextValueDeclaration<EFeatureKind>> &Values() {
-    static const TArray<TTextValueDeclaration<EFeatureKind>>
+  /** User Story: As a nature seed json consumer, I need to invoke values through a stable signature so the nature seed json workflow remains explicit and composable. @fn static const TArray<TValueDeclaration<EFeatureKind>> &Values() */
+  static const TArray<TValueDeclaration<EFeatureKind>> &Values() {
+    static const TArray<TValueDeclaration<EFeatureKind>>
         RegisteredValues = {{"water", EFeatureKind::Water},
                             {"rock", EFeatureKind::Rock},
                             {"tree_grove", EFeatureKind::TreeGrove},
@@ -37,8 +38,9 @@ struct TJsonTextValueRegistry<EFeatureKind> {
 
 template <>
 struct TJsonTextValueRegistry<ENatureScaleMode> {
-  static const TArray<TTextValueDeclaration<ENatureScaleMode>> &Values() {
-    static const TArray<TTextValueDeclaration<ENatureScaleMode>>
+  /** User Story: As a nature seed json consumer, I need to invoke values through a stable signature so the nature seed json workflow remains explicit and composable. @fn static const TArray<TValueDeclaration<ENatureScaleMode>> &Values() */
+  static const TArray<TValueDeclaration<ENatureScaleMode>> &Values() {
+    static const TArray<TValueDeclaration<ENatureScaleMode>>
         RegisteredValues = {{"long_feature", ENatureScaleMode::LongFeature},
                             {"pad", ENatureScaleMode::Pad},
                             {"pad_feet", ENatureScaleMode::Pad}};

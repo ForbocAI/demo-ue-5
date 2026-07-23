@@ -13,6 +13,7 @@
 #include "Features/Systems/Level/SystemsLevelAdapters.h"
 #include "Features/Systems/Nature/SystemsNatureActions.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
+#include "Features/Systems/Seed/SeedThunks.h"
 #include "Features/Systems/SystemsSelectors.h"
 #include "Features/Systems/Spawn/SpawnActions.h"
 #include "Features/Systems/Spawn/SystemsSpawnSlice.h"
@@ -23,151 +24,13 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 namespace RuntimeThunks {
-namespace {
 
-using FRuntimeDispatch =
-    std::function<rtk::AnyAction(const rtk::AnyAction &)>;
-
-struct FRuntimeDataLoadRequest {
-  FLevelTerrainData &TerrainData;
-  FLevelOrthoData &OrthoData;
-  ForbocAI::Game::Data::FTerrainSourceSettings Sources;
-  ForbocAI::Game::Data::FCsvSettings Csv;
-  ForbocAI::Game::Data::FGeometrySettings Geometry;
-};
-
-struct FRuntimeSeedDispatchRequest {
-  const FRuntimeDispatch &Dispatch;
-  const FLevelTerrainData &TerrainData;
-  const FLevelOrthoData &OrthoData;
-  ForbocAI::Game::Data::FDataSourceSettings DataSources;
-  ForbocAI::Game::Data::FGeometrySettings Geometry;
-};
-
-struct FRuntimeSeedSource {
-  const FLevelTerrainData &TerrainData;
-  const FLevelOrthoData &OrthoData;
-  ForbocAI::Game::Data::FDataSourceSettings DataSources;
-  ForbocAI::Game::Data::FGeometrySettings Geometry;
-};
-
-using FRuntimeSeedActionBuilder =
-    rtk::AnyAction (*)(const FRuntimeSeedSource &);
-
-struct FRuntimeSeedActionDeclaration {
-  FRuntimeSeedActionBuilder Build;
-};
-
-struct FRuntimeSeedActionPlan {};
-
-template <typename Catalog> struct TRuntimeThunkRegistry;
-
-void LoadRuntimeData(const FRuntimeDataLoadRequest &Request) {
-  Request.TerrainData.LoadFromContent(
-      {Request.Sources, Request.Csv, Request.Geometry});
-  Request.OrthoData.LoadFromContent({Request.Sources, Request.Csv});
-}
-
-FRuntimeSeedSource RuntimeSeedSource(
-    const FRuntimeSeedDispatchRequest &Request) {
-  return {Request.TerrainData, Request.OrthoData, Request.DataSources,
-          Request.Geometry};
-}
-
-rtk::AnyAction TerrainLoadedSeedAction(const FRuntimeSeedSource &Source) {
-  return TerrainActions::TerrainLoaded()(
-      TerrainFactories::LoadedPayload(
-          {Source.TerrainData.GetSourcePath(),
-           Source.OrthoData.GetSourcePath(),
-           Source.TerrainData.GetGridSize(),
-           Source.TerrainData.GetMinElevationMeters(),
-           Source.TerrainData.GetMaxElevationMeters()}));
-}
-
-rtk::AnyAction LandmarksSeededAction(const FRuntimeSeedSource &Source) {
-  return LandmarkActions::LandmarksSeeded()(
-      LandmarksAdapters::BuildLandmarkSeed(
-          {Source.DataSources.LandmarksJsonPath, Source.TerrainData,
-           Source.Geometry}));
-}
-
-rtk::AnyAction PlayerSpawnAnchoredAction(const FRuntimeSeedSource &Source) {
-  return SpawnActions::PlayerSpawnAnchored()(
-      SpawnFactories::SpawnPointPayload(
-          {LevelLayoutAdapters::ToWorld(
-               {Source.TerrainData,
-                LevelLayoutAdapters::PlayerSpawnPoint(Source.Geometry)}),
-           LevelLayoutAdapters::PlayerSpawnRotation(Source.Geometry),
-           LevelLayoutAdapters::PlayerSpawnAnchorLabel(Source.Geometry)}));
-}
-
-rtk::AnyAction TownspeopleSeededAction(const FRuntimeSeedSource &Source) {
-  return TownspersonActions::TownspeopleSeeded()(
-      BotsAdapters::BuildTownspersonSeed(
-          {Source.DataSources.TownspeopleJsonPath, Source.Geometry}));
-}
-
-rtk::AnyAction HorsesSeededAction(const FRuntimeSeedSource &Source) {
-  return HorseActions::HorsesSeeded()(
-      BotsAdapters::BuildHorseRouteSeed(
-          {Source.DataSources.HorsesJsonPath, Source.Geometry}));
-}
-
-rtk::AnyAction NatureSeededAction(const FRuntimeSeedSource &Source) {
-  return NatureActions::NatureSeeded()(
-      NatureAdapters::BuildNatureSeed(
-          {Source.DataSources.NatureJsonPath, Source.Geometry}));
-}
-
-template <> struct TRuntimeThunkRegistry<FRuntimeSeedActionPlan> {
-  static const TArray<FRuntimeSeedActionDeclaration> &Declarations() {
-    static const TArray<FRuntimeSeedActionDeclaration>
-        RegisteredDeclarations = {{TerrainLoadedSeedAction},
-                                  {LandmarksSeededAction},
-                                  {PlayerSpawnAnchoredAction},
-                                  {TownspeopleSeededAction},
-                                  {HorsesSeededAction},
-                                  {NatureSeededAction}};
-    return RegisteredDeclarations;
-  }
-};
-
-TArray<rtk::AnyAction> RuntimeSeedActions(
-    const FRuntimeSeedSource &Source,
-    const TArray<FRuntimeSeedActionDeclaration> &Declarations) {
-  return func::fold_array<FRuntimeSeedActionDeclaration,
-                          TArray<rtk::AnyAction>>(
-      Declarations, TArray<rtk::AnyAction>(),
-      [&Source](const TArray<rtk::AnyAction> &Acc,
-                const FRuntimeSeedActionDeclaration &Declaration) {
-        return func::append_value<rtk::AnyAction>(
-            Acc, Declaration.Build(Source));
-      });
-}
-
-void DispatchRuntimeActions(const FRuntimeDispatch &Dispatch,
-                            const TArray<rtk::AnyAction> &Actions) {
-  func::for_each_array<rtk::AnyAction>(
-      Actions, [&Dispatch](const rtk::AnyAction &Action) {
-        Dispatch(Action);
-      });
-}
-
-void DispatchRuntimeSeeded(const FRuntimeSeedDispatchRequest &Request) {
-  DispatchRuntimeActions(
-      Request.Dispatch,
-      RuntimeSeedActions(
-          RuntimeSeedSource(Request),
-          TRuntimeThunkRegistry<
-              FRuntimeSeedActionPlan>::Declarations()));
-}
-
-} // namespace
-
+/** User Story: As a features systems consumer, I need to invoke request player spawn type prefix through a stable signature so the features systems workflow remains explicit and composable. @fn FString RequestPlayerSpawnTypePrefix() */
 FString RequestPlayerSpawnTypePrefix() {
   return TEXT("runtime/requestPlayerSpawn");
 }
 
+/** User Story: As a features systems consumer, I need to invoke request level view payload type prefix through a stable signature so the features systems workflow remains explicit and composable. @fn FString RequestLevelViewPayloadTypePrefix() */
 FString RequestLevelViewPayloadTypePrefix() {
   return TEXT("runtime/requestLevelViewPayload");
 }
@@ -177,6 +40,7 @@ FString RequestLevelViewPayloadTypePrefix() {
 // a rejected action on failure instead of swallowing the error. The public
 // signature stays a ThunkAction (the config's operator()), so callers and the
 // EnhancedStore thunk-dispatch path are unchanged.
+/** User Story: As a features systems consumer, I need to invoke request player spawn async thunk through a stable signature so the features systems workflow remains explicit and composable. @fn const rtk::AsyncThunkConfig<FPointPayload, rtk::FEmptyPayload, FRuntimeState> & RequestPlayerSpawnAsyncThunk() */
 const rtk::AsyncThunkConfig<FPointPayload, rtk::FEmptyPayload,
                             FRuntimeState> &
 RequestPlayerSpawnAsyncThunk() {
@@ -202,7 +66,7 @@ RequestPlayerSpawnAsyncThunk() {
                   FLevelTerrainData TerrainData;
                   FLevelOrthoData OrthoData;
                   const FRuntimeState &State = Api.getState();
-                  const ForbocAI::Game::Data::FTerrainSourceSettings
+                  const ForbocAI::Game::Data::FSourceSettings
                       Sources =
                           RuntimeSelectors::SelectLevelTerrainSources(State);
                   const ForbocAI::Game::Data::FDataSourceSettings
@@ -212,10 +76,11 @@ RequestPlayerSpawnAsyncThunk() {
                       RuntimeSelectors::SelectLevelCsv(State);
                   const ForbocAI::Game::Data::FGeometrySettings Geometry =
                       RuntimeSelectors::SelectLevelGeometry(State);
-                  LoadRuntimeData(
+                  SeedThunks::LoadRuntimeData(
                       {TerrainData, OrthoData, Sources, Csv, Geometry});
-                  DispatchRuntimeSeeded({Api.dispatch, TerrainData, OrthoData,
-                                         DataSources, Geometry});
+                  SeedThunks::DispatchRuntimeSeeded(
+                      {Api.dispatch, TerrainData, OrthoData, DataSources,
+                       Geometry});
                   Resolve(RuntimeSelectors::SelectPlayerSpawn(Api.getState()));
                 });
           },
@@ -223,10 +88,12 @@ RequestPlayerSpawnAsyncThunk() {
   return Config;
 }
 
+/** User Story: As a features systems consumer, I need to invoke request player spawn through a stable signature so the features systems workflow remains explicit and composable. @fn rtk::ThunkAction<FPointPayload, FRuntimeState> RequestPlayerSpawn() */
 rtk::ThunkAction<FPointPayload, FRuntimeState> RequestPlayerSpawn() {
   return RequestPlayerSpawnAsyncThunk()(rtk::FEmptyPayload{});
 }
 
+/** User Story: As a features systems consumer, I need to invoke request level view payload async thunk through a stable signature so the features systems workflow remains explicit and composable. @fn const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload, rtk::FEmptyPayload, FRuntimeState> & RequestLevelViewPayloadAsyncThunk() */
 const rtk::AsyncThunkConfig<FRuntimeLevelViewPayload, rtk::FEmptyPayload,
                             FRuntimeState> &
 RequestLevelViewPayloadAsyncThunk() {
@@ -252,7 +119,7 @@ RequestLevelViewPayloadAsyncThunk() {
                   FLevelTerrainData TerrainData;
                   FLevelOrthoData OrthoData;
                   const FRuntimeState &State = Api.getState();
-                  const ForbocAI::Game::Data::FTerrainSourceSettings
+                  const ForbocAI::Game::Data::FSourceSettings
                       Sources =
                           RuntimeSelectors::SelectLevelTerrainSources(State);
                   const ForbocAI::Game::Data::FDataSourceSettings
@@ -262,12 +129,13 @@ RequestLevelViewPayloadAsyncThunk() {
                       RuntimeSelectors::SelectLevelCsv(State);
                   const ForbocAI::Game::Data::FGeometrySettings Geometry =
                       RuntimeSelectors::SelectLevelGeometry(State);
-                  LoadRuntimeData(
+                  SeedThunks::LoadRuntimeData(
                       {TerrainData, OrthoData, Sources, Csv, Geometry});
                   const FLayoutSeed Layout =
                       LevelAdapters::LoadLayoutSeed(DataSources);
-                  DispatchRuntimeSeeded({Api.dispatch, TerrainData, OrthoData,
-                                         DataSources, Geometry});
+                  SeedThunks::DispatchRuntimeSeeded(
+                      {Api.dispatch, TerrainData, OrthoData, DataSources,
+                       Geometry});
                   func::executeAsync(RenderingThunks::ObserveRuntimeProfile(
                       TEXT("runtime/rendering/profileObserved"))(Api.dispatch,
                                                                  Api.getState));
@@ -280,6 +148,7 @@ RequestLevelViewPayloadAsyncThunk() {
   return Config;
 }
 
+/** User Story: As a features systems consumer, I need to invoke request level view payload through a stable signature so the features systems workflow remains explicit and composable. @fn rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState> RequestLevelViewPayload() */
 rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
 RequestLevelViewPayload() {
   return RequestLevelViewPayloadAsyncThunk()(rtk::FEmptyPayload{});

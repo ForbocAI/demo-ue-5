@@ -1,11 +1,15 @@
 #pragma once
 
+#include "Features/Components/ComponentsAdapters.h"
+#include "Features/Entities/EntitiesAdapters.h"
+
 namespace ForbocAI {
 namespace Game {
 namespace Level {
 namespace ComponentsAdapters {
 
 template <> struct TComponentTextRegistry<EFeatureKind> {
+  /** User Story: As a nature seed project consumer, I need to invoke declarations through a stable signature so the nature seed project workflow remains explicit and composable. @fn static const TArray<TComponentTextDeclaration<EFeatureKind>> &Declarations() */
   static const TArray<TComponentTextDeclaration<EFeatureKind>>
       &Declarations() {
     static const TArray<TComponentTextDeclaration<EFeatureKind>>
@@ -21,6 +25,7 @@ template <> struct TComponentTextRegistry<EFeatureKind> {
 };
 
 template <> struct TComponentSourceValueFieldRegistry<FFeatureSeed> {
+  /** User Story: As a nature seed project consumer, I need to invoke fields through a stable signature so the nature seed project workflow remains explicit and composable. @fn static const TArray< TComponentSourceValueFieldDeclaration<FFeatureSeed>> &Fields() */
   static const TArray<
       TComponentSourceValueFieldDeclaration<FFeatureSeed>>
       &Fields() {
@@ -38,6 +43,7 @@ template <> struct TComponentSourceValueFieldRegistry<FFeatureSeed> {
 
 template <>
 struct TComponentSourceProjector<FFeatureSeed> {
+  /** User Story: As a nature seed project consumer, I need to invoke the callable value through a stable signature so the nature seed project workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FFeatureSeed &NatureFeature) const */
   ecs::FComponentValue
   operator()(const FFeatureSeed &NatureFeature) const {
     return ComponentSourceValueMap(
@@ -51,10 +57,12 @@ namespace EntitiesAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
+/** User Story: As a nature seed project consumer, I need to invoke nature entity key through a stable signature so the nature seed project workflow remains explicit and composable. @fn ecs::EntityKey NatureEntityKey(const FString &Id) */
 ecs::EntityKey NatureEntityKey(const FString &Id) {
   return FString::Printf(TEXT("nature:%s"), *Id);
 }
 
+/** User Story: As a nature seed project consumer, I need to invoke project nature feature through a stable signature so the nature seed project workflow remains explicit and composable. @fn ecs::FWorld ProjectNatureFeature(const FProjectNatureFeatureEntityPayload &Payload) */
 ecs::FWorld
 ProjectNatureFeature(const FProjectNatureFeatureEntityPayload &Payload) {
   return ComponentsAdapters::ProjectEntityCatalog(

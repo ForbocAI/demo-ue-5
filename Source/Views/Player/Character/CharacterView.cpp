@@ -24,15 +24,18 @@
 namespace FG = ForbocAI::Game::Level;
 
 namespace {
+/** User Story: As a views player character consumer, I need to invoke observe player presentation through a stable signature so the views player character workflow remains explicit and composable. @fn FG::FPresentationViewModel ObservePlayerPresentation() */
 FG::FPresentationViewModel ObservePlayerPresentation() {
   return FG::RuntimeSelectors::SelectPlayerPresentation();
 }
 
+/** User Story: As a views player character consumer, I need to invoke load input action through a stable signature so the views player character workflow remains explicit and composable. @fn UInputAction *LoadInputAction(const FString &AssetPath) */
 UInputAction *LoadInputAction(const FString &AssetPath) {
   return LoadObject<UInputAction>(nullptr, *AssetPath);
 }
 } // namespace
 
+/** User Story: As a views player character consumer, I need to invoke aplayer character view through a stable signature so the views player character workflow remains explicit and composable. @fn APlayerCharacterView::APlayerCharacterView() */
 APlayerCharacterView::APlayerCharacterView()
     : MappingContext(nullptr), MouseMappingContext(nullptr), MoveAction(nullptr),
       LookAction(nullptr), MouseLookAction(nullptr), JumpAction(nullptr),
@@ -45,26 +48,31 @@ APlayerCharacterView::APlayerCharacterView()
       ObservePlayerPresentation();
   const ForbocAI::Game::Data::FViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectViewNames();
-  MeshRelativeLocation = Presentation.MeshRelativeLocation;
-  MeshRelativeRotation = Presentation.MeshRelativeRotation;
-  CharacterForcedLodModel = Presentation.SkeletalMeshForcedLodModel;
-  CharacterMinLodModel = Presentation.SkeletalMeshMinLodModel;
-  CharacterCullDistance = Presentation.MeshCullDistance;
-  bCharacterCastShadow = Presentation.bMeshCastShadow;
-  bCharacterComponentTickEnabled = Presentation.bMeshComponentTickEnabled;
+  MeshRelativeLocation = Presentation.MeshTransform.MeshRelativeLocation;
+  MeshRelativeRotation = Presentation.MeshTransform.MeshRelativeRotation;
+  CharacterForcedLodModel =
+      Presentation.MeshLod.SkeletalMeshForcedLodModel;
+  CharacterMinLodModel = Presentation.MeshLod.SkeletalMeshMinLodModel;
+  CharacterCullDistance = Presentation.MeshLod.MeshCullDistance;
+  bCharacterCastShadow = Presentation.MeshBehavior.bMeshCastShadow;
+  bCharacterComponentTickEnabled =
+      Presentation.MeshBehavior.bMeshComponentTickEnabled;
   bCharacterUpdateRateOptimizationsEnabled =
-      Presentation.bMeshUpdateRateOptimizationsEnabled;
-  CharacterMeshPath = Presentation.MeshPath;
+      Presentation.MeshBehavior.bMeshUpdateRateOptimizationsEnabled;
+  CharacterMeshPath = Presentation.MeshAssets.MeshPath;
   CharacterAnimationBlueprintClassPath =
-      Presentation.AnimationBlueprintClassPath;
-  MoveActionPath = Presentation.MoveActionPath;
-  LookActionPath = Presentation.LookActionPath;
-  MouseLookActionPath = Presentation.MouseLookActionPath;
-  JumpActionPath = Presentation.JumpActionPath;
-  DefaultMappingContextPath = Presentation.DefaultMappingContextPath;
-  MouseMappingContextPath = Presentation.MouseMappingContextPath;
-  GetCapsuleComponent()->InitCapsuleSize(Presentation.CapsuleRadius,
-                                         Presentation.CapsuleHalfHeight);
+      Presentation.MeshAssets.AnimationBlueprintClassPath;
+  MoveActionPath = Presentation.InputActions.MoveActionPath;
+  LookActionPath = Presentation.InputActions.LookActionPath;
+  MouseLookActionPath = Presentation.InputActions.MouseLookActionPath;
+  JumpActionPath = Presentation.InputActions.JumpActionPath;
+  DefaultMappingContextPath =
+      Presentation.InputMappings.DefaultMappingContextPath;
+  MouseMappingContextPath =
+      Presentation.InputMappings.MouseMappingContextPath;
+  GetCapsuleComponent()->InitCapsuleSize(
+      Presentation.Capsule.CapsuleRadius,
+      Presentation.Capsule.CapsuleHalfHeight);
 
   bUseControllerRotationPitch = false;
   bUseControllerRotationYaw = false;
@@ -72,21 +80,23 @@ APlayerCharacterView::APlayerCharacterView()
 
   UCharacterMovementComponent *Movement = GetCharacterMovement();
   Movement->bOrientRotationToMovement = true;
-  Movement->RotationRate = FRotator(0.0f, Presentation.RotationRateYaw, 0.0f);
-  Movement->JumpZVelocity = Presentation.JumpZVelocity;
-  Movement->AirControl = Presentation.AirControl;
-  Movement->MaxWalkSpeed = Presentation.MaxWalkSpeed;
-  Movement->MinAnalogWalkSpeed = Presentation.MinAnalogWalkSpeed;
+  Movement->RotationRate =
+      FRotator(0.0f, Presentation.Movement.RotationRateYaw, 0.0f);
+  Movement->JumpZVelocity = Presentation.Movement.JumpZVelocity;
+  Movement->AirControl = Presentation.Movement.AirControl;
+  Movement->MaxWalkSpeed = Presentation.Movement.MaxWalkSpeed;
+  Movement->MinAnalogWalkSpeed =
+      Presentation.Movement.MinAnalogWalkSpeed;
   Movement->BrakingDecelerationWalking =
-      Presentation.BrakingDecelerationWalking;
+      Presentation.Braking.BrakingDecelerationWalking;
   Movement->BrakingDecelerationFalling =
-      Presentation.BrakingDecelerationFalling;
+      Presentation.Braking.BrakingDecelerationFalling;
 
   CameraBoom =
       CreateDefaultSubobject<USpringArmComponent>(
           FName(*ViewNames.Player.CameraBoom));
   CameraBoom->SetupAttachment(RootComponent);
-  CameraBoom->TargetArmLength = Presentation.FollowCameraArmLength;
+  CameraBoom->TargetArmLength = Presentation.Camera.FollowCameraArmLength;
   CameraBoom->bUsePawnControlRotation = true;
 
   FollowCamera =
@@ -99,6 +109,7 @@ APlayerCharacterView::APlayerCharacterView()
   ConfigureEnhancedInput();
 }
 
+/** User Story: As a views player character consumer, I need to invoke begin play through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::BeginPlay() */
 void APlayerCharacterView::BeginPlay() {
   Super::BeginPlay();
 
@@ -116,6 +127,7 @@ void APlayerCharacterView::BeginPlay() {
   Subsystem->AddMappingContext(MouseMappingContext, 0);
 }
 
+/** User Story: As a views player character consumer, I need to invoke setup player input component through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::SetupPlayerInputComponent( UInputComponent *PlayerInputComponent) */
 void APlayerCharacterView::SetupPlayerInputComponent(
     UInputComponent *PlayerInputComponent) {
   UEnhancedInputComponent *EnhancedInput =
@@ -137,6 +149,7 @@ void APlayerCharacterView::SetupPlayerInputComponent(
                             &APlayerCharacterView::Look);
 }
 
+/** User Story: As a views player character consumer, I need to invoke do move through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::DoMove(float Right, float Forward) */
 void APlayerCharacterView::DoMove(float Right, float Forward) {
   check(Controller);
   const ForbocAI::Game::Data::FObservationIdSettings &Ids =
@@ -151,23 +164,29 @@ void APlayerCharacterView::DoMove(float Right, float Forward) {
       : void();
 }
 
+/** User Story: As a views player character consumer, I need to invoke do look through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::DoLook(float Yaw, float Pitch) */
 void APlayerCharacterView::DoLook(float Yaw, float Pitch) {
   AddControllerYawInput(Yaw);
   AddControllerPitchInput(Pitch);
 }
 
+/** User Story: As a views player character consumer, I need to invoke do jump start through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::DoJumpStart() */
 void APlayerCharacterView::DoJumpStart() { Jump(); }
 
+/** User Story: As a views player character consumer, I need to invoke do jump end through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::DoJumpEnd() */
 void APlayerCharacterView::DoJumpEnd() { StopJumping(); }
 
+/** User Story: As a views player character consumer, I need to invoke get runtime follow camera through a stable signature so the views player character workflow remains explicit and composable. @fn UCameraComponent *APlayerCharacterView::GetRuntimeFollowCamera() const */
 UCameraComponent *APlayerCharacterView::GetRuntimeFollowCamera() const {
   return FollowCamera;
 }
 
+/** User Story: As a views player character consumer, I need to invoke get runtime camera boom through a stable signature so the views player character workflow remains explicit and composable. @fn USpringArmComponent *APlayerCharacterView::GetRuntimeCameraBoom() const */
 USpringArmComponent *APlayerCharacterView::GetRuntimeCameraBoom() const {
   return CameraBoom;
 }
 
+/** User Story: As a views player character consumer, I need to invoke configure template character through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::ConfigureTemplateCharacter() */
 void APlayerCharacterView::ConfigureTemplateCharacter() {
   USkeletalMesh *CharacterMesh =
       LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath);
@@ -188,6 +207,7 @@ void APlayerCharacterView::ConfigureTemplateCharacter() {
   GetMesh()->SetAnimInstanceClass(AnimClass);
 }
 
+/** User Story: As a views player character consumer, I need to invoke configure enhanced input through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::ConfigureEnhancedInput() */
 void APlayerCharacterView::ConfigureEnhancedInput() {
   MoveAction = LoadInputAction(MoveActionPath);
   LookAction = LoadInputAction(LookActionPath);
@@ -206,11 +226,13 @@ void APlayerCharacterView::ConfigureEnhancedInput() {
   check(MouseMappingContext);
 }
 
+/** User Story: As a views player character consumer, I need to invoke move through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::Move(const FInputActionValue &Value) */
 void APlayerCharacterView::Move(const FInputActionValue &Value) {
   const FVector2D MovementVector = Value.Get<FVector2D>();
   DoMove(MovementVector.X, MovementVector.Y);
 }
 
+/** User Story: As a views player character consumer, I need to invoke look through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::Look(const FInputActionValue &Value) */
 void APlayerCharacterView::Look(const FInputActionValue &Value) {
   const FVector2D LookAxisVector = Value.Get<FVector2D>();
   DoLook(LookAxisVector.X, LookAxisVector.Y);

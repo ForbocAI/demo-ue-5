@@ -14,6 +14,7 @@ struct FConversationUILabelCursor {
   const TArray<FString> *Labels = nullptr;
   int32 Index = int32();
 
+  /** User Story: As a tests consumer, I need to invoke next through a stable signature so the tests workflow remains explicit and composable. @fn FString Next() */
   FString Next() {
     check(Labels != nullptr);
     check(Labels->IsValidIndex(Index));
@@ -23,6 +24,7 @@ struct FConversationUILabelCursor {
   }
 };
 
+/** User Story: As a tests consumer, I need to invoke conversation uilabels through a stable signature so the tests workflow remains explicit and composable. @fn FConversationUILabelCursor ConversationUILabels( const TArray<FString> &Labels) */
 FConversationUILabelCursor ConversationUILabels(
     const TArray<FString> &Labels) {
   return {&Labels, int32()};
@@ -35,6 +37,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.UI.ConversationViewModels",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) */
 bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();

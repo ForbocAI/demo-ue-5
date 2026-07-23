@@ -8,7 +8,9 @@ namespace Game {
 namespace Level {
 namespace BotStatsActions {
 
+/** User Story: As a systems bots stats consumer, I need to invoke bot stats seeded through a stable signature so the systems bots stats workflow remains explicit and composable. @fn const rtk::ActionCreator<TArray<FBotStatsComponent>> &BotStatsSeeded() */
 const rtk::ActionCreator<TArray<FBotStatsComponent>> &BotStatsSeeded();
+/** User Story: As a systems bots stats consumer, I need to invoke bot stats updated through a stable signature so the systems bots stats workflow remains explicit and composable. @fn const rtk::ActionCreator<FBotStatsUpdate> &BotStatsUpdated() */
 const rtk::ActionCreator<FBotStatsUpdate> &BotStatsUpdated();
 
 } // namespace BotStatsActions

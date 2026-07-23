@@ -65,6 +65,7 @@ struct FRenderingState {
   FPolyCacheState PolyCache;
 };
 
+/** User Story: As a features systems rendering consumer, I need to compare values for equality through a stable signature so the features systems rendering workflow remains explicit and composable. @fn inline bool operator==(const FRenderingState &Left, const FRenderingState &Right) */
 inline bool operator==(const FRenderingState &Left,
                        const FRenderingState &Right) {
   return Left.Profile.ActionId.hasValue == Right.Profile.ActionId.hasValue &&
@@ -103,6 +104,7 @@ inline bool operator==(const FRenderingState &Left,
                               Right.PolyCache.CachedPolyCountMilliseconds);
 }
 
+/** User Story: As a features systems rendering consumer, I need to compare values for inequality through a stable signature so the features systems rendering workflow remains explicit and composable. @fn inline bool operator!=(const FRenderingState &Left, const FRenderingState &Right) */
 inline bool operator!=(const FRenderingState &Left,
                        const FRenderingState &Right) {
   return !(Left == Right);

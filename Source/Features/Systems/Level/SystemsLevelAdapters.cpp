@@ -10,23 +10,24 @@ namespace LevelAdapters {
 
 namespace JsonAdapters = ForbocAI::Game::Data::JsonAdapters;
 
+/** User Story: As a features systems level consumer, I need to invoke load layout seed through a stable signature so the features systems level workflow remains explicit and composable. @fn FLayoutSeed LoadLayoutSeed(const ForbocAI::Game::Data::FDataSourceSettings &DataSources) */
 FLayoutSeed LoadLayoutSeed(const ForbocAI::Game::Data::FDataSourceSettings &DataSources) {
   const func::Maybe<FLayoutSeed> ParsedLayout =
       Layout::LayoutFromJson(
           {{JsonAdapters::LoadRequiredArrayFromContent(
-                {DataSources.TerrainBlocksJsonPath}),
+                {DataSources.Terrain.TerrainBlocksJsonPath}),
             JsonAdapters::LoadRequiredArrayFromContent(
-                {DataSources.TerrainLabelsJsonPath})},
+                {DataSources.Terrain.TerrainLabelsJsonPath})},
            {JsonAdapters::LoadRequiredArrayFromContent(
-                {DataSources.TownBlocksJsonPath}),
+                {DataSources.Town.TownBlocksJsonPath}),
             JsonAdapters::LoadRequiredArrayFromContent(
-                {DataSources.TownLabelsJsonPath})},
+                {DataSources.Town.TownLabelsJsonPath})},
            {JsonAdapters::LoadRequiredArrayFromContent(
-                {DataSources.MineBlocksJsonPath}),
+                {DataSources.Mine.MineBlocksJsonPath}),
             JsonAdapters::LoadRequiredArrayFromContent(
-                {DataSources.MineLabelsJsonPath})},
+                {DataSources.Mine.MineLabelsJsonPath})},
            JsonAdapters::LoadRequiredArrayFromContent(
-               {DataSources.OverlayLabelsJsonPath})});
+               {DataSources.Overlay.OverlayLabelsJsonPath})});
   checkf(ParsedLayout.hasValue, TEXT("Level layout JSON is invalid"));
   return ParsedLayout.value;
 }

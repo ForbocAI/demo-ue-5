@@ -19,11 +19,13 @@ struct FChatMessageViewModel {
   FLinearColor Color;
 };
 
+/** User Story: As a features systems ui consumer, I need to compare values for equality through a stable signature so the features systems ui workflow remains explicit and composable. @fn inline bool operator==(const FChatMessageViewModel &Left, const FChatMessageViewModel &Right) */
 inline bool operator==(const FChatMessageViewModel &Left,
                        const FChatMessageViewModel &Right) {
   return Left.Text == Right.Text && Left.Color == Right.Color;
 }
 
+/** User Story: As a features systems ui consumer, I need to compare values for inequality through a stable signature so the features systems ui workflow remains explicit and composable. @fn inline bool operator!=(const FChatMessageViewModel &Left, const FChatMessageViewModel &Right) */
 inline bool operator!=(const FChatMessageViewModel &Left,
                        const FChatMessageViewModel &Right) {
   return !(Left == Right);
@@ -156,6 +158,7 @@ struct FUIState {
   bool bConversationVisible = false;
 };
 
+/** User Story: As a features systems ui consumer, I need to compare values for equality through a stable signature so the features systems ui workflow remains explicit and composable. @fn inline bool operator==( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Left, const ForbocAI::Game::UI::FRuntimeConversationViewModel &Right) */
 inline bool operator==(
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Left,
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Right) {
@@ -173,12 +176,14 @@ inline bool operator==(
          FMath::IsNearlyEqual(Left.Layout.BodySize, Right.Layout.BodySize);
 }
 
+/** User Story: As a features systems ui consumer, I need to compare values for inequality through a stable signature so the features systems ui workflow remains explicit and composable. @fn inline bool operator!=( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Left, const ForbocAI::Game::UI::FRuntimeConversationViewModel &Right) */
 inline bool operator!=(
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Left,
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems ui consumer, I need to compare values for equality through a stable signature so the features systems ui workflow remains explicit and composable. @fn inline bool operator==(const FUIState &Left, const FUIState &Right) */
 inline bool operator==(const FUIState &Left,
                        const FUIState &Right) {
   return Left.ActionId.hasValue == Right.ActionId.hasValue &&
@@ -190,17 +195,20 @@ inline bool operator==(const FUIState &Left,
          Left.bConversationVisible == Right.bConversationVisible;
 }
 
+/** User Story: As a features systems ui consumer, I need to compare values for inequality through a stable signature so the features systems ui workflow remains explicit and composable. @fn inline bool operator!=(const FUIState &Left, const FUIState &Right) */
 inline bool operator!=(const FUIState &Left,
                        const FUIState &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems ui consumer, I need to compare values for equality through a stable signature so the features systems ui workflow remains explicit and composable. @fn inline bool operator==(const FUIPayload &Left, const FUIPayload &Right) */
 inline bool operator==(const FUIPayload &Left,
                        const FUIPayload &Right) {
   return Left.Id == Right.Id && Left.Conversation == Right.Conversation &&
          Left.Messages == Right.Messages;
 }
 
+/** User Story: As a features systems ui consumer, I need to compare values for inequality through a stable signature so the features systems ui workflow remains explicit and composable. @fn inline bool operator!=(const FUIPayload &Left, const FUIPayload &Right) */
 inline bool operator!=(const FUIPayload &Left,
                        const FUIPayload &Right) {
   return !(Left == Right);

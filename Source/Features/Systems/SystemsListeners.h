@@ -10,6 +10,7 @@ namespace Level {
 namespace RuntimeListeners {
 
 /**
+ * @fn rtk::Middleware<FRuntimeState> CreateRuntimeListenerMiddleware()
  * @brief Builds the runtime reactive-effects middleware.
  *
  * Reactive workflows that must observe *future* dispatched actions (rather than
@@ -21,6 +22,7 @@ namespace RuntimeListeners {
  *
  * @return rtk::Middleware<FRuntimeState> composed listener middleware for the
  * runtime store's middleware chain.
+ * User Story: As a features systems consumer, I need to invoke create runtime listener middleware through a stable signature so the features systems workflow remains explicit and composable.
  */
 rtk::Middleware<FRuntimeState> CreateRuntimeListenerMiddleware();
 

@@ -10,6 +10,7 @@ struct FFormatContext {
   int32 BufferCharacterCount;
 };
 
+/** User Story: As a systems rendering stats consumer, I need to invoke format runtime stats text through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline FString FormatRuntimeStatsText(FFormatContext Context, ...) */
 inline FString FormatRuntimeStatsText(FFormatContext Context, ...) {
   TArray<TCHAR> Buffer;
   Buffer.SetNumZeroed(Context.BufferCharacterCount);
@@ -21,6 +22,7 @@ inline FString FormatRuntimeStatsText(FFormatContext Context, ...) {
   return FString(Buffer.GetData());
 }
 
+/** User Story: As a systems rendering stats consumer, I need to invoke reduce runtime stats value through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline FStatsTextModel ReduceRuntimeStatsValue( int64 Value, int32 MediumThreshold, int32 HighThreshold, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 inline FStatsTextModel ReduceRuntimeStatsValue(
     int64 Value, int32 MediumThreshold, int32 HighThreshold,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
@@ -36,6 +38,7 @@ inline FStatsTextModel ReduceRuntimeStatsValue(
   return Model;
 }
 
+/** User Story: As a systems rendering stats consumer, I need to invoke reduce runtime stats decimal value through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline FStatsTextModel ReduceRuntimeStatsDecimalValue( double Value, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 inline FStatsTextModel ReduceRuntimeStatsDecimalValue(
     double Value,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
@@ -47,6 +50,7 @@ inline FStatsTextModel ReduceRuntimeStatsDecimalValue(
   return Model;
 }
 
+/** User Story: As a systems rendering stats consumer, I need to invoke reduce runtime stats plain value through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline FStatsTextModel ReduceRuntimeStatsPlainValue( int32 Value, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 inline FStatsTextModel ReduceRuntimeStatsPlainValue(
     int32 Value,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
@@ -58,6 +62,7 @@ inline FStatsTextModel ReduceRuntimeStatsPlainValue(
   return Model;
 }
 
+/** User Story: As a systems rendering stats consumer, I need to invoke reduce runtime stats plain value through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline FStatsTextModel ReduceRuntimeStatsPlainValue( int64 Value, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 inline FStatsTextModel ReduceRuntimeStatsPlainValue(
     int64 Value,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
@@ -69,91 +74,95 @@ inline FStatsTextModel ReduceRuntimeStatsPlainValue(
   return Model;
 }
 
+/** User Story: As a systems rendering stats consumer, I need to invoke reduce runtime stats presentation model through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline FRuntimeStatsPresentationModel ReduceRuntimeStatsPresentationModel( const FRuntimeStatsViewModel &Stats, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 inline FRuntimeStatsPresentationModel ReduceRuntimeStatsPresentationModel(
     const FRuntimeStatsViewModel &Stats,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FRuntimeStatsPresentationModel Presentation;
   Presentation.FramesPerSecond = ReduceRuntimeStatsValue(
-      Stats.FramesPerSecond, Settings.FramesPerSecondMediumThreshold,
+      Stats.Summary.FramesPerSecond, Settings.FramesPerSecondMediumThreshold,
       Settings.FramesPerSecondHighThreshold, Settings);
   Presentation.StackDepth = ReduceRuntimeStatsValue(
-      Stats.StackDepth, Settings.StackDepthMediumThreshold,
+      Stats.Summary.StackDepth, Settings.StackDepthMediumThreshold,
       Settings.StackDepthHighThreshold, Settings);
   Presentation.PolyCount =
-      ReduceRuntimeStatsValue(Stats.PolyCount,
+      ReduceRuntimeStatsValue(Stats.Summary.PolyCount,
                               Settings.PolyCountMediumThreshold,
                               Settings.PolyCountHighThreshold, Settings);
   Presentation.UsedPhysicalMemoryMegabytes = ReduceRuntimeStatsValue(
-      Stats.UsedPhysicalMemoryMegabytes, Settings.MemoryMediumThreshold,
+      Stats.Memory.UsedPhysicalMegabytes, Settings.MemoryMediumThreshold,
       Settings.MemoryHighThreshold, Settings);
   Presentation.PeakPhysicalMemoryMegabytes = ReduceRuntimeStatsValue(
-      Stats.PeakPhysicalMemoryMegabytes, Settings.MemoryMediumThreshold,
+      Stats.Memory.PeakUsedPhysicalMegabytes, Settings.MemoryMediumThreshold,
       Settings.MemoryHighThreshold, Settings);
   Presentation.UsedVirtualMemoryMegabytes = ReduceRuntimeStatsValue(
-      Stats.UsedVirtualMemoryMegabytes, Settings.MemoryMediumThreshold,
+      Stats.Memory.UsedVirtualMegabytes, Settings.MemoryMediumThreshold,
       Settings.MemoryHighThreshold, Settings);
   Presentation.GameThreadMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.GameThreadMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Timing.GameThreadMilliseconds, Settings);
   Presentation.RenderThreadMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.RenderThreadMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Timing.RenderThreadMilliseconds, Settings);
   Presentation.RhiThreadMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.RhiThreadMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Timing.RhiThreadMilliseconds, Settings);
   Presentation.GpuMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.GpuMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Timing.GpuMilliseconds, Settings);
   Presentation.DrawCalls =
-      ReduceRuntimeStatsPlainValue(Stats.DrawCalls, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Timing.DrawCalls, Settings);
   Presentation.RhiPrimitives =
-      ReduceRuntimeStatsPlainValue(Stats.RhiPrimitives, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Timing.RhiPrimitives, Settings);
   Presentation.WallDeltaMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.WallDeltaMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Delta.WallDeltaMilliseconds, Settings);
   Presentation.InputDeltaMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.InputDeltaMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Delta.InputDeltaMilliseconds, Settings);
   Presentation.StatsSelectionMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.StatsSelectionMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Delta.StatsSelectionMilliseconds, Settings);
   Presentation.PolyCountMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.PolyCountMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(
+          Stats.Pacing.Delta.PolyCountMilliseconds, Settings);
   Presentation.EngineIdleMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.EngineIdleMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Delta.EngineIdleMilliseconds, Settings);
   Presentation.EngineIdleOvershootMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.EngineIdleOvershootMilliseconds,
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Delta.EngineIdleOvershootMilliseconds,
                                      Settings);
   Presentation.MaxFps =
-      ReduceRuntimeStatsDecimalValue(Stats.MaxFps, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Rate.MaxFps, Settings);
   Presentation.FrameRateLimit =
-      ReduceRuntimeStatsDecimalValue(Stats.FrameRateLimit, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Rate.FrameRateLimit, Settings);
   Presentation.EffectiveMaxTickRate =
-      ReduceRuntimeStatsDecimalValue(Stats.EffectiveMaxTickRate, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Rate.EffectiveMaxTickRate, Settings);
   Presentation.FixedFrameRateEnabled =
-      ReduceRuntimeStatsPlainValue(Stats.FixedFrameRateEnabled, Settings);
+      ReduceRuntimeStatsPlainValue(
+          Stats.Pacing.Mode.FixedFrameRateEnabled, Settings);
   Presentation.FixedFrameRate =
-      ReduceRuntimeStatsDecimalValue(Stats.FixedFrameRate, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Rate.FixedFrameRate, Settings);
   Presentation.FixedTimeStepEnabled =
-      ReduceRuntimeStatsPlainValue(Stats.FixedTimeStepEnabled, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Pacing.Mode.FixedTimeStepEnabled, Settings);
   Presentation.FixedDeltaMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.FixedDeltaMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Pacing.Mode.FixedDeltaMilliseconds, Settings);
   Presentation.VsyncEnabled =
-      ReduceRuntimeStatsPlainValue(Stats.VsyncEnabled, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Pacing.Mode.VsyncEnabled, Settings);
   Presentation.IdleWhenNotForegroundEnabled =
-      ReduceRuntimeStatsPlainValue(Stats.IdleWhenNotForegroundEnabled, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Pacing.Mode.IdleWhenNotForegroundEnabled, Settings);
   Presentation.AppHasFocus =
-      ReduceRuntimeStatsPlainValue(Stats.AppHasFocus, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Pacing.Mode.AppHasFocus, Settings);
   Presentation.CpuThrottleEnabled =
-      ReduceRuntimeStatsPlainValue(Stats.CpuThrottleEnabled, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Pacing.Throttle.CpuThrottleEnabled, Settings);
   Presentation.AllWindowsHidden =
-      ReduceRuntimeStatsPlainValue(Stats.AllWindowsHidden, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Pacing.Throttle.AllWindowsHidden, Settings);
   Presentation.RootReducerMilliseconds =
-      ReduceRuntimeStatsDecimalValue(Stats.RootReducerMilliseconds, Settings);
+      ReduceRuntimeStatsDecimalValue(Stats.Reducers.RootReducerMilliseconds, Settings);
   Presentation.CombinedReducerMilliseconds = ReduceRuntimeStatsDecimalValue(
-      Stats.CombinedReducerMilliseconds, Settings);
+      Stats.Reducers.CombinedReducerMilliseconds, Settings);
   Presentation.EcsProjectionMilliseconds = ReduceRuntimeStatsDecimalValue(
-      Stats.EcsProjectionMilliseconds, Settings);
+      Stats.Projection.EcsProjectionMilliseconds, Settings);
   Presentation.ProjectedEntityCount =
-      ReduceRuntimeStatsPlainValue(Stats.ProjectedEntityCount, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Projection.ProjectedEntityCount, Settings);
   Presentation.ProjectedComponentTypeCount =
-      ReduceRuntimeStatsPlainValue(Stats.ProjectedComponentTypeCount, Settings);
+      ReduceRuntimeStatsPlainValue(Stats.Projection.ProjectedComponentTypeCount, Settings);
   return Presentation;
 }
 
+/** User Story: As a systems rendering stats consumer, I need to invoke reduce runtime stats sampled through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn FRenderingState ReduceRuntimeStatsSampled( const FRenderingState &State, const rtk::PayloadAction<FRuntimeStatsSamplePayload> &Action) */
 FRenderingState ReduceRuntimeStatsSampled(
     const FRenderingState &State,
     const rtk::PayloadAction<FRuntimeStatsSamplePayload> &Action) {

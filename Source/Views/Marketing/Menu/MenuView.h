@@ -23,10 +23,13 @@ class FORBOCAIDEMO_API URuntimeMarketingMenuWidget : public UUserWidget {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a views marketing menu consumer, I need to invoke native construct through a stable signature so the views marketing menu workflow remains explicit and composable. @fn virtual void NativeConstruct() override */
   virtual void NativeConstruct() override;
+  /** User Story: As a views marketing menu consumer, I need to invoke native on key down through a stable signature so the views marketing menu workflow remains explicit and composable. @fn virtual FReply NativeOnKeyDown(const FGeometry &InGeometry, const FKeyEvent &InKeyEvent) override */
   virtual FReply NativeOnKeyDown(const FGeometry &InGeometry,
                                  const FKeyEvent &InKeyEvent) override;
 
+  /** User Story: As a views marketing menu consumer, I need to invoke bind controller through a stable signature so the views marketing menu workflow remains explicit and composable. @fn void BindController(APlayerRuntimeControllerView *Controller) */
   void BindController(APlayerRuntimeControllerView *Controller);
 
 private:
@@ -40,13 +43,17 @@ private:
   UButton *ResumeButton;
 
   UFUNCTION()
+  /** User Story: As a views marketing menu consumer, I need to invoke handle retake clicked through a stable signature so the views marketing menu workflow remains explicit and composable. @fn void HandleRetakeClicked() */
   void HandleRetakeClicked();
 
   UFUNCTION()
+  /** User Story: As a views marketing menu consumer, I need to invoke handle resume clicked through a stable signature so the views marketing menu workflow remains explicit and composable. @fn void HandleResumeClicked() */
   void HandleResumeClicked();
 
+  /** User Story: As a views marketing menu consumer, I need to invoke build text element through a stable signature so the views marketing menu workflow remains explicit and composable. @fn UTextBlock *BuildTextElement(const FString &Text, const FLinearColor &Color, float Size) */
   UTextBlock *BuildTextElement(const FString &Text, const FLinearColor &Color,
                                float Size);
+  /** User Story: As a views marketing menu consumer, I need to invoke build button element through a stable signature so the views marketing menu workflow remains explicit and composable. @fn UButton *BuildButtonElement(const FString &Text, const FLinearColor &Color, float Size) */
   UButton *BuildButtonElement(const FString &Text, const FLinearColor &Color,
                               float Size);
 };

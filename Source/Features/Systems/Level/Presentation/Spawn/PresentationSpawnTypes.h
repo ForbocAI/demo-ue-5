@@ -47,6 +47,7 @@ struct FRuntimeHorseViewSpawnRequest {
   const FLevelTerrainData *TerrainData = nullptr;
 };
 
+/** User Story: As a level presentation spawn consumer, I need to compare values for equality through a stable signature so the level presentation spawn workflow remains explicit and composable. @fn inline bool operator==(const FRuntimeTownspersonViewSpawn &Left, const FRuntimeTownspersonViewSpawn &Right) */
 inline bool operator==(const FRuntimeTownspersonViewSpawn &Left,
                        const FRuntimeTownspersonViewSpawn &Right) {
   return Left.Identity.Id == Right.Identity.Id &&
@@ -62,17 +63,20 @@ inline bool operator==(const FRuntimeTownspersonViewSpawn &Left,
          Left.PatrolRoute == Right.PatrolRoute && Left.Lod == Right.Lod;
 }
 
+/** User Story: As a level presentation spawn consumer, I need to compare values for inequality through a stable signature so the level presentation spawn workflow remains explicit and composable. @fn inline bool operator!=(const FRuntimeTownspersonViewSpawn &Left, const FRuntimeTownspersonViewSpawn &Right) */
 inline bool operator!=(const FRuntimeTownspersonViewSpawn &Left,
                        const FRuntimeTownspersonViewSpawn &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a level presentation spawn consumer, I need to compare values for equality through a stable signature so the level presentation spawn workflow remains explicit and composable. @fn inline bool operator==(const FRuntimeHorseViewSpawn &Left, const FRuntimeHorseViewSpawn &Right) */
 inline bool operator==(const FRuntimeHorseViewSpawn &Left,
                        const FRuntimeHorseViewSpawn &Right) {
   return Left.Name == Right.Name && Left.PatrolRoute == Right.PatrolRoute &&
          Left.bMountedRider == Right.bMountedRider && Left.Lod == Right.Lod;
 }
 
+/** User Story: As a level presentation spawn consumer, I need to compare values for inequality through a stable signature so the level presentation spawn workflow remains explicit and composable. @fn inline bool operator!=(const FRuntimeHorseViewSpawn &Left, const FRuntimeHorseViewSpawn &Right) */
 inline bool operator!=(const FRuntimeHorseViewSpawn &Left,
                        const FRuntimeHorseViewSpawn &Right) {
   return !(Left == Right);

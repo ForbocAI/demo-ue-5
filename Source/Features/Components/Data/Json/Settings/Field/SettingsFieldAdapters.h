@@ -48,17 +48,20 @@ template <typename Settings> struct TField {
   FString FieldName;
   TFunction<Settings(const FFieldRequest &, const Settings &)> Apply;
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn TField() */
   TField()
       : FieldName(),
         Apply([](const FFieldRequest &, const Settings &Current) {
           return Current;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn TField( const char *FieldAtom, TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn) */
   TField(
       const char *FieldAtom,
       TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn)
       : FieldName(SettingsFieldName(FieldAtom)), Apply(ApplyFn) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Value> TField(const char *FieldAtom, Value Settings::*Member) */
   template <typename Value>
   TField(const char *FieldAtom, Value Settings::*Member)
       : FieldName(SettingsFieldName(FieldAtom)),
@@ -69,6 +72,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Value> TField(const TCHAR *FieldAtom, Value Settings::*Member) */
   template <typename Value>
   TField(const TCHAR *FieldAtom, Value Settings::*Member)
       : FieldName(SettingsFieldName(FieldAtom)),
@@ -79,6 +83,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Value> TField( const char *FieldAtom, Value Settings::*Member, Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &)) */
   template <typename Value>
   TField(
       const char *FieldAtom, Value Settings::*Member,
@@ -91,6 +96,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Value> TField( const char *FieldAtom, Value Settings::*Member, TJsonObjectSettingsReader<Value> ReadObjectFn) */
   template <typename Value>
   TField(
       const char *FieldAtom, Value Settings::*Member,
@@ -103,6 +109,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Value> TField( const TCHAR *FieldAtom, Value Settings::*Member, Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &)) */
   template <typename Value>
   TField(
       const TCHAR *FieldAtom, Value Settings::*Member,
@@ -115,6 +122,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Value> TField( const TCHAR *FieldAtom, Value Settings::*Member, TJsonObjectSettingsReader<Value> ReadObjectFn) */
   template <typename Value>
   TField(
       const TCHAR *FieldAtom, Value Settings::*Member,
@@ -127,6 +135,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Output> TField( const char *FieldAtom, TArray<Output> Settings::*Member, Output (*MapObjectFn)(const TSharedPtr<FJsonObject> &)) */
   template <typename Output>
   TField(
       const char *FieldAtom, TArray<Output> Settings::*Member,
@@ -139,6 +148,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Output> TField( const char *FieldAtom, TArray<Output> Settings::*Member, TJsonObjectSettingsReader<Output> MapObjectFn) */
   template <typename Output>
   TField(
       const char *FieldAtom, TArray<Output> Settings::*Member,
@@ -151,6 +161,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Output> TField( const TCHAR *FieldAtom, TArray<Output> Settings::*Member, Output (*MapObjectFn)(const TSharedPtr<FJsonObject> &)) */
   template <typename Output>
   TField(
       const TCHAR *FieldAtom, TArray<Output> Settings::*Member,
@@ -163,6 +174,7 @@ template <typename Settings> struct TField {
           return Next;
         }) {}
 
+  /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Output> TField( const TCHAR *FieldAtom, TArray<Output> Settings::*Member, TJsonObjectSettingsReader<Output> MapObjectFn) */
   template <typename Output>
   TField(
       const TCHAR *FieldAtom, TArray<Output> Settings::*Member,
@@ -182,12 +194,14 @@ struct TNestedFieldMembers {
   Value Group::*ValueMember;
 };
 
+/** User Story: As a json settings field consumer, I need to invoke nested field members through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Settings, typename Group, typename Value> TNestedFieldMembers<Settings, Group, Value> NestedFieldMembers(Group Settings::*GroupMember, Value Group::*ValueMember) */
 template <typename Settings, typename Group, typename Value>
 TNestedFieldMembers<Settings, Group, Value>
 NestedFieldMembers(Group Settings::*GroupMember, Value Group::*ValueMember) {
   return {GroupMember, ValueMember};
 }
 
+/** User Story: As a json settings field consumer, I need to invoke nested setting field through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Settings, typename Group, typename Value> TField<Settings> NestedSettingField( const char *FieldAtom, const TNestedFieldMembers<Settings, Group, Value> &Members) */
 template <typename Settings, typename Group, typename Value>
 TField<Settings>
 NestedSettingField(

@@ -9,28 +9,33 @@ namespace Data {
 namespace JsonAdapters {
 namespace {
 
+/** User Story: As a data json manifest consumer, I need to invoke resolve part path through a stable signature so the data json manifest workflow remains explicit and composable. @fn FString ResolvePartPath(const FString &ParentRelativePath, const FString &PartRelativePath) */
 FString ResolvePartPath(const FString &ParentRelativePath,
                         const FString &PartRelativePath) {
   return FPaths::Combine(FPaths::GetPath(ParentRelativePath),
                          PartRelativePath);
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke resolve part path through a stable signature so the data json manifest workflow remains explicit and composable. @fn FString ResolvePartPath(const FString &ParentRelativePath, const TSharedPtr<FJsonValue> &Value) */
 FString ResolvePartPath(const FString &ParentRelativePath,
                         const TSharedPtr<FJsonValue> &Value) {
   check(Value.IsValid());
   return ResolvePartPath(ParentRelativePath, Value->AsString());
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke manifest parts field name through a stable signature so the data json manifest workflow remains explicit and composable. @fn const FString &ManifestPartsFieldName() */
 const FString &ManifestPartsFieldName() {
   static const FString Name = SettingsFieldName("Parts");
   return Name;
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke manifest merge field name through a stable signature so the data json manifest workflow remains explicit and composable. @fn const FString &ManifestMergeFieldName() */
 const FString &ManifestMergeFieldName() {
   static const FString Name = SettingsFieldName("Merge");
   return Name;
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke read part values through a stable signature so the data json manifest workflow remains explicit and composable. @fn bool ReadPartValues(const TSharedPtr<FJsonObject> &Object, const TArray<TSharedPtr<FJsonValue>> *&Parts) */
 bool ReadPartValues(const TSharedPtr<FJsonObject> &Object,
                     const TArray<TSharedPtr<FJsonValue>> *&Parts) {
   return Object.IsValid() &&
@@ -38,6 +43,7 @@ bool ReadPartValues(const TSharedPtr<FJsonObject> &Object,
          Parts != nullptr;
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke read part object through a stable signature so the data json manifest workflow remains explicit and composable. @fn bool ReadPartObject(const TSharedPtr<FJsonObject> &Object, const TSharedPtr<FJsonObject> *&Parts) */
 bool ReadPartObject(const TSharedPtr<FJsonObject> &Object,
                     const TSharedPtr<FJsonObject> *&Parts) {
   return Object.IsValid() &&
@@ -58,6 +64,7 @@ struct FFieldPartRequest {
   FString PartKey;
 };
 
+/** User Story: As a data json manifest consumer, I need to invoke merge json objects through a stable signature so the data json manifest workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> MergeJsonObjects( const TSharedPtr<FJsonObject> &Left, const TSharedPtr<FJsonObject> &Right) */
 TSharedPtr<FJsonObject> MergeJsonObjects(
     const TSharedPtr<FJsonObject> &Left,
     const TSharedPtr<FJsonObject> &Right) {
@@ -67,6 +74,7 @@ TSharedPtr<FJsonObject> MergeJsonObjects(
   return Merged;
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke set json object field through a stable signature so the data json manifest workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> SetJsonObjectField( const FSetJsonObjectFieldRequest &Request) */
 TSharedPtr<FJsonObject> SetJsonObjectField(
     const FSetJsonObjectFieldRequest &Request) {
   TSharedPtr<FJsonObject> Next = MakeShared<FJsonObject>();
@@ -75,6 +83,7 @@ TSharedPtr<FJsonObject> SetJsonObjectField(
   return Next;
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke load manifest field value through a stable signature so the data json manifest workflow remains explicit and composable. @fn func::Maybe<TSharedPtr<FJsonValue>> LoadManifestFieldValue(const FString &ParentRelativePath, const FString &PartRelativePath) */
 func::Maybe<TSharedPtr<FJsonValue>>
 LoadManifestFieldValue(const FString &ParentRelativePath,
                        const FString &PartRelativePath) {
@@ -93,6 +102,7 @@ LoadManifestFieldValue(const FString &ParentRelativePath,
                    });
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke load object manifest merge parts through a stable signature so the data json manifest workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> LoadObjectManifestMergeParts(const FString &RelativePath, const TSharedPtr<FJsonObject> &ManifestParts) */
 TSharedPtr<FJsonObject>
 LoadObjectManifestMergeParts(const FString &RelativePath,
                              const TSharedPtr<FJsonObject> &ManifestParts) {
@@ -115,6 +125,7 @@ LoadObjectManifestMergeParts(const FString &RelativePath,
              : MakeShared<FJsonObject>();
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke load object manifest field part through a stable signature so the data json manifest workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> LoadObjectManifestFieldPart(const FFieldPartRequest &Request) */
 TSharedPtr<FJsonObject>
 LoadObjectManifestFieldPart(const FFieldPartRequest &Request) {
   const TSharedPtr<FJsonValue> PartValue =
@@ -126,6 +137,7 @@ LoadObjectManifestFieldPart(const FFieldPartRequest &Request) {
   return SetJsonObjectField({Request.Current, Request.PartKey, Value.value});
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke load object manifest field parts through a stable signature so the data json manifest workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> LoadObjectManifestFieldParts(const FString &RelativePath, const TSharedPtr<FJsonObject> &ManifestParts) */
 TSharedPtr<FJsonObject>
 LoadObjectManifestFieldParts(const FString &RelativePath,
                              const TSharedPtr<FJsonObject> &ManifestParts) {
@@ -149,6 +161,7 @@ LoadObjectManifestFieldParts(const FString &RelativePath,
       });
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke load object manifest parts through a stable signature so the data json manifest workflow remains explicit and composable. @fn func::Maybe<TSharedPtr<FJsonObject>> LoadObjectManifestParts(const FString &RelativePath, const TSharedPtr<FJsonObject> &Manifest) */
 func::Maybe<TSharedPtr<FJsonObject>>
 LoadObjectManifestParts(const FString &RelativePath,
                         const TSharedPtr<FJsonObject> &Manifest) {
@@ -173,6 +186,7 @@ LoadObjectManifestParts(const FString &RelativePath,
                     : func::nothing<TSharedPtr<FJsonObject>>());
 }
 
+/** User Story: As a data json manifest consumer, I need to invoke load array manifest parts through a stable signature so the data json manifest workflow remains explicit and composable. @fn func::Maybe<TArray<TSharedPtr<FJsonValue>>> LoadArrayManifestParts(const FString &RelativePath, const TSharedPtr<FJsonObject> &Manifest) */
 func::Maybe<TArray<TSharedPtr<FJsonValue>>>
 LoadArrayManifestParts(const FString &RelativePath,
                        const TSharedPtr<FJsonObject> &Manifest) {

@@ -2,7 +2,7 @@
 
 #include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
-#include "Features/Components/Spatial/Level/Layout/LayoutTypes.h"
+#include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -47,6 +47,7 @@ struct FBotGoalState {
   TMap<FString, FBotStrategicGoal> ActiveGoalsById;
 };
 
+/** User Story: As a systems bots goals consumer, I need to compare values for equality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator==(const FBotStrategicGoal &Left, const FBotStrategicGoal &Right) */
 inline bool operator==(const FBotStrategicGoal &Left,
                        const FBotStrategicGoal &Right) {
   return Left.Id == Right.Id && Left.Type == Right.Type &&
@@ -57,22 +58,26 @@ inline bool operator==(const FBotStrategicGoal &Left,
          Left.bCompleted == Right.bCompleted;
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for inequality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator!=(const FBotStrategicGoal &Left, const FBotStrategicGoal &Right) */
 inline bool operator!=(const FBotStrategicGoal &Left,
                        const FBotStrategicGoal &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for equality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator==(const FBotKnowledgeBase &Left, const FBotKnowledgeBase &Right) */
 inline bool operator==(const FBotKnowledgeBase &Left,
                        const FBotKnowledgeBase &Right) {
   return Left.KnownLandmarkIds == Right.KnownLandmarkIds &&
          Left.KnownBotIds == Right.KnownBotIds;
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for inequality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator!=(const FBotKnowledgeBase &Left, const FBotKnowledgeBase &Right) */
 inline bool operator!=(const FBotKnowledgeBase &Left,
                        const FBotKnowledgeBase &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for equality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator==(const FBotGoalComponent &Left, const FBotGoalComponent &Right) */
 inline bool operator==(const FBotGoalComponent &Left,
                        const FBotGoalComponent &Right) {
   return Left.Id == Right.Id &&
@@ -81,31 +86,37 @@ inline bool operator==(const FBotGoalComponent &Left,
          Left.GoalQueue == Right.GoalQueue && Left.Knowledge == Right.Knowledge;
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for inequality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator!=(const FBotGoalComponent &Left, const FBotGoalComponent &Right) */
 inline bool operator!=(const FBotGoalComponent &Left,
                        const FBotGoalComponent &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for equality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator==(const FBotGoalAssignment &Left, const FBotGoalAssignment &Right) */
 inline bool operator==(const FBotGoalAssignment &Left,
                        const FBotGoalAssignment &Right) {
   return Left.Id == Right.Id && Left.Goal == Right.Goal;
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for inequality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator!=(const FBotGoalAssignment &Left, const FBotGoalAssignment &Right) */
 inline bool operator!=(const FBotGoalAssignment &Left,
                        const FBotGoalAssignment &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for equality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator==(const FBotGoalCompleted &Left, const FBotGoalCompleted &Right) */
 inline bool operator==(const FBotGoalCompleted &Left,
                        const FBotGoalCompleted &Right) {
   return Left.Id == Right.Id;
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for inequality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator!=(const FBotGoalCompleted &Left, const FBotGoalCompleted &Right) */
 inline bool operator!=(const FBotGoalCompleted &Left,
                        const FBotGoalCompleted &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots goals consumer, I need to invoke active goal maps equal through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool ActiveGoalMapsEqual( const TMap<FString, FBotStrategicGoal> &Left, const TMap<FString, FBotStrategicGoal> &Right) */
 inline bool ActiveGoalMapsEqual(
     const TMap<FString, FBotStrategicGoal> &Left,
     const TMap<FString, FBotStrategicGoal> &Right) {
@@ -116,12 +127,14 @@ inline bool ActiveGoalMapsEqual(
       });
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for equality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator==(const FBotGoalState &Left, const FBotGoalState &Right) */
 inline bool operator==(const FBotGoalState &Left,
                        const FBotGoalState &Right) {
   return Left.Items == Right.Items &&
          ActiveGoalMapsEqual(Left.ActiveGoalsById, Right.ActiveGoalsById);
 }
 
+/** User Story: As a systems bots goals consumer, I need to compare values for inequality through a stable signature so the systems bots goals workflow remains explicit and composable. @fn inline bool operator!=(const FBotGoalState &Left, const FBotGoalState &Right) */
 inline bool operator!=(const FBotGoalState &Left,
                        const FBotGoalState &Right) {
   return !(Left == Right);

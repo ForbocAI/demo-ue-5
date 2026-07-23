@@ -11,8 +11,8 @@
     "create_immutable_agent": "Should create an immutable agent wrapped in TSharedPtr",
     "with_state_update": "Should return a new agent on WithState (immutable update)",
     "invoke_process": "Should complete AgentOps::Process through the live API",
-    "create_rpg_rules": "Should create RPG rules via BridgeOps preset",
-    "validate_rpg_action": "Should validate a valid action against RPG rules"
+    "validate_accepted_action": "Should accept a complete action through the live Bridge API",
+    "validate_rejected_action": "Should reject an incomplete action through the live Bridge API"
   },
   "assertions": {
     "agent_id_not_empty": "Agent ID is not empty",
@@ -24,15 +24,14 @@
     "api_url_present": "FORBOCAI_API_URL is present",
     "api_key_present": "FORBOCAI_API_KEY is present",
     "response_payload_present": "AgentOps::Process returns a response payload",
-    "rpg_rules_not_empty": "RPG rules are not empty",
-    "move_action_valid": "MOVE action is valid"
+    "accepted_action_valid": "Complete action is valid",
+    "rejected_action_invalid": "Incomplete action is invalid"
   },
   "personas": {
     "agent": "TestNPC",
     "immutable": "Immutable-Test",
     "state": "StateTester",
-    "async": "AsyncTester",
-    "bridge": "BridgeTester"
+    "async": "AsyncTester"
   },
   "state": {
     "json": "{\"mood\": \"alert\"}",
@@ -46,7 +45,7 @@
     "timeout_seconds": 180
   },
   "bridge": {
-    "action": "MOVE",
-    "minimum_rules": 0
+    "valid_action_json": "{\"type\":\"MOVE\",\"target\":\"destination\"}",
+    "invalid_action_json": "{\"type\":\"MOVE\"}"
   }
 }

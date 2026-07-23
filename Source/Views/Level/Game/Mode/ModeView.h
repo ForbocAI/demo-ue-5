@@ -25,22 +25,29 @@ class FORBOCAIDEMO_API ALevelGameModeView : public AGameModeBase {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a level game mode consumer, I need to invoke alevel game mode view through a stable signature so the level game mode workflow remains explicit and composable. @fn ALevelGameModeView() */
   ALevelGameModeView();
 
   /**
+   * @fn virtual void InitGame(const FString &MapName, const FString &Options, FString &ErrorMessage) override
    * @brief Reapplies the runtime pawn/controller class boundary before login.
+   * User Story: As a level game mode consumer, I need to invoke init game through a stable signature so the level game mode workflow remains explicit and composable.
    */
   virtual void InitGame(const FString &MapName, const FString &Options,
                         FString &ErrorMessage) override;
 
   /**
+   * @fn virtual void StartPlay() override
    * @brief Ensures a runtime level view exists so store-derived payloads can be
    * presented.
+   * User Story: As a level game mode consumer, I need to invoke start play through a stable signature so the level game mode workflow remains explicit and composable.
    */
   virtual void StartPlay() override;
 
   /**
+   * @fn virtual void RestartPlayer(AController *NewPlayer) override
    * @brief Restarts a player at the transform resolved from the runtime store.
+   * User Story: As a level game mode consumer, I need to invoke restart player through a stable signature so the level game mode workflow remains explicit and composable.
    */
   virtual void RestartPlayer(AController *NewPlayer) override;
 

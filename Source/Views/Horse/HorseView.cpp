@@ -16,6 +16,7 @@ namespace FG = ForbocAI::Game::Level;
 
 namespace {
 
+/** User Story: As a views horse consumer, I need to invoke observe horse initial patrol through a stable signature so the views horse workflow remains explicit and composable. @fn FG::FBotInitialPatrolLocationPayload ObserveHorseInitialPatrol(const TArray<FVector> &PatrolRoute, int32 &PatrolIndex) */
 FG::FBotInitialPatrolLocationPayload
 ObserveHorseInitialPatrol(const TArray<FVector> &PatrolRoute,
                           int32 &PatrolIndex) {
@@ -23,16 +24,19 @@ ObserveHorseInitialPatrol(const TArray<FVector> &PatrolRoute,
   return FG::RuntimeSelectors::SelectBotInitialPatrolLocation({PatrolRoute});
 }
 
+/** User Story: As a views horse consumer, I need to invoke observe horse patrol advance through a stable signature so the views horse workflow remains explicit and composable. @fn FG::FBotPatrolAdvancePayload ObserveHorsePatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) */
 FG::FBotPatrolAdvancePayload
 ObserveHorsePatrolAdvance(const FG::FBotPatrolAdvanceRequest &Request) {
   return FG::RuntimeSelectors::SelectBotPatrolAdvance(Request);
 }
 
+/** User Story: As a views horse consumer, I need to invoke observe horse presentation through a stable signature so the views horse workflow remains explicit and composable. @fn FG::FHorsePresentationViewModel ObserveHorsePresentation() */
 FG::FHorsePresentationViewModel ObserveHorsePresentation() {
   return FG::RuntimeSelectors::SelectHorsePresentation();
 }
 } // namespace
 
+/** User Story: As a views horse consumer, I need to invoke ahorse view through a stable signature so the views horse workflow remains explicit and composable. @fn AHorseView::AHorseView() */
 AHorseView::AHorseView()
     : WalkSpeed(0.0f), PauseDuration(0.0f), PatrolIndex(0),
       PauseRemaining(0.0f), PatrolArrivalDistance(0.0f),
@@ -45,13 +49,13 @@ AHorseView::AHorseView()
   const ForbocAI::Game::Data::FViewNameSettings &ViewNames =
       FG::RuntimeSelectors::SelectViewNames();
   HorseName = Presentation.DefaultName;
-  WalkSpeed = Presentation.WalkSpeed;
-  PauseDuration = Presentation.PauseDuration;
-  PatrolArrivalDistance = Presentation.PatrolArrivalDistance;
-  HorseMeshPath = Presentation.HorseMeshPath;
-  HorseWalkAnimationPath = Presentation.HorseWalkAnimationPath;
-  RiderMeshPath = Presentation.RiderMeshPath;
-  RiderWalkAnimationPath = Presentation.RiderWalkAnimationPath;
+  WalkSpeed = Presentation.Movement.WalkSpeed;
+  PauseDuration = Presentation.Movement.PauseDuration;
+  PatrolArrivalDistance = Presentation.Movement.PatrolArrivalDistance;
+  HorseMeshPath = Presentation.Assets.HorseMeshPath;
+  HorseWalkAnimationPath = Presentation.Assets.HorseWalkAnimationPath;
+  RiderMeshPath = Presentation.Assets.RiderMeshPath;
+  RiderWalkAnimationPath = Presentation.Assets.RiderWalkAnimationPath;
 
   SceneRoot =
       CreateDefaultSubobject<USceneComponent>(FName(*ViewNames.Scene.Root));
@@ -62,7 +66,7 @@ AHorseView::AHorseView()
           FName(*ViewNames.Horse.ImportedMesh));
   ImportedHorseMesh->SetupAttachment(SceneRoot);
   ImportedHorseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-  ImportedHorseMesh->SetRelativeScale3D(Presentation.ImportedHorseScale);
+  ImportedHorseMesh->SetRelativeScale3D(Presentation.Scale.ImportedHorseScale);
   ImportedHorseMesh->SetVisibility(false);
 
   MountedRiderMesh =
@@ -70,26 +74,29 @@ AHorseView::AHorseView()
           FName(*ViewNames.Horse.MountedRiderMesh));
   MountedRiderMesh->SetupAttachment(SceneRoot);
   MountedRiderMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-  MountedRiderMesh->SetRelativeLocation(Presentation.MountedRiderLocation);
-  MountedRiderMesh->SetRelativeScale3D(Presentation.MountedRiderScale);
+  MountedRiderMesh->SetRelativeLocation(
+      Presentation.Scale.MountedRiderLocation);
+  MountedRiderMesh->SetRelativeScale3D(Presentation.Scale.MountedRiderScale);
   MountedRiderMesh->SetVisibility(false);
 
   NameText =
       CreateDefaultSubobject<UTextRenderComponent>(
           FName(*ViewNames.Horse.NameText));
   NameText->SetupAttachment(SceneRoot);
-  NameText->SetRelativeLocation(Presentation.NameTextLocation);
+  NameText->SetRelativeLocation(Presentation.NameText.Location);
   NameText->SetHorizontalAlignment(EHTA_Center);
-  NameText->SetWorldSize(Presentation.NameTextWorldSize);
+  NameText->SetWorldSize(Presentation.NameText.WorldSize);
 
   ConfigureImportedHorseAsset();
 }
 
+/** User Story: As a views horse consumer, I need to invoke tick through a stable signature so the views horse workflow remains explicit and composable. @fn void AHorseView::Tick(float DeltaTime) */
 void AHorseView::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
   CurrentLod.Behavior.bPatrolEnabled ? AdvancePatrol(DeltaTime) : void();
 }
 
+/** User Story: As a views horse consumer, I need to invoke configure horse through a stable signature so the views horse workflow remains explicit and composable. @fn void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) */
 void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   HorseName = Config.Name;
   bMountedRider = Config.bMountedRider;
@@ -106,6 +113,7 @@ void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   RefreshText();
 }
 
+/** User Story: As a views horse consumer, I need to invoke advance patrol through a stable signature so the views horse workflow remains explicit and composable. @fn void AHorseView::AdvancePatrol(float DeltaTime) */
 void AHorseView::AdvancePatrol(float DeltaTime) {
   const ForbocAI::Game::Level::FBotPatrolAdvanceRequest Request{
       PatrolRoute,
@@ -121,6 +129,7 @@ void AHorseView::AdvancePatrol(float DeltaTime) {
                          : void();
 }
 
+/** User Story: As a views horse consumer, I need to invoke apply distance lod through a stable signature so the views horse workflow remains explicit and composable. @fn void AHorseView::ApplyDistanceLod( const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) */
 void AHorseView::ApplyDistanceLod(
     const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) {
   CurrentLod = Lod;
@@ -161,6 +170,7 @@ void AHorseView::ApplyDistanceLod(
   NameText->SetComponentTickEnabled(false);
 }
 
+/** User Story: As a views horse consumer, I need to invoke configure imported horse asset through a stable signature so the views horse workflow remains explicit and composable. @fn void AHorseView::ConfigureImportedHorseAsset() */
 void AHorseView::ConfigureImportedHorseAsset() {
   check(ImportedHorseMesh);
   check(MountedRiderMesh);
@@ -199,6 +209,7 @@ void AHorseView::ConfigureImportedHorseAsset() {
          MountedRiderMesh->SetHiddenInGame(true), void());
 }
 
+/** User Story: As a views horse consumer, I need to invoke refresh text through a stable signature so the views horse workflow remains explicit and composable. @fn void AHorseView::RefreshText() */
 void AHorseView::RefreshText() {
   NameText->SetText(FText::FromString(HorseName));
 }

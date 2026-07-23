@@ -55,6 +55,7 @@ struct FLandmarkLabelLocationRequest {
   ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
+/** User Story: As a systems level geometry consumer, I need to invoke ground lots through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FLevelLocalPoint GroundLots(const FGroundLotsRequest &Request) */
 inline FLevelLocalPoint GroundLots(const FGroundLotsRequest &Request) {
   return LevelLayoutAdapters::CenteredOnGround(
       {Request.Geometry,
@@ -63,6 +64,7 @@ inline FLevelLocalPoint GroundLots(const FGroundLotsRequest &Request) {
        Request.Scale, Request.Clearance});
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke building lots through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FLevelLocalPoint BuildingLots(const FGroundLotsRequest &Request) */
 inline FLevelLocalPoint BuildingLots(const FGroundLotsRequest &Request) {
   return GroundLots({Request.Geometry, Request.EastLots, Request.NorthLots,
                      Request.Scale,
@@ -70,12 +72,14 @@ inline FLevelLocalPoint BuildingLots(const FGroundLotsRequest &Request) {
                          Request.Geometry)});
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke feature lots through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FLevelLocalPoint FeatureLots(const FGroundLotsRequest &Request) */
 inline FLevelLocalPoint FeatureLots(const FGroundLotsRequest &Request) {
   return GroundLots({Request.Geometry, Request.EastLots, Request.NorthLots,
                      Request.Scale,
                      LevelLayoutAdapters::RoadSurfaceClearance(Request.Geometry)});
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke scale from seed through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FVector ScaleFromSeed(const FScaleFromSeedRequest &Request) */
 inline FVector ScaleFromSeed(const FScaleFromSeedRequest &Request) {
   return Request.Seed.Mode == EScaleMode::Building
              ? LevelLayoutAdapters::BuildingScaleFromFeet(
@@ -90,6 +94,7 @@ inline FVector ScaleFromSeed(const FScaleFromSeedRequest &Request) {
                           Request.Seed.DepthFeet, Request.Seed.HeightFeet});
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke local point from seed through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FLevelLocalPoint LocalPointFromSeed( const FLocalPointFromSeedRequest &Request) */
 inline FLevelLocalPoint LocalPointFromSeed(
     const FLocalPointFromSeedRequest &Request) {
   return Request.Seed.Anchor == EAnchorMode::BuildingLots
@@ -104,6 +109,7 @@ inline FLevelLocalPoint LocalPointFromSeed(
                                   0.0f});
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke world location from seed through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FVector WorldLocationFromSeed( const FWorldLocationFromSeedRequest &Request) */
 inline FVector WorldLocationFromSeed(
     const FWorldLocationFromSeedRequest &Request) {
   return Request.Seed.Anchor == EAnchorMode::World
@@ -114,6 +120,7 @@ inline FVector WorldLocationFromSeed(
                                         Request.Scale})});
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke label height offset from seed through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline float LabelHeightOffsetFromSeed( const FLabelHeightOffsetRequest &Request) */
 inline float LabelHeightOffsetFromSeed(
     const FLabelHeightOffsetRequest &Request) {
   return Request.Seed.Height == ELabelHeightMode::LabelForScale
@@ -128,6 +135,7 @@ inline float LabelHeightOffsetFromSeed(
                    : Request.Seed.HeightOffset;
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke explicit label local point from seed through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FLevelLocalPoint ExplicitLabelLocalPointFromSeed( const FLabelLocalPointRequest &Request) */
 inline FLevelLocalPoint ExplicitLabelLocalPointFromSeed(
     const FLabelLocalPointRequest &Request) {
   return LevelLayoutAdapters::FromPostOfficeLots(
@@ -135,6 +143,7 @@ inline FLevelLocalPoint ExplicitLabelLocalPointFromSeed(
        Request.Seed.HeightOffset});
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke reference label local point from seed through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FLevelLocalPoint ReferenceLabelLocalPointFromSeed( const FLabelLocalPointRequest &Request) */
 inline FLevelLocalPoint ReferenceLabelLocalPointFromSeed(
     const FLabelLocalPointRequest &Request) {
   const FVector ReferenceScale =
@@ -146,6 +155,7 @@ inline FLevelLocalPoint ReferenceLabelLocalPointFromSeed(
        HeightOffset});
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke label local point from seed through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FLevelLocalPoint LabelLocalPointFromSeed( const FLabelLocalPointRequest &Request) */
 inline FLevelLocalPoint LabelLocalPointFromSeed(
     const FLabelLocalPointRequest &Request) {
   return Request.Seed.Height == ELabelHeightMode::Explicit
@@ -153,6 +163,7 @@ inline FLevelLocalPoint LabelLocalPointFromSeed(
              : ReferenceLabelLocalPointFromSeed(Request);
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke label location for landmark through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FVector LabelLocationForLandmark( const FLandmarkLabelLocationRequest &Request) */
 inline FVector LabelLocationForLandmark(
     const FLandmarkLabelLocationRequest &Request) {
   return Request.Landmark.Location +
@@ -163,6 +174,7 @@ inline FVector LabelLocationForLandmark(
               LevelLayoutAdapters::CubeHalfExtent(Request.Geometry));
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke texture for nature kind through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline ELevelRetroTexture TextureForNatureKind(EFeatureKind Kind) */
 inline ELevelRetroTexture TextureForNatureKind(EFeatureKind Kind) {
   const func::Maybe<ELevelRetroTexture> Texture =
       func::multi_match<EFeatureKind, ELevelRetroTexture>(
@@ -206,6 +218,7 @@ inline ELevelRetroTexture TextureForNatureKind(EFeatureKind Kind) {
   return Texture.value;
 }
 
+/** User Story: As a systems level geometry consumer, I need to invoke nature feature needs label through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline bool NatureFeatureNeedsLabel(EFeatureKind Kind) */
 inline bool NatureFeatureNeedsLabel(EFeatureKind Kind) {
   return Kind == EFeatureKind::PCGMarker ||
          Kind == EFeatureKind::WaterSystemMarker;

@@ -12,14 +12,21 @@ namespace Game {
 namespace Data {
 namespace JsonValueAdapters {
 
+/** User Story: As a data json value consumer, I need to invoke log invalid field through a stable signature so the data json value workflow remains explicit and composable. @fn void LogInvalidField(const FFieldRequest &Request) */
 void LogInvalidField(const FFieldRequest &Request);
 
+/** User Story: As a data json value consumer, I need to invoke read required string through a stable signature so the data json value workflow remains explicit and composable. @fn func::Maybe<FString> ReadRequiredString(const FFieldRequest &Request) */
 func::Maybe<FString> ReadRequiredString(const FFieldRequest &Request);
+/** User Story: As a data json value consumer, I need to invoke read required float through a stable signature so the data json value workflow remains explicit and composable. @fn func::Maybe<float> ReadRequiredFloat(const FFieldRequest &Request) */
 func::Maybe<float> ReadRequiredFloat(const FFieldRequest &Request);
+/** User Story: As a data json value consumer, I need to invoke read required object through a stable signature so the data json value workflow remains explicit and composable. @fn func::Maybe<TSharedPtr<FJsonObject>> ReadRequiredObject(const FFieldRequest &Request) */
 func::Maybe<TSharedPtr<FJsonObject>> ReadRequiredObject(const FFieldRequest &Request);
+/** User Story: As a data json value consumer, I need to invoke read required array through a stable signature so the data json value workflow remains explicit and composable. @fn func::Maybe<TArray<TSharedPtr<FJsonValue>>> ReadRequiredArray(const FFieldRequest &Request) */
 func::Maybe<TArray<TSharedPtr<FJsonValue>>> ReadRequiredArray(const FFieldRequest &Request);
+/** User Story: As a data json value consumer, I need to invoke read array object through a stable signature so the data json value workflow remains explicit and composable. @fn func::Maybe<TSharedPtr<FJsonObject>> ReadArrayObject(const FArrayValueObjectRequest &Request) */
 func::Maybe<TSharedPtr<FJsonObject>> ReadArrayObject(const FArrayValueObjectRequest &Request);
 
+/** User Story: As a data json value consumer, I need to invoke map required json values with through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename Output> TFunction<func::Maybe<TArray<Output>>( const TArray<TSharedPtr<FJsonValue>> &)> MapRequiredJsonValuesWith( const FString &FieldName, TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> MapValue) */
 template <typename Output>
 TFunction<func::Maybe<TArray<Output>>(
     const TArray<TSharedPtr<FJsonValue>> &)>
@@ -40,15 +47,18 @@ MapRequiredJsonValuesWith(
   };
 }
 
+/** User Story: As a data json value consumer, I need to invoke required field name through a stable signature so the data json value workflow remains explicit and composable. @fn inline FString RequiredFieldName(const char *FieldAtom) */
 inline FString RequiredFieldName(const char *FieldAtom) {
   return JsonAdapters::SettingsFieldName(FieldAtom);
 }
 
+/** User Story: As a data json value consumer, I need to invoke required field through a stable signature so the data json value workflow remains explicit and composable. @fn inline FFieldRequest RequiredField(const TSharedPtr<FJsonObject> &Object, const char *FieldAtom) */
 inline FFieldRequest RequiredField(const TSharedPtr<FJsonObject> &Object,
                                        const char *FieldAtom) {
   return {Object, RequiredFieldName(FieldAtom)};
 }
 
+/** User Story: As a data json value consumer, I need to invoke read required value through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename Value> func::Maybe<Value> ReadRequiredValue(const FFieldRequest &Request) */
 template <typename Value>
 func::Maybe<Value> ReadRequiredValue(const FFieldRequest &Request);
 
@@ -77,12 +87,14 @@ ReadRequiredValue<TArray<TSharedPtr<FJsonValue>>>(
   return ReadRequiredArray(Request);
 }
 
+/** User Story: As a data json value consumer, I need to invoke read required field through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename Value> func::Maybe<Value> ReadRequiredField(const TSharedPtr<FJsonObject> &Object, const char *FieldAtom) */
 template <typename Value>
 func::Maybe<Value> ReadRequiredField(const TSharedPtr<FJsonObject> &Object,
                                      const char *FieldAtom) {
   return ReadRequiredValue<Value>(RequiredField(Object, FieldAtom));
 }
 
+/** User Story: As a data json value consumer, I need to invoke assign required field through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename State, typename Value> func::Maybe<State> AssignRequiredField(Value State::*Member, const State &Current, const Value &FieldValue) */
 template <typename State, typename Value>
 func::Maybe<State> AssignRequiredField(Value State::*Member,
                                        const State &Current,
@@ -92,6 +104,7 @@ func::Maybe<State> AssignRequiredField(Value State::*Member,
   return func::just(Next);
 }
 
+/** User Story: As a data json value consumer, I need to invoke read required object array through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename Output> func::Maybe<TArray<Output>> ReadRequiredObjectArray( const FFieldRequest &Request, func::Maybe<Output> (*MapObject)(const TSharedPtr<FJsonObject> &)) */
 template <typename Output>
 func::Maybe<TArray<Output>> ReadRequiredObjectArray(
     const FFieldRequest &Request,
@@ -107,6 +120,7 @@ func::Maybe<TArray<Output>> ReadRequiredObjectArray(
 
 template <typename Output> struct TRequiredJsonObjectMapper;
 
+/** User Story: As a data json value consumer, I need to invoke read required mapped object array through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename Output> func::Maybe<TArray<Output>> ReadRequiredMappedObjectArray(const FFieldRequest &Request) */
 template <typename Output>
 func::Maybe<TArray<Output>>
 ReadRequiredMappedObjectArray(const FFieldRequest &Request) {
@@ -114,18 +128,19 @@ ReadRequiredMappedObjectArray(const FFieldRequest &Request) {
       Request, TRequiredJsonObjectMapper<Output>::Read);
 }
 
-template <typename State> struct TRequiredJsonFieldDeclaration {
+template <typename State> struct TJsonFieldDeclaration {
   FString FieldName;
   TFunction<func::Maybe<State>(const FFieldRequest &, const State &)> Apply;
 
-  TRequiredJsonFieldDeclaration()
+  /** User Story: As a data json value consumer, I need to invoke trequired json field declaration through a stable signature so the data json value workflow remains explicit and composable. @fn TJsonFieldDeclaration() */
+  TJsonFieldDeclaration()
       : FieldName(),
         Apply([](const FFieldRequest &, const State &Current) {
           return func::just(Current);
         }) {}
 
   template <typename Output>
-  TRequiredJsonFieldDeclaration(const char *FieldAtom,
+  TJsonFieldDeclaration(const char *FieldAtom,
                                 TArray<Output> State::*Member)
       : FieldName(RequiredFieldName(FieldAtom)),
         Apply([Member](const FFieldRequest &Request,
@@ -138,8 +153,9 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
               });
         }) {}
 
+  /** User Story: As a data json value consumer, I need to invoke trequired json field declaration through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename Value> TJsonFieldDeclaration(const char *FieldAtom, Value State::*Member) */
   template <typename Value>
-  TRequiredJsonFieldDeclaration(const char *FieldAtom, Value State::*Member)
+  TJsonFieldDeclaration(const char *FieldAtom, Value State::*Member)
       : FieldName(RequiredFieldName(FieldAtom)),
         Apply([Member](const FFieldRequest &Request,
                        const State &Current) {
@@ -151,8 +167,9 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
               });
         }) {}
 
+  /** User Story: As a data json value consumer, I need to invoke trequired json field declaration through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename Value> TJsonFieldDeclaration( const char *FieldAtom, Value State::*Member, func::Maybe<Value> (*ReadValue)(const FFieldRequest &)) */
   template <typename Value>
-  TRequiredJsonFieldDeclaration(
+  TJsonFieldDeclaration(
       const char *FieldAtom, Value State::*Member,
       func::Maybe<Value> (*ReadValue)(const FFieldRequest &))
       : FieldName(RequiredFieldName(FieldAtom)),
@@ -166,7 +183,7 @@ template <typename State> struct TRequiredJsonFieldDeclaration {
         }) {}
 
   template <typename Output>
-  TRequiredJsonFieldDeclaration(
+  TJsonFieldDeclaration(
       const char *FieldAtom, TArray<Output> State::*Member,
       func::Maybe<Output> (*MapObject)(const TSharedPtr<FJsonObject> &))
       : FieldName(RequiredFieldName(FieldAtom)),
@@ -187,107 +204,28 @@ struct FJsonReadStateRequest {
   const TSharedPtr<FJsonObject> &Object;
 };
 
+/** User Story: As a data json value consumer, I need to invoke read required fields through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename State> func::Maybe<State> ReadRequiredFields( const FJsonReadStateRequest<State> &Request, const TArray<TJsonFieldDeclaration<State>> &Fields) */
 template <typename State>
 func::Maybe<State> ReadRequiredFields(
     const FJsonReadStateRequest<State> &Request,
-    const TArray<TRequiredJsonFieldDeclaration<State>> &Fields) {
-  return func::fold_array<TRequiredJsonFieldDeclaration<State>,
+    const TArray<TJsonFieldDeclaration<State>> &Fields) {
+  return func::fold_array<TJsonFieldDeclaration<State>,
                           func::Maybe<State>>(
       Fields, func::just<State>(Request.Initial),
       [Object = Request.Object](const func::Maybe<State> &Current,
-               const TRequiredJsonFieldDeclaration<State> &Field) {
+               const TJsonFieldDeclaration<State> &Field) {
         return func::mbind(Current, [Object, Field](const State &Value) {
           return Field.Apply({Object, Field.FieldName}, Value);
         });
       });
 }
 
+/** User Story: As a data json value consumer, I need to invoke read required fields through a stable signature so the data json value workflow remains explicit and composable. @fn template <typename State> func::Maybe<State> ReadRequiredFields( const FJsonReadStateRequest<State> &Request, std::initializer_list<TJsonFieldDeclaration<State>> Fields) */
 template <typename State>
 func::Maybe<State> ReadRequiredFields(
     const FJsonReadStateRequest<State> &Request,
-    std::initializer_list<TRequiredJsonFieldDeclaration<State>> Fields) {
-  return ReadRequiredFields<State>(Request, TArray<TRequiredJsonFieldDeclaration<State>>(Fields));
-}
-
-#define JSON_REQUIRED_FIELD(Type, Field) {#Field, &Type::Field}
-#define JSON_REQUIRED_FIELD_READER(Type, Reader, Field)                      \
-  {#Field, &Type::Field, Reader}
-#define JSON_REQUIRED_FIELD_LIST_INDIRECT() JSON_REQUIRED_FIELD_LIST
-#define JSON_REQUIRED_FIELD_LIST(Type, Field, ...)                           \
-  JSON_REQUIRED_FIELD(Type, Field)                                           \
-  __VA_OPT__(, JSON_OBSTRUCT(JSON_REQUIRED_FIELD_LIST_INDIRECT)()(           \
-                    Type, __VA_ARGS__))
-#define JSON_REQUIRED_FIELDS(Type, ...)                                      \
-  JSON_EXPAND(JSON_REQUIRED_FIELD_LIST(Type, __VA_ARGS__))
-#define JSON_REQUIRED_FIELD_READER_LIST_INDIRECT()                           \
-  JSON_REQUIRED_FIELD_READER_LIST
-#define JSON_REQUIRED_FIELD_READER_LIST(Type, Reader, Field, ...)            \
-  JSON_REQUIRED_FIELD_READER(Type, Reader, Field)                            \
-  __VA_OPT__(, JSON_OBSTRUCT(JSON_REQUIRED_FIELD_READER_LIST_INDIRECT)()(    \
-                    Type, Reader, __VA_ARGS__))
-#define JSON_REQUIRED_FIELD_READERS(Type, Reader, ...)                       \
-  JSON_EXPAND(JSON_REQUIRED_FIELD_READER_LIST(Type, Reader, __VA_ARGS__))
-
-#define JSON_REQUIRED_ATOM(Field) #Field
-#define JSON_REQUIRED_ATOM_LIST_INDIRECT() JSON_REQUIRED_ATOM_LIST
-#define JSON_REQUIRED_ATOM_LIST(Field, ...)                                  \
-  JSON_REQUIRED_ATOM(Field)                                                  \
-  __VA_OPT__(, JSON_OBSTRUCT(JSON_REQUIRED_ATOM_LIST_INDIRECT)()(            \
-                    __VA_ARGS__))
-#define JSON_REQUIRED_ATOMS(...)                                             \
-  {JSON_EXPAND(JSON_REQUIRED_ATOM_LIST(__VA_ARGS__))}
-
-template <typename State> struct TRequiredJsonFieldRegistry;
-
-#define JSON_REQUIRED_FIELD_REGISTRY(Type, ...)                              \
-  template <> struct TRequiredJsonFieldRegistry<Type> {                      \
-    static const TArray<TRequiredJsonFieldDeclaration<Type>> &Fields() {      \
-      static const TArray<TRequiredJsonFieldDeclaration<Type>>                \
-          RegisteredFields = {JSON_REQUIRED_FIELDS(Type, __VA_ARGS__)};       \
-      return RegisteredFields;                                               \
-    }                                                                        \
-  }
-
-template <typename State>
-func::Maybe<TRequiredJsonFieldDeclaration<State>>
-FindRequiredJsonField(const char *FieldAtom) {
-  const FString FieldName = RequiredFieldName(FieldAtom);
-  const TArray<TRequiredJsonFieldDeclaration<State>> &Fields =
-      TRequiredJsonFieldRegistry<State>::Fields();
-  return func::fold_array<
-      TRequiredJsonFieldDeclaration<State>,
-      func::Maybe<TRequiredJsonFieldDeclaration<State>>>(
-      Fields, func::nothing<TRequiredJsonFieldDeclaration<State>>(),
-      [FieldName](const func::Maybe<TRequiredJsonFieldDeclaration<State>>
-                      &Current,
-                  const TRequiredJsonFieldDeclaration<State> &Field) {
-        return Current.hasValue || Field.FieldName != FieldName
-                   ? Current
-                   : func::just(Field);
-      });
-}
-
-template <typename State>
-func::Maybe<State> ReadRequiredFields(
-    const FJsonReadStateRequest<State> &Request,
-    const TArray<const char *> &FieldAtoms) {
-  return func::fold_array<const char *, func::Maybe<State>>(
-      FieldAtoms, func::just<State>(Request.Initial),
-      [Object = Request.Object](const func::Maybe<State> &Current, const char *FieldAtom) {
-        return func::mbind(Current, [Object, FieldAtom](const State &Value) {
-          const func::Maybe<TRequiredJsonFieldDeclaration<State>> Field =
-              FindRequiredJsonField<State>(FieldAtom);
-          check(Field.hasValue);
-          return Field.value.Apply({Object, Field.value.FieldName}, Value);
-        });
-      });
-}
-
-template <typename State>
-func::Maybe<State> ReadRequiredFields(
-    const FJsonReadStateRequest<State> &Request,
-    std::initializer_list<const char *> FieldAtoms) {
-  return ReadRequiredFields<State>(Request, TArray<const char *>(FieldAtoms));
+    std::initializer_list<TJsonFieldDeclaration<State>> Fields) {
+  return ReadRequiredFields<State>(Request, TArray<TJsonFieldDeclaration<State>>(Fields));
 }
 
 } // namespace JsonValueAdapters

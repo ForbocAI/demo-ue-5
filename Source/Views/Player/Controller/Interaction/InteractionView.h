@@ -1,16 +1,19 @@
 #pragma once
 
+/** User Story: As a player controller interaction consumer, I need to invoke begin play through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::BeginPlay() */
 void APlayerRuntimeControllerView::BeginPlay() {
   Super::BeginPlay();
   PresentRuntimeStatsWidget();
   StartScaleAuditCaptureIfRequested();
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke player tick through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::PlayerTick(float DeltaTime) */
 void APlayerRuntimeControllerView::PlayerTick(float DeltaTime) {
   Super::PlayerTick(DeltaTime);
   ApplyRuntimeFlyVerticalInput();
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke setup input component through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::SetupInputComponent() */
 void APlayerRuntimeControllerView::SetupInputComponent() {
   Super::SetupInputComponent();
   check(InputComponent);
@@ -45,6 +48,7 @@ void APlayerRuntimeControllerView::SetupInputComponent() {
       &APlayerRuntimeControllerView::SetFlyDescendingReleased);
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke interact with nearest townsperson through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::InteractWithNearestTownsperson() */
 void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
   const FTownspersonCandidateObservation CandidateObservation =
       ObserveTownspersonCandidates(*this, InteractionDistance);
@@ -74,6 +78,7 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
       : (PresentMissingInteraction(Selection.MissingMessage), void());
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke present conversation view model through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::PresentConversationViewModel( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) */
 void APlayerRuntimeControllerView::PresentConversationViewModel(
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) {
   RuntimeConversationWidget
@@ -87,6 +92,7 @@ void APlayerRuntimeControllerView::PresentConversationViewModel(
   RuntimeConversationWidget->ShowConversationViewModel(Conversation);
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke present runtime stats widget through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::PresentRuntimeStatsWidget() */
 void APlayerRuntimeControllerView::PresentRuntimeStatsWidget() {
   RuntimeStatsWidget
       ? void()
@@ -99,6 +105,7 @@ void APlayerRuntimeControllerView::PresentRuntimeStatsWidget() {
         }(), void());
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke present marketing capture menu through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::PresentMarketingCaptureMenu() */
 void APlayerRuntimeControllerView::PresentMarketingCaptureMenu() {
   const FMarketingCaptureSettings &Settings =
       MarketingCaptureSettings();
@@ -125,6 +132,7 @@ void APlayerRuntimeControllerView::PresentMarketingCaptureMenu() {
   ApplyMarketingCaptureMenuOpen();
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke apply marketing capture menu open through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ApplyMarketingCaptureMenuOpen() */
 void APlayerRuntimeControllerView::ApplyMarketingCaptureMenuOpen() {
   check(MarketingMenuWidget);
   SetPause(true);
@@ -135,6 +143,7 @@ void APlayerRuntimeControllerView::ApplyMarketingCaptureMenuOpen() {
   SetInputMode(InputMode);
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke apply marketing capture menu closed through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ApplyMarketingCaptureMenuClosed() */
 void APlayerRuntimeControllerView::ApplyMarketingCaptureMenuClosed() {
   SetPause(false);
   bShowMouseCursor = false;
@@ -142,18 +151,21 @@ void APlayerRuntimeControllerView::ApplyMarketingCaptureMenuClosed() {
   SetInputMode(InputMode);
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke dismiss marketing capture menu through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::DismissMarketingCaptureMenu() */
 void APlayerRuntimeControllerView::DismissMarketingCaptureMenu() {
   MarketingMenuWidget ? (MarketingMenuWidget->RemoveFromParent(), void())
                       : void();
   ApplyMarketingCaptureMenuClosed();
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke toggle marketing capture menu through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ToggleMarketingCaptureMenu() */
 void APlayerRuntimeControllerView::ToggleMarketingCaptureMenu() {
   MarketingMenuWidget && MarketingMenuWidget->IsInViewport()
       ? DismissMarketingCaptureMenu()
       : PresentMarketingCaptureMenu();
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke retake marketing brochure shots through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::RetakeMarketingBrochureShots() */
 void APlayerRuntimeControllerView::RetakeMarketingBrochureShots() {
   DismissMarketingCaptureMenu();
   ConfigureMarketingBrochureCapture();
@@ -162,27 +174,33 @@ void APlayerRuntimeControllerView::RetakeMarketingBrochureShots() {
   ScheduleScaleAuditCaptureStep(ScaleAuditInitialDelaySeconds);
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke toggle runtime fly mode through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ToggleRuntimeFlyMode() */
 void APlayerRuntimeControllerView::ToggleRuntimeFlyMode() {
   bRuntimeFlyModeEnabled ? ApplyRuntimeFlyModeDisabled()
                          : ApplyRuntimeFlyModeEnabled();
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke set fly ascending pressed through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::SetFlyAscendingPressed() */
 void APlayerRuntimeControllerView::SetFlyAscendingPressed() {
   bFlyAscending = true;
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke set fly ascending released through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::SetFlyAscendingReleased() */
 void APlayerRuntimeControllerView::SetFlyAscendingReleased() {
   bFlyAscending = false;
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke set fly descending pressed through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::SetFlyDescendingPressed() */
 void APlayerRuntimeControllerView::SetFlyDescendingPressed() {
   bFlyDescending = true;
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke set fly descending released through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::SetFlyDescendingReleased() */
 void APlayerRuntimeControllerView::SetFlyDescendingReleased() {
   bFlyDescending = false;
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke apply runtime fly mode enabled through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ApplyRuntimeFlyModeEnabled() */
 void APlayerRuntimeControllerView::ApplyRuntimeFlyModeEnabled() {
   APlayerCharacterView *RuntimeCharacter =
       Cast<APlayerCharacterView>(GetPawn());
@@ -202,6 +220,7 @@ void APlayerRuntimeControllerView::ApplyRuntimeFlyModeEnabled() {
   PresentMissingInteraction(Settings.EnabledMessage);
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke apply runtime fly mode disabled through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ApplyRuntimeFlyModeDisabled() */
 void APlayerRuntimeControllerView::ApplyRuntimeFlyModeDisabled() {
   APlayerCharacterView *RuntimeCharacter =
       Cast<APlayerCharacterView>(GetPawn());
@@ -219,6 +238,7 @@ void APlayerRuntimeControllerView::ApplyRuntimeFlyModeDisabled() {
   PresentMissingInteraction(FlyModeSettings().DisabledMessage);
 }
 
+/** User Story: As a player controller interaction consumer, I need to invoke apply runtime fly vertical input through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ApplyRuntimeFlyVerticalInput() */
 void APlayerRuntimeControllerView::ApplyRuntimeFlyVerticalInput() {
   APawn *ControlledPawn = GetPawn();
   const FModeSettings &Settings = FlyModeSettings();

@@ -10,7 +10,7 @@
 #include "Features/Systems/Bots/Stats/BotsStatsTypes.h"
 #include "Features/Systems/Interaction/SystemsInteractionTypes.h"
 #include "Features/Systems/Spawn/SystemsSpawnTypes.h"
-#include "Features/Systems/Terrain/TerrainTypes.h"
+#include "Features/Systems/Terrain/SystemsTerrainTypes.h"
 
 namespace ForbocAI {
 namespace Game {

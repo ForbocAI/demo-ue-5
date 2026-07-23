@@ -21,6 +21,7 @@ struct FSpeechState {
   bool bSpeaking = false;
 };
 
+/** User Story: As a features systems speech consumer, I need to compare values for equality through a stable signature so the features systems speech workflow remains explicit and composable. @fn inline bool operator==(const FSpeechState &Left, const FSpeechState &Right) */
 inline bool operator==(const FSpeechState &Left,
                        const FSpeechState &Right) {
   return Left.ActionId.hasValue == Right.ActionId.hasValue &&
@@ -35,6 +36,7 @@ inline bool operator==(const FSpeechState &Left,
          Left.bSpeaking == Right.bSpeaking;
 }
 
+/** User Story: As a features systems speech consumer, I need to compare values for inequality through a stable signature so the features systems speech workflow remains explicit and composable. @fn inline bool operator!=(const FSpeechState &Left, const FSpeechState &Right) */
 inline bool operator!=(const FSpeechState &Left,
                        const FSpeechState &Right) {
   return !(Left == Right);

@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace BotOrchestratorReducers {
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke reduce orchestrator observed through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn inline FBotOrchestratorState ReduceOrchestratorObserved( const FBotOrchestratorState &State, const rtk::PayloadAction<FBotOrchestratorPayload> &Action) */
 inline FBotOrchestratorState ReduceOrchestratorObserved(
     const FBotOrchestratorState &State,
     const rtk::PayloadAction<FBotOrchestratorPayload> &Action) {
@@ -38,6 +39,7 @@ namespace Game {
 namespace Level {
 namespace BotOrchestratorSlice {
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke create initial state through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn inline FBotOrchestratorState CreateInitialState() */
 inline FBotOrchestratorState CreateInitialState() {
   return (func::pipe(FBotOrchestratorState{}) |
           [](FBotOrchestratorState State)
@@ -49,6 +51,7 @@ inline FBotOrchestratorState CreateInitialState() {
       .val;
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke get slice through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn inline const rtk::Slice<FBotOrchestratorState> &GetSlice() */
 inline const rtk::Slice<FBotOrchestratorState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FBotOrchestratorState>> Slice =
       func::lazy([]() -> rtk::Slice<FBotOrchestratorState> {

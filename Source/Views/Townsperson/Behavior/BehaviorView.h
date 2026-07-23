@@ -1,5 +1,6 @@
 #pragma once
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke begin play through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::BeginPlay() */
 void ATownspersonView::BeginPlay() {
   Super::BeginPlay();
 
@@ -11,11 +12,13 @@ void ATownspersonView::BeginPlay() {
   RefreshText();
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke tick through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::Tick(float DeltaTime) */
 void ATownspersonView::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
   CurrentLod.Behavior.bPatrolEnabled ? AdvancePatrol(DeltaTime) : void();
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke configure townsperson through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::ConfigureTownsperson( const FTownspersonViewConfig &Config) */
 void ATownspersonView::ConfigureTownsperson(
     const FTownspersonViewConfig &Config) {
   TownspersonId = Config.Identity.Id;
@@ -41,6 +44,7 @@ void ATownspersonView::ConfigureTownsperson(
   RefreshText();
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke apply distance lod through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::ApplyDistanceLod( const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) */
 void ATownspersonView::ApplyDistanceLod(
     const ForbocAI::Game::Level::FLevelDistanceLodStage &Lod) {
   CurrentLod = Lod;
@@ -77,6 +81,7 @@ void ATownspersonView::ApplyDistanceLod(
   DialogueText->SetComponentTickEnabled(false);
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke show dialogue reply through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::ShowDialogueReply(const FString &Reply) */
 void ATownspersonView::ShowDialogueReply(const FString &Reply) {
   DialogueText->SetText(FText::FromString(Reply));
   DialogueText->SetVisibility(CurrentLod.Visibility.bDynamicVisible &&
@@ -89,25 +94,33 @@ void ATownspersonView::ShowDialogueReply(const FString &Reply) {
   UE_LOG(LogTemp, Display, TEXT("%s"), *ReplyLog);
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke is player nearby through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn bool ATownspersonView::IsPlayerNearby() const */
 bool ATownspersonView::IsPlayerNearby() const { return bPlayerNearby; }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke get townsperson id through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn FString ATownspersonView::GetTownspersonId() const */
 FString ATownspersonView::GetTownspersonId() const { return TownspersonId; }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke get townsperson name through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn FString ATownspersonView::GetTownspersonName() const */
 FString ATownspersonView::GetTownspersonName() const {
   return TownspersonName;
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke get role through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn FString ATownspersonView::GetRole() const */
 FString ATownspersonView::GetRole() const { return TownspersonRole; }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke get persona through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn FString ATownspersonView::GetPersona() const */
 FString ATownspersonView::GetPersona() const { return Persona; }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke get default player line through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn FString ATownspersonView::GetDefaultPlayerLine() const */
 FString ATownspersonView::GetDefaultPlayerLine() const {
   return ObserveTownspersonViewDefaults({InteractionPrompt, DefaultPlayerLine})
       .DefaultPlayerLine;
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke get pinned response through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn FString ATownspersonView::GetPinnedResponse() const */
 FString ATownspersonView::GetPinnedResponse() const { return PinnedResponse; }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke advance patrol through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::AdvancePatrol(float DeltaTime) */
 void ATownspersonView::AdvancePatrol(float DeltaTime) {
   const ForbocAI::Game::Level::FBotPatrolAdvanceRequest Request{
       PatrolRoute,
@@ -123,6 +136,7 @@ void ATownspersonView::AdvancePatrol(float DeltaTime) {
                          : void();
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke configure sample character asset through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::ConfigureSampleCharacterAsset() */
 void ATownspersonView::ConfigureSampleCharacterAsset() {
   USkeletalMesh *Mesh = LoadObject<USkeletalMesh>(nullptr, *CharacterMeshPath);
   UClass *AnimClass =
@@ -133,6 +147,7 @@ void ATownspersonView::ConfigureSampleCharacterAsset() {
   CharacterMesh->SetAnimInstanceClass(AnimClass);
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke refresh text through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::RefreshText() */
 void ATownspersonView::RefreshText() {
   const ForbocAI::Game::Data::FTextSettings &Text =
       FG::RuntimeSelectors::SelectText();
@@ -145,6 +160,7 @@ void ATownspersonView::RefreshText() {
           .InteractionPrompt));
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke handle interaction begin through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::HandleInteractionBegin( UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult) */
 void ATownspersonView::HandleInteractionBegin(
     UPrimitiveComponent *OverlappedComponent, AActor *OtherActor,
     UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep,
@@ -162,6 +178,7 @@ void ATownspersonView::HandleInteractionBegin(
       : void();
 }
 
+/** User Story: As a views townsperson behavior consumer, I need to invoke handle interaction end through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::HandleInteractionEnd( UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex) */
 void ATownspersonView::HandleInteractionEnd(
     UPrimitiveComponent *OverlappedComponent, AActor *OtherActor,
     UPrimitiveComponent *OtherComp, int32 OtherBodyIndex) {

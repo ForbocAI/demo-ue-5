@@ -47,6 +47,8 @@ public:
 
   /**
    * Get a required string field from JSON state data.
+   * User Story: As a blueprints consumer, I need to invoke get state string through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static FString GetStateString(const FString &JsonData, const FString &FieldName)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -56,6 +58,8 @@ public:
 
   /**
    * Get a required float field from JSON state data.
+   * User Story: As a blueprints consumer, I need to invoke get state float through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static float GetStateFloat(const FString &JsonData, const FString &FieldName)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -65,6 +69,8 @@ public:
 
   /**
    * Get a required integer field from JSON state data.
+   * User Story: As a blueprints consumer, I need to invoke get state int through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static int32 GetStateInt(const FString &JsonData, const FString &FieldName)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -74,6 +80,8 @@ public:
 
   /**
    * Get a required boolean field from JSON state data.
+   * User Story: As a blueprints consumer, I need to invoke get state bool through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static bool GetStateBool(const FString &JsonData, const FString &FieldName)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -83,6 +91,8 @@ public:
 
   /**
    * Check if a field exists in the JSON state data.
+   * User Story: As a blueprints consumer, I need to invoke has state field through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static bool HasStateField(const FString &JsonData, const FString &FieldName)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -95,6 +105,8 @@ public:
   /**
    * Set a string field in JSON state data.
    * Returns a NEW JSON string with the field added/updated.
+   * User Story: As a blueprints consumer, I need to invoke set state string through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static FString SetStateString(const FGenericStateFieldRequest &Request, const FString &Value)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -105,6 +117,8 @@ public:
   /**
    * Set a float field in JSON state data.
    * Returns a NEW JSON string with the field added/updated.
+   * User Story: As a blueprints consumer, I need to invoke set state float through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static FString SetStateFloat(const FGenericStateFieldRequest &Request, float Value)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -115,6 +129,8 @@ public:
   /**
    * Set an integer field in JSON state data.
    * Returns a NEW JSON string with the field added/updated.
+   * User Story: As a blueprints consumer, I need to invoke set state int through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static FString SetStateInt(const FGenericStateFieldRequest &Request, int32 Value)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -125,6 +141,8 @@ public:
   /**
    * Set a boolean field in JSON state data.
    * Returns a NEW JSON string with the field added/updated.
+   * User Story: As a blueprints consumer, I need to invoke set state bool through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static FString SetStateBool(const FGenericStateFieldRequest &Request, bool Value)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -137,6 +155,8 @@ public:
   /**
    * Merge two JSON state strings. Fields in Override take precedence.
    * Returns a NEW JSON string.
+   * User Story: As a blueprints consumer, I need to invoke merge state through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static FString MergeState(const FString &BaseJson, const FString &OverrideJson)
    */
   UFUNCTION(BlueprintCallable, BlueprintPure,
             Category = "ForbocAI|GenericState",
@@ -145,9 +165,17 @@ public:
                              const FString &OverrideJson);
 
 private:
-  /** Parse JSON string into object. Returns nullptr on failure. */
+  /**
+   * Parse JSON string into object. Returns nullptr on failure.
+   * User Story: As a blueprints consumer, I need to invoke parse json through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static TSharedPtr<FJsonObject> ParseJson(const FString &JsonData)
+   */
   static TSharedPtr<FJsonObject> ParseJson(const FString &JsonData);
 
-  /** Serialize JSON object back to string. */
+  /**
+   * Serialize JSON object back to string.
+   * User Story: As a blueprints consumer, I need to invoke serialize json through a stable signature so the blueprints workflow remains explicit and composable.
+   * @fn static FString SerializeJson(const TSharedPtr<FJsonObject> &JsonObject)
+   */
   static FString SerializeJson(const TSharedPtr<FJsonObject> &JsonObject);
 };

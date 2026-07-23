@@ -8,6 +8,7 @@ namespace Game {
 namespace Level {
 namespace SpeechActions {
 
+/** User Story: As a features systems speech consumer, I need to invoke speech started through a stable signature so the features systems speech workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FSpeechPayload> &SpeechStarted() */
 inline const rtk::ActionCreator<FSpeechPayload> &SpeechStarted() {
   static const func::Lazy<rtk::ActionCreator<FSpeechPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FSpeechPayload> {
@@ -18,6 +19,7 @@ inline const rtk::ActionCreator<FSpeechPayload> &SpeechStarted() {
   return func::eval(Creator);
 }
 
+/** User Story: As a features systems speech consumer, I need to invoke speech stopped through a stable signature so the features systems speech workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FSpeechPayload> &SpeechStopped() */
 inline const rtk::ActionCreator<FSpeechPayload> &SpeechStopped() {
   static const func::Lazy<rtk::ActionCreator<FSpeechPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FSpeechPayload> {

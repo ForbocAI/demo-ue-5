@@ -73,12 +73,14 @@ struct FHorseRouteBuildRequest {
   ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
+/** User Story: As a horses route seed consumer, I need to invoke horse route lots through a stable signature so the horses route seed workflow remains explicit and composable. @fn FLevelLocalPoint HorseRouteLots(const FRouteLotsRequest &Request) */
 FLevelLocalPoint HorseRouteLots(const FRouteLotsRequest &Request) {
   return LevelLayoutAdapters::FromPostOfficeLots(
       {Request.Geometry, Request.EastLots, Request.NorthLots,
        LevelLayoutAdapters::RoadSurfaceClearance(Request.Geometry)});
 }
 
+/** User Story: As a horses route seed consumer, I need to invoke patrol route from fields through a stable signature so the horses route seed workflow remains explicit and composable. @fn TArray<FLevelLocalPoint> PatrolRouteFromFields(const FPatrolRouteFieldsRequest &Request) */
 TArray<FLevelLocalPoint>
 PatrolRouteFromFields(const FPatrolRouteFieldsRequest &Request) {
   const ForbocAI::Game::Data::FGeometrySettings Geometry =
@@ -92,6 +94,7 @@ PatrolRouteFromFields(const FPatrolRouteFieldsRequest &Request) {
       });
 }
 
+/** User Story: As a horses route seed consumer, I need to invoke horse route from fields through a stable signature so the horses route seed workflow remains explicit and composable. @fn FHorseRouteSeed HorseRouteFromFields( const FHorseRouteBuildRequest &Request) */
 FHorseRouteSeed HorseRouteFromFields(
     const FHorseRouteBuildRequest &Request) {
   FHorseRouteSeed Seed;
@@ -105,6 +108,7 @@ FHorseRouteSeed HorseRouteFromFields(
 
 } // namespace
 
+/** User Story: As a horses route seed consumer, I need to invoke build horse route seed through a stable signature so the horses route seed workflow remains explicit and composable. @fn TArray<FHorseRouteSeed> BuildHorseRouteSeed( const FBotSeedBuildRequest &Request) */
 TArray<FHorseRouteSeed> BuildHorseRouteSeed(
     const FBotSeedBuildRequest &Request) {
   return func::map_array<FHorseRouteSource, FHorseRouteSeed>(
@@ -128,6 +132,7 @@ namespace Level {
 namespace ComponentsAdapters {
 
 template <> struct TComponentSourceValueFieldRegistry<FHorseRouteSeed> {
+  /** User Story: As a horses route seed consumer, I need to invoke fields through a stable signature so the horses route seed workflow remains explicit and composable. @fn static const TArray<TComponentSourceValueFieldDeclaration<FHorseRouteSeed>> &Fields() */
   static const TArray<TComponentSourceValueFieldDeclaration<FHorseRouteSeed>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FHorseRouteSeed>>
@@ -142,6 +147,7 @@ template <> struct TComponentSourceValueFieldRegistry<FHorseRouteSeed> {
 
 template <>
 struct TComponentSourceProjector<FHorseRouteSeed> {
+  /** User Story: As a horses route seed consumer, I need to invoke the callable value through a stable signature so the horses route seed workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FHorseRouteSeed &Horse) const */
   ecs::FComponentValue operator()(const FHorseRouteSeed &Horse) const {
     return ComponentSourceValueMap(
         Horse, {"Id", "Name", "MountedRider", "PatrolRoute"});
@@ -154,8 +160,10 @@ namespace EntitiesAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
+/** User Story: As a horses route seed consumer, I need to invoke bot entity key through a stable signature so the horses route seed workflow remains explicit and composable. @fn extern ecs::EntityKey BotEntityKey(const FString &Id) */
 extern ecs::EntityKey BotEntityKey(const FString &Id);
 
+/** User Story: As a horses route seed consumer, I need to invoke project horse through a stable signature so the horses route seed workflow remains explicit and composable. @fn ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) */
 ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) {
   return ComponentsAdapters::ProjectEntityCatalog(
       Payload,

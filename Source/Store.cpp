@@ -20,11 +20,13 @@ namespace detail {
 
 using FReduxLogSettings = ForbocAI::Game::Data::FReduxLogSettings;
 
+/** User Story: As a store consumer, I need to invoke redux log settings through a stable signature so the store workflow remains explicit and composable. @fn FReduxLogSettings ReduxLogSettings() */
 FReduxLogSettings ReduxLogSettings() {
   return ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
       .ReduxLog;
 }
 
+/** User Story: As a store consumer, I need to invoke is sampled runtime log action through a stable signature so the store workflow remains explicit and composable. @fn bool IsSampledRuntimeLogAction( const rtk::AnyAction &Action, const FReduxLogSettings &Settings) */
 bool IsSampledRuntimeLogAction(
     const rtk::AnyAction &Action,
     const FReduxLogSettings &Settings) {
@@ -34,6 +36,7 @@ bool IsSampledRuntimeLogAction(
       [&Action](const FString &Type) { return Action.Type == Type; });
 }
 
+/** User Story: As a store consumer, I need to invoke should log sampled runtime action through a stable signature so the store workflow remains explicit and composable. @fn bool ShouldLogSampledRuntimeAction( const rtk::AnyAction &Action, const FReduxLogSettings &Settings) */
 bool ShouldLogSampledRuntimeAction(
     const rtk::AnyAction &Action,
     const FReduxLogSettings &Settings) {
@@ -43,6 +46,7 @@ bool ShouldLogSampledRuntimeAction(
   return NextCount == 1 || NextCount % Settings.SampleInterval == 0;
 }
 
+/** User Story: As a store consumer, I need to invoke should log runtime action through a stable signature so the store workflow remains explicit and composable. @fn bool ShouldLogRuntimeAction(const rtk::AnyAction &Action, const FReduxLogSettings &Settings) */
 bool ShouldLogRuntimeAction(const rtk::AnyAction &Action,
                             const FReduxLogSettings &Settings) {
   return IsSampledRuntimeLogAction(Action, Settings)
@@ -51,8 +55,8 @@ bool ShouldLogRuntimeAction(const rtk::AnyAction &Action,
 }
 
 /**
+ * @fn std::function<void(const FString &)> CreateReduxLoggerSink()
  * @brief Builds the UE console sink used by redux-logger middleware.
- * @signature std::function<void(const FString &)> CreateReduxLoggerSink()
  * @return Logger sink that writes each redux-logger line to the UE log system.
  *
  * User Story: As a developer running the runtime or automation tests, I need RTK
@@ -65,8 +69,8 @@ std::function<void(const FString &)> CreateReduxLoggerSink() {
 }
 
 /**
+ * @fn rtk::logger::ReduxLoggerOptions<FRuntimeState> CreateReduxLoggerOptions()
  * @brief Creates redux-logger options for the runtime root store.
- * @signature rtk::logger::ReduxLoggerOptions<FRuntimeState> CreateReduxLoggerOptions()
  * @return Logger options with an explicit UE output sink and deterministic title formatting.
  *
  * User Story: As a maintainer inspecting unidirectional data flow, I need
@@ -87,8 +91,8 @@ rtk::logger::ReduxLoggerOptions<FRuntimeState> CreateReduxLoggerOptions() {
 }
 
 /**
+ * @fn std::vector<rtk::Middleware<FRuntimeState>> CreateRuntimeMiddleware()
  * @brief Builds RTK middleware for the runtime store.
- * @signature std::vector<rtk::Middleware<FRuntimeState>> CreateRuntimeMiddleware()
  * @return Middleware chain containing the SDK redux-logger middleware.
  *
  * User Story: As runtime store configuration, I need instrumentation to wrap
@@ -105,8 +109,8 @@ std::vector<rtk::Middleware<FRuntimeState>> CreateRuntimeMiddleware() {
 } // namespace detail
 
 /**
+ * @fn rtk::EnhancedStore<FRuntimeState> ConfigureStore()
  * @brief Creates the configured root store from RuntimeSlice.
- * @signature rtk::EnhancedStore<FRuntimeState> ConfigureStore()
  * @return Enhanced store with RuntimeSlice reducer, initial state, and RTK middleware.
  *
  * User Story: As runtime bootstrapping, I need the single authoritative store
@@ -119,8 +123,8 @@ rtk::EnhancedStore<FRuntimeState> ConfigureStore() {
 }
 
 /**
+ * @fn rtk::EnhancedStore<FRuntimeState> &GetStore()
  * @brief Provides the single store instance used by runtime systems and views.
- * @signature rtk::EnhancedStore<FRuntimeState> &GetStore()
  * @return Process-local singleton enhanced store.
  *
  * User Story: As UE boundary code, I need one shared store so events dispatch

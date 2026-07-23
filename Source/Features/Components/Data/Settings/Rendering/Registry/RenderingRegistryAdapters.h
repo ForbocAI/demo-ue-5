@@ -21,6 +21,7 @@ JSON_SETTINGS_REGISTRY(FRenderingConsoleVariableSettings, Name, ValueKind,
 
 template <>
 struct TJsonSettingsRegistry<FColorResultSettings> {
+  /** User Story: As a settings rendering registry consumer, I need to invoke fields through a stable signature so the settings rendering registry workflow remains explicit and composable. @fn static const TArray<TField<FColorResultSettings>> &Fields() */
   static const TArray<TField<FColorResultSettings>>
       &Fields() {
     static const TArray<TField<FColorResultSettings>>
@@ -38,6 +39,7 @@ struct TJsonSettingsRegistry<FColorResultSettings> {
 };
 
 template <> struct TJsonSettingsRegistry<FRuleSettings> {
+  /** User Story: As a settings rendering registry consumer, I need to invoke fields through a stable signature so the settings rendering registry workflow remains explicit and composable. @fn static const TArray<TField<FRuleSettings>> &Fields() */
   static const TArray<TField<FRuleSettings>>
       &Fields() {
     static const TArray<TField<FRuleSettings>>
@@ -61,6 +63,7 @@ template <> struct TJsonSettingsRegistry<FRuleSettings> {
 };
 
 template <> struct TJsonSettingsRegistry<FPaletteSettings> {
+  /** User Story: As a settings rendering registry consumer, I need to invoke fields through a stable signature so the settings rendering registry workflow remains explicit and composable. @fn static const TArray<TField<FPaletteSettings>> &Fields() */
   static const TArray<TField<FPaletteSettings>>
       &Fields() {
     static const TArray<TField<FPaletteSettings>>
@@ -169,6 +172,7 @@ JSON_SETTINGS_REGISTRY(FProfileSettings, TimeOfDayHour,
 JSON_SETTINGS_REGISTRY(FSpecSettings, Texture, Name, Use, Size);
 
 template <> struct TJsonSettingsRegistry<FRenderingSettings> {
+  /** User Story: As a settings rendering registry consumer, I need to invoke fields through a stable signature so the settings rendering registry workflow remains explicit and composable. @fn static const TArray<TField<FRenderingSettings>> &Fields() */
   static const TArray<TField<FRenderingSettings>> &Fields() {
     static const TArray<TField<FRenderingSettings>>
         RegisteredFields = {
@@ -239,6 +243,7 @@ template <> struct TJsonSettingsRegistry<FRenderingSettings> {
 };
 
 template <> struct TJsonSettingsRegistry<FLodSettings> {
+  /** User Story: As a settings rendering registry consumer, I need to invoke fields through a stable signature so the settings rendering registry workflow remains explicit and composable. @fn static const TArray<TField<FLodSettings>> &Fields() */
   static const TArray<TField<FLodSettings>>
       &Fields() {
     static const TArray<TField<FLodSettings>>

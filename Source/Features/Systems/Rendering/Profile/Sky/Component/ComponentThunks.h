@@ -5,7 +5,7 @@
 #include "Components/SkyAtmosphereComponent.h"
 #include "Components/SkyLightComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
@@ -35,29 +35,35 @@ struct FRuntimePixelMaterialEval {
   const FLevelRetroRenderProfile *Profile;
 };
 
+/** User Story: As a profile sky component consumer, I need to invoke sky atom through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName SkyAtom(const FString &Atom) */
 FName SkyAtom(const FString &Atom) {
   return FName(*Atom);
 }
 
 // --- Actor tags -----------------------------------------------------------
 
+/** User Story: As a profile sky component consumer, I need to invoke runtime profile sky dome tag through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfileSkyDomeTag(const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfileSkyDomeTag(const FLevelRetroRenderProfile &Profile) {
   return SkyAtom(Profile.RuntimeSkyDomeActorTag);
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke runtime profile moon disc tag through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfileMoonDiscTag(const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfileMoonDiscTag(const FLevelRetroRenderProfile &Profile) {
   return SkyAtom(Profile.RuntimeMoonDiscActorTag);
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke runtime profile point stars tag through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfilePointStarsTag(const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfilePointStarsTag(const FLevelRetroRenderProfile &Profile) {
   return SkyAtom(Profile.RuntimePointStarsActorTag);
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke runtime profile moon pixels component name through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfileMoonPixelsComponentName( const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfileMoonPixelsComponentName(
     const FLevelRetroRenderProfile &Profile) {
   return SkyAtom(Profile.RuntimeMoonPixelsComponentName);
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke runtime profile point stars component name through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfilePointStarsComponentName( const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfilePointStarsComponentName(
     const FLevelRetroRenderProfile &Profile) {
   return SkyAtom(Profile.RuntimePointStarsComponentName);
@@ -65,12 +71,14 @@ FName RuntimeProfilePointStarsComponentName(
 
 // --- Asset loading (side effect) -----------------------------------------
 
+/** User Story: As a profile sky component consumer, I need to invoke load runtime profile asset through a stable signature so the profile sky component workflow remains explicit and composable. @fn template <typename Asset> Asset *LoadRuntimeProfileAsset(const FString &Path) */
 template <typename Asset> Asset *LoadRuntimeProfileAsset(const FString &Path) {
   return Path.IsEmpty() ? nullptr : LoadObject<Asset>(nullptr, *Path);
 }
 
 // --- Actor component helpers (side effects) ------------------------------
 
+/** User Story: As a profile sky component consumer, I need to invoke actor components through a stable signature so the profile sky component workflow remains explicit and composable. @fn template <typename Component> TArray<Component *> ActorComponents(AActor *Actor) */
 template <typename Component>
 TArray<Component *> ActorComponents(AActor *Actor) {
   TArray<Component *> Components;
@@ -78,6 +86,7 @@ TArray<Component *> ActorComponents(AActor *Actor) {
   return Components;
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke find actor component by name through a stable signature so the profile sky component workflow remains explicit and composable. @fn template <typename Component> Component *FindActorComponentByName(AActor *Actor, const FName &Name) */
 template <typename Component>
 Component *FindActorComponentByName(AActor *Actor, const FName &Name) {
   check(Actor);
@@ -91,6 +100,7 @@ Component *FindActorComponentByName(AActor *Actor, const FName &Name) {
 
 // --- Material side effects -----------------------------------------------
 
+/** User Story: As a profile sky component consumer, I need to invoke apply runtime emissive color through a stable signature so the profile sky component workflow remains explicit and composable. @fn void ApplyRuntimeEmissiveColor(UMaterialInstanceDynamic *Material, const FLevelRetroRenderProfile &Profile, const FLinearColor &Color) */
 void ApplyRuntimeEmissiveColor(UMaterialInstanceDynamic *Material,
                                const FLevelRetroRenderProfile &Profile,
                                const FLinearColor &Color) {
@@ -107,6 +117,7 @@ void ApplyRuntimeEmissiveColor(UMaterialInstanceDynamic *Material,
       SkyAtom(Profile.MaterialEmissiveColorParameter), Color);
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke apply runtime sky dome material parameters through a stable signature so the profile sky component workflow remains explicit and composable. @fn void ApplyRuntimeSkyDomeMaterialParameters( UMaterialInstanceDynamic *Material, const FLevelRetroRenderProfile &Profile) */
 void ApplyRuntimeSkyDomeMaterialParameters(
     UMaterialInstanceDynamic *Material,
     const FLevelRetroRenderProfile &Profile) {
@@ -138,6 +149,7 @@ void ApplyRuntimeSkyDomeMaterialParameters(
 
 // --- Procedural mesh component creation (side effects) -------------------
 
+/** User Story: As a profile sky component consumer, I need to invoke hide runtime moon mesh component through a stable signature so the profile sky component workflow remains explicit and composable. @fn void HideRuntimeMoonMeshComponent(AActor *Actor) */
 void HideRuntimeMoonMeshComponent(AActor *Actor) {
   check(Actor);
   UStaticMeshComponent *Component =
@@ -149,6 +161,7 @@ void HideRuntimeMoonMeshComponent(AActor *Actor) {
             : void();
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke create runtime procedural mesh component through a stable signature so the profile sky component workflow remains explicit and composable. @fn UProceduralMeshComponent * CreateRuntimeProceduralMeshComponent(AActor *Actor, const FName &Name) */
 UProceduralMeshComponent *
 CreateRuntimeProceduralMeshComponent(AActor *Actor, const FName &Name) {
   check(Actor);
@@ -163,6 +176,7 @@ CreateRuntimeProceduralMeshComponent(AActor *Actor, const FName &Name) {
   return Component;
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke runtime moon pixels component through a stable signature so the profile sky component workflow remains explicit and composable. @fn UProceduralMeshComponent *RuntimeMoonPixelsComponent( AActor *Actor, const FLevelRetroRenderProfile &Profile) */
 UProceduralMeshComponent *RuntimeMoonPixelsComponent(
     AActor *Actor, const FLevelRetroRenderProfile &Profile) {
   UProceduralMeshComponent *Existing =
@@ -174,6 +188,7 @@ UProceduralMeshComponent *RuntimeMoonPixelsComponent(
                    Actor, RuntimeProfileMoonPixelsComponentName(Profile));
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke runtime point stars component through a stable signature so the profile sky component workflow remains explicit and composable. @fn UProceduralMeshComponent *RuntimePointStarsComponent( AActor *Actor, const FLevelRetroRenderProfile &Profile) */
 UProceduralMeshComponent *RuntimePointStarsComponent(
     AActor *Actor, const FLevelRetroRenderProfile &Profile) {
   UProceduralMeshComponent *Existing =
@@ -184,6 +199,7 @@ UProceduralMeshComponent *RuntimePointStarsComponent(
                         Actor, RuntimeProfilePointStarsComponentName(Profile));
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke apply runtime pixel mesh section through a stable signature so the profile sky component workflow remains explicit and composable. @fn void ApplyRuntimePixelMeshSection(UProceduralMeshComponent *Component, const FLevelRetroRenderProfile &Profile, const FRuntimePixelMeshBuffers &Buffers) */
 void ApplyRuntimePixelMeshSection(UProceduralMeshComponent *Component,
                                   const FLevelRetroRenderProfile &Profile,
                                   const FRuntimePixelMeshBuffers &Buffers) {
@@ -195,6 +211,7 @@ void ApplyRuntimePixelMeshSection(UProceduralMeshComponent *Component,
       Buffers.VertexColors, Buffers.Tangents, false, false);
 }
 
+/** User Story: As a profile sky component consumer, I need to invoke apply runtime pixel material through a stable signature so the profile sky component workflow remains explicit and composable. @fn void ApplyRuntimePixelMaterial(const FRuntimePixelMaterialEval &Eval) */
 void ApplyRuntimePixelMaterial(const FRuntimePixelMaterialEval &Eval) {
   check(Eval.Component);
   check(Eval.Profile);

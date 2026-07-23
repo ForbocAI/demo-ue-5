@@ -36,12 +36,14 @@ namespace Level {
 namespace RuntimeSlice {
 namespace {
 
+/** User Story: As a features systems state consumer, I need to invoke runtime milliseconds through a stable signature so the features systems state workflow remains explicit and composable. @fn double RuntimeMilliseconds(double ElapsedSeconds, const FRuntimeState &State) */
 double RuntimeMilliseconds(double ElapsedSeconds,
                            const FRuntimeState &State) {
   return ElapsedSeconds *
          State.UI.Settings.StatsOverlay.SecondsToMilliseconds;
 }
 
+/** User Story: As a features systems state consumer, I need to invoke reduce root with diagnostics through a stable signature so the features systems state workflow remains explicit and composable. @fn FRuntimeState ReduceRootWithDiagnostics( FRuntimeState State, const rtk::CaseReducer<FRuntimeState> &CombinedReducers, const rtk::AnyAction &Action) */
 FRuntimeState ReduceRootWithDiagnostics(
     FRuntimeState State,
     const rtk::CaseReducer<FRuntimeState> &CombinedReducers,
@@ -75,6 +77,7 @@ FRuntimeState ReduceRootWithDiagnostics(
   return Projected;
 }
 
+/** User Story: As a features systems state consumer, I need to invoke root reducer through a stable signature so the features systems state workflow remains explicit and composable. @fn const rtk::CaseReducer<FRuntimeState> &RootReducer() */
 const rtk::CaseReducer<FRuntimeState> &RootReducer() {
   static const rtk::CaseReducer<FRuntimeState> Reducer = []() {
     rtk::ReducersMapObject<FRuntimeState> Reducers;
@@ -123,6 +126,7 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
 
 } // namespace
 
+/** User Story: As a features systems state consumer, I need to invoke get slice through a stable signature so the features systems state workflow remains explicit and composable. @fn const rtk::Slice<FRuntimeState> &GetSlice() */
 const rtk::Slice<FRuntimeState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FRuntimeState>> Slice =
       func::lazy([]() -> rtk::Slice<FRuntimeState> {
@@ -134,10 +138,12 @@ const rtk::Slice<FRuntimeState> &GetSlice() {
   return func::eval(Slice);
 }
 
+/** User Story: As a features systems state consumer, I need to invoke request player spawn through a stable signature so the features systems state workflow remains explicit and composable. @fn rtk::ThunkAction<FPointPayload, FRuntimeState> RequestPlayerSpawn() */
 rtk::ThunkAction<FPointPayload, FRuntimeState> RequestPlayerSpawn() {
   return RuntimeThunks::RequestPlayerSpawn();
 }
 
+/** User Story: As a features systems state consumer, I need to invoke request level view payload through a stable signature so the features systems state workflow remains explicit and composable. @fn rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState> RequestLevelViewPayload() */
 rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState>
 RequestLevelViewPayload() {
   return RuntimeThunks::RequestLevelViewPayload();

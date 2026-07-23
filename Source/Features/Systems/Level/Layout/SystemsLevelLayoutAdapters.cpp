@@ -1,6 +1,6 @@
 #include "Features/Systems/Level/Layout/SystemsLevelLayoutAdapters.h"
 
-#include "Features/Components/Data/Json/Value/ValueAdapters.h"
+#include "Features/Components/Data/Json/Value/JsonValueAdapters.h"
 #include "Features/Systems/Level/Layout/Block/BlockAdapters.h"
 #include "Features/Systems/Level/Layout/Label/LabelAdapters.h"
 
@@ -12,6 +12,7 @@ namespace {
 
 namespace JsonValues = ForbocAI::Game::Data::JsonValueAdapters;
 
+/** User Story: As a systems level layout consumer, I need to invoke read leaf objects through a stable signature so the systems level layout workflow remains explicit and composable. @fn template <typename Output> TArray<Output> ReadLeafObjects( const TArray<TSharedPtr<FJsonValue>> &Values, const FString &LeafName, TFunction<func::Maybe<Output>(const TSharedPtr<FJsonObject> &)> Read) */
 template <typename Output>
 TArray<Output> ReadLeafObjects(
     const TArray<TSharedPtr<FJsonValue>> &Values,
@@ -23,6 +24,7 @@ TArray<Output> ReadLeafObjects(
   return Result.value;
 }
 
+/** User Story: As a systems level layout consumer, I need to invoke section from leaves through a stable signature so the systems level layout workflow remains explicit and composable. @fn FSectionSeed SectionFromLeaves(const FLevelSectionLeaves &Leaves) */
 FSectionSeed
 SectionFromLeaves(const FLevelSectionLeaves &Leaves) {
   FSectionSeed Seed;
@@ -41,6 +43,7 @@ SectionFromLeaves(const FLevelSectionLeaves &Leaves) {
 
 } // namespace
 
+/** User Story: As a systems level layout consumer, I need to invoke layout from json through a stable signature so the systems level layout workflow remains explicit and composable. @fn func::Maybe<FLayoutSeed> LayoutFromJson(const FLeaves &Leaves) */
 func::Maybe<FLayoutSeed>
 LayoutFromJson(const FLeaves &Leaves) {
   FLayoutSeed Seed;

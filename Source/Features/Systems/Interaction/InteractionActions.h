@@ -10,7 +10,9 @@ namespace Level {
 namespace InteractionActions {
 
 /**
+ * @fn inline const rtk::ActionCreator<FCandidatesObserved> & TownspersonCandidatesObserved()
  * @brief RTK action creator for observed townsperson interaction candidates.
+ * User Story: As a features systems interaction consumer, I need to invoke townsperson candidates observed through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline const rtk::ActionCreator<FCandidatesObserved> &
 TownspersonCandidatesObserved() {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/frmt.hpp"
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Core/rtk.hpp"
 #include "Features/Systems/UI/SystemsUITypes.h"
 
@@ -35,6 +35,7 @@ struct FUIChatHistoryRenderedDeclaration {};
 template <typename Declaration> struct TUIReducerRegistry;
 
 template <> struct TUIReducerRegistry<FUIRoleColorDeclaration> {
+  /** User Story: As a ui chat rendering consumer, I need to invoke declarations through a stable signature so the ui chat rendering workflow remains explicit and composable. @fn static const TArray<FUIRoleColorDeclaration> &Declarations() */
   static const TArray<FUIRoleColorDeclaration> &Declarations() {
     static const TArray<FUIRoleColorDeclaration> RegisteredDeclarations = {
         {&FUISettings::PlayerRoleLabel, &FUISettings::PlayerColor},
@@ -47,6 +48,7 @@ template <> struct TUIReducerRegistry<FUIRoleColorDeclaration> {
 };
 
 template <> struct TUIReducerRegistry<FUIChatHistoryRenderedDeclaration> {
+  /** User Story: As a ui chat rendering consumer, I need to invoke declarations through a stable signature so the ui chat rendering workflow remains explicit and composable. @fn static const TArray<TUIStatePayloadFieldDeclaration<FChatMessageViewModels>> &Declarations() */
   static const TArray<TUIStatePayloadFieldDeclaration<FChatMessageViewModels>>
       &Declarations() {
     static const TArray<
@@ -57,6 +59,7 @@ template <> struct TUIReducerRegistry<FUIChatHistoryRenderedDeclaration> {
   }
 };
 
+/** User Story: As a ui chat rendering consumer, I need to invoke find role color through a stable signature so the ui chat rendering workflow remains explicit and composable. @fn inline func::Maybe<FLinearColor> FindRoleColor( const FString &Role, const FUISettings &Settings) */
 inline func::Maybe<FLinearColor> FindRoleColor(
     const FString &Role, const FUISettings &Settings) {
   const TArray<FUIRoleColorDeclaration> &Declarations =
@@ -78,6 +81,7 @@ struct TReducePayloadFieldsRequest {
   const TArray<TUIStatePayloadFieldDeclaration<Value>> &Declarations;
 };
 
+/** User Story: As a ui chat rendering consumer, I need to invoke reduce payload fields through a stable signature so the ui chat rendering workflow remains explicit and composable. @fn template <typename Value> FUIState ReducePayloadFields( const FUIState &State, const TReducePayloadFieldsRequest<Value> &Request) */
 template <typename Value>
 FUIState ReducePayloadFields(
     const FUIState &State,
@@ -98,6 +102,7 @@ struct TReducePayloadActionFieldsRequest {
   const TArray<TUIStatePayloadFieldDeclaration<Value>> &Declarations;
 };
 
+/** User Story: As a ui chat rendering consumer, I need to invoke reduce payload action fields through a stable signature so the ui chat rendering workflow remains explicit and composable. @fn template <typename Value> FUIState ReducePayloadActionFields( const FUIState &State, const TReducePayloadActionFieldsRequest<Value> &Request) */
 template <typename Value>
 FUIState ReducePayloadActionFields(
     const FUIState &State,
@@ -114,6 +119,7 @@ FUIState ReducePayloadActionFields(
       .val;
 }
 
+/** User Story: As a ui chat rendering consumer, I need to invoke map with context through a stable signature so the ui chat rendering workflow remains explicit and composable. @fn template <typename Source, typename Output, typename Context> TArray<Output> MapWithContext(const TArray<Source> &Values, const Context &ContextValue, TFunctionRef<Output(const Source &, const Context &)> Map) */
 template <typename Source, typename Output, typename Context>
 TArray<Output> MapWithContext(const TArray<Source> &Values,
                               const Context &ContextValue,

@@ -1,28 +1,11 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Data/Settings/Bot/Stats/BotStatsTypes.h"
 
 namespace ForbocAI {
 namespace Game {
 namespace Data {
-
-struct FTownspersonDefaultsSettings {
-  FString Id;
-  FString Name;
-  FString Role;
-  FString Persona;
-  FString InteractionPrompt;
-  FString DefaultPlayerLine;
-};
-
-
-struct FStatPresetSettings {
-  float MoveSpeed;
-  float AwarenessRange;
-  float Resolve;
-  bool bCanTalk;
-};
-
 
 struct FBotSettings {
   FString InitialName;
@@ -75,144 +58,7 @@ struct FBotSettings {
   int32 DefaultBehaviorState;
 };
 
-
-struct FTownspersonPresentationSettings {
-  float CharacterHeightFeet;
-  float CharacterShoulderWidthFeet;
-  float PatrolPauseSeconds;
-  float PromptAboveHeadFeet;
-  float NameAbovePromptFeet;
-  float DialogueAboveNameHeightRatio;
-  float InteractionRadiusLots;
-  float WalkSpeedHeightRatio;
-  float MannequinScale;
-  FVector MannequinOffsetFeet;
-  FRotator MannequinRotation;
-  float PromptTextScale;
-  float DialogueTextScale;
-  FString MeshPath;
-  FString AnimationBlueprintClassPath;
-};
-
-
-struct FHorsePresentationSettings {
-  FString DefaultName;
-  float HorseLengthFeet;
-  float BodyHeightFeet;
-  float LegHeightFeet;
-  float NeckHeightFeet;
-  float HeadHeightFeet;
-  float SaddleHeightFeet;
-  float PatrolPauseSeconds;
-  float WalkSpeedHorseLengthRatio;
-  float RouteArrivalLegRatio;
-  float ImportedHorseScale;
-  float MountedRiderScale;
-  FVector MountedRiderOffsetFeet;
-  float NameTextWorldSizeFeet;
-  FString HorseMeshPath;
-  FString HorseWalkAnimationPath;
-  FString RiderMeshPath;
-  FString RiderWalkAnimationPath;
-};
-
-
-inline bool operator==(const FStatPresetSettings &Left,
-                       const FStatPresetSettings &Right) {
-  return FMath::IsNearlyEqual(Left.MoveSpeed, Right.MoveSpeed) &&
-         FMath::IsNearlyEqual(Left.AwarenessRange, Right.AwarenessRange) &&
-         FMath::IsNearlyEqual(Left.Resolve, Right.Resolve) &&
-         Left.bCanTalk == Right.bCanTalk;
-}
-
-inline bool operator!=(const FStatPresetSettings &Left,
-                       const FStatPresetSettings &Right) {
-  return !(Left == Right);
-}
-
-inline bool operator==(const FTownspersonDefaultsSettings &Left,
-                       const FTownspersonDefaultsSettings &Right) {
-  return Left.Id == Right.Id && Left.Name == Right.Name &&
-         Left.Role == Right.Role && Left.Persona == Right.Persona &&
-         Left.InteractionPrompt == Right.InteractionPrompt &&
-         Left.DefaultPlayerLine == Right.DefaultPlayerLine;
-}
-
-inline bool operator!=(const FTownspersonDefaultsSettings &Left,
-                       const FTownspersonDefaultsSettings &Right) {
-  return !(Left == Right);
-}
-
-inline bool operator==(const FTownspersonPresentationSettings &Left,
-                       const FTownspersonPresentationSettings &Right) {
-  return FMath::IsNearlyEqual(Left.CharacterHeightFeet,
-                              Right.CharacterHeightFeet) &&
-         FMath::IsNearlyEqual(Left.CharacterShoulderWidthFeet,
-                              Right.CharacterShoulderWidthFeet) &&
-         FMath::IsNearlyEqual(Left.PatrolPauseSeconds,
-                              Right.PatrolPauseSeconds) &&
-         FMath::IsNearlyEqual(Left.PromptAboveHeadFeet,
-                              Right.PromptAboveHeadFeet) &&
-         FMath::IsNearlyEqual(Left.NameAbovePromptFeet,
-                              Right.NameAbovePromptFeet) &&
-         FMath::IsNearlyEqual(Left.DialogueAboveNameHeightRatio,
-                              Right.DialogueAboveNameHeightRatio) &&
-         FMath::IsNearlyEqual(Left.InteractionRadiusLots,
-                              Right.InteractionRadiusLots) &&
-         FMath::IsNearlyEqual(Left.WalkSpeedHeightRatio,
-                              Right.WalkSpeedHeightRatio) &&
-         FMath::IsNearlyEqual(Left.MannequinScale, Right.MannequinScale) &&
-         Left.MannequinOffsetFeet.Equals(Right.MannequinOffsetFeet) &&
-         Left.MannequinRotation.Equals(Right.MannequinRotation) &&
-         FMath::IsNearlyEqual(Left.PromptTextScale,
-                              Right.PromptTextScale) &&
-         FMath::IsNearlyEqual(Left.DialogueTextScale,
-                              Right.DialogueTextScale) &&
-         Left.MeshPath == Right.MeshPath &&
-         Left.AnimationBlueprintClassPath ==
-             Right.AnimationBlueprintClassPath;
-}
-
-inline bool operator!=(const FTownspersonPresentationSettings &Left,
-                       const FTownspersonPresentationSettings &Right) {
-  return !(Left == Right);
-}
-
-inline bool operator==(const FHorsePresentationSettings &Left,
-                       const FHorsePresentationSettings &Right) {
-  return Left.DefaultName == Right.DefaultName &&
-         FMath::IsNearlyEqual(Left.HorseLengthFeet,
-                              Right.HorseLengthFeet) &&
-         FMath::IsNearlyEqual(Left.BodyHeightFeet, Right.BodyHeightFeet) &&
-         FMath::IsNearlyEqual(Left.LegHeightFeet, Right.LegHeightFeet) &&
-         FMath::IsNearlyEqual(Left.NeckHeightFeet, Right.NeckHeightFeet) &&
-         FMath::IsNearlyEqual(Left.HeadHeightFeet, Right.HeadHeightFeet) &&
-         FMath::IsNearlyEqual(Left.SaddleHeightFeet,
-                              Right.SaddleHeightFeet) &&
-         FMath::IsNearlyEqual(Left.PatrolPauseSeconds,
-                              Right.PatrolPauseSeconds) &&
-         FMath::IsNearlyEqual(Left.WalkSpeedHorseLengthRatio,
-                              Right.WalkSpeedHorseLengthRatio) &&
-         FMath::IsNearlyEqual(Left.RouteArrivalLegRatio,
-                              Right.RouteArrivalLegRatio) &&
-         FMath::IsNearlyEqual(Left.ImportedHorseScale,
-                              Right.ImportedHorseScale) &&
-         FMath::IsNearlyEqual(Left.MountedRiderScale,
-                              Right.MountedRiderScale) &&
-         Left.MountedRiderOffsetFeet.Equals(Right.MountedRiderOffsetFeet) &&
-         FMath::IsNearlyEqual(Left.NameTextWorldSizeFeet,
-                              Right.NameTextWorldSizeFeet) &&
-         Left.HorseMeshPath == Right.HorseMeshPath &&
-         Left.HorseWalkAnimationPath == Right.HorseWalkAnimationPath &&
-         Left.RiderMeshPath == Right.RiderMeshPath &&
-         Left.RiderWalkAnimationPath == Right.RiderWalkAnimationPath;
-}
-
-inline bool operator!=(const FHorsePresentationSettings &Left,
-                       const FHorsePresentationSettings &Right) {
-  return !(Left == Right);
-}
-
+/** User Story: As a bot runtime consumer, I need to compare values for equality through a stable signature so runtime settings remain explicit and composable. @fn inline bool operator==(const FBotSettings &Left, const FBotSettings &Right) */
 inline bool operator==(const FBotSettings &Left,
                        const FBotSettings &Right) {
   return Left.InitialName == Right.InitialName &&
@@ -287,6 +133,7 @@ inline bool operator==(const FBotSettings &Left,
          Left.DefaultBehaviorState == Right.DefaultBehaviorState;
 }
 
+/** User Story: As a bot runtime consumer, I need to compare values for inequality through a stable signature so runtime settings remain explicit and composable. @fn inline bool operator!=(const FBotSettings &Left, const FBotSettings &Right) */
 inline bool operator!=(const FBotSettings &Left,
                        const FBotSettings &Right) {
   return !(Left == Right);

@@ -28,6 +28,7 @@ struct FBlockLevelOfDetailApplyRequest {
   ForbocAI::Game::Level::FLevelDistanceLodStage Lod;
 };
 
+/** User Story: As a views level consumer, I need to invoke apply block level of detail through a stable signature so the views level workflow remains explicit and composable. @fn void ApplyBlockLevelOfDetail(const FBlockLevelOfDetailApplyRequest &Request) */
 void ApplyBlockLevelOfDetail(const FBlockLevelOfDetailApplyRequest &Request) {
   check(Request.Component);
   Request.Component->SetForcedLodModel(
@@ -44,6 +45,7 @@ void ApplyBlockLevelOfDetail(const FBlockLevelOfDetailApplyRequest &Request) {
 
 } // namespace
 
+/** User Story: As a views level consumer, I need to invoke aruntime level view through a stable signature so the views level workflow remains explicit and composable. @fn ARuntimeLevelView::ARuntimeLevelView() */
 ARuntimeLevelView::ARuntimeLevelView()
     : CubeMesh(nullptr), BlockBaseMaterial(nullptr) {
   PrimaryActorTick.bCanEverTick = false;
@@ -58,6 +60,7 @@ ARuntimeLevelView::ARuntimeLevelView()
   RenderingSettings = FG::RuntimeSelectors::SelectRenderingSettings();
 }
 
+/** User Story: As a views level consumer, I need to invoke begin play through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::BeginPlay() */
 void ARuntimeLevelView::BeginPlay() {
   Super::BeginPlay();
   UE_LOG(LogForbocRuntime, Display,
@@ -65,6 +68,7 @@ void ARuntimeLevelView::BeginPlay() {
   bSpawnOnBeginPlay ? RenderLevel() : void();
 }
 
+/** User Story: As a views level consumer, I need to invoke render level through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderLevel() */
 void ARuntimeLevelView::RenderLevel() {
   const FG::FLevelRetroRenderProfile Profile =
       FG::RuntimeSelectors::SelectRuntimeProfile();
@@ -83,6 +87,7 @@ void ARuntimeLevelView::RenderLevel() {
   RenderLevelPayload(Payload);
 }
 
+/** User Story: As a views level consumer, I need to invoke render level payload through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderLevelPayload( const FG::FRuntimeLevelViewPayload &Payload) */
 void ARuntimeLevelView::RenderLevelPayload(
     const FG::FRuntimeLevelViewPayload &Payload) {
   RenderTerrain(Payload);
@@ -92,6 +97,7 @@ void ARuntimeLevelView::RenderLevelPayload(
   RenderHorses(Payload.Horses, LevelGeometrySettings.FirstRenderIndex);
 }
 
+/** User Story: As a views level consumer, I need to invoke render terrain through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderTerrain( const FG::FRuntimeLevelViewPayload &Payload) */
 void ARuntimeLevelView::RenderTerrain(
     const FG::FRuntimeLevelViewPayload &Payload) {
   UWorld *World = GetWorld();
@@ -111,6 +117,7 @@ void ARuntimeLevelView::RenderTerrain(
       []() {});
 }
 
+/** User Story: As a views level consumer, I need to invoke render sections through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderSections( const TArray<FG::FSectionSpawn> &Sections, int32 Index) */
 void ARuntimeLevelView::RenderSections(
     const TArray<FG::FSectionSpawn> &Sections, int32 Index) {
   Index >= Sections.Num()
@@ -119,12 +126,14 @@ void ARuntimeLevelView::RenderSections(
          RenderSections(Sections, Index + LevelGeometrySettings.IndexStep));
 }
 
+/** User Story: As a views level consumer, I need to invoke render section through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderSection( const FG::FSectionSpawn &Section) */
 void ARuntimeLevelView::RenderSection(
     const FG::FSectionSpawn &Section) {
   RenderBlocks(Section.Blocks, LevelGeometrySettings.FirstRenderIndex);
   RenderLabels(Section.Labels, LevelGeometrySettings.FirstRenderIndex);
 }
 
+/** User Story: As a views level consumer, I need to invoke render blocks through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderBlocks( const TArray<FG::FBlockSpawn> &Blocks, int32 Index) */
 void ARuntimeLevelView::RenderBlocks(
     const TArray<FG::FBlockSpawn> &Blocks, int32 Index) {
   Index >= Blocks.Num()
@@ -133,6 +142,7 @@ void ARuntimeLevelView::RenderBlocks(
          RenderBlocks(Blocks, Index + LevelGeometrySettings.IndexStep));
 }
 
+/** User Story: As a views level consumer, I need to invoke render labels through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderLabels( const TArray<FG::FLabelSpawn> &Labels, int32 Index) */
 void ARuntimeLevelView::RenderLabels(
     const TArray<FG::FLabelSpawn> &Labels, int32 Index) {
   Index >= Labels.Num()
@@ -141,6 +151,7 @@ void ARuntimeLevelView::RenderLabels(
          RenderLabels(Labels, Index + LevelGeometrySettings.IndexStep));
 }
 
+/** User Story: As a views level consumer, I need to invoke render townspeople through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderTownspeople( const TArray<FG::FRuntimeTownspersonViewSpawn> &Townspeople, int32 Index) */
 void ARuntimeLevelView::RenderTownspeople(
     const TArray<FG::FRuntimeTownspersonViewSpawn> &Townspeople,
     int32 Index) {
@@ -151,6 +162,7 @@ void ARuntimeLevelView::RenderTownspeople(
                            Index + LevelGeometrySettings.IndexStep));
 }
 
+/** User Story: As a views level consumer, I need to invoke render horses through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderHorses( const TArray<FG::FRuntimeHorseViewSpawn> &Horses, int32 Index) */
 void ARuntimeLevelView::RenderHorses(
     const TArray<FG::FRuntimeHorseViewSpawn> &Horses, int32 Index) {
   Index >= Horses.Num()
@@ -159,6 +171,7 @@ void ARuntimeLevelView::RenderHorses(
          RenderHorses(Horses, Index + LevelGeometrySettings.IndexStep));
 }
 
+/** User Story: As a views level consumer, I need to invoke render block through a stable signature so the views level workflow remains explicit and composable. @fn AStaticMeshActor *ARuntimeLevelView::RenderBlock( const FG::FBlockSpawn &BlockSpawn) */
 AStaticMeshActor *ARuntimeLevelView::RenderBlock(
     const FG::FBlockSpawn &BlockSpawn) {
   UWorld *World = GetWorld();
@@ -194,6 +207,7 @@ AStaticMeshActor *ARuntimeLevelView::RenderBlock(
       []() -> AStaticMeshActor * { return nullptr; });
 }
 
+/** User Story: As a views level consumer, I need to invoke render label through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderLabel( const FG::FLabelSpawn &LabelSpawn) */
 void ARuntimeLevelView::RenderLabel(
     const FG::FLabelSpawn &LabelSpawn) {
   UWorld *World = GetWorld();
@@ -218,6 +232,7 @@ void ARuntimeLevelView::RenderLabel(
       []() {});
 }
 
+/** User Story: As a views level consumer, I need to invoke render townsperson through a stable signature so the views level workflow remains explicit and composable. @fn ATownspersonView *ARuntimeLevelView::RenderTownsperson( const FG::FRuntimeTownspersonViewSpawn &Spawn) */
 ATownspersonView *ARuntimeLevelView::RenderTownsperson(
     const FG::FRuntimeTownspersonViewSpawn &Spawn) {
   UWorld *World = GetWorld();
@@ -251,6 +266,7 @@ ATownspersonView *ARuntimeLevelView::RenderTownsperson(
       []() -> ATownspersonView * { return nullptr; });
 }
 
+/** User Story: As a views level consumer, I need to invoke render horse through a stable signature so the views level workflow remains explicit and composable. @fn AHorseView *ARuntimeLevelView::RenderHorse( const FG::FRuntimeHorseViewSpawn &Spawn) */
 AHorseView *ARuntimeLevelView::RenderHorse(
     const FG::FRuntimeHorseViewSpawn &Spawn) {
   UWorld *World = GetWorld();

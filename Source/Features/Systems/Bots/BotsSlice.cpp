@@ -7,6 +7,7 @@ namespace Game {
 namespace Level {
 namespace BotReducers {
 
+/** User Story: As a features systems bots consumer, I need to invoke reduce bots seeded through a stable signature so the features systems bots workflow remains explicit and composable. @fn FBotState ReduceBotsSeeded( const FBotState &State, const rtk::PayloadAction<TArray<FBotEntity>> &Action) */
 FBotState ReduceBotsSeeded(
     const FBotState &State,
     const rtk::PayloadAction<TArray<FBotEntity>> &Action) {
@@ -17,6 +18,7 @@ FBotState ReduceBotsSeeded(
   }).val;
 }
 
+/** User Story: As a features systems bots consumer, I need to invoke reduce bot upserted through a stable signature so the features systems bots workflow remains explicit and composable. @fn FBotState ReduceBotUpserted(const FBotState &State, const rtk::PayloadAction<FBotEntity> &Action) */
 FBotState ReduceBotUpserted(const FBotState &State,
                             const rtk::PayloadAction<FBotEntity> &Action) {
   return (func::pipe(State) | [&](FBotState Next) -> FBotState {
@@ -26,6 +28,7 @@ FBotState ReduceBotUpserted(const FBotState &State,
   }).val;
 }
 
+/** User Story: As a features systems bots consumer, I need to invoke reduce townspeople seeded through a stable signature so the features systems bots workflow remains explicit and composable. @fn FBotState ReduceTownspeopleSeeded( const FBotState &State, const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) */
 FBotState ReduceTownspeopleSeeded(
     const FBotState &State,
     const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
@@ -36,6 +39,7 @@ FBotState ReduceTownspeopleSeeded(
   }).val;
 }
 
+/** User Story: As a features systems bots consumer, I need to invoke reduce horses seeded through a stable signature so the features systems bots workflow remains explicit and composable. @fn FBotState ReduceHorsesSeeded( const FBotState &State, const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) */
 FBotState ReduceHorsesSeeded(
     const FBotState &State,
     const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
@@ -59,6 +63,7 @@ namespace Game {
 namespace Level {
 namespace BotSlice {
 
+/** User Story: As a features systems bots consumer, I need to invoke get slice through a stable signature so the features systems bots workflow remains explicit and composable. @fn const rtk::Slice<FBotState> &GetSlice() */
 const rtk::Slice<FBotState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FBotState>> Slice =
       func::lazy([]() -> rtk::Slice<FBotState> {
@@ -107,6 +112,7 @@ const FBotEntityDefaults TownspersonEntityDefaults = {
 const FBotEntityDefaults HorseEntityDefaults = {
     EBotEntityKind::Horse, EBotAlignment::Neutral, true};
 
+/** User Story: As a features systems bots consumer, I need to invoke entity source through a stable signature so the features systems bots workflow remains explicit and composable. @fn template <typename Seed> FBotEntitySource EntitySource(const Seed &SeedValue, const FBotEntityDefaults &Defaults) */
 template <typename Seed>
 FBotEntitySource EntitySource(const Seed &SeedValue,
                               const FBotEntityDefaults &Defaults) {
@@ -114,6 +120,7 @@ FBotEntitySource EntitySource(const Seed &SeedValue,
           Defaults.bActive};
 }
 
+/** User Story: As a features systems bots consumer, I need to invoke from seeds through a stable signature so the features systems bots workflow remains explicit and composable. @fn template <typename Seed> TArray<FBotEntity> FromSeeds(const TArray<Seed> &Seeds, const FBotEntityDefaults &Defaults) */
 template <typename Seed>
 TArray<FBotEntity> FromSeeds(const TArray<Seed> &Seeds,
                              const FBotEntityDefaults &Defaults) {
@@ -128,12 +135,14 @@ TArray<FBotEntity> FromSeeds(const TArray<Seed> &Seeds,
 
 } // namespace
 
+/** User Story: As a features systems bots consumer, I need to invoke create initial state through a stable signature so the features systems bots workflow remains explicit and composable. @fn FBotState CreateInitialState() */
 FBotState CreateInitialState() {
   FBotState State;
   State.Items = BotAdapters::BotAdapter().getInitialState();
   return State;
 }
 
+/** User Story: As a features systems bots consumer, I need to invoke bot through a stable signature so the features systems bots workflow remains explicit and composable. @fn FBotEntity Bot(const FBotEntitySource &Source) */
 FBotEntity Bot(const FBotEntitySource &Source) {
   FBotEntity Result;
   Result.Id = Source.Id;
@@ -144,10 +153,12 @@ FBotEntity Bot(const FBotEntitySource &Source) {
   return Result;
 }
 
+/** User Story: As a features systems bots consumer, I need to invoke from townspeople through a stable signature so the features systems bots workflow remains explicit and composable. @fn TArray<FBotEntity> FromTownspeople(const TArray<FTownspersonSeed> &Seeds) */
 TArray<FBotEntity> FromTownspeople(const TArray<FTownspersonSeed> &Seeds) {
   return FromSeeds<FTownspersonSeed>(Seeds, TownspersonEntityDefaults);
 }
 
+/** User Story: As a features systems bots consumer, I need to invoke from horses through a stable signature so the features systems bots workflow remains explicit and composable. @fn TArray<FBotEntity> FromHorses(const TArray<FHorseRouteSeed> &Seeds) */
 TArray<FBotEntity> FromHorses(const TArray<FHorseRouteSeed> &Seeds) {
   return FromSeeds<FHorseRouteSeed>(Seeds, HorseEntityDefaults);
 }

@@ -1,6 +1,6 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/PostProcessVolume.h"
@@ -23,11 +23,13 @@ struct FRuntimeOutputFormatContext {
   int32 BufferCharacterCount;
 };
 
+/** User Story: As a rendering profile output consumer, I need to invoke runtime profile post process tag through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FName RuntimeProfilePostProcessTag( const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfilePostProcessTag(
     const FLevelRetroRenderProfile &Profile) {
   return FName(*Profile.RuntimePostProcessActorTag);
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke runtime output format through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FString RuntimeOutputFormat(FRuntimeOutputFormatContext Context, ...) */
 FString RuntimeOutputFormat(FRuntimeOutputFormatContext Context, ...) {
   TArray<TCHAR> Buffer;
   Buffer.SetNumZeroed(Context.BufferCharacterCount);
@@ -41,12 +43,14 @@ FString RuntimeOutputFormat(FRuntimeOutputFormatContext Context, ...) {
 
 // Grouped 4-channel declaration fed to one FVector4 composer, mirroring the
 // shared ProfileLinearColor composer.
+/** User Story: As a rendering profile output consumer, I need to invoke profile vector4 through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FVector4 ProfileVector4(const FLevelRetroRenderProfile &Profile, const FChannels &Channels) */
 FVector4 ProfileVector4(const FLevelRetroRenderProfile &Profile,
                         const FChannels &Channels) {
   return FVector4(Profile.*Channels.R, Profile.*Channels.G,
                   Profile.*Channels.B, Profile.*Channels.A);
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke post process scene tint through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FLinearColor PostProcessSceneTint(const FLevelRetroRenderProfile &Profile) */
 FLinearColor PostProcessSceneTint(const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
       Profile, {&FLevelRetroRenderProfile::PostProcessSceneTintR,
@@ -55,6 +59,7 @@ FLinearColor PostProcessSceneTint(const FLevelRetroRenderProfile &Profile) {
                 &FLevelRetroRenderProfile::PostProcessSceneTintA});
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke post process saturation through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FVector4 PostProcessSaturation(const FLevelRetroRenderProfile &Profile) */
 FVector4 PostProcessSaturation(const FLevelRetroRenderProfile &Profile) {
   return ProfileVector4(
       Profile, {&FLevelRetroRenderProfile::PostProcessSaturationMultiplier,
@@ -63,6 +68,7 @@ FVector4 PostProcessSaturation(const FLevelRetroRenderProfile &Profile) {
                 &FLevelRetroRenderProfile::PostProcessSaturationMultiplier});
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke post process contrast through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FVector4 PostProcessContrast(const FLevelRetroRenderProfile &Profile) */
 FVector4 PostProcessContrast(const FLevelRetroRenderProfile &Profile) {
   return ProfileVector4(
       Profile, {&FLevelRetroRenderProfile::PostProcessContrastMultiplier,
@@ -71,6 +77,7 @@ FVector4 PostProcessContrast(const FLevelRetroRenderProfile &Profile) {
                 &FLevelRetroRenderProfile::PostProcessContrastMultiplier});
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke post process gain through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FVector4 PostProcessGain(const FLevelRetroRenderProfile &Profile) */
 FVector4 PostProcessGain(const FLevelRetroRenderProfile &Profile) {
   return ProfileVector4(Profile,
                         {&FLevelRetroRenderProfile::PostProcessGainR,
@@ -79,6 +86,7 @@ FVector4 PostProcessGain(const FLevelRetroRenderProfile &Profile) {
                          &FLevelRetroRenderProfile::PostProcessGainA});
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke apply runtime post process volume through a stable signature so the rendering profile output workflow remains explicit and composable. @fn void ApplyRuntimePostProcessVolume(APostProcessVolume *Volume, const FLevelRetroRenderProfile &Profile) */
 void ApplyRuntimePostProcessVolume(APostProcessVolume *Volume,
                                    const FLevelRetroRenderProfile &Profile) {
   check(Volume);
@@ -98,6 +106,7 @@ void ApplyRuntimePostProcessVolume(APostProcessVolume *Volume,
   Volume->Settings.SceneColorTint = PostProcessSceneTint(Profile);
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke select viewport size through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FIntPoint SelectViewportSize(UWorld *World) */
 FIntPoint SelectViewportSize(UWorld *World) {
   return func::match(
       func::from_nullable_value(World, World != nullptr),
@@ -116,6 +125,7 @@ FIntPoint SelectViewportSize(UWorld *World) {
       []() { return FIntPoint::ZeroValue; });
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke select internal render screen percentage through a stable signature so the rendering profile output workflow remains explicit and composable. @fn float SelectInternalRenderScreenPercentage( const FLevelRetroRenderProfile &Profile, const FIntPoint &ViewportSize) */
 float SelectInternalRenderScreenPercentage(
     const FLevelRetroRenderProfile &Profile, const FIntPoint &ViewportSize) {
   const bool bCanScale = Profile.InternalRenderWidth > int32{} &&
@@ -137,12 +147,14 @@ float SelectInternalRenderScreenPercentage(
                       Profile.ScreenPercentage);
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke profile output render size through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FIntPoint ProfileOutputRenderSize(const FLevelRetroRenderProfile &Profile) */
 FIntPoint ProfileOutputRenderSize(const FLevelRetroRenderProfile &Profile) {
   check(Profile.OutputScaleMultiplier > int32{});
   return FIntPoint(Profile.InternalRenderWidth * Profile.OutputScaleMultiplier,
                    Profile.InternalRenderHeight * Profile.OutputScaleMultiplier);
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke runtime resolution command through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FString RuntimeResolutionCommand(const FLevelRetroRenderProfile &Profile) */
 FString RuntimeResolutionCommand(const FLevelRetroRenderProfile &Profile) {
   const FIntPoint OutputSize = ProfileOutputRenderSize(Profile);
   const FString OutputModeSuffix =
@@ -154,11 +166,13 @@ FString RuntimeResolutionCommand(const FLevelRetroRenderProfile &Profile) {
       OutputSize.X, OutputSize.Y, *OutputModeSuffix);
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke apply runtime resolution command through a stable signature so the rendering profile output workflow remains explicit and composable. @fn void ApplyRuntimeResolutionCommand(UWorld *World, const FLevelRetroRenderProfile &Profile) */
 void ApplyRuntimeResolutionCommand(UWorld *World,
                                    const FLevelRetroRenderProfile &Profile) {
   GEngine ? GEngine->Exec(World, *RuntimeResolutionCommand(Profile)) : false;
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke apply runtime video settings through a stable signature so the rendering profile output workflow remains explicit and composable. @fn void ApplyRuntimeVideoSettings(const FLevelRetroRenderProfile &Profile) */
 void ApplyRuntimeVideoSettings(const FLevelRetroRenderProfile &Profile) {
   UGameUserSettings *Settings =
       GEngine != nullptr ? GEngine->GetGameUserSettings() : nullptr;
@@ -179,6 +193,7 @@ struct FRuntimeOutputLogMessageRequest {
   float EffectiveScreenPercentage;
 };
 
+/** User Story: As a rendering profile output consumer, I need to invoke runtime output log message through a stable signature so the rendering profile output workflow remains explicit and composable. @fn FString RuntimeOutputLogMessage( const FRuntimeOutputLogMessageRequest &Request) */
 FString RuntimeOutputLogMessage(
     const FRuntimeOutputLogMessageRequest &Request) {
   const FLevelRetroRenderProfile &Profile = *Request.Profile;
@@ -194,12 +209,14 @@ FString RuntimeOutputLogMessage(
 
 } // namespace
 
+/** User Story: As a rendering profile output consumer, I need to invoke apply runtime post process through a stable signature so the rendering profile output workflow remains explicit and composable. @fn void ApplyRuntimePostProcess(const FRuntimeProfileEval &Eval) */
 void ApplyRuntimePostProcess(const FRuntimeProfileEval &Eval) {
   ApplyToTaggedProfileActor<APostProcessVolume>(
       RuntimeProfilePostProcessTag(Eval.Profile),
       &ApplyRuntimePostProcessVolume)(Eval);
 }
 
+/** User Story: As a rendering profile output consumer, I need to invoke apply runtime output through a stable signature so the rendering profile output workflow remains explicit and composable. @fn void ApplyRuntimeOutput(const FRuntimeProfileEval &Eval) */
 void ApplyRuntimeOutput(const FRuntimeProfileEval &Eval) {
   ApplyRuntimeVideoSettings(Eval.Profile);
   ApplyRuntimeResolutionCommand(Eval.World, Eval.Profile);

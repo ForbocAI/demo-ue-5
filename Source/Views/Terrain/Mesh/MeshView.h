@@ -34,12 +34,15 @@ class FORBOCAIDEMO_API ATerrainMeshView : public AActor {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a views terrain mesh consumer, I need to invoke aterrain mesh view through a stable signature so the views terrain mesh workflow remains explicit and composable. @fn ATerrainMeshView() */
   ATerrainMeshView();
 
   /**
+   * @fn bool ApplyTerrainMeshPayload( const ForbocAI::Game::Level::FMeshPayload &Payload)
    * @brief Applies one terrain mesh payload to the procedural mesh component.
    *
    * @return true when the mesh section was created.
+   * User Story: As a views terrain mesh consumer, I need to invoke apply terrain mesh payload through a stable signature so the views terrain mesh workflow remains explicit and composable.
    */
   bool ApplyTerrainMeshPayload(
       const ForbocAI::Game::Level::FMeshPayload &Payload);

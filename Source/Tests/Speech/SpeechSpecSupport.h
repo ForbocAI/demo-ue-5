@@ -20,12 +20,14 @@
 
 namespace {
 
+/** User Story: As a tests speech consumer, I need to invoke load speech settings through a stable signature so the tests speech workflow remains explicit and composable. @fn ForbocAI::Game::Data::FSpeechSettings LoadSpeechSettings() */
 ForbocAI::Game::Data::FSpeechSettings LoadSpeechSettings() {
   return ForbocAI::Game::Data::SettingsAdapters::
       LoadSettings()
           .Speech;
 }
 
+/** User Story: As a tests speech consumer, I need to invoke speech automation settings through a stable signature so the tests speech workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FAutomationSettings & SpeechAutomationSettings() */
 const ForbocAI::Game::Data::FAutomationSettings &
 SpeechAutomationSettings() {
   static const ForbocAI::Game::Data::FSpeechSettings Settings =
@@ -33,16 +35,19 @@ SpeechAutomationSettings() {
   return Settings.Automation;
 }
 
+/** User Story: As a tests speech consumer, I need to invoke load viseme map through a stable signature so the tests speech workflow remains explicit and composable. @fn TMap<FString, FVisemeMapping> LoadVisemeMap( const ForbocAI::Game::Data::FSpeechSettings &Settings) */
 TMap<FString, FVisemeMapping> LoadVisemeMap(
     const ForbocAI::Game::Data::FSpeechSettings &Settings) {
   return SpeechOps::VisemeMapFromSettings(Settings);
 }
 
+/** User Story: As a tests speech consumer, I need to invoke required first through a stable signature so the tests speech workflow remains explicit and composable. @fn template <typename Item> const Item &RequiredFirst(const TArray<Item> &Items) */
 template <typename Item> const Item &RequiredFirst(const TArray<Item> &Items) {
   check(!Items.IsEmpty());
   return Items[int32{}];
 }
 
+/** User Story: As a tests speech consumer, I need to invoke required non silence mapping through a stable signature so the tests speech workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FVisemeMappingSettings & RequiredNonSilenceMapping( const ForbocAI::Game::Data::FSpeechSettings &Settings) */
 const ForbocAI::Game::Data::FVisemeMappingSettings &
 RequiredNonSilenceMapping(
     const ForbocAI::Game::Data::FSpeechSettings &Settings) {
@@ -65,14 +70,17 @@ RequiredNonSilenceMapping(
   return *Found;
 }
 
+/** User Story: As a tests speech consumer, I need to invoke label through a stable signature so the tests speech workflow remains explicit and composable. @fn FString Label(const FString &Format, const FString &Value) */
 FString Label(const FString &Format, const FString &Value) {
   return FString::Format(*Format, {FStringFormatArg(Value)});
 }
 
+/** User Story: As a tests speech consumer, I need to invoke label through a stable signature so the tests speech workflow remains explicit and composable. @fn FString Label(const FString &Format, int32 Value) */
 FString Label(const FString &Format, int32 Value) {
   return FString::Format(*Format, {FStringFormatArg(Value)});
 }
 
+/** User Story: As a tests speech consumer, I need to invoke sample time through a stable signature so the tests speech workflow remains explicit and composable. @fn float SampleTime(const FPhonemeEvent &Event, float Ratio) */
 float SampleTime(const FPhonemeEvent &Event, float Ratio) {
   return Event.StartTime + Event.Duration * Ratio;
 }

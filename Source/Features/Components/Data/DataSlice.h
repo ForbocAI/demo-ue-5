@@ -8,6 +8,7 @@ namespace Game {
 namespace Data {
 namespace DataReducers {
 
+/** User Story: As a features components data consumer, I need to invoke reduce data loaded through a stable signature so the features components data workflow remains explicit and composable. @fn FDataState ReduceDataLoaded(const FDataState &State, const rtk::PayloadAction<FDataLoadedPayload> &Action) */
 FDataState
 ReduceDataLoaded(const FDataState &State,
                  const rtk::PayloadAction<FDataLoadedPayload> &Action);
@@ -28,6 +29,7 @@ namespace Game {
 namespace Data {
 namespace DataSlice {
 
+/** User Story: As a features components data consumer, I need to invoke get slice through a stable signature so the features components data workflow remains explicit and composable. @fn const rtk::Slice<FDataState> &GetSlice() */
 const rtk::Slice<FDataState> &GetSlice();
 
 } // namespace DataSlice

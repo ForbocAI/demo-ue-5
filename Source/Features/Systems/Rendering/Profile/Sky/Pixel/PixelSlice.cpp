@@ -9,18 +9,21 @@ namespace RenderingProfileSkyReducers {
 
 namespace {
 
+/** User Story: As a profile sky pixel consumer, I need to invoke moon pixel grid center through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float MoonPixelGridCenter(const FLevelRetroRenderProfile &Profile) */
 float MoonPixelGridCenter(const FLevelRetroRenderProfile &Profile) {
   return static_cast<float>(Profile.MoonPixelGridSize -
                             Profile.MoonPixelGridTerminalOffset) *
          Profile.PixelQuadHalfExtentMultiplier;
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke moon pixel coordinate through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float MoonPixelCoordinate(const FLevelRetroRenderProfile &Profile, int32 Pixel) */
 float MoonPixelCoordinate(const FLevelRetroRenderProfile &Profile,
                           int32 Pixel) {
   return (static_cast<float>(Pixel) - MoonPixelGridCenter(Profile)) /
          MoonPixelGridCenter(Profile);
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke moon pixel visible through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn bool MoonPixelVisible(const FLevelRetroRenderProfile &Profile, const func::GridIndex &Index) */
 bool MoonPixelVisible(const FLevelRetroRenderProfile &Profile,
                       const func::GridIndex &Index) {
   const float X =
@@ -29,25 +32,30 @@ bool MoonPixelVisible(const FLevelRetroRenderProfile &Profile,
   return FVector2D(X, Y).Size() <= Profile.MoonPixelVisibleRadius;
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke moon pixel world diameter through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float MoonPixelWorldDiameter(const FLevelRetroRenderProfile &Profile) */
 float MoonPixelWorldDiameter(const FLevelRetroRenderProfile &Profile) {
   return Profile.MoonDiscScale * Profile.MoonDiscWorldUnitsPerScale;
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke moon pixel cell world size through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float MoonPixelCellWorldSize(const FLevelRetroRenderProfile &Profile) */
 float MoonPixelCellWorldSize(const FLevelRetroRenderProfile &Profile) {
   return MoonPixelWorldDiameter(Profile) /
          static_cast<float>(Profile.MoonPixelGridSize);
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke moon pixel plane right through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector MoonPixelPlaneRight(const FLevelRetroRenderProfile &Profile) */
 FVector MoonPixelPlaneRight(const FLevelRetroRenderProfile &Profile) {
   return FRotationMatrix(ReduceMoonDiscRotation(Profile))
       .GetScaledAxis(EAxis::X);
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke moon pixel plane up through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector MoonPixelPlaneUp(const FLevelRetroRenderProfile &Profile) */
 FVector MoonPixelPlaneUp(const FLevelRetroRenderProfile &Profile) {
   return FRotationMatrix(ReduceMoonDiscRotation(Profile))
       .GetScaledAxis(EAxis::Y);
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke moon pixel offset through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector MoonPixelOffset(const FLevelRetroRenderProfile &Profile, const func::GridIndex &Index) */
 FVector MoonPixelOffset(const FLevelRetroRenderProfile &Profile,
                         const func::GridIndex &Index) {
   const float X =
@@ -65,6 +73,7 @@ struct FPointStarHashRequest {
   float Salt;
 };
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star hash through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarHash(const FPointStarHashRequest &Request) */
 float PointStarHash(const FPointStarHashRequest &Request) {
   const FLevelRetroRenderProfile &Profile = *Request.Profile;
   return FMath::Frac(
@@ -74,12 +83,14 @@ float PointStarHash(const FPointStarHashRequest &Request) {
       Profile.PointStarHashMultiplier);
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star yaw degrees through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarYawDegrees(const FLevelRetroRenderProfile &Profile, int32 Index) */
 float PointStarYawDegrees(const FLevelRetroRenderProfile &Profile,
                           int32 Index) {
   return PointStarHash({&Profile, Index, Profile.PointStarYawHashSalt}) *
          Profile.PointStarYawSpanDegrees;
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star pitch degrees through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarPitchDegrees(const FLevelRetroRenderProfile &Profile, int32 Index) */
 float PointStarPitchDegrees(const FLevelRetroRenderProfile &Profile,
                             int32 Index) {
   return Profile.PointStarPitchMinDegrees +
@@ -87,10 +98,12 @@ float PointStarPitchDegrees(const FLevelRetroRenderProfile &Profile,
              Profile.PointStarPitchSpanDegrees;
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star distance through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarDistance(const FLevelRetroRenderProfile &Profile) */
 float PointStarDistance(const FLevelRetroRenderProfile &Profile) {
   return Profile.MoonDiscDistance * Profile.PointStarDistanceMultiplier;
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star location through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector PointStarLocation(const FLevelRetroRenderProfile &Profile, int32 Index) */
 FVector PointStarLocation(const FLevelRetroRenderProfile &Profile,
                           int32 Index) {
   return FRotator(PointStarPitchDegrees(Profile, Index),
@@ -100,6 +113,7 @@ FVector PointStarLocation(const FLevelRetroRenderProfile &Profile,
          PointStarDistance(Profile);
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star world size through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarWorldSize(const FLevelRetroRenderProfile &Profile, int32 Index) */
 float PointStarWorldSize(const FLevelRetroRenderProfile &Profile,
                          int32 Index) {
   return Profile.PointStarWorldSizeMin +
@@ -107,6 +121,7 @@ float PointStarWorldSize(const FLevelRetroRenderProfile &Profile,
              Profile.PointStarWorldSizeJitter;
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star rotation through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FRotator PointStarRotation(const FLevelRetroRenderProfile &Profile, int32 Index) */
 FRotator PointStarRotation(const FLevelRetroRenderProfile &Profile,
                            int32 Index) {
   return FRotationMatrix::MakeFromZ(
@@ -114,12 +129,14 @@ FRotator PointStarRotation(const FLevelRetroRenderProfile &Profile,
       .Rotator();
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star plane right through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector PointStarPlaneRight(const FLevelRetroRenderProfile &Profile, int32 Index) */
 FVector PointStarPlaneRight(const FLevelRetroRenderProfile &Profile,
                             int32 Index) {
   return FRotationMatrix(PointStarRotation(Profile, Index))
       .GetScaledAxis(EAxis::X);
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke point star plane up through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector PointStarPlaneUp(const FLevelRetroRenderProfile &Profile, int32 Index) */
 FVector PointStarPlaneUp(const FLevelRetroRenderProfile &Profile,
                          int32 Index) {
   return FRotationMatrix(PointStarRotation(Profile, Index))
@@ -128,6 +145,7 @@ FVector PointStarPlaneUp(const FLevelRetroRenderProfile &Profile,
 
 } // namespace
 
+/** User Story: As a profile sky pixel consumer, I need to invoke reduce moon pixel indices through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn TArray<func::GridIndex> ReduceMoonPixelIndices( const FLevelRetroRenderProfile &Profile) */
 TArray<func::GridIndex> ReduceMoonPixelIndices(
     const FLevelRetroRenderProfile &Profile) {
   return func::filter_array<func::GridIndex>(
@@ -140,6 +158,7 @@ TArray<func::GridIndex> ReduceMoonPixelIndices(
       });
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke reduce moon pixel quad through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FRuntimePixelQuad ReduceMoonPixelQuad(const FLevelRetroRenderProfile &Profile, const func::GridIndex &Index) */
 FRuntimePixelQuad ReduceMoonPixelQuad(const FLevelRetroRenderProfile &Profile,
                                       const func::GridIndex &Index) {
   return {ReduceMoonDiscLocation(Profile) +
@@ -150,6 +169,7 @@ FRuntimePixelQuad ReduceMoonPixelQuad(const FLevelRetroRenderProfile &Profile,
           MoonDiscColor(Profile)};
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke reduce moon pixel mesh buffers through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FRuntimePixelMeshBuffers ReduceMoonPixelMeshBuffers( const FLevelRetroRenderProfile &Profile) */
 FRuntimePixelMeshBuffers ReduceMoonPixelMeshBuffers(
     const FLevelRetroRenderProfile &Profile) {
   FRuntimePixelMeshBuffers Buffers;
@@ -163,6 +183,7 @@ FRuntimePixelMeshBuffers ReduceMoonPixelMeshBuffers(
 
 // --- Point stars reducers ------------------------------------------------
 
+/** User Story: As a profile sky pixel consumer, I need to invoke reduce point star quad through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FRuntimePixelQuad ReducePointStarQuad(const FLevelRetroRenderProfile &Profile, int32 Index) */
 FRuntimePixelQuad ReducePointStarQuad(const FLevelRetroRenderProfile &Profile,
                                       int32 Index) {
   return {PointStarLocation(Profile, Index),
@@ -171,6 +192,7 @@ FRuntimePixelQuad ReducePointStarQuad(const FLevelRetroRenderProfile &Profile,
           PointStarWorldSize(Profile, Index), SkyDomeStarColor(Profile)};
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke reduce point star mesh buffers through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FRuntimePixelMeshBuffers ReducePointStarMeshBuffers( const FLevelRetroRenderProfile &Profile) */
 FRuntimePixelMeshBuffers ReducePointStarMeshBuffers(
     const FLevelRetroRenderProfile &Profile) {
   FRuntimePixelMeshBuffers Buffers;
@@ -184,10 +206,12 @@ FRuntimePixelMeshBuffers ReducePointStarMeshBuffers(
 
 // --- Shared pixel mesh reducer -------------------------------------------
 
+/** User Story: As a profile sky pixel consumer, I need to invoke reduce pixel quad normal through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector ReducePixelQuadNormal(const FRuntimePixelQuad &Quad) */
 FVector ReducePixelQuadNormal(const FRuntimePixelQuad &Quad) {
   return FVector::CrossProduct(Quad.Right, Quad.Up).GetSafeNormal();
 }
 
+/** User Story: As a profile sky pixel consumer, I need to invoke append pixel quad through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn void AppendPixelQuad(FRuntimePixelMeshBuffers &Buffers, const FLevelRetroRenderProfile &Profile, const FRuntimePixelQuad &Quad) */
 void AppendPixelQuad(FRuntimePixelMeshBuffers &Buffers,
                      const FLevelRetroRenderProfile &Profile,
                      const FRuntimePixelQuad &Quad) {

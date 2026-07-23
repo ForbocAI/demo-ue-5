@@ -2,6 +2,7 @@
 
 #include "Features/Components/Level/Data/Csv/Parsing/ParsingAdapters.h"
 
+/** User Story: As a data csv ortho consumer, I need to invoke load from content through a stable signature so the data csv ortho workflow remains explicit and composable. @fn bool FLevelOrthoData::LoadFromContent( const FOrthoDataLoadRequest &Request) */
 bool FLevelOrthoData::LoadFromContent(
     const FOrthoDataLoadRequest &Request) {
   MinimumGridSize = Request.Csv.Grid.MinimumGridSize;
@@ -35,11 +36,13 @@ bool FLevelOrthoData::LoadFromContent(
   return true;
 }
 
+/** User Story: As a data csv ortho consumer, I need to invoke is loaded through a stable signature so the data csv ortho workflow remains explicit and composable. @fn bool FLevelOrthoData::IsLoaded() const */
 bool FLevelOrthoData::IsLoaded() const {
   return GridSize > MinimumGridSize &&
          Colors.Num() == GridSize * GridSize;
 }
 
+/** User Story: As a data csv ortho consumer, I need to invoke get color at through a stable signature so the data csv ortho workflow remains explicit and composable. @fn FColor FLevelOrthoData::GetColorAt(int32 Row, int32 Column) const */
 FColor FLevelOrthoData::GetColorAt(int32 Row, int32 Column) const {
   check(IsLoaded());
 
@@ -50,6 +53,8 @@ FColor FLevelOrthoData::GetColorAt(int32 Row, int32 Column) const {
   return Colors[ClampedRow * GridSize + ClampedColumn];
 }
 
+/** User Story: As a data csv ortho consumer, I need to invoke get grid size through a stable signature so the data csv ortho workflow remains explicit and composable. @fn int32 FLevelOrthoData::GetGridSize() const */
 int32 FLevelOrthoData::GetGridSize() const { return GridSize; }
 
+/** User Story: As a data csv ortho consumer, I need to invoke get source path through a stable signature so the data csv ortho workflow remains explicit and composable. @fn FString FLevelOrthoData::GetSourcePath() const */
 FString FLevelOrthoData::GetSourcePath() const { return SourcePath; }

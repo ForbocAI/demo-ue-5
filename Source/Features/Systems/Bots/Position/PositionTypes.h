@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Spatial/Level/Layout/LayoutTypes.h"
+#include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -81,6 +81,7 @@ struct FBotPositionState {
   rtk::EntityState<FBotPositionComponent> Items;
 };
 
+/** User Story: As a systems bots position consumer, I need to compare values for equality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator==(const FBotPositionComponent &Left, const FBotPositionComponent &Right) */
 inline bool operator==(const FBotPositionComponent &Left,
                        const FBotPositionComponent &Right) {
   return Left.Id == Right.Id && Left.LocalLocation == Right.LocalLocation &&
@@ -89,11 +90,13 @@ inline bool operator==(const FBotPositionComponent &Left,
          Left.bFacingRight == Right.bFacingRight;
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for inequality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator!=(const FBotPositionComponent &Left, const FBotPositionComponent &Right) */
 inline bool operator!=(const FBotPositionComponent &Left,
                        const FBotPositionComponent &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for equality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator==(const FBotPositionSource &Left, const FBotPositionSource &Right) */
 inline bool operator==(const FBotPositionSource &Left,
                        const FBotPositionSource &Right) {
   return Left.Id == Right.Id && Left.LocalLocation == Right.LocalLocation &&
@@ -102,11 +105,13 @@ inline bool operator==(const FBotPositionSource &Left,
          Left.bFacingRight == Right.bFacingRight;
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for inequality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator!=(const FBotPositionSource &Left, const FBotPositionSource &Right) */
 inline bool operator!=(const FBotPositionSource &Left,
                        const FBotPositionSource &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for equality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator==(const FBotPositionMoved &Left, const FBotPositionMoved &Right) */
 inline bool operator==(const FBotPositionMoved &Left,
                        const FBotPositionMoved &Right) {
   return Left.Id == Right.Id && Left.LocalLocation == Right.LocalLocation &&
@@ -115,11 +120,13 @@ inline bool operator==(const FBotPositionMoved &Left,
          Left.bFacingRight == Right.bFacingRight;
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for inequality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator!=(const FBotPositionMoved &Left, const FBotPositionMoved &Right) */
 inline bool operator!=(const FBotPositionMoved &Left,
                        const FBotPositionMoved &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for equality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator==(const FBotPatrolAdvanceRequest &Left, const FBotPatrolAdvanceRequest &Right) */
 inline bool operator==(const FBotPatrolAdvanceRequest &Left,
                        const FBotPatrolAdvanceRequest &Right) {
   return Left.PatrolRoute == Right.PatrolRoute &&
@@ -137,11 +144,13 @@ inline bool operator==(const FBotPatrolAdvanceRequest &Left,
                               Right.Timing.ArrivalDistance);
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for inequality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator!=(const FBotPatrolAdvanceRequest &Left, const FBotPatrolAdvanceRequest &Right) */
 inline bool operator!=(const FBotPatrolAdvanceRequest &Left,
                        const FBotPatrolAdvanceRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for equality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator==(const FBotPatrolAdvancePayload &Left, const FBotPatrolAdvancePayload &Right) */
 inline bool operator==(const FBotPatrolAdvancePayload &Left,
                        const FBotPatrolAdvancePayload &Right) {
   return Left.Location == Right.Location && Left.Rotation == Right.Rotation &&
@@ -151,37 +160,44 @@ inline bool operator==(const FBotPatrolAdvancePayload &Left,
          Left.bShouldRotate == Right.bShouldRotate;
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for inequality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator!=(const FBotPatrolAdvancePayload &Left, const FBotPatrolAdvancePayload &Right) */
 inline bool operator!=(const FBotPatrolAdvancePayload &Left,
                        const FBotPatrolAdvancePayload &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for equality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator==(const FBotInitialPatrolLocationRequest &Left, const FBotInitialPatrolLocationRequest &Right) */
 inline bool operator==(const FBotInitialPatrolLocationRequest &Left,
                        const FBotInitialPatrolLocationRequest &Right) {
   return Left.PatrolRoute == Right.PatrolRoute;
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for inequality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator!=(const FBotInitialPatrolLocationRequest &Left, const FBotInitialPatrolLocationRequest &Right) */
 inline bool operator!=(const FBotInitialPatrolLocationRequest &Left,
                        const FBotInitialPatrolLocationRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for equality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator==(const FBotInitialPatrolLocationPayload &Left, const FBotInitialPatrolLocationPayload &Right) */
 inline bool operator==(const FBotInitialPatrolLocationPayload &Left,
                        const FBotInitialPatrolLocationPayload &Right) {
   return Left.Location == Right.Location &&
          Left.bShouldMove == Right.bShouldMove;
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for inequality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator!=(const FBotInitialPatrolLocationPayload &Left, const FBotInitialPatrolLocationPayload &Right) */
 inline bool operator!=(const FBotInitialPatrolLocationPayload &Left,
                        const FBotInitialPatrolLocationPayload &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for equality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator==(const FBotPositionState &Left, const FBotPositionState &Right) */
 inline bool operator==(const FBotPositionState &Left,
                        const FBotPositionState &Right) {
   return Left.Items == Right.Items;
 }
 
+/** User Story: As a systems bots position consumer, I need to compare values for inequality through a stable signature so the systems bots position workflow remains explicit and composable. @fn inline bool operator!=(const FBotPositionState &Left, const FBotPositionState &Right) */
 inline bool operator!=(const FBotPositionState &Left,
                        const FBotPositionState &Right) {
   return !(Left == Right);

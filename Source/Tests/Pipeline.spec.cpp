@@ -4,12 +4,14 @@
  * Pipeline Tests — validates the deterministic tick pipeline.
  *
  * Tests:
- *   1. Idle tick advances tick count and decays memory
- *   2. Hazard system dispatches TakeDamage
- *   3. Awareness system dispatches SpotEnemy
- *   4. Phase transition fires Flee when health is low
- *   5. Multi-bot pipeline processes all bots independently
- *   6. Action fold order is deterministic
+ * 1. Idle tick advances tick count and decays memory
+ * 2. Hazard system dispatches TakeDamage
+ * 3. Awareness system dispatches SpotEnemy
+ * 4. Phase transition fires Flee when health is low
+ * 5. Multi-bot pipeline processes all bots independently
+ * 6. Action fold order is deterministic
+ * User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable.
+ * @fn bool FPipelineIdleTick::RunTest(const FString &Parameters)
  */
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -24,11 +26,11 @@ bool FPipelineIdleTick::RunTest(const FString &Parameters) {
   const FBotPipelineOutputResult Result =
       ReduceIdlePipeline(Initial, PipelineTickDelta());
 
-  TestTrue(PipelineAssertions().TickCountAdvanced,
+  TestTrue(PipelineAssertions().Tick.TickCountAdvanced,
            Result.NewState.TickCount > Initial.TickCount);
-  TestTrue(PipelineAssertions().ActionDispatched,
+  TestTrue(PipelineAssertions().Tick.ActionDispatched,
            Result.ActionsDispatched > static_cast<int32>(Initial.TickCount));
-  TestEqual(PipelineAssertions().HealthUnchanged,
+  TestEqual(PipelineAssertions().Tick.HealthUnchanged,
             Result.NewState.Stats.Health,
             PipelineBotSettings().InitialHealth);
 
@@ -41,6 +43,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FPipelineHazardDamage::RunTest(const FString &Parameters) */
 bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
   const FBotCoreRuntimeState Initial =
       CreateTestBotState(PipelineMoveBotName());
@@ -52,10 +55,10 @@ bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
-  TestTrue(PipelineAssertions().HealthReducedByHazard,
+  TestTrue(PipelineAssertions().Hazard.HealthReducedByHazard,
            Result.NewState.Stats.Health <
                PipelineBotSettings().InitialHealth);
-  TestEqual(PipelineAssertions().HealthAfterHazard,
+  TestEqual(PipelineAssertions().Hazard.HealthAfterHazard,
             Result.NewState.Stats.Health,
             PipelineExpectedHazardHealth());
 
@@ -68,6 +71,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FPipelineAwareness::RunTest(const FString &Parameters) */
 bool FPipelineAwareness::RunTest(const FString &Parameters) {
   const FBotCoreRuntimeState Initial =
       CreateTestBotState(PipelineAttackBotName());
@@ -79,11 +83,11 @@ bool FPipelineAwareness::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(Initial, World);
 
-  TestTrue(PipelineAssertions().BotHasAggro,
+  TestTrue(PipelineAssertions().Aggro.BotHasAggro,
            Result.NewState.Memory.bHasAggro);
-  TestEqual(PipelineAssertions().PhaseIsCombat,
+  TestEqual(PipelineAssertions().Aggro.PhaseIsCombat,
             (int32)Result.NewState.Phase, (int32)EBotCorePhase::Combat);
-  TestEqual(PipelineAssertions().RemembersEnemyPosition,
+  TestEqual(PipelineAssertions().Aggro.RemembersEnemyPosition,
             Result.NewState.Memory.KnownPlayerPos,
             PipelineEnemyPosition());
 
@@ -96,6 +100,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FPipelineFleeTransition::RunTest(const FString &Parameters) */
 bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
   FBotCoreRuntimeState LowHealth =
       CreateTestBotState(PipelineAttackBotName());
@@ -108,7 +113,7 @@ bool FPipelineFleeTransition::RunTest(const FString &Parameters) {
 
   const FBotPipelineOutputResult Result = ReducePipeline(LowHealth, World);
 
-  TestEqual(PipelineAssertions().PhaseTransitionedToFlee,
+  TestEqual(PipelineAssertions().Flee.PhaseTransitionedToFlee,
             (int32)Result.NewState.Phase, (int32)EBotCorePhase::Flee);
 
   return true;
@@ -120,6 +125,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FPipelineMultiBot::RunTest(const FString &Parameters) */
 bool FPipelineMultiBot::RunTest(const FString &Parameters) {
   TArray<FBotPipelineTickInput> Inputs;
 
@@ -149,25 +155,27 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
   const TArray<FBotPipelineOutputResult> Results =
       ReduceMultiBotPipeline(Inputs);
 
-  TestEqual(PipelineAssertions().BotsProcessed, Results.Num(), Inputs.Num());
+  TestEqual(PipelineAssertions().Bots.BotsProcessed, Results.Num(),
+            Inputs.Num());
 
   func::for_each_indexed(
       Results, static_cast<size_t>(Results.Num()),
       [this, &Idle, &Hazard, &Aware](const FBotPipelineOutputResult &Result) {
         Result.NewState.Name == Idle.State.Name
             ? static_cast<void>(TestEqual(
-                  PipelineAssertions().IdleBotFullHealth,
+                  PipelineAssertions().Bots.IdleBotFullHealth,
                   Result.NewState.Stats.Health,
                   PipelineBotSettings().InitialHealth))
             : void();
         Result.NewState.Name == Hazard.State.Name
             ? static_cast<void>(TestEqual(
-                  PipelineAssertions().HazardBotTookDamage,
+                  PipelineAssertions().Hazard.HazardBotTookDamage,
                   Result.NewState.Stats.Health,
                   PipelineExpectedHazardHealth()))
             : void();
         Result.NewState.Name == Aware.State.Name
-            ? static_cast<void>(TestTrue(PipelineAssertions().AwareBotHasAggro,
+            ? static_cast<void>(TestTrue(
+                  PipelineAssertions().Aggro.AwareBotHasAggro,
                                          Result.NewState.Memory.bHasAggro))
             : void();
       });
@@ -181,6 +189,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FPipelineDeterministic::RunTest(const FString &Parameters) */
 bool FPipelineDeterministic::RunTest(const FString &Parameters) {
   // Run the same pipeline twice — results must be identical
   const FBotCoreRuntimeState Initial =
@@ -196,19 +205,19 @@ bool FPipelineDeterministic::RunTest(const FString &Parameters) {
   const FBotPipelineOutputResult Run1 = ReducePipeline(Initial, World);
   const FBotPipelineOutputResult Run2 = ReducePipeline(Initial, World);
 
-  TestEqual(PipelineAssertions().HealthDeterministic,
+  TestEqual(PipelineAssertions().Determinism.HealthDeterministic,
             Run1.NewState.Stats.Health,
             Run2.NewState.Stats.Health);
-  TestEqual(PipelineAssertions().PositionDeterministic,
+  TestEqual(PipelineAssertions().Determinism.PositionDeterministic,
             Run1.NewState.Position,
             Run2.NewState.Position);
-  TestEqual(PipelineAssertions().PhaseDeterministic,
+  TestEqual(PipelineAssertions().Determinism.PhaseDeterministic,
             (int32)Run1.NewState.Phase,
             (int32)Run2.NewState.Phase);
-  TestEqual(PipelineAssertions().AggroDeterministic,
+  TestEqual(PipelineAssertions().Determinism.AggroDeterministic,
             Run1.NewState.Memory.bHasAggro,
             Run2.NewState.Memory.bHasAggro);
-  TestEqual(PipelineAssertions().ActionCountDeterministic,
+  TestEqual(PipelineAssertions().Determinism.ActionCountDeterministic,
             Run1.ActionsDispatched, Run2.ActionsDispatched);
 
   return true;

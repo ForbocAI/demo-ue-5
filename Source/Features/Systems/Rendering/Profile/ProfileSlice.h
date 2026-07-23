@@ -10,13 +10,13 @@ namespace Level {
 namespace RenderingProfileReducers {
 
 /**
+ * @fn FLevelRetroRenderProfile ReduceRuntimeProfile( const ForbocAI::Game::Data::FProfileSettings &Settings)
  * @brief Maps JSON-backed runtime rendering settings into RTK state.
  *
- * @signature FLevelRetroRenderProfile ReduceRuntimeProfile(const
- * ForbocAI::Game::Data::FProfileSettings &Settings)
  *
  * User story: As a runtime operator, runtime rendering quality can be tuned from
  * data while the rendering slice remains the owner of store semantics.
+ * User Story: As a systems rendering profile consumer, I need to invoke reduce runtime profile through a stable signature so the systems rendering profile workflow remains explicit and composable.
  */
 FLevelRetroRenderProfile ReduceRuntimeProfile(
     const ForbocAI::Game::Data::FProfileSettings &Settings);

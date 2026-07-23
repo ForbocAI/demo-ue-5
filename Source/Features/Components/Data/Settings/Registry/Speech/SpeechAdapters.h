@@ -13,6 +13,7 @@ JSON_SETTINGS_REGISTRY(FStatPresetSettings, MoveSpeed, AwarenessRange,
                        Resolve, bCanTalk);
 
 template <> struct TJsonSettingsRegistry<FBotSettings> {
+  /** User Story: As a settings registry speech consumer, I need to invoke fields through a stable signature so the settings registry speech workflow remains explicit and composable. @fn static const TArray<TField<FBotSettings>> &Fields() */
   static const TArray<TField<FBotSettings>> &Fields() {
     static const TArray<TField<FBotSettings>>
         RegisteredFields = {
@@ -79,6 +80,7 @@ JSON_SETTINGS_REGISTRY(FAutomationSettings, PhonemeEstimationTest,
                        UnknownPhonemeLabelFormat);
 
 template <> struct TJsonSettingsRegistry<FSpeechSettings> {
+  /** User Story: As a settings registry speech consumer, I need to invoke fields through a stable signature so the settings registry speech workflow remains explicit and composable. @fn static const TArray<TField<FSpeechSettings>> &Fields() */
   static const TArray<TField<FSpeechSettings>> &Fields() {
     static const TArray<TField<FSpeechSettings>>
         RegisteredFields = {

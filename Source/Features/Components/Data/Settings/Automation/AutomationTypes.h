@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/Automation/Bot/AutomationBotTypes.h"
+#include "Features/Components/Data/Settings/Automation/Bot/BotTypes.h"
 #include "Features/Components/Data/Settings/Automation/Content/Assets/AssetsTypes.h"
 #include "Features/Components/Data/Settings/Automation/Conversation/UI/ConversationUITypes.h"
 #include "Features/Components/Data/Settings/Automation/Pipeline/AutomationPipelineTypes.h"
@@ -25,6 +25,7 @@ struct FSettings {
   Protocol::Loop::FSettings ProtocolLoop;
 };
 
+/** User Story: As a data settings automation consumer, I need to compare values for equality through a stable signature so the data settings automation workflow remains explicit and composable. @fn inline bool operator==(const FSettings &Left, const FSettings &Right) */
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Store == Right.Store &&
          Left.Tests == Right.Tests &&
@@ -36,6 +37,7 @@ inline bool operator==(const FSettings &Left, const FSettings &Right) {
          Left.ProtocolLoop == Right.ProtocolLoop;
 }
 
+/** User Story: As a data settings automation consumer, I need to compare values for inequality through a stable signature so the data settings automation workflow remains explicit and composable. @fn inline bool operator!=(const FSettings &Left, const FSettings &Right) */
 inline bool operator!=(const FSettings &Left, const FSettings &Right) {
   return !(Left == Right);
 }

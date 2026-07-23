@@ -1,5 +1,6 @@
 #pragma once
 
+/** User Story: As a player controller capture consumer, I need to invoke start scale audit capture if requested through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() */
 void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
   const FMarketingCaptureSettings &MarketingSettings =
       MarketingCaptureSettings();
@@ -18,6 +19,7 @@ void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
       : void();
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke configure scale audit capture through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() */
 void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() {
   const ForbocAI::Game::Data::FGeometrySettings &Geometry =
       FG::RuntimeSelectors::SelectLevelGeometry();
@@ -39,6 +41,7 @@ void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() {
   ScaleAuditCaptureIndex = int32();
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke configure marketing brochure capture through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ConfigureMarketingBrochureCapture() */
 void APlayerRuntimeControllerView::ConfigureMarketingBrochureCapture() {
   const FMarketingCaptureSettings &Settings =
       MarketingCaptureSettings();
@@ -52,6 +55,7 @@ void APlayerRuntimeControllerView::ConfigureMarketingBrochureCapture() {
   ScaleAuditCaptureIndex = int32();
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke schedule scale audit capture step through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ScheduleScaleAuditCaptureStep( float DelaySeconds) */
 void APlayerRuntimeControllerView::ScheduleScaleAuditCaptureStep(
     float DelaySeconds) {
   UWorld *World = GetWorld();
@@ -65,6 +69,7 @@ void APlayerRuntimeControllerView::ScheduleScaleAuditCaptureStep(
         : void();
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke cache scale audit camera state through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::CacheScaleAuditCameraState( UCameraComponent *Camera, USpringArmComponent *CameraBoom) */
 void APlayerRuntimeControllerView::CacheScaleAuditCameraState(
     UCameraComponent *Camera, USpringArmComponent *CameraBoom) {
   bScaleAuditCameraStateCached
@@ -76,6 +81,7 @@ void APlayerRuntimeControllerView::CacheScaleAuditCameraState(
          bScaleAuditCameraStateCached = true, void());
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke cache scale audit mesh state through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::CacheScaleAuditMeshState( USkeletalMeshComponent *PlayerMesh) */
 void APlayerRuntimeControllerView::CacheScaleAuditMeshState(
     USkeletalMeshComponent *PlayerMesh) {
   bScaleAuditMeshStateCached
@@ -84,6 +90,7 @@ void APlayerRuntimeControllerView::CacheScaleAuditMeshState(
          bScaleAuditMeshStateCached = true, void());
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke apply scale audit capture view through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::ApplyScaleAuditCaptureView( const FScaleAuditCaptureView &View) */
 void APlayerRuntimeControllerView::ApplyScaleAuditCaptureView(
     const FScaleAuditCaptureView &View) {
   APlayerCharacterView *RuntimeCharacter =
@@ -116,6 +123,7 @@ void APlayerRuntimeControllerView::ApplyScaleAuditCaptureView(
       ScaleAuditSettleSeconds, false);
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke run scale audit capture step through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() */
 void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() {
   UWorld *World = GetWorld();
   check(World);
@@ -132,6 +140,7 @@ void APlayerRuntimeControllerView::RunScaleAuditCaptureStep() {
       : CompleteScaleAuditCapture();
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke request scale audit screenshot through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::RequestScaleAuditScreenshot() */
 void APlayerRuntimeControllerView::RequestScaleAuditScreenshot() {
   FCA::DispatchRequestCaptureScreenshot(ScaleAuditOutputDirectory,
                                         ScaleAuditCurrentOutputName);
@@ -144,6 +153,7 @@ void APlayerRuntimeControllerView::RequestScaleAuditScreenshot() {
       ScaleAuditBetweenSeconds, false);
 }
 
+/** User Story: As a player controller capture consumer, I need to invoke complete scale audit capture through a stable signature so the player controller capture workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::CompleteScaleAuditCapture() */
 void APlayerRuntimeControllerView::CompleteScaleAuditCapture() {
   APlayerCharacterView *RuntimeCharacter =
       Cast<APlayerCharacterView>(GetPawn());

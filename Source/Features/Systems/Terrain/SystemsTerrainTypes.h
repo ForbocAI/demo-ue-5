@@ -43,6 +43,7 @@ struct FTerrainState {
   float MaxElevationMeters = float{};
 };
 
+/** User Story: As a features systems terrain consumer, I need to compare values for equality through a stable signature so the features systems terrain workflow remains explicit and composable. @fn inline bool operator==(const FLoadedPayload &Left, const FLoadedPayload &Right) */
 inline bool operator==(const FLoadedPayload &Left,
                        const FLoadedPayload &Right) {
   return Left.TerrainSource == Right.TerrainSource &&
@@ -54,11 +55,13 @@ inline bool operator==(const FLoadedPayload &Left,
                               Right.MaxElevationMeters);
 }
 
+/** User Story: As a features systems terrain consumer, I need to compare values for inequality through a stable signature so the features systems terrain workflow remains explicit and composable. @fn inline bool operator!=(const FLoadedPayload &Left, const FLoadedPayload &Right) */
 inline bool operator!=(const FLoadedPayload &Left,
                        const FLoadedPayload &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems terrain consumer, I need to compare values for equality through a stable signature so the features systems terrain workflow remains explicit and composable. @fn inline bool operator==(const FLoadedSource &Left, const FLoadedSource &Right) */
 inline bool operator==(const FLoadedSource &Left,
                        const FLoadedSource &Right) {
   return Left.TerrainSource == Right.TerrainSource &&
@@ -70,11 +73,13 @@ inline bool operator==(const FLoadedSource &Left,
                               Right.MaxElevationMeters);
 }
 
+/** User Story: As a features systems terrain consumer, I need to compare values for inequality through a stable signature so the features systems terrain workflow remains explicit and composable. @fn inline bool operator!=(const FLoadedSource &Left, const FLoadedSource &Right) */
 inline bool operator!=(const FLoadedSource &Left,
                        const FLoadedSource &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems terrain consumer, I need to compare values for equality through a stable signature so the features systems terrain workflow remains explicit and composable. @fn inline bool operator==(const FTerrainState &Left, const FTerrainState &Right) */
 inline bool operator==(const FTerrainState &Left,
                        const FTerrainState &Right) {
   return Left.bTerrainLoaded == Right.bTerrainLoaded &&
@@ -87,11 +92,13 @@ inline bool operator==(const FTerrainState &Left,
                               Right.MaxElevationMeters);
 }
 
+/** User Story: As a features systems terrain consumer, I need to compare values for inequality through a stable signature so the features systems terrain workflow remains explicit and composable. @fn inline bool operator!=(const FTerrainState &Left, const FTerrainState &Right) */
 inline bool operator!=(const FTerrainState &Left,
                        const FTerrainState &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems terrain consumer, I need to compare values for equality through a stable signature so the features systems terrain workflow remains explicit and composable. @fn inline bool operator==(const FMeshPayload &Left, const FMeshPayload &Right) */
 inline bool operator==(const FMeshPayload &Left,
                        const FMeshPayload &Right) {
   return Left.bLoaded == Right.bLoaded &&
@@ -103,6 +110,7 @@ inline bool operator==(const FMeshPayload &Left,
          Left.UVs == Right.UVs && Left.VertexColors == Right.VertexColors;
 }
 
+/** User Story: As a features systems terrain consumer, I need to compare values for inequality through a stable signature so the features systems terrain workflow remains explicit and composable. @fn inline bool operator!=(const FMeshPayload &Left, const FMeshPayload &Right) */
 inline bool operator!=(const FMeshPayload &Left,
                        const FMeshPayload &Right) {
   return !(Left == Right);

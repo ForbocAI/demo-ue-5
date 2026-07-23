@@ -23,6 +23,7 @@ namespace RuntimeReducers {
 
 namespace {
 
+/** User Story: As a features systems projection consumer, I need to invoke runtime action matches through a stable signature so the features systems projection workflow remains explicit and composable. @fn template <typename Payload> bool RuntimeActionMatches(const rtk::AnyAction &Action, const rtk::ActionCreator<Payload> &Creator) */
 template <typename Payload>
 bool RuntimeActionMatches(const rtk::AnyAction &Action,
                           const rtk::ActionCreator<Payload> &Creator) {
@@ -31,6 +32,7 @@ bool RuntimeActionMatches(const rtk::AnyAction &Action,
 
 } // namespace
 
+/** User Story: As a features systems projection consumer, I need to invoke reduce runtime projected through a stable signature so the features systems projection workflow remains explicit and composable. @fn FRuntimeState ReduceRuntimeProjected(const FRuntimeState &State) */
 FRuntimeState ReduceRuntimeProjected(const FRuntimeState &State) {
   return (func::pipe(State) |
           [](FRuntimeState Next) -> FRuntimeState {
@@ -41,6 +43,7 @@ FRuntimeState ReduceRuntimeProjected(const FRuntimeState &State) {
       .val;
 }
 
+/** User Story: As a features systems projection consumer, I need to invoke should project runtime action through a stable signature so the features systems projection workflow remains explicit and composable. @fn bool ShouldProjectRuntimeAction(const rtk::AnyAction &Action) */
 bool ShouldProjectRuntimeAction(const rtk::AnyAction &Action) {
   return RuntimeActionMatches(Action, RuntimeActions::RuntimeHydrated()) ||
          RuntimeActionMatches(Action, PlayerActions::PlayerObserved()) ||

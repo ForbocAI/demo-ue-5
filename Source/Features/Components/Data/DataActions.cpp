@@ -5,6 +5,7 @@ namespace Game {
 namespace Data {
 namespace DataActions {
 
+/** User Story: As a features components data consumer, I need to invoke data loaded through a stable signature so the features components data workflow remains explicit and composable. @fn const rtk::ActionCreator<FDataLoadedPayload> &DataLoaded() */
 const rtk::ActionCreator<FDataLoadedPayload> &DataLoaded() {
   static const func::Lazy<rtk::ActionCreator<FDataLoadedPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FDataLoadedPayload> {

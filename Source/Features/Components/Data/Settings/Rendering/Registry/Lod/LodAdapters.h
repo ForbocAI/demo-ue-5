@@ -10,6 +10,7 @@ namespace Data {
 namespace JsonAdapters {
 
 template <> struct TJsonSettingsRegistry<FStageSettings> {
+  /** User Story: As a rendering registry lod consumer, I need to invoke fields through a stable signature so the rendering registry lod workflow remains explicit and composable. @fn static const TArray<TField<FStageSettings>> &Fields() */
   static const TArray<TField<FStageSettings>> &Fields() {
     static const TArray<TField<FStageSettings>> RegisteredFields = {
         NestedSettingField(JSON_SETTING_ATOM(Id),

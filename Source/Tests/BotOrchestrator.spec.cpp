@@ -6,6 +6,7 @@
 
 namespace {
 
+/** User Story: As a tests consumer, I need to invoke bot orchestrator automation settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings & BotOrchestratorAutomationSettings() */
 const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings &
 BotOrchestratorAutomationSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
@@ -17,6 +18,7 @@ BotOrchestratorAutomationSettings() {
 
 DEFINE_SPEC(FBotOrchestratorSpec, BotOrchestratorAutomationSettings().Spec, EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
+/** User Story: As a tests consumer, I need to invoke define through a stable signature so the tests workflow remains explicit and composable. @fn void FBotOrchestratorSpec::Define() */
 void FBotOrchestratorSpec::Define() {
   const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings
       &Settings = BotOrchestratorAutomationSettings();

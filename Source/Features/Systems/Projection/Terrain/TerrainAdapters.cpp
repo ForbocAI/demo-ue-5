@@ -9,6 +9,7 @@ namespace ComponentsAdapters {
 
 template <>
 struct TComponentSourceProjector<FTerrainState> {
+  /** User Story: As a systems projection terrain consumer, I need to invoke the callable value through a stable signature so the systems projection terrain workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FTerrainState &Terrain) const */
   ecs::FComponentValue operator()(const FTerrainState &Terrain) const {
     return ComponentValueMap(
         {{"TerrainLoaded", Terrain.bTerrainLoaded},
@@ -28,8 +29,8 @@ namespace {
 using ComponentsAdapters::RegisteredComponentGroups;
 
 /**
+ * @fn ecs::EntityKey TerrainEntityKey()
  * @brief Returns the stable ECS entity key for terrain projection.
- * @signature ecs::EntityKey TerrainEntityKey()
  *
  * User Story: As terrain projection code, I need one stable entity key so
  * terrain components update the same ECS entity after every RTK action.
@@ -39,8 +40,8 @@ ecs::EntityKey TerrainEntityKey() {
 }
 
 /**
+ * @fn TArray<TArray<FString>> BuildTerrainDomains()
  * @brief Builds ECS domain steps for terrain projection.
- * @signature TArray<TArray<FString>> BuildTerrainDomains()
  *
  * User Story: As an ECS inspector, I need projected terrain entities tagged
  * with component, system, and projection subdomains.
@@ -54,6 +55,7 @@ TArray<TArray<FString>> BuildTerrainDomains() {
 
 } // namespace
 
+/** User Story: As a systems projection terrain consumer, I need to invoke project terrain through a stable signature so the systems projection terrain workflow remains explicit and composable. @fn ecs::FWorld ProjectTerrain(const FProjectTerrainPayload &Payload) */
 ecs::FWorld ProjectTerrain(const FProjectTerrainPayload &Payload) {
   return ComponentsAdapters::ProjectEntityCatalog(
       Payload,

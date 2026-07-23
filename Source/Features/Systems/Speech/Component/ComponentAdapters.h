@@ -35,6 +35,7 @@ class FORBOCAIDEMO_API USpeechComponent : public UActorComponent {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a systems speech component consumer, I need to invoke uspeech component through a stable signature so the systems speech component workflow remains explicit and composable. @fn USpeechComponent() */
   USpeechComponent();
 
   // --- Configuration ---
@@ -61,45 +62,80 @@ public:
    * Speak the given text.
    * Generates estimated phonemes for lip sync and posts the TTS request to the
    * configured runtime endpoint.
+   * User Story: As a systems speech component consumer, I need to invoke speak text through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn void SpeakText(const FString &Text)
    */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI|Speech")
   void SpeakText(const FString &Text);
 
-  /** Stop any currently playing speech. */
+  /**
+   * Stop any currently playing speech.
+   * User Story: As a systems speech component consumer, I need to invoke stop speaking through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn void StopSpeaking()
+   */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI|Speech")
   void StopSpeaking();
 
-  /** Returns true if speech audio is currently playing. */
+  /**
+   * Returns true if speech audio is currently playing.
+   * User Story: As a systems speech component consumer, I need to invoke is speaking through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn bool IsSpeaking() const
+   */
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ForbocAI|Speech")
   bool IsSpeaking() const;
 
-  /** Get the current viseme name (for manual lip sync driving). */
+  /**
+   * Get the current viseme name (for manual lip sync driving).
+   * User Story: As a systems speech component consumer, I need to invoke get current viseme through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn FString GetCurrentViseme() const
+   */
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ForbocAI|Speech")
   FString GetCurrentViseme() const;
 
-  /** Get the current viseme blend weight. */
+  /**
+   * Get the current viseme blend weight.
+   * User Story: As a systems speech component consumer, I need to invoke get current viseme weight through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn float GetCurrentVisemeWeight() const
+   */
   UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ForbocAI|Speech")
   float GetCurrentVisemeWeight() const;
 
   // --- Blueprint Events ---
 
-  /** Fired when speech audio starts playing. */
+  /**
+   * Fired when speech audio starts playing.
+   * User Story: As a systems speech component consumer, I need to invoke on speech started through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn void OnSpeechStarted(const FString &Text)
+   */
   UFUNCTION(BlueprintImplementableEvent, Category = "ForbocAI|Speech")
   void OnSpeechStarted(const FString &Text);
 
-  /** Fired when speech audio finishes. */
+  /**
+   * Fired when speech audio finishes.
+   * User Story: As a systems speech component consumer, I need to invoke on speech finished through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn void OnSpeechFinished()
+   */
   UFUNCTION(BlueprintImplementableEvent, Category = "ForbocAI|Speech")
   void OnSpeechFinished();
 
-  /** Fired on each viseme change during speech. */
+  /**
+   * Fired on each viseme change during speech.
+   * User Story: As a systems speech component consumer, I need to invoke on viseme changed through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn void OnVisemeChanged(const FString &VisemeName, float BlendWeight)
+   */
   UFUNCTION(BlueprintImplementableEvent, Category = "ForbocAI|Speech")
   void OnVisemeChanged(const FString &VisemeName, float BlendWeight);
 
-  /** Fired if TTS generation fails. */
+  /**
+   * Fired if TTS generation fails.
+   * User Story: As a systems speech component consumer, I need to invoke on speech error through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn void OnSpeechError(const FString &Error)
+   */
   UFUNCTION(BlueprintImplementableEvent, Category = "ForbocAI|Speech")
   void OnSpeechError(const FString &Error);
 
 protected:
+  /** User Story: As a systems speech component consumer, I need to invoke tick component through a stable signature so the systems speech component workflow remains explicit and composable. @fn virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override */
   virtual void TickComponent(float DeltaTime, ELevelTick TickType,
                              FActorComponentTickFunction *ThisTickFunction)
       override;
@@ -128,9 +164,17 @@ private:
   /** Authored runtime speech settings loaded from project JSON. */
   ForbocAI::Game::Data::FSpeechSettings Settings;
 
-  /** Ensure the viseme map is populated. */
+  /**
+   * Ensure the viseme map is populated.
+   * User Story: As a systems speech component consumer, I need to invoke ensure viseme map through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn void EnsureVisemeMap()
+   */
   void EnsureVisemeMap();
 
-  /** Apply the current viseme to the skeletal mesh morph targets. */
+  /**
+   * Apply the current viseme to the skeletal mesh morph targets.
+   * User Story: As a systems speech component consumer, I need to invoke apply viseme to mesh through a stable signature so the systems speech component workflow remains explicit and composable.
+   * @fn void ApplyVisemeToMesh(const FString &VisemeName, float Weight)
+   */
   void ApplyVisemeToMesh(const FString &VisemeName, float Weight);
 };

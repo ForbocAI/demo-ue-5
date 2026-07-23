@@ -13,14 +13,14 @@ namespace Level {
 namespace InteractionReducers {
 
 /**
+ * @fn inline FString ReduceNoTownspersonMessage( const ForbocAI::Game::Data::FInteractionSettings &Settings)
  * @brief Maps JSON-backed interaction settings into the no-target player
  * message.
  *
- * @signature FString ReduceNoTownspersonMessage(const
- * ForbocAI::Game::Data::FInteractionSettings &Settings)
  *
  * User story: As a content author, the player-facing missing-target message
  * can change in JSON without view logic or reducer constants.
+ * User Story: As a features systems interaction consumer, I need to invoke reduce no townsperson message through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline FString ReduceNoTownspersonMessage(
     const ForbocAI::Game::Data::FInteractionSettings &Settings) {
@@ -28,13 +28,13 @@ inline FString ReduceNoTownspersonMessage(
 }
 
 /**
+ * @fn inline float ReduceTownspersonInteractionDistance( const FDistanceSettingsRequest &Request)
  * @brief Maps JSON-backed interaction range settings into world units.
  *
- * @signature float ReduceTownspersonInteractionDistance(const
- * FDistanceSettingsRequest &Request)
  *
  * User story: As a level designer, interaction range can be tuned in JSON
  * while RTK state remains the authority for gameplay distance.
+ * User Story: As a features systems interaction consumer, I need to invoke reduce townsperson interaction distance through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline float ReduceTownspersonInteractionDistance(
     const FDistanceSettingsRequest &Request) {
@@ -42,18 +42,21 @@ inline float ReduceTownspersonInteractionDistance(
          Request.Interaction.TownspersonMaxDistanceLots;
 }
 
+/** User Story: As a features systems interaction consumer, I need to invoke reduce empty selection through a stable signature so the features systems interaction workflow remains explicit and composable. @fn inline FSelection ReduceEmptySelection(const FString &Message) */
 inline FSelection ReduceEmptySelection(const FString &Message) {
   FSelection Selection;
   Selection.MissingMessage = Message;
   return Selection;
 }
 
+/** User Story: As a features systems interaction consumer, I need to invoke reduce distance squared through a stable signature so the features systems interaction workflow remains explicit and composable. @fn inline float ReduceDistanceSquared( const FCandidatesObserved &Request, const FCandidate &Candidate) */
 inline float ReduceDistanceSquared(
     const FCandidatesObserved &Request,
     const FCandidate &Candidate) {
   return FVector::DistSquared(Request.Origin, Candidate.Location);
 }
 
+/** User Story: As a features systems interaction consumer, I need to invoke reduce candidate within range through a stable signature so the features systems interaction workflow remains explicit and composable. @fn inline bool ReduceCandidateWithinRange( const FCandidatesObserved &Request, const FCandidate &Candidate) */
 inline bool ReduceCandidateWithinRange(
     const FCandidatesObserved &Request,
     const FCandidate &Candidate) {
@@ -62,12 +65,14 @@ inline bool ReduceCandidateWithinRange(
              FMath::Square(Request.MaxDistance);
 }
 
+/** User Story: As a features systems interaction consumer, I need to invoke reduce candidate is closer through a stable signature so the features systems interaction workflow remains explicit and composable. @fn inline bool ReduceCandidateIsCloser(float CandidateDistanceSquared, const FSelection &Current) */
 inline bool ReduceCandidateIsCloser(float CandidateDistanceSquared,
                                     const FSelection &Current) {
   return !Current.bFound ||
          CandidateDistanceSquared < Current.DistanceSquared;
 }
 
+/** User Story: As a features systems interaction consumer, I need to invoke reduce closer candidate through a stable signature so the features systems interaction workflow remains explicit and composable. @fn inline FSelection ReduceCloserCandidate( FSelection Current, const FNearestCandidateRequest &Request, const FCandidate &Candidate) */
 inline FSelection ReduceCloserCandidate(
     FSelection Current,
     const FNearestCandidateRequest &Request,
@@ -87,6 +92,7 @@ inline FSelection ReduceCloserCandidate(
   return Current;
 }
 
+/** User Story: As a features systems interaction consumer, I need to invoke reduce nearest candidate through a stable signature so the features systems interaction workflow remains explicit and composable. @fn inline FSelection ReduceNearestCandidate( const FNearestCandidateRequest &Request) */
 inline FSelection ReduceNearestCandidate(
     const FNearestCandidateRequest &Request) {
   return func::fold_indexed(
@@ -100,7 +106,9 @@ inline FSelection ReduceNearestCandidate(
 }
 
 /**
+ * @fn inline FInteractionState ReduceTownspersonCandidatesObserved( const FInteractionState &State, const rtk::PayloadAction<FCandidatesObserved> &Action)
  * @brief Case reducer for InteractionActions::TownspersonCandidatesObserved.
+ * User Story: As a features systems interaction consumer, I need to invoke reduce townsperson candidates observed through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline FInteractionState ReduceTownspersonCandidatesObserved(
     const FInteractionState &State,
@@ -135,7 +143,9 @@ namespace Level {
 namespace InteractionSlice {
 
 /**
+ * @fn inline FInteractionState CreateInitialState()
  * @brief Creates initial state for the interaction RTK slice.
+ * User Story: As a features systems interaction consumer, I need to invoke create initial state through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline FInteractionState CreateInitialState() {
   return (func::pipe(FInteractionState{}) |
@@ -147,7 +157,9 @@ inline FInteractionState CreateInitialState() {
 }
 
 /**
+ * @fn inline const rtk::Slice<FInteractionState> &GetSlice()
  * @brief Returns the interaction slice binding actions to case reducers.
+ * User Story: As a features systems interaction consumer, I need to invoke get slice through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline const rtk::Slice<FInteractionState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FInteractionState>> Slice =
@@ -164,6 +176,7 @@ inline const rtk::Slice<FInteractionState> &GetSlice() {
   return func::eval(Slice);
 }
 
+/** User Story: As a features systems interaction consumer, I need to invoke townsperson candidates observed through a stable signature so the features systems interaction workflow remains explicit and composable. @fn inline rtk::AnyAction TownspersonCandidatesObserved( const FCandidatesObserved &Payload) */
 inline rtk::AnyAction
 TownspersonCandidatesObserved(
     const FCandidatesObserved &Payload) {

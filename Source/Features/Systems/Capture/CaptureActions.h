@@ -18,9 +18,11 @@ namespace Level {
 namespace CaptureActions {
 
 /**
+ * @fn inline void DispatchRequestCaptureScreenshot(const FString &OutputDir, const FString &OutputName)
  * @brief Requests a screenshot be written to the given path.
  *
  * Thin action facade — delegates to CaptureAdapters::RequestCaptureScreenshot.
+ * User Story: As a features systems capture consumer, I need to invoke dispatch request capture screenshot through a stable signature so the features systems capture workflow remains explicit and composable.
  */
 inline void DispatchRequestCaptureScreenshot(const FString &OutputDir,
                                              const FString &OutputName) {

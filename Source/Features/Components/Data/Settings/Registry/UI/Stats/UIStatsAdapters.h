@@ -8,6 +8,7 @@ namespace Data {
 namespace JsonAdapters {
 
 template <> struct TJsonSettingsRegistry<FOverlaySettings> {
+  /** User Story: As a registry ui stats consumer, I need to invoke fields through a stable signature so the registry ui stats workflow remains explicit and composable. @fn static const TArray<TField<FOverlaySettings>> &Fields() */
   static const TArray<TField<FOverlaySettings>>
       &Fields() {
     static const TArray<TField<FOverlaySettings>>
@@ -80,6 +81,7 @@ JSON_SETTINGS_REGISTRY(FObservationIdSettings,
                        TownspersonCandidatesObserved);
 
 template <> struct TJsonSettingsRegistry<FDebugMessageSettings> {
+  /** User Story: As a registry ui stats consumer, I need to invoke fields through a stable signature so the registry ui stats workflow remains explicit and composable. @fn static const TArray<TField<FDebugMessageSettings>> &Fields() */
   static const TArray<TField<FDebugMessageSettings>>
       &Fields() {
     static const TArray<TField<FDebugMessageSettings>>
@@ -94,6 +96,7 @@ template <> struct TJsonSettingsRegistry<FDebugMessageSettings> {
 };
 
 template <> struct TJsonSettingsRegistry<FViewNameSettings> {
+  /** User Story: As a registry ui stats consumer, I need to invoke fields through a stable signature so the registry ui stats workflow remains explicit and composable. @fn static const TArray<TField<FViewNameSettings>> &Fields() */
   static const TArray<TField<FViewNameSettings>> &Fields() {
     static const TArray<TField<FViewNameSettings>> RegisteredFields = {
         NestedSettingField(JSON_SETTING_ATOM(SceneRoot),
@@ -152,6 +155,7 @@ template <> struct TJsonSettingsRegistry<FViewNameSettings> {
 };
 
 template <> struct TJsonSettingsRegistry<FTextSettings> {
+  /** User Story: As a registry ui stats consumer, I need to invoke fields through a stable signature so the registry ui stats workflow remains explicit and composable. @fn static const TArray<TField<FTextSettings>> &Fields() */
   static const TArray<TField<FTextSettings>> &Fields() {
     static const TArray<TField<FTextSettings>> RegisteredFields = {
         NestedSettingField(

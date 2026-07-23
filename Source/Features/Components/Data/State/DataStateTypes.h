@@ -19,17 +19,20 @@ struct FDataState {
 };
 
 
+/** User Story: As a components data state consumer, I need to compare values for equality through a stable signature so the components data state workflow remains explicit and composable. @fn inline bool operator==(const FDataLoadedPayload &Left, const FDataLoadedPayload &Right) */
 inline bool operator==(const FDataLoadedPayload &Left,
                        const FDataLoadedPayload &Right) {
   return Left.RelativePath == Right.RelativePath &&
          Left.bLoaded == Right.bLoaded;
 }
 
+/** User Story: As a components data state consumer, I need to compare values for inequality through a stable signature so the components data state workflow remains explicit and composable. @fn inline bool operator!=(const FDataLoadedPayload &Left, const FDataLoadedPayload &Right) */
 inline bool operator!=(const FDataLoadedPayload &Left,
                        const FDataLoadedPayload &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a components data state consumer, I need to compare values for equality through a stable signature so the components data state workflow remains explicit and composable. @fn inline bool operator==(const FDataState &Left, const FDataState &Right) */
 inline bool operator==(const FDataState &Left, const FDataState &Right) {
   return Left.Path.hasValue == Right.Path.hasValue &&
          (!Left.Path.hasValue ||
@@ -38,6 +41,7 @@ inline bool operator==(const FDataState &Left, const FDataState &Right) {
          Left.LoadedObjectCount == Right.LoadedObjectCount;
 }
 
+/** User Story: As a components data state consumer, I need to compare values for inequality through a stable signature so the components data state workflow remains explicit and composable. @fn inline bool operator!=(const FDataState &Left, const FDataState &Right) */
 inline bool operator!=(const FDataState &Left, const FDataState &Right) {
   return !(Left == Right);
 }

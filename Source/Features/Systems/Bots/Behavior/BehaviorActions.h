@@ -36,6 +36,7 @@ struct FBotFleeRequestedPayload {
 
 namespace BotCoreActions {
 
+/** User Story: As a systems bots behavior consumer, I need to invoke bot ticked through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotTickPayload> &BotTicked() */
 inline const rtk::ActionCreator<FBotTickPayload> &BotTicked() {
   static const func::Lazy<rtk::ActionCreator<FBotTickPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotTickPayload> {
@@ -45,6 +46,7 @@ inline const rtk::ActionCreator<FBotTickPayload> &BotTicked() {
   return func::eval(Creator);
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke bot moved through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotMovePayload> &BotMoved() */
 inline const rtk::ActionCreator<FBotMovePayload> &BotMoved() {
   static const func::Lazy<rtk::ActionCreator<FBotMovePayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotMovePayload> {
@@ -54,6 +56,7 @@ inline const rtk::ActionCreator<FBotMovePayload> &BotMoved() {
   return func::eval(Creator);
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke bot damage taken through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotDamageTakenPayload> &BotDamageTaken() */
 inline const rtk::ActionCreator<FBotDamageTakenPayload> &BotDamageTaken() {
   static const func::Lazy<rtk::ActionCreator<FBotDamageTakenPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotDamageTakenPayload> {
@@ -64,6 +67,7 @@ inline const rtk::ActionCreator<FBotDamageTakenPayload> &BotDamageTaken() {
   return func::eval(Creator);
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke bot enemy spotted through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotEnemySpottedPayload> &BotEnemySpotted() */
 inline const rtk::ActionCreator<FBotEnemySpottedPayload> &BotEnemySpotted() {
   static const func::Lazy<rtk::ActionCreator<FBotEnemySpottedPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotEnemySpottedPayload> {
@@ -74,6 +78,7 @@ inline const rtk::ActionCreator<FBotEnemySpottedPayload> &BotEnemySpotted() {
   return func::eval(Creator);
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke bot attack requested through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotAttackRequestedPayload> & BotAttackRequested() */
 inline const rtk::ActionCreator<FBotAttackRequestedPayload> &
 BotAttackRequested() {
   static const func::Lazy<rtk::ActionCreator<FBotAttackRequestedPayload>>
@@ -86,6 +91,7 @@ BotAttackRequested() {
   return func::eval(Creator);
 }
 
+/** User Story: As a systems bots behavior consumer, I need to invoke bot flee requested through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotFleeRequestedPayload> & BotFleeRequested() */
 inline const rtk::ActionCreator<FBotFleeRequestedPayload> &
 BotFleeRequested() {
   static const func::Lazy<rtk::ActionCreator<FBotFleeRequestedPayload>> Creator =

@@ -19,11 +19,13 @@ struct FResourceProjectionBinding {
   ecs::FComponentValue Value;
 };
 
+/** User Story: As a features systems projection consumer, I need to invoke resource projection through a stable signature so the features systems projection workflow remains explicit and composable. @fn FResourceProjectionBinding resourceProjection(const ecs::ResourceName &Name, const ecs::FComponentValue &Value) */
 FResourceProjectionBinding resourceProjection(const ecs::ResourceName &Name,
                                               const ecs::FComponentValue &Value) {
   return {Name, Value};
 }
 
+/** User Story: As a features systems projection consumer, I need to invoke project payload through a stable signature so the features systems projection workflow remains explicit and composable. @fn template <typename Value, typename Payload> ecs::FWorld projectPayload(ecs::FWorld (*Project)(const Payload &), const ecs::FWorld &World, const Value &SelectedValue) */
 template <typename Value, typename Payload>
 ecs::FWorld projectPayload(ecs::FWorld (*Project)(const Payload &),
                            const ecs::FWorld &World,
@@ -31,6 +33,7 @@ ecs::FWorld projectPayload(ecs::FWorld (*Project)(const Payload &),
   return Project(Payload{World, SelectedValue});
 }
 
+/** User Story: As a features systems projection consumer, I need to invoke apply projection through a stable signature so the features systems projection workflow remains explicit and composable. @fn template <typename Slice, typename Payload> ecs::FWorld applyProjection(const FRuntimeState &State, const ecs::FWorld &World, const Slice &(*SelectSlice)(const FRuntimeState &), ecs::FWorld (*Project)(const Payload &)) */
 template <typename Slice, typename Payload>
 ecs::FWorld applyProjection(const FRuntimeState &State,
                             const ecs::FWorld &World,
@@ -39,6 +42,7 @@ ecs::FWorld applyProjection(const FRuntimeState &State,
   return projectPayload<Slice, Payload>(Project, World, SelectSlice(State));
 }
 
+/** User Story: As a features systems projection consumer, I need to invoke apply projection through a stable signature so the features systems projection workflow remains explicit and composable. @fn template <typename Row, typename Payload> ecs::FWorld applyProjection(const FRuntimeState &State, const ecs::FWorld &World, TArray<Row> (*SelectRows)(const FRuntimeState &), ecs::FWorld (*Project)(const Payload &)) */
 template <typename Row, typename Payload>
 ecs::FWorld applyProjection(const FRuntimeState &State,
                             const ecs::FWorld &World,
@@ -54,6 +58,7 @@ ecs::FWorld applyProjection(const FRuntimeState &State,
 struct FApplyProjection {
   const FRuntimeState &State;
 
+  /** User Story: As a features systems projection consumer, I need to invoke the callable value through a stable signature so the features systems projection workflow remains explicit and composable. @fn template <typename Select, typename Project> ecs::FWorld operator()(const ecs::FWorld &World, Select SelectValue, Project ProjectValue) const */
   template <typename Select, typename Project>
   ecs::FWorld operator()(const ecs::FWorld &World, Select SelectValue,
                          Project ProjectValue) const {
@@ -61,12 +66,14 @@ struct FApplyProjection {
   }
 };
 
+/** User Story: As a features systems projection consumer, I need to invoke apply resource projection through a stable signature so the features systems projection workflow remains explicit and composable. @fn ecs::FWorld applyResourceProjection(const ecs::FWorld &World, const FResourceProjectionBinding &Binding) */
 ecs::FWorld applyResourceProjection(const ecs::FWorld &World,
                                     const FResourceProjectionBinding &Binding) {
   return ComponentsAdapters::ProjectResource(
       {World, Binding.Name, Binding.Value});
 }
 
+/** User Story: As a features systems projection consumer, I need to invoke projection world through a stable signature so the features systems projection workflow remains explicit and composable. @fn ecs::FWorld ProjectionWorld(const FRuntimeState &State) */
 ecs::FWorld ProjectionWorld(const FRuntimeState &State) {
   using namespace EntitiesAdapters;
   using namespace RuntimeSelectors;
@@ -95,6 +102,7 @@ ecs::FWorld ProjectionWorld(const FRuntimeState &State) {
 
 } // namespace
 
+/** User Story: As a features systems projection consumer, I need to invoke project runtime world through a stable signature so the features systems projection workflow remains explicit and composable. @fn ecs::FWorld ProjectRuntimeWorld(const FProjectRuntimePayload &Payload) */
 ecs::FWorld
 ProjectRuntimeWorld(const FProjectRuntimePayload &Payload) {
   return ProjectionWorld(Payload.State);

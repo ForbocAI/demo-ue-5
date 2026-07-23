@@ -1,6 +1,6 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Features/Systems/Rendering/Profile/ProfileThunks.h"
 
 namespace ForbocAI {
@@ -19,6 +19,7 @@ struct FRetroCVarEval {
   const ForbocAI::Game::Data::FRenderingSettings *Settings;
 };
 
+/** User Story: As a rendering profile console consumer, I need to invoke find rendering declaration index through a stable signature so the rendering profile console workflow remains explicit and composable. @fn template <typename Declaration> func::Maybe<int32> FindRenderingDeclarationIndex( const FString &Name, const TArray<Declaration> &Declarations) */
 template <typename Declaration>
 func::Maybe<int32> FindRenderingDeclarationIndex(
     const FString &Name, const TArray<Declaration> &Declarations) {
@@ -34,6 +35,7 @@ template <typename Value> struct TProfileFieldDeclaration {
   FString Name;
   Value FLevelRetroRenderProfile::*Member;
 
+  /** User Story: As a rendering profile console consumer, I need to invoke tprofile field declaration through a stable signature so the rendering profile console workflow remains explicit and composable. @fn TProfileFieldDeclaration(const FString &InName, Value FLevelRetroRenderProfile::*InMember) */
   TProfileFieldDeclaration(const FString &InName,
                            Value FLevelRetroRenderProfile::*InMember)
       : Name(InName), Member(InMember) {}
@@ -43,6 +45,7 @@ template <typename Apply> struct TRenderingDispatchDeclaration {
   FString Name;
   Apply Run;
 
+  /** User Story: As a rendering profile console consumer, I need to invoke trendering dispatch declaration through a stable signature so the rendering profile console workflow remains explicit and composable. @fn TRenderingDispatchDeclaration(const FString &InName, Apply InRun) */
   TRenderingDispatchDeclaration(const FString &InName, Apply InRun)
       : Name(InName), Run(InRun) {}
 };
@@ -50,14 +53,19 @@ template <typename Apply> struct TRenderingDispatchDeclaration {
 using FCVarApply = void (*)(const FRetroCVarEval &);
 using FCVarApplyDeclaration = TRenderingDispatchDeclaration<FCVarApply>;
 
+/** User Story: As a rendering profile console consumer, I need to invoke apply fixed int cvar through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyFixedIntCVar(const FRetroCVarEval &Eval) */
 void ApplyFixedIntCVar(const FRetroCVarEval &Eval);
+/** User Story: As a rendering profile console consumer, I need to invoke apply profile int cvar through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyProfileIntCVar(const FRetroCVarEval &Eval) */
 void ApplyProfileIntCVar(const FRetroCVarEval &Eval);
+/** User Story: As a rendering profile console consumer, I need to invoke apply fixed float cvar through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyFixedFloatCVar(const FRetroCVarEval &Eval) */
 void ApplyFixedFloatCVar(const FRetroCVarEval &Eval);
+/** User Story: As a rendering profile console consumer, I need to invoke apply profile float cvar through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyProfileFloatCVar(const FRetroCVarEval &Eval) */
 void ApplyProfileFloatCVar(const FRetroCVarEval &Eval);
 
 template <typename Value> struct TProfileFieldRegistry;
 
 template <> struct TProfileFieldRegistry<int32> {
+  /** User Story: As a rendering profile console consumer, I need to invoke fields through a stable signature so the rendering profile console workflow remains explicit and composable. @fn static TArray<TProfileFieldDeclaration<int32>> Fields( const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) */
   static TArray<TProfileFieldDeclaration<int32>> Fields(
       const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
     return {{Settings.IntegerProfile.AntiAliasingMethod,
@@ -72,6 +80,7 @@ template <> struct TProfileFieldRegistry<int32> {
 };
 
 template <> struct TProfileFieldRegistry<float> {
+  /** User Story: As a rendering profile console consumer, I need to invoke fields through a stable signature so the rendering profile console workflow remains explicit and composable. @fn static TArray<TProfileFieldDeclaration<float>> Fields( const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) */
   static TArray<TProfileFieldDeclaration<float>> Fields(
       const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
     return {{Settings.FloatProfile.ScreenPercentage,
@@ -85,6 +94,7 @@ template <> struct TProfileFieldRegistry<float> {
   }
 };
 
+/** User Story: As a rendering profile console consumer, I need to invoke cvar apply declarations through a stable signature so the rendering profile console workflow remains explicit and composable. @fn TArray<FCVarApplyDeclaration> CVarApplyDeclarations( const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) */
 TArray<FCVarApplyDeclaration> CVarApplyDeclarations(
     const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
   return {{Settings.Value.FixedInt, ApplyFixedIntCVar},
@@ -93,6 +103,7 @@ TArray<FCVarApplyDeclaration> CVarApplyDeclarations(
           {Settings.Value.ProfileFloat, ApplyProfileFloatCVar}};
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke required cvar declaration through a stable signature so the rendering profile console workflow remains explicit and composable. @fn FCVarApplyDeclaration RequiredCVarDeclaration( const FString &Name, const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) */
 FCVarApplyDeclaration RequiredCVarDeclaration(
     const FString &Name,
     const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
@@ -111,6 +122,7 @@ struct TProfileValueSelectRequest {
   const ForbocAI::Game::Data::FRenderingConsoleSettings *Settings;
 };
 
+/** User Story: As a rendering profile console consumer, I need to invoke select profile value through a stable signature so the rendering profile console workflow remains explicit and composable. @fn template <typename Value> func::Maybe<Value> SelectProfileValue(const TProfileValueSelectRequest<Value> &Request) */
 template <typename Value>
 func::Maybe<Value>
 SelectProfileValue(const TProfileValueSelectRequest<Value> &Request) {
@@ -124,6 +136,7 @@ SelectProfileValue(const TProfileValueSelectRequest<Value> &Request) {
       []() { return func::nothing<Value>(); });
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke required profile value through a stable signature so the rendering profile console workflow remains explicit and composable. @fn template <typename Value> Value RequiredProfileValue(const FRetroCVarEval &Eval) */
 template <typename Value>
 Value RequiredProfileValue(const FRetroCVarEval &Eval) {
   check(Eval.Settings);
@@ -135,30 +148,37 @@ Value RequiredProfileValue(const FRetroCVarEval &Eval) {
   return ValueResult.value;
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke required profile int through a stable signature so the rendering profile console workflow remains explicit and composable. @fn int32 RequiredProfileInt(const FRetroCVarEval &Eval) */
 int32 RequiredProfileInt(const FRetroCVarEval &Eval) {
   return RequiredProfileValue<int32>(Eval);
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke required profile float through a stable signature so the rendering profile console workflow remains explicit and composable. @fn float RequiredProfileFloat(const FRetroCVarEval &Eval) */
 float RequiredProfileFloat(const FRetroCVarEval &Eval) {
   return RequiredProfileValue<float>(Eval);
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke apply fixed int cvar through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyFixedIntCVar(const FRetroCVarEval &Eval) */
 void ApplyFixedIntCVar(const FRetroCVarEval &Eval) {
   SetRuntimeCVarInt(Eval.Setting.Name, Eval.Setting.IntValue);
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke apply profile int cvar through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyProfileIntCVar(const FRetroCVarEval &Eval) */
 void ApplyProfileIntCVar(const FRetroCVarEval &Eval) {
   SetRuntimeCVarInt(Eval.Setting.Name, RequiredProfileInt(Eval));
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke apply fixed float cvar through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyFixedFloatCVar(const FRetroCVarEval &Eval) */
 void ApplyFixedFloatCVar(const FRetroCVarEval &Eval) {
   SetRuntimeCVarFloat(Eval.Setting.Name, Eval.Setting.FloatValue);
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke apply profile float cvar through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyProfileFloatCVar(const FRetroCVarEval &Eval) */
 void ApplyProfileFloatCVar(const FRetroCVarEval &Eval) {
   SetRuntimeCVarFloat(Eval.Setting.Name, RequiredProfileFloat(Eval));
 }
 
+/** User Story: As a rendering profile console consumer, I need to invoke apply console variable through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyConsoleVariable(const FRetroCVarEval &Eval) */
 void ApplyConsoleVariable(const FRetroCVarEval &Eval) {
   check(Eval.Settings);
   RequiredCVarDeclaration(Eval.Setting.ValueKind, Eval.Settings->Console)
@@ -167,6 +187,7 @@ void ApplyConsoleVariable(const FRetroCVarEval &Eval) {
 
 } // namespace
 
+/** User Story: As a rendering profile console consumer, I need to invoke apply runtime console variables through a stable signature so the rendering profile console workflow remains explicit and composable. @fn void ApplyRuntimeConsoleVariables( const FLevelRetroRenderProfile &Profile, const ForbocAI::Game::Data::FRenderingSettings &Settings) */
 void ApplyRuntimeConsoleVariables(
     const FLevelRetroRenderProfile &Profile,
     const ForbocAI::Game::Data::FRenderingSettings &Settings) {

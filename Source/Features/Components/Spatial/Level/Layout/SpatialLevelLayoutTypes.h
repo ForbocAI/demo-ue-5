@@ -76,6 +76,7 @@ struct FLevelToWorldRequest {
   FLevelLocalPoint Point;
 };
 
+/** User Story: As a spatial level layout consumer, I need to compare values for equality through a stable signature so the spatial level layout workflow remains explicit and composable. @fn inline bool operator==(const FLevelLocalPoint &Left, const FLevelLocalPoint &Right) */
 inline bool operator==(const FLevelLocalPoint &Left,
                        const FLevelLocalPoint &Right) {
   return FMath::IsNearlyEqual(Left.EastWest, Right.EastWest) &&
@@ -83,6 +84,7 @@ inline bool operator==(const FLevelLocalPoint &Left,
          FMath::IsNearlyEqual(Left.HeightOffset, Right.HeightOffset);
 }
 
+/** User Story: As a spatial level layout consumer, I need to compare values for inequality through a stable signature so the spatial level layout workflow remains explicit and composable. @fn inline bool operator!=(const FLevelLocalPoint &Left, const FLevelLocalPoint &Right) */
 inline bool operator!=(const FLevelLocalPoint &Left,
                        const FLevelLocalPoint &Right) {
   return !(Left == Right);

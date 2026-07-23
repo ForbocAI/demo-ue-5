@@ -64,16 +64,19 @@ struct FMarketingCaptureSettings {
   TArray<FCaptureViewSettings> CaptureViews;
 };
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for equality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator==(const FCaptureOutputSettings &Left, const FCaptureOutputSettings &Right) */
 inline bool operator==(const FCaptureOutputSettings &Left,
                        const FCaptureOutputSettings &Right) {
   return Left.OutputName == Right.OutputName;
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for inequality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator!=(const FCaptureOutputSettings &Left, const FCaptureOutputSettings &Right) */
 inline bool operator!=(const FCaptureOutputSettings &Left,
                        const FCaptureOutputSettings &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for equality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator==(const FCaptureCameraSettings &Left, const FCaptureCameraSettings &Right) */
 inline bool operator==(const FCaptureCameraSettings &Left,
                        const FCaptureCameraSettings &Right) {
   return Left.CameraOffset == Right.CameraOffset &&
@@ -83,22 +86,26 @@ inline bool operator==(const FCaptureCameraSettings &Left,
          FMath::IsNearlyEqual(Left.SpringArmLength, Right.SpringArmLength);
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for inequality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator!=(const FCaptureCameraSettings &Left, const FCaptureCameraSettings &Right) */
 inline bool operator!=(const FCaptureCameraSettings &Left,
                        const FCaptureCameraSettings &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for equality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator==(const FCaptureVisibilitySettings &Left, const FCaptureVisibilitySettings &Right) */
 inline bool operator==(const FCaptureVisibilitySettings &Left,
                        const FCaptureVisibilitySettings &Right) {
   return Left.bHidePlayerMesh == Right.bHidePlayerMesh &&
          Left.bUseActorRouteCenter == Right.bUseActorRouteCenter;
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for inequality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator!=(const FCaptureVisibilitySettings &Left, const FCaptureVisibilitySettings &Right) */
 inline bool operator!=(const FCaptureVisibilitySettings &Left,
                        const FCaptureVisibilitySettings &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for equality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator==(const FCaptureViewSettings &Left, const FCaptureViewSettings &Right) */
 inline bool operator==(const FCaptureViewSettings &Left,
                        const FCaptureViewSettings &Right) {
   return Left.Output == Right.Output &&
@@ -106,11 +113,13 @@ inline bool operator==(const FCaptureViewSettings &Left,
          Left.Visibility == Right.Visibility;
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for inequality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator!=(const FCaptureViewSettings &Left, const FCaptureViewSettings &Right) */
 inline bool operator!=(const FCaptureViewSettings &Left,
                        const FCaptureViewSettings &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for equality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator==(const FMarketingCaptureSettings &Left, const FMarketingCaptureSettings &Right) */
 inline bool operator==(const FMarketingCaptureSettings &Left,
                        const FMarketingCaptureSettings &Right) {
   return Left.CaptureCommandLineKey == Right.CaptureCommandLineKey &&
@@ -156,6 +165,7 @@ inline bool operator==(const FMarketingCaptureSettings &Left,
          Left.CaptureViews == Right.CaptureViews;
 }
 
+/** User Story: As a settings ui marketing consumer, I need to compare values for inequality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator!=(const FMarketingCaptureSettings &Left, const FMarketingCaptureSettings &Right) */
 inline bool operator!=(const FMarketingCaptureSettings &Left,
                        const FMarketingCaptureSettings &Right) {
   return !(Left == Right);

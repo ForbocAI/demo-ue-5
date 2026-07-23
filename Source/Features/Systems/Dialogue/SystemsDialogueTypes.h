@@ -50,22 +50,26 @@ struct FDialogueState {
   bool bReady = false;
 };
 
+/** User Story: As a features systems dialogue consumer, I need to invoke maybe string equals through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool MaybeStringEquals(const func::Maybe<FString> &Left, const func::Maybe<FString> &Right) */
 inline bool MaybeStringEquals(const func::Maybe<FString> &Left,
                               const func::Maybe<FString> &Right) {
   return Left.hasValue == Right.hasValue &&
          (!Left.hasValue || Left.value == Right.value);
 }
 
+/** User Story: As a features systems dialogue consumer, I need to compare values for equality through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool operator==(const FDialoguePayload &Left, const FDialoguePayload &Right) */
 inline bool operator==(const FDialoguePayload &Left,
                        const FDialoguePayload &Right) {
   return Left.Id == Right.Id;
 }
 
+/** User Story: As a features systems dialogue consumer, I need to compare values for inequality through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool operator!=(const FDialoguePayload &Left, const FDialoguePayload &Right) */
 inline bool operator!=(const FDialoguePayload &Left,
                        const FDialoguePayload &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems dialogue consumer, I need to compare values for equality through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool operator==(const FDialogueState &Left, const FDialogueState &Right) */
 inline bool operator==(const FDialogueState &Left,
                        const FDialogueState &Right) {
   return MaybeStringEquals(Left.ActionId, Right.ActionId) &&
@@ -76,11 +80,13 @@ inline bool operator==(const FDialogueState &Left,
          Left.bReady == Right.bReady;
 }
 
+/** User Story: As a features systems dialogue consumer, I need to compare values for inequality through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool operator!=(const FDialogueState &Left, const FDialogueState &Right) */
 inline bool operator!=(const FDialogueState &Left,
                        const FDialogueState &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems dialogue consumer, I need to compare values for equality through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool operator==(const FLocalDialogueReplyRequest &Left, const FLocalDialogueReplyRequest &Right) */
 inline bool operator==(const FLocalDialogueReplyRequest &Left,
                        const FLocalDialogueReplyRequest &Right) {
   return Left.Name == Right.Name && Left.Role == Right.Role &&
@@ -89,17 +95,20 @@ inline bool operator==(const FLocalDialogueReplyRequest &Left,
          Left.PinnedResponse == Right.PinnedResponse;
 }
 
+/** User Story: As a features systems dialogue consumer, I need to compare values for inequality through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool operator!=(const FLocalDialogueReplyRequest &Left, const FLocalDialogueReplyRequest &Right) */
 inline bool operator!=(const FLocalDialogueReplyRequest &Left,
                        const FLocalDialogueReplyRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems dialogue consumer, I need to compare values for equality through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool operator==(const FReplyPayload &Left, const FReplyPayload &Right) */
 inline bool operator==(const FReplyPayload &Left,
                        const FReplyPayload &Right) {
   return Left.Id == Right.Id && Left.Request == Right.Request &&
          Left.Reply == Right.Reply;
 }
 
+/** User Story: As a features systems dialogue consumer, I need to compare values for inequality through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline bool operator!=(const FReplyPayload &Left, const FReplyPayload &Right) */
 inline bool operator!=(const FReplyPayload &Left,
                        const FReplyPayload &Right) {
   return !(Left == Right);

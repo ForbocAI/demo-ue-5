@@ -9,6 +9,7 @@ namespace RenderingProfileSkyReducers {
 
 using RenderingProfileColorTypes::ProfileLinearColor;
 
+/** User Story: As a profile sky color consumer, I need to invoke sky atmosphere sky luminance through a stable signature so the profile sky color workflow remains explicit and composable. @fn FLinearColor SkyAtmosphereSkyLuminance( const FLevelRetroRenderProfile &Profile) */
 FLinearColor SkyAtmosphereSkyLuminance(
     const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
@@ -18,6 +19,7 @@ FLinearColor SkyAtmosphereSkyLuminance(
                 &FLevelRetroRenderProfile::SkyAtmosphereSkyLuminanceA});
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke sky atmosphere aerial luminance through a stable signature so the profile sky color workflow remains explicit and composable. @fn FLinearColor SkyAtmosphereAerialLuminance( const FLevelRetroRenderProfile &Profile) */
 FLinearColor SkyAtmosphereAerialLuminance(
     const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
@@ -27,6 +29,7 @@ FLinearColor SkyAtmosphereAerialLuminance(
                 &FLevelRetroRenderProfile::SkyAtmosphereAerialLuminanceA});
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke sky light color through a stable signature so the profile sky color workflow remains explicit and composable. @fn FLinearColor SkyLightColor(const FLevelRetroRenderProfile &Profile) */
 FLinearColor SkyLightColor(const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
       Profile, {&FLevelRetroRenderProfile::SkyLightColorR,
@@ -35,6 +38,7 @@ FLinearColor SkyLightColor(const FLevelRetroRenderProfile &Profile) {
                 &FLevelRetroRenderProfile::SkyLightColorA});
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke sky dome star color through a stable signature so the profile sky color workflow remains explicit and composable. @fn FLinearColor SkyDomeStarColor(const FLevelRetroRenderProfile &Profile) */
 FLinearColor SkyDomeStarColor(const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
       Profile, {&FLevelRetroRenderProfile::SkyDomeStarColorR,
@@ -43,6 +47,7 @@ FLinearColor SkyDomeStarColor(const FLevelRetroRenderProfile &Profile) {
                 &FLevelRetroRenderProfile::SkyDomeStarColorA});
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke sky dome horizon color through a stable signature so the profile sky color workflow remains explicit and composable. @fn FLinearColor SkyDomeHorizonColor(const FLevelRetroRenderProfile &Profile) */
 FLinearColor SkyDomeHorizonColor(const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
       Profile, {&FLevelRetroRenderProfile::SkyDomeHorizonColorR,
@@ -51,6 +56,7 @@ FLinearColor SkyDomeHorizonColor(const FLevelRetroRenderProfile &Profile) {
                 &FLevelRetroRenderProfile::SkyDomeHorizonColorA});
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke sky dome zenith color through a stable signature so the profile sky color workflow remains explicit and composable. @fn FLinearColor SkyDomeZenithColor(const FLevelRetroRenderProfile &Profile) */
 FLinearColor SkyDomeZenithColor(const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
       Profile, {&FLevelRetroRenderProfile::SkyDomeZenithColorR,
@@ -59,6 +65,7 @@ FLinearColor SkyDomeZenithColor(const FLevelRetroRenderProfile &Profile) {
                 &FLevelRetroRenderProfile::SkyDomeZenithColorA});
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke sky dome texture star mask color through a stable signature so the profile sky color workflow remains explicit and composable. @fn FLinearColor SkyDomeTextureStarMaskColor( const FLevelRetroRenderProfile &Profile) */
 FLinearColor SkyDomeTextureStarMaskColor(
     const FLevelRetroRenderProfile &Profile) {
   return FLinearColor(Profile.SkyDomeTextureStarMaskColorR,
@@ -67,6 +74,7 @@ FLinearColor SkyDomeTextureStarMaskColor(
                       Profile.SkyDomeTextureStarMaskColorA);
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke moon disc color through a stable signature so the profile sky color workflow remains explicit and composable. @fn FLinearColor MoonDiscColor(const FLevelRetroRenderProfile &Profile) */
 FLinearColor MoonDiscColor(const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
       Profile, {&FLevelRetroRenderProfile::MoonDiscColorR,
@@ -77,16 +85,19 @@ FLinearColor MoonDiscColor(const FLevelRetroRenderProfile &Profile) {
 
 // --- Sky dome reducers ---------------------------------------------------
 
+/** User Story: As a profile sky color consumer, I need to invoke reduce sky dome location through a stable signature so the profile sky color workflow remains explicit and composable. @fn FVector ReduceSkyDomeLocation(const FLevelRetroRenderProfile &Profile) */
 FVector ReduceSkyDomeLocation(const FLevelRetroRenderProfile &Profile) {
   return FVector::UpVector * Profile.SkyDomeZOffset;
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke reduce sky dome scale through a stable signature so the profile sky color workflow remains explicit and composable. @fn FVector ReduceSkyDomeScale(const FLevelRetroRenderProfile &Profile) */
 FVector ReduceSkyDomeScale(const FLevelRetroRenderProfile &Profile) {
   return FVector(Profile.SkyDomeScale);
 }
 
 // --- Moon disc reducers --------------------------------------------------
 
+/** User Story: As a profile sky color consumer, I need to invoke reduce moon disc location through a stable signature so the profile sky color workflow remains explicit and composable. @fn FVector ReduceMoonDiscLocation(const FLevelRetroRenderProfile &Profile) */
 FVector ReduceMoonDiscLocation(const FLevelRetroRenderProfile &Profile) {
   return FRotator(Profile.MoonDiscPitchDegrees, Profile.MoonDiscYawDegrees,
                   Profile.MoonDiscRollDegrees)
@@ -94,11 +105,13 @@ FVector ReduceMoonDiscLocation(const FLevelRetroRenderProfile &Profile) {
          Profile.MoonDiscDistance;
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke reduce moon disc rotation through a stable signature so the profile sky color workflow remains explicit and composable. @fn FRotator ReduceMoonDiscRotation(const FLevelRetroRenderProfile &Profile) */
 FRotator ReduceMoonDiscRotation(const FLevelRetroRenderProfile &Profile) {
   const FVector Location = ReduceMoonDiscLocation(Profile);
   return FRotationMatrix::MakeFromZ(-Location.GetSafeNormal()).Rotator();
 }
 
+/** User Story: As a profile sky color consumer, I need to invoke reduce moon pixel grid size through a stable signature so the profile sky color workflow remains explicit and composable. @fn int32 ReduceMoonPixelGridSize(const FLevelRetroRenderProfile &Profile) */
 int32 ReduceMoonPixelGridSize(const FLevelRetroRenderProfile &Profile) {
   return Profile.MoonPixelGridSize;
 }

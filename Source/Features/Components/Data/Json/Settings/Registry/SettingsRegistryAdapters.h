@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Features/Components/Data/Json/Read/ReadAdapters.h"
-#include "Features/Components/Data/Json/Settings/Field/FieldAdapters.h"
+#include "Features/Components/Data/Json/Settings/Field/SettingsFieldAdapters.h"
 
 #include <initializer_list>
 
@@ -10,6 +10,7 @@ namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
+/** User Story: As a json settings registry consumer, I need to invoke read settings fields through a stable signature so the json settings registry workflow remains explicit and composable. @fn template <typename Settings> Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object, const TArray<TField<Settings>> &Fields) */
 template <typename Settings>
 Settings
 ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
@@ -22,6 +23,7 @@ ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
       });
 }
 
+/** User Story: As a json settings registry consumer, I need to invoke read settings fields through a stable signature so the json settings registry workflow remains explicit and composable. @fn template <typename Settings> Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object, std::initializer_list<TField<Settings>> Fields) */
 template <typename Settings>
 Settings
 ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
@@ -52,6 +54,7 @@ template <typename Settings> struct TJsonSettingsRegistry;
     }                                                                        \
   }
 
+/** User Story: As a json settings registry consumer, I need to invoke find registered settings field through a stable signature so the json settings registry workflow remains explicit and composable. @fn template <typename Settings> func::Maybe<TField<Settings>> FindRegisteredSettingsField(const char *FieldAtom) */
 template <typename Settings>
 func::Maybe<TField<Settings>>
 FindRegisteredSettingsField(const char *FieldAtom) {
@@ -69,6 +72,7 @@ FindRegisteredSettingsField(const char *FieldAtom) {
       });
 }
 
+/** User Story: As a json settings registry consumer, I need to invoke read settings fields through a stable signature so the json settings registry workflow remains explicit and composable. @fn template <typename Settings> Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object, const TArray<const char *> &FieldAtoms) */
 template <typename Settings>
 Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
                             const TArray<const char *> &FieldAtoms) {
@@ -83,12 +87,14 @@ Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
       });
 }
 
+/** User Story: As a json settings registry consumer, I need to invoke read settings fields through a stable signature so the json settings registry workflow remains explicit and composable. @fn template <typename Settings> Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object, std::initializer_list<const char *> FieldAtoms) */
 template <typename Settings>
 Settings ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
                             std::initializer_list<const char *> FieldAtoms) {
   return ReadSettingsFields<Settings>(Object, TArray<const char *>(FieldAtoms));
 }
 
+/** User Story: As a json settings registry consumer, I need to invoke read settings with through a stable signature so the json settings registry workflow remains explicit and composable. @fn template <typename Settings> TJsonObjectSettingsReader<Settings> ReadSettingsWith(std::initializer_list<const char *> FieldAtoms) */
 template <typename Settings>
 TJsonObjectSettingsReader<Settings>
 ReadSettingsWith(std::initializer_list<const char *> FieldAtoms) {
@@ -98,6 +104,7 @@ ReadSettingsWith(std::initializer_list<const char *> FieldAtoms) {
   };
 }
 
+/** User Story: As a json settings registry consumer, I need to invoke map settings json values through a stable signature so the json settings registry workflow remains explicit and composable. @fn template <typename Settings> TArray<Settings> MapSettingsJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values, std::initializer_list<const char *> FieldAtoms) */
 template <typename Settings>
 TArray<Settings>
 MapSettingsJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values,
@@ -105,6 +112,7 @@ MapSettingsJsonValues(const TArray<TSharedPtr<FJsonValue>> &Values,
   return MapJsonValues<Settings>(Values, ReadSettingsWith<Settings>(FieldAtoms));
 }
 
+/** User Story: As a json settings registry consumer, I need to invoke read settings object array field through a stable signature so the json settings registry workflow remains explicit and composable. @fn template <typename Settings> std::function<TArray<Settings>(const TSharedPtr<FJsonObject> &)> ReadSettingsObjectArrayField(const char *FieldAtom, std::initializer_list<const char *> FieldAtoms) */
 template <typename Settings>
 std::function<TArray<Settings>(const TSharedPtr<FJsonObject> &)>
 ReadSettingsObjectArrayField(const char *FieldAtom, std::initializer_list<const char *> FieldAtoms) {

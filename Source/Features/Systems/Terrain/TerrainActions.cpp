@@ -5,6 +5,7 @@ namespace Game {
 namespace Level {
 namespace TerrainActions {
 
+/** User Story: As a features systems terrain consumer, I need to invoke terrain loaded through a stable signature so the features systems terrain workflow remains explicit and composable. @fn const rtk::ActionCreator<FLoadedPayload> &TerrainLoaded() */
 const rtk::ActionCreator<FLoadedPayload> &TerrainLoaded() {
   static const func::Lazy<rtk::ActionCreator<FLoadedPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FLoadedPayload> {

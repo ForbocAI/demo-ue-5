@@ -9,6 +9,7 @@ namespace Level {
 namespace TownspersonReducers {
 namespace {
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce interaction prompt through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn FString ReduceInteractionPrompt( const FTownspersonViewDefaultsReduceRequest &Request) */
 FString ReduceInteractionPrompt(
     const FTownspersonViewDefaultsReduceRequest &Request) {
   return Request.Request.InteractionPrompt.IsEmpty()
@@ -16,6 +17,7 @@ FString ReduceInteractionPrompt(
              : Request.Request.InteractionPrompt;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce default player line through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn FString ReduceDefaultPlayerLine( const FTownspersonViewDefaultsReduceRequest &Request) */
 FString ReduceDefaultPlayerLine(
     const FTownspersonViewDefaultsReduceRequest &Request) {
   return Request.Request.DefaultPlayerLine.IsEmpty()
@@ -23,12 +25,14 @@ FString ReduceDefaultPlayerLine(
              : Request.Request.DefaultPlayerLine;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce overlap matches through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn bool ReduceOverlapMatches( const FTownspersonInteractionOverlapRequest &Request) */
 bool ReduceOverlapMatches(
     const FTownspersonInteractionOverlapRequest &Request) {
   return Request.bOtherActorPresent && !Request.bOtherActorIsSelf &&
          Request.bOtherActorIsPawn;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce interaction intent projections through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn FTownspersonState ReduceInteractionIntentProjections( const FTownspersonState &State, const TArray<FTownspersonSeed> &Townspeople) */
 FTownspersonState ReduceInteractionIntentProjections(
     const FTownspersonState &State,
     const TArray<FTownspersonSeed> &Townspeople) {
@@ -50,6 +54,7 @@ FTownspersonState ReduceInteractionIntentProjections(
 
 } // namespace
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce townspeople seeded through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn FTownspersonState ReduceTownspeopleSeeded( const FTownspersonState &State, const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) */
 FTownspersonState ReduceTownspeopleSeeded(
     const FTownspersonState &State,
     const rtk::PayloadAction<TArray<FTownspersonSeed>> &Action) {
@@ -60,12 +65,14 @@ FTownspersonState ReduceTownspeopleSeeded(
   }).val;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce view defaults through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn FTownspersonViewDefaults ReduceViewDefaults( const ForbocAI::Game::Data::FTownspersonDefaultsSettings &Settings) */
 FTownspersonViewDefaults ReduceViewDefaults(
     const ForbocAI::Game::Data::FTownspersonDefaultsSettings &Settings) {
   return {Settings.Id, Settings.Name, Settings.Role, Settings.Persona,
           Settings.InteractionPrompt, Settings.DefaultPlayerLine};
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce view defaults through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn FTownspersonViewDefaults ReduceViewDefaults( const FTownspersonViewDefaultsReduceRequest &Request) */
 FTownspersonViewDefaults ReduceViewDefaults(
     const FTownspersonViewDefaultsReduceRequest &Request) {
   return {Request.Defaults.Id,
@@ -76,6 +83,7 @@ FTownspersonViewDefaults ReduceViewDefaults(
           ReduceDefaultPlayerLine(Request)};
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce interaction overlap through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn FTownspersonInteractionOverlapViewModel ReduceInteractionOverlap( const FTownspersonInteractionOverlapRequest &Request) */
 FTownspersonInteractionOverlapViewModel ReduceInteractionOverlap(
     const FTownspersonInteractionOverlapRequest &Request) {
   const bool bMatches = ReduceOverlapMatches(Request);
@@ -87,6 +95,7 @@ FTownspersonInteractionOverlapViewModel ReduceInteractionOverlap(
   return Model;
 }
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke reduce by interaction intent through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn TArray<FTownspersonSeed> ReduceByInteractionIntent( const FTownspersonIntentProjectionRequest &Request) */
 TArray<FTownspersonSeed> ReduceByInteractionIntent(
     const FTownspersonIntentProjectionRequest &Request) {
   return func::filter_array<FTownspersonSeed>(
@@ -107,6 +116,7 @@ namespace Game {
 namespace Level {
 namespace TownspersonSlice {
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke get slice through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn const rtk::Slice<FTownspersonState> &GetSlice() */
 const rtk::Slice<FTownspersonState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FTownspersonState>> Slice =
       func::lazy([]() -> rtk::Slice<FTownspersonState> {
@@ -134,6 +144,7 @@ namespace Game {
 namespace Level {
 namespace TownspersonFactories {
 
+/** User Story: As a systems bots townspeople consumer, I need to invoke create initial state through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn FTownspersonState CreateInitialState() */
 FTownspersonState CreateInitialState() {
   FTownspersonState State;
   State.Items = TownspersonAdapters::TownspersonAdapter().getInitialState();

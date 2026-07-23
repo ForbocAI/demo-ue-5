@@ -15,6 +15,7 @@
 
 namespace FG = ForbocAI::Game::Level;
 
+/** User Story: As a views marketing menu consumer, I need to invoke native construct through a stable signature so the views marketing menu workflow remains explicit and composable. @fn void URuntimeMarketingMenuWidget::NativeConstruct() */
 void URuntimeMarketingMenuWidget::NativeConstruct() {
   Super::NativeConstruct();
 
@@ -68,6 +69,7 @@ void URuntimeMarketingMenuWidget::NativeConstruct() {
                : void();
 }
 
+/** User Story: As a views marketing menu consumer, I need to invoke native on key down through a stable signature so the views marketing menu workflow remains explicit and composable. @fn FReply URuntimeMarketingMenuWidget::NativeOnKeyDown( const FGeometry &InGeometry, const FKeyEvent &InKeyEvent) */
 FReply URuntimeMarketingMenuWidget::NativeOnKeyDown(
     const FGeometry &InGeometry, const FKeyEvent &InKeyEvent) {
   const bool bDismissRequested =
@@ -80,21 +82,25 @@ FReply URuntimeMarketingMenuWidget::NativeOnKeyDown(
              : Super::NativeOnKeyDown(InGeometry, InKeyEvent);
 }
 
+/** User Story: As a views marketing menu consumer, I need to invoke bind controller through a stable signature so the views marketing menu workflow remains explicit and composable. @fn void URuntimeMarketingMenuWidget::BindController( APlayerRuntimeControllerView *Controller) */
 void URuntimeMarketingMenuWidget::BindController(
     APlayerRuntimeControllerView *Controller) {
   BoundController = Controller;
 }
 
+/** User Story: As a views marketing menu consumer, I need to invoke handle retake clicked through a stable signature so the views marketing menu workflow remains explicit and composable. @fn void URuntimeMarketingMenuWidget::HandleRetakeClicked() */
 void URuntimeMarketingMenuWidget::HandleRetakeClicked() {
   BoundController ? (BoundController->RetakeMarketingBrochureShots(), void())
                   : void();
 }
 
+/** User Story: As a views marketing menu consumer, I need to invoke handle resume clicked through a stable signature so the views marketing menu workflow remains explicit and composable. @fn void URuntimeMarketingMenuWidget::HandleResumeClicked() */
 void URuntimeMarketingMenuWidget::HandleResumeClicked() {
   BoundController ? (BoundController->DismissMarketingCaptureMenu(), void())
                   : void();
 }
 
+/** User Story: As a views marketing menu consumer, I need to invoke build text element through a stable signature so the views marketing menu workflow remains explicit and composable. @fn UTextBlock *URuntimeMarketingMenuWidget::BuildTextElement( const FString &Text, const FLinearColor &Color, float Size) */
 UTextBlock *URuntimeMarketingMenuWidget::BuildTextElement(
     const FString &Text, const FLinearColor &Color, float Size) {
   check(WidgetTree);
@@ -110,6 +116,7 @@ UTextBlock *URuntimeMarketingMenuWidget::BuildTextElement(
   return Element;
 }
 
+/** User Story: As a views marketing menu consumer, I need to invoke build button element through a stable signature so the views marketing menu workflow remains explicit and composable. @fn UButton *URuntimeMarketingMenuWidget::BuildButtonElement( const FString &Text, const FLinearColor &Color, float Size) */
 UButton *URuntimeMarketingMenuWidget::BuildButtonElement(
     const FString &Text, const FLinearColor &Color, float Size) {
   check(WidgetTree);

@@ -8,6 +8,7 @@ namespace Data {
 namespace JsonAdapters {
 
 template <> struct TJsonSettingsRegistry<Automation::Store::FSettings> {
+  /** User Story: As a registry automation tooling consumer, I need to invoke fields through a stable signature so the registry automation tooling workflow remains explicit and composable. @fn static const TArray<TField<Automation::Store::FSettings>> &Fields() */
   static const TArray<TField<Automation::Store::FSettings>> &Fields() {
     static const TArray<TField<Automation::Store::FSettings>>
         RegisteredFields = {
@@ -55,6 +56,7 @@ JSON_SETTINGS_REGISTRY(Automation::Tests::FBddSettings,
 
 template <>
 struct TJsonSettingsRegistry<Automation::Tests::FSettings> {
+  /** User Story: As a registry automation tooling consumer, I need to invoke fields through a stable signature so the registry automation tooling workflow remains explicit and composable. @fn static const TArray<TField<Automation::Tests::FSettings>> &Fields() */
   static const TArray<TField<Automation::Tests::FSettings>>
       &Fields() {
     static const TArray<TField<Automation::Tests::FSettings>>
@@ -77,6 +79,7 @@ JSON_SETTINGS_REGISTRY(Automation::Rtk::Compliance::FPattern, Token, Message);
 
 template <>
 struct TJsonSettingsRegistry<Automation::Content::Assets::FSettings> {
+  /** User Story: As a registry automation tooling consumer, I need to invoke fields through a stable signature so the registry automation tooling workflow remains explicit and composable. @fn static const TArray<TField<Automation::Content::Assets::FSettings>> &Fields() */
   static const TArray<TField<Automation::Content::Assets::FSettings>>
       &Fields() {
     static const TArray<
@@ -104,6 +107,7 @@ struct TJsonSettingsRegistry<Automation::Content::Assets::FSettings> {
 
 template <>
 struct TJsonSettingsRegistry<Automation::Rtk::Compliance::FSettings> {
+  /** User Story: As a registry automation tooling consumer, I need to invoke fields through a stable signature so the registry automation tooling workflow remains explicit and composable. @fn static const TArray<TField<Automation::Rtk::Compliance::FSettings>> &Fields() */
   static const TArray<TField<Automation::Rtk::Compliance::FSettings>>
       &Fields() {
     static const TArray<

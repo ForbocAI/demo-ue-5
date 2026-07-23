@@ -147,112 +147,146 @@ struct FRenderingSettings {
   TArray<FPaletteSettings> TexturePalettes;
 };
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FRenderingRgbSettings &Left, const FRenderingRgbSettings &Right) */
 inline bool operator==(const FRenderingRgbSettings &Left, const FRenderingRgbSettings &Right) {
   return Left.R == Right.R && Left.G == Right.G && Left.B == Right.B;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FRenderingRgbSettings &Left, const FRenderingRgbSettings &Right) */
 inline bool operator!=(const FRenderingRgbSettings &Left, const FRenderingRgbSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FHashSettings &Left, const FHashSettings &Right) */
 inline bool operator==(const FHashSettings &Left, const FHashSettings &Right) {
   return Left.XMultiplier == Right.XMultiplier && Left.YMultiplier == Right.YMultiplier &&
          Left.SaltMultiplier == Right.SaltMultiplier && Left.XorShift == Right.XorShift;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FHashSettings &Left, const FHashSettings &Right) */
 inline bool operator!=(const FHashSettings &Left, const FHashSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FRenderingConsoleVariableSettings &Left, const FRenderingConsoleVariableSettings &Right) */
 inline bool operator==(const FRenderingConsoleVariableSettings &Left, const FRenderingConsoleVariableSettings &Right) {
   return Left.Name == Right.Name && Left.ValueKind == Right.ValueKind &&
          Left.ProfileField == Right.ProfileField && Left.IntValue == Right.IntValue &&
          FMath::IsNearlyEqual(Left.FloatValue, Right.FloatValue);
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FRenderingConsoleVariableSettings &Left, const FRenderingConsoleVariableSettings &Right) */
 inline bool operator!=(const FRenderingConsoleVariableSettings &Left, const FRenderingConsoleVariableSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FConsoleIntegerProfileSettings &Left, const FConsoleIntegerProfileSettings &Right) */
 inline bool operator==(const FConsoleIntegerProfileSettings &Left, const FConsoleIntegerProfileSettings &Right) {
   return Left.AntiAliasingMethod == Right.AntiAliasingMethod &&
          Left.PostProcessAaQuality == Right.PostProcessAaQuality &&
          Left.ShadowCascades == Right.ShadowCascades &&
          Left.ShadowMaxResolution == Right.ShadowMaxResolution;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FConsoleIntegerProfileSettings &Left, const FConsoleIntegerProfileSettings &Right) */
 inline bool operator!=(const FConsoleIntegerProfileSettings &Left, const FConsoleIntegerProfileSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FConsoleFloatProfileSettings &Left, const FConsoleFloatProfileSettings &Right) */
 inline bool operator==(const FConsoleFloatProfileSettings &Left, const FConsoleFloatProfileSettings &Right) {
   return Left.ScreenPercentage == Right.ScreenPercentage &&
          Left.ViewDistanceScale == Right.ViewDistanceScale &&
          Left.FoliageDensityScale == Right.FoliageDensityScale &&
          Left.GrassDensityScale == Right.GrassDensityScale;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FConsoleFloatProfileSettings &Left, const FConsoleFloatProfileSettings &Right) */
 inline bool operator!=(const FConsoleFloatProfileSettings &Left, const FConsoleFloatProfileSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FConsoleValueSettings &Left, const FConsoleValueSettings &Right) */
 inline bool operator==(const FConsoleValueSettings &Left, const FConsoleValueSettings &Right) {
   return Left.FixedInt == Right.FixedInt && Left.ProfileInt == Right.ProfileInt &&
          Left.FixedFloat == Right.FixedFloat && Left.ProfileFloat == Right.ProfileFloat;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FConsoleValueSettings &Left, const FConsoleValueSettings &Right) */
 inline bool operator!=(const FConsoleValueSettings &Left, const FConsoleValueSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FRenderingConsoleSettings &Left, const FRenderingConsoleSettings &Right) */
 inline bool operator==(const FRenderingConsoleSettings &Left, const FRenderingConsoleSettings &Right) {
   return Left.IntegerProfile == Right.IntegerProfile && Left.FloatProfile == Right.FloatProfile &&
          Left.Value == Right.Value;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FRenderingConsoleSettings &Left, const FRenderingConsoleSettings &Right) */
 inline bool operator!=(const FRenderingConsoleSettings &Left, const FRenderingConsoleSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FPredicateTermSettings &Left, const FPredicateTermSettings &Right) */
 inline bool operator==(const FPredicateTermSettings &Left, const FPredicateTermSettings &Right) {
   return Left.XMultiplier == Right.XMultiplier && Left.YMultiplier == Right.YMultiplier &&
          Left.NoiseMultiplier == Right.NoiseMultiplier && Left.XDivisor == Right.XDivisor &&
          Left.YDivisor == Right.YDivisor;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FPredicateTermSettings &Left, const FPredicateTermSettings &Right) */
 inline bool operator!=(const FPredicateTermSettings &Left, const FPredicateTermSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FPredicateComparisonSettings &Left, const FPredicateComparisonSettings &Right) */
 inline bool operator==(const FPredicateComparisonSettings &Left, const FPredicateComparisonSettings &Right) {
   return Left.Modulus == Right.Modulus && Left.Equals == Right.Equals && Left.LessThan == Right.LessThan;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FPredicateComparisonSettings &Left, const FPredicateComparisonSettings &Right) */
 inline bool operator!=(const FPredicateComparisonSettings &Left, const FPredicateComparisonSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FPredicateSettings &Left, const FPredicateSettings &Right) */
 inline bool operator==(const FPredicateSettings &Left, const FPredicateSettings &Right) {
   return Left.Kind == Right.Kind && Left.Term == Right.Term && Left.Comparison == Right.Comparison;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FPredicateSettings &Left, const FPredicateSettings &Right) */
 inline bool operator!=(const FPredicateSettings &Left, const FPredicateSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FColorResultSettings &Left, const FColorResultSettings &Right) */
 inline bool operator==(const FColorResultSettings &Left, const FColorResultSettings &Right) {
   return Left.Kind == Right.Kind && Left.Color == Right.Color && Left.ColorA == Right.ColorA &&
          Left.ColorB == Right.ColorB && Left.NumeratorBase == Right.NumeratorBase &&
          Left.NumeratorNoiseModulus == Right.NumeratorNoiseModulus &&
          Left.Denominator == Right.Denominator;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FColorResultSettings &Left, const FColorResultSettings &Right) */
 inline bool operator!=(const FColorResultSettings &Left, const FColorResultSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FRuleSettings &Left, const FRuleSettings &Right) */
 inline bool operator==(const FRuleSettings &Left, const FRuleSettings &Right) {
   return Left.Predicate == Right.Predicate && Left.Result == Right.Result;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FRuleSettings &Left, const FRuleSettings &Right) */
 inline bool operator!=(const FRuleSettings &Left, const FRuleSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FPaletteSettings &Left, const FPaletteSettings &Right) */
 inline bool operator==(const FPaletteSettings &Left, const FPaletteSettings &Right) {
   return Left.Texture == Right.Texture && Left.Rules == Right.Rules;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FPaletteSettings &Left, const FPaletteSettings &Right) */
 inline bool operator!=(const FPaletteSettings &Left, const FPaletteSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FFormatSettings &Left, const FFormatSettings &Right) */
 inline bool operator==(const FFormatSettings &Left, const FFormatSettings &Right) {
   return Left.CacheKeyFormat == Right.CacheKeyFormat && Left.MaterialParameter == Right.MaterialParameter;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FFormatSettings &Left, const FFormatSettings &Right) */
 inline bool operator!=(const FFormatSettings &Left, const FFormatSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FBufferSettings &Left, const FBufferSettings &Right) */
 inline bool operator==(const FBufferSettings &Left, const FBufferSettings &Right) {
   return Left.Channels == Right.Channels && Left.Alpha == Right.Alpha &&
          Left.MipIndex == Right.MipIndex && Left.MaterialSlotIndex == Right.MaterialSlotIndex;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FBufferSettings &Left, const FBufferSettings &Right) */
 inline bool operator!=(const FBufferSettings &Left, const FBufferSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FRuleNameSettings &Left, const FRuleNameSettings &Right) */
 inline bool operator==(const FRuleNameSettings &Left, const FRuleNameSettings &Right) {
   return Left.PredicateAlways == Right.PredicateAlways &&
          Left.PredicateModEquals == Right.PredicateModEquals &&
          Left.PredicateModLessThan == Right.PredicateModLessThan &&
          Left.ResultSolid == Right.ResultSolid && Left.ResultMix == Right.ResultMix;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FRuleNameSettings &Left, const FRuleNameSettings &Right) */
 inline bool operator!=(const FRuleNameSettings &Left, const FRuleNameSettings &Right) { return !(Left == Right); }
 
+/** User Story: As a settings rendering texture consumer, I need to compare values for equality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FRenderingSettings &Left, const FRenderingSettings &Right) */
 inline bool operator==(const FRenderingSettings &Left, const FRenderingSettings &Right) {
   return Left.Format == Right.Format && Left.Buffer == Right.Buffer &&
          Left.RuleNames == Right.RuleNames && Left.Console == Right.Console &&
          Left.TextureHash == Right.TextureHash && Left.ConsoleVariables == Right.ConsoleVariables &&
          Left.TexturePalettes == Right.TexturePalettes;
 }
+/** User Story: As a settings rendering texture consumer, I need to compare values for inequality through a stable signature so the settings rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FRenderingSettings &Left, const FRenderingSettings &Right) */
 inline bool operator!=(const FRenderingSettings &Left, const FRenderingSettings &Right) { return !(Left == Right); }
 
 } // namespace Data

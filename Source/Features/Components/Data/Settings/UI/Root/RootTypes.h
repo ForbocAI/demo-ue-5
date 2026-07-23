@@ -44,6 +44,7 @@ struct FUISettings {
   FAuditCaptureSettings ScaleAuditCapture;
 };
 
+/** User Story: As a settings ui root consumer, I need to compare values for equality through a stable signature so the settings ui root workflow remains explicit and composable. @fn inline bool operator==(const FUISettings &Left, const FUISettings &Right) */
 inline bool operator==(const FUISettings &Left,
                        const FUISettings &Right) {
   return Left.PlayerRoleLabel == Right.PlayerRoleLabel &&
@@ -79,6 +80,7 @@ inline bool operator==(const FUISettings &Left,
          Left.ScaleAuditCapture == Right.ScaleAuditCapture;
 }
 
+/** User Story: As a settings ui root consumer, I need to compare values for inequality through a stable signature so the settings ui root workflow remains explicit and composable. @fn inline bool operator!=(const FUISettings &Left, const FUISettings &Right) */
 inline bool operator!=(const FUISettings &Left,
                        const FUISettings &Right) {
   return !(Left == Right);

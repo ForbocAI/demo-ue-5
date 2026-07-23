@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Spatial/Level/Layout/LayoutTypes.h"
+#include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -42,6 +42,7 @@ struct FBotAIState {
   rtk::EntityState<FBotAIComponent> Items;
 };
 
+/** User Story: As a systems bots ai consumer, I need to compare values for equality through a stable signature so the systems bots ai workflow remains explicit and composable. @fn inline bool operator==(const FBotAIComponent &Left, const FBotAIComponent &Right) */
 inline bool operator==(const FBotAIComponent &Left,
                        const FBotAIComponent &Right) {
   return Left.Id == Right.Id && Left.BehaviorState == Right.BehaviorState &&
@@ -52,11 +53,13 @@ inline bool operator==(const FBotAIComponent &Left,
          Left.PatrolRoute == Right.PatrolRoute;
 }
 
+/** User Story: As a systems bots ai consumer, I need to compare values for inequality through a stable signature so the systems bots ai workflow remains explicit and composable. @fn inline bool operator!=(const FBotAIComponent &Left, const FBotAIComponent &Right) */
 inline bool operator!=(const FBotAIComponent &Left,
                        const FBotAIComponent &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots ai consumer, I need to compare values for equality through a stable signature so the systems bots ai workflow remains explicit and composable. @fn inline bool operator==(const FBotAISource &Left, const FBotAISource &Right) */
 inline bool operator==(const FBotAISource &Left, const FBotAISource &Right) {
   return Left.Id == Right.Id && Left.BehaviorState == Right.BehaviorState &&
          Left.TargetEntityId == Right.TargetEntityId &&
@@ -66,10 +69,12 @@ inline bool operator==(const FBotAISource &Left, const FBotAISource &Right) {
          Left.PatrolRoute == Right.PatrolRoute;
 }
 
+/** User Story: As a systems bots ai consumer, I need to compare values for inequality through a stable signature so the systems bots ai workflow remains explicit and composable. @fn inline bool operator!=(const FBotAISource &Left, const FBotAISource &Right) */
 inline bool operator!=(const FBotAISource &Left, const FBotAISource &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots ai consumer, I need to compare values for equality through a stable signature so the systems bots ai workflow remains explicit and composable. @fn inline bool operator==(const FBotAIUpdated &Left, const FBotAIUpdated &Right) */
 inline bool operator==(const FBotAIUpdated &Left,
                        const FBotAIUpdated &Right) {
   return Left.Id == Right.Id && Left.BehaviorState == Right.BehaviorState &&
@@ -79,15 +84,18 @@ inline bool operator==(const FBotAIUpdated &Left,
          Left.PatrolIndex == Right.PatrolIndex;
 }
 
+/** User Story: As a systems bots ai consumer, I need to compare values for inequality through a stable signature so the systems bots ai workflow remains explicit and composable. @fn inline bool operator!=(const FBotAIUpdated &Left, const FBotAIUpdated &Right) */
 inline bool operator!=(const FBotAIUpdated &Left,
                        const FBotAIUpdated &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a systems bots ai consumer, I need to compare values for equality through a stable signature so the systems bots ai workflow remains explicit and composable. @fn inline bool operator==(const FBotAIState &Left, const FBotAIState &Right) */
 inline bool operator==(const FBotAIState &Left, const FBotAIState &Right) {
   return Left.Items == Right.Items;
 }
 
+/** User Story: As a systems bots ai consumer, I need to compare values for inequality through a stable signature so the systems bots ai workflow remains explicit and composable. @fn inline bool operator!=(const FBotAIState &Left, const FBotAIState &Right) */
 inline bool operator!=(const FBotAIState &Left, const FBotAIState &Right) {
   return !(Left == Right);
 }

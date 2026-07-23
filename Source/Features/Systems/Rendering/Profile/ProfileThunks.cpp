@@ -1,6 +1,6 @@
 #include "Features/Systems/Rendering/Profile/ProfileThunks.h"
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Features/Systems/Rendering/SystemsRenderingActions.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
 #include "Features/Systems/Rendering/SystemsRenderingSlice.h"
@@ -20,6 +20,7 @@ namespace Game {
 namespace Level {
 namespace RenderingThunks {
 
+/** User Story: As a systems rendering profile consumer, I need to invoke observe runtime profile through a stable signature so the systems rendering profile workflow remains explicit and composable. @fn rtk::ThunkAction<FRenderingPayload, FRuntimeState> ObserveRuntimeProfile(const FString &Id) */
 rtk::ThunkAction<FRenderingPayload, FRuntimeState>
 ObserveRuntimeProfile(const FString &Id) {
   return [Id](std::function<rtk::AnyAction(const rtk::AnyAction &)> Dispatch,
@@ -41,6 +42,7 @@ ObserveRuntimeProfile(const FString &Id) {
   };
 }
 
+/** User Story: As a systems rendering profile consumer, I need to invoke apply runtime profile through a stable signature so the systems rendering profile workflow remains explicit and composable. @fn void ApplyRuntimeProfile(const FRuntimeProfileApplyRequest &Request) */
 void ApplyRuntimeProfile(const FRuntimeProfileApplyRequest &Request) {
   const FRuntimeProfileEval Eval{Request.World, Request.Profile};
   ApplyRuntimeConsoleVariables(Request.Profile, Request.Settings);

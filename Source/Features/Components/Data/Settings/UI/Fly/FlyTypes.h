@@ -14,6 +14,7 @@ struct FModeSettings {
   float NeutralInputScale;
 };
 
+/** User Story: As a settings ui fly consumer, I need to compare values for equality through a stable signature so the settings ui fly workflow remains explicit and composable. @fn inline bool operator==(const FModeSettings &Left, const FModeSettings &Right) */
 inline bool operator==(const FModeSettings &Left,
                        const FModeSettings &Right) {
   return Left.EnabledMessage == Right.EnabledMessage &&
@@ -26,6 +27,7 @@ inline bool operator==(const FModeSettings &Left,
                               Right.NeutralInputScale);
 }
 
+/** User Story: As a settings ui fly consumer, I need to compare values for inequality through a stable signature so the settings ui fly workflow remains explicit and composable. @fn inline bool operator!=(const FModeSettings &Left, const FModeSettings &Right) */
 inline bool operator!=(const FModeSettings &Left,
                        const FModeSettings &Right) {
   return !(Left == Right);

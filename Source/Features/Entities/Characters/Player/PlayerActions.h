@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace PlayerActions {
 
+/** User Story: As a entities characters player consumer, I need to invoke player observed through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FPlayerPayload> &PlayerObserved() */
 inline const rtk::ActionCreator<FPlayerPayload> &PlayerObserved() {
   static const func::Lazy<rtk::ActionCreator<FPlayerPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FPlayerPayload> {
@@ -19,6 +20,7 @@ inline const rtk::ActionCreator<FPlayerPayload> &PlayerObserved() {
   return func::eval(Creator);
 }
 
+/** User Story: As a entities characters player consumer, I need to invoke player movement input observed through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FMovementInputRequest> & PlayerMovementInputObserved() */
 inline const rtk::ActionCreator<FMovementInputRequest> &
 PlayerMovementInputObserved() {
   static const func::Lazy<rtk::ActionCreator<FMovementInputRequest>>
@@ -31,6 +33,7 @@ PlayerMovementInputObserved() {
   return func::eval(Creator);
 }
 
+/** User Story: As a entities characters player consumer, I need to invoke player presentation requested through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FPlayerPresentationRequest> & PlayerPresentationRequested() */
 inline const rtk::ActionCreator<FPlayerPresentationRequest> &
 PlayerPresentationRequested() {
   static const func::Lazy<rtk::ActionCreator<FPlayerPresentationRequest>>

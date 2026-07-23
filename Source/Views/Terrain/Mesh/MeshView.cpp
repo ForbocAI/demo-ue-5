@@ -11,6 +11,7 @@
 
 namespace FG = ForbocAI::Game::Level;
 
+/** User Story: As a views terrain mesh consumer, I need to invoke aterrain mesh view through a stable signature so the views terrain mesh workflow remains explicit and composable. @fn ATerrainMeshView::ATerrainMeshView() */
 ATerrainMeshView::ATerrainMeshView() {
   PrimaryActorTick.bCanEverTick = false;
 
@@ -28,6 +29,7 @@ ATerrainMeshView::ATerrainMeshView() {
       VertexMaterial.Succeeded() ? VertexMaterial.Object : nullptr;
 }
 
+/** User Story: As a views terrain mesh consumer, I need to invoke apply terrain mesh payload through a stable signature so the views terrain mesh workflow remains explicit and composable. @fn bool ATerrainMeshView::ApplyTerrainMeshPayload( const ForbocAI::Game::Level::FMeshPayload &Payload) */
 bool ATerrainMeshView::ApplyTerrainMeshPayload(
     const ForbocAI::Game::Level::FMeshPayload &Payload) {
   TArray<FProcMeshTangent> Tangents;

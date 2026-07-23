@@ -50,8 +50,8 @@ struct FReduxLoggerLineSearchRequest {
 class FReduxLoggerCaptureDevice final : public FOutputDevice {
 public:
   /**
+   * @fn explicit FReduxLoggerCaptureDevice(TArray<FString> &InLines, const FString &InCategory)
    * @brief Stores the caller-owned line buffer used by Serialize.
-   * @signature explicit FReduxLoggerCaptureDevice(TArray<FString> &InLines)
    * @param InLines Mutable output collection for matching redux log lines.
    *
    * User Story: As a test author, I need a focused UE log sink so automation
@@ -62,8 +62,8 @@ public:
       : Lines(InLines), Category(*InCategory) {}
 
   /**
+   * @fn void Serialize(const TCHAR *V, ELogVerbosity::Type Verbosity, const FName &LineCategory) override
    * @brief Records redux logger messages emitted through UE logging.
-   * @signature void Serialize(const TCHAR *V, ELogVerbosity::Type Verbosity, const FName &LineCategory)
    * @param V The log message text.
    * @param Verbosity UE log verbosity for the emitted line.
    * @param LineCategory UE log category that produced the line.
@@ -77,6 +77,7 @@ public:
     CaptureLine(V, LineCategory);
   }
 
+  /** User Story: As a tests store consumer, I need to invoke serialize through a stable signature so the tests store workflow remains explicit and composable. @fn void Serialize(const TCHAR *V, ELogVerbosity::Type Verbosity, const FName &LineCategory, double Time) override */
   void Serialize(const TCHAR *V, ELogVerbosity::Type Verbosity,
                  const FName &LineCategory, double Time) override {
     (void)Verbosity;
@@ -84,11 +85,13 @@ public:
     CaptureLine(V, LineCategory);
   }
 
+  /** User Story: As a tests store consumer, I need to invoke serialize record through a stable signature so the tests store workflow remains explicit and composable. @fn void SerializeRecord(const UE::FLogRecord &Record) override */
   void SerializeRecord(const UE::FLogRecord &Record) override {
     FOutputDevice::SerializeRecord(Record);
   }
 
 private:
+  /** User Story: As a tests store consumer, I need to invoke capture line through a stable signature so the tests store workflow remains explicit and composable. @fn void CaptureLine(const TCHAR *V, const FName &LineCategory) */
   void CaptureLine(const TCHAR *V, const FName &LineCategory) {
     LineCategory == Category
         ? (Lines.Add(FString(V)), void())
@@ -103,6 +106,7 @@ struct FLabelCursor {
   const TArray<FString> *Labels = nullptr;
   int32 Index = int32();
 
+  /** User Story: As a tests store consumer, I need to invoke next through a stable signature so the tests store workflow remains explicit and composable. @fn FString Next() */
   FString Next() {
     check(Labels != nullptr);
     check(Labels->IsValidIndex(Index));
@@ -112,16 +116,19 @@ struct FLabelCursor {
   }
 };
 
+/** User Story: As a tests store consumer, I need to invoke store labels through a stable signature so the tests store workflow remains explicit and composable. @fn FLabelCursor StoreLabels(const TArray<FString> &Labels) */
 FLabelCursor
 StoreLabels(const TArray<FString> &Labels) {
   return {&Labels, int32()};
 }
 
+/** User Story: As a tests store consumer, I need to invoke required first landmark through a stable signature so the tests store workflow remains explicit and composable. @fn const FLandmark &RequiredFirstLandmark(const TArray<FLandmark> &Landmarks) */
 const FLandmark &RequiredFirstLandmark(const TArray<FLandmark> &Landmarks) {
   check(!Landmarks.IsEmpty());
   return Landmarks[Landmarks.Num() - Landmarks.Num()];
 }
 
+/** User Story: As a tests store consumer, I need to invoke required townsperson with intent through a stable signature so the tests store workflow remains explicit and composable. @fn const FTownspersonSeed &RequiredTownspersonWithIntent( const TArray<FTownspersonSeed> &Townspeople, ETownspersonInteractionIntent Intent) */
 const FTownspersonSeed &RequiredTownspersonWithIntent(
     const TArray<FTownspersonSeed> &Townspeople,
     ETownspersonInteractionIntent Intent) {
@@ -134,6 +141,7 @@ const FTownspersonSeed &RequiredTownspersonWithIntent(
   return *Townsperson;
 }
 
+/** User Story: As a tests store consumer, I need to invoke required horse by mounted rider through a stable signature so the tests store workflow remains explicit and composable. @fn const FHorseRouteSeed &RequiredHorseByMountedRider( const TArray<FHorseRouteSeed> &Horses, bool bMountedRider) */
 const FHorseRouteSeed &RequiredHorseByMountedRider(
     const TArray<FHorseRouteSeed> &Horses, bool bMountedRider) {
   const FHorseRouteSeed *Horse =
@@ -144,6 +152,7 @@ const FHorseRouteSeed &RequiredHorseByMountedRider(
   return *Horse;
 }
 
+/** User Story: As a tests store consumer, I need to invoke domain segments through a stable signature so the tests store workflow remains explicit and composable. @fn TArray<FString> DomainSegments(const FString &Path) */
 TArray<FString> DomainSegments(const FString &Path) {
   TArray<FString> Segments;
   const FString Separator = FString::Chr(TCHAR('/'));
@@ -151,15 +160,18 @@ TArray<FString> DomainSegments(const FString &Path) {
   return Segments;
 }
 
+/** User Story: As a tests store consumer, I need to invoke domain key from path through a stable signature so the tests store workflow remains explicit and composable. @fn ecs::DomainPathKey DomainKeyFromPath(const FString &Path) */
 ecs::DomainPathKey DomainKeyFromPath(const FString &Path) {
   return ecs::createDomainPathKey(ecs::createDomainPath(DomainSegments(Path)));
 }
 
+/** User Story: As a tests store consumer, I need to invoke redux logger action title needle through a stable signature so the tests store workflow remains explicit and composable. @fn FString ReduxLoggerActionTitleNeedle(const FString &Prefix, const rtk::AnyAction &Action) */
 FString ReduxLoggerActionTitleNeedle(const FString &Prefix,
                                      const rtk::AnyAction &Action) {
   return Prefix + FString::Chr(TCHAR(' ')) + Action.Type;
 }
 
+/** User Story: As a tests store consumer, I need to invoke test authored domain registry through a stable signature so the tests store workflow remains explicit and composable. @fn void TestAuthoredDomainRegistry(FAutomationTestBase *Test, const FString &Label, const ecs::FGraph &Registry, const FSettings &Settings) */
 void TestAuthoredDomainRegistry(FAutomationTestBase *Test,
                                 const FString &Label,
                                 const ecs::FGraph &Registry,
@@ -168,12 +180,13 @@ void TestAuthoredDomainRegistry(FAutomationTestBase *Test,
       Settings.Ecs.DomainRegistry,
       static_cast<size_t>(Settings.Ecs.DomainRegistry.Num()),
       [Test, &Label, &Registry](
-          const ForbocAI::Game::Data::FEcsDomainRegistrationSettings &Domain) {
+          const ForbocAI::Game::Data::FDomainRegistrationSettings &Domain) {
         Test->TestTrue(Label,
                        Registry.Nodes.Contains(DomainKeyFromPath(Domain.Path)));
       });
 }
 
+/** User Story: As a tests store consumer, I need to invoke next redux logger line search request through a stable signature so the tests store workflow remains explicit and composable. @fn FReduxLoggerLineSearchRequest NextReduxLoggerLineSearchRequest(const FReduxLoggerLineSearchRequest &Request) */
 FReduxLoggerLineSearchRequest
 NextReduxLoggerLineSearchRequest(const FReduxLoggerLineSearchRequest &Request) {
   FReduxLoggerLineSearchRequest Next = Request;
@@ -182,8 +195,8 @@ NextReduxLoggerLineSearchRequest(const FReduxLoggerLineSearchRequest &Request) {
 }
 
 /**
+ * @fn bool ContainsReduxLoggerLineRecursive( const FReduxLoggerLineSearchRequest &Request)
  * @brief Recursively checks captured redux logger lines for a substring.
- * @signature bool ContainsReduxLoggerLineRecursive(const FReduxLoggerLineSearchRequest &Request)
  * @param Request Search payload containing lines, substring, and current index.
  * @return true when the substring appears in any captured line.
  *
@@ -201,8 +214,8 @@ bool ContainsReduxLoggerLineRecursive(
 }
 
 /**
+ * @fn bool ContainsReduxLoggerLine(const FReduxLoggerLineSearchRequest &Request)
  * @brief Checks captured redux logger lines for a substring.
- * @signature bool ContainsReduxLoggerLine(const FReduxLoggerLineSearchRequest &Request)
  * @param Request Search payload containing lines and substring.
  * @return true when the substring appears in any captured line.
  *

@@ -54,12 +54,16 @@ struct FBotObservationSource {
   func::Maybe<FBotAIComponent> AI;
 };
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke dispatch runtime actions for tick through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void DispatchRuntimeActionsForTick(const FBotPositionPayloadSource &Source) */
 void DispatchRuntimeActionsForTick(const FBotPositionPayloadSource &Source);
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke dispatch runtime actions for registration through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void DispatchRuntimeActionsForRegistration(const FBotRegistrationDispatchSource &Source) */
 void DispatchRuntimeActionsForRegistration(const FBotRegistrationDispatchSource &Source);
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke run bot action dispatch through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn bool RunBotActionDispatch(const FBotActionDispatchRequest &Request) */
 bool RunBotActionDispatch(const FBotActionDispatchRequest &Request);
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke bot state observation through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FString BotStateObservation(const FBotObservationSource &Source) */
 FString BotStateObservation(const FBotObservationSource &Source);
 
 } // namespace Level

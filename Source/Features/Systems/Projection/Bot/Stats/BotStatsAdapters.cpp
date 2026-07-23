@@ -8,6 +8,7 @@ namespace Level {
 namespace ComponentsAdapters {
 
 template <> struct TComponentSourceValueFieldRegistry<FBotStatsComponent> {
+  /** User Story: As a projection bot stats consumer, I need to invoke fields through a stable signature so the projection bot stats workflow remains explicit and composable. @fn static const TArray< TComponentSourceValueFieldDeclaration<FBotStatsComponent>> &Fields() */
   static const TArray<
       TComponentSourceValueFieldDeclaration<FBotStatsComponent>>
       &Fields() {
@@ -26,6 +27,7 @@ template <> struct TComponentSourceValueFieldRegistry<FBotStatsComponent> {
 
 template <>
 struct TComponentSourceProjector<FBotStatsComponent> {
+  /** User Story: As a projection bot stats consumer, I need to invoke the callable value through a stable signature so the projection bot stats workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FBotStatsComponent &Stats) const */
   ecs::FComponentValue operator()(const FBotStatsComponent &Stats) const {
     return ComponentSourceValueMap(
         Stats, {"Id", "MoveSpeed", "AwarenessRange", "Resolve", "CanTalk",
@@ -39,6 +41,7 @@ namespace SystemsProjectionBotAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
+/** User Story: As a projection bot stats consumer, I need to invoke project bot stats through a stable signature so the projection bot stats workflow remains explicit and composable. @fn ecs::FWorld ProjectBotStats(const FProjectBotStatsPayload &Payload) */
 ecs::FWorld ProjectBotStats(const FProjectBotStatsPayload &Payload) {
   return ProjectBotPayload<FBotStatsComponent>(
       Payload,

@@ -5,6 +5,7 @@ namespace Game {
 namespace Level {
 namespace BotAIAdapters {
 
+/** User Story: As a systems bots ai consumer, I need to invoke bot aiadapter through a stable signature so the systems bots ai workflow remains explicit and composable. @fn const rtk::EntityAdapter<FBotAIComponent> &BotAIAdapter() */
 const rtk::EntityAdapter<FBotAIComponent> &BotAIAdapter() {
   static const func::Lazy<rtk::EntityAdapter<FBotAIComponent>> Adapter =
       func::lazy([]() -> rtk::EntityAdapter<FBotAIComponent> {

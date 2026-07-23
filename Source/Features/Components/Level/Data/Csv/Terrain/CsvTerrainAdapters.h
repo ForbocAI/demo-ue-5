@@ -2,6 +2,7 @@
 
 #include "Features/Components/Level/Data/Csv/Parsing/ParsingAdapters.h"
 
+/** User Story: As a data csv terrain consumer, I need to invoke load from content through a stable signature so the data csv terrain workflow remains explicit and composable. @fn bool FLevelTerrainData::LoadFromContent( const FTerrainDataLoadRequest &Request) */
 bool FLevelTerrainData::LoadFromContent(
     const FTerrainDataLoadRequest &Request) {
   MinimumGridSize = Request.Csv.Grid.MinimumGridSize;
@@ -47,11 +48,13 @@ bool FLevelTerrainData::LoadFromContent(
   return true;
 }
 
+/** User Story: As a data csv terrain consumer, I need to invoke is loaded through a stable signature so the data csv terrain workflow remains explicit and composable. @fn bool FLevelTerrainData::IsLoaded() const */
 bool FLevelTerrainData::IsLoaded() const {
   return GridSize > MinimumGridSize &&
          ElevationsMeters.Num() == GridSize * GridSize;
 }
 
+/** User Story: As a data csv terrain consumer, I need to invoke get elevation meters at through a stable signature so the data csv terrain workflow remains explicit and composable. @fn float FLevelTerrainData::GetElevationMetersAt(int32 Row, int32 Column) const */
 float FLevelTerrainData::GetElevationMetersAt(int32 Row, int32 Column) const {
   check(IsLoaded());
 
@@ -62,6 +65,7 @@ float FLevelTerrainData::GetElevationMetersAt(int32 Row, int32 Column) const {
   return ElevationsMeters[ClampedRow * GridSize + ClampedColumn];
 }
 
+/** User Story: As a data csv terrain consumer, I need to invoke get terrain zat world through a stable signature so the data csv terrain workflow remains explicit and composable. @fn float FLevelTerrainData::GetTerrainZAtWorld(float EastWest, float NorthSouth) const */
 float FLevelTerrainData::GetTerrainZAtWorld(float EastWest,
                                             float NorthSouth) const {
   check(IsLoaded());
@@ -70,29 +74,37 @@ float FLevelTerrainData::GetTerrainZAtWorld(float EastWest,
          ElevationScale;
 }
 
+/** User Story: As a data csv terrain consumer, I need to invoke to world through a stable signature so the data csv terrain workflow remains explicit and composable. @fn FVector FLevelTerrainData::ToWorld(FVector2D Location, float HeightOffset) const */
 FVector FLevelTerrainData::ToWorld(FVector2D Location, float HeightOffset) const {
   return FVector(Location.X, Location.Y,
                  GetTerrainZAtWorld(Location.X, Location.Y) + HeightOffset);
 }
 
+/** User Story: As a data csv terrain consumer, I need to invoke get grid size through a stable signature so the data csv terrain workflow remains explicit and composable. @fn int32 FLevelTerrainData::GetGridSize() const */
 int32 FLevelTerrainData::GetGridSize() const { return GridSize; }
 
+/** User Story: As a data csv terrain consumer, I need to invoke get min elevation meters through a stable signature so the data csv terrain workflow remains explicit and composable. @fn float FLevelTerrainData::GetMinElevationMeters() const */
 float FLevelTerrainData::GetMinElevationMeters() const {
   return MinElevationMeters;
 }
 
+/** User Story: As a data csv terrain consumer, I need to invoke get max elevation meters through a stable signature so the data csv terrain workflow remains explicit and composable. @fn float FLevelTerrainData::GetMaxElevationMeters() const */
 float FLevelTerrainData::GetMaxElevationMeters() const {
   return MaxElevationMeters;
 }
 
+/** User Story: As a data csv terrain consumer, I need to invoke get terrain world size through a stable signature so the data csv terrain workflow remains explicit and composable. @fn float FLevelTerrainData::GetTerrainWorldSize() const */
 float FLevelTerrainData::GetTerrainWorldSize() const {
   return TerrainWorldSize;
 }
 
+/** User Story: As a data csv terrain consumer, I need to invoke get elevation scale through a stable signature so the data csv terrain workflow remains explicit and composable. @fn float FLevelTerrainData::GetElevationScale() const */
 float FLevelTerrainData::GetElevationScale() const { return ElevationScale; }
 
+/** User Story: As a data csv terrain consumer, I need to invoke get source path through a stable signature so the data csv terrain workflow remains explicit and composable. @fn FString FLevelTerrainData::GetSourcePath() const */
 FString FLevelTerrainData::GetSourcePath() const { return SourcePath; }
 
+/** User Story: As a data csv terrain consumer, I need to invoke sample elevation meters through a stable signature so the data csv terrain workflow remains explicit and composable. @fn float FLevelTerrainData::SampleElevationMeters(float EastWest, float NorthSouth) const */
 float FLevelTerrainData::SampleElevationMeters(float EastWest,
                                                float NorthSouth) const {
   const float HalfSize = TerrainWorldSize * TerrainHalfWorldSizeScale;

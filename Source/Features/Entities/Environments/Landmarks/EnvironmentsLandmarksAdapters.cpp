@@ -54,8 +54,9 @@ using ELandmarkKind = LevelTypes::ELandmarkKind;
 using FLandmarkSource = LandmarkTypes::FLandmarkSource;
 
 template <> struct TJsonTextValueRegistry<ELandmarkKind> {
-  static const TArray<TTextValueDeclaration<ELandmarkKind>> &Values() {
-    static const TArray<TTextValueDeclaration<ELandmarkKind>>
+  /** User Story: As a entities environments landmarks consumer, I need to invoke values through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn static const TArray<TValueDeclaration<ELandmarkKind>> &Values() */
+  static const TArray<TValueDeclaration<ELandmarkKind>> &Values() {
+    static const TArray<TValueDeclaration<ELandmarkKind>>
         RegisteredValues = {{"building", ELandmarkKind::Building},
                             {"road", ELandmarkKind::Road},
                             {"creek", ELandmarkKind::Creek},
@@ -68,6 +69,7 @@ template <> struct TJsonTextValueRegistry<ELandmarkKind> {
 };
 
 template <> struct TJsonSettingsRegistry<FLandmarkSource> {
+  /** User Story: As a entities environments landmarks consumer, I need to invoke fields through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn static const TArray<TField<FLandmarkSource>> &Fields() */
   static const TArray<TField<FLandmarkSource>> &Fields() {
     static const TArray<TField<FLandmarkSource>>
         RegisteredFields = {
@@ -128,11 +130,13 @@ struct FLandmarkBuildRequest {
   FLandmarkSource Fields;
 };
 
+/** User Story: As a entities environments landmarks consumer, I need to invoke landmark kind from json through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ELandmarkKind LandmarkKindFromJson(const FString &Kind) */
 ELandmarkKind LandmarkKindFromJson(const FString &Kind) {
   return JsonAdapters::RequireRegisteredTextValue<ELandmarkKind>(
       Kind, TEXT("landmark kind"));
 }
 
+/** User Story: As a entities environments landmarks consumer, I need to invoke landmark from fields through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) */
 FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) {
   const FVector Scale = LevelLayoutAdapters::BuildingScaleFromFeet(
       {Request.Geometry, Request.Fields.Shape.FrontageFeet,
@@ -153,6 +157,7 @@ FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) {
 
 } // namespace
 
+/** User Story: As a entities environments landmarks consumer, I need to invoke build landmark seed through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn TArray<FLandmark> BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) */
 TArray<FLandmark>
 BuildLandmarkSeed(const FLandmarkSeedBuildRequest &Request) {
   return func::map_array<FLandmarkSource, FLandmark>(
@@ -178,6 +183,7 @@ namespace Level {
 
 namespace {
 
+/** User Story: As a entities environments landmarks consumer, I need to invoke landmark domains through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn TArray<TArray<FString>> LandmarkDomains() */
 TArray<TArray<FString>> LandmarkDomains() {
   return ComponentsAdapters::ComponentDomains(
       {{"Entities", "Environments", "Landmarks"},
@@ -189,6 +195,7 @@ TArray<TArray<FString>> LandmarkDomains() {
 namespace ComponentsAdapters {
 
 template <> struct TComponentTextRegistry<ELandmarkKind> {
+  /** User Story: As a entities environments landmarks consumer, I need to invoke declarations through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn static const TArray<TComponentTextDeclaration<ELandmarkKind>> &Declarations() */
   static const TArray<TComponentTextDeclaration<ELandmarkKind>>
       &Declarations() {
     static const TArray<TComponentTextDeclaration<ELandmarkKind>>
@@ -204,6 +211,7 @@ template <> struct TComponentTextRegistry<ELandmarkKind> {
 };
 
 template <> struct TComponentSourceValueFieldRegistry<FLandmark> {
+  /** User Story: As a entities environments landmarks consumer, I need to invoke fields through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>> &Fields() */
   static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FLandmark>>
@@ -219,6 +227,7 @@ template <> struct TComponentSourceValueFieldRegistry<FLandmark> {
 
 template <>
 struct TComponentSourceProjector<FLandmark> {
+  /** User Story: As a entities environments landmarks consumer, I need to invoke the callable value through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FLandmark &Landmark) const */
   ecs::FComponentValue operator()(const FLandmark &Landmark) const {
     return ComponentSourceValueMap(
         Landmark, {"Id", "Label", "Kind", "Location", "Scale"});
@@ -231,10 +240,12 @@ namespace EntitiesAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
+/** User Story: As a entities environments landmarks consumer, I need to invoke landmark entity key through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ecs::EntityKey LandmarkEntityKey(const FString &Id) */
 ecs::EntityKey LandmarkEntityKey(const FString &Id) {
   return FString::Printf(TEXT("landmark:%s"), *Id);
 }
 
+/** User Story: As a entities environments landmarks consumer, I need to invoke project landmark through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) */
 ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) {
   return ComponentsAdapters::ProjectEntityCatalog(
       Payload,

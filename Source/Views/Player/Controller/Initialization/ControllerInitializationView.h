@@ -60,6 +60,7 @@ struct FMarketingCaptureCenters {
   FVector ActorCenter = FVector::ZeroVector;
 };
 
+/** User Story: As a player controller initialization consumer, I need to invoke observe townsperson candidates through a stable signature so the player controller initialization workflow remains explicit and composable. @fn FTownspersonCandidateObservation ObserveTownspersonCandidates( const APlayerRuntimeControllerView &Controller, float InteractionDistance) */
 FTownspersonCandidateObservation ObserveTownspersonCandidates(
     const APlayerRuntimeControllerView &Controller, float InteractionDistance) {
   FG::FCandidatesObserved Observation;
@@ -91,6 +92,7 @@ FTownspersonCandidateObservation ObserveTownspersonCandidates(
   return {Observation, ObservedTownspeople};
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke observe townsperson interaction source through a stable signature so the player controller initialization workflow remains explicit and composable. @fn FG::FRuntimeTownspersonInteractionSource ObserveTownspersonInteractionSource( const ATownspersonView &Townsperson) */
 FG::FRuntimeTownspersonInteractionSource ObserveTownspersonInteractionSource(
     const ATownspersonView &Townsperson) {
   return {Townsperson.GetTownspersonName(), Townsperson.GetRole(),
@@ -98,6 +100,7 @@ FG::FRuntimeTownspersonInteractionSource ObserveTownspersonInteractionSource(
           Townsperson.GetPinnedResponse()};
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke present missing interaction through a stable signature so the player controller initialization workflow remains explicit and composable. @fn void PresentMissingInteraction(const FString &Message) */
 void PresentMissingInteraction(const FString &Message) {
   check(GEngine);
   const ForbocAI::Game::Data::FDebugMessageSettings &Debug =
@@ -108,26 +111,32 @@ void PresentMissingInteraction(const FString &Message) {
 
 
 
+/** User Story: As a player controller initialization consumer, I need to invoke marketing capture settings through a stable signature so the player controller initialization workflow remains explicit and composable. @fn const FMarketingCaptureSettings &MarketingCaptureSettings() */
 const FMarketingCaptureSettings &MarketingCaptureSettings() {
   return FG::RuntimeSelectors::SelectMarketingCaptureSettings();
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke fly mode settings through a stable signature so the player controller initialization workflow remains explicit and composable. @fn const FModeSettings &FlyModeSettings() */
 const FModeSettings &FlyModeSettings() {
   return FG::RuntimeSelectors::SelectUISettings().FlyMode;
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke scale audit capture settings through a stable signature so the player controller initialization workflow remains explicit and composable. @fn const FAuditCaptureSettings &ScaleAuditCaptureSettings() */
 const FAuditCaptureSettings &ScaleAuditCaptureSettings() {
   return FG::RuntimeSelectors::SelectUISettings().ScaleAuditCapture;
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke post office world center through a stable signature so the player controller initialization workflow remains explicit and composable. @fn FVector PostOfficeWorldCenter() */
 FVector PostOfficeWorldCenter() {
   return FG::RuntimeSelectors::SelectPostOfficeWorldCenter();
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke top down camera location through a stable signature so the player controller initialization workflow remains explicit and composable. @fn FVector TopDownCameraLocation(const FVector &Center, float Height) */
 FVector TopDownCameraLocation(const FVector &Center, float Height) {
   return FVector(Center.X, Center.Y, Height);
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke scale audit capture views through a stable signature so the player controller initialization workflow remains explicit and composable. @fn TArray<FScaleAuditCaptureView> ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request, const FAuditCaptureSettings &Settings) */
 TArray<FScaleAuditCaptureView>
 ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request,
                        const FAuditCaptureSettings &Settings) {
@@ -147,12 +156,14 @@ ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request,
             Settings.TopDownRotation, Request.ActorsOrthoWidth}}};
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke marketing capture anchor through a stable signature so the player controller initialization workflow remains explicit and composable. @fn FVector MarketingCaptureAnchor(const FCaptureViewSettings &ViewSettings, const FMarketingCaptureCenters &Centers) */
 FVector MarketingCaptureAnchor(const FCaptureViewSettings &ViewSettings,
                                const FMarketingCaptureCenters &Centers) {
   return ViewSettings.Visibility.bUseActorRouteCenter ? Centers.ActorCenter
                                                       : Centers.TownCenter;
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke marketing brochure capture view through a stable signature so the player controller initialization workflow remains explicit and composable. @fn FScaleAuditCaptureView MarketingBrochureCaptureView( const FCaptureViewSettings &ViewSettings, const FMarketingCaptureCenters &Centers) */
 FScaleAuditCaptureView MarketingBrochureCaptureView(
     const FCaptureViewSettings &ViewSettings,
     const FMarketingCaptureCenters &Centers) {
@@ -167,6 +178,7 @@ FScaleAuditCaptureView MarketingBrochureCaptureView(
           {ViewSettings.Visibility.bHidePlayerMesh, false}};
 }
 
+/** User Story: As a player controller initialization consumer, I need to invoke marketing brochure capture views through a stable signature so the player controller initialization workflow remains explicit and composable. @fn TArray<FScaleAuditCaptureView> MarketingBrochureCaptureViews( const FScaleAuditCaptureViewsRequest &Request, const FMarketingCaptureSettings &Settings) */
 TArray<FScaleAuditCaptureView> MarketingBrochureCaptureViews(
     const FScaleAuditCaptureViewsRequest &Request,
     const FMarketingCaptureSettings &Settings) {
@@ -195,7 +207,7 @@ APlayerRuntimeControllerView::APlayerRuntimeControllerView()
       MarketingMenuWidgetClass(URuntimeMarketingMenuWidget::StaticClass()),
       MarketingMenuWidget(nullptr),
       FlyModeSpeed(FG::RuntimeSelectors::SelectPlayerPresentation()
-                       .FlyModeSpeed),
+                       .Movement.FlyModeSpeed),
       bRuntimeFlyModeEnabled(false), bFlyAscending(false),
       bFlyDescending(false), PreviousMovementMode(MOVE_Walking),
       PreviousCustomMovementMode(uint8()), PreviousMaxFlySpeed(float()),

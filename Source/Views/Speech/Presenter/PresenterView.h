@@ -25,6 +25,7 @@ class FORBOCAIDEMO_API ARuntimeSpeechPresenterView : public AActor {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a views speech presenter consumer, I need to invoke aruntime speech presenter view through a stable signature so the views speech presenter workflow remains explicit and composable. @fn ARuntimeSpeechPresenterView() */
   ARuntimeSpeechPresenterView();
 
 private:

@@ -6,8 +6,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 /**
+ * @fn bool FStoreReduxLoggerMiddleware::RunTest(const FString &Parameters)
  * @brief Verifies the SDK redux-logger middleware writes RTK dispatch logs through UE output.
- * @signature bool FStoreReduxLoggerMiddleware::RunTest(const FString &Parameters)
  * @param Parameters Automation test parameters supplied by Unreal.
  * @return true when a dispatched action is captured from the UE log output path.
  *

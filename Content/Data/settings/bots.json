@@ -75,13 +75,13 @@
       "yaw": 0.0,
       "roll": 0.0
     },
-    "initial_last_known_player_position": {
+    "initial_known_player_position": {
       "x": 0.0,
       "y": 0.0,
       "z": 0.0
     },
-    "initial_time_since_last_seen_player": 9999.0,
-    "enemy_spotted_time_since_last_seen_player": 0.0,
+    "initial_time_since_seen_player": 9999.0,
+    "enemy_spotted_time_since_seen_player": 0.0,
     "initial_has_aggro": false,
     "default_hazard_overlapping": false,
     "default_visibility_can_see_enemy": false,

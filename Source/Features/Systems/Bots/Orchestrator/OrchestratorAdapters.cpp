@@ -1,7 +1,7 @@
 #include "Features/Systems/Bots/Orchestrator/OrchestratorAdapters.h"
 
 #include "Core/frmt.hpp"
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Features/Systems/Bots/Orchestrator/OrchestratorThunks.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Features/Systems/SystemsSelectors.h"
@@ -10,12 +10,15 @@ using namespace ForbocAI::Game::Level;
 
 namespace {
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke runtime state through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn const FRuntimeState &RuntimeState() */
 const FRuntimeState &RuntimeState() { return RuntimeSelectors::SelectState(); }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke bot settings through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FBotSettings BotSettings() */
 FBotSettings BotSettings() {
   return RuntimeSelectors::SelectBotSettings(RuntimeState());
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke bot initial local point through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FLevelLocalPoint BotInitialLocalPoint(const FBotSettings &Settings) */
 FLevelLocalPoint BotInitialLocalPoint(const FBotSettings &Settings) {
   return {static_cast<float>(Settings.InitialPosition.X),
           static_cast<float>(Settings.InitialPosition.Y),
@@ -24,12 +27,14 @@ FLevelLocalPoint BotInitialLocalPoint(const FBotSettings &Settings) {
 
 } // namespace
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke abot orchestrator adapter through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn ABotOrchestratorAdapter::ABotOrchestratorAdapter() */
 ABotOrchestratorAdapter::ABotOrchestratorAdapter() {
   PrimaryActorTick.bCanEverTick =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
           .Bot.bOrchestratorCanEverTick;
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke begin play through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::BeginPlay() */
 void ABotOrchestratorAdapter::BeginPlay() {
   Super::BeginPlay();
   const FBotSettings Settings = BotSettings();
@@ -37,6 +42,7 @@ void ABotOrchestratorAdapter::BeginPlay() {
   UE_LOG(LogTemp, Display, TEXT("%s"), *Settings.StartLog);
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke tick through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::Tick(float DeltaTime) */
 void ABotOrchestratorAdapter::Tick(float DeltaTime) {
   Super::Tick(DeltaTime);
 
@@ -65,6 +71,7 @@ void ABotOrchestratorAdapter::Tick(float DeltaTime) {
       });
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke register bot through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) */
 void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
   return !Actor
              ? void()
@@ -97,6 +104,7 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
   }();
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke request next action through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::RequestNextAction( const FBotRuntimeBinding &Binding) */
 void ABotOrchestratorAdapter::RequestNextAction(
     const FBotRuntimeBinding &Binding) {
   return !Binding.Agent.IsValid()
@@ -127,6 +135,7 @@ void ABotOrchestratorAdapter::RequestNextAction(
   }();
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke execute action through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor, const FString &ActionType) */
 void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
                                      const FString &ActionType) {
   FBotRuntimeBinding *Binding = BotActor ? BotBindings.Find(BotActor) : nullptr;
@@ -148,6 +157,7 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
   }();
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke get state observation through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FString ABotOrchestratorAdapter::GetStateObservation( const FString &BotId) const */
 FString ABotOrchestratorAdapter::GetStateObservation(
     const FString &BotId) const {
   const FRuntimeState &State = RuntimeState();

@@ -5,6 +5,7 @@ namespace Game {
 namespace Level {
 namespace NatureActions {
 
+/** User Story: As a features systems nature consumer, I need to invoke nature seeded through a stable signature so the features systems nature workflow remains explicit and composable. @fn const rtk::ActionCreator<TArray<FFeatureSeed>> &NatureSeeded() */
 const rtk::ActionCreator<TArray<FFeatureSeed>> &NatureSeeded() {
   static const func::Lazy<rtk::ActionCreator<TArray<FFeatureSeed>>> Creator =
       func::lazy([]() -> rtk::ActionCreator<TArray<FFeatureSeed>> {

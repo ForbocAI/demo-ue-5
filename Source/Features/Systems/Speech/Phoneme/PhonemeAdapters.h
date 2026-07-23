@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
 #include "Features/Systems/Speech/Phoneme/PhonemeTypes.h"
 #include "Sound/SoundWave.h"
@@ -69,6 +69,7 @@ struct FSpeechDurationRuleDeclaration {
   FString Kind;
   FSpeechDurationRuleApply Matches;
 
+  /** User Story: As a systems speech phoneme consumer, I need to invoke fspeech duration rule declaration through a stable signature so the systems speech phoneme workflow remains explicit and composable. @fn FSpeechDurationRuleDeclaration(const char *InKind, FSpeechDurationRuleApply InMatches) */
   FSpeechDurationRuleDeclaration(const char *InKind,
                                  FSpeechDurationRuleApply InMatches)
       : Kind(FString(UTF8_TO_TCHAR(InKind))), Matches(InMatches) {}

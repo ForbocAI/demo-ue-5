@@ -10,6 +10,7 @@ namespace Data {
 namespace JsonAdapters {
 
 template <> struct TJsonSettingsRegistry<FRenderingConsoleSettings> {
+  /** User Story: As a rendering registry texture consumer, I need to invoke fields through a stable signature so the rendering registry texture workflow remains explicit and composable. @fn static const TArray<TField<FRenderingConsoleSettings>> &Fields() */
   static const TArray<TField<FRenderingConsoleSettings>> &Fields() {
     static const TArray<TField<FRenderingConsoleSettings>> RegisteredFields = {
         NestedSettingField(
@@ -68,6 +69,7 @@ template <> struct TJsonSettingsRegistry<FRenderingConsoleSettings> {
 };
 
 template <> struct TJsonSettingsRegistry<FPredicateSettings> {
+  /** User Story: As a rendering registry texture consumer, I need to invoke fields through a stable signature so the rendering registry texture workflow remains explicit and composable. @fn static const TArray<TField<FPredicateSettings>> &Fields() */
   static const TArray<TField<FPredicateSettings>> &Fields() {
     static const TArray<TField<FPredicateSettings>> RegisteredFields = {
         JSON_SETTING_FIELD(FPredicateSettings, Kind),

@@ -30,6 +30,7 @@ struct FRuntimeLifecycleState {
   FString Error;
 };
 
+/** User Story: As a features systems lifecycle consumer, I need to compare values for equality through a stable signature so the features systems lifecycle workflow remains explicit and composable. @fn inline bool operator==(const FRuntimeLifecycleState &Left, const FRuntimeLifecycleState &Right) */
 inline bool operator==(const FRuntimeLifecycleState &Left,
                        const FRuntimeLifecycleState &Right) {
   return Left.PlayerSpawnStatus == Right.PlayerSpawnStatus &&
@@ -37,6 +38,7 @@ inline bool operator==(const FRuntimeLifecycleState &Left,
          Left.Error == Right.Error;
 }
 
+/** User Story: As a features systems lifecycle consumer, I need to compare values for inequality through a stable signature so the features systems lifecycle workflow remains explicit and composable. @fn inline bool operator!=(const FRuntimeLifecycleState &Left, const FRuntimeLifecycleState &Right) */
 inline bool operator!=(const FRuntimeLifecycleState &Left,
                        const FRuntimeLifecycleState &Right) {
   return !(Left == Right);

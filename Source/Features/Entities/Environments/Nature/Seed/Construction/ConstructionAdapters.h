@@ -30,8 +30,10 @@ struct FScaleProjectorDeclaration {
   ENatureScaleMode Mode;
   FScaleFieldsProjector Project;
 
+  /** User Story: As a nature seed construction consumer, I need to invoke fscale projector declaration through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FScaleProjectorDeclaration() = default */
   FScaleProjectorDeclaration() = default;
 
+  /** User Story: As a nature seed construction consumer, I need to invoke fscale projector declaration through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FScaleProjectorDeclaration(ENatureScaleMode InMode, FScaleFieldsProjector InProject) */
   FScaleProjectorDeclaration(ENatureScaleMode InMode,
                              FScaleFieldsProjector InProject)
       : Mode(InMode), Project(InProject) {}
@@ -44,6 +46,7 @@ struct FFeatureBuildRequest {
 
 namespace {
 
+/** User Story: As a nature seed construction consumer, I need to invoke feature lots through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FLevelLocalPoint FeatureLots(const FFeatureLotsRequest &Request) */
 FLevelLocalPoint FeatureLots(const FFeatureLotsRequest &Request) {
   return LevelLayoutAdapters::CenteredOnGround(
       {Request.Geometry,
@@ -53,16 +56,19 @@ FLevelLocalPoint FeatureLots(const FFeatureLotsRequest &Request) {
       LevelLayoutAdapters::RoadSurfaceClearance(Request.Geometry)});
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke nature kind from json through a stable signature so the nature seed construction workflow remains explicit and composable. @fn EFeatureKind NatureKindFromJson(const FString &Kind) */
 EFeatureKind NatureKindFromJson(const FString &Kind) {
   return JsonAdapters::RequireRegisteredTextValue<EFeatureKind>(
       Kind, TEXT("nature feature kind"));
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke nature scale mode from json through a stable signature so the nature seed construction workflow remains explicit and composable. @fn ENatureScaleMode NatureScaleModeFromJson(const FString &Mode) */
 ENatureScaleMode NatureScaleModeFromJson(const FString &Mode) {
   return JsonAdapters::RequireRegisteredTextValue<ENatureScaleMode>(
       Mode, TEXT("nature feature scale mode"));
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke pad scale from fields through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FVector PadScaleFromFields(const FScaleFieldsRequest &Request) */
 FVector PadScaleFromFields(const FScaleFieldsRequest &Request) {
   const FNaturePadScaleSource Fields =
       JsonAdapters::ReadSettingsFields<FNaturePadScaleSource>(
@@ -73,6 +79,7 @@ FVector PadScaleFromFields(const FScaleFieldsRequest &Request) {
        Fields.HeightFeet});
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke long feature scale from fields through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FVector LongFeatureScaleFromFields(const FScaleFieldsRequest &Request) */
 FVector LongFeatureScaleFromFields(const FScaleFieldsRequest &Request) {
   const FNatureLongFeatureScaleSource Fields =
       JsonAdapters::ReadSettingsFields<FNatureLongFeatureScaleSource>(
@@ -83,6 +90,7 @@ FVector LongFeatureScaleFromFields(const FScaleFieldsRequest &Request) {
        Fields.HeightFeet});
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke scale projector declarations through a stable signature so the nature seed construction workflow remains explicit and composable. @fn const TArray<FScaleProjectorDeclaration> &ScaleProjectorDeclarations() */
 const TArray<FScaleProjectorDeclaration> &ScaleProjectorDeclarations() {
   static const TArray<FScaleProjectorDeclaration> Declarations = {
       {ENatureScaleMode::LongFeature, LongFeatureScaleFromFields},
@@ -90,6 +98,7 @@ const TArray<FScaleProjectorDeclaration> &ScaleProjectorDeclarations() {
   return Declarations;
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke find scale projector through a stable signature so the nature seed construction workflow remains explicit and composable. @fn func::Maybe<FScaleProjectorDeclaration> FindScaleProjector(ENatureScaleMode Mode) */
 func::Maybe<FScaleProjectorDeclaration>
 FindScaleProjector(ENatureScaleMode Mode) {
   return func::find_array<FScaleProjectorDeclaration>(
@@ -99,6 +108,7 @@ FindScaleProjector(ENatureScaleMode Mode) {
       });
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke scale object from fields through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FVector ScaleObjectFromFields(const FScaleFieldsRequest &Request) */
 FVector ScaleObjectFromFields(const FScaleFieldsRequest &Request) {
   const FNatureScaleModeSource Fields =
       JsonAdapters::ReadSettingsFields<FNatureScaleModeSource>(
@@ -109,10 +119,12 @@ FVector ScaleObjectFromFields(const FScaleFieldsRequest &Request) {
   return Projector.value.Project(Request);
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke scale from fields through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FVector ScaleFromFields(const FFeatureBuildRequest &Request) */
 FVector ScaleFromFields(const FFeatureBuildRequest &Request) {
   return ScaleObjectFromFields({Request.Geometry, Request.Fields.Scale});
 }
 
+/** User Story: As a nature seed construction consumer, I need to invoke feature from fields through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FFeatureSeed FeatureFromFields(const FFeatureBuildRequest &Request) */
 FFeatureSeed FeatureFromFields(const FFeatureBuildRequest &Request) {
   const FVector Scale = ScaleFromFields(Request);
   FFeatureSeed Seed;
@@ -128,6 +140,7 @@ FFeatureSeed FeatureFromFields(const FFeatureBuildRequest &Request) {
 
 } // namespace
 
+/** User Story: As a nature seed construction consumer, I need to invoke build nature seed through a stable signature so the nature seed construction workflow remains explicit and composable. @fn TArray<FFeatureSeed> BuildNatureSeed( const FBuildRequest &Request) */
 TArray<FFeatureSeed> BuildNatureSeed(
     const FBuildRequest &Request) {
   return func::map_array<FNatureFeatureSource, FFeatureSeed>(

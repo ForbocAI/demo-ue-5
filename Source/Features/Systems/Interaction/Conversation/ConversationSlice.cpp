@@ -11,6 +11,7 @@ namespace Game {
 namespace Level {
 namespace RuntimeReducers {
 
+/** User Story: As a systems interaction conversation consumer, I need to invoke reduce townsperson interaction source observed through a stable signature so the systems interaction conversation workflow remains explicit and composable. @fn FRuntimeState ReduceTownspersonInteractionSourceObserved( const FRuntimeState &State, const rtk::PayloadAction<FRuntimeTownspersonInteractionSource> &Action) */
 FRuntimeState ReduceTownspersonInteractionSourceObserved(
     const FRuntimeState &State,
     const rtk::PayloadAction<FRuntimeTownspersonInteractionSource> &Action) {
@@ -32,6 +33,7 @@ FRuntimeState ReduceTownspersonInteractionSourceObserved(
       .val;
 }
 
+/** User Story: As a systems interaction conversation consumer, I need to invoke reduce townsperson interaction request through a stable signature so the systems interaction conversation workflow remains explicit and composable. @fn FRuntimeTownspersonInteractionRequest ReduceTownspersonInteractionRequest( const FRuntimeTownspersonInteractionSource &Source) */
 FRuntimeTownspersonInteractionRequest
 ReduceTownspersonInteractionRequest(
     const FRuntimeTownspersonInteractionSource &Source) {
@@ -39,12 +41,14 @@ ReduceTownspersonInteractionRequest(
           Source.PinnedResponse};
 }
 
+/** User Story: As a systems interaction conversation consumer, I need to invoke reduce local dialogue reply request through a stable signature so the systems interaction conversation workflow remains explicit and composable. @fn FLocalDialogueReplyRequest ReduceLocalDialogueReplyRequest( const FRuntimeTownspersonInteractionRequest &Request) */
 FLocalDialogueReplyRequest ReduceLocalDialogueReplyRequest(
     const FRuntimeTownspersonInteractionRequest &Request) {
   return {Request.Name, Request.Role, Request.Persona, Request.PlayerLine,
           Request.PinnedResponse};
 }
 
+/** User Story: As a systems interaction conversation consumer, I need to invoke reduce conversation presented payload through a stable signature so the systems interaction conversation workflow remains explicit and composable. @fn FUIPayload ReduceConversationPresentedPayload( const FReplyPayload &DialogueReply, const ForbocAI::Game::Data::FUISettings &UISettings) */
 FUIPayload ReduceConversationPresentedPayload(
     const FReplyPayload &DialogueReply,
     const ForbocAI::Game::Data::FUISettings &UISettings) {
@@ -60,6 +64,7 @@ FUIPayload ReduceConversationPresentedPayload(
   return Payload;
 }
 
+/** User Story: As a systems interaction conversation consumer, I need to invoke reduce townsperson interaction payload through a stable signature so the systems interaction conversation workflow remains explicit and composable. @fn FRuntimeTownspersonInteractionPayload ReduceTownspersonInteractionPayload( const FRuntimeTownspersonInteractionPayloadRequest &Request) */
 FRuntimeTownspersonInteractionPayload ReduceTownspersonInteractionPayload(
     const FRuntimeTownspersonInteractionPayloadRequest &Request) {
   const FReplyPayload DialogueReply =

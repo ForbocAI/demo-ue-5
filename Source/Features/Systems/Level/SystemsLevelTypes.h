@@ -6,9 +6,10 @@
 #include "Features/Components/Rendering/Distance/Lod/ComponentsRenderingDistanceLodTypes.h"
 #include "Features/Components/Rendering/Texture/ComponentsRenderingTextureTypes.h"
 #include "Features/Components/Rendering/Profile/ComponentsRenderingProfileTypes.h"
-#include "Features/Components/Spatial/Level/Layout/LayoutTypes.h"
+#include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
 #include "Features/Systems/Landmarks/SystemsLandmarksTypes.h"
 #include "Features/Systems/Nature/SystemsNatureTypes.h"
+#include "Features/Systems/Level/State/LevelStateTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -140,46 +141,7 @@ struct FWorldRouteRequest {
   FLevelTerrainData TerrainData;
 };
 
-struct FSystemPayload {
-  FString Id;
-};
-
-struct FSystemState {
-  func::Maybe<FString> ActionId = func::nothing<FString>();
-  ForbocAI::Game::Data::FTerrainSourceSettings TerrainSources;
-  ForbocAI::Game::Data::FCsvSettings Csv;
-  ForbocAI::Game::Data::FDataSourceSettings DataSources;
-  ForbocAI::Game::Data::FGeometrySettings Geometry;
-  bool bReady = false;
-};
-
-inline bool operator==(const FSystemPayload &Left,
-                       const FSystemPayload &Right) {
-  return Left.Id == Right.Id;
-}
-
-inline bool operator!=(const FSystemPayload &Left,
-                       const FSystemPayload &Right) {
-  return !(Left == Right);
-}
-
-inline bool operator==(const FSystemState &Left,
-                       const FSystemState &Right) {
-  return Left.bReady == Right.bReady &&
-         Left.TerrainSources == Right.TerrainSources &&
-         Left.Csv == Right.Csv &&
-         Left.DataSources == Right.DataSources &&
-         Left.Geometry == Right.Geometry &&
-         Left.ActionId.hasValue == Right.ActionId.hasValue &&
-         (!Left.ActionId.hasValue ||
-          Left.ActionId.value == Right.ActionId.value);
-}
-
-inline bool operator!=(const FSystemState &Left,
-                       const FSystemState &Right) {
-  return !(Left == Right);
-}
-
+/** User Story: As a features systems level consumer, I need to compare values for equality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator==(const FScaleSeed &Left, const FScaleSeed &Right) */
 inline bool operator==(const FScaleSeed &Left,
                        const FScaleSeed &Right) {
   return Left.Mode == Right.Mode &&
@@ -191,11 +153,13 @@ inline bool operator==(const FScaleSeed &Left,
          FMath::IsNearlyEqual(Left.LengthLots, Right.LengthLots);
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for inequality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator!=(const FScaleSeed &Left, const FScaleSeed &Right) */
 inline bool operator!=(const FScaleSeed &Left,
                        const FScaleSeed &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for equality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator==(const FBlockSeed &Left, const FBlockSeed &Right) */
 inline bool operator==(const FBlockSeed &Left,
                        const FBlockSeed &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name &&
@@ -207,11 +171,13 @@ inline bool operator==(const FBlockSeed &Left,
          Left.Scale == Right.Scale && Left.Texture == Right.Texture;
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for inequality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator!=(const FBlockSeed &Left, const FBlockSeed &Right) */
 inline bool operator!=(const FBlockSeed &Left,
                        const FBlockSeed &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for equality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator==(const FLabelSeed &Left, const FLabelSeed &Right) */
 inline bool operator==(const FLabelSeed &Left,
                        const FLabelSeed &Right) {
   return Left.Id == Right.Id && Left.Text == Right.Text &&
@@ -223,32 +189,38 @@ inline bool operator==(const FLabelSeed &Left,
          Left.ReferenceScale == Right.ReferenceScale;
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for inequality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator!=(const FLabelSeed &Left, const FLabelSeed &Right) */
 inline bool operator!=(const FLabelSeed &Left,
                        const FLabelSeed &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for equality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator==(const FSectionSeed &Left, const FSectionSeed &Right) */
 inline bool operator==(const FSectionSeed &Left,
                        const FSectionSeed &Right) {
   return Left.Blocks == Right.Blocks && Left.Labels == Right.Labels;
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for inequality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator!=(const FSectionSeed &Left, const FSectionSeed &Right) */
 inline bool operator!=(const FSectionSeed &Left,
                        const FSectionSeed &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for equality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator==(const FLayoutSeed &Left, const FLayoutSeed &Right) */
 inline bool operator==(const FLayoutSeed &Left,
                        const FLayoutSeed &Right) {
   return Left.Terrain == Right.Terrain && Left.Town == Right.Town &&
          Left.Mine == Right.Mine && Left.OverlayLabels == Right.OverlayLabels;
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for inequality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator!=(const FLayoutSeed &Left, const FLayoutSeed &Right) */
 inline bool operator!=(const FLayoutSeed &Left,
                        const FLayoutSeed &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for equality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator==(const FBlockSpawn &Left, const FBlockSpawn &Right) */
 inline bool operator==(const FBlockSpawn &Left,
                        const FBlockSpawn &Right) {
   return Left.Name == Right.Name && Left.Location == Right.Location &&
@@ -256,11 +228,13 @@ inline bool operator==(const FBlockSpawn &Left,
          Left.Texture == Right.Texture && Left.Lod == Right.Lod;
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for inequality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator!=(const FBlockSpawn &Left, const FBlockSpawn &Right) */
 inline bool operator!=(const FBlockSpawn &Left,
                        const FBlockSpawn &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for equality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator==(const FLabelSpawn &Left, const FLabelSpawn &Right) */
 inline bool operator==(const FLabelSpawn &Left,
                        const FLabelSpawn &Right) {
   return Left.Text == Right.Text && Left.Location == Right.Location &&
@@ -268,16 +242,19 @@ inline bool operator==(const FLabelSpawn &Left,
          Left.Lod == Right.Lod;
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for inequality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator!=(const FLabelSpawn &Left, const FLabelSpawn &Right) */
 inline bool operator!=(const FLabelSpawn &Left,
                        const FLabelSpawn &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for equality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator==(const FSectionSpawn &Left, const FSectionSpawn &Right) */
 inline bool operator==(const FSectionSpawn &Left,
                        const FSectionSpawn &Right) {
   return Left.Blocks == Right.Blocks && Left.Labels == Right.Labels;
 }
 
+/** User Story: As a features systems level consumer, I need to compare values for inequality through a stable signature so the features systems level workflow remains explicit and composable. @fn inline bool operator!=(const FSectionSpawn &Left, const FSectionSpawn &Right) */
 inline bool operator!=(const FSectionSpawn &Left,
                        const FSectionSpawn &Right) {
   return !(Left == Right);

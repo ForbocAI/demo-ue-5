@@ -1,7 +1,7 @@
 #include "Features/Systems/Rendering/Texture/TextureSlice.h"
 #include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 
 namespace ForbocAI {
 namespace Game {
@@ -9,6 +9,7 @@ namespace Level {
 namespace RenderingTextureReducers {
 namespace {
 
+/** User Story: As a systems rendering texture consumer, I need to invoke require rendering catalog item through a stable signature so the systems rendering texture workflow remains explicit and composable. @fn template <typename Item, typename Predicate> Item RequireRenderingCatalogItem(const TArray<Item> &Catalog, Predicate Matches) */
 template <typename Item, typename Predicate>
 Item RequireRenderingCatalogItem(const TArray<Item> &Catalog,
                                  Predicate Matches) {
@@ -17,11 +18,13 @@ Item RequireRenderingCatalogItem(const TArray<Item> &Catalog,
   return Found.value;
 }
 
+/** User Story: As a systems rendering texture consumer, I need to invoke texture value for catalog index through a stable signature so the systems rendering texture workflow remains explicit and composable. @fn ELevelRetroTexture TextureValueForCatalogIndex(int32 Index) */
 ELevelRetroTexture TextureValueForCatalogIndex(int32 Index) {
   check(Index >= int32{});
   return static_cast<ELevelRetroTexture>(Index);
 }
 
+/** User Story: As a systems rendering texture consumer, I need to invoke reduce texture catalog item through a stable signature so the systems rendering texture workflow remains explicit and composable. @fn FLevelRetroTextureSpec ReduceTextureCatalogItem( const TArray<ForbocAI::Game::Data::FSpecSettings> &Settings, int32 Index) */
 FLevelRetroTextureSpec ReduceTextureCatalogItem(
     const TArray<ForbocAI::Game::Data::FSpecSettings> &Settings,
     int32 Index) {
@@ -33,6 +36,7 @@ FLevelRetroTextureSpec ReduceTextureCatalogItem(
 
 } // namespace
 
+/** User Story: As a systems rendering texture consumer, I need to invoke normalize texture apply through a stable signature so the systems rendering texture workflow remains explicit and composable. @fn FLevelRetroTextureApply NormalizeTextureApply(const FLevelRetroTextureApply &Input) */
 FLevelRetroTextureApply
 NormalizeTextureApply(const FLevelRetroTextureApply &Input) {
   return (func::pipe(Input) |
@@ -42,6 +46,7 @@ NormalizeTextureApply(const FLevelRetroTextureApply &Input) {
       .val;
 }
 
+/** User Story: As a systems rendering texture consumer, I need to invoke reduce texture catalog through a stable signature so the systems rendering texture workflow remains explicit and composable. @fn TArray<FLevelRetroTextureSpec> ReduceTextureCatalog( const TArray<ForbocAI::Game::Data::FSpecSettings> &Settings) */
 TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
     const TArray<ForbocAI::Game::Data::FSpecSettings>
         &Settings) {
@@ -52,6 +57,7 @@ TArray<FLevelRetroTextureSpec> ReduceTextureCatalog(
       });
 }
 
+/** User Story: As a systems rendering texture consumer, I need to invoke reduce texture spec through a stable signature so the systems rendering texture workflow remains explicit and composable. @fn FLevelRetroTextureSpec ReduceTextureSpec(const FSpecRequest &Request) */
 FLevelRetroTextureSpec
 ReduceTextureSpec(const FSpecRequest &Request) {
   check(!Request.Catalog.IsEmpty());

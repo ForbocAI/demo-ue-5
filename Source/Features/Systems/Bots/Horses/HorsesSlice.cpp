@@ -7,6 +7,7 @@ namespace Game {
 namespace Level {
 namespace HorseReducers {
 
+/** User Story: As a systems bots horses consumer, I need to invoke reduce horses seeded through a stable signature so the systems bots horses workflow remains explicit and composable. @fn FHorseState ReduceHorsesSeeded( const FHorseState &State, const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) */
 FHorseState ReduceHorsesSeeded(
     const FHorseState &State,
     const rtk::PayloadAction<TArray<FHorseRouteSeed>> &Action) {
@@ -29,6 +30,7 @@ namespace Game {
 namespace Level {
 namespace HorseSlice {
 
+/** User Story: As a systems bots horses consumer, I need to invoke get slice through a stable signature so the systems bots horses workflow remains explicit and composable. @fn const rtk::Slice<FHorseState> &GetSlice() */
 const rtk::Slice<FHorseState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FHorseState>> Slice =
       func::lazy([]() -> rtk::Slice<FHorseState> {
@@ -56,6 +58,7 @@ namespace Game {
 namespace Level {
 namespace HorseFactories {
 
+/** User Story: As a systems bots horses consumer, I need to invoke create initial state through a stable signature so the systems bots horses workflow remains explicit and composable. @fn FHorseState CreateInitialState() */
 FHorseState CreateInitialState() {
   FHorseState State;
   State.Items = HorseAdapters::HorseAdapter().getInitialState();

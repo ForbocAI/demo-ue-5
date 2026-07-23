@@ -5,7 +5,7 @@
 
 #include "Views/Level/Game/Mode/ModeView.h"
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "EngineUtils.h"
 #include "Views/Player/Character/CharacterView.h"
 #include "Features/Systems/SystemsActions.h"
@@ -15,16 +15,19 @@
 namespace FG = ForbocAI::Game::Level;
 
 namespace {
+/** User Story: As a level game mode consumer, I need to invoke first runtime level view through a stable signature so the level game mode workflow remains explicit and composable. @fn ARuntimeLevelView *FirstRuntimeLevelView( TActorIterator<ARuntimeLevelView> &Iterator) */
 ARuntimeLevelView *FirstRuntimeLevelView(
     TActorIterator<ARuntimeLevelView> &Iterator) {
   return Iterator ? *Iterator : nullptr;
 }
 
+/** User Story: As a level game mode consumer, I need to invoke find runtime level view through a stable signature so the level game mode workflow remains explicit and composable. @fn ARuntimeLevelView *FindRuntimeLevelView(UWorld *World) */
 ARuntimeLevelView *FindRuntimeLevelView(UWorld *World) {
   TActorIterator<ARuntimeLevelView> Iterator(World);
   return FirstRuntimeLevelView(Iterator);
 }
 
+/** User Story: As a level game mode consumer, I need to invoke load player spawn transform through a stable signature so the level game mode workflow remains explicit and composable. @fn FTransform LoadPlayerSpawnTransform() */
 FTransform LoadPlayerSpawnTransform() {
   auto Spawn = FG::FPointPayload();
   const auto Result = FG::RuntimeActions::DispatchRequestPlayerSpawn();
@@ -34,11 +37,13 @@ FTransform LoadPlayerSpawnTransform() {
 }
 } // namespace
 
+/** User Story: As a level game mode consumer, I need to invoke alevel game mode view through a stable signature so the level game mode workflow remains explicit and composable. @fn ALevelGameModeView::ALevelGameModeView() */
 ALevelGameModeView::ALevelGameModeView() : RuntimeLevelView(nullptr) {
   DefaultPawnClass = APlayerCharacterView::StaticClass();
   PlayerControllerClass = APlayerRuntimeControllerView::StaticClass();
 }
 
+/** User Story: As a level game mode consumer, I need to invoke init game through a stable signature so the level game mode workflow remains explicit and composable. @fn void ALevelGameModeView::InitGame(const FString &MapName, const FString &Options, FString &ErrorMessage) */
 void ALevelGameModeView::InitGame(const FString &MapName,
                                   const FString &Options,
                                   FString &ErrorMessage) {
@@ -47,6 +52,7 @@ void ALevelGameModeView::InitGame(const FString &MapName,
   Super::InitGame(MapName, Options, ErrorMessage);
 }
 
+/** User Story: As a level game mode consumer, I need to invoke start play through a stable signature so the level game mode workflow remains explicit and composable. @fn void ALevelGameModeView::StartPlay() */
 void ALevelGameModeView::StartPlay() {
   Super::StartPlay();
 
@@ -64,6 +70,7 @@ void ALevelGameModeView::StartPlay() {
       [this]() { RuntimeLevelView = nullptr; });
 }
 
+/** User Story: As a level game mode consumer, I need to invoke restart player through a stable signature so the level game mode workflow remains explicit and composable. @fn void ALevelGameModeView::RestartPlayer(AController *NewPlayer) */
 void ALevelGameModeView::RestartPlayer(AController *NewPlayer) {
   func::match(
       func::from_nullable_value(NewPlayer, NewPlayer != nullptr),

@@ -8,8 +8,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 /**
+ * @fn bool FStoreProjectionGate::RunTest(const FString &Parameters)
  * @brief Verifies high-frequency patrol observation actions do not rebuild ECS.
- * @signature bool FStoreProjectionGate::RunTest(const FString &Parameters)
  * @param Parameters Automation test parameters supplied by Unreal.
  * @return true when projected ECS input actions are gated separately from view-only patrol calculations.
  *

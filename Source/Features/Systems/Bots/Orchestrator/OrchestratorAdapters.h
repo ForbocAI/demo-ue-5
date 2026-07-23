@@ -19,10 +19,13 @@ class FORBOCAIDEMO_API ABotOrchestratorAdapter : public AActor {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a systems bots orchestrator consumer, I need to invoke abot orchestrator adapter through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn ABotOrchestratorAdapter() */
   ABotOrchestratorAdapter();
 
 protected:
+  /** User Story: As a systems bots orchestrator consumer, I need to invoke begin play through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn virtual void BeginPlay() override */
   virtual void BeginPlay() override;
+  /** User Story: As a systems bots orchestrator consumer, I need to invoke tick through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn virtual void Tick(float DeltaTime) override */
   virtual void Tick(float DeltaTime) override;
 
 public:
@@ -30,7 +33,11 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForbocAI")
   float ObservationInterval;
 
-  /** Register a physical actor as a managed bot. */
+  /**
+   * Register a physical actor as a managed bot.
+   * User Story: As a systems bots orchestrator consumer, I need to invoke register bot through a stable signature so the systems bots orchestrator workflow remains explicit and composable.
+   * @fn void RegisterBot(AActor *Actor, FString Persona)
+   */
   UFUNCTION(BlueprintCallable, Category = "ForbocAI")
   void RegisterBot(AActor *Actor, FString Persona);
 
@@ -44,12 +51,24 @@ private:
 
   TMap<AActor *, FBotRuntimeBinding> BotBindings;
 
-  /** Multi-Round Protocol: Observe & Process */
+  /**
+   * Multi-Round Protocol: Observe & Process
+   * User Story: As a systems bots orchestrator consumer, I need to invoke request next action through a stable signature so the systems bots orchestrator workflow remains explicit and composable.
+   * @fn void RequestNextAction(const FBotRuntimeBinding &Binding)
+   */
   void RequestNextAction(const FBotRuntimeBinding &Binding);
 
-  /** Multi-Round Protocol: Execute (Finalize) */
+  /**
+   * Multi-Round Protocol: Execute (Finalize)
+   * User Story: As a systems bots orchestrator consumer, I need to invoke execute action through a stable signature so the systems bots orchestrator workflow remains explicit and composable.
+   * @fn void ExecuteAction(AActor *BotActor, const FString &ActionType)
+   */
   void ExecuteAction(AActor *BotActor, const FString &ActionType);
 
-  /** Helper to map game state to strings for observation. */
+  /**
+   * Helper to map game state to strings for observation.
+   * User Story: As a systems bots orchestrator consumer, I need to invoke get state observation through a stable signature so the systems bots orchestrator workflow remains explicit and composable.
+   * @fn FString GetStateObservation(const FString &BotId) const
+   */
   FString GetStateObservation(const FString &BotId) const;
 };

@@ -8,9 +8,9 @@ namespace Level {
 namespace SystemsProjectionAdapters {
 
 /**
+ * @fn ecs::FWorld ProjectRuntimeWorld(const FProjectRuntimePayload &Payload)
  * @brief Projects post-reducer runtime root state into a fresh ECS world.
  *
- * @signature ecs::FWorld ProjectRuntimeWorld(const FProjectRuntimePayload &Payload)
  *
  * User Story: As the runtime root reducer, I need to derive the ECS world from
  * the latest single-store state using selectors and adapter-owned projection.

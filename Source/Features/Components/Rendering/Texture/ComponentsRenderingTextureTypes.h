@@ -29,12 +29,14 @@ struct FLevelRetroTextureSpec {
   FIntPoint Size;
 };
 
+/** User Story: As a components rendering texture consumer, I need to compare values for equality through a stable signature so the components rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FLevelRetroTextureSpec &Left, const FLevelRetroTextureSpec &Right) */
 inline bool operator==(const FLevelRetroTextureSpec &Left,
                        const FLevelRetroTextureSpec &Right) {
   return Left.Texture == Right.Texture && Left.Name == Right.Name &&
          Left.Use == Right.Use && Left.Size == Right.Size;
 }
 
+/** User Story: As a components rendering texture consumer, I need to compare values for inequality through a stable signature so the components rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FLevelRetroTextureSpec &Left, const FLevelRetroTextureSpec &Right) */
 inline bool operator!=(const FLevelRetroTextureSpec &Left,
                        const FLevelRetroTextureSpec &Right) {
   return !(Left == Right);

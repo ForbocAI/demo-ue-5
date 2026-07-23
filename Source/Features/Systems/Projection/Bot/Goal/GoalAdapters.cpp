@@ -7,17 +7,20 @@ namespace Game {
 namespace Level {
 namespace {
 
+/** User Story: As a projection bot goal consumer, I need to invoke strategic goal value through a stable signature so the projection bot goal workflow remains explicit and composable. @fn ecs::FComponentValue StrategicGoalValue(const FBotStrategicGoal &Goal) */
 ecs::FComponentValue StrategicGoalValue(const FBotStrategicGoal &Goal) {
   return ComponentsAdapters::ComponentSourceValueMap(
       Goal, {"id", "type", "priority", "targetEntityId", "targetLocation",
              "hasTargetLocation", "completed"});
 }
 
+/** User Story: As a projection bot goal consumer, I need to invoke strategic goal list through a stable signature so the projection bot goal workflow remains explicit and composable. @fn TArray<ecs::FComponentValue> StrategicGoalList(const TArray<FBotStrategicGoal> &Goals) */
 TArray<ecs::FComponentValue>
 StrategicGoalList(const TArray<FBotStrategicGoal> &Goals) {
   return ecs::mapComponentValues<FBotStrategicGoal>(Goals, StrategicGoalValue);
 }
 
+/** User Story: As a projection bot goal consumer, I need to invoke bot knowledge value through a stable signature so the projection bot goal workflow remains explicit and composable. @fn ecs::FComponentValue BotKnowledgeValue(const FBotKnowledgeBase &Knowledge) */
 ecs::FComponentValue BotKnowledgeValue(const FBotKnowledgeBase &Knowledge) {
   return ComponentsAdapters::ComponentSourceValueMap(
       Knowledge, {"KnownLandmarkIds", "KnownBotIds"});
@@ -28,6 +31,7 @@ ecs::FComponentValue BotKnowledgeValue(const FBotKnowledgeBase &Knowledge) {
 namespace ComponentsAdapters {
 
 template <> struct TComponentTextRegistry<EBotGoalType> {
+  /** User Story: As a projection bot goal consumer, I need to invoke declarations through a stable signature so the projection bot goal workflow remains explicit and composable. @fn static const TArray<TComponentTextDeclaration<EBotGoalType>> &Declarations() */
   static const TArray<TComponentTextDeclaration<EBotGoalType>>
       &Declarations() {
     static const TArray<TComponentTextDeclaration<EBotGoalType>>
@@ -40,6 +44,7 @@ template <> struct TComponentTextRegistry<EBotGoalType> {
 };
 
 template <> struct TComponentSourceValueFieldRegistry<FBotStrategicGoal> {
+  /** User Story: As a projection bot goal consumer, I need to invoke fields through a stable signature so the projection bot goal workflow remains explicit and composable. @fn static const TArray< TComponentSourceValueFieldDeclaration<FBotStrategicGoal>> &Fields() */
   static const TArray<
       TComponentSourceValueFieldDeclaration<FBotStrategicGoal>>
       &Fields() {
@@ -58,6 +63,7 @@ template <> struct TComponentSourceValueFieldRegistry<FBotStrategicGoal> {
 };
 
 template <> struct TComponentSourceValueFieldRegistry<FBotKnowledgeBase> {
+  /** User Story: As a projection bot goal consumer, I need to invoke fields through a stable signature so the projection bot goal workflow remains explicit and composable. @fn static const TArray< TComponentSourceValueFieldDeclaration<FBotKnowledgeBase>> &Fields() */
   static const TArray<
       TComponentSourceValueFieldDeclaration<FBotKnowledgeBase>>
       &Fields() {
@@ -71,6 +77,7 @@ template <> struct TComponentSourceValueFieldRegistry<FBotKnowledgeBase> {
 };
 
 template <> struct TComponentSourceValueFieldRegistry<FBotGoalComponent> {
+  /** User Story: As a projection bot goal consumer, I need to invoke fields through a stable signature so the projection bot goal workflow remains explicit and composable. @fn static const TArray< TComponentSourceValueFieldDeclaration<FBotGoalComponent>> &Fields() */
   static const TArray<
       TComponentSourceValueFieldDeclaration<FBotGoalComponent>>
       &Fields() {
@@ -89,6 +96,7 @@ template <> struct TComponentSourceValueFieldRegistry<FBotGoalComponent> {
 
 template <>
 struct TComponentSourceProjector<FBotGoalComponent> {
+  /** User Story: As a projection bot goal consumer, I need to invoke the callable value through a stable signature so the projection bot goal workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FBotGoalComponent &Goal) const */
   ecs::FComponentValue operator()(const FBotGoalComponent &Goal) const {
     return ComponentSourceValueMap(
         Goal, {"Id", "HasActiveGoal", "ActiveGoal", "GoalQueue",
@@ -102,6 +110,7 @@ namespace SystemsProjectionBotAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
+/** User Story: As a projection bot goal consumer, I need to invoke project bot goal through a stable signature so the projection bot goal workflow remains explicit and composable. @fn ecs::FWorld ProjectBotGoal(const FProjectBotGoalPayload &Payload) */
 ecs::FWorld ProjectBotGoal(const FProjectBotGoalPayload &Payload) {
   return ProjectBotPayload<FBotGoalComponent>(
       Payload,

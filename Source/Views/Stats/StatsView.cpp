@@ -37,6 +37,7 @@ struct FMetricRowRequest {
 
 // --- View helpers (UMG widget construction) ---
 
+/** User Story: As a views stats consumer, I need to invoke build stats text element through a stable signature so the views stats workflow remains explicit and composable. @fn UTextBlock *BuildStatsTextElement(const FTextElementRequest &Request) */
 UTextBlock *BuildStatsTextElement(const FTextElementRequest &Request) {
   check(Request.Tree);
   check(Request.Settings);
@@ -52,6 +53,7 @@ UTextBlock *BuildStatsTextElement(const FTextElementRequest &Request) {
   return Element;
 }
 
+/** User Story: As a views stats consumer, I need to invoke build stats metric row through a stable signature so the views stats workflow remains explicit and composable. @fn UHorizontalBox *BuildStatsMetricRow(const FMetricRowRequest &Request) */
 UHorizontalBox *BuildStatsMetricRow(const FMetricRowRequest &Request) {
   check(Request.Tree);
   check(Request.ValueTextElement);
@@ -72,6 +74,7 @@ UHorizontalBox *BuildStatsMetricRow(const FMetricRowRequest &Request) {
 
 // --- View apply helpers (set widget text/color from selector output) ---
 
+/** User Story: As a views stats consumer, I need to invoke apply stats text through a stable signature so the views stats workflow remains explicit and composable. @fn void ApplyStatsText(UTextBlock *TextElement, const FG::FStatsTextModel &Model) */
 void ApplyStatsText(UTextBlock *TextElement, const FG::FStatsTextModel &Model) {
   TextElement ? (TextElement->SetText(FText::FromString(Model.Text)),
                  TextElement->SetColorAndOpacity(FSlateColor(Model.Color)),
@@ -81,6 +84,7 @@ void ApplyStatsText(UTextBlock *TextElement, const FG::FStatsTextModel &Model) {
 
 } // namespace
 
+/** User Story: As a views stats consumer, I need to invoke native construct through a stable signature so the views stats workflow remains explicit and composable. @fn void URuntimeStatsWidget::NativeConstruct() */
 void URuntimeStatsWidget::NativeConstruct() {
   Super::NativeConstruct();
 
@@ -218,12 +222,14 @@ void URuntimeStatsWidget::NativeConstruct() {
         }(), void());
 }
 
+/** User Story: As a views stats consumer, I need to invoke native tick through a stable signature so the views stats workflow remains explicit and composable. @fn void URuntimeStatsWidget::NativeTick(const FGeometry &MyGeometry, float InDeltaTime) */
 void URuntimeStatsWidget::NativeTick(const FGeometry &MyGeometry,
                                      float InDeltaTime) {
   Super::NativeTick(MyGeometry, InDeltaTime);
   RefreshStats(InDeltaTime);
 }
 
+/** User Story: As a views stats consumer, I need to invoke refresh stats through a stable signature so the views stats workflow remains explicit and composable. @fn void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) */
 void URuntimeStatsWidget::RefreshStats(float DeltaSeconds) {
   FG::RuntimeActions::DispatchObserveRuntimeStatsTick(GetWorld(), DeltaSeconds);
   const FG::FRuntimeStatsPresentationModel &Presentation =

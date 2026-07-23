@@ -10,7 +10,9 @@ namespace Level {
 namespace InteractionSelectors {
 
 /**
+ * @fn inline const FSelection & SelectSelectedCandidate(const FInteractionState &State)
  * @brief Selector for the reducer-owned selected candidate.
+ * User Story: As a features systems interaction consumer, I need to invoke select selected candidate through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline const FSelection &
 SelectSelectedCandidate(const FInteractionState &State) {
@@ -18,7 +20,9 @@ SelectSelectedCandidate(const FInteractionState &State) {
 }
 
 /**
+ * @fn inline float SelectTownspersonInteractionDistance( const FInteractionState &State)
  * @brief Selector for the configured townsperson interaction distance.
+ * User Story: As a features systems interaction consumer, I need to invoke select townsperson interaction distance through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline float SelectTownspersonInteractionDistance(
     const FInteractionState &State) {
@@ -26,7 +30,9 @@ inline float SelectTownspersonInteractionDistance(
 }
 
 /**
+ * @fn inline TArray<FCandidate> SelectCandidates(const FInteractionState &State)
  * @brief Selector for the observed candidate payload.
+ * User Story: As a features systems interaction consumer, I need to invoke select candidates through a stable signature so the features systems interaction workflow remains explicit and composable.
  */
 inline TArray<FCandidate>
 SelectCandidates(const FInteractionState &State) {

@@ -14,6 +14,7 @@ struct FUIRuntimeConversationText {
   FString NpcReply;
 };
 
+/** User Story: As a systems ui conversation consumer, I need to invoke reduce runtime conversation view model through a stable signature so the systems ui conversation workflow remains explicit and composable. @fn inline FRuntimeConversationViewModel ReduceRuntimeConversationViewModel( const FUIRuntimeConversationText &Text, const FUISettings &Settings) */
 inline FRuntimeConversationViewModel
 ReduceRuntimeConversationViewModel(
     const FUIRuntimeConversationText &Text,
@@ -26,6 +27,7 @@ ReduceRuntimeConversationViewModel(
 
 } // namespace detail
 
+/** User Story: As a systems ui conversation consumer, I need to invoke reduce conversation presented through a stable signature so the systems ui conversation workflow remains explicit and composable. @fn inline FUIState ReduceConversationPresented( const FUIState &State, const rtk::PayloadAction<FUIPayload> &Action) */
 inline FUIState ReduceConversationPresented(
     const FUIState &State,
     const rtk::PayloadAction<FUIPayload> &Action) {
@@ -39,6 +41,7 @@ inline FUIState ReduceConversationPresented(
       .val;
 }
 
+/** User Story: As a systems ui conversation consumer, I need to invoke reduce runtime conversation placeholder through a stable signature so the systems ui conversation workflow remains explicit and composable. @fn inline ForbocAI::Game::UI::FRuntimeConversationViewModel ReduceRuntimeConversationPlaceholder( const ForbocAI::Game::Data::FUISettings &Settings) */
 inline ForbocAI::Game::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationPlaceholder(
     const ForbocAI::Game::Data::FUISettings &Settings) {
@@ -48,6 +51,7 @@ ReduceRuntimeConversationPlaceholder(
       Settings);
 }
 
+/** User Story: As a systems ui conversation consumer, I need to invoke reduce runtime conversation view model through a stable signature so the systems ui conversation workflow remains explicit and composable. @fn inline ForbocAI::Game::UI::FRuntimeConversationViewModel ReduceRuntimeConversationViewModel( const FRuntimeConversationViewModelRequest &Request, const ForbocAI::Game::Data::FUISettings &Settings) */
 inline ForbocAI::Game::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationViewModel(
     const FRuntimeConversationViewModelRequest &Request,
@@ -69,6 +73,7 @@ ReduceRuntimeConversationViewModel(
       Settings);
 }
 
+/** User Story: As a systems ui conversation consumer, I need to invoke reduce bind dialogue view model through a stable signature so the systems ui conversation workflow remains explicit and composable. @fn inline FBindDialogueViewModel ReduceBindDialogueViewModel( const FBindDialogueViewModelRequest &Request, const ForbocAI::Game::Data::FUISettings &Settings) */
 inline FBindDialogueViewModel ReduceBindDialogueViewModel(
     const FBindDialogueViewModelRequest &Request,
     const ForbocAI::Game::Data::FUISettings &Settings) {
@@ -87,6 +92,7 @@ inline FBindDialogueViewModel ReduceBindDialogueViewModel(
   return Model;
 }
 
+/** User Story: As a systems ui conversation consumer, I need to invoke reduce dialogue response view model through a stable signature so the systems ui conversation workflow remains explicit and composable. @fn inline FDialogueResponseViewModel ReduceDialogueResponseViewModel( const FDialogueResponseViewModelRequest &Request, const ForbocAI::Game::Data::FUISettings &Settings) */
 inline FDialogueResponseViewModel ReduceDialogueResponseViewModel(
     const FDialogueResponseViewModelRequest &Request,
     const ForbocAI::Game::Data::FUISettings &Settings) {

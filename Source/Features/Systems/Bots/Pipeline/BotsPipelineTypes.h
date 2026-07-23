@@ -15,6 +15,7 @@ struct FBotPipelineState {
   bool bReady;
 };
 
+/** User Story: As a systems bots pipeline consumer, I need to compare values for equality through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline bool operator==(const FBotPipelineState &Left, const FBotPipelineState &Right) */
 inline bool operator==(const FBotPipelineState &Left,
                        const FBotPipelineState &Right) {
   return Left.bReady == Right.bReady &&
@@ -23,6 +24,7 @@ inline bool operator==(const FBotPipelineState &Left,
           Left.ActionId.value == Right.ActionId.value);
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to compare values for inequality through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline bool operator!=(const FBotPipelineState &Left, const FBotPipelineState &Right) */
 inline bool operator!=(const FBotPipelineState &Left,
                        const FBotPipelineState &Right) {
   return !(Left == Right);

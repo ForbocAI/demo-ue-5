@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace BotOrchestratorActions {
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke orchestrator observed through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotOrchestratorPayload> & OrchestratorObserved() */
 inline const rtk::ActionCreator<FBotOrchestratorPayload> &
 OrchestratorObserved() {
   static const func::Lazy<rtk::ActionCreator<FBotOrchestratorPayload>>

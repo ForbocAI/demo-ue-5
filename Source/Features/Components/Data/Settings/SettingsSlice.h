@@ -12,16 +12,18 @@ namespace SettingsReducers {
 
 namespace Json = JsonAdapters;
 
+/** User Story: As a components data settings consumer, I need to invoke settings atom through a stable signature so the components data settings workflow remains explicit and composable. @fn inline FString SettingsAtom(const char *Atom) */
 inline FString SettingsAtom(const char *Atom) {
   return FString(UTF8_TO_TCHAR(Atom));
 }
 
 /**
+ * @fn inline FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object)
  * @brief Reads an FColor from a JSON object with r/g/b/a int fields.
- * @signature FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object)
  *
  * User story: As a settings adapter author, authored color values should
  * reduce through one neutral reader without per-field boilerplate.
+ * User Story: As a components data settings consumer, I need to invoke read color settings through a stable signature so the components data settings workflow remains explicit and composable.
  */
 inline FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonIntReader Int = Json::IntIn(Object);
@@ -32,11 +34,12 @@ inline FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object) {
 }
 
 /**
+ * @fn inline FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object)
  * @brief Reads an FLinearColor from a JSON object with r/g/b/a float fields.
- * @signature FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object)
  *
  * User story: As a rendering settings adapter, linear color values should
  * reduce through one neutral reader for consistency with FColor.
+ * User Story: As a components data settings consumer, I need to invoke read linear color settings through a stable signature so the components data settings workflow remains explicit and composable.
  */
 inline FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonFloatReader Float = Json::FloatIn(Object);

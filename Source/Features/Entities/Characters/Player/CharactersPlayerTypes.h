@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Data/Settings/Player/SettingsPlayerTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -31,33 +32,16 @@ struct FMovementInputViewModel {
 };
 
 struct FPresentationViewModel {
-  float CapsuleRadius = float{};
-  float CapsuleHalfHeight = float{};
-  float FollowCameraArmLength = float{};
-  float RotationRateYaw = float{};
-  float JumpZVelocity = float{};
-  float AirControl = float{};
-  float MaxWalkSpeed = float{};
-  float FlyModeSpeed = float{};
-  float MinAnalogWalkSpeed = float{};
-  float BrakingDecelerationWalking = float{};
-  float BrakingDecelerationFalling = float{};
-  FVector MeshRelativeLocation = FVector::ZeroVector;
-  FRotator MeshRelativeRotation = FRotator::ZeroRotator;
-  int32 SkeletalMeshForcedLodModel = int32{};
-  int32 SkeletalMeshMinLodModel = int32{};
-  float MeshCullDistance = float{};
-  bool bMeshCastShadow = false;
-  bool bMeshComponentTickEnabled = false;
-  bool bMeshUpdateRateOptimizationsEnabled = false;
-  FString MeshPath;
-  FString AnimationBlueprintClassPath;
-  FString MoveActionPath;
-  FString LookActionPath;
-  FString MouseLookActionPath;
-  FString JumpActionPath;
-  FString DefaultMappingContextPath;
-  FString MouseMappingContextPath;
+  ForbocAI::Game::Data::FCapsuleSettings Capsule;
+  ForbocAI::Game::Data::FCameraSettings Camera;
+  ForbocAI::Game::Data::FMovementSettings Movement;
+  ForbocAI::Game::Data::FBrakingSettings Braking;
+  ForbocAI::Game::Data::FMeshTransformSettings MeshTransform;
+  ForbocAI::Game::Data::FMeshLodSettings MeshLod;
+  ForbocAI::Game::Data::FMeshBehaviorSettings MeshBehavior;
+  ForbocAI::Game::Data::FMeshAssetSettings MeshAssets;
+  ForbocAI::Game::Data::FInputActionSettings InputActions;
+  ForbocAI::Game::Data::FInputMappingSettings InputMappings;
 };
 
 struct FPlayerState {
@@ -66,26 +50,31 @@ struct FPlayerState {
   bool bReady = false;
 };
 
+/** User Story: As a entities characters player consumer, I need to compare values for equality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator==(const FPlayerPayload &Left, const FPlayerPayload &Right) */
 inline bool operator==(const FPlayerPayload &Left,
                        const FPlayerPayload &Right) {
   return Left.Id == Right.Id;
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for inequality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator!=(const FPlayerPayload &Left, const FPlayerPayload &Right) */
 inline bool operator!=(const FPlayerPayload &Left,
                        const FPlayerPayload &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for equality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator==(const FPlayerPresentationRequest &Left, const FPlayerPresentationRequest &Right) */
 inline bool operator==(const FPlayerPresentationRequest &Left,
                        const FPlayerPresentationRequest &Right) {
   return Left.Id == Right.Id;
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for inequality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator!=(const FPlayerPresentationRequest &Left, const FPlayerPresentationRequest &Right) */
 inline bool operator!=(const FPlayerPresentationRequest &Left,
                        const FPlayerPresentationRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for equality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator==(const FMovementInputRequest &Left, const FMovementInputRequest &Right) */
 inline bool operator==(const FMovementInputRequest &Left,
                        const FMovementInputRequest &Right) {
   return Left.Id == Right.Id &&
@@ -95,11 +84,13 @@ inline bool operator==(const FMovementInputRequest &Left,
          Left.bControllerAvailable == Right.bControllerAvailable;
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for inequality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator!=(const FMovementInputRequest &Left, const FMovementInputRequest &Right) */
 inline bool operator!=(const FMovementInputRequest &Left,
                        const FMovementInputRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for equality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator==(const FMovementInputViewModel &Left, const FMovementInputViewModel &Right) */
 inline bool operator==(const FMovementInputViewModel &Left,
                        const FMovementInputViewModel &Right) {
   return Left.ForwardDirection == Right.ForwardDirection &&
@@ -109,57 +100,32 @@ inline bool operator==(const FMovementInputViewModel &Left,
          Left.bShouldMove == Right.bShouldMove;
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for inequality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator!=(const FMovementInputViewModel &Left, const FMovementInputViewModel &Right) */
 inline bool operator!=(const FMovementInputViewModel &Left,
                        const FMovementInputViewModel &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for equality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator==(const FPresentationViewModel &Left, const FPresentationViewModel &Right) */
 inline bool operator==(const FPresentationViewModel &Left,
                        const FPresentationViewModel &Right) {
-  return FMath::IsNearlyEqual(Left.CapsuleRadius, Right.CapsuleRadius) &&
-         FMath::IsNearlyEqual(Left.CapsuleHalfHeight,
-                              Right.CapsuleHalfHeight) &&
-         FMath::IsNearlyEqual(Left.FollowCameraArmLength,
-                              Right.FollowCameraArmLength) &&
-         FMath::IsNearlyEqual(Left.RotationRateYaw, Right.RotationRateYaw) &&
-         FMath::IsNearlyEqual(Left.JumpZVelocity, Right.JumpZVelocity) &&
-         FMath::IsNearlyEqual(Left.AirControl, Right.AirControl) &&
-         FMath::IsNearlyEqual(Left.MaxWalkSpeed, Right.MaxWalkSpeed) &&
-         FMath::IsNearlyEqual(Left.FlyModeSpeed, Right.FlyModeSpeed) &&
-         FMath::IsNearlyEqual(Left.MinAnalogWalkSpeed,
-                              Right.MinAnalogWalkSpeed) &&
-         FMath::IsNearlyEqual(Left.BrakingDecelerationWalking,
-                              Right.BrakingDecelerationWalking) &&
-         FMath::IsNearlyEqual(Left.BrakingDecelerationFalling,
-                              Right.BrakingDecelerationFalling) &&
-         Left.MeshRelativeLocation == Right.MeshRelativeLocation &&
-         Left.MeshRelativeRotation == Right.MeshRelativeRotation &&
-         Left.SkeletalMeshForcedLodModel ==
-             Right.SkeletalMeshForcedLodModel &&
-         Left.SkeletalMeshMinLodModel == Right.SkeletalMeshMinLodModel &&
-         FMath::IsNearlyEqual(Left.MeshCullDistance,
-                              Right.MeshCullDistance) &&
-         Left.bMeshCastShadow == Right.bMeshCastShadow &&
-         Left.bMeshComponentTickEnabled ==
-             Right.bMeshComponentTickEnabled &&
-         Left.bMeshUpdateRateOptimizationsEnabled ==
-             Right.bMeshUpdateRateOptimizationsEnabled &&
-         Left.MeshPath == Right.MeshPath &&
-         Left.AnimationBlueprintClassPath ==
-             Right.AnimationBlueprintClassPath &&
-         Left.MoveActionPath == Right.MoveActionPath &&
-         Left.LookActionPath == Right.LookActionPath &&
-         Left.MouseLookActionPath == Right.MouseLookActionPath &&
-         Left.JumpActionPath == Right.JumpActionPath &&
-         Left.DefaultMappingContextPath == Right.DefaultMappingContextPath &&
-         Left.MouseMappingContextPath == Right.MouseMappingContextPath;
+  return Left.Capsule == Right.Capsule && Left.Camera == Right.Camera &&
+         Left.Movement == Right.Movement && Left.Braking == Right.Braking &&
+         Left.MeshTransform == Right.MeshTransform &&
+         Left.MeshLod == Right.MeshLod &&
+         Left.MeshBehavior == Right.MeshBehavior &&
+         Left.MeshAssets == Right.MeshAssets &&
+         Left.InputActions == Right.InputActions &&
+         Left.InputMappings == Right.InputMappings;
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for inequality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator!=(const FPresentationViewModel &Left, const FPresentationViewModel &Right) */
 inline bool operator!=(const FPresentationViewModel &Left,
                        const FPresentationViewModel &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for equality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator==(const FPlayerState &Left, const FPlayerState &Right) */
 inline bool operator==(const FPlayerState &Left,
                        const FPlayerState &Right) {
   return Left.bReady == Right.bReady &&
@@ -169,6 +135,7 @@ inline bool operator==(const FPlayerState &Left,
           Left.ActionId.value == Right.ActionId.value);
 }
 
+/** User Story: As a entities characters player consumer, I need to compare values for inequality through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline bool operator!=(const FPlayerState &Left, const FPlayerState &Right) */
 inline bool operator!=(const FPlayerState &Left,
                        const FPlayerState &Right) {
   return !(Left == Right);

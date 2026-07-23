@@ -11,6 +11,7 @@ namespace Level {
 namespace ComponentsAdapters {
 
 template <> struct TComponentTextRegistry<EBotEntityKind> {
+  /** User Story: As a entities characters bots consumer, I need to invoke declarations through a stable signature so the entities characters bots workflow remains explicit and composable. @fn static const TArray<TComponentTextDeclaration<EBotEntityKind>> &Declarations() */
   static const TArray<TComponentTextDeclaration<EBotEntityKind>>
       &Declarations() {
     static const TArray<TComponentTextDeclaration<EBotEntityKind>>
@@ -21,6 +22,7 @@ template <> struct TComponentTextRegistry<EBotEntityKind> {
 };
 
 template <> struct TComponentTextRegistry<EBotAlignment> {
+  /** User Story: As a entities characters bots consumer, I need to invoke declarations through a stable signature so the entities characters bots workflow remains explicit and composable. @fn static const TArray<TComponentTextDeclaration<EBotAlignment>> &Declarations() */
   static const TArray<TComponentTextDeclaration<EBotAlignment>>
       &Declarations() {
     static const TArray<TComponentTextDeclaration<EBotAlignment>>
@@ -31,6 +33,7 @@ template <> struct TComponentTextRegistry<EBotAlignment> {
 };
 
 template <> struct TComponentSourceValueFieldRegistry<FBotEntity> {
+  /** User Story: As a entities characters bots consumer, I need to invoke fields through a stable signature so the entities characters bots workflow remains explicit and composable. @fn static const TArray<TComponentSourceValueFieldDeclaration<FBotEntity>> &Fields() */
   static const TArray<TComponentSourceValueFieldDeclaration<FBotEntity>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FBotEntity>>
@@ -46,6 +49,7 @@ template <> struct TComponentSourceValueFieldRegistry<FBotEntity> {
 
 template <>
 struct TComponentSourceProjector<FBotEntity> {
+  /** User Story: As a entities characters bots consumer, I need to invoke the callable value through a stable signature so the entities characters bots workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FBotEntity &Bot) const */
   ecs::FComponentValue operator()(const FBotEntity &Bot) const {
     return ComponentSourceValueMap(
         Bot, {"Id", "DisplayName", "Kind", "Alignment", "Active"});
@@ -58,10 +62,12 @@ namespace EntitiesAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
+/** User Story: As a entities characters bots consumer, I need to invoke bot entity key through a stable signature so the entities characters bots workflow remains explicit and composable. @fn ecs::EntityKey BotEntityKey(const FString &Id) */
 ecs::EntityKey BotEntityKey(const FString &Id) {
   return FString::Printf(TEXT("bot:%s"), *Id);
 }
 
+/** User Story: As a entities characters bots consumer, I need to invoke project bot through a stable signature so the entities characters bots workflow remains explicit and composable. @fn ecs::FWorld ProjectBot(const FProjectBotEntityPayload &Payload) */
 ecs::FWorld ProjectBot(const FProjectBotEntityPayload &Payload) {
   return ComponentsAdapters::ProjectEntityCatalog(
       Payload,

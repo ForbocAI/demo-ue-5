@@ -5,6 +5,7 @@
 namespace ForbocAI {
 namespace Game {
 namespace Level {
+/** User Story: As a profile render equality consumer, I need to compare values for equality through a stable signature so the profile render equality workflow remains explicit and composable. @fn inline bool operator==(const FLevelRetroRenderProfile &Left, const FLevelRetroRenderProfile &Right) */
 inline bool operator==(const FLevelRetroRenderProfile &Left,
                        const FLevelRetroRenderProfile &Right) {
   return FMath::IsNearlyEqual(Left.TimeOfDayHour, Right.TimeOfDayHour) &&
@@ -252,6 +253,7 @@ inline bool operator==(const FLevelRetroRenderProfile &Left,
          FMath::IsNearlyEqual(Left.FogColorA, Right.FogColorA);
 }
 
+/** User Story: As a profile render equality consumer, I need to compare values for inequality through a stable signature so the profile render equality workflow remains explicit and composable. @fn inline bool operator!=(const FLevelRetroRenderProfile &Left, const FLevelRetroRenderProfile &Right) */
 inline bool operator!=(const FLevelRetroRenderProfile &Left,
                        const FLevelRetroRenderProfile &Right) {
   return !(Left == Right);

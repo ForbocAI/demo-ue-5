@@ -115,6 +115,7 @@ struct FOverlaySettings {
   FLinearColor HighValueColor;
 };
 
+/** User Story: As a settings ui stats consumer, I need to compare values for equality through a stable signature so the settings ui stats workflow remains explicit and composable. @fn inline bool operator==(const FOverlaySettings &Left, const FOverlaySettings &Right) */
 inline bool operator==(const FOverlaySettings &Left,
                        const FOverlaySettings &Right) {
   return Left.FramesPerSecondLabel == Right.FramesPerSecondLabel &&
@@ -262,6 +263,7 @@ inline bool operator==(const FOverlaySettings &Left,
          Left.HighValueColor == Right.HighValueColor;
 }
 
+/** User Story: As a settings ui stats consumer, I need to compare values for inequality through a stable signature so the settings ui stats workflow remains explicit and composable. @fn inline bool operator!=(const FOverlaySettings &Left, const FOverlaySettings &Right) */
 inline bool operator!=(const FOverlaySettings &Left,
                        const FOverlaySettings &Right) {
   return !(Left == Right);

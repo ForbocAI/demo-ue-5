@@ -30,6 +30,7 @@ struct FSettings {
   FTerrain Terrain;
 };
 
+/** User Story: As a settings automation store consumer, I need to compare values for equality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator==(const FLabels &Left, const FLabels &Right) */
 inline bool operator==(const FLabels &Left, const FLabels &Right) {
   return Left.DataBackedMapLabels == Right.DataBackedMapLabels &&
          Left.ReduxLoggerMiddlewareLabels ==
@@ -37,34 +38,41 @@ inline bool operator==(const FLabels &Left, const FLabels &Right) {
          Left.ProjectionGateLabels == Right.ProjectionGateLabels;
 }
 
+/** User Story: As a settings automation store consumer, I need to compare values for inequality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator!=(const FLabels &Left, const FLabels &Right) */
 inline bool operator!=(const FLabels &Left, const FLabels &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings automation store consumer, I need to compare values for equality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator==(const FLogger &Left, const FLogger &Right) */
 inline bool operator==(const FLogger &Left, const FLogger &Right) {
   return Left.ReduxLoggerCategory == Right.ReduxLoggerCategory &&
          Left.ReduxLoggerActionTitlePrefix ==
              Right.ReduxLoggerActionTitlePrefix;
 }
 
+/** User Story: As a settings automation store consumer, I need to compare values for inequality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator!=(const FLogger &Left, const FLogger &Right) */
 inline bool operator!=(const FLogger &Left, const FLogger &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings automation store consumer, I need to compare values for equality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator==(const FTerrain &Left, const FTerrain &Right) */
 inline bool operator==(const FTerrain &Left, const FTerrain &Right) {
   return Left.TerrainEntity == Right.TerrainEntity &&
          Left.TerrainProjectionDomain == Right.TerrainProjectionDomain;
 }
 
+/** User Story: As a settings automation store consumer, I need to compare values for inequality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator!=(const FTerrain &Left, const FTerrain &Right) */
 inline bool operator!=(const FTerrain &Left, const FTerrain &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings automation store consumer, I need to compare values for equality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator==(const FSettings &Left, const FSettings &Right) */
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Labels == Right.Labels && Left.Logger == Right.Logger &&
          Left.Terrain == Right.Terrain;
 }
 
+/** User Story: As a settings automation store consumer, I need to compare values for inequality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator!=(const FSettings &Left, const FSettings &Right) */
 inline bool operator!=(const FSettings &Left, const FSettings &Right) {
   return !(Left == Right);
 }

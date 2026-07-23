@@ -29,14 +29,17 @@ class FORBOCAIDEMO_API URuntimeChatWidget : public UUserWidget {
   GENERATED_BODY()
 
 public:
+  /** User Story: As a views chat consumer, I need to invoke native construct through a stable signature so the views chat workflow remains explicit and composable. @fn virtual void NativeConstruct() override */
   virtual void NativeConstruct() override;
 
   /**
+   * @fn void ShowConversationViewModel( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation)
    * @brief Applies a store-derived runtime conversation view model to widgets.
    *
    * @param Conversation Selector/thunk output prepared by reducers.
    *
    * Side effects: Updates UMG text elements only.
+   * User Story: As a views chat consumer, I need to invoke show conversation view model through a stable signature so the views chat workflow remains explicit and composable.
    */
   void ShowConversationViewModel(
       const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation);
@@ -52,11 +55,14 @@ private:
   UTextBlock *ReplyTextElement;
 
   /**
+   * @fn void ApplyConversationViewModel( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation)
    * @brief Internal display adapter for the supplied view model.
+   * User Story: As a views chat consumer, I need to invoke apply conversation view model through a stable signature so the views chat workflow remains explicit and composable.
    */
   void ApplyConversationViewModel(
       const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation);
 
+  /** User Story: As a views chat consumer, I need to invoke build text element through a stable signature so the views chat workflow remains explicit and composable. @fn UTextBlock *BuildTextElement(const FString &Text, const FLinearColor &Color, float Size) */
   UTextBlock *BuildTextElement(const FString &Text, const FLinearColor &Color,
                                float Size);
 };

@@ -17,25 +17,49 @@ struct FTests {
   FString DeterministicOrder;
 };
 
-struct FAssertions {
+struct FTickAssertions {
   FString TickCountAdvanced;
   FString ActionDispatched;
   FString HealthUnchanged;
+};
+
+struct FHazardAssertions {
   FString HealthReducedByHazard;
   FString HealthAfterHazard;
+  FString HazardBotTookDamage;
+};
+
+struct FAggroAssertions {
   FString BotHasAggro;
   FString PhaseIsCombat;
   FString RemembersEnemyPosition;
+  FString AwareBotHasAggro;
+};
+
+struct FFleeAssertions {
   FString PhaseTransitionedToFlee;
+};
+
+struct FBotAssertions {
   FString BotsProcessed;
   FString IdleBotFullHealth;
-  FString HazardBotTookDamage;
-  FString AwareBotHasAggro;
+};
+
+struct FDeterminismAssertions {
   FString HealthDeterministic;
   FString PositionDeterministic;
   FString PhaseDeterministic;
   FString AggroDeterministic;
   FString ActionCountDeterministic;
+};
+
+struct FAssertions {
+  FTickAssertions Tick;
+  FHazardAssertions Hazard;
+  FAggroAssertions Aggro;
+  FFleeAssertions Flee;
+  FBotAssertions Bots;
+  FDeterminismAssertions Determinism;
 };
 
 struct FSettings {
@@ -46,6 +70,7 @@ struct FSettings {
   FAssertions Assertions;
 };
 
+/** User Story: As a settings automation pipeline consumer, I need to compare values for equality through a stable signature so the settings automation pipeline workflow remains explicit and composable. @fn inline bool operator==(const FTests &Left, const FTests &Right) */
 inline bool operator==(const FTests &Left, const FTests &Right) {
   return Left.IdleTickAdvancesState == Right.IdleTickAdvancesState &&
          Left.HazardCausesDamage == Right.HazardCausesDamage &&
@@ -55,41 +80,55 @@ inline bool operator==(const FTests &Left, const FTests &Right) {
          Left.DeterministicOrder == Right.DeterministicOrder;
 }
 
+/** User Story: As a settings automation pipeline consumer, I need to compare values for inequality through a stable signature so the settings automation pipeline workflow remains explicit and composable. @fn inline bool operator!=(const FTests &Left, const FTests &Right) */
 inline bool operator!=(const FTests &Left, const FTests &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings automation pipeline consumer, I need to compare values for equality through a stable signature so the settings automation pipeline workflow remains explicit and composable. @fn inline bool operator==(const FAssertions &Left, const FAssertions &Right) */
 inline bool operator==(const FAssertions &Left, const FAssertions &Right) {
-  return Left.TickCountAdvanced == Right.TickCountAdvanced &&
-         Left.ActionDispatched == Right.ActionDispatched &&
-         Left.HealthUnchanged == Right.HealthUnchanged &&
-         Left.HealthReducedByHazard == Right.HealthReducedByHazard &&
-         Left.HealthAfterHazard == Right.HealthAfterHazard &&
-         Left.BotHasAggro == Right.BotHasAggro &&
-         Left.PhaseIsCombat == Right.PhaseIsCombat &&
-         Left.RemembersEnemyPosition == Right.RemembersEnemyPosition &&
-         Left.PhaseTransitionedToFlee == Right.PhaseTransitionedToFlee &&
-         Left.BotsProcessed == Right.BotsProcessed &&
-         Left.IdleBotFullHealth == Right.IdleBotFullHealth &&
-         Left.HazardBotTookDamage == Right.HazardBotTookDamage &&
-         Left.AwareBotHasAggro == Right.AwareBotHasAggro &&
-         Left.HealthDeterministic == Right.HealthDeterministic &&
-         Left.PositionDeterministic == Right.PositionDeterministic &&
-         Left.PhaseDeterministic == Right.PhaseDeterministic &&
-         Left.AggroDeterministic == Right.AggroDeterministic &&
-         Left.ActionCountDeterministic == Right.ActionCountDeterministic;
+  return Left.Tick.TickCountAdvanced == Right.Tick.TickCountAdvanced &&
+         Left.Tick.ActionDispatched == Right.Tick.ActionDispatched &&
+         Left.Tick.HealthUnchanged == Right.Tick.HealthUnchanged &&
+         Left.Hazard.HealthReducedByHazard ==
+             Right.Hazard.HealthReducedByHazard &&
+         Left.Hazard.HealthAfterHazard == Right.Hazard.HealthAfterHazard &&
+         Left.Hazard.HazardBotTookDamage ==
+             Right.Hazard.HazardBotTookDamage &&
+         Left.Aggro.BotHasAggro == Right.Aggro.BotHasAggro &&
+         Left.Aggro.PhaseIsCombat == Right.Aggro.PhaseIsCombat &&
+         Left.Aggro.RemembersEnemyPosition ==
+             Right.Aggro.RemembersEnemyPosition &&
+         Left.Aggro.AwareBotHasAggro == Right.Aggro.AwareBotHasAggro &&
+         Left.Flee.PhaseTransitionedToFlee ==
+             Right.Flee.PhaseTransitionedToFlee &&
+         Left.Bots.BotsProcessed == Right.Bots.BotsProcessed &&
+         Left.Bots.IdleBotFullHealth == Right.Bots.IdleBotFullHealth &&
+         Left.Determinism.HealthDeterministic ==
+             Right.Determinism.HealthDeterministic &&
+         Left.Determinism.PositionDeterministic ==
+             Right.Determinism.PositionDeterministic &&
+         Left.Determinism.PhaseDeterministic ==
+             Right.Determinism.PhaseDeterministic &&
+         Left.Determinism.AggroDeterministic ==
+             Right.Determinism.AggroDeterministic &&
+         Left.Determinism.ActionCountDeterministic ==
+             Right.Determinism.ActionCountDeterministic;
 }
 
+/** User Story: As a settings automation pipeline consumer, I need to compare values for inequality through a stable signature so the settings automation pipeline workflow remains explicit and composable. @fn inline bool operator!=(const FAssertions &Left, const FAssertions &Right) */
 inline bool operator!=(const FAssertions &Left, const FAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a settings automation pipeline consumer, I need to compare values for equality through a stable signature so the settings automation pipeline workflow remains explicit and composable. @fn inline bool operator==(const FSettings &Left, const FSettings &Right) */
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Spec == Right.Spec && Left.Tests == Right.Tests &&
          Left.Groups == Right.Groups && Left.Cases == Right.Cases &&
          Left.Assertions == Right.Assertions;
 }
 
+/** User Story: As a settings automation pipeline consumer, I need to compare values for inequality through a stable signature so the settings automation pipeline workflow remains explicit and composable. @fn inline bool operator!=(const FSettings &Left, const FSettings &Right) */
 inline bool operator!=(const FSettings &Left, const FSettings &Right) {
   return !(Left == Right);
 }

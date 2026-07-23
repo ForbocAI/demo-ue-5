@@ -13,6 +13,7 @@ namespace Game {
 namespace Views {
 namespace SkeletalLodClamp {
 
+/** User Story: As a skeletal lod clamp consumer, I need to invoke lod count through a stable signature so the skeletal lod clamp workflow remains explicit and composable. @fn inline int32 LodCount(USkinnedMeshComponent *Component) */
 inline int32 LodCount(USkinnedMeshComponent *Component) {
   const USkinnedAsset *Asset =
       Component != nullptr ? Component->GetSkinnedAsset() : nullptr;
@@ -21,6 +22,7 @@ inline int32 LodCount(USkinnedMeshComponent *Component) {
   return RenderData != nullptr ? RenderData->LODRenderData.Num() : 0;
 }
 
+/** User Story: As a skeletal lod clamp consumer, I need to invoke forced lod model through a stable signature so the skeletal lod clamp workflow remains explicit and composable. @fn inline int32 ForcedLodModel(USkinnedMeshComponent *Component, int32 Requested) */
 inline int32 ForcedLodModel(USkinnedMeshComponent *Component,
                             int32 Requested) {
   const int32 Count = LodCount(Component);
@@ -28,6 +30,7 @@ inline int32 ForcedLodModel(USkinnedMeshComponent *Component,
                                       : FMath::Clamp(Requested, 1, Count);
 }
 
+/** User Story: As a skeletal lod clamp consumer, I need to invoke min lod model through a stable signature so the skeletal lod clamp workflow remains explicit and composable. @fn inline int32 MinLodModel(USkinnedMeshComponent *Component, int32 Requested) */
 inline int32 MinLodModel(USkinnedMeshComponent *Component,
                          int32 Requested) {
   const int32 Count = LodCount(Component);
@@ -35,6 +38,7 @@ inline int32 MinLodModel(USkinnedMeshComponent *Component,
                     : FMath::Clamp(Requested, 0, Count - 1);
 }
 
+/** User Story: As a skeletal lod clamp consumer, I need to invoke apply through a stable signature so the skeletal lod clamp workflow remains explicit and composable. @fn inline void Apply(USkinnedMeshComponent *Component, int32 ForcedModel, int32 MinModel) */
 inline void Apply(USkinnedMeshComponent *Component, int32 ForcedModel,
                   int32 MinModel) {
   check(Component);

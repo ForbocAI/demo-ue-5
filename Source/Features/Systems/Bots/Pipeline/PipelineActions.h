@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace BotPipelineActions {
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke pipeline observed through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotPipelinePayload> & PipelineObserved() */
 inline const rtk::ActionCreator<FBotPipelinePayload> &
 PipelineObserved() {
   static const func::Lazy<rtk::ActionCreator<FBotPipelinePayload>>

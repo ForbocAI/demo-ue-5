@@ -8,6 +8,7 @@ namespace Level {
 namespace ComponentsAdapters {
 
 template <> struct TComponentTextRegistry<EBotBehaviorState> {
+  /** User Story: As a projection bot ai consumer, I need to invoke declarations through a stable signature so the projection bot ai workflow remains explicit and composable. @fn static const TArray<TComponentTextDeclaration<EBotBehaviorState>> &Declarations() */
   static const TArray<TComponentTextDeclaration<EBotBehaviorState>>
       &Declarations() {
     static const TArray<TComponentTextDeclaration<EBotBehaviorState>>
@@ -20,6 +21,7 @@ template <> struct TComponentTextRegistry<EBotBehaviorState> {
 };
 
 template <> struct TComponentSourceValueFieldRegistry<FBotAIComponent> {
+  /** User Story: As a projection bot ai consumer, I need to invoke fields through a stable signature so the projection bot ai workflow remains explicit and composable. @fn static const TArray<TComponentSourceValueFieldDeclaration<FBotAIComponent>> &Fields() */
   static const TArray<TComponentSourceValueFieldDeclaration<FBotAIComponent>>
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<FBotAIComponent>>
@@ -37,6 +39,7 @@ template <> struct TComponentSourceValueFieldRegistry<FBotAIComponent> {
 
 template <>
 struct TComponentSourceProjector<FBotAIComponent> {
+  /** User Story: As a projection bot ai consumer, I need to invoke the callable value through a stable signature so the projection bot ai workflow remains explicit and composable. @fn ecs::FComponentValue operator()(const FBotAIComponent &AI) const */
   ecs::FComponentValue operator()(const FBotAIComponent &AI) const {
     return ComponentSourceValueMap(
         AI, {"Id", "BehaviorState", "TargetEntityId", "TargetLocation",
@@ -50,6 +53,7 @@ namespace SystemsProjectionBotAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
+/** User Story: As a projection bot ai consumer, I need to invoke project bot ai through a stable signature so the projection bot ai workflow remains explicit and composable. @fn ecs::FWorld ProjectBotAI(const FProjectBotAIPayload &Payload) */
 ecs::FWorld ProjectBotAI(const FProjectBotAIPayload &Payload) {
   return ProjectBotPayload<FBotAIComponent>(
       Payload,

@@ -13,11 +13,13 @@ struct FLocalRouteBounds {
   bool bValid = false;
 };
 
+/** User Story: As a features systems route consumer, I need to invoke initial route bounds through a stable signature so the features systems route workflow remains explicit and composable. @fn FLocalRouteBounds InitialRouteBounds(const FLevelLocalPoint &Point) */
 FLocalRouteBounds InitialRouteBounds(const FLevelLocalPoint &Point) {
   return {FVector2D(Point.EastWest, Point.NorthSouth),
           FVector2D(Point.EastWest, Point.NorthSouth), true};
 }
 
+/** User Story: As a features systems route consumer, I need to invoke extend route bounds through a stable signature so the features systems route workflow remains explicit and composable. @fn FLocalRouteBounds ExtendRouteBounds(const FLocalRouteBounds &Bounds, const FLevelLocalPoint &Point) */
 FLocalRouteBounds ExtendRouteBounds(const FLocalRouteBounds &Bounds,
                                     const FLevelLocalPoint &Point) {
   return {FVector2D(FMath::Min(Bounds.Min.X, Point.EastWest),
@@ -27,12 +29,14 @@ FLocalRouteBounds ExtendRouteBounds(const FLocalRouteBounds &Bounds,
           true};
 }
 
+/** User Story: As a features systems route consumer, I need to invoke reduce route point bounds through a stable signature so the features systems route workflow remains explicit and composable. @fn FLocalRouteBounds ReduceRoutePointBounds(FLocalRouteBounds Bounds, const FLevelLocalPoint &Point) */
 FLocalRouteBounds ReduceRoutePointBounds(FLocalRouteBounds Bounds,
                                          const FLevelLocalPoint &Point) {
   return Bounds.bValid ? ExtendRouteBounds(Bounds, Point)
                        : InitialRouteBounds(Point);
 }
 
+/** User Story: As a features systems route consumer, I need to invoke reduce townsperson bounds through a stable signature so the features systems route workflow remains explicit and composable. @fn FLocalRouteBounds ReduceTownspersonBounds(FLocalRouteBounds Bounds, const FTownspersonSeed &Seed) */
 FLocalRouteBounds ReduceTownspersonBounds(FLocalRouteBounds Bounds,
                                           const FTownspersonSeed &Seed) {
   return func::fold_indexed(Seed.PatrolRoute,
@@ -40,6 +44,7 @@ FLocalRouteBounds ReduceTownspersonBounds(FLocalRouteBounds Bounds,
                             ReduceRoutePointBounds);
 }
 
+/** User Story: As a features systems route consumer, I need to invoke reduce horse bounds through a stable signature so the features systems route workflow remains explicit and composable. @fn FLocalRouteBounds ReduceHorseBounds(FLocalRouteBounds Bounds, const FHorseRouteSeed &Seed) */
 FLocalRouteBounds ReduceHorseBounds(FLocalRouteBounds Bounds,
                                     const FHorseRouteSeed &Seed) {
   return func::fold_indexed(Seed.PatrolRoute,
@@ -47,6 +52,7 @@ FLocalRouteBounds ReduceHorseBounds(FLocalRouteBounds Bounds,
                             ReduceRoutePointBounds);
 }
 
+/** User Story: As a features systems route consumer, I need to invoke dynamic route bounds through a stable signature so the features systems route workflow remains explicit and composable. @fn FLocalRouteBounds DynamicRouteBounds(const FRuntimeState &State) */
 FLocalRouteBounds DynamicRouteBounds(const FRuntimeState &State) {
   const TArray<FTownspersonSeed> Townspeople =
       RuntimeSelectors::SelectTownspeople(State);
@@ -58,6 +64,7 @@ FLocalRouteBounds DynamicRouteBounds(const FRuntimeState &State) {
                             TownspersonBounds, ReduceHorseBounds);
 }
 
+/** User Story: As a features systems route consumer, I need to invoke route bounds center through a stable signature so the features systems route workflow remains explicit and composable. @fn FVector RouteBoundsCenter(const FLocalRouteBounds &Bounds, const FVector &Fallback) */
 FVector RouteBoundsCenter(const FLocalRouteBounds &Bounds,
                           const FVector &Fallback) {
   return Bounds.bValid ? FVector((Bounds.Min.X + Bounds.Max.X) * 0.5f,
@@ -67,11 +74,13 @@ FVector RouteBoundsCenter(const FLocalRouteBounds &Bounds,
 
 } // namespace
 
+/** User Story: As a features systems route consumer, I need to invoke select actor route bounds center through a stable signature so the features systems route workflow remains explicit and composable. @fn FVector SelectActorRouteBoundsCenter(const FRuntimeState &State, const FVector &Fallback) */
 FVector SelectActorRouteBoundsCenter(const FRuntimeState &State,
                                      const FVector &Fallback) {
   return RouteBoundsCenter(DynamicRouteBounds(State), Fallback);
 }
 
+/** User Story: As a features systems route consumer, I need to invoke select actor route bounds center through a stable signature so the features systems route workflow remains explicit and composable. @fn FVector SelectActorRouteBoundsCenter(const FVector &Fallback) */
 FVector SelectActorRouteBoundsCenter(const FVector &Fallback) {
   return SelectActorRouteBoundsCenter(SelectState(), Fallback);
 }

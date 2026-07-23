@@ -23,8 +23,10 @@ struct FBotSeedBuildRequest {
   ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
+/** User Story: As a entities characters bots consumer, I need to invoke build townsperson seed through a stable signature so the entities characters bots workflow remains explicit and composable. @fn TArray<FTownspersonSeed> BuildTownspersonSeed( const FBotSeedBuildRequest &Request) */
 TArray<FTownspersonSeed> BuildTownspersonSeed(
     const FBotSeedBuildRequest &Request);
+/** User Story: As a entities characters bots consumer, I need to invoke build horse route seed through a stable signature so the entities characters bots workflow remains explicit and composable. @fn TArray<FHorseRouteSeed> BuildHorseRouteSeed( const FBotSeedBuildRequest &Request) */
 TArray<FHorseRouteSeed> BuildHorseRouteSeed(
     const FBotSeedBuildRequest &Request);
 

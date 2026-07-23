@@ -6,6 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Level {
 namespace LevelSystemReducers {
+/** User Story: As a systems level spawn consumer, I need to invoke build block spawn through a stable signature so the systems level spawn workflow remains explicit and composable. @fn inline FBlockSpawn BuildBlockSpawn(const FBlockSpawnRequest &Request) */
 inline FBlockSpawn
 BuildBlockSpawn(const FBlockSpawnRequest &Request) {
   const FVector Scale =
@@ -18,6 +19,7 @@ BuildBlockSpawn(const FBlockSpawnRequest &Request) {
           Request.Seed.Texture};
 }
 
+/** User Story: As a systems level spawn consumer, I need to invoke build label spawn through a stable signature so the systems level spawn workflow remains explicit and composable. @fn inline FLabelSpawn BuildLabelSpawn(const FLabelSpawnRequest &Request) */
 inline FLabelSpawn
 BuildLabelSpawn(const FLabelSpawnRequest &Request) {
   return {Request.Seed.Text,
@@ -29,6 +31,7 @@ BuildLabelSpawn(const FLabelSpawnRequest &Request) {
               Request.Seed.WorldSizeScale};
 }
 
+/** User Story: As a systems level spawn consumer, I need to invoke build section spawn through a stable signature so the systems level spawn workflow remains explicit and composable. @fn inline FSectionSpawn BuildSectionSpawn(const FSectionSpawnRequest &Request) */
 inline FSectionSpawn
 BuildSectionSpawn(const FSectionSpawnRequest &Request) {
   return {func::map_array<FBlockSeed, FBlockSpawn>(
@@ -45,6 +48,7 @@ BuildSectionSpawn(const FSectionSpawnRequest &Request) {
               })};
 }
 
+/** User Story: As a systems level spawn consumer, I need to invoke build overlay section spawn through a stable signature so the systems level spawn workflow remains explicit and composable. @fn inline FSectionSpawn BuildOverlaySectionSpawn(const FOverlaySectionSpawnRequest &Request) */
 inline FSectionSpawn
 BuildOverlaySectionSpawn(const FOverlaySectionSpawnRequest &Request) {
   return {TArray<FBlockSpawn>(),
@@ -56,6 +60,7 @@ BuildOverlaySectionSpawn(const FOverlaySectionSpawnRequest &Request) {
               })};
 }
 
+/** User Story: As a systems level spawn consumer, I need to invoke build landmark section spawn through a stable signature so the systems level spawn workflow remains explicit and composable. @fn inline FSectionSpawn BuildLandmarkSectionSpawn(const FLandmarkSectionSpawnRequest &Request) */
 inline FSectionSpawn
 BuildLandmarkSectionSpawn(const FLandmarkSectionSpawnRequest &Request) {
   return {func::map_array<FLandmark, FBlockSpawn>(
@@ -77,6 +82,7 @@ BuildLandmarkSectionSpawn(const FLandmarkSectionSpawnRequest &Request) {
               })};
 }
 
+/** User Story: As a systems level spawn consumer, I need to invoke build nature section spawn through a stable signature so the systems level spawn workflow remains explicit and composable. @fn inline FSectionSpawn BuildNatureSectionSpawn(const FNatureSectionSpawnRequest &Request) */
 inline FSectionSpawn
 BuildNatureSectionSpawn(const FNatureSectionSpawnRequest &Request) {
   return {func::map_array<FFeatureSeed, FBlockSpawn>(
@@ -107,6 +113,7 @@ BuildNatureSectionSpawn(const FNatureSectionSpawnRequest &Request) {
               })};
 }
 
+/** User Story: As a systems level spawn consumer, I need to invoke build world route through a stable signature so the systems level spawn workflow remains explicit and composable. @fn inline TArray<FVector> BuildWorldRoute(const FWorldRouteRequest &Request) */
 inline TArray<FVector>
 BuildWorldRoute(const FWorldRouteRequest &Request) {
   return func::map_array<FLevelLocalPoint, FVector>(
@@ -115,6 +122,7 @@ BuildWorldRoute(const FWorldRouteRequest &Request) {
       });
 }
 
+/** User Story: As a systems level spawn consumer, I need to invoke reduce level observed through a stable signature so the systems level spawn workflow remains explicit and composable. @fn inline FSystemState ReduceLevelObserved(const FSystemState &State, const rtk::PayloadAction<FSystemPayload> &Action) */
 inline FSystemState
 ReduceLevelObserved(const FSystemState &State,
                     const rtk::PayloadAction<FSystemPayload> &Action) {

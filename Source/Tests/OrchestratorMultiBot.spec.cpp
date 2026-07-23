@@ -18,6 +18,7 @@ using namespace ForbocAI::Game::Level;
 
 namespace {
 
+/** User Story: As a tests consumer, I need to invoke orchestrator settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FSettings & OrchestratorSettings() */
 const ForbocAI::Game::Data::FSettings &
 OrchestratorSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
@@ -25,16 +26,19 @@ OrchestratorSettings() {
   return Settings;
 }
 
+/** User Story: As a tests consumer, I need to invoke orchestrator multi bot automation settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings & OrchestratorMultiBotAutomationSettings() */
 const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings &
 OrchestratorMultiBotAutomationSettings() {
   return OrchestratorSettings().Automation.Bot.Orchestrator;
 }
 
+/** User Story: As a tests consumer, I need to invoke local point from vector through a stable signature so the tests workflow remains explicit and composable. @fn FLevelLocalPoint LocalPointFromVector(const FVector &Vector) */
 FLevelLocalPoint LocalPointFromVector(const FVector &Vector) {
   return {static_cast<float>(Vector.X), static_cast<float>(Vector.Y),
           static_cast<float>(Vector.Z)};
 }
 
+/** User Story: As a tests consumer, I need to invoke orchestrator seed bots through a stable signature so the tests workflow remains explicit and composable. @fn TArray<FBotEntity> OrchestratorSeedBots() */
 TArray<FBotEntity> OrchestratorSeedBots() {
   const ForbocAI::Game::Data::FSettings &Settings =
       OrchestratorSettings();
@@ -47,12 +51,13 @@ TArray<FBotEntity> OrchestratorSeedBots() {
                  Settings.Bot.InitialName,
                  EBotEntityKind::Townsperson, EBotAlignment::Friendly,
                  Settings.Bot.bRegisteredBotActive},
-      FBotEntity{Settings.HorsePresentation.DefaultName,
-                 Settings.HorsePresentation.DefaultName, EBotEntityKind::Horse,
-                 EBotAlignment::Neutral,
+      FBotEntity{Settings.HorsePresentation.Name.DefaultName,
+                 Settings.HorsePresentation.Name.DefaultName,
+                 EBotEntityKind::Horse, EBotAlignment::Neutral,
                  Settings.Bot.bRegisteredBotActive}};
 }
 
+/** User Story: As a tests consumer, I need to invoke orchestrator moving bot through a stable signature so the tests workflow remains explicit and composable. @fn FBotEntity OrchestratorMovingBot() */
 FBotEntity OrchestratorMovingBot() {
   const ForbocAI::Game::Data::FSettings &Settings =
       OrchestratorSettings();
@@ -68,6 +73,7 @@ DEFINE_SPEC(FOrchestratorMultiBotSpec,
             EAutomationTestFlags::ProductFilter |
                 EAutomationTestFlags_ApplicationContextMask)
 
+/** User Story: As a tests consumer, I need to invoke define through a stable signature so the tests workflow remains explicit and composable. @fn void FOrchestratorMultiBotSpec::Define() */
 void FOrchestratorMultiBotSpec::Define() {
   const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings
       &Automation = OrchestratorMultiBotAutomationSettings();

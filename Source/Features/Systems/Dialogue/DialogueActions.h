@@ -10,7 +10,9 @@ namespace Level {
 namespace DialogueActions {
 
 /**
+ * @fn inline const rtk::ActionCreator<FDialoguePayload> &DialogueObserved()
  * @brief RTK action creator for a dialogue system observation event.
+ * User Story: As a features systems dialogue consumer, I need to invoke dialogue observed through a stable signature so the features systems dialogue workflow remains explicit and composable.
  */
 inline const rtk::ActionCreator<FDialoguePayload> &DialogueObserved() {
   static const func::Lazy<rtk::ActionCreator<FDialoguePayload>> Creator =

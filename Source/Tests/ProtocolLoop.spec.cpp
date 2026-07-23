@@ -7,15 +7,16 @@
  * that my NPC interactions are reliable in production.
  *
  * Covers the canonical handler chain emitted by the API:
- * IdentifyActor → QueryVector → Decision → Reasoning → Finalize.
+ * IdentifyActor -> QueryVector -> Decision -> Reasoning -> Finalize.
  * The local SDK no longer carries an inference handler; reasoning
  * runs server-side on the API-hosted SLM, then Finalize returns the
  * verdict, memory store delta, and state delta in a single response.
  */
 
 #include "NPC/NPCModule.h"
-#include "Bridge/BridgeModule.h"
+#include "Core/fp.hpp"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+#include "Integration/Unreal/RuntimeBlueprintLibrary.h"
 #include "HAL/PlatformMisc.h"
 #include "Misc/AutomationTest.h"
 #include "Features/Config/ConfigAdapters.h"
@@ -25,26 +26,31 @@ namespace {
 using FProtocolLoopSettings =
     ForbocAI::Game::Data::Automation::Protocol::Loop::FSettings;
 
+/** User Story: As a tests consumer, I need to invoke protocol loop settings through a stable signature so the tests workflow remains explicit and composable. @fn const FProtocolLoopSettings &ProtocolLoopSettings() */
 const FProtocolLoopSettings &ProtocolLoopSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   return Settings.Automation.ProtocolLoop;
 }
 
+/** User Story: As a tests consumer, I need to invoke protocol spec through a stable signature so the tests workflow remains explicit and composable. @fn FString ProtocolSpec() */
 FString ProtocolSpec() {
   return ProtocolLoopSettings().Spec;
 }
 
+/** User Story: As a tests consumer, I need to invoke protocol groups through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Protocol::Loop::FGroups & ProtocolGroups() */
 const ForbocAI::Game::Data::Automation::Protocol::Loop::FGroups &
 ProtocolGroups() {
   return ProtocolLoopSettings().Groups;
 }
 
+/** User Story: As a tests consumer, I need to invoke protocol cases through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Protocol::Loop::FCaseLabels & ProtocolCases() */
 const ForbocAI::Game::Data::Automation::Protocol::Loop::FCaseLabels &
 ProtocolCases() {
   return ProtocolLoopSettings().Cases;
 }
 
+/** User Story: As a tests consumer, I need to invoke protocol assertions through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Protocol::Loop::FAssertions & ProtocolAssertions() */
 const ForbocAI::Game::Data::Automation::Protocol::Loop::FAssertions &
 ProtocolAssertions() {
   return ProtocolLoopSettings().Assertions;
@@ -54,6 +60,7 @@ ProtocolAssertions() {
 
 DEFINE_SPEC(FProtocolLoopSpec, ProtocolSpec(), EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
+/** User Story: As a tests consumer, I need to invoke define through a stable signature so the tests workflow remains explicit and composable. @fn void FProtocolLoopSpec::Define() */
 void FProtocolLoopSpec::Define() {
   Describe(ProtocolGroups().AgentCreation, [this]() {
     It(ProtocolCases().CreateAgent, [this]() {
@@ -111,60 +118,65 @@ void FProtocolLoopSpec::Define() {
               *ProtocolLoopSettings().Async.ApiKeyVariable);
           TestFalse(ProtocolAssertions().Async.ApiUrlPresent, ApiUrl.IsEmpty());
           TestFalse(ProtocolAssertions().Async.ApiKeyPresent, ApiKey.IsEmpty());
-          if (ApiUrl.IsEmpty() || ApiKey.IsEmpty()) {
-            Done.ExecuteIfBound();
-            return;
-          }
+          func::match(
+              ApiUrl.IsEmpty() || ApiKey.IsEmpty() ? func::nothing<bool>()
+                                                   : func::just(true),
+              [this, Done, ApiUrl, ApiKey](const bool &) {
+                FAgentConfig Config;
+                Config.Persona = ProtocolLoopSettings().Personas.Async;
+                SDKConfig::SetApiConfig(ApiUrl, ApiKey);
 
-          FAgentConfig Config;
-          Config.Persona = ProtocolLoopSettings().Personas.Async;
-          SDKConfig::SetApiConfig(ApiUrl, ApiKey);
+                TSharedPtr<const FAgent> Agent =
+                    MakeShared<const FAgent>(AgentFactory::Create(Config));
 
-          TSharedPtr<const FAgent> Agent =
-              MakeShared<const FAgent>(AgentFactory::Create(Config));
-
-          AgentOps::Process(*Agent, ProtocolLoopSettings().Async.Prompt, {})
-              .then([this, Done](FAgentResponse Response) {
-                TestTrue(ProtocolAssertions().Async.ResponsePayloadPresent,
-                         !Response.Dialogue.IsEmpty() ||
-                             !Response.Action.Type.IsEmpty() ||
-                             !Response.Thought.IsEmpty());
-                Done.ExecuteIfBound();
-              })
-              .catch_([this, Done](std::string Error) {
-                AddError(ProtocolLoopSettings().Async.FailurePrefix +
-                         UTF8_TO_TCHAR(Error.c_str()));
-                Done.ExecuteIfBound();
-              })
-              .execute();
+                AgentOps::Process(*Agent,
+                                  ProtocolLoopSettings().Async.Prompt, {})
+                    .then([this, Done](FAgentResponse Response) {
+                      TestTrue(
+                          ProtocolAssertions().Async.ResponsePayloadPresent,
+                          !Response.Dialogue.IsEmpty() ||
+                              !Response.Action.Type.IsEmpty() ||
+                              !Response.Thought.IsEmpty());
+                      Done.ExecuteIfBound();
+                    })
+                    .catch_([this, Done](std::string Error) {
+                      AddError(ProtocolLoopSettings().Async.FailurePrefix +
+                               UTF8_TO_TCHAR(Error.c_str()));
+                      Done.ExecuteIfBound();
+                    })
+                    .execute();
+              },
+              [Done]() { Done.ExecuteIfBound(); });
         });
   });
 
   Describe(ProtocolGroups().BridgeValidation, [this]() {
-    It(ProtocolCases().CreateRpgRules, [this]() {
-      TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();
+    It(ProtocolCases().ValidateAcceptedAction, [this]() {
+      const FString ApiUrl = FPlatformMisc::GetEnvironmentVariable(
+          *ProtocolLoopSettings().Async.ApiUrlVariable);
+      const FString ApiKey = FPlatformMisc::GetEnvironmentVariable(
+          *ProtocolLoopSettings().Async.ApiKeyVariable);
+      TestFalse(ProtocolAssertions().Async.ApiUrlPresent, ApiUrl.IsEmpty());
+      TestFalse(ProtocolAssertions().Async.ApiKeyPresent, ApiKey.IsEmpty());
+      SDKConfig::SetApiConfig(ApiUrl, ApiKey);
 
-      TestTrue(ProtocolAssertions().Bridge.RpgRulesNotEmpty,
-               Rules.Num() > ProtocolLoopSettings().Bridge.MinimumRules);
+      TestTrue(ProtocolAssertions().Bridge.AcceptedActionValid,
+               UForbocAIBlueprintLibrary::ValidateBridgeAction(
+                   ProtocolLoopSettings().Bridge.ValidActionJson));
     });
 
-    It(ProtocolCases().ValidateRpgAction, [this]() {
-      FAgentConfig Config;
-      Config.Persona = ProtocolLoopSettings().Personas.Bridge;
+    It(ProtocolCases().ValidateRejectedAction, [this]() {
+      const FString ApiUrl = FPlatformMisc::GetEnvironmentVariable(
+          *ProtocolLoopSettings().Async.ApiUrlVariable);
+      const FString ApiKey = FPlatformMisc::GetEnvironmentVariable(
+          *ProtocolLoopSettings().Async.ApiKeyVariable);
+      TestFalse(ProtocolAssertions().Async.ApiUrlPresent, ApiUrl.IsEmpty());
+      TestFalse(ProtocolAssertions().Async.ApiKeyPresent, ApiKey.IsEmpty());
+      SDKConfig::SetApiConfig(ApiUrl, ApiKey);
 
-      const FAgent Agent = AgentFactory::Create(Config);
-      TArray<FValidationRule> Rules = BridgeOps::CreateRPGRules();
-
-      FAgentAction Action;
-      Action.Type = ProtocolLoopSettings().Bridge.Action;
-
-      const FBridgeRuleContext Context =
-          BridgeFactory::CreateContext(&Agent.State, {});
-
-      const FValidationResult Result =
-          BridgeOps::Validate(Action, Rules, Context);
-
-      TestTrue(ProtocolAssertions().Bridge.MoveActionValid, Result.bValid);
+      TestFalse(ProtocolAssertions().Bridge.RejectedActionInvalid,
+                UForbocAIBlueprintLibrary::ValidateBridgeAction(
+                    ProtocolLoopSettings().Bridge.InvalidActionJson));
     });
   });
 }

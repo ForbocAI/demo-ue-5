@@ -35,23 +35,28 @@ struct FSettings {
   FString NativeLodAuditEntryFormat;
 };
 
+/** User Story: As a automation content assets consumer, I need to compare values for equality through a stable signature so the automation content assets workflow remains explicit and composable. @fn inline bool operator==(const FPackage &Left, const FPackage &Right) */
 inline bool operator==(const FPackage &Left, const FPackage &Right) {
   return Left.Label == Right.Label && Left.Path == Right.Path;
 }
 
+/** User Story: As a automation content assets consumer, I need to compare values for inequality through a stable signature so the automation content assets workflow remains explicit and composable. @fn inline bool operator!=(const FPackage &Left, const FPackage &Right) */
 inline bool operator!=(const FPackage &Left, const FPackage &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation content assets consumer, I need to compare values for equality through a stable signature so the automation content assets workflow remains explicit and composable. @fn inline bool operator==(const FConfig &Left, const FConfig &Right) */
 inline bool operator==(const FConfig &Left, const FConfig &Right) {
   return Left.Label == Right.Label && Left.Section == Right.Section &&
          Left.Key == Right.Key && Left.Expected == Right.Expected;
 }
 
+/** User Story: As a automation content assets consumer, I need to compare values for inequality through a stable signature so the automation content assets workflow remains explicit and composable. @fn inline bool operator!=(const FConfig &Left, const FConfig &Right) */
 inline bool operator!=(const FConfig &Left, const FConfig &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation content assets consumer, I need to compare values for equality through a stable signature so the automation content assets workflow remains explicit and composable. @fn inline bool operator==(const FSettings &Left, const FSettings &Right) */
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Packages == Right.Packages &&
          Left.Classes == Right.Classes &&
@@ -68,6 +73,7 @@ inline bool operator==(const FSettings &Left, const FSettings &Right) {
          Left.NativeLodAuditEntryFormat == Right.NativeLodAuditEntryFormat;
 }
 
+/** User Story: As a automation content assets consumer, I need to compare values for inequality through a stable signature so the automation content assets workflow remains explicit and composable. @fn inline bool operator!=(const FSettings &Left, const FSettings &Right) */
 inline bool operator!=(const FSettings &Left, const FSettings &Right) {
   return !(Left == Right);
 }

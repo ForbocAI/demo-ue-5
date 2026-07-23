@@ -15,6 +15,11 @@ RUNTIME_BUDGET_POWERSHELL_ARG="$RUNTIME_BUDGET_POWERSHELL_SCRIPT"
 SDK_SOURCE_ROOT="${FORBOC_SDK_SOURCE_PATH:-$(cd "$PROJECT_ROOT/.." && pwd)/sdk-ue-5}"
 SDK_CHECK_ROOT="$SDK_SOURCE_ROOT/scripts"
 SDK_FP_CHECK_ROOT="$SDK_SOURCE_ROOT/scripts/fp"
+# shellcheck source=../../../sdk-ue-5/scripts/lib/test-environment.sh
+source "$SDK_CHECK_ROOT/lib/test-environment.sh"
+forbocai_load_test_environment required
+# shellcheck source=../../../sdk-ue-5/scripts/lib/wsl-environment.sh
+source "$SDK_CHECK_ROOT/lib/wsl-environment.sh"
 FP_CHECK_ENV=(
   env
   "PYTHONDONTWRITEBYTECODE=1"
@@ -62,6 +67,7 @@ elif grep -qi microsoft /proc/version 2>/dev/null; then
     RUNTIME_BUDGET_POWERSHELL_ARG="$(wslpath -w "$RUNTIME_BUDGET_POWERSHELL_SCRIPT")"
     RUNTIME_BUDGET_VIA_POWERSHELL=1
     BUILD_VIA_CMD=1
+    forbocai_export_wsl_environment
 else
     UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Mac/UnrealEditor-Cmd"
@@ -132,8 +138,8 @@ run_check "Checking RTK boundary discipline (Features + Views)..." "${REDUX_CHEC
 run_check "Checking runtime rendering JSON tuning discipline..." python3 "$SDK_CHECK_ROOT/check_source_for_data.py"
 run_check "Checking authored data naming discipline..." "${ECS_CHECK_ENV[@]}" python3 "$SDK_CHECK_ROOT/ecs/data_naming.py"
 run_check "Checking domain/subdomain path ownership..." "${ECS_CHECK_ENV[@]}" python3 "$SDK_CHECK_ROOT/ecs/domain_boundaries.py"
-run_check "Checking Source/Content file size discipline..." python3 "$SDK_CHECK_ROOT/check_line_count.py" --root "$PROJECT_ROOT"
-run_check "Checking for stale dead code/data (orphan files)..." python3 "$SDK_CHECK_ROOT/check_dead_code.py" --root "$PROJECT_ROOT"
+run_check "Checking Source/Content file size discipline..." python3 "$SDK_CHECK_ROOT/check_line_count.py"
+run_check "Checking for stale dead code/data (orphan files)..." python3 "$SDK_CHECK_ROOT/check_dead_code.py"
 run_check "Validating authored data JSON..." validate_authored_data_json
 run_check "Updating file line count documentation..." python3 "$PROJECT_ROOT/Scripts/Docs/count_project_lines.py"
 run_check "Checking diff whitespace..." git -C "$PROJECT_ROOT" diff --check
@@ -142,8 +148,7 @@ if [ "$CHECK_FAILURES" -ne 0 ]; then
   echo ""
   echo "=== Preflight Failure Summary ==="
   printf ' - %s\n' "${FAILED_CHECKS[@]}"
-  echo "✗ Preflight failed after running all checks."
-  exit 1
+  echo "✗ Preflight failed after running all checks; continuing to compile and run automation for complete evidence."
 fi
 
 if [ ! -f "$UNREAL_EDITOR" ]; then
@@ -161,9 +166,9 @@ fi
 if [ -n "$UNREAL_BUILD" ]; then
   echo "Ensuring ForbocAIDemoEditor is built..."
   if [ "$BUILD_VIA_CMD" -eq 1 ]; then
-    powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { & '$UNREAL_BUILD_ARG' 'ForbocAIDemoEditor' 'Win64' 'Development' '-Project=$PROJECT_FILE_ARG' '-WaitMutex' '-NoHotReloadFromIDE'; exit \$LASTEXITCODE }" < /dev/null
+    powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { & '$UNREAL_BUILD_ARG' 'ForbocAIDemoEditor' 'Win64' 'Development' '-Project=$PROJECT_FILE_ARG' '-WaitMutex' '-NoHotReloadFromIDE' '-NoUBTMakefiles'; exit \$LASTEXITCODE }" < /dev/null
   else
-    "$UNREAL_BUILD" ForbocAIDemoEditor Win64 Development "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE
+    "$UNREAL_BUILD" ForbocAIDemoEditor Win64 Development "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE -NoUBTMakefiles
   fi
   BUILD_EXIT=$?
   if [ "$BUILD_EXIT" -ne 0 ]; then
@@ -209,6 +214,16 @@ else
     powershell.exe -NoProfile -NonInteractive -InputFormat None -ExecutionPolicy Bypass -File "$RUNTIME_BUDGET_POWERSHELL_ARG" < /dev/null
   else
     bash "$RUNTIME_BUDGET_SCRIPT"
+  fi
+  RUNTIME_BUDGET_EXIT=$?
+  if [ "$RUNTIME_BUDGET_EXIT" -ne 0 ]; then
+    echo "✗ Runtime map performance budget failed with exit code: $RUNTIME_BUDGET_EXIT"
+    exit 1
+  fi
+  if [ "$CHECK_FAILURES" -ne 0 ]; then
+    echo "✗ Automation and runtime budget passed, but $CHECK_FAILURES strict preflight check(s) failed:"
+    printf ' - %s\n' "${FAILED_CHECKS[@]}"
+    exit 1
   fi
   echo "✓ All tests passed."
   echo "  (Found $SKIPS offline skip(s))"

@@ -4,7 +4,7 @@
 
 #include "Features/Systems/Level/SystemsLevelTypes.h"
 #include "Features/Systems/Level/Presentation/Spawn/PresentationSpawnTypes.h"
-#include "Features/Systems/Terrain/TerrainTypes.h"
+#include "Features/Systems/Terrain/SystemsTerrainTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -25,6 +25,7 @@ struct FRuntimeLevelViewPayload {
   TArray<FRuntimeHorseViewSpawn> Horses;
 };
 
+/** User Story: As a systems level presentation consumer, I need to compare values for equality through a stable signature so the systems level presentation workflow remains explicit and composable. @fn inline bool operator==(const FRuntimeLevelViewPayload &Left, const FRuntimeLevelViewPayload &Right) */
 inline bool operator==(const FRuntimeLevelViewPayload &Left,
                        const FRuntimeLevelViewPayload &Right) {
   return Left.bTerrainMeshLoaded == Right.bTerrainMeshLoaded &&
@@ -33,6 +34,7 @@ inline bool operator==(const FRuntimeLevelViewPayload &Left,
          Left.Townspeople == Right.Townspeople && Left.Horses == Right.Horses;
 }
 
+/** User Story: As a systems level presentation consumer, I need to compare values for inequality through a stable signature so the systems level presentation workflow remains explicit and composable. @fn inline bool operator!=(const FRuntimeLevelViewPayload &Left, const FRuntimeLevelViewPayload &Right) */
 inline bool operator!=(const FRuntimeLevelViewPayload &Left,
                        const FRuntimeLevelViewPayload &Right) {
   return !(Left == Right);

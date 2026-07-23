@@ -6,6 +6,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) */
 bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSpeechSettings Settings =
       LoadSpeechSettings();
@@ -48,6 +49,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FSpeechPhonemeWithSpaces::RunTest(const FString &Parameters) */
 bool FSpeechPhonemeWithSpaces::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSpeechSettings Settings =
       LoadSpeechSettings();
@@ -87,6 +89,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) */
 bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSpeechSettings Settings =
       LoadSpeechSettings();
@@ -122,6 +125,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) */
 bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSpeechSettings Settings =
       LoadSpeechSettings();
@@ -213,6 +217,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FSpeechVisemeLookup::RunTest(const FString &Parameters) */
 bool FSpeechVisemeLookup::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSpeechSettings Settings =
       LoadSpeechSettings();

@@ -1,5 +1,5 @@
 #include "CoreMinimal.h"
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Engine/SkeletalMesh.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Features/Systems/Speech/Component/ComponentAdapters.h"
@@ -19,37 +19,45 @@ using FContentAssetsSettings =
 using FContentConfigExpectation =
     ForbocAI::Game::Data::Automation::Content::Assets::FConfig;
 
+/** User Story: As a tests consumer, I need to invoke content assets settings through a stable signature so the tests workflow remains explicit and composable. @fn const FContentAssetsSettings &ContentAssetsSettings() */
 const FContentAssetsSettings &ContentAssetsSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   return Settings.Automation.ContentAssets;
 }
 
+/** User Story: As a tests consumer, I need to invoke label through a stable signature so the tests workflow remains explicit and composable. @fn FString Label(const FString &Format, std::initializer_list<FStringFormatArg> Args) */
 FString Label(const FString &Format,
               std::initializer_list<FStringFormatArg> Args) {
   return FString::Format(*Format, Args);
 }
 
+/** User Story: As a tests consumer, I need to invoke package exists through a stable signature so the tests workflow remains explicit and composable. @fn bool PackageExists(const FString &PackageName) */
 bool PackageExists(const FString &PackageName) {
   return FPackageName::DoesPackageExist(*PackageName);
 }
 
+/** User Story: As a tests consumer, I need to invoke asset loads through a stable signature so the tests workflow remains explicit and composable. @fn bool AssetLoads(const FString &ObjectPath) */
 bool AssetLoads(const FString &ObjectPath) {
   return FSoftObjectPath(ObjectPath).TryLoad() != nullptr;
 }
 
+/** User Story: As a tests consumer, I need to invoke class loads through a stable signature so the tests workflow remains explicit and composable. @fn bool ClassLoads(const FString &ClassPath) */
 bool ClassLoads(const FString &ClassPath) {
   return FSoftClassPath(ClassPath).TryLoadClass<UObject>() != nullptr;
 }
 
+/** User Story: As a tests consumer, I need to invoke load class through a stable signature so the tests workflow remains explicit and composable. @fn UClass *LoadClass(const FString &ClassPath) */
 UClass *LoadClass(const FString &ClassPath) {
   return FSoftClassPath(ClassPath).TryLoadClass<UObject>();
 }
 
+/** User Story: As a tests consumer, I need to invoke load skeletal mesh through a stable signature so the tests workflow remains explicit and composable. @fn USkeletalMesh *LoadSkeletalMesh(const FString &ObjectPath) */
 USkeletalMesh *LoadSkeletalMesh(const FString &ObjectPath) {
   return Cast<USkeletalMesh>(FSoftObjectPath(ObjectPath).TryLoad());
 }
 
+/** User Story: As a tests consumer, I need to invoke actor class has speech component through a stable signature so the tests workflow remains explicit and composable. @fn bool ActorClassHasSpeechComponent(const FString &ClassPath) */
 bool ActorClassHasSpeechComponent(const FString &ClassPath) {
   const UClass *Class = LoadClass(ClassPath);
   const AActor *DefaultActor =
@@ -58,12 +66,14 @@ bool ActorClassHasSpeechComponent(const FString &ClassPath) {
          DefaultActor->FindComponentByClass<USpeechComponent>() != nullptr;
 }
 
+/** User Story: As a tests consumer, I need to invoke config value through a stable signature so the tests workflow remains explicit and composable. @fn FString ConfigValue(const FString &Section, const FString &Key) */
 FString ConfigValue(const FString &Section, const FString &Key) {
   FString Value;
   GConfig->GetString(*Section, *Key, Value, GEngineIni);
   return Value;
 }
 
+/** User Story: As a tests consumer, I need to invoke audit native skeletal mesh lods through a stable signature so the tests workflow remains explicit and composable. @fn void AuditNativeSkeletalMeshLods( FAutomationTestBase &Test, const FContentAssetsSettings &Settings, const FContentAssetExpectation &Expectation) */
 void AuditNativeSkeletalMeshLods(
     FAutomationTestBase &Test,
     const FContentAssetsSettings &Settings,
@@ -113,6 +123,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Content.ProjectOwnedRuntimeSurface",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FContentAssetsProjectOwnedRuntimeSurface::RunTest( const FString &Parameters) */
 bool FContentAssetsProjectOwnedRuntimeSurface::RunTest(
     const FString &Parameters) {
   const FContentAssetsSettings &Settings = ContentAssetsSettings();

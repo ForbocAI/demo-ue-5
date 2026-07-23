@@ -3,6 +3,7 @@
 
 namespace {
 
+/** User Story: As a tests consumer, I need to invoke bdd automation settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Tests::FBddSettings & BddAutomationSettings() */
 const ForbocAI::Game::Data::Automation::Tests::FBddSettings &
 BddAutomationSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
@@ -16,6 +17,7 @@ DEFINE_SPEC(FNewBDDSpec, BddAutomationSettings().Spec,
             EAutomationTestFlags::ProductFilter |
                 EAutomationTestFlags_ApplicationContextMask)
 
+/** User Story: As a tests consumer, I need to invoke define through a stable signature so the tests workflow remains explicit and composable. @fn void FNewBDDSpec::Define() */
 void FNewBDDSpec::Define() {
   const ForbocAI::Game::Data::Automation::Tests::FBddSettings &Settings =
       BddAutomationSettings();

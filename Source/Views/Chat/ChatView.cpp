@@ -11,6 +11,7 @@
 #include "Components/VerticalBox.h"
 #include "Features/Systems/SystemsSelectors.h"
 
+/** User Story: As a views chat consumer, I need to invoke native construct through a stable signature so the views chat workflow remains explicit and composable. @fn void URuntimeChatWidget::NativeConstruct() */
 void URuntimeChatWidget::NativeConstruct() {
   Super::NativeConstruct();
 
@@ -46,12 +47,14 @@ void URuntimeChatWidget::NativeConstruct() {
   }();
 }
 
+/** User Story: As a views chat consumer, I need to invoke show conversation view model through a stable signature so the views chat workflow remains explicit and composable. @fn void URuntimeChatWidget::ShowConversationViewModel( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) */
 void URuntimeChatWidget::ShowConversationViewModel(
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) {
   SetVisibility(ESlateVisibility::Visible);
   ApplyConversationViewModel(Conversation);
 }
 
+/** User Story: As a views chat consumer, I need to invoke apply conversation view model through a stable signature so the views chat workflow remains explicit and composable. @fn void URuntimeChatWidget::ApplyConversationViewModel( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) */
 void URuntimeChatWidget::ApplyConversationViewModel(
     const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) {
   check(TitleTextElement);
@@ -62,6 +65,7 @@ void URuntimeChatWidget::ApplyConversationViewModel(
   ReplyTextElement->SetText(FText::FromString(Conversation.Text.NpcReply));
 }
 
+/** User Story: As a views chat consumer, I need to invoke build text element through a stable signature so the views chat workflow remains explicit and composable. @fn UTextBlock *URuntimeChatWidget::BuildTextElement( const FString &Text, const FLinearColor &Color, float Size) */
 UTextBlock *URuntimeChatWidget::BuildTextElement(
     const FString &Text, const FLinearColor &Color, float Size) {
   check(WidgetTree);

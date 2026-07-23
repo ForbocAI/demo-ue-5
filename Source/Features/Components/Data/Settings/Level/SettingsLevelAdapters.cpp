@@ -7,7 +7,7 @@ namespace Game {
 namespace Data {
 namespace JsonAdapters {
 
-JSON_SETTINGS_REGISTRY(FTerrainSourceSettings, TerrainCsvPath,
+JSON_SETTINGS_REGISTRY(FSourceSettings, TerrainCsvPath,
                        OrthoCsvPath);
 
 JSON_SETTINGS_REGISTRY(FCsvSyntaxSettings, CommentPrefix, CellDelimiter,
@@ -24,6 +24,7 @@ JSON_SETTINGS_REGISTRY(FCsvMessageSettings, OrthoRowWidthMismatchFormat,
                        OrthoLoadedFormat, TerrainLoadedFormat);
 
 template <> struct TJsonSettingsRegistry<FCsvSettings> {
+  /** User Story: As a data settings level consumer, I need to invoke fields through a stable signature so the data settings level workflow remains explicit and composable. @fn static const TArray<TField<FCsvSettings>> &Fields() */
   static const TArray<TField<FCsvSettings>> &Fields() {
     static const TArray<TField<FCsvSettings>> RegisteredFields = {
         JSON_OBJECT_SETTING_FIELD(
@@ -57,12 +58,15 @@ template <> struct TJsonSettingsRegistry<FCsvSettings> {
   }
 };
 
-JSON_SETTINGS_REGISTRY(FDataSourceSettings, TerrainBlocksJsonPath,
-                       TerrainLabelsJsonPath, TownBlocksJsonPath,
-                       TownLabelsJsonPath, MineBlocksJsonPath,
-                       MineLabelsJsonPath, OverlayLabelsJsonPath,
-                       LandmarksJsonPath, TownspeopleJsonPath,
-                       HorsesJsonPath, NatureJsonPath);
+JSON_SETTINGS_REGISTRY(FTerrainLayoutSourceSettings, TerrainBlocksJsonPath,
+                       TerrainLabelsJsonPath);
+JSON_SETTINGS_REGISTRY(FTownLayoutSourceSettings, TownBlocksJsonPath,
+                       TownLabelsJsonPath);
+JSON_SETTINGS_REGISTRY(FMineLayoutSourceSettings, MineBlocksJsonPath,
+                       MineLabelsJsonPath);
+JSON_SETTINGS_REGISTRY(FOverlayLayoutSourceSettings, OverlayLabelsJsonPath);
+JSON_SETTINGS_REGISTRY(FEntitySourceSettings, LandmarksJsonPath,
+                       TownspeopleJsonPath, HorsesJsonPath, NatureJsonPath);
 
 JSON_SETTINGS_REGISTRY(FValidationSettings, TerrainGridSize,
                        OrthoGridSize, TerrainMinReliefMeters);
@@ -95,30 +99,41 @@ JSON_SETTINGS_REGISTRY(FGeometrySettings, TerrainWorldSize,
 namespace LevelSettingsAdapters {
 namespace Json = JsonAdapters;
 
-FTerrainSourceSettings
+/** User Story: As a data settings level consumer, I need to invoke read level terrain source settings through a stable signature so the data settings level workflow remains explicit and composable. @fn FSourceSettings ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object) */
+FSourceSettings
 ReadLevelTerrainSourceSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FTerrainSourceSettings>(
+  return Json::ReadSettingsFields<FSourceSettings>(
       Object, JSON_SETTINGS_ATOMS(TerrainCsvPath, OrthoCsvPath));
 }
 
+/** User Story: As a data settings level consumer, I need to invoke read level csv settings through a stable signature so the data settings level workflow remains explicit and composable. @fn FCsvSettings ReadLevelCsvSettings(const TSharedPtr<FJsonObject> &Object) */
 FCsvSettings
 ReadLevelCsvSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FCsvSettings>(
       Object, JSON_SETTINGS_ATOMS(Syntax, Color, Grid, Messages));
 }
 
+/** User Story: As a data settings level consumer, I need to invoke read level data source settings through a stable signature so the data settings level workflow remains explicit and composable. @fn FDataSourceSettings ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object) */
 FDataSourceSettings
 ReadLevelDataSourceSettings(const TSharedPtr<FJsonObject> &Object) {
-  return Json::ReadSettingsFields<FDataSourceSettings>(
-      Object, JSON_SETTINGS_ATOMS(TerrainBlocksJsonPath,
-                                  TerrainLabelsJsonPath,
-                                  TownBlocksJsonPath, TownLabelsJsonPath,
-                                  MineBlocksJsonPath, MineLabelsJsonPath,
-                                  OverlayLabelsJsonPath, LandmarksJsonPath,
-                                  TownspeopleJsonPath, HorsesJsonPath,
-                                  NatureJsonPath));
+  return {
+      Json::ReadSettingsFields<FTerrainLayoutSourceSettings>(
+          Object, JSON_SETTINGS_ATOMS(TerrainBlocksJsonPath,
+                                      TerrainLabelsJsonPath)),
+      Json::ReadSettingsFields<FTownLayoutSourceSettings>(
+          Object,
+          JSON_SETTINGS_ATOMS(TownBlocksJsonPath, TownLabelsJsonPath)),
+      Json::ReadSettingsFields<FMineLayoutSourceSettings>(
+          Object,
+          JSON_SETTINGS_ATOMS(MineBlocksJsonPath, MineLabelsJsonPath)),
+      Json::ReadSettingsFields<FOverlayLayoutSourceSettings>(
+          Object, JSON_SETTINGS_ATOMS(OverlayLabelsJsonPath)),
+      Json::ReadSettingsFields<FEntitySourceSettings>(
+          Object, JSON_SETTINGS_ATOMS(LandmarksJsonPath, TownspeopleJsonPath,
+                                      HorsesJsonPath, NatureJsonPath))};
 }
 
+/** User Story: As a data settings level consumer, I need to invoke read level validation settings through a stable signature so the data settings level workflow remains explicit and composable. @fn FValidationSettings ReadLevelValidationSettings(const TSharedPtr<FJsonObject> &Object) */
 FValidationSettings
 ReadLevelValidationSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FValidationSettings>(
@@ -126,6 +141,7 @@ ReadLevelValidationSettings(const TSharedPtr<FJsonObject> &Object) {
                                   TerrainMinReliefMeters));
 }
 
+/** User Story: As a data settings level consumer, I need to invoke read level geometry settings through a stable signature so the data settings level workflow remains explicit and composable. @fn FGeometrySettings ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object) */
 FGeometrySettings
 ReadLevelGeometrySettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FGeometrySettings>(

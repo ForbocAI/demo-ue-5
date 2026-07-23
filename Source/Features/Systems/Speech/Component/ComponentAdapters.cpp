@@ -7,6 +7,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
+/** User Story: As a systems speech component consumer, I need to invoke uspeech component through a stable signature so the systems speech component workflow remains explicit and composable. @fn USpeechComponent::USpeechComponent() */
 USpeechComponent::USpeechComponent() {
   Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
@@ -24,12 +25,14 @@ USpeechComponent::USpeechComponent() {
   CurrentVisemeWeight = Settings.RestWeight;
 }
 
+/** User Story: As a systems speech component consumer, I need to invoke ensure viseme map through a stable signature so the systems speech component workflow remains explicit and composable. @fn void USpeechComponent::EnsureVisemeMap() */
 void USpeechComponent::EnsureVisemeMap() {
   VisemeMap.Num() == 0
       ? (VisemeMap = SpeechOps::VisemeMapFromSettings(Settings), void())
       : void();
 }
 
+/** User Story: As a systems speech component consumer, I need to invoke speak text through a stable signature so the systems speech component workflow remains explicit and composable. @fn void USpeechComponent::SpeakText(const FString &Text) */
 void USpeechComponent::SpeakText(const FString &Text) {
   bSpeechActive ? (StopSpeaking(), void()) : void();
 
@@ -85,6 +88,7 @@ void USpeechComponent::SpeakText(const FString &Text) {
   Request->ProcessRequest();
 }
 
+/** User Story: As a systems speech component consumer, I need to invoke stop speaking through a stable signature so the systems speech component workflow remains explicit and composable. @fn void USpeechComponent::StopSpeaking() */
 void USpeechComponent::StopSpeaking() {
   bSpeechActive = false;
   PlaybackTime = Settings.InitialPlaybackTime;
@@ -102,16 +106,20 @@ void USpeechComponent::StopSpeaking() {
   OnSpeechFinished();
 }
 
+/** User Story: As a systems speech component consumer, I need to invoke is speaking through a stable signature so the systems speech component workflow remains explicit and composable. @fn bool USpeechComponent::IsSpeaking() const */
 bool USpeechComponent::IsSpeaking() const { return bSpeechActive; }
 
+/** User Story: As a systems speech component consumer, I need to invoke get current viseme through a stable signature so the systems speech component workflow remains explicit and composable. @fn FString USpeechComponent::GetCurrentViseme() const */
 FString USpeechComponent::GetCurrentViseme() const {
   return CurrentVisemeName;
 }
 
+/** User Story: As a systems speech component consumer, I need to invoke get current viseme weight through a stable signature so the systems speech component workflow remains explicit and composable. @fn float USpeechComponent::GetCurrentVisemeWeight() const */
 float USpeechComponent::GetCurrentVisemeWeight() const {
   return CurrentVisemeWeight;
 }
 
+/** User Story: As a systems speech component consumer, I need to invoke tick component through a stable signature so the systems speech component workflow remains explicit and composable. @fn void USpeechComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) */
 void USpeechComponent::TickComponent(
     float DeltaTime, ELevelTick TickType,
     FActorComponentTickFunction *ThisTickFunction) {
@@ -151,6 +159,7 @@ void USpeechComponent::TickComponent(
                 : void();
 }
 
+/** User Story: As a systems speech component consumer, I need to invoke apply viseme to mesh through a stable signature so the systems speech component workflow remains explicit and composable. @fn void USpeechComponent::ApplyVisemeToMesh(const FString &VisemeName, float Weight) */
 void USpeechComponent::ApplyVisemeToMesh(const FString &VisemeName,
                                           float Weight) {
   AActor *Owner = GetOwner();

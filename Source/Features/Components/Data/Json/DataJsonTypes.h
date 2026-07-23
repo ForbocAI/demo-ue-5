@@ -36,31 +36,37 @@ struct FArrayValueObjectRequest {
 
 // --- Equality operators --------------------------------------------------
 
+/** User Story: As a components data json consumer, I need to compare values for equality through a stable signature so the components data json workflow remains explicit and composable. @fn inline bool operator==(const FContentObjectRequest &Left, const FContentObjectRequest &Right) */
 inline bool operator==(const FContentObjectRequest &Left,
                        const FContentObjectRequest &Right) {
   return Left.RelativePath == Right.RelativePath;
 }
 
+/** User Story: As a components data json consumer, I need to compare values for inequality through a stable signature so the components data json workflow remains explicit and composable. @fn inline bool operator!=(const FContentObjectRequest &Left, const FContentObjectRequest &Right) */
 inline bool operator!=(const FContentObjectRequest &Left,
                        const FContentObjectRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a components data json consumer, I need to compare values for equality through a stable signature so the components data json workflow remains explicit and composable. @fn inline bool operator==(const FContentArrayRequest &Left, const FContentArrayRequest &Right) */
 inline bool operator==(const FContentArrayRequest &Left,
                        const FContentArrayRequest &Right) {
   return Left.RelativePath == Right.RelativePath;
 }
 
+/** User Story: As a components data json consumer, I need to compare values for inequality through a stable signature so the components data json workflow remains explicit and composable. @fn inline bool operator!=(const FContentArrayRequest &Left, const FContentArrayRequest &Right) */
 inline bool operator!=(const FContentArrayRequest &Left,
                        const FContentArrayRequest &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a components data json consumer, I need to compare values for equality through a stable signature so the components data json workflow remains explicit and composable. @fn inline bool operator==(const FFieldRequest &Left, const FFieldRequest &Right) */
 inline bool operator==(const FFieldRequest &Left,
                        const FFieldRequest &Right) {
   return Left.Object == Right.Object && Left.FieldName == Right.FieldName;
 }
 
+/** User Story: As a components data json consumer, I need to compare values for inequality through a stable signature so the components data json workflow remains explicit and composable. @fn inline bool operator!=(const FFieldRequest &Left, const FFieldRequest &Right) */
 inline bool operator!=(const FFieldRequest &Left,
                        const FFieldRequest &Right) {
   return !(Left == Right);

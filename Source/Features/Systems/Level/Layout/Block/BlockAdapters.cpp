@@ -1,6 +1,6 @@
 #include "Features/Systems/Level/Layout/Block/BlockAdapters.h"
 
-#include "Features/Components/Data/Json/Value/ValueAdapters.h"
+#include "Features/Components/Data/Json/Value/JsonValueAdapters.h"
 #include "Features/Systems/Level/Layout/Enum/EnumAdapters.h"
 #include "Features/Systems/Level/Layout/Scale/ScaleAdapters.h"
 
@@ -14,10 +14,12 @@ struct FLevelLotLocationSource {
   float NorthLots;
 };
 
+/** User Story: As a level layout block consumer, I need to invoke read block anchor mode field through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<EAnchorMode> ReadBlockAnchorModeField( const ForbocAI::Game::Data::FFieldRequest &Request) */
 func::Maybe<EAnchorMode>
 ReadBlockAnchorModeField(
     const ForbocAI::Game::Data::FFieldRequest &Request);
 
+/** User Story: As a level layout block consumer, I need to invoke read texture field through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<ELevelRetroTexture> ReadTextureField(const ForbocAI::Game::Data::FFieldRequest &Request) */
 func::Maybe<ELevelRetroTexture>
 ReadTextureField(const ForbocAI::Game::Data::FFieldRequest &Request);
 
@@ -37,12 +39,13 @@ JSON_REQUIRED_FIELD_REGISTRY(
 
 template <>
 struct TRequiredJsonFieldRegistry<ForbocAI::Game::Level::FBlockSeed> {
+  /** User Story: As a level layout block consumer, I need to invoke fields through a stable signature so the level layout block workflow remains explicit and composable. @fn static const TArray< TJsonFieldDeclaration< ForbocAI::Game::Level::FBlockSeed>> & Fields() */
   static const TArray<
-      TRequiredJsonFieldDeclaration<
+      TJsonFieldDeclaration<
           ForbocAI::Game::Level::FBlockSeed>> &
   Fields() {
     static const TArray<
-        TRequiredJsonFieldDeclaration<
+        TJsonFieldDeclaration<
             ForbocAI::Game::Level::FBlockSeed>>
         RegisteredFields = {
             JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FBlockSeed,
@@ -84,13 +87,16 @@ struct FLevelBlockLocationDeclaration {
   EAnchorMode Anchor;
   FBlockLocationReader Read;
 
+  /** User Story: As a level layout block consumer, I need to invoke flevel block location declaration through a stable signature so the level layout block workflow remains explicit and composable. @fn FLevelBlockLocationDeclaration() = default */
   FLevelBlockLocationDeclaration() = default;
 
+  /** User Story: As a level layout block consumer, I need to invoke flevel block location declaration through a stable signature so the level layout block workflow remains explicit and composable. @fn FLevelBlockLocationDeclaration(EAnchorMode InAnchor, FBlockLocationReader InRead) */
   FLevelBlockLocationDeclaration(EAnchorMode InAnchor,
                                         FBlockLocationReader InRead)
       : Anchor(InAnchor), Read(InRead) {}
 };
 
+/** User Story: As a level layout block consumer, I need to invoke assign world block location through a stable signature so the level layout block workflow remains explicit and composable. @fn FBlockSeed AssignWorldBlockLocation( const FBlockSeed &Seed, const FVector &Location) */
 FBlockSeed AssignWorldBlockLocation(
     const FBlockSeed &Seed, const FVector &Location) {
   FBlockSeed Next = Seed;
@@ -98,6 +104,7 @@ FBlockSeed AssignWorldBlockLocation(
   return Next;
 }
 
+/** User Story: As a level layout block consumer, I need to invoke assign lot block location through a stable signature so the level layout block workflow remains explicit and composable. @fn FBlockSeed AssignLotBlockLocation( const FBlockSeed &Seed, const FLevelLotLocationSource &Fields) */
 FBlockSeed AssignLotBlockLocation(
     const FBlockSeed &Seed,
     const FLevelLotLocationSource &Fields) {
@@ -107,6 +114,7 @@ FBlockSeed AssignLotBlockLocation(
   return Next;
 }
 
+/** User Story: As a level layout block consumer, I need to invoke read world block location through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<FBlockSeed> ReadWorldBlockLocation(const TSharedPtr<FJsonObject> &Object, const FBlockSeed &Seed) */
 func::Maybe<FBlockSeed>
 ReadWorldBlockLocation(const TSharedPtr<FJsonObject> &Object,
                        const FBlockSeed &Seed) {
@@ -122,6 +130,7 @@ ReadWorldBlockLocation(const TSharedPtr<FJsonObject> &Object,
       });
 }
 
+/** User Story: As a level layout block consumer, I need to invoke read lot block location through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<FBlockSeed> ReadLotBlockLocation(const TSharedPtr<FJsonObject> &Object, const FBlockSeed &Seed) */
 func::Maybe<FBlockSeed>
 ReadLotBlockLocation(const TSharedPtr<FJsonObject> &Object,
                      const FBlockSeed &Seed) {
@@ -132,6 +141,7 @@ ReadLotBlockLocation(const TSharedPtr<FJsonObject> &Object,
       });
 }
 
+/** User Story: As a level layout block consumer, I need to invoke block location declarations through a stable signature so the level layout block workflow remains explicit and composable. @fn const TArray<FLevelBlockLocationDeclaration> & BlockLocationDeclarations() */
 const TArray<FLevelBlockLocationDeclaration> &
 BlockLocationDeclarations() {
   static const TArray<FLevelBlockLocationDeclaration> Declarations = {
@@ -142,6 +152,7 @@ BlockLocationDeclarations() {
   return Declarations;
 }
 
+/** User Story: As a level layout block consumer, I need to invoke find block location declaration through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<FLevelBlockLocationDeclaration> FindBlockLocationDeclaration(EAnchorMode Anchor) */
 func::Maybe<FLevelBlockLocationDeclaration>
 FindBlockLocationDeclaration(EAnchorMode Anchor) {
   return func::find_array<FLevelBlockLocationDeclaration>(
@@ -151,6 +162,7 @@ FindBlockLocationDeclaration(EAnchorMode Anchor) {
       });
 }
 
+/** User Story: As a level layout block consumer, I need to invoke complete block location through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<FBlockSeed> CompleteBlockLocation(const TSharedPtr<FJsonObject> &Object, const FBlockSeed &Seed) */
 func::Maybe<FBlockSeed>
 CompleteBlockLocation(const TSharedPtr<FJsonObject> &Object,
                       const FBlockSeed &Seed) {
@@ -161,6 +173,7 @@ CompleteBlockLocation(const TSharedPtr<FJsonObject> &Object,
       []() { return func::nothing<FBlockSeed>(); });
 }
 
+/** User Story: As a level layout block consumer, I need to invoke read block seed fields through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<FBlockSeed> ReadBlockSeedFields(const FLevelJsonObjectRequest &Request) */
 func::Maybe<FBlockSeed>
 ReadBlockSeedFields(const FLevelJsonObjectRequest &Request) {
   return JsonValues::ReadRequiredFields<FBlockSeed>({FBlockSeed(), Request.Object}, JSON_REQUIRED_ATOMS(Id, Name, Anchor, YawDegrees, Scale, Texture));
@@ -168,6 +181,7 @@ ReadBlockSeedFields(const FLevelJsonObjectRequest &Request) {
 
 } // namespace
 
+/** User Story: As a level layout block consumer, I need to invoke read block anchor mode field through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<EAnchorMode> ReadBlockAnchorModeField(const FFieldRequest &Request) */
 func::Maybe<EAnchorMode>
 ReadBlockAnchorModeField(const FFieldRequest &Request) {
   return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
@@ -176,6 +190,7 @@ ReadBlockAnchorModeField(const FFieldRequest &Request) {
                      });
 }
 
+/** User Story: As a level layout block consumer, I need to invoke read texture field through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<ELevelRetroTexture> ReadTextureField(const FFieldRequest &Request) */
 func::Maybe<ELevelRetroTexture>
 ReadTextureField(const FFieldRequest &Request) {
   return func::mbind(JsonValues::ReadRequiredValue<FString>(Request),
@@ -184,6 +199,7 @@ ReadTextureField(const FFieldRequest &Request) {
                      });
 }
 
+/** User Story: As a level layout block consumer, I need to invoke block from json through a stable signature so the level layout block workflow remains explicit and composable. @fn func::Maybe<FBlockSeed> BlockFromJson(const FLevelJsonObjectRequest &Request) */
 func::Maybe<FBlockSeed>
 BlockFromJson(const FLevelJsonObjectRequest &Request) {
   return func::mbind(

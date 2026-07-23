@@ -22,6 +22,7 @@ struct FRuntimeDistanceLodReduceRequest {
   ForbocAI::Game::Data::FGeometrySettings Geometry;
 };
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce world route through a stable signature so the systems level presentation workflow remains explicit and composable. @fn TArray<FVector> ReduceWorldRoute(const TArray<FLevelLocalPoint> &Route, const FLevelTerrainData *TerrainData) */
 TArray<FVector> ReduceWorldRoute(const TArray<FLevelLocalPoint> &Route,
                                  const FLevelTerrainData *TerrainData) {
   return func::match(
@@ -32,11 +33,13 @@ TArray<FVector> ReduceWorldRoute(const TArray<FLevelLocalPoint> &Route,
       []() { return TArray<FVector>(); });
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce append section through a stable signature so the systems level presentation workflow remains explicit and composable. @fn void ReduceAppendSection(TArray<FSectionSpawn> &Sections, const FSectionSpawn &Section) */
 void ReduceAppendSection(TArray<FSectionSpawn> &Sections,
                          const FSectionSpawn &Section) {
   Sections.Add(Section);
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce distance lod for location through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FLevelDistanceLodStage ReduceDistanceLodForLocation( const FRuntimeDistanceLodReduceRequest &Request, const FVector &Location) */
 FLevelDistanceLodStage ReduceDistanceLodForLocation(
     const FRuntimeDistanceLodReduceRequest &Request,
     const FVector &Location) {
@@ -44,6 +47,7 @@ FLevelDistanceLodStage ReduceDistanceLodForLocation(
       {Request.Origin, Location, Request.Stages});
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce route lod location through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FVector ReduceRouteLodLocation( const TArray<FVector> &PatrolRoute, const ForbocAI::Game::Data::FGeometrySettings &Geometry) */
 FVector ReduceRouteLodLocation(
     const TArray<FVector> &PatrolRoute,
     const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
@@ -51,6 +55,7 @@ FVector ReduceRouteLodLocation(
   return PatrolRoute[Geometry.InitialPatrolRouteIndex];
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce block distance lod through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FBlockSpawn ReduceBlockDistanceLod( const FRuntimeDistanceLodReduceRequest &Request, const FBlockSpawn &Block) */
 FBlockSpawn ReduceBlockDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
     const FBlockSpawn &Block) {
@@ -62,6 +67,7 @@ FBlockSpawn ReduceBlockDistanceLod(
       .val;
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce label distance lod through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FLabelSpawn ReduceLabelDistanceLod( const FRuntimeDistanceLodReduceRequest &Request, const FLabelSpawn &Label) */
 FLabelSpawn ReduceLabelDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
     const FLabelSpawn &Label) {
@@ -73,6 +79,7 @@ FLabelSpawn ReduceLabelDistanceLod(
       .val;
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce section distance lod through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FSectionSpawn ReduceSectionDistanceLod( const FRuntimeDistanceLodReduceRequest &Request, const FSectionSpawn &Section) */
 FSectionSpawn ReduceSectionDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
     const FSectionSpawn &Section) {
@@ -97,6 +104,7 @@ FSectionSpawn ReduceSectionDistanceLod(
               })};
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce townsperson distance lod through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FRuntimeTownspersonViewSpawn ReduceTownspersonDistanceLod( const FRuntimeDistanceLodReduceRequest &Request, const FRuntimeTownspersonViewSpawn &Spawn) */
 FRuntimeTownspersonViewSpawn ReduceTownspersonDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
     const FRuntimeTownspersonViewSpawn &Spawn) {
@@ -111,6 +119,7 @@ FRuntimeTownspersonViewSpawn ReduceTownspersonDistanceLod(
       .val;
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce horse distance lod through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FRuntimeHorseViewSpawn ReduceHorseDistanceLod( const FRuntimeDistanceLodReduceRequest &Request, const FRuntimeHorseViewSpawn &Spawn) */
 FRuntimeHorseViewSpawn ReduceHorseDistanceLod(
     const FRuntimeDistanceLodReduceRequest &Request,
     const FRuntimeHorseViewSpawn &Spawn) {
@@ -124,27 +133,32 @@ FRuntimeHorseViewSpawn ReduceHorseDistanceLod(
       .val;
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce all nature through a stable signature so the systems level presentation workflow remains explicit and composable. @fn TArray<FFeatureSeed> ReduceAllNature(const FNatureState &State) */
 TArray<FFeatureSeed> ReduceAllNature(const FNatureState &State) {
   return NatureAdapters::NatureAdapter().getSelectors().selectAll(State.Items);
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce all landmarks through a stable signature so the systems level presentation workflow remains explicit and composable. @fn TArray<FLandmark> ReduceAllLandmarks(const FLandmarkState &State) */
 TArray<FLandmark> ReduceAllLandmarks(const FLandmarkState &State) {
   return LandmarkAdapters::LandmarkAdapter().getSelectors().selectAll(
       State.Items);
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce all townspeople through a stable signature so the systems level presentation workflow remains explicit and composable. @fn TArray<FTownspersonSeed> ReduceAllTownspeople( const FTownspersonState &State) */
 TArray<FTownspersonSeed> ReduceAllTownspeople(
     const FTownspersonState &State) {
   return TownspersonAdapters::TownspersonAdapter().getSelectors().selectAll(
       State.Items);
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce all horses through a stable signature so the systems level presentation workflow remains explicit and composable. @fn TArray<FHorseRouteSeed> ReduceAllHorses(const FHorseState &State) */
 TArray<FHorseRouteSeed> ReduceAllHorses(const FHorseState &State) {
   return HorseAdapters::HorseAdapter().getSelectors().selectAll(State.Items);
 }
 
 } // namespace
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce townsperson view spawn through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FRuntimeTownspersonViewSpawn ReduceTownspersonViewSpawn( const FRuntimeTownspersonViewSpawnRequest &Request) */
 FRuntimeTownspersonViewSpawn ReduceTownspersonViewSpawn(
     const FRuntimeTownspersonViewSpawnRequest &Request) {
   return {{Request.Seed.Id, Request.Seed.Name, Request.Seed.Role,
@@ -154,6 +168,7 @@ FRuntimeTownspersonViewSpawn ReduceTownspersonViewSpawn(
           ReduceWorldRoute(Request.Seed.PatrolRoute, Request.TerrainData)};
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce horse view spawn through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FRuntimeHorseViewSpawn ReduceHorseViewSpawn(const FRuntimeHorseViewSpawnRequest &Request) */
 FRuntimeHorseViewSpawn
 ReduceHorseViewSpawn(const FRuntimeHorseViewSpawnRequest &Request) {
   return {Request.Seed.Name,
@@ -161,6 +176,7 @@ ReduceHorseViewSpawn(const FRuntimeHorseViewSpawnRequest &Request) {
           Request.Seed.bMountedRider};
 }
 
+/** User Story: As a systems level presentation consumer, I need to invoke reduce level view payload through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FRuntimeLevelViewPayload ReduceLevelViewPayload( const FRuntimeState &State, const FRuntimeLevelViewPayloadRequest &Request) */
 FRuntimeLevelViewPayload ReduceLevelViewPayload(
     const FRuntimeState &State,
     const FRuntimeLevelViewPayloadRequest &Request) {

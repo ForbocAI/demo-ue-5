@@ -12,6 +12,7 @@
 
 namespace FG = ForbocAI::Game::Level;
 
+/** User Story: As a views speech presenter consumer, I need to invoke aruntime speech presenter view through a stable signature so the views speech presenter workflow remains explicit and composable. @fn ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView() */
 ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
     : SceneRoot(CreateDefaultSubobject<USceneComponent>(
           FName(*FG::RuntimeSelectors::SelectViewNames().Scene.Root))),
@@ -26,7 +27,8 @@ ARuntimeSpeechPresenterView::ARuntimeSpeechPresenterView()
   const FG::FPresentationViewModel Presentation =
       FG::RuntimeSelectors::SelectPlayerPresentation();
   USkeletalMesh *Mesh =
-      LoadObject<USkeletalMesh>(nullptr, *Presentation.MeshPath);
+      LoadObject<USkeletalMesh>(nullptr,
+                                *Presentation.MeshAssets.MeshPath);
   check(Mesh);
   PresentationMesh->SetSkeletalMesh(Mesh);
 }

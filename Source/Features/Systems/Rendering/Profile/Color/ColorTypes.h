@@ -18,6 +18,7 @@ struct FChannels {
   FProfileColorChannel A;
 };
 
+/** User Story: As a rendering profile color consumer, I need to invoke profile linear color through a stable signature so the rendering profile color workflow remains explicit and composable. @fn inline FLinearColor ProfileLinearColor( const FLevelRetroRenderProfile &Profile, const FChannels &Channels) */
 inline FLinearColor ProfileLinearColor(
     const FLevelRetroRenderProfile &Profile,
     const FChannels &Channels) {

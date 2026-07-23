@@ -29,6 +29,7 @@ struct FAuditCaptureSettings {
   FRotator TopDownRotation;
 };
 
+/** User Story: As a ui scale audit consumer, I need to compare values for equality through a stable signature so the ui scale audit workflow remains explicit and composable. @fn inline bool operator==(const FAuditCaptureSettings &Left, const FAuditCaptureSettings &Right) */
 inline bool operator==(const FAuditCaptureSettings &Left,
                        const FAuditCaptureSettings &Right) {
   return Left.CaptureCommandLineKey == Right.CaptureCommandLineKey &&
@@ -65,6 +66,7 @@ inline bool operator==(const FAuditCaptureSettings &Left,
          Left.TopDownRotation.Equals(Right.TopDownRotation);
 }
 
+/** User Story: As a ui scale audit consumer, I need to compare values for inequality through a stable signature so the ui scale audit workflow remains explicit and composable. @fn inline bool operator!=(const FAuditCaptureSettings &Left, const FAuditCaptureSettings &Right) */
 inline bool operator!=(const FAuditCaptureSettings &Left,
                        const FAuditCaptureSettings &Right) {
   return !(Left == Right);

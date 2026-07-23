@@ -26,7 +26,7 @@
 #include "Features/Systems/Spawn/SystemsSpawnTypes.h"
 #include "Features/Systems/Speech/SystemsSpeechTypes.h"
 #include "Features/Systems/Observed/ObservedTypes.h"
-#include "Features/Systems/Terrain/TerrainTypes.h"
+#include "Features/Systems/Terrain/SystemsTerrainTypes.h"
 #include "Features/Systems/UI/SystemsUITypes.h"
 
 namespace ForbocAI {
@@ -82,16 +82,19 @@ struct FRuntimeState {
   FBotPipelineState BotPipeline;
 };
 
+/** User Story: As a features systems state consumer, I need to compare values for equality through a stable signature so the features systems state workflow remains explicit and composable. @fn inline bool operator==(const FRuntimeEcsState &Left, const FRuntimeEcsState &Right) */
 inline bool operator==(const FRuntimeEcsState &Left,
                        const FRuntimeEcsState &Right) {
   return Left.World == Right.World;
 }
 
+/** User Story: As a features systems state consumer, I need to compare values for inequality through a stable signature so the features systems state workflow remains explicit and composable. @fn inline bool operator!=(const FRuntimeEcsState &Left, const FRuntimeEcsState &Right) */
 inline bool operator!=(const FRuntimeEcsState &Left,
                        const FRuntimeEcsState &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems state consumer, I need to compare values for equality through a stable signature so the features systems state workflow remains explicit and composable. @fn inline bool operator==(const FRuntimeReducerDiagnosticsState &Left, const FRuntimeReducerDiagnosticsState &Right) */
 inline bool operator==(const FRuntimeReducerDiagnosticsState &Left,
                        const FRuntimeReducerDiagnosticsState &Right) {
   return Left.ReducedActionType == Right.ReducedActionType &&
@@ -106,11 +109,13 @@ inline bool operator==(const FRuntimeReducerDiagnosticsState &Left,
              Right.ProjectedComponentTypeCount;
 }
 
+/** User Story: As a features systems state consumer, I need to compare values for inequality through a stable signature so the features systems state workflow remains explicit and composable. @fn inline bool operator!=(const FRuntimeReducerDiagnosticsState &Left, const FRuntimeReducerDiagnosticsState &Right) */
 inline bool operator!=(const FRuntimeReducerDiagnosticsState &Left,
                        const FRuntimeReducerDiagnosticsState &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a features systems state consumer, I need to compare values for equality through a stable signature so the features systems state workflow remains explicit and composable. @fn inline bool operator==(const FRuntimeState &Left, const FRuntimeState &Right) */
 inline bool operator==(const FRuntimeState &Left,
                        const FRuntimeState &Right) {
   return Left.ObservationIds == Right.ObservationIds &&
@@ -145,6 +150,7 @@ inline bool operator==(const FRuntimeState &Left,
          Left.BotPipeline == Right.BotPipeline;
 }
 
+/** User Story: As a features systems state consumer, I need to compare values for inequality through a stable signature so the features systems state workflow remains explicit and composable. @fn inline bool operator!=(const FRuntimeState &Left, const FRuntimeState &Right) */
 inline bool operator!=(const FRuntimeState &Left,
                        const FRuntimeState &Right) {
   return !(Left == Right);

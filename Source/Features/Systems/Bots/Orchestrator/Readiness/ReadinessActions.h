@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace BotOrchestratorReadinessActions {
 
+/** User Story: As a bots orchestrator readiness consumer, I need to invoke readiness observed through a stable signature so the bots orchestrator readiness workflow remains explicit and composable. @fn inline const rtk::ActionCreator<FBotOrchestratorReadinessPayload> & ReadinessObserved() */
 inline const rtk::ActionCreator<FBotOrchestratorReadinessPayload> &
 ReadinessObserved() {
   static const func::Lazy<

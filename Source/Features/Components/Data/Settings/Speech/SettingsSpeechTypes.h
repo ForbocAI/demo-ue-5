@@ -80,6 +80,7 @@ struct FSpeechSettings {
 };
 
 
+/** User Story: As a data settings speech consumer, I need to compare values for equality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator==(const FVisemeMappingSettings &Left, const FVisemeMappingSettings &Right) */
 inline bool operator==(const FVisemeMappingSettings &Left,
                        const FVisemeMappingSettings &Right) {
   return Left.Phoneme == Right.Phoneme &&
@@ -87,32 +88,38 @@ inline bool operator==(const FVisemeMappingSettings &Left,
          FMath::IsNearlyEqual(Left.BlendWeight, Right.BlendWeight);
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for inequality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator!=(const FVisemeMappingSettings &Left, const FVisemeMappingSettings &Right) */
 inline bool operator!=(const FVisemeMappingSettings &Left,
                        const FVisemeMappingSettings &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for equality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator==(const FVowelPhonemeSettings &Left, const FVowelPhonemeSettings &Right) */
 inline bool operator==(const FVowelPhonemeSettings &Left,
                        const FVowelPhonemeSettings &Right) {
   return Left.Character == Right.Character && Left.Phoneme == Right.Phoneme;
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for inequality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator!=(const FVowelPhonemeSettings &Left, const FVowelPhonemeSettings &Right) */
 inline bool operator!=(const FVowelPhonemeSettings &Left,
                        const FVowelPhonemeSettings &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for equality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator==(const FPhonemeDurationRuleSettings &Left, const FPhonemeDurationRuleSettings &Right) */
 inline bool operator==(const FPhonemeDurationRuleSettings &Left,
                        const FPhonemeDurationRuleSettings &Right) {
   return Left.Kind == Right.Kind && Left.Phoneme == Right.Phoneme &&
          FMath::IsNearlyEqual(Left.Multiplier, Right.Multiplier);
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for inequality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator!=(const FPhonemeDurationRuleSettings &Left, const FPhonemeDurationRuleSettings &Right) */
 inline bool operator!=(const FPhonemeDurationRuleSettings &Left,
                        const FPhonemeDurationRuleSettings &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for equality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator==(const FAutomationSettings &Left, const FAutomationSettings &Right) */
 inline bool operator==(const FAutomationSettings &Left,
                        const FAutomationSettings &Right) {
   return Left.PhonemeEstimationText == Right.PhonemeEstimationText &&
@@ -146,11 +153,13 @@ inline bool operator==(const FAutomationSettings &Left,
          Left.UnknownPhonemeLabelFormat == Right.UnknownPhonemeLabelFormat;
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for inequality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator!=(const FAutomationSettings &Left, const FAutomationSettings &Right) */
 inline bool operator!=(const FAutomationSettings &Left,
                        const FAutomationSettings &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for equality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator==(const FSpeechSettings &Left, const FSpeechSettings &Right) */
 inline bool operator==(const FSpeechSettings &Left,
                        const FSpeechSettings &Right) {
   return Left.RestViseme == Right.RestViseme &&
@@ -186,6 +195,7 @@ inline bool operator==(const FSpeechSettings &Left,
          Left.Automation == Right.Automation;
 }
 
+/** User Story: As a data settings speech consumer, I need to compare values for inequality through a stable signature so the data settings speech workflow remains explicit and composable. @fn inline bool operator!=(const FSpeechSettings &Left, const FSpeechSettings &Right) */
 inline bool operator!=(const FSpeechSettings &Left,
                        const FSpeechSettings &Right) {
   return !(Left == Right);

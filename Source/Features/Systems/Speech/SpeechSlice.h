@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace SpeechReducers {
 
+/** User Story: As a features systems speech consumer, I need to invoke reduce settings through a stable signature so the features systems speech workflow remains explicit and composable. @fn inline FSpeechState ReduceSettings( const FSpeechState &State, const ForbocAI::Game::Data::FSpeechSettings &Settings) */
 inline FSpeechState ReduceSettings(
     const FSpeechState &State,
     const ForbocAI::Game::Data::FSpeechSettings &Settings) {
@@ -22,6 +23,7 @@ inline FSpeechState ReduceSettings(
       .val;
 }
 
+/** User Story: As a features systems speech consumer, I need to invoke reduce speech started through a stable signature so the features systems speech workflow remains explicit and composable. @fn inline FSpeechState ReduceSpeechStarted( const FSpeechState &State, const rtk::PayloadAction<FSpeechPayload> &Action) */
 inline FSpeechState ReduceSpeechStarted(
     const FSpeechState &State,
     const rtk::PayloadAction<FSpeechPayload> &Action) {
@@ -38,6 +40,7 @@ inline FSpeechState ReduceSpeechStarted(
       .val;
 }
 
+/** User Story: As a features systems speech consumer, I need to invoke reduce speech stopped through a stable signature so the features systems speech workflow remains explicit and composable. @fn inline FSpeechState ReduceSpeechStopped( const FSpeechState &State, const rtk::PayloadAction<FSpeechPayload> &Action) */
 inline FSpeechState ReduceSpeechStopped(
     const FSpeechState &State,
     const rtk::PayloadAction<FSpeechPayload> &Action) {
@@ -69,12 +72,13 @@ namespace Level {
 namespace SpeechSlice {
 
 /**
+ * @fn inline FSpeechState CreateInitialState()
  * @brief Builds the initial speech RTK slice state.
- * @signature inline FSpeechState CreateInitialState()
  * @return Speech state with no active text, no viseme, and not speaking.
  *
  * User story: As a speech presenter, phoneme and viseme state should start
  * deterministic before audio/thunk effects dispatch reducer actions.
+ * User Story: As a features systems speech consumer, I need to invoke create initial state through a stable signature so the features systems speech workflow remains explicit and composable.
  */
 inline FSpeechState CreateInitialState() {
   return (func::pipe(FSpeechState{}) |
@@ -89,12 +93,13 @@ inline FSpeechState CreateInitialState() {
 }
 
 /**
+ * @fn inline const rtk::Slice<FSpeechState> &GetSlice()
  * @brief Returns the lazily constructed speech RTK slice.
- * @signature inline const rtk::Slice<FSpeechState> &GetSlice()
  * @return The singleton slice that owns speech reducer registration.
  *
  * User story: As speech integration code, start/stop actions should reduce
  * through one slice so views and ECS projections observe consistent state.
+ * User Story: As a features systems speech consumer, I need to invoke get slice through a stable signature so the features systems speech workflow remains explicit and composable.
  */
 inline const rtk::Slice<FSpeechState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FSpeechState>> Slice =

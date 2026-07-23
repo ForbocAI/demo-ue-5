@@ -1,6 +1,6 @@
 #include "Features/Systems/Rendering/Distance/Lod/LodSlice.h"
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 
 namespace ForbocAI {
 namespace Game {
@@ -8,6 +8,7 @@ namespace Level {
 namespace RenderingDistanceLodReducers {
 namespace {
 
+/** User Story: As a rendering distance lod consumer, I need to invoke reduce distance lod stage settings through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn FLevelDistanceLodStage ReduceDistanceLodStageSettings( const ForbocAI::Game::Data::FStageSettings &Settings) */
 FLevelDistanceLodStage ReduceDistanceLodStageSettings(
     const ForbocAI::Game::Data::FStageSettings &Settings) {
   return {{Settings.Selection.Id, Settings.Selection.MaxDistance},
@@ -26,6 +27,7 @@ FLevelDistanceLodStage ReduceDistanceLodStageSettings(
            Settings.Behavior.bCastShadow}};
 }
 
+/** User Story: As a rendering distance lod consumer, I need to invoke distance within stage through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn bool DistanceWithinStage(float Distance, const FLevelDistanceLodStage &Stage) */
 bool DistanceWithinStage(float Distance,
                          const FLevelDistanceLodStage &Stage) {
   return Distance <= Stage.Selection.MaxDistance;
@@ -33,6 +35,7 @@ bool DistanceWithinStage(float Distance,
 
 } // namespace
 
+/** User Story: As a rendering distance lod consumer, I need to invoke reduce distance lod stages through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn TArray<FLevelDistanceLodStage> ReduceDistanceLodStages( const ForbocAI::Game::Data::FLodSettings &Settings) */
 TArray<FLevelDistanceLodStage> ReduceDistanceLodStages(
     const ForbocAI::Game::Data::FLodSettings &Settings) {
   return func::map_array<
@@ -40,6 +43,7 @@ TArray<FLevelDistanceLodStage> ReduceDistanceLodStages(
       FLevelDistanceLodStage>(Settings.Stages, ReduceDistanceLodStageSettings);
 }
 
+/** User Story: As a rendering distance lod consumer, I need to invoke reduce distance lod stage through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn FLevelDistanceLodStage ReduceDistanceLodStage(const FLevelDistanceLodStageRequest &Request) */
 FLevelDistanceLodStage
 ReduceDistanceLodStage(const FLevelDistanceLodStageRequest &Request) {
   check(!Request.Stages.IsEmpty());

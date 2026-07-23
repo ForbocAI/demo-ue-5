@@ -50,40 +50,49 @@ struct FLevelDistanceLodStageRequest {
   TArray<FLevelDistanceLodStage> Stages;
 };
 
+/** User Story: As a rendering distance lod consumer, I need to compare values for equality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator==(const FStageSelection &Left, const FStageSelection &Right) */
 inline bool operator==(const FStageSelection &Left,
                        const FStageSelection &Right) {
   return Left.Id == Right.Id &&
          FMath::IsNearlyEqual(Left.MaxDistance, Right.MaxDistance);
 }
+/** User Story: As a rendering distance lod consumer, I need to compare values for inequality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator!=(const FStageSelection &Left, const FStageSelection &Right) */
 inline bool operator!=(const FStageSelection &Left,
                        const FStageSelection &Right) { return !(Left == Right); }
 
+/** User Story: As a rendering distance lod consumer, I need to compare values for equality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator==(const FStageMesh &Left, const FStageMesh &Right) */
 inline bool operator==(const FStageMesh &Left, const FStageMesh &Right) {
   return Left.StaticMeshForcedLodModel == Right.StaticMeshForcedLodModel &&
          Left.SkeletalMeshForcedLodModel == Right.SkeletalMeshForcedLodModel &&
          Left.SkeletalMeshMinLodModel == Right.SkeletalMeshMinLodModel;
 }
+/** User Story: As a rendering distance lod consumer, I need to compare values for inequality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator!=(const FStageMesh &Left, const FStageMesh &Right) */
 inline bool operator!=(const FStageMesh &Left,
                        const FStageMesh &Right) { return !(Left == Right); }
 
+/** User Story: As a rendering distance lod consumer, I need to compare values for equality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator==(const FStageTiming &Left, const FStageTiming &Right) */
 inline bool operator==(const FStageTiming &Left,
                        const FStageTiming &Right) {
   return FMath::IsNearlyEqual(Left.CullDistance, Right.CullDistance) &&
          FMath::IsNearlyEqual(Left.ActorTickIntervalSeconds,
                               Right.ActorTickIntervalSeconds);
 }
+/** User Story: As a rendering distance lod consumer, I need to compare values for inequality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator!=(const FStageTiming &Left, const FStageTiming &Right) */
 inline bool operator!=(const FStageTiming &Left,
                        const FStageTiming &Right) { return !(Left == Right); }
 
+/** User Story: As a rendering distance lod consumer, I need to compare values for equality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator==(const FStageVisibility &Left, const FStageVisibility &Right) */
 inline bool operator==(const FStageVisibility &Left,
                        const FStageVisibility &Right) {
   return Left.bStaticVisible == Right.bStaticVisible &&
          Left.bDynamicVisible == Right.bDynamicVisible &&
          Left.bLabelsVisible == Right.bLabelsVisible;
 }
+/** User Story: As a rendering distance lod consumer, I need to compare values for inequality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator!=(const FStageVisibility &Left, const FStageVisibility &Right) */
 inline bool operator!=(const FStageVisibility &Left,
                        const FStageVisibility &Right) { return !(Left == Right); }
 
+/** User Story: As a rendering distance lod consumer, I need to compare values for equality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator==(const FStageBehavior &Left, const FStageBehavior &Right) */
 inline bool operator==(const FStageBehavior &Left,
                        const FStageBehavior &Right) {
   return Left.bAnimated == Right.bAnimated &&
@@ -93,23 +102,28 @@ inline bool operator==(const FStageBehavior &Left,
          Left.bCollisionEnabled == Right.bCollisionEnabled &&
          Left.bCastShadow == Right.bCastShadow;
 }
+/** User Story: As a rendering distance lod consumer, I need to compare values for inequality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator!=(const FStageBehavior &Left, const FStageBehavior &Right) */
 inline bool operator!=(const FStageBehavior &Left,
                        const FStageBehavior &Right) { return !(Left == Right); }
 
+/** User Story: As a rendering distance lod consumer, I need to compare values for equality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator==(const FLevelDistanceLodStage &Left, const FLevelDistanceLodStage &Right) */
 inline bool operator==(const FLevelDistanceLodStage &Left,
                        const FLevelDistanceLodStage &Right) {
   return Left.Selection == Right.Selection && Left.Mesh == Right.Mesh &&
          Left.Timing == Right.Timing &&
          Left.Visibility == Right.Visibility && Left.Behavior == Right.Behavior;
 }
+/** User Story: As a rendering distance lod consumer, I need to compare values for inequality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator!=(const FLevelDistanceLodStage &Left, const FLevelDistanceLodStage &Right) */
 inline bool operator!=(const FLevelDistanceLodStage &Left,
                        const FLevelDistanceLodStage &Right) { return !(Left == Right); }
 
+/** User Story: As a rendering distance lod consumer, I need to compare values for equality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator==(const FLevelDistanceLodStageRequest &Left, const FLevelDistanceLodStageRequest &Right) */
 inline bool operator==(const FLevelDistanceLodStageRequest &Left,
                        const FLevelDistanceLodStageRequest &Right) {
   return Left.Origin == Right.Origin && Left.Location == Right.Location &&
          Left.Stages == Right.Stages;
 }
+/** User Story: As a rendering distance lod consumer, I need to compare values for inequality through a stable signature so the rendering distance lod workflow remains explicit and composable. @fn inline bool operator!=(const FLevelDistanceLodStageRequest &Left, const FLevelDistanceLodStageRequest &Right) */
 inline bool operator!=(const FLevelDistanceLodStageRequest &Left,
                        const FLevelDistanceLodStageRequest &Right) {
   return !(Left == Right);

@@ -10,6 +10,7 @@ namespace Game {
 namespace Level {
 namespace DialogueReducers {
 
+/** User Story: As a features systems dialogue consumer, I need to invoke reduce settings through a stable signature so the features systems dialogue workflow remains explicit and composable. @fn inline FDialogueState ReduceSettings( const FDialogueState &State, const ForbocAI::Game::Data::FDialogueSettings &Settings) */
 inline FDialogueState ReduceSettings(
     const FDialogueState &State,
     const ForbocAI::Game::Data::FDialogueSettings &Settings) {
@@ -22,6 +23,7 @@ inline FDialogueState ReduceSettings(
 }
 
 /**
+ * @fn inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request)
  * @brief Pure reducer helper that creates a local, deterministic NPC reply.
  *
  * @param Request Single request payload describing speaker and player line.
@@ -29,6 +31,7 @@ inline FDialogueState ReduceSettings(
  *
  * User story: As a player, I can interact with townspeople offline while the
  * SDK/API path is feature-gated.
+ * User Story: As a features systems dialogue consumer, I need to invoke reduce local reply through a stable signature so the features systems dialogue workflow remains explicit and composable.
  */
 inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request) {
   check(!Request.PinnedResponse.IsEmpty());
@@ -36,7 +39,9 @@ inline FString ReduceLocalReply(const FLocalDialogueReplyRequest &Request) {
 }
 
 /**
+ * @fn inline FReplyPayload ReduceLocalReplyPayload( const FLocalDialogueReplyRequest &Request, const ForbocAI::Game::Data::FDialogueSettings &Settings)
  * @brief Pure reducer helper that wraps local reply text in an RTK payload.
+ * User Story: As a features systems dialogue consumer, I need to invoke reduce local reply payload through a stable signature so the features systems dialogue workflow remains explicit and composable.
  */
 inline FReplyPayload
 ReduceLocalReplyPayload(
@@ -53,7 +58,9 @@ ReduceLocalReplyPayload(
 }
 
 /**
+ * @fn inline FDialogueState ReduceDialogueObserved( const FDialogueState &State, const rtk::PayloadAction<FDialoguePayload> &Action)
  * @brief Case reducer for DialogueActions::DialogueObserved.
+ * User Story: As a features systems dialogue consumer, I need to invoke reduce dialogue observed through a stable signature so the features systems dialogue workflow remains explicit and composable.
  */
 inline FDialogueState ReduceDialogueObserved(
     const FDialogueState &State,
@@ -68,7 +75,9 @@ inline FDialogueState ReduceDialogueObserved(
 }
 
 /**
+ * @fn inline FDialogueState ReduceLocalReplyResolved( const FDialogueState &State, const rtk::PayloadAction<FReplyPayload> &Action)
  * @brief Case reducer for reducer-resolved local dialogue replies.
+ * User Story: As a features systems dialogue consumer, I need to invoke reduce local reply resolved through a stable signature so the features systems dialogue workflow remains explicit and composable.
  */
 inline FDialogueState ReduceLocalReplyResolved(
     const FDialogueState &State,
@@ -103,7 +112,9 @@ namespace Level {
 namespace DialogueSlice {
 
 /**
+ * @fn inline FDialogueState CreateInitialState()
  * @brief Creates initial Dialogue slice state for the root store.
+ * User Story: As a features systems dialogue consumer, I need to invoke create initial state through a stable signature so the features systems dialogue workflow remains explicit and composable.
  */
 inline FDialogueState CreateInitialState() {
   return (func::pipe(FDialogueState{}) |
@@ -116,7 +127,9 @@ inline FDialogueState CreateInitialState() {
 }
 
 /**
+ * @fn inline const rtk::Slice<FDialogueState> &GetSlice()
  * @brief Returns the RTK slice that binds dialogue actions and reducers.
+ * User Story: As a features systems dialogue consumer, I need to invoke get slice through a stable signature so the features systems dialogue workflow remains explicit and composable.
  */
 inline const rtk::Slice<FDialogueState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FDialogueState>> Slice =

@@ -8,7 +8,7 @@ namespace Data {
 namespace JsonAdapters {
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FPersonas, Agent, Immutable,
-                       State, Async, Bridge);
+                       State, Async);
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FState, Json, Needle);
 
@@ -16,18 +16,19 @@ JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FAsync, Prompt,
                        ApiUrlVariable, ApiKeyVariable, FailurePrefix,
                        TimeoutSeconds);
 
-JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FBridge, Action,
-                       MinimumRules);
+JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FBridge, ValidActionJson,
+                       InvalidActionJson);
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FGroups, AgentCreation,
                        StateUpdates, AsyncProcessPipeline, BridgeValidation);
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FCaseLabels, CreateAgent,
                        CreateImmutableAgent, WithStateUpdate, InvokeProcess,
-                       CreateRpgRules, ValidateRpgAction);
+                       ValidateAcceptedAction, ValidateRejectedAction);
 
 template <>
 struct TJsonSettingsRegistry<Automation::Protocol::Loop::FAssertions> {
+  /** User Story: As a registry automation protocol consumer, I need to invoke fields through a stable signature so the registry automation protocol workflow remains explicit and composable. @fn static const TArray<TField<Automation::Protocol::Loop::FAssertions>> &Fields() */
   static const TArray<TField<Automation::Protocol::Loop::FAssertions>>
       &Fields() {
     static const TArray<TField<
@@ -88,22 +89,23 @@ struct TJsonSettingsRegistry<Automation::Protocol::Loop::FAssertions> {
                     &Automation::Protocol::Loop::FAsyncAssertions::
                         ResponsePayloadPresent)),
             NestedSettingField(
-                JSON_SETTING_ATOM(RpgRulesNotEmpty),
+                JSON_SETTING_ATOM(AcceptedActionValid),
                 NestedFieldMembers(
                     &Automation::Protocol::Loop::FAssertions::Bridge,
                     &Automation::Protocol::Loop::FBridgeAssertions::
-                        RpgRulesNotEmpty)),
+                        AcceptedActionValid)),
             NestedSettingField(
-                JSON_SETTING_ATOM(MoveActionValid),
+                JSON_SETTING_ATOM(RejectedActionInvalid),
                 NestedFieldMembers(
                     &Automation::Protocol::Loop::FAssertions::Bridge,
                     &Automation::Protocol::Loop::FBridgeAssertions::
-                        MoveActionValid))};
+                        RejectedActionInvalid))};
     return RegisteredFields;
   }
 };
 
 template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> {
+  /** User Story: As a registry automation protocol consumer, I need to invoke fields through a stable signature so the registry automation protocol workflow remains explicit and composable. @fn static const TArray<TField<Automation::Protocol::Loop::FSettings>> &Fields() */
   static const TArray<TField<Automation::Protocol::Loop::FSettings>>
       &Fields() {
     static const TArray<TField<
@@ -122,7 +124,8 @@ template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> 
                 ReadSettingsWith<Automation::Protocol::Loop::FCaseLabels>(
                     JSON_SETTINGS_ATOMS(CreateAgent, CreateImmutableAgent,
                                         WithStateUpdate, InvokeProcess,
-                                        CreateRpgRules, ValidateRpgAction)),
+                                        ValidateAcceptedAction,
+                                        ValidateRejectedAction)),
                 Cases),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
@@ -131,14 +134,13 @@ template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> 
                         AgentIdNotEmpty, PersonaMatches, AgentPointerValid,
                         PersonaPreserved, OriginalIdPreserved,
                         UpdatedStateContainsMood, ApiUrlPresent, ApiKeyPresent,
-                        ResponsePayloadPresent, RpgRulesNotEmpty,
-                        MoveActionValid)),
+                        ResponsePayloadPresent, AcceptedActionValid,
+                        RejectedActionInvalid)),
                 Assertions),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
                 ReadSettingsWith<Automation::Protocol::Loop::FPersonas>(
-                    JSON_SETTINGS_ATOMS(Agent, Immutable, State, Async,
-                                        Bridge)),
+                    JSON_SETTINGS_ATOMS(Agent, Immutable, State, Async)),
                 Personas),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
@@ -154,7 +156,8 @@ template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> 
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
                 ReadSettingsWith<Automation::Protocol::Loop::FBridge>(
-                    JSON_SETTINGS_ATOMS(Action, MinimumRules)),
+                    JSON_SETTINGS_ATOMS(ValidActionJson,
+                                        InvalidActionJson)),
                 Bridge)};
     return RegisteredFields;
   }

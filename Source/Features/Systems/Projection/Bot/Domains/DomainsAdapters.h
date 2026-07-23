@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 #include "Features/Components/ComponentsAdapters.h"
 #include "Features/Entities/EntitiesAdapters.h"
 
@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace SystemsProjectionBotAdapters {
 
+/** User Story: As a projection bot domains consumer, I need to invoke build bot projection domains through a stable signature so the projection bot domains workflow remains explicit and composable. @fn inline TArray<TArray<FString>> BuildBotProjectionDomains(const FString &BotSystemDomain) */
 inline TArray<TArray<FString>>
 BuildBotProjectionDomains(const FString &BotSystemDomain) {
   return {ComponentsAdapters::ComponentDomain({"Systems", "Bots"},
@@ -24,6 +25,7 @@ struct FBotProjectionRequest {
   ComponentCatalog Components;
 };
 
+/** User Story: As a projection bot domains consumer, I need to invoke make bot projection request through a stable signature so the projection bot domains workflow remains explicit and composable. @fn template <typename ComponentCatalog> FBotProjectionRequest<ComponentCatalog> MakeBotProjectionRequest(const FString &BotSystemDomain, const ComponentCatalog &Components) */
 template <typename ComponentCatalog>
 FBotProjectionRequest<ComponentCatalog>
 MakeBotProjectionRequest(const FString &BotSystemDomain,
@@ -33,6 +35,7 @@ MakeBotProjectionRequest(const FString &BotSystemDomain,
 
 template <typename T> struct TTypeWrapper { using Type = T; };
 
+/** User Story: As a projection bot domains consumer, I need to invoke project bot payload through a stable signature so the projection bot domains workflow remains explicit and composable. @fn template <typename Component, typename Payload, typename ComponentCatalog> ecs::FWorld ProjectBotPayload(const Payload &PayloadValue, const FBotProjectionRequest<ComponentCatalog> &Request, TFunctionRef<FString(const typename TTypeWrapper<Payload>::Type &)> SelectIdValue, TFunctionRef<const Component &(const typename TTypeWrapper<Payload>::Type &)> SelectSourceValue) */
 template <typename Component, typename Payload, typename ComponentCatalog>
 ecs::FWorld ProjectBotPayload(const Payload &PayloadValue,
                               const FBotProjectionRequest<ComponentCatalog> &Request,

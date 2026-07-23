@@ -1,12 +1,13 @@
 #include "Features/Systems/Rendering/Profile/ProfileSlice.h"
 
-#include "Core/ue_fp.hpp"
+#include "Core/fp.hpp"
 
 namespace ForbocAI {
 namespace Game {
 namespace Level {
 namespace RenderingProfileReducers {
 
+/** User Story: As a systems rendering profile consumer, I need to invoke reduce runtime profile through a stable signature so the systems rendering profile workflow remains explicit and composable. @fn FLevelRetroRenderProfile ReduceRuntimeProfile( const ForbocAI::Game::Data::FProfileSettings &Settings) */
 FLevelRetroRenderProfile ReduceRuntimeProfile(
     const ForbocAI::Game::Data::FProfileSettings &Settings) {
   return {Settings.TimeOfDayHour,

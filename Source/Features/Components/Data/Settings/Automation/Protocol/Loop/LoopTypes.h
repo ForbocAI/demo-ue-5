@@ -14,7 +14,6 @@ struct FPersonas {
   FString Immutable;
   FString State;
   FString Async;
-  FString Bridge;
 };
 
 struct FState {
@@ -31,8 +30,8 @@ struct FAsync {
 };
 
 struct FBridge {
-  FString Action;
-  int32 MinimumRules;
+  FString ValidActionJson;
+  FString InvalidActionJson;
 };
 
 struct FGroups {
@@ -47,8 +46,8 @@ struct FCaseLabels {
   FString CreateImmutableAgent;
   FString WithStateUpdate;
   FString InvokeProcess;
-  FString CreateRpgRules;
-  FString ValidateRpgAction;
+  FString ValidateAcceptedAction;
+  FString ValidateRejectedAction;
 };
 
 struct FAgentAssertions {
@@ -73,8 +72,8 @@ struct FAsyncAssertions {
 };
 
 struct FBridgeAssertions {
-  FString RpgRulesNotEmpty;
-  FString MoveActionValid;
+  FString AcceptedActionValid;
+  FString RejectedActionInvalid;
 };
 
 struct FAssertions {
@@ -96,24 +95,28 @@ struct FSettings {
   FBridge Bridge;
 };
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FPersonas &Left, const FPersonas &Right) */
 inline bool operator==(const FPersonas &Left, const FPersonas &Right) {
   return Left.Agent == Right.Agent && Left.Immutable == Right.Immutable &&
-         Left.State == Right.State && Left.Async == Right.Async &&
-         Left.Bridge == Right.Bridge;
+         Left.State == Right.State && Left.Async == Right.Async;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FPersonas &Left, const FPersonas &Right) */
 inline bool operator!=(const FPersonas &Left, const FPersonas &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FState &Left, const FState &Right) */
 inline bool operator==(const FState &Left, const FState &Right) {
   return Left.Json == Right.Json && Left.Needle == Right.Needle;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FState &Left, const FState &Right) */
 inline bool operator!=(const FState &Left, const FState &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FAsync &Left, const FAsync &Right) */
 inline bool operator==(const FAsync &Left, const FAsync &Right) {
   return Left.Prompt == Right.Prompt &&
          Left.ApiUrlVariable == Right.ApiUrlVariable &&
@@ -122,19 +125,23 @@ inline bool operator==(const FAsync &Left, const FAsync &Right) {
          Left.TimeoutSeconds == Right.TimeoutSeconds;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FAsync &Left, const FAsync &Right) */
 inline bool operator!=(const FAsync &Left, const FAsync &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FBridge &Left, const FBridge &Right) */
 inline bool operator==(const FBridge &Left, const FBridge &Right) {
-  return Left.Action == Right.Action &&
-         Left.MinimumRules == Right.MinimumRules;
+  return Left.ValidActionJson == Right.ValidActionJson &&
+         Left.InvalidActionJson == Right.InvalidActionJson;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FBridge &Left, const FBridge &Right) */
 inline bool operator!=(const FBridge &Left, const FBridge &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FGroups &Left, const FGroups &Right) */
 inline bool operator==(const FGroups &Left, const FGroups &Right) {
   return Left.AgentCreation == Right.AgentCreation &&
          Left.StateUpdates == Right.StateUpdates &&
@@ -142,23 +149,27 @@ inline bool operator==(const FGroups &Left, const FGroups &Right) {
          Left.BridgeValidation == Right.BridgeValidation;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FGroups &Left, const FGroups &Right) */
 inline bool operator!=(const FGroups &Left, const FGroups &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FCaseLabels &Left, const FCaseLabels &Right) */
 inline bool operator==(const FCaseLabels &Left, const FCaseLabels &Right) {
   return Left.CreateAgent == Right.CreateAgent &&
          Left.CreateImmutableAgent == Right.CreateImmutableAgent &&
          Left.WithStateUpdate == Right.WithStateUpdate &&
          Left.InvokeProcess == Right.InvokeProcess &&
-         Left.CreateRpgRules == Right.CreateRpgRules &&
-         Left.ValidateRpgAction == Right.ValidateRpgAction;
+         Left.ValidateAcceptedAction == Right.ValidateAcceptedAction &&
+         Left.ValidateRejectedAction == Right.ValidateRejectedAction;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FCaseLabels &Left, const FCaseLabels &Right) */
 inline bool operator!=(const FCaseLabels &Left, const FCaseLabels &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FAgentAssertions &Left, const FAgentAssertions &Right) */
 inline bool operator==(const FAgentAssertions &Left,
                        const FAgentAssertions &Right) {
   return Left.AgentIdNotEmpty == Right.AgentIdNotEmpty &&
@@ -166,32 +177,38 @@ inline bool operator==(const FAgentAssertions &Left,
          Left.AgentPointerValid == Right.AgentPointerValid;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FAgentAssertions &Left, const FAgentAssertions &Right) */
 inline bool operator!=(const FAgentAssertions &Left,
                        const FAgentAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FImmutableAssertions &Left, const FImmutableAssertions &Right) */
 inline bool operator==(const FImmutableAssertions &Left,
                        const FImmutableAssertions &Right) {
   return Left.PersonaPreserved == Right.PersonaPreserved &&
          Left.OriginalIdPreserved == Right.OriginalIdPreserved;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FImmutableAssertions &Left, const FImmutableAssertions &Right) */
 inline bool operator!=(const FImmutableAssertions &Left,
                        const FImmutableAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FStateAssertions &Left, const FStateAssertions &Right) */
 inline bool operator==(const FStateAssertions &Left,
                        const FStateAssertions &Right) {
   return Left.UpdatedStateContainsMood == Right.UpdatedStateContainsMood;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FStateAssertions &Left, const FStateAssertions &Right) */
 inline bool operator!=(const FStateAssertions &Left,
                        const FStateAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FAsyncAssertions &Left, const FAsyncAssertions &Right) */
 inline bool operator==(const FAsyncAssertions &Left,
                        const FAsyncAssertions &Right) {
   return Left.ApiUrlPresent == Right.ApiUrlPresent &&
@@ -199,22 +216,26 @@ inline bool operator==(const FAsyncAssertions &Left,
          Left.ResponsePayloadPresent == Right.ResponsePayloadPresent;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FAsyncAssertions &Left, const FAsyncAssertions &Right) */
 inline bool operator!=(const FAsyncAssertions &Left,
                        const FAsyncAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FBridgeAssertions &Left, const FBridgeAssertions &Right) */
 inline bool operator==(const FBridgeAssertions &Left,
                        const FBridgeAssertions &Right) {
-  return Left.RpgRulesNotEmpty == Right.RpgRulesNotEmpty &&
-         Left.MoveActionValid == Right.MoveActionValid;
+  return Left.AcceptedActionValid == Right.AcceptedActionValid &&
+         Left.RejectedActionInvalid == Right.RejectedActionInvalid;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FBridgeAssertions &Left, const FBridgeAssertions &Right) */
 inline bool operator!=(const FBridgeAssertions &Left,
                        const FBridgeAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FAssertions &Left, const FAssertions &Right) */
 inline bool operator==(const FAssertions &Left, const FAssertions &Right) {
   return Left.Agent == Right.Agent &&
          Left.Immutable == Right.Immutable &&
@@ -223,10 +244,12 @@ inline bool operator==(const FAssertions &Left, const FAssertions &Right) {
          Left.Bridge == Right.Bridge;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FAssertions &Left, const FAssertions &Right) */
 inline bool operator!=(const FAssertions &Left, const FAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FSettings &Left, const FSettings &Right) */
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
   return Left.Spec == Right.Spec && Left.Groups == Right.Groups &&
          Left.Cases == Right.Cases && Left.Assertions == Right.Assertions &&
@@ -234,6 +257,7 @@ inline bool operator==(const FSettings &Left, const FSettings &Right) {
          Left.Async == Right.Async && Left.Bridge == Right.Bridge;
 }
 
+/** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FSettings &Left, const FSettings &Right) */
 inline bool operator!=(const FSettings &Left, const FSettings &Right) {
   return !(Left == Right);
 }

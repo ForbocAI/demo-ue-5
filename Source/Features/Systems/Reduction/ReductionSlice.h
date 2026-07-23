@@ -60,6 +60,7 @@ struct FRuntimeActionReducerRequest {
   const rtk::AnyAction &Action;
 };
 
+/** User Story: As a features systems reduction consumer, I need to invoke reduce extracted payload action through a stable signature so the features systems reduction workflow remains explicit and composable. @fn template <typename Payload> func::Maybe<FRuntimeState> ReduceExtractedPayloadAction( FRuntimeState State, const rtk::PayloadAction<Payload> &PayloadAct, TRuntimePayloadReducer<Payload> Reduce) */
 template <typename Payload>
 func::Maybe<FRuntimeState> ReduceExtractedPayloadAction(
     FRuntimeState State,
@@ -68,6 +69,7 @@ func::Maybe<FRuntimeState> ReduceExtractedPayloadAction(
   return func::just(Reduce(State, PayloadAct));
 }
 
+/** User Story: As a features systems reduction consumer, I need to invoke runtime payload reducer through a stable signature so the features systems reduction workflow remains explicit and composable. @fn template <typename Payload> FRuntimeActionReducerDeclaration RuntimePayloadReducer( const rtk::ActionCreator<Payload> &Creator, TRuntimePayloadReducer<Payload> Reduce) */
 template <typename Payload>
 FRuntimeActionReducerDeclaration RuntimePayloadReducer(
     const rtk::ActionCreator<Payload> &Creator,
@@ -85,6 +87,7 @@ FRuntimeActionReducerDeclaration RuntimePayloadReducer(
   }};
 }
 
+/** User Story: As a features systems reduction consumer, I need to invoke reduce runtime action maybe through a stable signature so the features systems reduction workflow remains explicit and composable. @fn func::Maybe<FRuntimeState> ReduceRuntimeActionMaybe( const FRuntimeActionReducerRequest &Request, const TArray<FRuntimeActionReducerDeclaration> &Declarations) */
 func::Maybe<FRuntimeState> ReduceRuntimeActionMaybe(
     const FRuntimeActionReducerRequest &Request,
     const TArray<FRuntimeActionReducerDeclaration> &Declarations) {
@@ -111,6 +114,7 @@ func::Maybe<FRuntimeState> ReduceRuntimeActionMaybe(
 namespace {
 
 template <> struct TRuntimeReducerRegistry<FRuntimeActionReducerPlan> {
+  /** User Story: As a features systems reduction consumer, I need to invoke declarations through a stable signature so the features systems reduction workflow remains explicit and composable. @fn static const TArray<FRuntimeActionReducerDeclaration> &Declarations() */
   static const TArray<FRuntimeActionReducerDeclaration> &Declarations() {
     static const TArray<FRuntimeActionReducerDeclaration>
         RegisteredDeclarations = {
@@ -127,6 +131,7 @@ template <> struct TRuntimeReducerRegistry<FRuntimeActionReducerPlan> {
 
 } // namespace
 
+/** User Story: As a features systems reduction consumer, I need to invoke reduce runtime action through a stable signature so the features systems reduction workflow remains explicit and composable. @fn FRuntimeState ReduceRuntimeAction(const FRuntimeState &State, const rtk::AnyAction &Action) */
 FRuntimeState ReduceRuntimeAction(const FRuntimeState &State,
                                   const rtk::AnyAction &Action) {
   return func::or_else(

@@ -8,24 +8,7 @@ using namespace ForbocAI::Game::Level;
 
 namespace {
 
-struct FBotFunctionalCoreLabelCursor {
-  const TArray<FString> *Labels = nullptr;
-  int32 Index = int32();
-
-  FString Next() {
-    check(Labels != nullptr);
-    check(Labels->IsValidIndex(Index));
-    const FString Label = (*Labels)[Index];
-    ++Index;
-    return Label;
-  }
-};
-
-FBotFunctionalCoreLabelCursor
-BotFunctionalCoreLabels(const TArray<FString> &Labels) {
-  return {&Labels, int32()};
-}
-
+/** User Story: As a tests consumer, I need to invoke bot functional core all settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FSettings & BotFunctionalCoreAllSettings() */
 const ForbocAI::Game::Data::FSettings &
 BotFunctionalCoreAllSettings() {
   static const ForbocAI::Game::Data::FSettings Settings =
@@ -33,32 +16,44 @@ BotFunctionalCoreAllSettings() {
   return Settings;
 }
 
+/** User Story: As a tests consumer, I need to invoke bot functional core settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FBotSettings & BotFunctionalCoreSettings() */
 const ForbocAI::Game::Data::FBotSettings &
 BotFunctionalCoreSettings() {
   return BotFunctionalCoreAllSettings().Bot;
 }
 
+/** User Story: As a tests consumer, I need to invoke bot functional core automation settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Bot::FSettings & BotFunctionalCoreAutomationSettings() */
 const ForbocAI::Game::Data::Automation::Bot::FSettings &
 BotFunctionalCoreAutomationSettings() {
   return BotFunctionalCoreAllSettings().Automation.Bot;
 }
 
+/** User Story: As a tests consumer, I need to invoke bot functional core groups through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Bot::FGroups & BotFunctionalCoreGroups() */
 const ForbocAI::Game::Data::Automation::Bot::FGroups &
 BotFunctionalCoreGroups() {
   return BotFunctionalCoreAutomationSettings().Groups;
 }
 
+/** User Story: As a tests consumer, I need to invoke bot functional core cases through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::Automation::Bot::FCaseLabels & BotFunctionalCoreCases() */
 const ForbocAI::Game::Data::Automation::Bot::FCaseLabels &
 BotFunctionalCoreCases() {
   return BotFunctionalCoreAutomationSettings().Cases;
 }
 
+/** User Story: As a tests consumer, I need typed bot assertions through a stable signature so each test owns an immutable authored label. @fn const ForbocAI::Game::Data::Automation::Bot::FAssertions & BotFunctionalCoreAssertions() */
+const ForbocAI::Game::Data::Automation::Bot::FAssertions &
+BotFunctionalCoreAssertions() {
+  return BotFunctionalCoreAutomationSettings().Assertions;
+}
+
+/** User Story: As a tests consumer, I need to invoke functional core healthy damage through a stable signature so the tests workflow remains explicit and composable. @fn float FunctionalCoreHealthyDamage() */
 float FunctionalCoreHealthyDamage() {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       BotFunctionalCoreSettings();
   return Settings.InitialHealth * Settings.PhaseFleeHealthRatio;
 }
 
+/** User Story: As a tests consumer, I need to invoke functional core flee damage through a stable signature so the tests workflow remains explicit and composable. @fn float FunctionalCoreFleeDamage() */
 float FunctionalCoreFleeDamage() {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       BotFunctionalCoreSettings();
@@ -67,17 +62,20 @@ float FunctionalCoreFleeDamage() {
          Settings.MovementArrivalDistanceSquared;
 }
 
+/** User Story: As a tests consumer, I need to invoke functional core expected health after damage through a stable signature so the tests workflow remains explicit and composable. @fn float FunctionalCoreExpectedHealthAfterDamage(const float Damage) */
 float FunctionalCoreExpectedHealthAfterDamage(const float Damage) {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       BotFunctionalCoreSettings();
   return FMath::Max(Settings.MinimumHealth, Settings.InitialHealth - Damage);
 }
 
+/** User Story: As a tests consumer, I need to invoke create state through a stable signature so the tests workflow remains explicit and composable. @fn FBotCoreRuntimeState CreateState(const FString &BotName) */
 FBotCoreRuntimeState CreateState(const FString &BotName) {
   return CreateBotCoreRuntimeInitialState(
       {BotName, BotFunctionalCoreSettings()});
 }
 
+/** User Story: As a tests consumer, I need to invoke reduce state through a stable signature so the tests workflow remains explicit and composable. @fn FBotCoreRuntimeState ReduceState(const FBotCoreRuntimeState &State, const rtk::AnyAction &Action) */
 FBotCoreRuntimeState ReduceState(const FBotCoreRuntimeState &State,
                                  const rtk::AnyAction &Action) {
   return BotCoreReducers::BotReducer()(State, Action);
@@ -86,33 +84,34 @@ FBotCoreRuntimeState ReduceState(const FBotCoreRuntimeState &State,
 
 DEFINE_SPEC(FBotFunctionalCoreSpec, BotFunctionalCoreAutomationSettings().Spec, EAutomationTestFlags::ProductFilter | EAutomationTestFlags_ApplicationContextMask)
 
+/** User Story: As a tests consumer, I need to invoke define through a stable signature so the tests workflow remains explicit and composable. @fn void FBotFunctionalCoreSpec::Define() */
 void FBotFunctionalCoreSpec::Define()
 {
-    FBotFunctionalCoreLabelCursor Labels = BotFunctionalCoreLabels(
-        BotFunctionalCoreAutomationSettings().Assertions);
-
-    Describe(BotFunctionalCoreGroups().StateCreation, [this, &Labels]()
+    Describe(BotFunctionalCoreGroups().StateCreation, [this]()
     {
-        It(BotFunctionalCoreCases().State.CreateInitialState, [this, &Labels]()
+        It(BotFunctionalCoreCases().State.CreateInitialState, [this]()
         {
             const FString BotName = BotFunctionalCoreSettings().InitialName;
             const FBotCoreRuntimeState State = CreateState(BotName);
 
-            TestEqual(Labels.Next(), State.Name, BotName);
-            TestTrue(Labels.Next(),
+            TestEqual(BotFunctionalCoreAssertions().State.Name,
+                      State.Name, BotName);
+            TestTrue(BotFunctionalCoreAssertions().State.Health,
                      FMath::IsNearlyEqual(
                          State.Stats.Health,
                          BotFunctionalCoreSettings().InitialHealth));
-            TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Idle);
-            TestTrue(Labels.Next(), State.Id.IsValid());
+            TestTrue(BotFunctionalCoreAssertions().State.Phase,
+                     State.Phase == EBotCorePhase::Idle);
+            TestTrue(BotFunctionalCoreAssertions().State.IdValid,
+                     State.Id.IsValid());
         });
     });
 
-    Describe(BotFunctionalCoreGroups().Reducers, [this, &Labels]()
+    Describe(BotFunctionalCoreGroups().Reducers, [this]()
     {
-        Describe(BotFunctionalCoreGroups().Movement, [this, &Labels]()
+        Describe(BotFunctionalCoreGroups().Movement, [this]()
         {
-            It(BotFunctionalCoreCases().Movement.UpdatePosition, [this, &Labels]()
+            It(BotFunctionalCoreCases().Movement.UpdatePosition, [this]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -121,44 +120,51 @@ void FBotFunctionalCoreSpec::Define()
                     BotCoreActions::BotMoved()(FBotMovePayload{
                         Settings.MoveActionOffset,
                         Settings.DefaultMovementInterpSpeed}));
-                TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Position.X, Settings.MoveActionOffset.X));
+                TestTrue(BotFunctionalCoreAssertions().Movement.PositionX,
+                         FMath::IsNearlyEqual(State.Position.X,
+                                              Settings.MoveActionOffset.X));
             });
         });
 
-        Describe(BotFunctionalCoreGroups().Combat, [this, &Labels]()
+        Describe(BotFunctionalCoreGroups().Combat, [this]()
         {
-            It(BotFunctionalCoreCases().Combat.ReduceHealth, [this, &Labels]()
+            It(BotFunctionalCoreCases().Combat.ReduceHealth, [this]()
             {
                 const float Damage = FunctionalCoreHealthyDamage();
                 const FBotCoreRuntimeState State = ReduceState(
                     CreateState(BotFunctionalCoreSettings().AttackActionType),
                     BotCoreActions::BotDamageTaken()(
                         FBotDamageTakenPayload{Damage, nullptr}));
-                TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Stats.Health, FunctionalCoreExpectedHealthAfterDamage(Damage)));
+                TestTrue(BotFunctionalCoreAssertions().Combat.HealthReduced,
+                         FMath::IsNearlyEqual(
+                             State.Stats.Health,
+                             FunctionalCoreExpectedHealthAfterDamage(Damage)));
             });
 
-            It(BotFunctionalCoreCases().Combat.TransitionToCombat, [this, &Labels]()
+            It(BotFunctionalCoreCases().Combat.TransitionToCombat, [this]()
             {
                 const FBotCoreRuntimeState State = ReduceState(
                     CreateState(BotFunctionalCoreSettings().AttackActionType),
                     BotCoreActions::BotDamageTaken()(FBotDamageTakenPayload{
                         FunctionalCoreHealthyDamage(), nullptr}));
-                TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Combat);
+                TestTrue(BotFunctionalCoreAssertions().Combat.PhaseCombat,
+                         State.Phase == EBotCorePhase::Combat);
             });
 
-            It(BotFunctionalCoreCases().Combat.TransitionToFlee, [this, &Labels]()
+            It(BotFunctionalCoreCases().Combat.TransitionToFlee, [this]()
             {
                 const FBotCoreRuntimeState State = ReduceState(
                     CreateState(BotFunctionalCoreSettings().AttackActionType),
                     BotCoreActions::BotDamageTaken()(FBotDamageTakenPayload{
                         FunctionalCoreFleeDamage(), nullptr}));
-                TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Flee);
+                TestTrue(BotFunctionalCoreAssertions().Combat.PhaseFlee,
+                         State.Phase == EBotCorePhase::Flee);
             });
         });
 
-        Describe(BotFunctionalCoreGroups().Awareness, [this, &Labels]()
+        Describe(BotFunctionalCoreGroups().Awareness, [this]()
         {
-            It(BotFunctionalCoreCases().Awareness.UpdateMemory, [this, &Labels]()
+            It(BotFunctionalCoreCases().Awareness.UpdateMemory, [this]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -166,16 +172,25 @@ void FBotFunctionalCoreSpec::Define()
                     CreateState(Settings.InitialName),
                     BotCoreActions::BotEnemySpotted()(
                         FBotEnemySpottedPayload{Settings.MoveActionOffset}));
-                TestTrue(Labels.Next(), State.Memory.bHasAggro);
-                TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Memory.TimeSinceSeenPlayer, Settings.EnemySpottedTimeSinceSeenPlayer));
-                TestTrue(Labels.Next(), FMath::IsNearlyEqual(State.Memory.KnownPlayerPos.X, Settings.MoveActionOffset.X));
-                TestTrue(Labels.Next(), State.Phase == EBotCorePhase::Combat);
+                TestTrue(BotFunctionalCoreAssertions().Awareness.HasAggro,
+                         State.Memory.bHasAggro);
+                TestTrue(
+                    BotFunctionalCoreAssertions().Awareness.TimeSinceSeen,
+                    FMath::IsNearlyEqual(
+                        State.Memory.TimeSinceSeenPlayer,
+                        Settings.EnemySpottedTimeSinceSeenPlayer));
+                TestTrue(
+                    BotFunctionalCoreAssertions().Awareness.KnownPlayerPositionX,
+                    FMath::IsNearlyEqual(State.Memory.KnownPlayerPos.X,
+                                         Settings.MoveActionOffset.X));
+                TestTrue(BotFunctionalCoreAssertions().Awareness.PhaseCombat,
+                         State.Phase == EBotCorePhase::Combat);
             });
         });
 
-        Describe(BotFunctionalCoreGroups().TickUpdate, [this, &Labels]()
+        Describe(BotFunctionalCoreGroups().TickUpdate, [this]()
         {
-            It(BotFunctionalCoreCases().Tick.IncrementTick, [this, &Labels]()
+            It(BotFunctionalCoreCases().Tick.IncrementTick, [this]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -183,10 +198,12 @@ void FBotFunctionalCoreSpec::Define()
                     CreateState(Settings.InitialName),
                     BotCoreActions::BotTicked()(
                         FBotTickPayload{Settings.PatrolTickIntervalSeconds}));
-                TestTrue(Labels.Next(), State.TickCount > static_cast<uint64>(Settings.InitialTickCount));
+                TestTrue(BotFunctionalCoreAssertions().Tick.TickCount,
+                         State.TickCount >
+                             static_cast<uint64>(Settings.InitialTickCount));
             });
 
-            It(BotFunctionalCoreCases().Tick.DecayAggro, [this, &Labels]()
+            It(BotFunctionalCoreCases().Tick.DecayAggro, [this]()
             {
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
@@ -196,7 +213,8 @@ void FBotFunctionalCoreSpec::Define()
                         FBotEnemySpottedPayload{
                             Settings.InitialKnownPlayerPosition}));
 
-                TestTrue(Labels.Next(), AggroState.Memory.bHasAggro);
+                TestTrue(BotFunctionalCoreAssertions().Tick.InitiallyAggro,
+                         AggroState.Memory.bHasAggro);
 
                 const FBotCoreRuntimeState DecayedState = ReduceState(
                     AggroState,
@@ -204,7 +222,8 @@ void FBotFunctionalCoreSpec::Define()
                         Settings.AggroTimeoutSeconds +
                         Settings.PatrolTickIntervalSeconds}));
 
-                TestFalse(Labels.Next(), DecayedState.Memory.bHasAggro);
+                TestFalse(BotFunctionalCoreAssertions().Tick.LostAggro,
+                          DecayedState.Memory.bHasAggro);
             });
         });
     });

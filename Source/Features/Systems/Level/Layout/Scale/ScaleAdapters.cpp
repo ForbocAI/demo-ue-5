@@ -1,6 +1,6 @@
 #include "Features/Systems/Level/Layout/Scale/ScaleAdapters.h"
 
-#include "Features/Components/Data/Json/Value/ValueAdapters.h"
+#include "Features/Components/Data/Json/Value/JsonValueAdapters.h"
 #include "Features/Systems/Level/Layout/Enum/EnumAdapters.h"
 
 namespace ForbocAI {
@@ -48,24 +48,29 @@ struct FLevelScaleFieldDeclaration {
   EScaleMode Mode;
   TArray<const char *> FieldAtoms;
 
+  /** User Story: As a level layout scale consumer, I need to invoke flevel scale field declaration through a stable signature so the level layout scale workflow remains explicit and composable. @fn FLevelScaleFieldDeclaration() = default */
   FLevelScaleFieldDeclaration() = default;
 
+  /** User Story: As a level layout scale consumer, I need to invoke flevel scale field declaration through a stable signature so the level layout scale workflow remains explicit and composable. @fn FLevelScaleFieldDeclaration( EScaleMode InMode, std::initializer_list<const char *> InFieldAtoms) */
   FLevelScaleFieldDeclaration(
       EScaleMode InMode,
       std::initializer_list<const char *> InFieldAtoms)
       : Mode(InMode), FieldAtoms(InFieldAtoms) {}
 };
 
+/** User Story: As a level layout scale consumer, I need to invoke scale seed with mode through a stable signature so the level layout scale workflow remains explicit and composable. @fn FScaleSeed ScaleSeedWithMode(EScaleMode Mode) */
 FScaleSeed ScaleSeedWithMode(EScaleMode Mode) {
   FScaleSeed Seed{};
   Seed.Mode = Mode;
   return Seed;
 }
 
+/** User Story: As a level layout scale consumer, I need to invoke world location from fields through a stable signature so the level layout scale workflow remains explicit and composable. @fn FVector WorldLocationFromFields(const FWorldLocationSource &Fields) */
 FVector WorldLocationFromFields(const FWorldLocationSource &Fields) {
   return FVector(Fields.X, Fields.Y, Fields.Z);
 }
 
+/** User Story: As a level layout scale consumer, I need to invoke level scale field declarations through a stable signature so the level layout scale workflow remains explicit and composable. @fn const TArray<FLevelScaleFieldDeclaration> & LevelScaleFieldDeclarations() */
 const TArray<FLevelScaleFieldDeclaration> &
 LevelScaleFieldDeclarations() {
   static const TArray<FLevelScaleFieldDeclaration> Declarations = {
@@ -78,6 +83,7 @@ LevelScaleFieldDeclarations() {
   return Declarations;
 }
 
+/** User Story: As a level layout scale consumer, I need to invoke find scale field declaration through a stable signature so the level layout scale workflow remains explicit and composable. @fn func::Maybe<FLevelScaleFieldDeclaration> FindScaleFieldDeclaration(EScaleMode Mode) */
 func::Maybe<FLevelScaleFieldDeclaration>
 FindScaleFieldDeclaration(EScaleMode Mode) {
   return func::find_array<FLevelScaleFieldDeclaration>(
@@ -87,6 +93,7 @@ FindScaleFieldDeclaration(EScaleMode Mode) {
       });
 }
 
+/** User Story: As a level layout scale consumer, I need to invoke read scale seed for mode through a stable signature so the level layout scale workflow remains explicit and composable. @fn func::Maybe<FScaleSeed> ReadScaleSeedForMode(const TSharedPtr<FJsonObject> &Object, EScaleMode Mode) */
 func::Maybe<FScaleSeed>
 ReadScaleSeedForMode(const TSharedPtr<FJsonObject> &Object,
                      EScaleMode Mode) {
@@ -100,6 +107,7 @@ ReadScaleSeedForMode(const TSharedPtr<FJsonObject> &Object,
 
 } // namespace
 
+/** User Story: As a level layout scale consumer, I need to invoke world location from json through a stable signature so the level layout scale workflow remains explicit and composable. @fn func::Maybe<FVector> WorldLocationFromJson(const FLevelJsonObjectRequest &Request) */
 func::Maybe<FVector>
 WorldLocationFromJson(const FLevelJsonObjectRequest &Request) {
   return func::fmap(
@@ -107,6 +115,7 @@ WorldLocationFromJson(const FLevelJsonObjectRequest &Request) {
       WorldLocationFromFields);
 }
 
+/** User Story: As a level layout scale consumer, I need to invoke scale from json through a stable signature so the level layout scale workflow remains explicit and composable. @fn func::Maybe<FScaleSeed> ScaleFromJson(const FLevelJsonObjectRequest &Request) */
 func::Maybe<FScaleSeed>
 ScaleFromJson(const FLevelJsonObjectRequest &Request) {
   return func::mbind(
@@ -122,6 +131,7 @@ ScaleFromJson(const FLevelJsonObjectRequest &Request) {
       });
 }
 
+/** User Story: As a level layout scale consumer, I need to invoke read scale seed through a stable signature so the level layout scale workflow remains explicit and composable. @fn func::Maybe<FScaleSeed> ReadScaleSeed(const ForbocAI::Game::Data::FFieldRequest &Request) */
 func::Maybe<FScaleSeed>
 ReadScaleSeed(const ForbocAI::Game::Data::FFieldRequest &Request) {
   return func::mbind(

@@ -5,13 +5,14 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     "ForbocAI.Runtime.Store.DataBackedMap",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
+/** User Story: As a tests store consumer, I need to invoke run test through a stable signature so the tests store workflow remains explicit and composable. @fn bool FStoreDataBackedMap::RunTest(const FString &Parameters) */
 bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FSettings Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   const FStoreSettings StoreAutomation = Settings.Automation.Store;
   FLabelCursor Labels = StoreLabels(
       StoreAutomation.Labels.DataBackedMapLabels);
-  const ForbocAI::Game::Data::FTerrainSourceSettings Sources =
+  const ForbocAI::Game::Data::FSourceSettings Sources =
       Settings.LevelTerrainSources;
   const ForbocAI::Game::Data::FDataSourceSettings DataSources =
       Settings.LevelDataSources;
@@ -50,7 +51,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const float StoryWorldUnits =
       Geometry.HeightScalePerStory * Geometry.CubeMeshSize;
   const float CharacterHeightFeet =
-      Settings.TownspersonPresentation.CharacterHeightFeet;
+      Settings.TownspersonPresentation.Geometry.CharacterHeightFeet;
   TestTrue(Labels.Next(),
            StoryWorldUnits >
                LevelLayoutAdapters::ActorWorldUnitsFromFeet(
@@ -85,7 +86,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
 
   const TArray<FLandmark> Landmarks =
       LandmarksAdapters::BuildLandmarkSeed(
-          {DataSources.LandmarksJsonPath, TerrainData, Geometry});
+          {DataSources.Entities.LandmarksJsonPath, TerrainData, Geometry});
   const FLandmark &FirstLandmark = RequiredFirstLandmark(Landmarks);
   EnhancedStoreValue.dispatch(LandmarkActions::LandmarksSeeded()(Landmarks));
   EnhancedStoreValue.dispatch(SpawnActions::PlayerSpawnAnchored()(
@@ -97,15 +98,17 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
 
   const TArray<FTownspersonSeed> TownspersonSeeds =
       BotsAdapters::BuildTownspersonSeed(
-          {DataSources.TownspeopleJsonPath, Geometry});
+          {DataSources.Entities.TownspeopleJsonPath, Geometry});
   EnhancedStoreValue.dispatch(TownspersonActions::TownspeopleSeeded()(TownspersonSeeds));
 
   const TArray<FHorseRouteSeed> HorseRouteSeeds =
-      BotsAdapters::BuildHorseRouteSeed({DataSources.HorsesJsonPath, Geometry});
+      BotsAdapters::BuildHorseRouteSeed(
+          {DataSources.Entities.HorsesJsonPath, Geometry});
   EnhancedStoreValue.dispatch(HorseActions::HorsesSeeded()(HorseRouteSeeds));
 
   const TArray<FFeatureSeed> NatureFeatureSeeds =
-      NatureAdapters::BuildNatureSeed({DataSources.NatureJsonPath, Geometry});
+      NatureAdapters::BuildNatureSeed(
+          {DataSources.Entities.NatureJsonPath, Geometry});
   EnhancedStoreValue.dispatch(NatureActions::NatureSeeded()(NatureFeatureSeeds));
 
   const FRuntimeState &State = EnhancedStoreValue.getState();
@@ -148,7 +151,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const FHorsePresentationViewModel &HorsePresentation =
       RuntimeSelectors::SelectHorsePresentation(State);
   const FVector &MountedRiderOffsetFeet =
-      Settings.HorsePresentation.MountedRiderOffsetFeet;
+      Settings.HorsePresentation.Rider.MountedRiderOffsetFeet;
   const FVector AuthoredMountedRiderOffset = FVector(
       LevelLayoutAdapters::ActorWorldUnitsFromFeet(
           {Geometry, static_cast<float>(MountedRiderOffsetFeet.X)}),
@@ -157,11 +160,11 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
       LevelLayoutAdapters::ActorWorldUnitsFromFeet(
           {Geometry, static_cast<float>(MountedRiderOffsetFeet.Z)}));
   TestTrue(Labels.Next(),
-           HorsePresentation.MountedRiderLocation.Equals(
+           HorsePresentation.Scale.MountedRiderLocation.Equals(
                AuthoredMountedRiderOffset));
   TestTrue(Labels.Next(),
-           HorsePresentation.MountedRiderLocation.Z <
-               HorsePresentation.NameTextLocation.Z);
+           HorsePresentation.Scale.MountedRiderLocation.Z <
+               HorsePresentation.NameText.Location.Z);
   const FString HorsePatrolLoopLabel = Labels.Next();
   const int32 AuthoredPatrolRoutePointCount =
       RequiredHorseByMountedRider(HorseRouteSeeds, false).PatrolRoute.Num();

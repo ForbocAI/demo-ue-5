@@ -11,11 +11,13 @@ struct FSpecRequest {
   TArray<FLevelRetroTextureSpec> Catalog;
 };
 
+/** User Story: As a systems rendering texture consumer, I need to compare values for equality through a stable signature so the systems rendering texture workflow remains explicit and composable. @fn inline bool operator==(const FSpecRequest &Left, const FSpecRequest &Right) */
 inline bool operator==(const FSpecRequest &Left,
                        const FSpecRequest &Right) {
   return Left.Texture == Right.Texture && Left.Catalog == Right.Catalog;
 }
 
+/** User Story: As a systems rendering texture consumer, I need to compare values for inequality through a stable signature so the systems rendering texture workflow remains explicit and composable. @fn inline bool operator!=(const FSpecRequest &Left, const FSpecRequest &Right) */
 inline bool operator!=(const FSpecRequest &Left,
                        const FSpecRequest &Right) {
   return !(Left == Right);

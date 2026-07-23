@@ -25,6 +25,7 @@ namespace Level {
 namespace RenderingAdapters {
 namespace {
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select command line float through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn float SelectCommandLineFloat(const FString &Key, float DefaultValue) */
 float SelectCommandLineFloat(const FString &Key, float DefaultValue) {
   float Value = DefaultValue;
   const bool bHasValue = FParse::Value(FCommandLine::Get(), *Key, Value);
@@ -32,6 +33,7 @@ float SelectCommandLineFloat(const FString &Key, float DefaultValue) {
 }
 
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke find rendering diagnostic console variable through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn func::Maybe<IConsoleVariable *> FindRenderingDiagnosticConsoleVariable(const FString &Name) */
 func::Maybe<IConsoleVariable *>
 FindRenderingDiagnosticConsoleVariable(const FString &Name) {
   IConsoleVariable *Found =
@@ -39,6 +41,7 @@ FindRenderingDiagnosticConsoleVariable(const FString &Name) {
   return func::from_nullable_value<IConsoleVariable *>(Found, Found != nullptr);
 }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select console variable int through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn int32 SelectConsoleVariableInt(const FString &Name, int32 DefaultValue) */
 int32 SelectConsoleVariableInt(const FString &Name, int32 DefaultValue) {
   return func::match(
       FindRenderingDiagnosticConsoleVariable(Name),
@@ -46,6 +49,7 @@ int32 SelectConsoleVariableInt(const FString &Name, int32 DefaultValue) {
       [DefaultValue]() { return DefaultValue; });
 }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select console variable float through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn float SelectConsoleVariableFloat(const FString &Name, float DefaultValue) */
 float SelectConsoleVariableFloat(const FString &Name, float DefaultValue) {
   return func::match(
       FindRenderingDiagnosticConsoleVariable(Name),
@@ -53,50 +57,59 @@ float SelectConsoleVariableFloat(const FString &Name, float DefaultValue) {
       [DefaultValue]() { return DefaultValue; });
 }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select runtime frame pacing stats through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn FRuntimeFramePacingStats SelectRuntimeFramePacingStats( const FFramePacingQuery &Query, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 FRuntimeFramePacingStats SelectRuntimeFramePacingStats(
     const FFramePacingQuery &Query,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   UGameUserSettings *GameUserSettings =
       GEngine != nullptr ? GEngine->GetGameUserSettings() : nullptr;
   return {
-      RenderingSelectors::SelectRuntimeMilliseconds(Query.WallDeltaSeconds, Settings),
-      RenderingSelectors::SelectRuntimeMilliseconds(Query.DeltaSeconds, Settings),
-      Query.StatsSelectionMilliseconds,
-      Query.PolyCountMilliseconds,
-      RenderingSelectors::SelectRuntimeMilliseconds(FApp::GetIdleTime(), Settings),
-      RenderingSelectors::SelectRuntimeMilliseconds(FApp::GetIdleTimeOvershoot(), Settings),
-      SelectConsoleVariableFloat(Settings.MaxFpsCVarName,
-                                 Settings.DiagnosticDefaultFloatValue),
-      GameUserSettings != nullptr
-          ? GameUserSettings->GetFrameRateLimit()
-          : Settings.DiagnosticDefaultFloatValue,
-      GEngine != nullptr
-          ? GEngine->GetMaxTickRate(
-                Query.DeltaSeconds, Settings.bDiagnosticAllowFrameRateSmoothing)
-          : Settings.DiagnosticDefaultFloatValue,
-      RenderingSelectors::SelectIntFromBool(GEngine != nullptr && GEngine->bUseFixedFrameRate,
-                        Settings),
-      GEngine != nullptr ? GEngine->FixedFrameRate
-                         : Settings.DiagnosticDefaultFloatValue,
-      RenderingSelectors::SelectIntFromBool(FApp::UseFixedTimeStep(), Settings),
-      RenderingSelectors::SelectRuntimeMilliseconds(FApp::GetFixedDeltaTime(), Settings),
-      SelectConsoleVariableInt(Settings.VsyncCVarName,
-                               Settings.DiagnosticDefaultIntValue),
-      SelectConsoleVariableInt(Settings.IdleWhenNotForegroundCVarName,
-                               Settings.DiagnosticDefaultIntValue),
-      RenderingSelectors::SelectIntFromBool(FApp::HasFocus(), Settings),
-      RenderingSelectors::SelectIntFromBool(GEngine != nullptr && GEngine->ShouldThrottleCPUUsage(),
-                        Settings),
-      RenderingSelectors::SelectIntFromBool(GEngine != nullptr && GEngine->AreAllWindowsHidden(),
-                        Settings)};
+      {RenderingSelectors::SelectRuntimeMilliseconds(Query.WallDeltaSeconds,
+                                                      Settings),
+       RenderingSelectors::SelectRuntimeMilliseconds(Query.DeltaSeconds,
+                                                      Settings),
+       Query.StatsSelectionMilliseconds, Query.PolyCountMilliseconds,
+       RenderingSelectors::SelectRuntimeMilliseconds(FApp::GetIdleTime(),
+                                                      Settings),
+       RenderingSelectors::SelectRuntimeMilliseconds(
+           FApp::GetIdleTimeOvershoot(), Settings)},
+      {SelectConsoleVariableFloat(Settings.MaxFpsCVarName,
+                                  Settings.DiagnosticDefaultFloatValue),
+       GameUserSettings != nullptr
+           ? GameUserSettings->GetFrameRateLimit()
+           : Settings.DiagnosticDefaultFloatValue,
+       GEngine != nullptr
+           ? GEngine->GetMaxTickRate(
+                 Query.DeltaSeconds,
+                 Settings.bDiagnosticAllowFrameRateSmoothing)
+           : Settings.DiagnosticDefaultFloatValue,
+       GEngine != nullptr ? GEngine->FixedFrameRate
+                          : Settings.DiagnosticDefaultFloatValue},
+      {RenderingSelectors::SelectIntFromBool(
+           GEngine != nullptr && GEngine->bUseFixedFrameRate, Settings),
+       RenderingSelectors::SelectIntFromBool(FApp::UseFixedTimeStep(),
+                                             Settings),
+       RenderingSelectors::SelectRuntimeMilliseconds(FApp::GetFixedDeltaTime(),
+                                                      Settings),
+       SelectConsoleVariableInt(Settings.VsyncCVarName,
+                                Settings.DiagnosticDefaultIntValue),
+       SelectConsoleVariableInt(Settings.IdleWhenNotForegroundCVarName,
+                                Settings.DiagnosticDefaultIntValue),
+       RenderingSelectors::SelectIntFromBool(FApp::HasFocus(), Settings)},
+      {RenderingSelectors::SelectIntFromBool(
+           GEngine != nullptr && GEngine->ShouldThrottleCPUUsage(), Settings),
+       RenderingSelectors::SelectIntFromBool(
+           GEngine != nullptr && GEngine->AreAllWindowsHidden(), Settings)}};
 }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke runtime budget screenshot directory through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn FString RuntimeBudgetScreenshotDirectory( const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 FString RuntimeBudgetScreenshotDirectory(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return FPaths::Combine(FPaths::ProjectDir(),
                          Settings.BudgetScreenshotDirectory);
 }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke runtime budget screenshot path through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn FString RuntimeBudgetScreenshotPath( const ForbocAI::Game::Data::FOverlaySettings &Settings, int32 Index) */
 FString RuntimeBudgetScreenshotPath(
     const ForbocAI::Game::Data::FOverlaySettings &Settings,
     int32 Index) {
@@ -108,6 +121,7 @@ FString RuntimeBudgetScreenshotPath(
 
 } // namespace
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select runtime budget screenshot interval seconds through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn float SelectRuntimeBudgetScreenshotIntervalSeconds( const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return SelectCommandLineFloat(
@@ -115,8 +129,10 @@ float SelectRuntimeBudgetScreenshotIntervalSeconds(
       Settings.BudgetScreenshotIntervalSeconds);
 }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select runtime budget clock seconds through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn double SelectRuntimeBudgetClockSeconds() */
 double SelectRuntimeBudgetClockSeconds() { return FPlatformTime::Seconds(); }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select runtime memory stats through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn FRuntimeMemoryStats SelectRuntimeMemoryStats( const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 FRuntimeMemoryStats SelectRuntimeMemoryStats(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   const FPlatformMemoryStats Stats = FPlatformMemory::GetStats();
@@ -125,6 +141,7 @@ FRuntimeMemoryStats SelectRuntimeMemoryStats(
           RenderingSelectors::SelectMemoryMegabytes(Stats.UsedVirtual, Settings)};
 }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select runtime frame timing stats through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats( const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   const int32 GpuIndex = RenderingSelectors::SelectRuntimeGpuIndex(Settings);
@@ -136,6 +153,7 @@ FRuntimeFrameTimingStats SelectRuntimeFrameTimingStats(
 }
 
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke select runtime stats through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn FRuntimeStatsViewModel SelectRuntimeStats( UWorld *, float DeltaSeconds, double WallDeltaSeconds, int64 PolyCount, double PolyCountMilliseconds, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
 FRuntimeStatsViewModel SelectRuntimeStats(
     UWorld *, float DeltaSeconds, double WallDeltaSeconds, int64 PolyCount,
     double PolyCountMilliseconds,
@@ -155,43 +173,22 @@ FRuntimeStatsViewModel SelectRuntimeStats(
   const FRuntimeFramePacingStats PacingStats = SelectRuntimeFramePacingStats(
       {DeltaSeconds, WallDeltaSeconds, StatsSelectionMilliseconds,
        PolyCountMilliseconds}, Settings);
-  return {RenderingSelectors::SelectRuntimeStatsFramesPerSecond(WallDeltaSeconds, Settings),
-          RenderingSelectors::SelectRuntimeStatsStackDepth(EcsWorld, Settings),
-          PolyCount,
-          MemoryStats.UsedPhysicalMegabytes,
-          MemoryStats.PeakUsedPhysicalMegabytes,
-          MemoryStats.UsedVirtualMegabytes,
-          TimingStats.GameThreadMilliseconds,
-          TimingStats.RenderThreadMilliseconds,
-          TimingStats.RhiThreadMilliseconds,
-          TimingStats.GpuMilliseconds,
-          TimingStats.DrawCalls,
-          TimingStats.RhiPrimitives,
-          PacingStats.WallDeltaMilliseconds,
-          PacingStats.InputDeltaMilliseconds,
-          PacingStats.StatsSelectionMilliseconds,
-          PacingStats.PolyCountMilliseconds,
-          PacingStats.EngineIdleMilliseconds,
-          PacingStats.EngineIdleOvershootMilliseconds,
-          PacingStats.MaxFps,
-          PacingStats.FrameRateLimit,
-          PacingStats.EffectiveMaxTickRate,
-          PacingStats.FixedFrameRateEnabled,
-          PacingStats.FixedFrameRate,
-          PacingStats.FixedTimeStepEnabled,
-          PacingStats.FixedDeltaMilliseconds,
-          PacingStats.VsyncEnabled,
-          PacingStats.IdleWhenNotForegroundEnabled,
-          PacingStats.AppHasFocus,
-          PacingStats.CpuThrottleEnabled,
-          PacingStats.AllWindowsHidden,
-          ReducerDiagnostics.RootReducerMilliseconds,
-          ReducerDiagnostics.CombinedReducerMilliseconds,
-          ReducerDiagnostics.ProjectionMilliseconds,
-          ReducerDiagnostics.ProjectedEntityCount,
-          ReducerDiagnostics.ProjectedComponentTypeCount};
+  return {{RenderingSelectors::SelectRuntimeStatsFramesPerSecond(
+               WallDeltaSeconds, Settings),
+           RenderingSelectors::SelectRuntimeStatsStackDepth(EcsWorld,
+                                                             Settings),
+           PolyCount},
+          MemoryStats,
+          TimingStats,
+          PacingStats,
+          {ReducerDiagnostics.RootReducerMilliseconds,
+           ReducerDiagnostics.CombinedReducerMilliseconds},
+          {ReducerDiagnostics.ProjectionMilliseconds,
+           ReducerDiagnostics.ProjectedEntityCount,
+           ReducerDiagnostics.ProjectedComponentTypeCount}};
 }
 
+/** User Story: As a systems rendering diagnostics consumer, I need to invoke request runtime budget screenshot through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn void RequestRuntimeBudgetScreenshot( const ForbocAI::Game::Data::FOverlaySettings &Settings, int32 Index) */
 void RequestRuntimeBudgetScreenshot(
     const ForbocAI::Game::Data::FOverlaySettings &Settings,
     int32 Index) {

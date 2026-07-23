@@ -5,6 +5,7 @@ namespace Game {
 namespace Level {
 namespace HorseActions {
 
+/** User Story: As a systems bots horses consumer, I need to invoke horses seeded through a stable signature so the systems bots horses workflow remains explicit and composable. @fn const rtk::ActionCreator<TArray<FHorseRouteSeed>> &HorsesSeeded() */
 const rtk::ActionCreator<TArray<FHorseRouteSeed>> &HorsesSeeded() {
   static const func::Lazy<rtk::ActionCreator<TArray<FHorseRouteSeed>>> Creator =
       func::lazy([]() -> rtk::ActionCreator<TArray<FHorseRouteSeed>> {

@@ -4,7 +4,7 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Bots/Behavior/BehaviorSlice.h"
-#include "Features/Systems/Bots/Pipeline/PipelineAdapters.h"
+#include "Features/Systems/Bots/Pipeline/BotsPipelineAdapters.h"
 #include "Features/Systems/Bots/Pipeline/BotsPipelineTypes.h"
 
 namespace ForbocAI {
@@ -12,6 +12,7 @@ namespace Game {
 namespace Level {
 namespace BotPipelineReducers {
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce input snapshot through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineInputResult ReduceInputSnapshot(const FBotPipelineInputRequest &Request) */
 inline FBotPipelineInputResult
 ReduceInputSnapshot(const FBotPipelineInputRequest &Request) {
   FBotPipelineWorldSnapshot Snapshot;
@@ -23,6 +24,7 @@ ReduceInputSnapshot(const FBotPipelineInputRequest &Request) {
   return FBotPipelineInputResult{Snapshot};
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce default input snapshot through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineInputResult ReduceDefaultInputSnapshot(const FBotPipelineDefaultInputRequest &Request) */
 inline FBotPipelineInputResult
 ReduceDefaultInputSnapshot(const FBotPipelineDefaultInputRequest &Request) {
   return ReduceInputSnapshot(
@@ -36,6 +38,7 @@ ReduceDefaultInputSnapshot(const FBotPipelineDefaultInputRequest &Request) {
         Request.State.Settings.DefaultMovementInterpSpeed}});
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce pipeline observed through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineState ReducePipelineObserved( const FBotPipelineState &State, const rtk::PayloadAction<FBotPipelinePayload> &Action) */
 inline FBotPipelineState ReducePipelineObserved(
     const FBotPipelineState &State,
     const rtk::PayloadAction<FBotPipelinePayload> &Action) {
@@ -49,6 +52,7 @@ inline FBotPipelineState ReducePipelineObserved(
       .val;
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce hazard action through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline func::Maybe<rtk::AnyAction> ReduceHazardAction( const FBotPipelineHazardActionRequest &Request) */
 inline func::Maybe<rtk::AnyAction> ReduceHazardAction(
     const FBotPipelineHazardActionRequest &Request) {
   return (!Request.Overlap.bOverlapping ||
@@ -62,6 +66,7 @@ inline func::Maybe<rtk::AnyAction> ReduceHazardAction(
                            Request.Overlap.HazardSource}));
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce movement action through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline func::Maybe<rtk::AnyAction> ReduceMovementAction( const FBotPipelineMovementActionRequest &Request) */
 inline func::Maybe<rtk::AnyAction> ReduceMovementAction(
     const FBotPipelineMovementActionRequest &Request) {
   const float DistSq = FVector::DistSquared(Request.State.Position,
@@ -80,6 +85,7 @@ inline func::Maybe<rtk::AnyAction> ReduceMovementAction(
                            Request.Movement.InterpSpeed}));
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce already has aggro through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline bool ReduceAlreadyHasAggro( const FBotPipelineAwarenessActionRequest &Request) */
 inline bool ReduceAlreadyHasAggro(
     const FBotPipelineAwarenessActionRequest &Request) {
   return Request.State.Memory.bHasAggro &&
@@ -88,6 +94,7 @@ inline bool ReduceAlreadyHasAggro(
              Request.State.Settings.AggroPositionToleranceSquared;
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce awareness action through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline func::Maybe<rtk::AnyAction> ReduceAwarenessAction( const FBotPipelineAwarenessActionRequest &Request) */
 inline func::Maybe<rtk::AnyAction> ReduceAwarenessAction(
     const FBotPipelineAwarenessActionRequest &Request) {
   return (!Request.Visibility.bCanSeeEnemy ||
@@ -100,6 +107,7 @@ inline func::Maybe<rtk::AnyAction> ReduceAwarenessAction(
                            Request.Visibility.EnemyPosition}));
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce phase action through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline func::Maybe<rtk::AnyAction> ReducePhaseAction( const FBotPipelinePhaseActionRequest &Request) */
 inline func::Maybe<rtk::AnyAction> ReducePhaseAction(
     const FBotPipelinePhaseActionRequest &Request) {
   return (Request.State.Phase == EBotCorePhase::Combat &&
@@ -114,6 +122,7 @@ inline func::Maybe<rtk::AnyAction> ReducePhaseAction(
              : func::nothing<rtk::AnyAction>();
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce action list append through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline TArray<rtk::AnyAction> ReduceActionListAppend( FBotPipelineActionListAppendRequest Request) */
 inline TArray<rtk::AnyAction> ReduceActionListAppend(
     FBotPipelineActionListAppendRequest Request) {
   Request.Action.hasValue ? (Request.Actions.Add(Request.Action.value), void())
@@ -121,6 +130,7 @@ inline TArray<rtk::AnyAction> ReduceActionListAppend(
   return Request.Actions;
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce action list through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline TArray<rtk::AnyAction> ReduceActionList(const FBotPipelineActionListRequest &Request) */
 inline TArray<rtk::AnyAction>
 ReduceActionList(const FBotPipelineActionListRequest &Request) {
   return (func::pipe(TArray<rtk::AnyAction>{}) |
@@ -150,6 +160,7 @@ ReduceActionList(const FBotPipelineActionListRequest &Request) {
       .val;
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce logic through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineLogicResult ReduceLogic( const FBotCoreRuntimeState &State, const FBotPipelineWorldSnapshot &World) */
 inline FBotPipelineLogicResult ReduceLogic(
     const FBotCoreRuntimeState &State,
     const FBotPipelineWorldSnapshot &World) {
@@ -161,6 +172,7 @@ inline FBotPipelineLogicResult ReduceLogic(
           ReduceActionList({State, World}))};
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce actions through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotCoreRuntimeState ReduceActions( const FBotCoreRuntimeState &State, const TArray<rtk::AnyAction> &Actions) */
 inline FBotCoreRuntimeState ReduceActions(
     const FBotCoreRuntimeState &State,
     const TArray<rtk::AnyAction> &Actions) {
@@ -172,11 +184,13 @@ inline FBotCoreRuntimeState ReduceActions(
       });
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce output through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineOutputResult ReduceOutput( const FBotCoreRuntimeState &NewState, int32 ActionCount) */
 inline FBotPipelineOutputResult ReduceOutput(
     const FBotCoreRuntimeState &NewState, int32 ActionCount) {
   return FBotPipelineOutputResult{NewState, ActionCount};
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce pipeline through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineOutputResult ReducePipeline( const FBotCoreRuntimeState &CurrentState, const FBotPipelineWorldSnapshot &World) */
 inline FBotPipelineOutputResult ReducePipeline(
     const FBotCoreRuntimeState &CurrentState,
     const FBotPipelineWorldSnapshot &World) {
@@ -185,6 +199,7 @@ inline FBotPipelineOutputResult ReducePipeline(
                       Logic.Actions.Num());
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce idle pipeline through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineOutputResult ReduceIdlePipeline( const FBotCoreRuntimeState &CurrentState, float DeltaTime) */
 inline FBotPipelineOutputResult ReduceIdlePipeline(
     const FBotCoreRuntimeState &CurrentState, float DeltaTime) {
   const FBotPipelineInputResult Input =
@@ -192,6 +207,7 @@ inline FBotPipelineOutputResult ReduceIdlePipeline(
   return ReducePipeline(CurrentState, Input.WorldSnapshot);
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke reduce multi bot pipeline through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline TArray<FBotPipelineOutputResult> ReduceMultiBotPipeline( const TArray<FBotPipelineTickInput> &Inputs) */
 inline TArray<FBotPipelineOutputResult> ReduceMultiBotPipeline(
     const TArray<FBotPipelineTickInput> &Inputs) {
   return func::map_array<FBotPipelineTickInput, FBotPipelineOutputResult>(
@@ -208,7 +224,7 @@ inline TArray<FBotPipelineOutputResult> ReduceMultiBotPipeline(
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Bots/Pipeline/PipelineActions.h"
-#include "Features/Systems/Bots/Pipeline/PipelineAdapters.h"
+#include "Features/Systems/Bots/Pipeline/BotsPipelineAdapters.h"
 #include "Features/Systems/Bots/Pipeline/PipelineSelectors.h"
 #include "Features/Systems/Bots/Pipeline/BotsPipelineTypes.h"
 
@@ -217,6 +233,7 @@ namespace Game {
 namespace Level {
 namespace BotPipelineSlice {
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke create initial state through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineState CreateInitialState() */
 inline FBotPipelineState CreateInitialState() {
   return (func::pipe(FBotPipelineState{}) |
           [](FBotPipelineState State) -> FBotPipelineState {
@@ -227,6 +244,7 @@ inline FBotPipelineState CreateInitialState() {
       .val;
 }
 
+/** User Story: As a systems bots pipeline consumer, I need to invoke get slice through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline const rtk::Slice<FBotPipelineState> &GetSlice() */
 inline const rtk::Slice<FBotPipelineState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FBotPipelineState>> Slice =
       func::lazy([]() -> rtk::Slice<FBotPipelineState> {

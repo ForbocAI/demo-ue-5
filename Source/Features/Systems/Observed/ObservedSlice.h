@@ -9,6 +9,7 @@ namespace Game {
 namespace Level {
 namespace SystemsReducers {
 
+/** User Story: As a features systems observed consumer, I need to invoke reduce systems observed through a stable signature so the features systems observed workflow remains explicit and composable. @fn inline FSystemsState ReduceSystemsObserved(const FSystemsState &State, const rtk::PayloadAction<FSystemsPayload> &Action) */
 inline FSystemsState
 ReduceSystemsObserved(const FSystemsState &State,
                       const rtk::PayloadAction<FSystemsPayload> &Action) {
@@ -38,6 +39,7 @@ namespace Game {
 namespace Level {
 namespace SystemsSlice {
 
+/** User Story: As a features systems observed consumer, I need to invoke create initial state through a stable signature so the features systems observed workflow remains explicit and composable. @fn inline FSystemsState CreateInitialState() */
 inline FSystemsState CreateInitialState() {
   return (func::pipe(FSystemsState{}) |
           [](FSystemsState State) -> FSystemsState {
@@ -48,6 +50,7 @@ inline FSystemsState CreateInitialState() {
       .val;
 }
 
+/** User Story: As a features systems observed consumer, I need to invoke get slice through a stable signature so the features systems observed workflow remains explicit and composable. @fn inline const rtk::Slice<FSystemsState> &GetSlice() */
 inline const rtk::Slice<FSystemsState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FSystemsState>> Slice =
       func::lazy([]() -> rtk::Slice<FSystemsState> {

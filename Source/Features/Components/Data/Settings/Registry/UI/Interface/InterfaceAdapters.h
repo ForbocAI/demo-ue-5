@@ -9,6 +9,7 @@ namespace Data {
 namespace JsonAdapters {
 
 template <> struct TJsonSettingsRegistry<FCaptureViewSettings> {
+  /** User Story: As a registry ui interface consumer, I need to invoke fields through a stable signature so the registry ui interface workflow remains explicit and composable. @fn static const TArray<TField<FCaptureViewSettings>> &Fields() */
   static const TArray<TField<FCaptureViewSettings>> &Fields() {
     static const TArray<TField<FCaptureViewSettings>>
         RegisteredFields = {
@@ -52,6 +53,7 @@ template <> struct TJsonSettingsRegistry<FCaptureViewSettings> {
 
 template <>
 struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
+  /** User Story: As a registry ui interface consumer, I need to invoke fields through a stable signature so the registry ui interface workflow remains explicit and composable. @fn static const TArray<TField<FMarketingCaptureSettings>> &Fields() */
   static const TArray<TField<FMarketingCaptureSettings>>
       &Fields() {
     static const TArray<TField<FMarketingCaptureSettings>>
@@ -99,6 +101,7 @@ JSON_SETTINGS_REGISTRY(
     SettleSeconds, BetweenSeconds, TopDownRotation);
 
 template <> struct TJsonSettingsRegistry<FUISettings> {
+  /** User Story: As a registry ui interface consumer, I need to invoke fields through a stable signature so the registry ui interface workflow remains explicit and composable. @fn static const TArray<TField<FUISettings>> &Fields() */
   static const TArray<TField<FUISettings>> &Fields() {
     static const TArray<TField<FUISettings>>
         RegisteredFields = {

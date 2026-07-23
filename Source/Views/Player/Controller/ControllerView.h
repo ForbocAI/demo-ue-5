@@ -40,22 +40,30 @@ class FORBOCAIDEMO_API APlayerRuntimeControllerView
   GENERATED_BODY()
 
 public:
+  /** User Story: As a views player controller consumer, I need to invoke aplayer runtime controller view through a stable signature so the views player controller workflow remains explicit and composable. @fn APlayerRuntimeControllerView() */
   APlayerRuntimeControllerView();
 
   UFUNCTION(Exec, BlueprintCallable, Category = "Level|Debug")
+  /** User Story: As a views player controller consumer, I need to invoke toggle runtime fly mode through a stable signature so the views player controller workflow remains explicit and composable. @fn void ToggleRuntimeFlyMode() */
   void ToggleRuntimeFlyMode();
 
   UFUNCTION(Exec, BlueprintCallable, Category = "Level|Debug")
+  /** User Story: As a views player controller consumer, I need to invoke toggle marketing capture menu through a stable signature so the views player controller workflow remains explicit and composable. @fn void ToggleMarketingCaptureMenu() */
   void ToggleMarketingCaptureMenu();
 
   UFUNCTION(Exec, BlueprintCallable, Category = "Level|Debug")
+  /** User Story: As a views player controller consumer, I need to invoke retake marketing brochure shots through a stable signature so the views player controller workflow remains explicit and composable. @fn void RetakeMarketingBrochureShots() */
   void RetakeMarketingBrochureShots();
 
+  /** User Story: As a views player controller consumer, I need to invoke dismiss marketing capture menu through a stable signature so the views player controller workflow remains explicit and composable. @fn void DismissMarketingCaptureMenu() */
   void DismissMarketingCaptureMenu();
 
 protected:
+  /** User Story: As a views player controller consumer, I need to invoke begin play through a stable signature so the views player controller workflow remains explicit and composable. @fn virtual void BeginPlay() override */
   virtual void BeginPlay() override;
+  /** User Story: As a views player controller consumer, I need to invoke player tick through a stable signature so the views player controller workflow remains explicit and composable. @fn virtual void PlayerTick(float DeltaTime) override */
   virtual void PlayerTick(float DeltaTime) override;
+  /** User Story: As a views player controller consumer, I need to invoke setup input component through a stable signature so the views player controller workflow remains explicit and composable. @fn virtual void SetupInputComponent() override */
   virtual void SetupInputComponent() override;
 
 private:
@@ -115,44 +123,70 @@ private:
   FTimerHandle ScaleAuditScreenshotTimer;
 
   /**
+   * @fn void InteractWithNearestTownsperson()
    * @brief Observes nearby townsperson actors and dispatches the interaction
    * candidate action/thunk workflow.
+   * User Story: As a views player controller consumer, I need to invoke interact with nearest townsperson through a stable signature so the views player controller workflow remains explicit and composable.
    */
   void InteractWithNearestTownsperson();
 
   /**
+   * @fn void PresentConversationViewModel( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation)
    * @brief Applies reducer-owned conversation display data to the chat widget.
+   * User Story: As a views player controller consumer, I need to invoke present conversation view model through a stable signature so the views player controller workflow remains explicit and composable.
    */
   void PresentConversationViewModel(
       const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation);
 
   /**
+   * @fn void PresentRuntimeStatsWidget()
    * @brief Ensures the runtime stats overlay is visible in the viewport.
+   * User Story: As a views player controller consumer, I need to invoke present runtime stats widget through a stable signature so the views player controller workflow remains explicit and composable.
    */
   void PresentRuntimeStatsWidget();
+  /** User Story: As a views player controller consumer, I need to invoke present marketing capture menu through a stable signature so the views player controller workflow remains explicit and composable. @fn void PresentMarketingCaptureMenu() */
   void PresentMarketingCaptureMenu();
+  /** User Story: As a views player controller consumer, I need to invoke apply marketing capture menu open through a stable signature so the views player controller workflow remains explicit and composable. @fn void ApplyMarketingCaptureMenuOpen() */
   void ApplyMarketingCaptureMenuOpen();
+  /** User Story: As a views player controller consumer, I need to invoke apply marketing capture menu closed through a stable signature so the views player controller workflow remains explicit and composable. @fn void ApplyMarketingCaptureMenuClosed() */
   void ApplyMarketingCaptureMenuClosed();
+  /** User Story: As a views player controller consumer, I need to invoke set fly ascending pressed through a stable signature so the views player controller workflow remains explicit and composable. @fn void SetFlyAscendingPressed() */
   void SetFlyAscendingPressed();
+  /** User Story: As a views player controller consumer, I need to invoke set fly ascending released through a stable signature so the views player controller workflow remains explicit and composable. @fn void SetFlyAscendingReleased() */
   void SetFlyAscendingReleased();
+  /** User Story: As a views player controller consumer, I need to invoke set fly descending pressed through a stable signature so the views player controller workflow remains explicit and composable. @fn void SetFlyDescendingPressed() */
   void SetFlyDescendingPressed();
+  /** User Story: As a views player controller consumer, I need to invoke set fly descending released through a stable signature so the views player controller workflow remains explicit and composable. @fn void SetFlyDescendingReleased() */
   void SetFlyDescendingReleased();
+  /** User Story: As a views player controller consumer, I need to invoke apply runtime fly mode enabled through a stable signature so the views player controller workflow remains explicit and composable. @fn void ApplyRuntimeFlyModeEnabled() */
   void ApplyRuntimeFlyModeEnabled();
+  /** User Story: As a views player controller consumer, I need to invoke apply runtime fly mode disabled through a stable signature so the views player controller workflow remains explicit and composable. @fn void ApplyRuntimeFlyModeDisabled() */
   void ApplyRuntimeFlyModeDisabled();
+  /** User Story: As a views player controller consumer, I need to invoke apply runtime fly vertical input through a stable signature so the views player controller workflow remains explicit and composable. @fn void ApplyRuntimeFlyVerticalInput() */
   void ApplyRuntimeFlyVerticalInput();
+  /** User Story: As a views player controller consumer, I need to invoke start scale audit capture if requested through a stable signature so the views player controller workflow remains explicit and composable. @fn void StartScaleAuditCaptureIfRequested() */
   void StartScaleAuditCaptureIfRequested();
+  /** User Story: As a views player controller consumer, I need to invoke configure scale audit capture through a stable signature so the views player controller workflow remains explicit and composable. @fn void ConfigureScaleAuditCapture() */
   void ConfigureScaleAuditCapture();
+  /** User Story: As a views player controller consumer, I need to invoke configure marketing brochure capture through a stable signature so the views player controller workflow remains explicit and composable. @fn void ConfigureMarketingBrochureCapture() */
   void ConfigureMarketingBrochureCapture();
+  /** User Story: As a views player controller consumer, I need to invoke schedule scale audit capture step through a stable signature so the views player controller workflow remains explicit and composable. @fn void ScheduleScaleAuditCaptureStep(float DelaySeconds) */
   void ScheduleScaleAuditCaptureStep(float DelaySeconds);
+  /** User Story: As a views player controller consumer, I need to invoke run scale audit capture step through a stable signature so the views player controller workflow remains explicit and composable. @fn void RunScaleAuditCaptureStep() */
   void RunScaleAuditCaptureStep();
   // Caches the pre-capture camera/mesh state once so CompleteScaleAuditCapture
   // can restore it; applies one orthographic capture view and schedules the
   // screenshot. Extracted from RunScaleAuditCaptureStep so each step reads as
   // sequential statements instead of one nested ternary-comma expression.
+  /** User Story: As a views player controller consumer, I need to invoke cache scale audit camera state through a stable signature so the views player controller workflow remains explicit and composable. @fn void CacheScaleAuditCameraState(UCameraComponent *Camera, USpringArmComponent *CameraBoom) */
   void CacheScaleAuditCameraState(UCameraComponent *Camera,
                                   USpringArmComponent *CameraBoom);
+  /** User Story: As a views player controller consumer, I need to invoke cache scale audit mesh state through a stable signature so the views player controller workflow remains explicit and composable. @fn void CacheScaleAuditMeshState(USkeletalMeshComponent *PlayerMesh) */
   void CacheScaleAuditMeshState(USkeletalMeshComponent *PlayerMesh);
+  /** User Story: As a views player controller consumer, I need to invoke apply scale audit capture view through a stable signature so the views player controller workflow remains explicit and composable. @fn void ApplyScaleAuditCaptureView(const FScaleAuditCaptureView &View) */
   void ApplyScaleAuditCaptureView(const FScaleAuditCaptureView &View);
+  /** User Story: As a views player controller consumer, I need to invoke request scale audit screenshot through a stable signature so the views player controller workflow remains explicit and composable. @fn void RequestScaleAuditScreenshot() */
   void RequestScaleAuditScreenshot();
+  /** User Story: As a views player controller consumer, I need to invoke complete scale audit capture through a stable signature so the views player controller workflow remains explicit and composable. @fn void CompleteScaleAuditCapture() */
   void CompleteScaleAuditCapture();
 };
