@@ -135,7 +135,7 @@ const FTownspersonSeed &RequiredTownspersonWithIntent(
   const FTownspersonSeed *Townsperson =
       Townspeople.FindByPredicate(
           [Intent](const FTownspersonSeed &Candidate) {
-            return Candidate.InteractionIntent == Intent;
+            return Candidate.Interaction.InteractionIntent == Intent;
           });
   check(Townsperson);
   return *Townsperson;

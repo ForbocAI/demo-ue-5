@@ -163,8 +163,8 @@ FRuntimeTownspersonViewSpawn ReduceTownspersonViewSpawn(
     const FRuntimeTownspersonViewSpawnRequest &Request) {
   return {{Request.Seed.Id, Request.Seed.Name, Request.Seed.Role,
            Request.Seed.Persona},
-          {Request.Seed.InteractionPrompt, Request.Seed.DefaultPlayerLine,
-           Request.Seed.PinnedResponse},
+          {Request.Seed.Interaction.InteractionPrompt, Request.Seed.Interaction.DefaultPlayerLine,
+           Request.Seed.Interaction.PinnedResponse},
           ReduceWorldRoute(Request.Seed.PatrolRoute, Request.TerrainData)};
 }
 

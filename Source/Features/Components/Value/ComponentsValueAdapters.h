@@ -124,6 +124,33 @@ ComponentSourceFieldDeclarations(
   return TArray<TComponentSourceValueFieldDeclaration<Source>>(Declarations);
 }
 
+/** User Story: As a features components consumer, I need to lift a sub-record's
+ * field declarations into the parent record so wide records split by subdomain
+ * and recompose through one reader/adapter fold instead of per-field wrappers.
+ * @fn template <typename Source, typename Sub> inline
+ * TArray<TComponentSourceValueFieldDeclaration<Source>>
+ * ComponentSourceSubFieldDeclarations(Sub Source::*SubMember, const
+ * TArray<TComponentSourceValueFieldDeclaration<Sub>> &SubDeclarations) */
+template <typename Source, typename Sub>
+inline TArray<TComponentSourceValueFieldDeclaration<Source>>
+ComponentSourceSubFieldDeclarations(
+    Sub Source::*SubMember,
+    const TArray<TComponentSourceValueFieldDeclaration<Sub>> &SubDeclarations) {
+  return func::map_array<TComponentSourceValueFieldDeclaration<Sub>,
+                         TComponentSourceValueFieldDeclaration<Source>>(
+      SubDeclarations,
+      [SubMember](const TComponentSourceValueFieldDeclaration<Sub> &SubField) {
+        TComponentSourceValueFieldDeclaration<Source> Lifted;
+        Lifted.Name = SubField.Name;
+        const TFunction<ecs::FComponentValue(const Sub &)> SubProject =
+            SubField.Project;
+        Lifted.Project = [SubMember, SubProject](const Source &SourceValue) {
+          return SubProject(SourceValue.*SubMember);
+        };
+        return Lifted;
+      });
+}
+
 /** User Story: As a features components consumer, I need to invoke component source value fields through a stable signature so the features components workflow remains explicit and composable. @fn template <typename Source> inline TMap<FString, ecs::FComponentValue> ComponentSourceValueFields( const Source &SourceValue, std::initializer_list<TComponentSourceValueFieldDeclaration<Source>> Fields) */
 template <typename Source>
 inline TMap<FString, ecs::FComponentValue> ComponentSourceValueFields(

@@ -14,15 +14,19 @@ enum class ETownspersonInteractionIntent : uint8 {
   CombatValidation
 };
 
+struct FTownspersonInteraction {
+  FString InteractionPrompt;
+  FString DefaultPlayerLine;
+  FString PinnedResponse;
+  ETownspersonInteractionIntent InteractionIntent;
+};
+
 struct FTownspersonSeed {
   FString Id;
   FString Name;
   FString Role;
   FString Persona;
-  FString InteractionPrompt;
-  FString DefaultPlayerLine;
-  FString PinnedResponse;
-  ETownspersonInteractionIntent InteractionIntent;
+  FTownspersonInteraction Interaction;
   TArray<FLevelLocalPoint> PatrolRoute;
 };
 
@@ -73,14 +77,26 @@ struct FTownspersonState {
 };
 
 /** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonSeed &Left, const FTownspersonSeed &Right) */
+inline bool operator==(const FTownspersonInteraction &Left,
+                       const FTownspersonInteraction &Right) {
+  return Left.InteractionPrompt == Right.InteractionPrompt &&
+         Left.DefaultPlayerLine == Right.DefaultPlayerLine &&
+         Left.PinnedResponse == Right.PinnedResponse &&
+         Left.InteractionIntent == Right.InteractionIntent;
+}
+
+/** User Story: As a systems bots townspeople consumer, I need to compare values for inequality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator!=(const FTownspersonInteraction &Left, const FTownspersonInteraction &Right) */
+inline bool operator!=(const FTownspersonInteraction &Left,
+                       const FTownspersonInteraction &Right) {
+  return !(Left == Right);
+}
+
+/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonSeed &Left, const FTownspersonSeed &Right) */
 inline bool operator==(const FTownspersonSeed &Left,
                        const FTownspersonSeed &Right) {
   return Left.Id == Right.Id && Left.Name == Right.Name &&
          Left.Role == Right.Role && Left.Persona == Right.Persona &&
-         Left.InteractionPrompt == Right.InteractionPrompt &&
-         Left.DefaultPlayerLine == Right.DefaultPlayerLine &&
-         Left.PinnedResponse == Right.PinnedResponse &&
-         Left.InteractionIntent == Right.InteractionIntent &&
+         Left.Interaction == Right.Interaction &&
          Left.PatrolRoute == Right.PatrolRoute;
 }
 

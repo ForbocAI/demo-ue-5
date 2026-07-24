@@ -100,7 +100,7 @@ TArray<FTownspersonSeed> ReduceByInteractionIntent(
     const FTownspersonIntentProjectionRequest &Request) {
   return func::filter_array<FTownspersonSeed>(
       Request.Townspeople, [&Request](const FTownspersonSeed &Townsperson) {
-        return Townsperson.InteractionIntent == Request.Intent;
+        return Townsperson.Interaction.InteractionIntent == Request.Intent;
       });
 }
 

@@ -149,10 +149,11 @@ FTownspersonSeed TownspersonFromFields(
   Seed.Name = Request.Fields.Name;
   Seed.Role = Request.Fields.Role;
   Seed.Persona = Request.Fields.Persona;
-  Seed.InteractionPrompt = Interaction.Prompt;
-  Seed.DefaultPlayerLine = Interaction.DefaultPlayerLine;
-  Seed.PinnedResponse = Interaction.PinnedResponse;
-  Seed.InteractionIntent = InteractionIntentFromJson(Interaction.Intent);
+  Seed.Interaction.InteractionPrompt = Interaction.Prompt;
+  Seed.Interaction.DefaultPlayerLine = Interaction.DefaultPlayerLine;
+  Seed.Interaction.PinnedResponse = Interaction.PinnedResponse;
+  Seed.Interaction.InteractionIntent =
+      InteractionIntentFromJson(Interaction.Intent);
   Seed.PatrolRoute = TownspersonPatrolRouteFromFields(
       {Request.Fields.PatrolRoute, Request.Geometry, TownspersonRouteLots});
   return Seed;
@@ -208,16 +209,29 @@ template <> struct TComponentSourceValueFieldRegistry<FTownspersonSeed> {
       &Fields() {
     static const TArray<TComponentSourceValueFieldDeclaration<
         FTownspersonSeed>>
-        SourceFields = ComponentSourceFieldDeclarations<FTownspersonSeed>({
-            {"Id", &FTownspersonSeed::Id},
-            {"Name", &FTownspersonSeed::Name},
-            {"Role", &FTownspersonSeed::Role},
-            {"Persona", &FTownspersonSeed::Persona},
-            {"InteractionPrompt", &FTownspersonSeed::InteractionPrompt},
-            {"DefaultPlayerLine", &FTownspersonSeed::DefaultPlayerLine},
-            {"PinnedResponse", &FTownspersonSeed::PinnedResponse},
-            {"InteractionIntent", &FTownspersonSeed::InteractionIntent},
-            {"PatrolRoute", &FTownspersonSeed::PatrolRoute}});
+        SourceFields = [] {
+          TArray<TComponentSourceValueFieldDeclaration<FTownspersonSeed>>
+              Fields = ComponentSourceFieldDeclarations<FTownspersonSeed>({
+                  {"Id", &FTownspersonSeed::Id},
+                  {"Name", &FTownspersonSeed::Name},
+                  {"Role", &FTownspersonSeed::Role},
+                  {"Persona", &FTownspersonSeed::Persona}});
+          Fields.Append(
+              ComponentSourceSubFieldDeclarations<FTownspersonSeed>(
+                  &FTownspersonSeed::Interaction,
+                  ComponentSourceFieldDeclarations<FTownspersonInteraction>({
+                      {"InteractionPrompt",
+                       &FTownspersonInteraction::InteractionPrompt},
+                      {"DefaultPlayerLine",
+                       &FTownspersonInteraction::DefaultPlayerLine},
+                      {"PinnedResponse",
+                       &FTownspersonInteraction::PinnedResponse},
+                      {"InteractionIntent",
+                       &FTownspersonInteraction::InteractionIntent}})));
+          Fields.Append(ComponentSourceFieldDeclarations<FTownspersonSeed>(
+              {{"PatrolRoute", &FTownspersonSeed::PatrolRoute}}));
+          return Fields;
+        }();
     return SourceFields;
   }
 };
