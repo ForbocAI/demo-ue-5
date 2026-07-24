@@ -15,7 +15,7 @@ JSON_SETTINGS_REGISTRY(FCharacterGeometrySettings, CharacterHeightFeet,
                        CharacterShoulderWidthFeet);
 JSON_SETTINGS_REGISTRY(FTownspersonMotionSettings, PatrolPauseSeconds,
                        InteractionRadiusLots, WalkSpeedHeightRatio);
-JSON_SETTINGS_REGISTRY(FTownspersonTextPlacementSettings,
+JSON_SETTINGS_REGISTRY(FTextPlacementSettings,
                        PromptAboveHeadFeet, NameAbovePromptFeet,
                        DialogueAboveNameHeightRatio, PromptTextScale,
                        DialogueTextScale);
@@ -23,16 +23,16 @@ JSON_SETTINGS_REGISTRY(FMannequinSettings, MannequinScale,
                        MannequinOffsetFeet, MannequinRotation, MeshPath,
                        AnimationBlueprintClassPath);
 
-JSON_SETTINGS_REGISTRY(FHorseBodySettings, HorseLengthFeet, BodyHeightFeet,
+JSON_SETTINGS_REGISTRY(FBodySettings, HorseLengthFeet, BodyHeightFeet,
                        LegHeightFeet, NeckHeightFeet, HeadHeightFeet,
                        SaddleHeightFeet);
 JSON_SETTINGS_REGISTRY(FHorseMotionSettings, PatrolPauseSeconds,
                        WalkSpeedHorseLengthRatio, RouteArrivalLegRatio);
 JSON_SETTINGS_REGISTRY(FRiderSettings, ImportedHorseScale,
                        MountedRiderScale, MountedRiderOffsetFeet);
-JSON_SETTINGS_REGISTRY(FHorseNameSettings, DefaultName,
+JSON_SETTINGS_REGISTRY(FNameSettings, DefaultName,
                        NameTextWorldSizeFeet);
-JSON_SETTINGS_REGISTRY(FHorseAssetsSettings, HorseMeshPath,
+JSON_SETTINGS_REGISTRY(FAssetsSettings, HorseMeshPath,
                        HorseWalkAnimationPath, RiderMeshPath,
                        RiderWalkAnimationPath);
 
@@ -59,7 +59,7 @@ ReadTownspersonPresentationSettings(const TSharedPtr<FJsonObject> &Object) {
           Object, JSON_SETTINGS_ATOMS(PatrolPauseSeconds,
                                       InteractionRadiusLots,
                                       WalkSpeedHeightRatio)),
-      Json::ReadSettingsFields<FTownspersonTextPlacementSettings>(
+      Json::ReadSettingsFields<FTextPlacementSettings>(
           Object, JSON_SETTINGS_ATOMS(PromptAboveHeadFeet,
                                       NameAbovePromptFeet,
                                       DialogueAboveNameHeightRatio,
@@ -75,7 +75,7 @@ ReadTownspersonPresentationSettings(const TSharedPtr<FJsonObject> &Object) {
 FHorsePresentationSettings
 ReadHorsePresentationSettings(const TSharedPtr<FJsonObject> &Object) {
   return {
-      Json::ReadSettingsFields<FHorseBodySettings>(
+      Json::ReadSettingsFields<FBodySettings>(
           Object, JSON_SETTINGS_ATOMS(HorseLengthFeet, BodyHeightFeet,
                                       LegHeightFeet, NeckHeightFeet,
                                       HeadHeightFeet, SaddleHeightFeet)),
@@ -87,9 +87,9 @@ ReadHorsePresentationSettings(const TSharedPtr<FJsonObject> &Object) {
           Object, JSON_SETTINGS_ATOMS(ImportedHorseScale,
                                       MountedRiderScale,
                                       MountedRiderOffsetFeet)),
-      Json::ReadSettingsFields<FHorseNameSettings>(
+      Json::ReadSettingsFields<FNameSettings>(
           Object, JSON_SETTINGS_ATOMS(DefaultName, NameTextWorldSizeFeet)),
-      Json::ReadSettingsFields<FHorseAssetsSettings>(
+      Json::ReadSettingsFields<FAssetsSettings>(
           Object, JSON_SETTINGS_ATOMS(HorseMeshPath,
                                       HorseWalkAnimationPath, RiderMeshPath,
                                       RiderWalkAnimationPath))};

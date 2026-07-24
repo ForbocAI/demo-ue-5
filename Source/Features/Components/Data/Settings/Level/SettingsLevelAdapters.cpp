@@ -10,16 +10,16 @@ namespace JsonAdapters {
 JSON_SETTINGS_REGISTRY(FSourceSettings, TerrainCsvPath,
                        OrthoCsvPath);
 
-JSON_SETTINGS_REGISTRY(FCsvSyntaxSettings, CommentPrefix, CellDelimiter,
+JSON_SETTINGS_REGISTRY(FSyntaxSettings, CommentPrefix, CellDelimiter,
                        ColorChannelDelimiter);
 
-JSON_SETTINGS_REGISTRY(FCsvColorSettings, ChannelCount, RedChannelIndex,
+JSON_SETTINGS_REGISTRY(FColorSettings, ChannelCount, RedChannelIndex,
                        GreenChannelIndex, BlueChannelIndex, Alpha);
 
-JSON_SETTINGS_REGISTRY(FCsvGridSettings, EmptyCount, MinimumGridSize,
+JSON_SETTINGS_REGISTRY(FGridSettings, EmptyCount, MinimumGridSize,
                        TerminalOffset);
 
-JSON_SETTINGS_REGISTRY(FCsvMessageSettings, OrthoRowWidthMismatchFormat,
+JSON_SETTINGS_REGISTRY(FMessageSettings, OrthoRowWidthMismatchFormat,
                        OrthoBadColorCellFormat, OrthoInvalidFormat,
                        OrthoLoadedFormat, TerrainLoadedFormat);
 
@@ -29,26 +29,26 @@ template <> struct TJsonSettingsRegistry<FCsvSettings> {
     static const TArray<TField<FCsvSettings>> RegisteredFields = {
         JSON_OBJECT_SETTING_FIELD(
             FCsvSettings,
-            ReadSettingsWith<FCsvSyntaxSettings>(
+            ReadSettingsWith<FSyntaxSettings>(
                 JSON_SETTINGS_ATOMS(CommentPrefix, CellDelimiter,
                                     ColorChannelDelimiter)),
             Syntax),
         JSON_OBJECT_SETTING_FIELD(
             FCsvSettings,
-            ReadSettingsWith<FCsvColorSettings>(
+            ReadSettingsWith<FColorSettings>(
                 JSON_SETTINGS_ATOMS(ChannelCount, RedChannelIndex,
                                     GreenChannelIndex, BlueChannelIndex,
                                     Alpha)),
             Color),
         JSON_OBJECT_SETTING_FIELD(
             FCsvSettings,
-            ReadSettingsWith<FCsvGridSettings>(
+            ReadSettingsWith<FGridSettings>(
                 JSON_SETTINGS_ATOMS(EmptyCount, MinimumGridSize,
                                     TerminalOffset)),
             Grid),
         JSON_OBJECT_SETTING_FIELD(
             FCsvSettings,
-            ReadSettingsWith<FCsvMessageSettings>(
+            ReadSettingsWith<FMessageSettings>(
                 JSON_SETTINGS_ATOMS(OrthoRowWidthMismatchFormat,
                                     OrthoBadColorCellFormat,
                                     OrthoInvalidFormat, OrthoLoadedFormat,

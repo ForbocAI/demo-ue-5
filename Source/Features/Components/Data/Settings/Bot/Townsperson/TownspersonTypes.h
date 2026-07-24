@@ -17,7 +17,7 @@ struct FTownspersonMotionSettings {
   float WalkSpeedHeightRatio;
 };
 
-struct FTownspersonTextPlacementSettings {
+struct FTextPlacementSettings {
   float PromptAboveHeadFeet;
   float NameAbovePromptFeet;
   float DialogueAboveNameHeightRatio;
@@ -36,7 +36,7 @@ struct FMannequinSettings {
 struct FTownspersonPresentationSettings {
   FCharacterGeometrySettings Geometry;
   FTownspersonMotionSettings Motion;
-  FTownspersonTextPlacementSettings Text;
+  FTextPlacementSettings Text;
   FMannequinSettings Mannequin;
 };
 

@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FHorseBodySettings {
+struct FBodySettings {
   float HorseLengthFeet;
   float BodyHeightFeet;
   float LegHeightFeet;
@@ -27,12 +27,12 @@ struct FRiderSettings {
   FVector MountedRiderOffsetFeet;
 };
 
-struct FHorseNameSettings {
+struct FNameSettings {
   FString DefaultName;
   float NameTextWorldSizeFeet;
 };
 
-struct FHorseAssetsSettings {
+struct FAssetsSettings {
   FString HorseMeshPath;
   FString HorseWalkAnimationPath;
   FString RiderMeshPath;
@@ -40,11 +40,11 @@ struct FHorseAssetsSettings {
 };
 
 struct FHorsePresentationSettings {
-  FHorseBodySettings Body;
+  FBodySettings Body;
   FHorseMotionSettings Motion;
   FRiderSettings Rider;
-  FHorseNameSettings Name;
-  FHorseAssetsSettings Assets;
+  FNameSettings Name;
+  FAssetsSettings Assets;
 };
 
 /** User Story: As a horse presentation consumer, I need to compare values for equality through a stable signature so presentation settings remain explicit and composable. @fn inline bool operator==(const FHorsePresentationSettings &Left, const FHorsePresentationSettings &Right) */
