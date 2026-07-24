@@ -20,6 +20,8 @@
 #include "HAL/PlatformMisc.h"
 #include "Misc/AutomationTest.h"
 #include "Features/Config/ConfigAdapters.h"
+#include "Features/CLI/Config/ConfigThunks.h"
+#include "Store.h"
 
 namespace {
 
@@ -124,7 +126,7 @@ void FProtocolLoopSpec::Define() {
               [this, Done, ApiUrl, ApiKey](const bool &) {
                 FAgentConfig Config;
                 Config.Persona = ProtocolLoopSettings().Personas.Async;
-                SDKConfig::SetApiConfig(ApiUrl, ApiKey);
+                Ops::commitApiConfiguration(store(), ApiUrl, ApiKey);
 
                 TSharedPtr<const FAgent> Agent =
                     MakeShared<const FAgent>(AgentFactory::Create(Config));
@@ -158,7 +160,7 @@ void FProtocolLoopSpec::Define() {
           *ProtocolLoopSettings().Async.ApiKeyVariable);
       TestFalse(ProtocolAssertions().Async.ApiUrlPresent, ApiUrl.IsEmpty());
       TestFalse(ProtocolAssertions().Async.ApiKeyPresent, ApiKey.IsEmpty());
-      SDKConfig::SetApiConfig(ApiUrl, ApiKey);
+      Ops::commitApiConfiguration(store(), ApiUrl, ApiKey);
 
       TestTrue(ProtocolAssertions().Bridge.AcceptedActionValid,
                UForbocAIBlueprintLibrary::ValidateBridgeAction(
@@ -172,7 +174,7 @@ void FProtocolLoopSpec::Define() {
           *ProtocolLoopSettings().Async.ApiKeyVariable);
       TestFalse(ProtocolAssertions().Async.ApiUrlPresent, ApiUrl.IsEmpty());
       TestFalse(ProtocolAssertions().Async.ApiKeyPresent, ApiKey.IsEmpty());
-      SDKConfig::SetApiConfig(ApiUrl, ApiKey);
+      Ops::commitApiConfiguration(store(), ApiUrl, ApiKey);
 
       TestFalse(ProtocolAssertions().Bridge.RejectedActionInvalid,
                 UForbocAIBlueprintLibrary::ValidateBridgeAction(

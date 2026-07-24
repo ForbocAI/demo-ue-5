@@ -25,7 +25,7 @@
 #include "Features/Systems/Bots/Townspeople/TownspeopleSlice.h"
 #include "Misc/AutomationTest.h"
 #include "Misc/OutputDevice.h"
-#include "Store.h"
+#include "frontierOfJeffersonStore.h"
 
 using namespace ForbocAI::Game::Level;
 

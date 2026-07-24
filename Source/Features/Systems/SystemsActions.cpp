@@ -3,7 +3,7 @@
 #include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Rendering/RenderingThunks.h"
 #include "Features/Systems/State/StateSlice.h"
-#include "Store.h"
+#include "frontierOfJeffersonStore.h"
 #include "Core/fp.hpp"
 
 namespace ForbocAI {
@@ -48,7 +48,7 @@ void DispatchObserveRuntimeStatsTick(::UWorld *World, float DeltaSeconds) {
 
 #include "Features/Systems/Level/Presentation/LevelPresentationTypes.h"
 #include "Features/Systems/Level/Presentation/Spawn/PresentationSpawnTypes.h"
-#include "Store.h"
+#include "frontierOfJeffersonStore.h"
 
 namespace ForbocAI {
 namespace Game {

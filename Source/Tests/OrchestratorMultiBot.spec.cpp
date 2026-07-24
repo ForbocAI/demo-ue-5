@@ -11,7 +11,7 @@
 #include "Features/Systems/Bots/SystemsBotsActions.h"
 #include "Features/Systems/Bots/Position/PositionActions.h"
 #include "Features/Systems/SystemsSelectors.h"
-#include "Store.h"
+#include "frontierOfJeffersonStore.h"
 #include "Misc/AutomationTest.h"
 
 using namespace ForbocAI::Game::Level;
