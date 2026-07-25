@@ -145,13 +145,13 @@ ScaleAuditCaptureViews(const FScaleAuditCaptureViewsRequest &Request,
   const FVector TownCenter = PostOfficeWorldCenter();
   const FVector ActorCenter =
       FG::RuntimeSelectors::SelectActorRouteBoundsCenter(TownCenter);
-  return {{Settings.WholeOutputName,
+  return {{Settings.Whole.OutputName,
            {TopDownCameraLocation(TerrainCenter, Request.WholeCaptureHeight),
             Settings.TopDownRotation, Request.WholeOrthoWidth}},
-          {Settings.TownOutputName,
+          {Settings.Town.OutputName,
            {TopDownCameraLocation(TownCenter, Request.TownCaptureHeight),
             Settings.TopDownRotation, Request.TownOrthoWidth}},
-          {Settings.ActorsOutputName,
+          {Settings.Actors.OutputName,
            {TopDownCameraLocation(ActorCenter, Request.ActorsCaptureHeight),
             Settings.TopDownRotation, Request.ActorsOrthoWidth}}};
 }

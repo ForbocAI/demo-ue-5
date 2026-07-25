@@ -76,7 +76,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   TestTrue(Labels.Next(),
            Layout.Town.Blocks.Num() > Layout.Town.Labels.Num());
 
-  rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
+  rtk::EnhancedStore<ForbocAI::Game::Level::FRuntimeState> EnhancedStoreValue =
       Store::ConfigureStore();
   EnhancedStoreValue.dispatch(TerrainActions::TerrainLoaded()(
       TerrainFactories::LoadedPayload(
@@ -111,7 +111,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
           {DataSources.Entities.NatureJsonPath, Geometry});
   EnhancedStoreValue.dispatch(NatureActions::NatureSeeded()(NatureFeatureSeeds));
 
-  const FRuntimeState &State = EnhancedStoreValue.getState();
+  const ForbocAI::Game::Level::FRuntimeState &State = EnhancedStoreValue.getState();
   TestTrue(Labels.Next(),
            RuntimeSelectors::SelectTerrainLoaded(State));
   const ecs::FWorld &EcsWorld = RuntimeSelectors::SelectWorld(State);

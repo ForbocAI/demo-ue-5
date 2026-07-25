@@ -33,7 +33,7 @@ bool FStoreProjectionGate::RunTest(const FString &Parameters) {
             RuntimeReducers::ShouldProjectRuntimeAction(
                 BotPositionActions::PatrolAdvanceObserved()(PatrolRequest)));
 
-  rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
+  rtk::EnhancedStore<ForbocAI::Game::Level::FRuntimeState> EnhancedStoreValue =
       Store::ConfigureStore();
   const int64 ProjectedGeneration =
       RuntimeSelectors::SelectWorld(EnhancedStoreValue.getState()).Generation;

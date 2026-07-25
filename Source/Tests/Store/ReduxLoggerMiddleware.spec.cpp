@@ -27,7 +27,7 @@ bool FStoreReduxLoggerMiddleware::RunTest(const FString &Parameters) {
                                           StoreAutomation.Logger.ReduxLoggerCategory);
 
   GLog->AddOutputDevice(&CaptureDevice);
-  rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
+  rtk::EnhancedStore<ForbocAI::Game::Level::FRuntimeState> EnhancedStoreValue =
       Store::ConfigureStore();
   const rtk::AnyAction HydratedAction = RuntimeActions::RuntimeHydrated()(
       RuntimeFactories::CreateInitialState());

@@ -89,16 +89,38 @@ JSON_SETTINGS_REGISTRY(FModeSettings, EnabledMessage,
                        DisabledMessage, FlyingGravityScale,
                        VerticalInputScale, NeutralInputScale);
 
-JSON_SETTINGS_REGISTRY(
-    FAuditCaptureSettings, CaptureCommandLineKey,
-    QuitWhenDoneCommandLineKey, OutputDirectoryCommandLineKey,
-    InitialDelayCommandLineKey, SettleSecondsCommandLineKey,
-    BetweenSecondsCommandLineKey, WholeOrthoWidthCommandLineKey,
-    TownOrthoWidthCommandLineKey, ActorsOrthoWidthCommandLineKey,
-    WholeCaptureHeightCommandLineKey, TownCaptureHeightCommandLineKey,
-    ActorsCaptureHeightCommandLineKey, DefaultOutputDirectory,
-    WholeOutputName, TownOutputName, ActorsOutputName, InitialDelaySeconds,
-    SettleSeconds, BetweenSeconds, TopDownRotation);
+JSON_SETTINGS_REGISTRY(FRegionCapture, OrthoWidthCommandLineKey,
+                       CaptureHeightCommandLineKey, OutputName);
+
+JSON_SETTINGS_REGISTRY(FTiming, InitialDelayCommandLineKey,
+                       SettleSecondsCommandLineKey,
+                       BetweenSecondsCommandLineKey, InitialDelaySeconds,
+                       SettleSeconds, BetweenSeconds);
+
+template <> struct TJsonSettingsRegistry<FAuditCaptureSettings> {
+  /** User Story: As a registry ui interface consumer, I need to invoke fields through a stable signature so the registry ui interface workflow remains explicit and composable. @fn static const TArray<TField<FAuditCaptureSettings>> &Fields() */
+  static const TArray<TField<FAuditCaptureSettings>> &Fields() {
+    static const TArray<TField<FAuditCaptureSettings>> RegisteredFields = {
+        JSON_SETTING_FIELDS(FAuditCaptureSettings, CaptureCommandLineKey,
+                            QuitWhenDoneCommandLineKey,
+                            OutputDirectoryCommandLineKey,
+                            DefaultOutputDirectory, TopDownRotation),
+        JSON_OBJECT_SETTING_FIELDS(
+            FAuditCaptureSettings,
+            ReadSettingsWith<FTiming>(JSON_SETTINGS_ATOMS(
+                InitialDelayCommandLineKey, SettleSecondsCommandLineKey,
+                BetweenSecondsCommandLineKey, InitialDelaySeconds,
+                SettleSeconds, BetweenSeconds)),
+            Timing),
+        JSON_OBJECT_SETTING_FIELDS(
+            FAuditCaptureSettings,
+            ReadSettingsWith<FRegionCapture>(JSON_SETTINGS_ATOMS(
+                OrthoWidthCommandLineKey, CaptureHeightCommandLineKey,
+                OutputName)),
+            Whole, Town, Actors)};
+    return RegisteredFields;
+  }
+};
 
 template <> struct TJsonSettingsRegistry<FUISettings> {
   /** User Story: As a registry ui interface consumer, I need to invoke fields through a stable signature so the registry ui interface workflow remains explicit and composable. @fn static const TArray<TField<FUISettings>> &Fields() */

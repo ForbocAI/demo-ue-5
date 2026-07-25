@@ -80,7 +80,7 @@ void FOrchestratorMultiBotSpec::Define() {
 
   Describe(Automation.Groups.RuntimeStore, [this, &Automation]() {
     It(Automation.Cases.RegisterBots, [this, &Automation]() {
-      rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
+      rtk::EnhancedStore<ForbocAI::Game::Level::FRuntimeState> EnhancedStoreValue =
           Store::ConfigureStore();
 
       const TArray<FBotEntity> SeedBots = OrchestratorSeedBots();
@@ -108,7 +108,7 @@ void FOrchestratorMultiBotSpec::Define() {
     });
 
     It(Automation.Cases.DispatchMovement, [this, &Automation]() {
-      rtk::EnhancedStore<FRuntimeState> EnhancedStoreValue =
+      rtk::EnhancedStore<ForbocAI::Game::Level::FRuntimeState> EnhancedStoreValue =
           Store::ConfigureStore();
       const ForbocAI::Game::Data::FSettings &Settings =
           OrchestratorSettings();

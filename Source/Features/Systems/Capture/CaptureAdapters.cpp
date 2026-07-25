@@ -60,24 +60,27 @@ FScaleAuditCaptureConfig ParseScaleAuditCommandLine(
       CommandLineParam(Settings.QuitWhenDoneCommandLineKey);
   Config.Run.OutputDirectory = CommandLineString(
       Settings.OutputDirectoryCommandLineKey, DefaultOutputDirectory);
-  Config.Timing.InitialDelaySeconds = CommandLineFloat(
-      Settings.InitialDelayCommandLineKey, Settings.InitialDelaySeconds);
-  Config.Timing.SettleSeconds = CommandLineFloat(
-      Settings.SettleSecondsCommandLineKey, Settings.SettleSeconds);
-  Config.Timing.BetweenSeconds = CommandLineFloat(
-      Settings.BetweenSecondsCommandLineKey, Settings.BetweenSeconds);
+  Config.Timing.InitialDelaySeconds =
+      CommandLineFloat(Settings.Timing.InitialDelayCommandLineKey,
+                       Settings.Timing.InitialDelaySeconds);
+  Config.Timing.SettleSeconds =
+      CommandLineFloat(Settings.Timing.SettleSecondsCommandLineKey,
+                       Settings.Timing.SettleSeconds);
+  Config.Timing.BetweenSeconds =
+      CommandLineFloat(Settings.Timing.BetweenSecondsCommandLineKey,
+                       Settings.Timing.BetweenSeconds);
   Config.Ortho.WholeWidth = CommandLineFloat(
-      Settings.WholeOrthoWidthCommandLineKey, TerrainWorldSize);
+      Settings.Whole.OrthoWidthCommandLineKey, TerrainWorldSize);
   Config.Ortho.TownWidth = CommandLineFloat(
-      Settings.TownOrthoWidthCommandLineKey, TerrainWorldSize);
+      Settings.Town.OrthoWidthCommandLineKey, TerrainWorldSize);
   Config.Ortho.ActorsWidth = CommandLineFloat(
-      Settings.ActorsOrthoWidthCommandLineKey, TerrainWorldSize);
+      Settings.Actors.OrthoWidthCommandLineKey, TerrainWorldSize);
   Config.Height.WholeHeight = CommandLineFloat(
-      Settings.WholeCaptureHeightCommandLineKey, TerrainWorldSize);
+      Settings.Whole.CaptureHeightCommandLineKey, TerrainWorldSize);
   Config.Height.TownHeight = CommandLineFloat(
-      Settings.TownCaptureHeightCommandLineKey, Config.Ortho.TownWidth);
+      Settings.Town.CaptureHeightCommandLineKey, Config.Ortho.TownWidth);
   Config.Height.ActorsHeight = CommandLineFloat(
-      Settings.ActorsCaptureHeightCommandLineKey, Config.Ortho.ActorsWidth);
+      Settings.Actors.CaptureHeightCommandLineKey, Config.Ortho.ActorsWidth);
   CreateCaptureOutputDirectory(Config.Run.OutputDirectory);
   return Config;
 }
