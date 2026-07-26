@@ -27,7 +27,6 @@ TEXTURE_ZIP = ASSET_ROOT / "kb3d_outlaw.png.2k.zip"
 OBJ_NAME = "kb3d_outlaw-native.obj"
 MTL_NAME = "kb3d_outlaw-native.mtl"
 JSON_OUTPUT = ASSET_ROOT / "kb3d_outlaw_inventory.json"
-MARKDOWN_OUTPUT = ASSET_ROOT / "kb3d_outlaw_inventory.md"
 
 
 @dataclass
@@ -155,65 +154,6 @@ def object_record(item: ObjectInventory) -> dict[str, object]:
     }
 
 
-def write_markdown(payload: dict[str, object]) -> None:
-    objects = payload["objects"]
-    groups = payload["groups"]
-    textures = payload["textures"]
-    largest = sorted(objects, key=lambda item: item["face_lines"], reverse=True)[:30]
-    candidates = [
-        item
-        for item in objects
-        if re.search(
-            r"General|Store|Farm|Church|Shoe|Apothecary|Saloon|"
-            r"Hotel|Office|Wagon|Bridge|Track|Mine|Sheriff|Jail|"
-            r"Bank|Stable|WaterTower|Barrel|Crate",
-            item["name"],
-            re.IGNORECASE,
-        )
-    ][:80]
-    lines = [
-        "# KitBash3D Outlaw Asset Inventory",
-        "",
-        "Generated from `kb3d_outlaw.fbxobj.native.zip` and "
-        "`kb3d_outlaw.png.2k.zip`.",
-        "",
-        "## Summary",
-        "",
-        f"- Objects: {len(objects)}",
-        f"- Groups: {len(groups)}",
-        f"- Materials: {len(payload['materials'])}",
-        f"- Texture PNGs: {textures['count']}",
-        f"- Total OBJ vertices: {payload['totals']['vertices']}",
-        f"- Total OBJ faces: {payload['totals']['faces']}",
-        "",
-        "## Texture Map Counts",
-        "",
-    ]
-    lines.extend(
-        f"- `{name}`: {count}" for name, count in textures["suffix_counts"].items()
-    )
-    lines.extend(["", "## Largest Objects", "", "| Object | Faces | Materials |", "|---|---:|---|"])
-    lines.extend(
-        f"| `{item['name']}` | {item['face_lines']} | "
-        f"{', '.join(item['materials'][:3])} |"
-        for item in largest
-    )
-    lines.extend(
-        [
-            "",
-            "## French Gulch Candidate Objects",
-            "",
-            "| Object | Faces | Reason |",
-            "|---|---:|---|",
-        ]
-    )
-    lines.extend(
-        f"| `{item['name']}` | {item['face_lines']} | town dressing candidate |"
-        for item in candidates
-    )
-    MARKDOWN_OUTPUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
 def main() -> int:
     objects = parse_obj_inventory()
     materials = parse_material_textures()
@@ -236,9 +176,7 @@ def main() -> int:
         "objects": records,
     }
     JSON_OUTPUT.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    write_markdown(payload)
     print(f"Wrote {JSON_OUTPUT}")
-    print(f"Wrote {MARKDOWN_OUTPUT}")
     return 0
 
 

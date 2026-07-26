@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import os
 
 
@@ -17,7 +18,6 @@ ROOT_FILES = [
     '.gitmodules',
     'ForbocAIDemo.uproject',
     'README.md',
-    'style-guide.md',
 ]
 
 TEXT_EXTENSIONS = {
@@ -118,17 +118,23 @@ def file_line_counts(base_dir):
 
 def write_report(output_file, counts):
     with open(output_file, 'w', encoding='utf-8', newline='\n') as handle:
-        handle.write('# Unreal Runtime Text Files by Line Number\n\n')
-        handle.write('| Lines | File Path |\n')
-        handle.write('|-------|-----------|\n')
-        for count, path in counts:
-            handle.write(f'| {count} | `{path}` |\n')
+        json.dump(
+            {
+                'files': [
+                    {'path': path, 'lines': count}
+                    for count, path in counts
+                ],
+            },
+            handle,
+            indent=2,
+        )
+        handle.write('\n')
 
 
 def main():
     base_dir = project_root()
     docs_dir = os.path.join(base_dir, 'DOCS')
-    output_file = os.path.join(docs_dir, 'FILES_BY_LINE_NUMBER.md')
+    output_file = os.path.join(docs_dir, 'files-by-line-number.json')
 
     os.makedirs(docs_dir, exist_ok=True)
 

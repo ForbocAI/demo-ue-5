@@ -1,128 +1,82 @@
-# Forboc AI - Unreal Engine Demo
+# ForbocAI Unreal Engine Demo
 
-A working Unreal Engine 5.8 project that shows how to put **Forboc AI NPCs**
-inside a playable game loop. Clone it, run the setup script, press Play, and
-study how the demo routes player interaction into ForbocAI-backed NPC state,
-conversation UI, and speech presentation.
+A playable Unreal Engine 5.8 reference project showing ForbocAI NPC dialogue,
+memory-aware interactions, validated actions, chat presentation, and speech
+presentation in a game world.
 
-## Prerequisites
+## Requirements
 
-| Tool | Version |
-| --- | --- |
-| Unreal Engine | 5.8 |
-| Visual Studio | 2022+ with C++ Build Tools and Windows 11 SDK |
-| Xcode | 15+ on macOS |
-| Clang | 16+ on Linux |
+- Unreal Engine 5.8
+- Visual Studio 2022 C++ tools on Windows, Xcode 15 or newer on macOS, or
+  Clang 16 or newer on Linux
+- A ForbocAI API key from <https://account.forboc.ai>
 
-## Quick Start
+## Install
 
-Clone with the SDK submodule:
+Clone the project and its ForbocAI SDK plugin:
 
 ```bash
 git clone --recurse-submodules https://github.com/ForbocAI/demo-ue-5.git
 cd demo-ue-5
+bash Scripts/Setup/setup-dev.sh
 ```
 
-If you already cloned without submodules:
+If the repository was cloned without submodules, run:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-Run first-time setup:
+Set `FORBOCAI_API_KEY` in the environment used to launch Unreal Editor. The
+hosted API URL is selected automatically unless `FORBOCAI_API_URL` is set.
 
-```bash
-bash Scripts/Setup/setup-dev.sh
-```
+Generate project files, build the `Development Editor` target, and open
+`ForbocAIDemo.uproject`.
 
-Generate project files:
+## Play
 
-- Windows: right-click `ForbocAIDemo.uproject` and choose **Generate Visual Studio Project Files**.
-- macOS: right-click `ForbocAIDemo.uproject` and choose **Generate Xcode Project**.
-- Linux:
+The project opens `/Game/Map/Maps/Runtime` by default.
 
-  ```bash
-  UnrealEditor.sh -projectfiles -project="$PWD/ForbocAIDemo.uproject"
-  ```
+1. Press Play.
+2. Move near a townsperson.
+3. Press `E` when the interaction prompt appears.
+4. Submit text through the chat interface.
+5. Observe the ForbocAI response in chat and speech presentation.
 
-Build the `Development Editor` target, open the project, then press Play.
+The demo keeps each NPC's identity and game context separate while routing all
+ForbocAI interaction through the installed SDK plugin.
 
-## What To Study
+## ForbocAI Integration Points
 
-The demo is a game project, not the SDK itself. The useful ForbocAI integration
-surfaces are:
+| ForbocAI behavior | Demo surface |
+| --- | --- |
+| NPC identity and runtime context | `Content/Data/levels/french_gulch/townspeople.json` |
+| Player-to-NPC interaction | `Source/Features/Systems/Interaction` |
+| Dialogue state | `Source/Features/Systems/Dialogue` |
+| Multi-NPC orchestration | `Source/Features/Systems/Bots` |
+| Chat presentation | `Source/Views/Chat` |
+| Speech and lip-sync presentation | `Source/Views/Speech/Presenter` |
+| SDK plugin | `Plugins/ForbocAI_SDK` |
 
-| Area | Path | What It Shows |
-| --- | --- | --- |
-| SDK plugin boundary | `Plugins/ForbocAI_SDK` | Consuming the ForbocAI UE SDK as a submodule |
-| Runtime store | `Source/Store.*` | One game-owned state boundary for NPC interaction results |
-| NPC and bot state | `Source/Features/Systems/Bots` | Multi-NPC state, position, goals, AI facts, and orchestration |
-| Interaction flow | `Source/Features/Systems/Interaction` | Turning player focus/input into NPC conversation events |
-| Dialogue state | `Source/Features/Systems/Dialogue` | Conversation actions, selectors, and reducer-owned state |
-| Conversation UI | `Source/Views/Chat` and `Source/Views/Player/Controller` | Rendering selected ForbocAI dialogue into the viewport |
-| Speech presentation | `Source/Features/Systems/Speech` and `Source/Views/Speech/Presenter` | Routing selected response text into speech/lip-sync presentation |
-
-## Integration Pattern
-
-The demo keeps the AI turn path explicit:
-
-```text
-UE input / overlap
-  -> interaction action or thunk
-  -> ForbocAI dialogue backend or local demo fallback
-  -> reducer-owned conversation state
-  -> selectors
-  -> chat widget and speech presenter
-```
-
-Game actors and widgets apply selected state. They do not own the ForbocAI
-protocol, API calls, or durable NPC state directly.
-
-## SDK Submodule
-
-`Plugins/ForbocAI_SDK` is a read-only Git submodule in this checkout. Change
-SDK code in the SDK repository, then update the submodule pointer here.
-
-Update the SDK pointer:
-
-```bash
-bash Scripts/SDK/update-sdk.sh
-```
-
-Activate the submodule guard hooks:
-
-```bash
-git config core.hooksPath .githooks
-bash Scripts/SDK/lock_sdk_submodule.sh --lock
-```
-
-## Verify The Demo
-
-Run the project verification wrapper:
-
-```bash
-bash Scripts/Run/run-tests.sh
-```
-
-This builds the editor target, runs the ForbocAI automation tests, and checks
-the project guardrails used by the demo.
+Use these surfaces as examples of where to send game context to ForbocAI and
+where to apply returned dialogue and validated actions. Keep your own game's
+world rules, UI, animation, audio, and save data in the game project.
 
 ## Troubleshooting
 
-| Problem | Fix |
+| Problem | Resolution |
 | --- | --- |
-| `Plugin 'ForbocAI_SDK' failed to load` | Run `git submodule update --init --recursive`, then rebuild |
-| Linker errors after changing branches | Delete `Intermediate/` and `Binaries/`, regenerate project files, then rebuild |
-| NPC conversation does not update | Check the editor Output Log for SDK/API configuration errors and verify your API key |
-| Speech plays without matching presentation | Check the speech settings and the NPC mesh/morph-target setup used by your project |
+| The SDK plugin does not load | Initialize the submodule and rebuild the editor target |
+| An NPC does not answer | Confirm `FORBOCAI_API_KEY` is available to Unreal Editor and inspect the Output Log for ForbocAI errors |
+| Chat updates without speech | Check the speech presenter and the selected NPC mesh configuration |
+| Project files are stale | Regenerate project files, then rebuild the editor target |
 
-## Links
+## More
 
-- SDK docs: <https://docs.forboc.ai>
-- UE SDK source: <https://github.com/ForbocAI/sdk-ue-5>
+- Unreal SDK documentation: <https://docs.forboc.ai/ue/welcome>
+- Unreal SDK source: <https://github.com/ForbocAI/sdk-ue-5>
 - Demo issues: <https://github.com/ForbocAI/demo-ue-5/issues>
 
 ## License
 
-(c) 2026 ForbocAI, Inc. All rights reserved. See [LICENSE](./LICENSE) for
-terms.
+All rights reserved. See [LICENSE](./LICENSE).
