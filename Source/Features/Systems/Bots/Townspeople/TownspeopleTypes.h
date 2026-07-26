@@ -76,7 +76,10 @@ struct FTownspersonState {
   TArray<FTownspersonSeed> CombatValidationTownspeople;
 };
 
-/** User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable. @fn inline bool operator==(const FTownspersonSeed &Left, const FTownspersonSeed &Right) */
+/**
+ * User Story: As a systems bots townspeople consumer, I need to compare values for equality through a stable signature so the systems bots townspeople workflow remains explicit and composable.
+ * @fn inline bool operator==(const FTownspersonInteraction &Left, const FTownspersonInteraction &Right)
+ */
 inline bool operator==(const FTownspersonInteraction &Left,
                        const FTownspersonInteraction &Right) {
   return Left.InteractionPrompt == Right.InteractionPrompt &&

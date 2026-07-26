@@ -124,13 +124,15 @@ ComponentSourceFieldDeclarations(
   return TArray<TComponentSourceValueFieldDeclaration<Source>>(Declarations);
 }
 
-/** User Story: As a features components consumer, I need to lift a sub-record's
+/**
+ * User Story: As a features components consumer, I need to lift a sub-record's
  * field declarations into the parent record so wide records split by subdomain
  * and recompose through one reader/adapter fold instead of per-field wrappers.
- * @fn template <typename Source, typename Sub> inline
  * TArray<TComponentSourceValueFieldDeclaration<Source>>
  * ComponentSourceSubFieldDeclarations(Sub Source::*SubMember, const
- * TArray<TComponentSourceValueFieldDeclaration<Sub>> &SubDeclarations) */
+ * TArray<TComponentSourceValueFieldDeclaration<Sub>> &SubDeclarations)
+ * @fn template <typename Source, typename Sub> inline TArray<TComponentSourceValueFieldDeclaration<Source>> ComponentSourceSubFieldDeclarations( Sub Source::*SubMember, const TArray<TComponentSourceValueFieldDeclaration<Sub>> &SubDeclarations)
+ */
 template <typename Source, typename Sub>
 inline TArray<TComponentSourceValueFieldDeclaration<Source>>
 ComponentSourceSubFieldDeclarations(
