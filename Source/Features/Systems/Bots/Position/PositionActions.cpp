@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/Position/PositionActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -12,7 +13,7 @@ BotPositionsSeeded() {
       func::lazy([]() -> rtk::ActionCreator<TArray<FBotPositionComponent>> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<TArray<FBotPositionComponent>>(
-          TEXT("botPosition/seeded"));
+          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV3467DA8D9F8D));
       });
   return func::eval(Creator);
 }
@@ -23,7 +24,7 @@ const rtk::ActionCreator<FBotPositionComponent> &BotPositionUpserted() {
       func::lazy([]() -> rtk::ActionCreator<FBotPositionComponent> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FBotPositionComponent>(
-            TEXT("botPosition/upserted"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV0A44432BE3F3));
       });
   return func::eval(Creator);
 }
@@ -33,7 +34,7 @@ const rtk::ActionCreator<FBotPositionMoved> &BotPositionMoved() {
   static const func::Lazy<rtk::ActionCreator<FBotPositionMoved>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotPositionMoved> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FBotPositionMoved>(TEXT("botPosition/moved"));
+        return rtk::createAction<FBotPositionMoved>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV6D3C04F8FB1A));
       });
   return func::eval(Creator);
 }
@@ -47,7 +48,7 @@ InitialPatrolObserved() {
               []() -> rtk::ActionCreator<FBotInitialPatrolLocationRequest> {
                 // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
                 return rtk::createAction<FBotInitialPatrolLocationRequest>(
-                    TEXT("botPosition/initialPatrolObserved"));
+                    TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV8E6CE537A198));
               });
   return func::eval(Creator);
 }
@@ -60,7 +61,7 @@ PatrolAdvanceObserved() {
           func::lazy([]() -> rtk::ActionCreator<FBotPatrolAdvanceRequest> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FBotPatrolAdvanceRequest>(
-                TEXT("botPosition/patrolAdvanceObserved"));
+                TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV40A1C860E81D));
           });
   return func::eval(Creator);
 }

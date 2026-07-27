@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -92,7 +93,7 @@ struct FBlockSpawn {
 struct FLabelSpawn {
   FString Text;
   FVector Location = FVector::ZeroVector;
-  float WorldSize = 42.0f;
+  float WorldSize = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV9D82134A3C72;
   FLevelDistanceLodStage Lod;
 };
 

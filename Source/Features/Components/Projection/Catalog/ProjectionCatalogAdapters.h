@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Value/ComponentsValueAdapters.h"
 
@@ -36,7 +37,7 @@ template <typename Source> struct TAppendSelectedComponentProjection {
                            ProjectComponentSourceValue(SourceValue),
                            Field.Path);
                    checkf(Selected.hasValue,
-                          TEXT("Missing component projection field: %s"),
+                          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVD957C77C2B23),
                           *Field.Name);
                    return ComponentBinding(
                        ComponentPath(ComponentDomain, Field.Name),

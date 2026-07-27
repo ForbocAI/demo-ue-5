@@ -1,4 +1,5 @@
 #include "Features/Systems/Terrain/TerrainSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/ecs.hpp"
 
@@ -235,7 +236,7 @@ const rtk::Slice<FTerrainState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FTerrainState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FTerrainState>(
-          TEXT("terrain"), TerrainFactories::CreateInitialState(),
+          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV93941A57D59E), TerrainFactories::CreateInitialState(),
           [](rtk::ActionReducerMapBuilder<FTerrainState> &Builder) {
     Builder.addCase(TerrainActions::TerrainLoaded(),
                                 TerrainReducers::ReduceTerrainLoaded);

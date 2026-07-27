@@ -1,4 +1,5 @@
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Settings/Bot/SettingsBotAdapters.h"
 #include "Features/Components/Data/Settings/Level/SettingsLevelAdapters.h"
@@ -228,7 +229,8 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
           SettingsSource(Sources, "DebugMessages"));
   Settings.ViewNames =
       Json::ReadSettingsWith<FViewNameSettings>(
-          JSON_SETTINGS_ATOMS(SceneRoot, TownspersonCharacterMesh,
+          JSON_SETTINGS_ATOMS(SceneRoot, SceneProceduralMeshElement,
+                              TownspersonCharacterMesh,
                               TownspersonInteractionSphere,
                               TownspersonNameText, TownspersonPromptText,
                               TownspersonDialogueText,
@@ -287,7 +289,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
 /** User Story: As a components data settings consumer, I need to invoke load settings through a stable signature so the components data settings workflow remains explicit and composable. @fn FSettings LoadSettings() */
 FSettings LoadSettings() {
   return ReadSettings(Json::LoadRequiredObjectFromContent(
-      {TEXT("Data/settings.json")}));
+      {TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVD5B4B907C38C)}));
 }
 
 } // namespace SettingsAdapters

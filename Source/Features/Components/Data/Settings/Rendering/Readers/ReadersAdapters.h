@@ -33,7 +33,8 @@ ReadRenderingTexturePaletteSources(const TSharedPtr<FJsonObject> &Object) {
 FRenderingAssetPathSettings
 ReadRenderingAssetPathSettings(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsFields<FRenderingAssetPathSettings>(
-      Object, JSON_SETTINGS_ATOMS(LevelCubeMeshPath, BlockoutMaterialPath));
+      Object, JSON_SETTINGS_ATOMS(LevelCubeMeshPath, BlockoutMaterialPath,
+                                  TerrainVertexColorMaterialPath));
 }
 
 /** User Story: As a settings rendering readers consumer, I need to invoke read rendering profile settings through a stable signature so the settings rendering readers workflow remains explicit and composable. @fn FProfileSettings ReadRenderingProfileSettings(const TSharedPtr<FJsonObject> &Object) */

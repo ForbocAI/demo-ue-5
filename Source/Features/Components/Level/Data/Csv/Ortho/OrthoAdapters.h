@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Level/Data/Csv/Parsing/ParsingAdapters.h"
 
@@ -32,7 +33,7 @@ bool FLevelOrthoData::LoadFromContent(
                  {FStringFormatArg(GridSize), FStringFormatArg(GridSize),
                   FStringFormatArg(SourcePath)});
   UE_LOG(LogTemp, Display,
-         TEXT("%s"), *LoadedMessage);
+         TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *LoadedMessage);
   return true;
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
 #include "Features/Entities/Environments/Nature/Seed/Json/JsonAdapters.h"
@@ -51,7 +52,7 @@ FLevelLocalPoint FeatureLots(const FFeatureLotsRequest &Request) {
   return LevelLayoutAdapters::CenteredOnGround(
       {Request.Geometry,
        LevelLayoutAdapters::FromPostOfficeLots(
-           {Request.Geometry, Request.EastLots, Request.NorthLots, 0.0f}),
+           {Request.Geometry, Request.EastLots, Request.NorthLots, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF}),
       Request.Scale,
       LevelLayoutAdapters::RoadSurfaceClearance(Request.Geometry)});
 }
@@ -59,13 +60,13 @@ FLevelLocalPoint FeatureLots(const FFeatureLotsRequest &Request) {
 /** User Story: As a nature seed construction consumer, I need to invoke nature kind from json through a stable signature so the nature seed construction workflow remains explicit and composable. @fn EFeatureKind NatureKindFromJson(const FString &Kind) */
 EFeatureKind NatureKindFromJson(const FString &Kind) {
   return JsonAdapters::RequireRegisteredTextValue<EFeatureKind>(
-      Kind, TEXT("nature feature kind"));
+      Kind, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV930AAE467515));
 }
 
 /** User Story: As a nature seed construction consumer, I need to invoke nature scale mode from json through a stable signature so the nature seed construction workflow remains explicit and composable. @fn ENatureScaleMode NatureScaleModeFromJson(const FString &Mode) */
 ENatureScaleMode NatureScaleModeFromJson(const FString &Mode) {
   return JsonAdapters::RequireRegisteredTextValue<ENatureScaleMode>(
-      Mode, TEXT("nature feature scale mode"));
+      Mode, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV96213F1DA3A2));
 }
 
 /** User Story: As a nature seed construction consumer, I need to invoke pad scale from fields through a stable signature so the nature seed construction workflow remains explicit and composable. @fn FVector PadScaleFromFields(const FScaleFieldsRequest &Request) */
@@ -115,7 +116,7 @@ FVector ScaleObjectFromFields(const FScaleFieldsRequest &Request) {
           Request.Object, JSON_SETTINGS_ATOMS(Mode));
   const func::Maybe<FScaleProjectorDeclaration> Projector =
       FindScaleProjector(NatureScaleModeFromJson(Fields.Mode));
-  checkf(Projector.hasValue, TEXT("Invalid nature feature scale mode"));
+  checkf(Projector.hasValue, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV94A3D894856F));
   return Projector.value.Project(Request);
 }
 

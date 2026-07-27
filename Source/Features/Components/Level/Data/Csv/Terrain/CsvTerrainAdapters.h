@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Level/Data/Csv/Parsing/ParsingAdapters.h"
 
@@ -44,7 +45,7 @@ bool FLevelTerrainData::LoadFromContent(
                   FStringFormatArg(SourcePath),
                   FStringFormatArg(MinElevationMeters),
                   FStringFormatArg(MaxElevationMeters)});
-  UE_LOG(LogTemp, Display, TEXT("%s"), *LoadedMessage);
+  UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *LoadedMessage);
   return true;
 }
 

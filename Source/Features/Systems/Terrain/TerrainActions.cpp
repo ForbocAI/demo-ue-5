@@ -1,4 +1,5 @@
 #include "Features/Systems/Terrain/TerrainActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -10,7 +11,7 @@ const rtk::ActionCreator<FLoadedPayload> &TerrainLoaded() {
   static const func::Lazy<rtk::ActionCreator<FLoadedPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FLoadedPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FLoadedPayload>(TEXT("terrain/loaded"));
+        return rtk::createAction<FLoadedPayload>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV8A3ED4C02828));
       });
   return func::eval(Creator);
 }

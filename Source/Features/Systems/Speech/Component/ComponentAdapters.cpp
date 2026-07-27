@@ -1,5 +1,6 @@
 
 #include "Features/Systems/Speech/Component/ComponentAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Core/frmt.hpp"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
@@ -27,7 +28,7 @@ USpeechComponent::USpeechComponent() {
 
 /** User Story: As a systems speech component consumer, I need to invoke ensure viseme map through a stable signature so the systems speech component workflow remains explicit and composable. @fn void USpeechComponent::EnsureVisemeMap() */
 void USpeechComponent::EnsureVisemeMap() {
-  VisemeMap.Num() == 0
+  VisemeMap.Num() == FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA
       ? (VisemeMap = SpeechOps::VisemeMapFromSettings(Settings), void())
       : void();
 }
@@ -53,7 +54,7 @@ void USpeechComponent::SpeakText(const FString &Text) {
   const FString StartLog = frmt::RuntimeString(
       Settings.SpeechStartLogFormat,
       frmt::Args({frmt::Arg(ActivePhonemes.Num()), frmt::Arg(Text)}));
-  UE_LOG(LogTemp, Display, TEXT("%s"), *StartLog);
+  UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *StartLog);
 
   check(!TTSEndpoint.IsEmpty());
 
@@ -82,7 +83,7 @@ void USpeechComponent::SpeakText(const FString &Text) {
         const FString AudioLog = frmt::RuntimeString(
             Settings.SpeechAudioReceivedLogFormat,
             frmt::Args({frmt::Arg(AudioData.Num())}));
-        UE_LOG(LogTemp, Display, TEXT("%s"), *AudioLog);
+        UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *AudioLog);
       });
 
   Request->ProcessRequest();
@@ -129,7 +130,7 @@ void USpeechComponent::TickComponent(
     PlaybackTime += DeltaTime;
 
     const float TotalDuration =
-        ActivePhonemes.Num() > 0
+        ActivePhonemes.Num() > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA
             ? ActivePhonemes.Last().StartTime + ActivePhonemes.Last().Duration
             : Settings.InitialPlaybackTime;
 

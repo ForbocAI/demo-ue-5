@@ -103,6 +103,10 @@ template <> struct TJsonSettingsRegistry<FViewNameSettings> {
                            NestedFieldMembers(&FViewNameSettings::Scene,
                                               &FSceneViewNameSettings::Root)),
         NestedSettingField(
+            JSON_SETTING_ATOM(SceneProceduralMeshElement),
+            NestedFieldMembers(&FViewNameSettings::Scene,
+                               &FSceneViewNameSettings::ProceduralMeshElement)),
+        NestedSettingField(
             JSON_SETTING_ATOM(TownspersonCharacterMesh),
             NestedFieldMembers(&FViewNameSettings::Townsperson,
                                &FTownspersonViewNameSettings::CharacterMesh)),

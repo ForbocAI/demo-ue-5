@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -37,7 +38,7 @@ inline const rtk::ActionCreator<FRuntimeState> &RuntimeHydrated() {
   static const func::Lazy<rtk::ActionCreator<FRuntimeState>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FRuntimeState> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FRuntimeState>(TEXT("runtime/hydrated"));
+        return rtk::createAction<FRuntimeState>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV5824DCDA9704));
       });
   return func::eval(Creator);
 }
@@ -57,7 +58,7 @@ TownspersonInteractionSourceObserved() {
                              FRuntimeTownspersonInteractionSource> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FRuntimeTownspersonInteractionSource>(
-                TEXT("runtime/townspersonInteractionSourceObserved"));
+                TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV2AA37F6BB160));
           });
   return func::eval(Creator);
 }

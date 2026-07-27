@@ -56,8 +56,8 @@ ObserveInteractionOverlap(
 
 /** User Story: As a views townsperson initialization consumer, I need to invoke atownsperson view through a stable signature so the views townsperson initialization workflow remains explicit and composable. @fn ATownspersonView::ATownspersonView() */
 ATownspersonView::ATownspersonView()
-    : WalkSpeed(0.0f), PauseDuration(0.0f), PatrolIndex(0),
-      PauseRemaining(0.0f), PatrolArrivalDistance(0.0f),
+    : WalkSpeed(), PauseDuration(), PatrolIndex(), PauseRemaining(),
+      PatrolArrivalDistance(),
       bPlayerNearby(false), CurrentLod() {
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =

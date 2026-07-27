@@ -1,4 +1,5 @@
 #include "Features/Systems/SystemsThunks.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Level/ComponentsLevelTypes.h"
 #include "Features/Systems/Lifecycle/LifecycleTypes.h"
@@ -27,12 +28,12 @@ namespace RuntimeThunks {
 
 /** User Story: As a features systems consumer, I need to invoke request player spawn type prefix through a stable signature so the features systems workflow remains explicit and composable. @fn FString RequestPlayerSpawnTypePrefix() */
 FString RequestPlayerSpawnTypePrefix() {
-  return TEXT("runtime/requestPlayerSpawn");
+  return TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV803F479BF92A);
 }
 
 /** User Story: As a features systems consumer, I need to invoke request level view payload type prefix through a stable signature so the features systems workflow remains explicit and composable. @fn FString RequestLevelViewPayloadTypePrefix() */
 FString RequestLevelViewPayloadTypePrefix() {
-  return TEXT("runtime/requestLevelViewPayload");
+  return TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV56E8A6088CB2);
 }
 
 // Runtime bootstrap workflows use rtk::createAsyncThunk so each imperative
@@ -137,7 +138,7 @@ RequestLevelViewPayloadAsyncThunk() {
                       {Api.dispatch, TerrainData, OrthoData, DataSources,
                        Geometry});
                   func::executeAsync(RenderingThunks::ObserveRuntimeProfile(
-                      TEXT("runtime/rendering/profileObserved"))(Api.dispatch,
+                      TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV92926A07D926))(Api.dispatch,
                                                                  Api.getState));
                   Resolve(RuntimeReducers::ReduceLevelViewPayload(
                       Api.getState(), {&TerrainData, &OrthoData, &Layout,

@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/SystemsRenderingActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Rendering/RenderingThunks.h"
 #include "Features/Systems/Rendering/Payload/Application/PayloadApplicationAdapters.h"
@@ -15,7 +16,7 @@ const rtk::ActionCreator<FRenderingPayload> &RenderingProfileObserved() {
       func::lazy([]() -> rtk::ActionCreator<FRenderingPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FRenderingPayload>(
-            TEXT("systems/rendering/profileObserved"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV17B8015A1AF8));
       });
   return func::eval(Creator);
 }
@@ -25,7 +26,7 @@ const rtk::ActionCreator<FRuntimeStatsSamplePayload> &RuntimeStatsSampled() {
   static const func::Lazy<rtk::ActionCreator<FRuntimeStatsSamplePayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FRuntimeStatsSamplePayload> {
         return rtk::createAction<FRuntimeStatsSamplePayload>(
-            TEXT("systems/rendering/runtimeStatsSampled"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVB25A2F069314));
       });
   return func::eval(Creator);
 }

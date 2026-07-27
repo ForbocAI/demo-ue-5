@@ -1,4 +1,5 @@
 #include "Features/Systems/Level/Layout/Label/LabelAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Value/JsonValueAdapters.h"
 #include "Features/Systems/Level/Layout/Enum/EnumAdapters.h"
@@ -59,7 +60,7 @@ struct TRequiredJsonFieldRegistry<
         RegisteredFields = {
             JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLabelSeed,
                                  Id, Text, Anchor),
-            {"HeightMode",
+            {FORBOCAI_DEMOUE5_AUTHORED_STRINGVFA9040C4055D,
              &ForbocAI::Game::Level::FLabelSeed::Height},
             JSON_REQUIRED_FIELDS(ForbocAI::Game::Level::FLabelSeed,
                                  EastLots, NorthLots, WorldSizeScale)};

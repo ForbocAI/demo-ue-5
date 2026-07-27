@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/AI/AISlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Bots/AI/AIAdapters.h"
 
@@ -79,7 +80,7 @@ const rtk::Slice<FBotAIState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FBotAIState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FBotAIState>(
-      TEXT("botAI"), BotAIFactories::CreateInitialState(),
+      TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV42C93B667212), BotAIFactories::CreateInitialState(),
       [](rtk::ActionReducerMapBuilder<FBotAIState> &Builder) {
     Builder.addCase(BotAIActions::BotAISeeded(),
                                 BotAIReducers::ReduceBotAISeeded);
@@ -118,7 +119,7 @@ FBotAISource PatrolAISource(const FString &Id,
           FString(),
           BotSourceMappingAdapters::FirstRoutePoint(PatrolRoute),
           true,
-          0,
+          FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA,
           PatrolRoute};
 }
 

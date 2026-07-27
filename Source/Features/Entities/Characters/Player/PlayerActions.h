@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -15,7 +16,7 @@ inline const rtk::ActionCreator<FPlayerPayload> &PlayerObserved() {
       func::lazy([]() -> rtk::ActionCreator<FPlayerPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FPlayerPayload>(
-            TEXT("entities/player/observed"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV211660182687));
       });
   return func::eval(Creator);
 }
@@ -28,7 +29,7 @@ PlayerMovementInputObserved() {
           func::lazy([]() -> rtk::ActionCreator<FMovementInputRequest> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FMovementInputRequest>(
-                TEXT("entities/player/movementInputObserved"));
+                TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV31AA129D9530));
           });
   return func::eval(Creator);
 }
@@ -41,7 +42,7 @@ PlayerPresentationRequested() {
           func::lazy([]() -> rtk::ActionCreator<FPlayerPresentationRequest> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FPlayerPresentationRequest>(
-                TEXT("entities/player/presentationRequested"));
+                TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV34A968CBE82E));
           });
   return func::eval(Creator);
 }

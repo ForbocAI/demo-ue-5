@@ -1,4 +1,5 @@
 #include "Features/Entities/Characters/Bots/CharactersBotsAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
@@ -118,7 +119,7 @@ ETownspersonInteractionIntent InteractionIntentFromJson(
     const FString &Intent) {
   return JsonAdapters::RequireRegisteredTextValue<
       ETownspersonInteractionIntent>(
-      Intent, TEXT("townsperson interaction intent"));
+      Intent, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV6C5C406A36D2));
 }
 
 /** User Story: As a bots townspeople seed consumer, I need to invoke townsperson patrol route from fields through a stable signature so the bots townspeople seed workflow remains explicit and composable. @fn TArray<FLevelLocalPoint> TownspersonPatrolRouteFromFields( const FTownspersonPatrolRouteFieldsRequest &Request) */

@@ -1,4 +1,5 @@
 #include "Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
@@ -133,7 +134,7 @@ struct FLandmarkBuildRequest {
 /** User Story: As a entities environments landmarks consumer, I need to invoke landmark kind from json through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ELandmarkKind LandmarkKindFromJson(const FString &Kind) */
 ELandmarkKind LandmarkKindFromJson(const FString &Kind) {
   return JsonAdapters::RequireRegisteredTextValue<ELandmarkKind>(
-      Kind, TEXT("landmark kind"));
+      Kind, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV8691A0924F4F));
 }
 
 /** User Story: As a entities environments landmarks consumer, I need to invoke landmark from fields through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) */
@@ -145,14 +146,14 @@ FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) {
       {Request.Geometry,
        LevelLayoutAdapters::FromPostOfficeLots(
            {Request.Geometry, Request.Fields.Lot.EastLots,
-            Request.Fields.Lot.NorthLots, 0.0f}),
+            Request.Fields.Lot.NorthLots, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF}),
        Scale, LevelLayoutAdapters::BuildingFoundationHeight(Request.Geometry)});
 
   return LandmarkFactories::Landmark(
       {Request.Fields.Identity.Id, Request.Fields.Identity.Label,
        LandmarkKindFromJson(Request.Fields.Identity.Kind),
        LevelLayoutAdapters::ToWorld({*Request.TerrainData, Local}),
-       FRotator(0.0f, Request.Fields.Lot.YawDegrees, 0.0f), Scale});
+       FRotator(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, Request.Fields.Lot.YawDegrees, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF), Scale});
 }
 
 } // namespace
@@ -242,7 +243,7 @@ using ComponentsAdapters::RegisteredComponentGroups;
 
 /** User Story: As a entities environments landmarks consumer, I need to invoke landmark entity key through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ecs::EntityKey LandmarkEntityKey(const FString &Id) */
 ecs::EntityKey LandmarkEntityKey(const FString &Id) {
-  return FString::Printf(TEXT("landmark:%s"), *Id);
+  return FString::Printf(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVD6FA94D9E36C), *Id);
 }
 
 /** User Story: As a entities environments landmarks consumer, I need to invoke project landmark through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) */

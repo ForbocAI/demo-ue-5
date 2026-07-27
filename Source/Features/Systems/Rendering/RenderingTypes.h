@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -40,20 +41,20 @@ struct FPresentationState {
 };
 
 struct FStatsClockState {
-  double StatsRefreshElapsedSeconds = 0.0;
-  double PolyCountRefreshElapsedSeconds = 0.0;
-  double FrameClockSeconds = 0.0;
+  double StatsRefreshElapsedSeconds = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3FC4AA7B1C98;
+  double PolyCountRefreshElapsedSeconds = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3FC4AA7B1C98;
+  double FrameClockSeconds = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3FC4AA7B1C98;
 };
 
 struct FBudgetClockState {
-  double BudgetLogPreviousSeconds = 0.0;
-  double BudgetScreenshotPreviousSeconds = 0.0;
-  int32 BudgetScreenshotIndex = 0;
+  double BudgetLogPreviousSeconds = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3FC4AA7B1C98;
+  double BudgetScreenshotPreviousSeconds = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3FC4AA7B1C98;
+  int32 BudgetScreenshotIndex = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
 };
 
 struct FPolyCacheState {
-  int64 CachedPolyCount = 0;
-  double CachedPolyCountMilliseconds = 0.0;
+  int64 CachedPolyCount = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
+  double CachedPolyCountMilliseconds = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3FC4AA7B1C98;
 };
 
 struct FRenderingState {

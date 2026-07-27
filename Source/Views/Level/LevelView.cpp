@@ -12,14 +12,13 @@
 #include "Views/Townsperson/TownspersonView.h"
 #include "Views/Horse/HorseView.h"
 #include "Features/Systems/Rendering/SystemsRenderingActions.h"
+#include "Features/Systems/Presentation/Logging/LoggingActions.h"
 #include "Features/Systems/SystemsActions.h"
 #include "Features/Systems/SystemsSelectors.h"
 #include "Materials/MaterialInterface.h"
 #include "Views/Terrain/Mesh/MeshView.h"
 
 namespace FG = ForbocAI::Game::Level;
-
-DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntime, Log, All);
 
 namespace {
 
@@ -63,8 +62,7 @@ ARuntimeLevelView::ARuntimeLevelView()
 /** User Story: As a views level consumer, I need to invoke begin play through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::BeginPlay() */
 void ARuntimeLevelView::BeginPlay() {
   Super::BeginPlay();
-  UE_LOG(LogForbocRuntime, Display,
-         TEXT("Forboc runtime smoke: RuntimeLevelView BeginPlay"));
+  ForbocAI::Game::PresentationLoggingActions::LogLevelViewStarted();
   bSpawnOnBeginPlay ? RenderLevel() : void();
 }
 

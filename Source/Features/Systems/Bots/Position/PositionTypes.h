@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
@@ -32,15 +33,15 @@ struct FBotPositionMoved {
 };
 
 struct FBotPatrolProgress {
-  int32 PatrolIndex = 0;
-  float PauseRemaining = 0.0f;
+  int32 PatrolIndex = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
+  float PauseRemaining = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 struct FBotPatrolTiming {
-  float PauseDuration = 0.0f;
-  float WalkSpeed = 0.0f;
-  float DeltaTime = 0.0f;
-  float ArrivalDistance = 0.0f;
+  float PauseDuration = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
+  float WalkSpeed = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
+  float DeltaTime = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
+  float ArrivalDistance = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 struct FBotPatrolPose {
@@ -56,14 +57,14 @@ struct FBotPatrolAdvanceRequest {
 
 struct FBotPatrolMovementDelta {
   FVector Delta = FVector::ZeroVector;
-  float Distance = 0.0f;
+  float Distance = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 struct FBotPatrolAdvancePayload {
   FVector Location = FVector::ZeroVector;
   FRotator Rotation = FRotator::ZeroRotator;
-  int32 PatrolIndex = 0;
-  float PauseRemaining = 0.0f;
+  int32 PatrolIndex = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
+  float PauseRemaining = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
   bool bShouldMove = false;
   bool bShouldRotate = false;
 };

@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
@@ -26,7 +27,7 @@ struct FCandidate {
 struct FCandidatesObserved {
   FString Id;
   FVector Origin = FVector::ZeroVector;
-  float MaxDistance = 0.0f;
+  float MaxDistance = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
   TArray<FCandidate> Candidates;
 };
 
@@ -51,7 +52,7 @@ struct FSelection {
   bool bFound = false;
   int32 CandidateIndex = INDEX_NONE;
   FString EntityId;
-  float DistanceSquared = 0.0f;
+  float DistanceSquared = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
   FString MissingMessage;
 };
 
@@ -61,8 +62,8 @@ struct FSelection {
 struct FInteractionState {
   func::Maybe<FString> ActionId = func::nothing<FString>();
   FVector Origin = FVector::ZeroVector;
-  float MaxDistance = 0.0f;
-  float TownspersonMaxDistance = 0.0f;
+  float MaxDistance = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
+  float TownspersonMaxDistance = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
   FString NoTownspersonMessage;
   TArray<FCandidate> Candidates;
   FSelection SelectedCandidate;

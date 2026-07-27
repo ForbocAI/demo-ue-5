@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Components/DirectionalLightComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
@@ -18,7 +19,7 @@ namespace {
 
 /** User Story: As a rendering profile world consumer, I need to invoke runtime profile fog tag through a stable signature so the rendering profile world workflow remains explicit and composable. @fn FName RuntimeProfileFogTag() */
 FName RuntimeProfileFogTag() {
-  static const FName Tag(TEXT("ForbocRuntimeProfileFog"));
+  static const FName Tag(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVA73B6F8BE988));
   return Tag;
 }
 
@@ -69,7 +70,7 @@ void ApplyRuntimeDirectionalLight(ADirectionalLight *Light,
                                    Profile.SunRollDegrees));
   Light->SetBrightness(Profile.DirectionalLightIntensity);
   Light->SetLightColor(DirectionalLightColor(Profile));
-  Light->SetCastShadows(Profile.ShadowCascades > 0);
+  Light->SetCastShadows(Profile.ShadowCascades > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA);
   UDirectionalLightComponent *Component =
       Cast<UDirectionalLightComponent>(Light->GetLightComponent());
   Component ? (Component->SetLightSourceAngle(

@@ -1,4 +1,5 @@
 #include "Features/Systems/Level/Layout/SystemsLevelLayoutAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Value/JsonValueAdapters.h"
 #include "Features/Systems/Level/Layout/Block/BlockAdapters.h"
@@ -29,12 +30,12 @@ FSectionSeed
 SectionFromLeaves(const FLevelSectionLeaves &Leaves) {
   FSectionSeed Seed;
   Seed.Blocks = ReadLeafObjects<FBlockSeed>(
-      Leaves.Blocks, TEXT("blocks"),
+      Leaves.Blocks, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV1CCBA757E97E),
       [](const TSharedPtr<FJsonObject> &Object) {
         return BlockFromJson({Object});
       });
   Seed.Labels = ReadLeafObjects<FLabelSeed>(
-      Leaves.Labels, TEXT("labels"),
+      Leaves.Labels, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV21B3BE28BE19),
       [](const TSharedPtr<FJsonObject> &Object) {
         return LabelFromJson({Object});
       });
@@ -51,7 +52,7 @@ LayoutFromJson(const FLeaves &Leaves) {
   Seed.Town = SectionFromLeaves(Leaves.Town);
   Seed.Mine = SectionFromLeaves(Leaves.Mine);
   Seed.OverlayLabels = ReadLeafObjects<FLabelSeed>(
-      Leaves.OverlayLabels, TEXT("overlay_labels"),
+      Leaves.OverlayLabels, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVCBC17935FF89),
       [](const TSharedPtr<FJsonObject> &Object) {
         return LabelFromJson({Object});
       });

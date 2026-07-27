@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 #include "Dom/JsonObject.h"
@@ -31,7 +32,7 @@ struct FFieldRequest {
 struct FArrayValueObjectRequest {
   TSharedPtr<FJsonValue> Value;
   FString FieldName;
-  int32 Index = 0;
+  int32 Index = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
 };
 
 // --- Equality operators --------------------------------------------------

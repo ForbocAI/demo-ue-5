@@ -1,4 +1,5 @@
 #include "Features/Systems/Lifecycle/LifecycleSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/fp.hpp"
 #include "Features/Systems/SystemsThunks.h"
@@ -84,7 +85,7 @@ const rtk::Slice<FRuntimeLifecycleState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FRuntimeLifecycleState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON data.
         return rtk::createSlice<FRuntimeLifecycleState>(
-            TEXT("runtime/lifecycle"), CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVB8493CABB78E), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FRuntimeLifecycleState> &Builder) {
               const rtk::AsyncThunkConfig<FPointPayload, rtk::FEmptyPayload,
                                           FRuntimeState> &Spawn =

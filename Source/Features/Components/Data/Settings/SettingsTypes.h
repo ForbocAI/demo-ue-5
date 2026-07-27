@@ -43,6 +43,7 @@ struct FDebugMessageSettings {
 
 struct FSceneViewNameSettings {
   FString Root;
+  FString ProceduralMeshElement;
 };
 
 struct FTownspersonViewNameSettings {
@@ -175,7 +176,8 @@ inline bool operator!=(const FDebugMessageSettings &Left,
 /** User Story: As a components data settings consumer, I need to compare values for equality through a stable signature so the components data settings workflow remains explicit and composable. @fn inline bool operator==(const FSceneViewNameSettings &Left, const FSceneViewNameSettings &Right) */
 inline bool operator==(const FSceneViewNameSettings &Left,
                        const FSceneViewNameSettings &Right) {
-  return Left.Root == Right.Root;
+  return Left.Root == Right.Root &&
+         Left.ProceduralMeshElement == Right.ProceduralMeshElement;
 }
 /** User Story: As a components data settings consumer, I need to compare values for inequality through a stable signature so the components data settings workflow remains explicit and composable. @fn inline bool operator!=(const FSceneViewNameSettings &Left, const FSceneViewNameSettings &Right) */
 inline bool operator!=(const FSceneViewNameSettings &Left,

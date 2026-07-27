@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/fp.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
@@ -17,7 +18,7 @@ struct FSpeechResult {
   TArray<FPhonemeEvent> Phonemes;
 
   UPROPERTY(BlueprintReadOnly, Category = "Speech")
-  float DurationSeconds = 0.0f;
+  float DurationSeconds = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 
   UPROPERTY(BlueprintReadOnly, Category = "Speech")
   bool bSuccess = false;
@@ -83,7 +84,7 @@ struct FVisemeQuery {
 
 struct FEstimateState {
   TArray<FPhonemeEvent> Phonemes;
-  float CurrentTime = 0.0f;
+  float CurrentTime = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 } // namespace SpeechOps

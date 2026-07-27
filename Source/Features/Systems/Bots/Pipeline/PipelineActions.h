@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -16,7 +17,7 @@ PipelineObserved() {
       Creator = func::lazy([]() -> rtk::ActionCreator<FBotPipelinePayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FBotPipelinePayload>(
-            TEXT("systems/bots/pipeline/observed"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVBA36B15CD081));
       });
   return func::eval(Creator);
 }

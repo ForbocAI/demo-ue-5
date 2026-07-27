@@ -61,6 +61,7 @@ struct FInputActionSettings {
 struct FInputMappingSettings {
   FString DefaultMappingContextPath;
   FString MouseMappingContextPath;
+  int32 MappingPriority;
 };
 
 struct FPresentationSettings {
@@ -160,7 +161,8 @@ inline bool operator==(const FInputActionSettings &Left,
 inline bool operator==(const FInputMappingSettings &Left,
                        const FInputMappingSettings &Right) {
   return Left.DefaultMappingContextPath == Right.DefaultMappingContextPath &&
-         Left.MouseMappingContextPath == Right.MouseMappingContextPath;
+         Left.MouseMappingContextPath == Right.MouseMappingContextPath &&
+         Left.MappingPriority == Right.MappingPriority;
 }
 
 } // namespace Data

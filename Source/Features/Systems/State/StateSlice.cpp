@@ -1,4 +1,5 @@
 #include "Features/Systems/State/StateSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Entities/Characters/Player/PlayerSlice.h"
 #include "Features/Systems/Bots/AI/AISlice.h"
@@ -132,7 +133,7 @@ const rtk::Slice<FRuntimeState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FRuntimeState> {
         // RTK names are reducer/action metadata, not JSON-authored data.
         return rtk::createSlice<FRuntimeState>(
-            TEXT("runtime"), RuntimeFactories::CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV3BEFECFE806D), RuntimeFactories::CreateInitialState(),
             RootReducer());
       });
   return func::eval(Slice);

@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/Speech/SystemsSpeechTypes.h"
@@ -14,7 +15,7 @@ inline const rtk::ActionCreator<FSpeechPayload> &SpeechStarted() {
       func::lazy([]() -> rtk::ActionCreator<FSpeechPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FSpeechPayload>(
-            TEXT("systems/speech/started"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVE5ADF44584BB));
       });
   return func::eval(Creator);
 }
@@ -25,7 +26,7 @@ inline const rtk::ActionCreator<FSpeechPayload> &SpeechStopped() {
       func::lazy([]() -> rtk::ActionCreator<FSpeechPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FSpeechPayload>(
-            TEXT("systems/speech/stopped"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVD596F7C3B724));
       });
   return func::eval(Creator);
 }

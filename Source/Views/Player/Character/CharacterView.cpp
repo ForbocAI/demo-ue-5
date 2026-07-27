@@ -40,8 +40,8 @@ APlayerCharacterView::APlayerCharacterView()
     : MappingContext(nullptr), MouseMappingContext(nullptr), MoveAction(nullptr),
       LookAction(nullptr), MouseLookAction(nullptr), JumpAction(nullptr),
       MeshRelativeLocation(FVector::ZeroVector),
-      MeshRelativeRotation(FRotator::ZeroRotator), CharacterForcedLodModel(0),
-      CharacterMinLodModel(0), CharacterCullDistance(0.0f),
+      MeshRelativeRotation(FRotator::ZeroRotator), CharacterForcedLodModel(),
+      CharacterMinLodModel(), CharacterCullDistance(),
       bCharacterCastShadow(false), bCharacterComponentTickEnabled(false),
       bCharacterUpdateRateOptimizationsEnabled(false) {
   const FG::FPresentationViewModel Presentation =
@@ -80,8 +80,8 @@ APlayerCharacterView::APlayerCharacterView()
 
   UCharacterMovementComponent *Movement = GetCharacterMovement();
   Movement->bOrientRotationToMovement = true;
-  Movement->RotationRate =
-      FRotator(0.0f, Presentation.Movement.RotationRateYaw, 0.0f);
+  Movement->RotationRate = FRotator::ZeroRotator;
+  Movement->RotationRate.Yaw = Presentation.Movement.RotationRateYaw;
   Movement->JumpZVelocity = Presentation.Movement.JumpZVelocity;
   Movement->AirControl = Presentation.Movement.AirControl;
   Movement->MaxWalkSpeed = Presentation.Movement.MaxWalkSpeed;
@@ -123,8 +123,10 @@ void APlayerCharacterView::BeginPlay() {
   check(Subsystem);
   check(MappingContext);
   check(MouseMappingContext);
-  Subsystem->AddMappingContext(MappingContext, 0);
-  Subsystem->AddMappingContext(MouseMappingContext, 0);
+  const int32 MappingPriority = FG::RuntimeSelectors::SelectPlayerPresentation()
+                                    .InputMappings.MappingPriority;
+  Subsystem->AddMappingContext(MappingContext, MappingPriority);
+  Subsystem->AddMappingContext(MouseMappingContext, MappingPriority);
 }
 
 /** User Story: As a views player character consumer, I need to invoke setup player input component through a stable signature so the views player character workflow remains explicit and composable. @fn void APlayerCharacterView::SetupPlayerInputComponent( UInputComponent *PlayerInputComponent) */

@@ -1,4 +1,5 @@
 #include "Features/Components/Data/Json/Value/JsonValueAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Read/ReadAdapters.h"
 
@@ -9,7 +10,7 @@ namespace JsonValueAdapters {
 
 /** User Story: As a data json value consumer, I need to invoke log invalid field through a stable signature so the data json value workflow remains explicit and composable. @fn void LogInvalidField(const FFieldRequest &Request) */
 void LogInvalidField(const FFieldRequest &Request) {
-  UE_LOG(LogTemp, Warning, TEXT("Invalid JSON field: %s"),
+  UE_LOG(LogTemp, Warning, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV5FC82FED4CB3),
          *Request.FieldName);
 }
 
@@ -24,7 +25,7 @@ func::Maybe<FString> ReadRequiredString(const FFieldRequest &Request) {
 
 /** User Story: As a data json value consumer, I need to invoke read required float through a stable signature so the data json value workflow remains explicit and composable. @fn func::Maybe<float> ReadRequiredFloat(const FFieldRequest &Request) */
 func::Maybe<float> ReadRequiredFloat(const FFieldRequest &Request) {
-  double Value = 0.0;
+  double Value = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3FC4AA7B1C98;
   return Request.Object.IsValid() &&
                  Request.Object->TryGetNumberField(Request.FieldName, Value)
              ? func::just(static_cast<float>(Value))

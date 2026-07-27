@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/ComponentsAdapters.h"
 #include "Features/Entities/EntitiesAdapters.h"
@@ -59,7 +60,7 @@ using ComponentsAdapters::RegisteredComponentGroups;
 
 /** User Story: As a nature seed project consumer, I need to invoke nature entity key through a stable signature so the nature seed project workflow remains explicit and composable. @fn ecs::EntityKey NatureEntityKey(const FString &Id) */
 ecs::EntityKey NatureEntityKey(const FString &Id) {
-  return FString::Printf(TEXT("nature:%s"), *Id);
+  return FString::Printf(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV965A4AFC4DDD), *Id);
 }
 
 /** User Story: As a nature seed project consumer, I need to invoke project nature feature through a stable signature so the nature seed project workflow remains explicit and composable. @fn ecs::FWorld ProjectNatureFeature(const FProjectNatureFeatureEntityPayload &Payload) */

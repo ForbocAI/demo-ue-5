@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/SystemsBotsActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -10,7 +11,7 @@ const rtk::ActionCreator<TArray<FBotEntity>> &BotsSeeded() {
   static const func::Lazy<rtk::ActionCreator<TArray<FBotEntity>>> Creator =
       func::lazy([]() -> rtk::ActionCreator<TArray<FBotEntity>> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<TArray<FBotEntity>>(TEXT("bots/seeded"));
+        return rtk::createAction<TArray<FBotEntity>>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVE1FEDD169ADB));
       });
   return func::eval(Creator);
 }
@@ -20,7 +21,7 @@ const rtk::ActionCreator<FBotEntity> &BotUpserted() {
   static const func::Lazy<rtk::ActionCreator<FBotEntity>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotEntity> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FBotEntity>(TEXT("bots/upserted"));
+        return rtk::createAction<FBotEntity>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV88DDF0BE8CE4));
       });
   return func::eval(Creator);
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/fp.hpp"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h"
@@ -16,7 +17,7 @@ struct TSeedSettingsRequest {
 
 /** User Story: As a systems bots mapping consumer, I need to invoke local origin through a stable signature so the systems bots mapping workflow remains explicit and composable. @fn inline FLevelLocalPoint LocalOrigin() */
 inline FLevelLocalPoint LocalOrigin() {
-  return FLevelLocalPoint{0.0f, 0.0f, 0.0f};
+  return FLevelLocalPoint{FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF};
 }
 
 /** User Story: As a systems bots mapping consumer, I need to invoke initial settings point through a stable signature so the systems bots mapping workflow remains explicit and composable. @fn template <typename SettingsValue> FLevelLocalPoint InitialSettingsPoint(const SettingsValue &Settings) */
@@ -31,7 +32,7 @@ FLevelLocalPoint InitialSettingsPoint(const SettingsValue &Settings) {
 inline FLevelLocalPoint
 FirstRoutePointOr(const TArray<FLevelLocalPoint> &Route,
                   const FLevelLocalPoint &DefaultPoint) {
-  return Route.IsEmpty() ? DefaultPoint : Route[0];
+  return Route.IsEmpty() ? DefaultPoint : Route[FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA];
 }
 
 /** User Story: As a systems bots mapping consumer, I need to invoke first route point through a stable signature so the systems bots mapping workflow remains explicit and composable. @fn inline FLevelLocalPoint FirstRoutePoint(const TArray<FLevelLocalPoint> &Route) */

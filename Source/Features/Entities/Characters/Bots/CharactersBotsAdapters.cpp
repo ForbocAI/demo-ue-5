@@ -1,4 +1,5 @@
 #include "Features/Entities/Characters/Bots/CharactersBotsAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
@@ -64,7 +65,7 @@ using ComponentsAdapters::RegisteredComponentGroups;
 
 /** User Story: As a entities characters bots consumer, I need to invoke bot entity key through a stable signature so the entities characters bots workflow remains explicit and composable. @fn ecs::EntityKey BotEntityKey(const FString &Id) */
 ecs::EntityKey BotEntityKey(const FString &Id) {
-  return FString::Printf(TEXT("bot:%s"), *Id);
+  return FString::Printf(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV035757375730), *Id);
 }
 
 /** User Story: As a entities characters bots consumer, I need to invoke project bot through a stable signature so the entities characters bots workflow remains explicit and composable. @fn ecs::FWorld ProjectBot(const FProjectBotEntityPayload &Payload) */

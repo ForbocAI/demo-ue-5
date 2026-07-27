@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -21,7 +22,7 @@ TownspersonCandidatesObserved() {
           []() -> rtk::ActionCreator<FCandidatesObserved> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FCandidatesObserved>(
-                TEXT("systems/interaction/townspersonCandidatesObserved"));
+                TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVA8E0677918F1));
           });
   return func::eval(Creator);
 }

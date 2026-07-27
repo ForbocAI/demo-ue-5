@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Systems/Presentation/Logging/LoggingActions.h"
 
 /** User Story: As a views townsperson behavior consumer, I need to invoke begin play through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn void ATownspersonView::BeginPlay() */
 void ATownspersonView::BeginPlay() {
@@ -91,7 +92,7 @@ void ATownspersonView::ShowDialogueReply(const FString &Reply) {
   const FString ReplyLog =
       frmt::RuntimeString(Text.Townsperson.NpcReplyLog,
                           frmt::Args({frmt::Arg(Reply)}));
-  UE_LOG(LogTemp, Display, TEXT("%s"), *ReplyLog);
+  ForbocAI::Game::PresentationLoggingActions::LogTownspersonReply(ReplyLog);
 }
 
 /** User Story: As a views townsperson behavior consumer, I need to invoke is player nearby through a stable signature so the views townsperson behavior workflow remains explicit and composable. @fn bool ATownspersonView::IsPlayerNearby() const */

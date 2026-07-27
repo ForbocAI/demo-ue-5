@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/Goals/GoalsSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/fp.hpp"
 #include "Features/Systems/Bots/Goals/GoalsAdapters.h"
@@ -36,11 +37,11 @@ FBotGoalComponent AssignGoal(const FBotGoalComponent &Current,
 
 /** User Story: As a systems bots goals consumer, I need to invoke complete goal through a stable signature so the systems bots goals workflow remains explicit and composable. @fn FBotGoalComponent CompleteGoal(const FBotGoalComponent &Current) */
 FBotGoalComponent CompleteGoal(const FBotGoalComponent &Current) {
-  return Current.GoalQueue.Num() > 0
+  return Current.GoalQueue.Num() > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA
              ? [&]() {
                  FBotGoalComponent Updated = Current;
-                 Updated.ActiveGoal = Updated.GoalQueue[0];
-                 Updated.GoalQueue.RemoveAt(0);
+                 Updated.ActiveGoal = Updated.GoalQueue[FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA];
+                 Updated.GoalQueue.RemoveAt(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA);
                  Updated.bHasActiveGoal = true;
                  return Updated;
                }()
@@ -166,7 +167,7 @@ const rtk::Slice<FBotGoalState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FBotGoalState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FBotGoalState>(
-          TEXT("botGoals"), BotGoalFactories::CreateInitialState(),
+          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV6E60E8334E1F), BotGoalFactories::CreateInitialState(),
           [](rtk::ActionReducerMapBuilder<FBotGoalState> &Builder) {
     Builder.addCase(BotGoalActions::BotGoalsSeeded(),
                                 BotGoalReducers::ReduceBotGoalsSeeded);

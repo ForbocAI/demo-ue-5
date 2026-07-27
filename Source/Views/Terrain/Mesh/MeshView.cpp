@@ -14,17 +14,21 @@ namespace FG = ForbocAI::Game::Level;
 /** User Story: As a views terrain mesh consumer, I need to invoke aterrain mesh view through a stable signature so the views terrain mesh workflow remains explicit and composable. @fn ATerrainMeshView::ATerrainMeshView() */
 ATerrainMeshView::ATerrainMeshView() {
   PrimaryActorTick.bCanEverTick = false;
+  const ForbocAI::Game::Data::FViewNameSettings &ViewNames =
+      FG::RuntimeSelectors::SelectViewNames();
+  const FG::FRenderingAssetPaths &AssetPaths =
+      FG::RuntimeSelectors::SelectRenderingAssetPaths();
 
   ProceduralMeshElement =
       CreateDefaultSubobject<UProceduralMeshElement>(
-          TEXT("ProceduralMeshElement"));
+          FName(*ViewNames.Scene.ProceduralMeshElement));
   RootComponent = ProceduralMeshElement;
   ProceduralMeshElement->bUseAsyncCooking = true;
   ProceduralMeshElement->SetCollisionEnabled(
       ECollisionEnabled::QueryAndPhysics);
 
   static ConstructorHelpers::FObjectFinder<UMaterialInterface> VertexMaterial(
-      TEXT("/Engine/EngineDebugMaterials/VertexColorMaterial.VertexColorMaterial"));
+      *AssetPaths.TerrainVertexColorMaterialPath);
   TerrainMaterial =
       VertexMaterial.Succeeded() ? VertexMaterial.Object : nullptr;
 }

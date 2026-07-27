@@ -1,4 +1,5 @@
 #include "Features/Systems/SystemsListeners.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/SystemsThunks.h"
 
@@ -18,7 +19,7 @@ void ObserveRuntimeWorkflowRejected(
     const rtk::AnyAction &Action,
     const rtk::MiddlewareApi<FRuntimeState> &) {
   UE_LOG(LogForbocRuntimeListener, Warning,
-         TEXT("runtime workflow rejected: %s"), *Action.Type);
+         TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVF1F7C4FF9496), *Action.Type);
 }
 
 // Reactive effect: a runtime bootstrap workflow completed. Kept as a lifecycle
@@ -28,7 +29,7 @@ void ObserveRuntimeWorkflowFulfilled(
     const rtk::AnyAction &Action,
     const rtk::MiddlewareApi<FRuntimeState> &) {
   UE_LOG(LogForbocRuntimeListener, Verbose,
-         TEXT("runtime workflow fulfilled: %s"), *Action.Type);
+         TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVFE02DD25E6F8), *Action.Type);
 }
 
 } // namespace
@@ -44,11 +45,11 @@ rtk::Middleware<FRuntimeState> CreateRuntimeListenerMiddleware() {
       rtk::addListener<FRuntimeState>(
           rtk::addListener<FRuntimeState>(
               rtk::createListenerMiddleware<FRuntimeState>(),
-              PlayerSpawnPrefix + TEXT("/rejected"),
+              PlayerSpawnPrefix + TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV626EB0E3DA73),
               &ObserveRuntimeWorkflowRejected),
-          LevelViewPrefix + TEXT("/rejected"),
+          LevelViewPrefix + TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV626EB0E3DA73),
           &ObserveRuntimeWorkflowRejected),
-      LevelViewPrefix + TEXT("/fulfilled"),
+      LevelViewPrefix + TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV0DFF16731112),
       &ObserveRuntimeWorkflowFulfilled));
 }
 

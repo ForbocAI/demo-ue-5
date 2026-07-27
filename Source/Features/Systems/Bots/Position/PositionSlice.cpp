@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/Position/PositionSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Bots/Position/PositionAdapters.h"
 
@@ -23,7 +24,7 @@ FBotPatrolAdvancePayload
 ReducePauseCountdownPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
   FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
   Payload.PauseRemaining =
-      FMath::Max(0.0f, Request.Progress.PauseRemaining -
+      FMath::Max(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, Request.Progress.PauseRemaining -
                            Request.Timing.DeltaTime);
   return Payload;
 }
@@ -33,7 +34,7 @@ FBotPatrolAdvancePayload
 ReduceArrivedPatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
   FBotPatrolAdvancePayload Payload = ReduceIdlePatrolAdvance(Request);
   Payload.PatrolIndex =
-      (Request.Progress.PatrolIndex + 1) % Request.PatrolRoute.Num();
+      (Request.Progress.PatrolIndex + FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4) % Request.PatrolRoute.Num();
   Payload.PauseRemaining = Request.Timing.PauseDuration;
   return Payload;
 }
@@ -123,25 +124,25 @@ FBotPositionState ReduceHorsesSeeded(
 
 /** User Story: As a systems bots position consumer, I need to invoke reduce initial patrol index through a stable signature so the systems bots position workflow remains explicit and composable. @fn int32 ReduceInitialPatrolIndex(const TArray<FVector> &PatrolRoute) */
 int32 ReduceInitialPatrolIndex(const TArray<FVector> &PatrolRoute) {
-  return PatrolRoute.Num() > 1 ? 1 : 0;
+  return PatrolRoute.Num() > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4 ? FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4 : FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
 }
 
 /** User Story: As a systems bots position consumer, I need to invoke reduce initial patrol location through a stable signature so the systems bots position workflow remains explicit and composable. @fn FBotInitialPatrolLocationPayload ReduceInitialPatrolLocation( const FBotInitialPatrolLocationRequest &Request) */
 FBotInitialPatrolLocationPayload ReduceInitialPatrolLocation(
     const FBotInitialPatrolLocationRequest &Request) {
   FBotInitialPatrolLocationPayload Payload;
-  Payload.bShouldMove = Request.PatrolRoute.Num() > 0;
+  Payload.bShouldMove = Request.PatrolRoute.Num() > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
   Payload.Location =
-      Payload.bShouldMove ? Request.PatrolRoute[0] : FVector::ZeroVector;
+      Payload.bShouldMove ? Request.PatrolRoute[FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA] : FVector::ZeroVector;
   return Payload;
 }
 
 /** User Story: As a systems bots position consumer, I need to invoke reduce patrol advance through a stable signature so the systems bots position workflow remains explicit and composable. @fn FBotPatrolAdvancePayload ReducePatrolAdvance(const FBotPatrolAdvanceRequest &Request) */
 FBotPatrolAdvancePayload
 ReducePatrolAdvance(const FBotPatrolAdvanceRequest &Request) {
-  return Request.PatrolRoute.Num() < 2
+  return Request.PatrolRoute.Num() < FORBOCAI_DEMOUE5_AUTHORED_NUMBERV6AC392A47561
              ? ReduceIdlePatrolAdvance(Request)
-             : Request.Progress.PauseRemaining > 0.0f
+             : Request.Progress.PauseRemaining > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF
                    ? ReducePauseCountdownPatrolAdvance(Request)
                    : [&]() {
                        const FVector Target =
@@ -176,7 +177,7 @@ const rtk::Slice<FBotPositionState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FBotPositionState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FBotPositionState>(
-          TEXT("botPosition"), BotPositionFactories::CreateInitialState(),
+          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV6119C0563F5A), BotPositionFactories::CreateInitialState(),
           [](rtk::ActionReducerMapBuilder<FBotPositionState> &Builder) {
     Builder.addCase(BotPositionActions::BotPositionsSeeded(),
                                 BotPositionReducers::ReduceBotPositionsSeeded);

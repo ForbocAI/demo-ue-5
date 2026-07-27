@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Speech/Phoneme/Registry/PhonemeRegistryAdapters.h"
 
@@ -83,7 +84,7 @@ ActiveVisemeAtTime(const TArray<FPhonemeEvent> &Phonemes,
 }
 
 /** User Story: As a speech estimate consumer, I need to convert a character to a string through a stable signature so character classification remains reusable. @fn inline FString UpperString(TCHAR Upper) */
-inline FString UpperString(TCHAR Upper) { return FString(1, &Upper); }
+inline FString UpperString(TCHAR Upper) { return FString(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4, &Upper); }
 
 /** User Story: As a speech estimate consumer, I need to test a character set through a stable signature so speech classification remains data-driven. @fn inline bool ContainsCharacter(const FString &Characters, TCHAR Character) */
 inline bool ContainsCharacter(const FString &Characters, TCHAR Character) {

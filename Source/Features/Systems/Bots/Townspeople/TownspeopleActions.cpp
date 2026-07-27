@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/Townspeople/TownspeopleActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -11,7 +12,7 @@ const rtk::ActionCreator<TArray<FTownspersonSeed>> &TownspeopleSeeded() {
       func::lazy([]() -> rtk::ActionCreator<TArray<FTownspersonSeed>> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<TArray<FTownspersonSeed>>(
-          TEXT("townspeople/seeded"));
+          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV53FBE7DCB1ED));
       });
   return func::eval(Creator);
 }
@@ -25,7 +26,7 @@ ViewDefaultsRequested() {
               []() -> rtk::ActionCreator<FTownspersonViewDefaultsRequest> {
                 // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
                 return rtk::createAction<FTownspersonViewDefaultsRequest>(
-                    TEXT("townspeople/viewDefaultsRequested"));
+                    TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVD0B7653265A7));
               });
   return func::eval(Creator);
 }
@@ -41,7 +42,7 @@ InteractionOverlapObserved() {
                              FTownspersonInteractionOverlapRequest> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FTownspersonInteractionOverlapRequest>(
-                TEXT("townspeople/interactionOverlapObserved"));
+                TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV52638B266962));
           });
   return func::eval(Creator);
 }

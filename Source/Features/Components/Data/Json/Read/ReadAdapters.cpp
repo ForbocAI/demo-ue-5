@@ -1,4 +1,5 @@
 #include "Features/Components/Data/Json/Read/ReadAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
@@ -164,7 +165,7 @@ FString ReadString(const FFieldRequest &Request) {
 
 /** User Story: As a data json read consumer, I need to invoke read float through a stable signature so the data json read workflow remains explicit and composable. @fn float ReadFloat(const FFieldRequest &Request) */
 float ReadFloat(const FFieldRequest &Request) {
-  double Value = 0.0;
+  double Value = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3FC4AA7B1C98;
   const bool bRead = Request.Object.IsValid() &&
                      Request.Object->TryGetNumberField(Request.FieldName, Value);
   check(bRead);

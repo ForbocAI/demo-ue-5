@@ -1,4 +1,5 @@
 #include "ForbocAIDemo.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Modules/ModuleManager.h"
 
@@ -12,9 +13,9 @@ public:
     const ForbocAI::Game::Data::FSettings Settings =
         ForbocAI::Game::Data::SettingsAdapters::
             LoadSettings();
-    UE_LOG(LogForbocAIDemo, Display, TEXT("%s"),
+    UE_LOG(LogForbocAIDemo, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C),
            *Settings.Text.Startup.SdkEnabled);
   }
 };
 
-IMPLEMENT_PRIMARY_GAME_MODULE(FForbocAIDemoModule, ForbocAIDemo, "ForbocAIDemo");
+IMPLEMENT_PRIMARY_GAME_MODULE(FForbocAIDemoModule, ForbocAIDemo, FORBOCAI_DEMOUE5_AUTHORED_STRINGVA86AD88A8861);

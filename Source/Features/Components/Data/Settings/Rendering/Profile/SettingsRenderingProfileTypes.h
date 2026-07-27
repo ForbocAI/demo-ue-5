@@ -9,6 +9,7 @@ namespace Data {
 struct FRenderingAssetPathSettings {
   FString LevelCubeMeshPath;
   FString BlockoutMaterialPath;
+  FString TerrainVertexColorMaterialPath;
 };
 
 

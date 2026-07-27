@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/SystemsBotsSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Bots/SystemsBotsAdapters.h"
 
@@ -69,7 +70,7 @@ const rtk::Slice<FBotState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FBotState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FBotState>(
-      TEXT("bots"), BotFactories::CreateInitialState(),
+      TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV14BE231571A2), BotFactories::CreateInitialState(),
       [](rtk::ActionReducerMapBuilder<FBotState> &Builder) {
     Builder.addCase(BotActions::BotsSeeded(),
                                 BotReducers::ReduceBotsSeeded);

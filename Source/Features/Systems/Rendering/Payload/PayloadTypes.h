@@ -29,6 +29,7 @@ struct FPayloadRequest {
 struct FRenderingAssetPaths {
   FString LevelCubeMeshPath;
   FString BlockoutMaterialPath;
+  FString TerrainVertexColorMaterialPath;
 };
 
 /** User Story: As a systems rendering payload consumer, I need to compare values for equality through a stable signature so the systems rendering payload workflow remains explicit and composable. @fn inline bool operator==(const FRenderingPayload &Left, const FRenderingPayload &Right) */
@@ -65,7 +66,9 @@ inline bool operator!=(const FPayloadRequest &Left,
 inline bool operator==(const FRenderingAssetPaths &Left,
                        const FRenderingAssetPaths &Right) {
   return Left.LevelCubeMeshPath == Right.LevelCubeMeshPath &&
-         Left.BlockoutMaterialPath == Right.BlockoutMaterialPath;
+         Left.BlockoutMaterialPath == Right.BlockoutMaterialPath &&
+         Left.TerrainVertexColorMaterialPath ==
+             Right.TerrainVertexColorMaterialPath;
 }
 
 /** User Story: As a systems rendering payload consumer, I need to compare values for inequality through a stable signature so the systems rendering payload workflow remains explicit and composable. @fn inline bool operator!=(const FRenderingAssetPaths &Left, const FRenderingAssetPaths &Right) */

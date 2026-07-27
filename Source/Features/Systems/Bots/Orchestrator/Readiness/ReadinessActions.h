@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -18,7 +19,7 @@ ReadinessObserved() {
           []() -> rtk::ActionCreator<FBotOrchestratorReadinessPayload> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FBotOrchestratorReadinessPayload>(
-                TEXT("systems/bots/orchestrator/readiness/observed"));
+                TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV3F089C918423));
           });
   return func::eval(Creator);
 }

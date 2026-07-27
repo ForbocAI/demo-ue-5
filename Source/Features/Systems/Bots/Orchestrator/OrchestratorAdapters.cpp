@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/Orchestrator/OrchestratorAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/frmt.hpp"
 #include "Core/fp.hpp"
@@ -39,7 +40,7 @@ void ABotOrchestratorAdapter::BeginPlay() {
   Super::BeginPlay();
   const FBotSettings Settings = BotSettings();
   ObservationInterval = Settings.ObservationIntervalSeconds;
-  UE_LOG(LogTemp, Display, TEXT("%s"), *Settings.StartLog);
+  UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *Settings.StartLog);
 }
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke tick through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::Tick(float DeltaTime) */
@@ -100,7 +101,7 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
             Settings.RegisteredLogFormat,
             frmt::Args(
                 {frmt::Arg(Actor->GetName())}));
-    UE_LOG(LogTemp, Display, TEXT("%s"), *RegisteredLog);
+    UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *RegisteredLog);
   }();
 }
 
@@ -129,7 +130,7 @@ void ABotOrchestratorAdapter::RequestNextAction(
                       {frmt::Arg(ActorName),
                        frmt::Arg(
                            FString(UTF8_TO_TCHAR(Error.c_str())))}));
-          UE_LOG(LogTemp, Warning, TEXT("%s"), *ProcessFailedLog);
+          UE_LOG(LogTemp, Warning, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *ProcessFailedLog);
         })
         .execute();
   }();
@@ -150,7 +151,7 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
         frmt::Args(
             {frmt::Arg(ActionType),
              frmt::Arg(BotActor->GetName())}));
-    UE_LOG(LogTemp, Display, TEXT("%s"), *ExecuteLog);
+    UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *ExecuteLog);
 
     RunBotActionDispatch(FBotActionDispatchRequest{
         ActionType, FBotActionDispatchContext{Binding->Id, BotActor, InitialLocalPoint, Settings}});

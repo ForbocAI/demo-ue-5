@@ -1,10 +1,11 @@
 #include "Tests/Store/StoreSpecSupport.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Projection/ProjectionSlice.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FStoreProjectionGate,
-    "ForbocAI.Runtime.Store.ProjectionGate",
+    FORBOCAI_DEMOUE5_AUTHORED_STRINGV37EC83BC71D2,
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 /**

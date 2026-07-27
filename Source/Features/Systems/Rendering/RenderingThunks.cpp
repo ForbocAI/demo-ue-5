@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Rendering/Diagnostics/DiagnosticsAdapters.h"
 #include "Features/Systems/Rendering/SystemsRenderingSelectors.h"
@@ -30,7 +31,7 @@ void LogRuntimeBudgetSample(
   const FString Message =
       RenderingStatsSelectors::FormatRuntimeStatsBudgetLogMessage(Stats,
                                                                   Settings);
-  UE_LOG(LogForbocRuntimeBudget, Display, TEXT("%s"), *Message);
+  UE_LOG(LogForbocRuntimeBudget, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *Message);
 }
 
 /** User Story: As a features systems rendering consumer, I need to invoke present runtime stats debug message through a stable signature so the features systems rendering workflow remains explicit and composable. @fn void PresentRuntimeStatsDebugMessage( const FRuntimeStatsViewModel &Stats, const ForbocAI::Game::Data::FOverlaySettings &Settings) */

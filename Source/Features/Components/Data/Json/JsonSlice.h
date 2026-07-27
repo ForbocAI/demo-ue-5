@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "CoreMinimal.h"
 
@@ -32,9 +33,9 @@ inline FString ReduceSettingsFieldAtomFrom(FString Acc, const FString &Atom,
   const bool bUpper = FChar::IsUpper(Current);
   const bool bPreviousLowerOrDigit =
       Index > StartIndex &&
-      (FChar::IsLower(Atom[Index - 1]) || FChar::IsDigit(Atom[Index - 1]));
+      (FChar::IsLower(Atom[Index - FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4]) || FChar::IsDigit(Atom[Index - FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4]));
   const bool bNextLower =
-      Index + 1 < Atom.Len() && FChar::IsLower(Atom[Index + 1]);
+      Index + FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4 < Atom.Len() && FChar::IsLower(Atom[Index + FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4]);
   const bool bSeparate =
       bUpper && Index > StartIndex && (bPreviousLowerOrDigit || bNextLower);
   return Index >= Atom.Len()
@@ -44,15 +45,15 @@ inline FString ReduceSettingsFieldAtomFrom(FString Acc, const FString &Atom,
                        ReduceJsonSettingsFieldCharWhen(std::move(Acc), bSeparate,
                                                        TCHAR('_')),
                        true, FChar::ToLower(Current)),
-                   Atom, Index + 1, StartIndex);
+                   Atom, Index + FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4, StartIndex);
 }
 
 /** User Story: As a components data json consumer, I need to invoke reduce settings field atom through a stable signature so the components data json workflow remains explicit and composable. @fn inline FString ReduceSettingsFieldAtom(FString Acc, const FString &Atom) */
 inline FString ReduceSettingsFieldAtom(FString Acc, const FString &Atom) {
   const int32 StartIndex =
-      Atom.StartsWith(TEXT("b")) && Atom.Len() > 1 && FChar::IsUpper(Atom[1])
-          ? 1
-          : 0;
+      Atom.StartsWith(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV124E246F8B83)) && Atom.Len() > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4 && FChar::IsUpper(Atom[FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4])
+          ? FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4
+          : FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
   return ReduceSettingsFieldAtomFrom(std::move(Acc), Atom, StartIndex,
                                      StartIndex);
 }

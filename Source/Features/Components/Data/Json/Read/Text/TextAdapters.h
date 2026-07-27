@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Read/Field/ReadFieldAdapters.h"
 
@@ -53,7 +54,7 @@ func::Maybe<Output> ReadRegisteredTextValue(const FString &Text) {
 template <typename Output>
 Output RequireRegisteredTextValue(const FString &Text, const TCHAR *Label) {
   const func::Maybe<Output> Parsed = ReadRegisteredTextValue<Output>(Text);
-  checkf(Parsed.hasValue, TEXT("Invalid JSON text value for %s: %s"), Label,
+  checkf(Parsed.hasValue, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV9CAB88D287F0), Label,
          *Text);
   return Parsed.value;
 }

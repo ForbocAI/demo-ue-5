@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Projection/ComponentsProjectionAdapters.h"
 #include "Core/ecs.hpp"
@@ -58,7 +59,7 @@ inline FComponentDomainDeclaration::FComponentDomainDeclaration(
 /** User Story: As a features components projection consumer, I need to invoke component path through a stable signature so the features components projection workflow remains explicit and composable. @fn inline ecs::ComponentType ComponentPath(const FString &Domain, const FString &Name) */
 inline ecs::ComponentType ComponentPath(const FString &Domain,
                                         const FString &Name) {
-  return FString::Printf(TEXT("%s/%s"), *Domain, *Name);
+  return FString::Printf(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVA0CFEAC185E9), *Domain, *Name);
 }
 
 // --- Component value field traversal (pure selectors) ---

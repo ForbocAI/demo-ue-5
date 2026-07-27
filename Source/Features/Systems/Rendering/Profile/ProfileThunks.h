@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "CoreMinimal.h"
 
@@ -62,8 +63,8 @@ bool ApplyRuntimeConsoleVariableValue(const FString &Name, Value NewValue) {
       },
       [&Name]() {
         UE_LOG(LogForbocRenderingProfile, Warning,
-               TEXT("Rendering console variable '%s' is unavailable; "
-                    "runtime profile value skipped."),
+               TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV19CB4E350C2A
+                    FORBOCAI_DEMOUE5_AUTHORED_STRINGVE487D41E9D63),
                *Name);
         return false;
       });

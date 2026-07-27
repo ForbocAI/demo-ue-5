@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/Presentation/RenderingPresentationSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
 #include "Core/fp.hpp"
@@ -58,15 +59,15 @@ FTownspersonPresentationViewModel ReduceTownspersonPresentation(
   Model.Interaction.Radius =
       LevelLayoutAdapters::TownLotWorldUnits(Geometry) *
       Settings.Motion.InteractionRadiusLots;
-  Model.NameText.Location = FVector(0.0f, 0.0f, NameTextZ);
+  Model.NameText.Location = FVector(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, NameTextZ);
   Model.NameText.WorldSize =
       WorldFeet(Geometry, Settings.Geometry.CharacterShoulderWidthFeet);
-  Model.PromptText.Location = FVector(0.0f, 0.0f, PromptTextZ);
+  Model.PromptText.Location = FVector(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, PromptTextZ);
   Model.PromptText.WorldSize =
       WorldFeet(Geometry, Settings.Geometry.CharacterShoulderWidthFeet) *
       Settings.Text.PromptTextScale;
   Model.DialogueText.Location =
-      FVector(0.0f, 0.0f,
+      FVector(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF,
               NameTextZ +
                   CharacterHeight *
                       Settings.Text.DialogueAboveNameHeightRatio);
@@ -107,7 +108,7 @@ FHorsePresentationViewModel ReduceHorsePresentation(
               Settings.Rider.MountedRiderScale,
               Settings.Rider.MountedRiderScale);
   Model.NameText.Location =
-      FVector(0.0f, 0.0f,
+      FVector(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF,
               WorldFeet(Geometry,
                         Settings.Body.LegHeightFeet +
                             Settings.Body.BodyHeightFeet +

@@ -1,4 +1,5 @@
 #include "Features/Components/Data/DataSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -13,7 +14,7 @@ ReduceDataLoaded(const FDataState &State,
   Next.Path = func::just(Action.PayloadValue.RelativePath);
   Next.bLoadSucceeded = Action.PayloadValue.bLoaded;
   Next.LoadedObjectCount =
-      Action.PayloadValue.bLoaded ? State.LoadedObjectCount + 1
+      Action.PayloadValue.bLoaded ? State.LoadedObjectCount + FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4
                                   : State.LoadedObjectCount;
   return Next;
 }
@@ -41,7 +42,7 @@ const rtk::Slice<FDataState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FDataState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FDataState>(
-            TEXT("data"), CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV13EF85B46077), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FDataState> &Builder) {
               Builder.addCase(DataActions::DataLoaded(),
                               DataReducers::ReduceDataLoaded);

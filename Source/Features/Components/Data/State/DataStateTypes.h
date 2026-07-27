@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -15,7 +16,7 @@ struct FDataLoadedPayload {
 struct FDataState {
   func::Maybe<FString> Path = func::nothing<FString>();
   bool bLoadSucceeded = false;
-  int32 LoadedObjectCount = 0;
+  int32 LoadedObjectCount = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
 };
 
 

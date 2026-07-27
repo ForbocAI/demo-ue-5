@@ -26,7 +26,7 @@ JSON_SETTINGS_REGISTRY(FMeshAssetSettings, MeshPath,
 JSON_SETTINGS_REGISTRY(FInputActionSettings, MoveActionPath, LookActionPath,
                        MouseLookActionPath, JumpActionPath);
 JSON_SETTINGS_REGISTRY(FInputMappingSettings, DefaultMappingContextPath,
-                       MouseMappingContextPath);
+                       MouseMappingContextPath, MappingPriority);
 
 JSON_SETTINGS_REGISTRY(FInteractionSettings, TownspersonMaxDistanceLots,
                        NoTownspersonMessage);
@@ -69,7 +69,8 @@ ReadPlayerPresentationSettings(const TSharedPtr<FJsonObject> &Object) {
                                       MouseLookActionPath, JumpActionPath)),
       Json::ReadSettingsFields<FInputMappingSettings>(
           Object, JSON_SETTINGS_ATOMS(DefaultMappingContextPath,
-                                      MouseMappingContextPath))};
+                                      MouseMappingContextPath,
+                                      MappingPriority))};
 }
 
 /** User Story: As a data settings player consumer, I need to invoke read interaction settings through a stable signature so the data settings player workflow remains explicit and composable. @fn FInteractionSettings ReadInteractionSettings(const TSharedPtr<FJsonObject> &Object) */

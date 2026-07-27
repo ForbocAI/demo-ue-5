@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/Stats/StatsActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -11,7 +12,7 @@ const rtk::ActionCreator<TArray<FBotStatsComponent>> &BotStatsSeeded() {
       func::lazy([]() -> rtk::ActionCreator<TArray<FBotStatsComponent>> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<TArray<FBotStatsComponent>>(
-          TEXT("botStats/seeded"));
+          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV16E74F1FA819));
       });
   return func::eval(Creator);
 }
@@ -21,7 +22,7 @@ const rtk::ActionCreator<FBotStatsUpdate> &BotStatsUpdated() {
   static const func::Lazy<rtk::ActionCreator<FBotStatsUpdate>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotStatsUpdate> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FBotStatsUpdate>(TEXT("botStats/updated"));
+        return rtk::createAction<FBotStatsUpdate>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVCA8600DD7ECB));
       });
   return func::eval(Creator);
 }

@@ -1,4 +1,5 @@
 #include "Features/Systems/Landmarks/SystemsLandmarksSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Landmarks/SystemsLandmarksAdapters.h"
 
@@ -37,7 +38,7 @@ const rtk::Slice<FLandmarkState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FLandmarkState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FLandmarkState>(
-          TEXT("landmarks"), LandmarkFactories::CreateInitialState(),
+          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV5CC0D75D70F0), LandmarkFactories::CreateInitialState(),
           [](rtk::ActionReducerMapBuilder<FLandmarkState> &Builder) {
     Builder.addCase(LandmarkActions::LandmarksSeeded(),
                                 LandmarkReducers::ReduceLandmarksSeeded);

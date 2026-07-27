@@ -1,4 +1,5 @@
 #include "Features/Systems/Spawn/SystemsSpawnSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -33,7 +34,7 @@ const rtk::Slice<FSpawnState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FSpawnState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FSpawnState>(
-      TEXT("spawn"), SpawnFactories::CreateInitialState(),
+      TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVA817D2075E53), SpawnFactories::CreateInitialState(),
       [](rtk::ActionReducerMapBuilder<FSpawnState> &Builder) {
     Builder.addCase(SpawnActions::PlayerSpawnAnchored(),
                                 SpawnReducers::ReducePlayerSpawnAnchored);
@@ -58,7 +59,7 @@ FSpawnState CreateInitialState() {
   FSpawnState State;
   State.PlayerSpawn =
       SpawnPointPayload({FVector::ZeroVector, FRotator::ZeroRotator,
-                         TEXT("unassigned")});
+                         TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVD33A855EFDE5)});
   return State;
 }
 

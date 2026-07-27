@@ -246,18 +246,8 @@ template <> struct TJsonSettingsRegistry<FUISettings> {
                     JSON_SETTINGS_ATOMS(
                         CaptureCommandLineKey, QuitWhenDoneCommandLineKey,
                         OutputDirectoryCommandLineKey,
-                        InitialDelayCommandLineKey,
-                        SettleSecondsCommandLineKey,
-                        BetweenSecondsCommandLineKey,
-                        WholeOrthoWidthCommandLineKey,
-                        TownOrthoWidthCommandLineKey,
-                        ActorsOrthoWidthCommandLineKey,
-                        WholeCaptureHeightCommandLineKey,
-                        TownCaptureHeightCommandLineKey,
-                        ActorsCaptureHeightCommandLineKey,
-                        DefaultOutputDirectory, WholeOutputName,
-                        TownOutputName, ActorsOutputName, InitialDelaySeconds,
-                        SettleSeconds, BetweenSeconds, TopDownRotation)),
+                        DefaultOutputDirectory, TopDownRotation, Timing,
+                        Whole, Town, Actors)),
                 ScaleAuditCapture)};
     return RegisteredFields;
   }

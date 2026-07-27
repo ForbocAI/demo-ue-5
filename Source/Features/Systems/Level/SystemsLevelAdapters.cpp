@@ -1,4 +1,5 @@
 #include "Features/Systems/Level/SystemsLevelAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Read/ReadAdapters.h"
 #include "Features/Systems/Level/Layout/SystemsLevelLayoutAdapters.h"
@@ -28,7 +29,7 @@ FLayoutSeed LoadLayoutSeed(const ForbocAI::Game::Data::FDataSourceSettings &Data
                 {DataSources.Mine.MineLabelsJsonPath})},
            JsonAdapters::LoadRequiredArrayFromContent(
                {DataSources.Overlay.OverlayLabelsJsonPath})});
-  checkf(ParsedLayout.hasValue, TEXT("Level layout JSON is invalid"));
+  checkf(ParsedLayout.hasValue, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVF62323712132));
   return ParsedLayout.value;
 }
 

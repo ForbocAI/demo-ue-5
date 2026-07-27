@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/Diagnostics/DiagnosticsSelectors.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/fp.hpp"
 #include "HAL/PlatformTime.h"
@@ -99,7 +100,7 @@ int32 SelectRuntimeGpuIndex(
 
 /** User Story: As a systems rendering diagnostics consumer, I need to invoke should run runtime budget wall interval through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params) */
 bool ShouldRunRuntimeBudgetWallInterval(const FBudgetCheckParams &Params) {
-  return Params.IntervalSeconds > 0.0f &&
+  return Params.IntervalSeconds > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF &&
          Params.CurrentSeconds - Params.PreviousSeconds >= Params.IntervalSeconds;
 }
 

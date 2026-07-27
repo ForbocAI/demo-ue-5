@@ -1,4 +1,5 @@
 #include "Features/Systems/Projection/Interaction/InteractionAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/ComponentsAdapters.h"
 
@@ -80,7 +81,7 @@ using ComponentsAdapters::RegisteredComponentGroups;
  * reducer pass updates the same ECS interaction record.
  */
 ecs::EntityKey InteractionEntityKey() {
-  return TEXT("systems:interaction:focus");
+  return TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV10DD9858535B);
 }
 
 /**
@@ -91,8 +92,8 @@ ecs::EntityKey InteractionEntityKey() {
  * systems/interaction and systems/projection/interaction subdomains.
  */
 TArray<TArray<FString>> BuildInteractionDomains() {
-  return {{TEXT("Systems"), TEXT("Interaction")},
-          {TEXT("Systems"), TEXT("Projection"), TEXT("Interaction")}};
+  return {{TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV5B954C8033BA), TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV068F2AF9BFCC)},
+          {TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV5B954C8033BA), TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV050B6EC51A02), TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV068F2AF9BFCC)}};
 }
 
 } // namespace

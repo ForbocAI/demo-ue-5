@@ -177,15 +177,20 @@ if [ -n "$UNREAL_BUILD" ]; then
   fi
 fi
 
-# Run UE Automation tests
-# We use -ExecCmds to run tests and then quit.
-# We pipe both stdout and stderr to tee so we can parse it.
-"$UNREAL_EDITOR" "$PROJECT_FILE_ARG" \
-  -ExecCmds="Automation RunTests ForbocAI; Quit" \
-  -log -NoUI -stdout -FullStdOutLogOutput \
-  -unattended -nop4 -nosplash -nullrhi -nosound -NoLiveCoding \
-  | tee "$LOG_FILE"
-UE_EXIT=$?
+# Run UE Automation tests through the native host shell under WSL so the
+# verified test environment reaches Unreal without an interoperability hop.
+if [ "$BUILD_VIA_CMD" -eq 1 ]; then
+  powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { if ([string]::IsNullOrEmpty(\$env:FORBOCAI_API_KEY)) { exit 64 }; & '$UNREAL_EDITOR' '$PROJECT_FILE_ARG' '-ExecCmds=Automation RunTests ForbocAI; Quit' '-log' '-NoUI' '-stdout' '-FullStdOutLogOutput' '-unattended' '-nop4' '-nosplash' '-nullrhi' '-nosound' '-NoLiveCoding'; exit \$LASTEXITCODE }" < /dev/null \
+    | tee "$LOG_FILE"
+  UE_EXIT=${PIPESTATUS[0]}
+else
+  "$UNREAL_EDITOR" "$PROJECT_FILE_ARG" \
+    -ExecCmds="Automation RunTests ForbocAI; Quit" \
+    -log -NoUI -stdout -FullStdOutLogOutput \
+    -unattended -nop4 -nosplash -nullrhi -nosound -NoLiveCoding \
+    | tee "$LOG_FILE"
+  UE_EXIT=${PIPESTATUS[0]}
+fi
 
 echo ""
 echo "=== Test Results Analysis ==="

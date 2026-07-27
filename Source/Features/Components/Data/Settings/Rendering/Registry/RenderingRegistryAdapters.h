@@ -79,7 +79,8 @@ template <> struct TJsonSettingsRegistry<FPaletteSettings> {
 };
 
 JSON_SETTINGS_REGISTRY(FRenderingAssetPathSettings, LevelCubeMeshPath,
-                       BlockoutMaterialPath);
+                       BlockoutMaterialPath,
+                       TerrainVertexColorMaterialPath);
 
 JSON_SETTINGS_REGISTRY(FProfileSettings, TimeOfDayHour,
                        AntiAliasingMethod, PostProcessAAQuality,

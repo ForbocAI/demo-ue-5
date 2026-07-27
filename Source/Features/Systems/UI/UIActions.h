@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/UI/SystemsUITypes.h"
@@ -24,7 +25,7 @@ inline const rtk::ActionCreator<FUIPayload> &ConversationPresented() {
       func::lazy([]() -> rtk::ActionCreator<FUIPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FUIPayload>(
-            TEXT("systems/ui/conversationPresented"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV1A353F51413D));
       });
   return func::eval(Creator);
 }
@@ -39,7 +40,7 @@ inline const rtk::ActionCreator<FUIPayload> &ChatHistoryRendered() {
       func::lazy([]() -> rtk::ActionCreator<FUIPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FUIPayload>(
-            TEXT("systems/ui/chatHistoryRendered"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV10C9278D7F54));
       });
   return func::eval(Creator);
 }

@@ -1,4 +1,5 @@
 #include "Features/Systems/Bots/Horses/HorsesSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Bots/Horses/HorsesAdapters.h"
 
@@ -36,7 +37,7 @@ const rtk::Slice<FHorseState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FHorseState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FHorseState>(
-      TEXT("horses"), HorseFactories::CreateInitialState(),
+      TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV7A2F15B727DE), HorseFactories::CreateInitialState(),
       [](rtk::ActionReducerMapBuilder<FHorseState> &Builder) {
     Builder.addCase(HorseActions::HorsesSeeded(),
                                 HorseReducers::ReduceHorsesSeeded);

@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -41,7 +42,7 @@ inline const rtk::ActionCreator<FBotTickPayload> &BotTicked() {
   static const func::Lazy<rtk::ActionCreator<FBotTickPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotTickPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FBotTickPayload>(TEXT("bots/behavior/ticked"));
+        return rtk::createAction<FBotTickPayload>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV52609F6C3F6E));
       });
   return func::eval(Creator);
 }
@@ -51,7 +52,7 @@ inline const rtk::ActionCreator<FBotMovePayload> &BotMoved() {
   static const func::Lazy<rtk::ActionCreator<FBotMovePayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FBotMovePayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FBotMovePayload>(TEXT("bots/behavior/moved"));
+        return rtk::createAction<FBotMovePayload>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV775CF6FBC9BF));
       });
   return func::eval(Creator);
 }
@@ -62,7 +63,7 @@ inline const rtk::ActionCreator<FBotDamageTakenPayload> &BotDamageTaken() {
       func::lazy([]() -> rtk::ActionCreator<FBotDamageTakenPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FBotDamageTakenPayload>(
-            TEXT("bots/behavior/damageTaken"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV0BA587392E1A));
       });
   return func::eval(Creator);
 }
@@ -73,7 +74,7 @@ inline const rtk::ActionCreator<FBotEnemySpottedPayload> &BotEnemySpotted() {
       func::lazy([]() -> rtk::ActionCreator<FBotEnemySpottedPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FBotEnemySpottedPayload>(
-            TEXT("bots/behavior/enemySpotted"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV8516462E517B));
       });
   return func::eval(Creator);
 }
@@ -86,7 +87,7 @@ BotAttackRequested() {
           func::lazy([]() -> rtk::ActionCreator<FBotAttackRequestedPayload> {
             // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
             return rtk::createAction<FBotAttackRequestedPayload>(
-                TEXT("bots/behavior/attackRequested"));
+                TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVA95BCA2E03D0));
           });
   return func::eval(Creator);
 }
@@ -98,7 +99,7 @@ BotFleeRequested() {
       func::lazy([]() -> rtk::ActionCreator<FBotFleeRequestedPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FBotFleeRequestedPayload>(
-            TEXT("bots/behavior/fleeRequested"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV9FB2706658CC));
       });
   return func::eval(Creator);
 }

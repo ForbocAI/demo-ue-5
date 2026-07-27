@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -46,7 +47,7 @@ inline const rtk::Slice<FUIState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FUIState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FUIState>(
-            TEXT("systems/ui"), CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVA985237C7607), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FUIState> &Builder) {
               Builder.addCase(UIActions::ConversationPresented(),
                               UIReducers::ReduceConversationPresented);

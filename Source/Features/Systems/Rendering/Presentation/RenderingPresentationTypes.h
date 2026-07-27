@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
@@ -22,14 +23,14 @@ struct FHorsePresentationReduceRequest {
 };
 
 struct FMovementViewModel {
-  float WalkSpeed = 0.0f;
-  float PauseDuration = 0.0f;
-  float PatrolArrivalDistance = 0.0f;
+  float WalkSpeed = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
+  float PauseDuration = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
+  float PatrolArrivalDistance = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 struct FTextPlacementViewModel {
   FVector Location = FVector::ZeroVector;
-  float WorldSize = 0.0f;
+  float WorldSize = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 struct FTownspersonCharacterViewModel {
@@ -41,7 +42,7 @@ struct FTownspersonCharacterViewModel {
 };
 
 struct FTownspersonInteractionViewModel {
-  float Radius = 0.0f;
+  float Radius = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
   FString InteractionPrompt;
 };
 

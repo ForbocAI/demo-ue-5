@@ -1,4 +1,5 @@
 #include "Features/Components/Data/DataActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -10,7 +11,7 @@ const rtk::ActionCreator<FDataLoadedPayload> &DataLoaded() {
   static const func::Lazy<rtk::ActionCreator<FDataLoadedPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FDataLoadedPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FDataLoadedPayload>(TEXT("data/loaded"));
+        return rtk::createAction<FDataLoadedPayload>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVEC4F8C048A83));
       });
   return func::eval(Creator);
 }

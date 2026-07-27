@@ -1,4 +1,5 @@
 #include "CoreMinimal.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Features/Systems/UI/Chat/Rendering/ChatRenderingSlice.h"
 #include "Features/Systems/UI/Chat/ChatSlice.h"
@@ -34,7 +35,7 @@ FConversationUILabelCursor ConversationUILabels(
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FConversationUIBuildsViewModels,
-    "ForbocAI.UI.ConversationViewModels",
+    FORBOCAI_DEMOUE5_AUTHORED_STRINGVB7982EB7A254,
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 /** User Story: As a tests consumer, I need to invoke run test through a stable signature so the tests workflow remains explicit and composable. @fn bool FConversationUIBuildsViewModels::RunTest(const FString &Parameters) */

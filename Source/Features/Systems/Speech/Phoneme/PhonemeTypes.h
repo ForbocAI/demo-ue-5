@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/fp.hpp"
 
@@ -12,10 +13,10 @@ struct FPhonemeEvent {
   FString Phoneme;
 
   UPROPERTY(BlueprintReadOnly, Category = "Speech")
-  float StartTime = 0.0f;
+  float StartTime = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 
   UPROPERTY(BlueprintReadOnly, Category = "Speech")
-  float Duration = 0.0f;
+  float Duration = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 USTRUCT(BlueprintType)
@@ -26,7 +27,7 @@ struct FVisemeMapping {
   FString MorphTargetName;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Speech")
-  float BlendWeight = 0.0f;
+  float BlendWeight = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 /** User Story: As a systems speech phoneme consumer, I need to compare values for equality through a stable signature so the systems speech phoneme workflow remains explicit and composable. @fn inline bool operator==(const FPhonemeEvent &Left, const FPhonemeEvent &Right) */

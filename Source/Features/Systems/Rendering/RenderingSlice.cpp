@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/SystemsRenderingSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/fp.hpp"
 #include "Features/Systems/Rendering/Payload/Application/PayloadApplicationAdapters.h"
@@ -12,7 +13,8 @@ namespace RenderingReducers {
 /** User Story: As a features systems rendering consumer, I need to invoke reduce rendering asset paths through a stable signature so the features systems rendering workflow remains explicit and composable. @fn FRenderingAssetPaths ReduceRenderingAssetPaths( const ForbocAI::Game::Data::FRenderingAssetPathSettings &Settings) */
 FRenderingAssetPaths ReduceRenderingAssetPaths(
     const ForbocAI::Game::Data::FRenderingAssetPathSettings &Settings) {
-  return {Settings.LevelCubeMeshPath, Settings.BlockoutMaterialPath};
+  return {Settings.LevelCubeMeshPath, Settings.BlockoutMaterialPath,
+          Settings.TerrainVertexColorMaterialPath};
 }
 
 /** User Story: As a features systems rendering consumer, I need to invoke reduce rendering payload through a stable signature so the features systems rendering workflow remains explicit and composable. @fn FRenderingPayload ReduceRenderingPayload( const FPayloadRequest &Request) */
@@ -71,7 +73,7 @@ const rtk::Slice<FRenderingState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FRenderingState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FRenderingState>(
-            TEXT("systems/rendering"), CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV46D89C10316C), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FRenderingState> &Builder) {
               Builder.addCase(
                   RenderingActions::RenderingProfileObserved(),

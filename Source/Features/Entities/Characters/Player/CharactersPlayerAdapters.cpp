@@ -1,4 +1,5 @@
 #include "Features/Components/ComponentsAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 #include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
@@ -49,7 +50,7 @@ namespace EntitiesAdapters {
 using ComponentsAdapters::RegisteredComponentGroups;
 
 /** User Story: As a entities characters player consumer, I need to invoke player entity key through a stable signature so the entities characters player workflow remains explicit and composable. @fn ecs::EntityKey PlayerEntityKey() */
-ecs::EntityKey PlayerEntityKey() { return TEXT("player:local"); }
+ecs::EntityKey PlayerEntityKey() { return TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV1E2E63194ACC); }
 
 /** User Story: As a entities characters player consumer, I need to invoke project player through a stable signature so the entities characters player workflow remains explicit and composable. @fn ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload) */
 ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload) {

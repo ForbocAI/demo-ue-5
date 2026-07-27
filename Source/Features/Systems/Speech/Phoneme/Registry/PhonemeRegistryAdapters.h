@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Speech/Phoneme/PhonemeAdapters.h"
 
@@ -64,8 +65,8 @@ template <> struct TSpeechDispatchRegistry<FSpeechDurationRuleDeclaration> {
   /** User Story: As a systems speech phoneme consumer, I need to invoke declarations through a stable signature so the systems speech phoneme workflow remains explicit and composable. @fn static const TArray<FSpeechDurationRuleDeclaration> &Declarations() */
   static const TArray<FSpeechDurationRuleDeclaration> &Declarations() {
     static const TArray<FSpeechDurationRuleDeclaration> RegisteredDeclarations =
-        {{"phoneme_equals", DurationPhonemeEquals},
-         {"always", DurationAlways}};
+        {{FORBOCAI_DEMOUE5_AUTHORED_STRINGV26D51D185539, DurationPhonemeEquals},
+         {FORBOCAI_DEMOUE5_AUTHORED_STRINGV6B638506148D, DurationAlways}};
     return RegisteredDeclarations;
   }
 };

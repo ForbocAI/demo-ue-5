@@ -38,8 +38,8 @@ FG::FHorsePresentationViewModel ObserveHorsePresentation() {
 
 /** User Story: As a views horse consumer, I need to invoke ahorse view through a stable signature so the views horse workflow remains explicit and composable. @fn AHorseView::AHorseView() */
 AHorseView::AHorseView()
-    : WalkSpeed(0.0f), PauseDuration(0.0f), PatrolIndex(0),
-      PauseRemaining(0.0f), PatrolArrivalDistance(0.0f),
+    : WalkSpeed(), PauseDuration(), PatrolIndex(), PauseRemaining(),
+      PatrolArrivalDistance(),
       bMountedRider(false), CurrentLod() {
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =

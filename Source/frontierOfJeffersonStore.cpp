@@ -1,4 +1,5 @@
 #include "frontierOfJeffersonStore.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/redux_logger.hpp"
 #include "Features/Components/ComponentsSlice.h"
@@ -41,9 +42,9 @@ bool ShouldLogSampledRuntimeAction(
     const rtk::AnyAction &Action,
     const FReduxLogSettings &Settings) {
   static TMap<FString, int32> CountsByType;
-  const int32 NextCount = CountsByType.FindRef(Action.Type) + 1;
+  const int32 NextCount = CountsByType.FindRef(Action.Type) + FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4;
   CountsByType.Add(Action.Type, NextCount);
-  return NextCount == 1 || NextCount % Settings.SampleInterval == 0;
+  return NextCount == FORBOCAI_DEMOUE5_AUTHORED_NUMBERV0063C33F45B4 || NextCount % Settings.SampleInterval == FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA;
 }
 
 /** User Story: As a store consumer, I need to invoke should log runtime action through a stable signature so the store workflow remains explicit and composable. @fn bool ShouldLogRuntimeAction(const rtk::AnyAction &Action, const FReduxLogSettings &Settings) */
@@ -64,7 +65,7 @@ bool ShouldLogRuntimeAction(const rtk::AnyAction &Action,
  */
 std::function<void(const FString &)> CreateReduxLoggerSink() {
   return [](const FString &Message) -> void {
-    UE_LOG(LogForbocRuntimeRedux, Display, TEXT("%s"), *Message);
+    UE_LOG(LogForbocRuntimeRedux, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *Message);
   };
 }
 

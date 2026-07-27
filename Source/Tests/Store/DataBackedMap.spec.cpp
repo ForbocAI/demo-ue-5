@@ -1,8 +1,9 @@
 #include "Tests/Store/StoreSpecSupport.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FStoreDataBackedMap,
-    "ForbocAI.Runtime.Store.DataBackedMap",
+    FORBOCAI_DEMOUE5_AUTHORED_STRINGV59E476E6D5FC,
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 /** User Story: As a tests store consumer, I need to invoke run test through a stable signature so the tests store workflow remains explicit and composable. @fn bool FStoreDataBackedMap::RunTest(const FString &Parameters) */

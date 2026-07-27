@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Level/Geometry/GeometrySlice.h"
 
@@ -14,7 +15,7 @@ BuildBlockSpawn(const FBlockSpawnRequest &Request) {
   return {Request.Seed.Name,
           detail::WorldLocationFromSeed(
               {Request.Seed, Request.TerrainData, Request.Geometry, Scale}),
-          FRotator(0.0f, Request.Seed.YawDegrees, 0.0f),
+          FRotator(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, Request.Seed.YawDegrees, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF),
           Scale,
           Request.Seed.Texture};
 }

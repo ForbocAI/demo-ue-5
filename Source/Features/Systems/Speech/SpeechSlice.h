@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/Speech/Phoneme/PhonemeSlice.h"
@@ -106,7 +107,7 @@ inline const rtk::Slice<FSpeechState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FSpeechState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FSpeechState>(
-            TEXT("systems/speech"), CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVA1526A848225), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FSpeechState> &Builder) {
               Builder.addCase(SpeechActions::SpeechStarted(),
                               SpeechReducers::ReduceSpeechStarted);

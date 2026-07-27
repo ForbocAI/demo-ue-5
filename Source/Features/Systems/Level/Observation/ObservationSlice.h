@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Level/Spawn/LevelSpawnSlice.h"
 #include "Core/rtk.hpp"
@@ -29,7 +30,7 @@ inline const rtk::Slice<FSystemState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FSystemState> {
         // RTK guidance: slice names are reducer/action metadata, not authored gameplay data.
         return rtk::createSlice<FSystemState>(
-            TEXT("systems/level"), CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV92A7619F0B0E), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FSystemState>
                    &Builder) {
               Builder.addCase(LevelSystemActions::LevelObserved(),

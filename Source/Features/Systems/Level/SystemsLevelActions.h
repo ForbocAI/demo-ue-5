@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -15,7 +16,7 @@ inline const rtk::ActionCreator<FSystemPayload> &LevelObserved() {
       Creator = func::lazy([]() -> rtk::ActionCreator<FSystemPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FSystemPayload>(
-            TEXT("systems/level/observed"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVFE26A9814ECC));
       });
   return func::eval(Creator);
 }

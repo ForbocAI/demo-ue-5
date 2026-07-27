@@ -1,4 +1,5 @@
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -11,7 +12,7 @@ FLevelLocalPoint PostOfficeGroundPoint(
     const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
   return Point({Geometry.PostOfficeEastLots * TownLotWorldUnits(Geometry),
                 Geometry.PostOfficeNorthLots * TownLotWorldUnits(Geometry),
-                0.0f});
+                FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF});
 }
 
 } // namespace
@@ -25,7 +26,7 @@ float TownLotWorldUnits(
 /** User Story: As a spatial level layout consumer, I need to invoke cube half extent through a stable signature so the spatial level layout workflow remains explicit and composable. @fn float CubeHalfExtent( const ForbocAI::Game::Data::FGeometrySettings &Geometry) */
 float CubeHalfExtent(
     const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
-  return Geometry.CubeMeshSize * 0.5f;
+  return Geometry.CubeMeshSize * FORBOCAI_DEMOUE5_AUTHORED_NUMBERVD72733281456;
 }
 
 /** User Story: As a spatial level layout consumer, I need to invoke building foundation height through a stable signature so the spatial level layout workflow remains explicit and composable. @fn float BuildingFoundationHeight( const ForbocAI::Game::Data::FGeometrySettings &Geometry) */
@@ -64,7 +65,7 @@ float ActorWorldUnitsFromFeet(const FLevelActorFeetRequest &Request) {
 /** User Story: As a spatial level layout consumer, I need to invoke actor mesh scale from feet through a stable signature so the spatial level layout workflow remains explicit and composable. @fn float ActorMeshScaleFromFeet(const FLevelActorFeetRequest &Request) */
 float ActorMeshScaleFromFeet(const FLevelActorFeetRequest &Request) {
   return ActorWorldUnitsFromFeet(Request) /
-         (CubeHalfExtent(Request.Geometry) * 2.0f);
+         (CubeHalfExtent(Request.Geometry) * FORBOCAI_DEMOUE5_AUTHORED_NUMBERV3681B4242750);
 }
 
 /** User Story: As a spatial level layout consumer, I need to invoke building scale from feet through a stable signature so the spatial level layout workflow remains explicit and composable. @fn FVector BuildingScaleFromFeet(const FLevelBuildingScaleRequest &Request) */
@@ -139,7 +140,7 @@ FLevelLocalPoint PlayerSpawnPoint(
 /** User Story: As a spatial level layout consumer, I need to invoke player spawn rotation through a stable signature so the spatial level layout workflow remains explicit and composable. @fn FRotator PlayerSpawnRotation( const ForbocAI::Game::Data::FGeometrySettings &Geometry) */
 FRotator PlayerSpawnRotation(
     const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
-  return FRotator(0.0f, Geometry.MainStreetFacingYawDegrees, 0.0f);
+  return FRotator(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, Geometry.MainStreetFacingYawDegrees, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF);
 }
 
 /** User Story: As a spatial level layout consumer, I need to invoke player spawn anchor label through a stable signature so the spatial level layout workflow remains explicit and composable. @fn FString PlayerSpawnAnchorLabel( const ForbocAI::Game::Data::FGeometrySettings &Geometry) */

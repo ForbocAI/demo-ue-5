@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/RenderingThunks.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/fp.hpp"
 #include "Engine/Engine.h"
@@ -232,7 +233,7 @@ void ApplyRuntimeOutput(const FRuntimeProfileEval &Eval) {
   const FString LogMessage = RuntimeOutputLogMessage(
       {&Eval.Profile, OutputSize, EffectiveViewportSize,
        EffectiveScreenPercentage});
-  UE_LOG(LogForbocRenderingProfile, Display, TEXT("%s"), *LogMessage);
+  UE_LOG(LogForbocRenderingProfile, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *LogMessage);
 }
 
 } // namespace RenderingThunks

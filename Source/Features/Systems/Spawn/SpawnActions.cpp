@@ -1,4 +1,5 @@
 #include "Features/Systems/Spawn/SpawnActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -10,7 +11,7 @@ const rtk::ActionCreator<FPointPayload> &PlayerSpawnAnchored() {
   static const func::Lazy<rtk::ActionCreator<FPointPayload>> Creator =
       func::lazy([]() -> rtk::ActionCreator<FPointPayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<FPointPayload>(TEXT("spawn/playerAnchored"));
+        return rtk::createAction<FPointPayload>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVAD88B6E7E2AE));
       });
   return func::eval(Creator);
 }

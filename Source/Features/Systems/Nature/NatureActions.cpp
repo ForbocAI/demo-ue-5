@@ -1,4 +1,5 @@
 #include "Features/Systems/Nature/SystemsNatureActions.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -10,7 +11,7 @@ const rtk::ActionCreator<TArray<FFeatureSeed>> &NatureSeeded() {
   static const func::Lazy<rtk::ActionCreator<TArray<FFeatureSeed>>> Creator =
       func::lazy([]() -> rtk::ActionCreator<TArray<FFeatureSeed>> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
-        return rtk::createAction<TArray<FFeatureSeed>>(TEXT("nature/seeded"));
+        return rtk::createAction<TArray<FFeatureSeed>>(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV0F4DC9CF9950));
       });
   return func::eval(Creator);
 }

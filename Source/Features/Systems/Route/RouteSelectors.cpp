@@ -1,4 +1,5 @@
 #include "Features/Systems/SystemsSelectors.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -67,8 +68,8 @@ FLocalRouteBounds DynamicRouteBounds(const FRuntimeState &State) {
 /** User Story: As a features systems route consumer, I need to invoke route bounds center through a stable signature so the features systems route workflow remains explicit and composable. @fn FVector RouteBoundsCenter(const FLocalRouteBounds &Bounds, const FVector &Fallback) */
 FVector RouteBoundsCenter(const FLocalRouteBounds &Bounds,
                           const FVector &Fallback) {
-  return Bounds.bValid ? FVector((Bounds.Min.X + Bounds.Max.X) * 0.5f,
-                                 (Bounds.Min.Y + Bounds.Max.Y) * 0.5f, 0.0f)
+  return Bounds.bValid ? FVector((Bounds.Min.X + Bounds.Max.X) * FORBOCAI_DEMOUE5_AUTHORED_NUMBERVD72733281456,
+                                 (Bounds.Min.Y + Bounds.Max.Y) * FORBOCAI_DEMOUE5_AUTHORED_NUMBERVD72733281456, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF)
                        : Fallback;
 }
 

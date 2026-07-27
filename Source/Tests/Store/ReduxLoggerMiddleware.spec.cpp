@@ -1,8 +1,9 @@
 #include "Tests/Store/StoreSpecSupport.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FStoreReduxLoggerMiddleware,
-    "ForbocAI.Runtime.Store.ReduxLoggerMiddleware",
+    FORBOCAI_DEMOUE5_AUTHORED_STRINGV2957FE5DBADD,
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
 /**

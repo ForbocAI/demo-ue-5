@@ -1,5 +1,6 @@
 {
   "scene_root": "SceneRoot",
+  "scene_procedural_mesh_element": "ProceduralMeshElement",
   "townsperson_character_mesh": "CharacterMesh",
   "townsperson_interaction_sphere": "InteractionSphere",
   "townsperson_name_text": "NameText",

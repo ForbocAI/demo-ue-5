@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/frmt.hpp"
 #include "Core/rtk.hpp"
@@ -136,7 +137,7 @@ inline const rtk::Slice<FDialogueState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FDialogueState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FDialogueState>(
-            TEXT("systems/dialogue"), CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV7F5774525214), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FDialogueState> &Builder) {
               Builder.addCase(DialogueActions::DialogueObserved(),
                               DialogueReducers::ReduceDialogueObserved);

@@ -1,4 +1,5 @@
 #include "Features/Systems/Projection/SystemsProjectionAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/ComponentsAdapters.h"
 #include "Features/Entities/EntitiesAdapters.h"
@@ -96,7 +97,7 @@ ecs::FWorld ProjectionWorld(const FRuntimeState &State) {
       ecs::createWorld(State.Ecs.World.Domains),
       FApplyProjection{State});
   return applyResourceProjection(
-      Projected, resourceProjection(TEXT("Systems/Projection/Projected"),
+      Projected, resourceProjection(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV19F2F2925E3C),
                                     ecs::createBoolComponentValue(true)));
 }
 

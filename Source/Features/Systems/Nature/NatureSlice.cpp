@@ -1,4 +1,5 @@
 #include "Features/Systems/Nature/SystemsNatureSlice.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Nature/Entity/EntityAdapters.h"
 
@@ -36,7 +37,7 @@ const rtk::Slice<FNatureState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FNatureState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FNatureState>(
-      TEXT("nature"), NatureFactories::CreateInitialState(),
+      TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV79CDE9BD5BDF), NatureFactories::CreateInitialState(),
       [](rtk::ActionReducerMapBuilder<FNatureState> &Builder) {
     Builder.addCase(NatureActions::NatureSeeded(),
                                 NatureReducers::ReduceNatureSeeded);

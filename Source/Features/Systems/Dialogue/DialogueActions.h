@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -19,7 +20,7 @@ inline const rtk::ActionCreator<FDialoguePayload> &DialogueObserved() {
       func::lazy([]() -> rtk::ActionCreator<FDialoguePayload> {
         // RTK guidance: action type strings are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createAction<FDialoguePayload>(
-            TEXT("systems/dialogue/observed"));
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV217F6B81ABF4));
       });
   return func::eval(Creator);
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/rtk.hpp"
 
@@ -26,7 +27,7 @@ ReducePlayerObserved(const FPlayerState &State,
 /** User Story: As a entities characters player consumer, I need to invoke reduce yaw rotation through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline FRotator ReduceYawRotation(const FMovementInputRequest &Request) */
 inline FRotator
 ReduceYawRotation(const FMovementInputRequest &Request) {
-  return FRotator(0.0f, Request.ControlRotation.Yaw, 0.0f);
+  return FRotator(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, Request.ControlRotation.Yaw, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF);
 }
 
 /** User Story: As a entities characters player consumer, I need to invoke reduce movement input through a stable signature so the entities characters player workflow remains explicit and composable. @fn inline FMovementInputViewModel ReduceMovementInput( const FMovementInputRequest &Request) */
@@ -107,7 +108,7 @@ inline const rtk::Slice<FPlayerState> &GetSlice() {
       func::lazy([]() -> rtk::Slice<FPlayerState> {
         // RTK guidance: slice names are reducer/action metadata, not JSON-authored runtime data.
         return rtk::createSlice<FPlayerState>(
-            TEXT("entities/player"), CreateInitialState(),
+            TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV6091FB7A5314), CreateInitialState(),
             [](rtk::ActionReducerMapBuilder<FPlayerState> &Builder) {
               Builder.addCase(PlayerActions::PlayerObserved(),
                               PlayerReducers::ReducePlayerObserved);

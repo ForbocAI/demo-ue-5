@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Json/Read/ReadAdapters.h"
 
@@ -27,10 +28,10 @@ inline FString SettingsAtom(const char *Atom) {
  */
 inline FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonIntReader Int = Json::IntIn(Object);
-  return FColor(static_cast<uint8>(Int(*SettingsAtom("r"))),
-                static_cast<uint8>(Int(*SettingsAtom("g"))),
-                static_cast<uint8>(Int(*SettingsAtom("b"))),
-                static_cast<uint8>(Int(*SettingsAtom("a"))));
+  return FColor(static_cast<uint8>(Int(*SettingsAtom(FORBOCAI_DEMOUE5_AUTHORED_STRINGV1845A75D3567))),
+                static_cast<uint8>(Int(*SettingsAtom(FORBOCAI_DEMOUE5_AUTHORED_STRINGV897A0BF2A2C1))),
+                static_cast<uint8>(Int(*SettingsAtom(FORBOCAI_DEMOUE5_AUTHORED_STRINGV124E246F8B83))),
+                static_cast<uint8>(Int(*SettingsAtom(FORBOCAI_DEMOUE5_AUTHORED_STRINGVBA5BBCB9F8EC))));
 }
 
 /**
@@ -43,10 +44,10 @@ inline FColor ReadColorSettings(const TSharedPtr<FJsonObject> &Object) {
  */
 inline FLinearColor ReadLinearColorSettings(const TSharedPtr<FJsonObject> &Object) {
   const Json::FJsonFloatReader Float = Json::FloatIn(Object);
-  return FLinearColor(Float(*SettingsAtom("r")),
-                      Float(*SettingsAtom("g")),
-                      Float(*SettingsAtom("b")),
-                      Float(*SettingsAtom("a")));
+  return FLinearColor(Float(*SettingsAtom(FORBOCAI_DEMOUE5_AUTHORED_STRINGV1845A75D3567)),
+                      Float(*SettingsAtom(FORBOCAI_DEMOUE5_AUTHORED_STRINGV897A0BF2A2C1)),
+                      Float(*SettingsAtom(FORBOCAI_DEMOUE5_AUTHORED_STRINGV124E246F8B83)),
+                      Float(*SettingsAtom(FORBOCAI_DEMOUE5_AUTHORED_STRINGVBA5BBCB9F8EC)));
 }
 
 } // namespace SettingsReducers

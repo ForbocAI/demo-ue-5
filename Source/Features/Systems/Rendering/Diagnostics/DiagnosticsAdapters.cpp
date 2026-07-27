@@ -1,4 +1,5 @@
 #include "Features/Systems/Rendering/Diagnostics/DiagnosticsAdapters.h"
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/frmt.hpp"
 #include "Features/Systems/Rendering/Diagnostics/DiagnosticsSelectors.h"
@@ -200,7 +201,7 @@ void RequestRuntimeBudgetScreenshot(
       Path, Settings.bBudgetScreenshotShowUI,
       Settings.bBudgetScreenshotAddFilenameSuffix);
   UE_LOG(LogForbocRenderingDiagnostics, Display,
-         TEXT("runtime-budget screenshot requested path=%s"), *Path);
+         TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03FD09410919), *Path);
 }
 
 } // namespace RenderingAdapters

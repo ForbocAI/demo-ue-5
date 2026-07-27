@@ -1,4 +1,5 @@
 #pragma once
+#include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 #include "Core/ecs.hpp"
 #include "Core/rtk.hpp"
 
@@ -15,10 +16,10 @@ namespace detail {
 
 struct FGroundLotsRequest {
   ForbocAI::Game::Data::FGeometrySettings Geometry;
-  float EastLots = 0.0f;
-  float NorthLots = 0.0f;
+  float EastLots = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
+  float NorthLots = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
   FVector Scale = FVector::OneVector;
-  float Clearance = 0.0f;
+  float Clearance = FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF;
 };
 
 struct FScaleFromSeedRequest {
@@ -60,7 +61,7 @@ inline FLevelLocalPoint GroundLots(const FGroundLotsRequest &Request) {
   return LevelLayoutAdapters::CenteredOnGround(
       {Request.Geometry,
        LevelLayoutAdapters::FromPostOfficeLots(
-           {Request.Geometry, Request.EastLots, Request.NorthLots, 0.0f}),
+           {Request.Geometry, Request.EastLots, Request.NorthLots, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF}),
        Request.Scale, Request.Clearance});
 }
 
@@ -99,14 +100,14 @@ inline FLevelLocalPoint LocalPointFromSeed(
     const FLocalPointFromSeedRequest &Request) {
   return Request.Seed.Anchor == EAnchorMode::BuildingLots
              ? BuildingLots({Request.Geometry, Request.Seed.EastLots,
-                             Request.Seed.NorthLots, Request.Scale, 0.0f})
+                             Request.Seed.NorthLots, Request.Scale, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF})
              : Request.Seed.Anchor == EAnchorMode::PostOfficeLots
                    ? LevelLayoutAdapters::FromPostOfficeLots(
                          {Request.Geometry, Request.Seed.EastLots,
-                          Request.Seed.NorthLots, 0.0f})
+                          Request.Seed.NorthLots, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF})
                    : FeatureLots({Request.Geometry, Request.Seed.EastLots,
                                   Request.Seed.NorthLots, Request.Scale,
-                                  0.0f});
+                                  FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF});
 }
 
 /** User Story: As a systems level geometry consumer, I need to invoke world location from seed through a stable signature so the systems level geometry workflow remains explicit and composable. @fn inline FVector WorldLocationFromSeed( const FWorldLocationFromSeedRequest &Request) */
@@ -129,7 +130,7 @@ inline float LabelHeightOffsetFromSeed(
              : Request.Seed.Height == ELabelHeightMode::AboveBlock
                    ? LevelLayoutAdapters::AboveBlock(
                          {Request.Geometry,
-                          LevelLayoutAdapters::Point({0.0f, 0.0f, 0.0f}),
+                          LevelLayoutAdapters::Point({FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF}),
                           Request.ReferenceScale})
                          .HeightOffset
                    : Request.Seed.HeightOffset;
@@ -214,7 +215,7 @@ inline ELevelRetroTexture TextureForNatureKind(EFeatureKind Kind) {
                     return ELevelRetroTexture::MarkerPaint;
                   }),
           });
-  checkf(Texture.hasValue, TEXT("Unhandled nature feature kind"));
+  checkf(Texture.hasValue, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV2CBA63A974D1));
   return Texture.value;
 }
 
