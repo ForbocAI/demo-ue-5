@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/rtk.hpp"
+#include "Features/Components/Rendering/Profile/ComponentsRenderingProfileTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -12,162 +12,27 @@ struct FRenderingAssetPathSettings {
   FString TerrainVertexColorMaterialPath;
 };
 
-
 struct FProfileSettings {
-  float TimeOfDayHour;
-  int32 AntiAliasingMethod;
-  int32 PostProcessAAQuality;
-  float ScreenPercentage;
-  float MinimumScreenPercentage;
-  int32 InternalRenderWidth;
-  int32 InternalRenderHeight;
-  int32 OutputScaleMultiplier;
-  bool bFullscreenOutput;
-  FString RuntimeResolutionCommandFormat;
-  FString FullscreenOutputSuffix;
-  FString WindowedOutputSuffix;
-  FString ScreenPercentageCVarName;
-  FString RuntimeOutputLogFormat;
-  int32 RuntimeOutputFormatBufferCharacterCount;
-  float ViewDistanceScale;
-  float FoliageDensityScale;
-  float GrassDensityScale;
-  float SunPitchDegrees;
-  float SunYawDegrees;
-  float SunRollDegrees;
-  float DirectionalLightIntensity;
-  float DirectionalLightSourceAngle;
-  float DirectionalLightColorR;
-  float DirectionalLightColorG;
-  float DirectionalLightColorB;
-  float DirectionalLightColorA;
-  int32 ShadowCascades;
-  int32 ShadowMaxResolution;
-  float PostProcessPriority;
-  float PostProcessBlendRadius;
-  float PostProcessBlendWeight;
-  float PostProcessEnabledBlendWeightThreshold;
-  FString RuntimePostProcessActorTag;
-  float PostProcessSaturationMultiplier;
-  float PostProcessContrastMultiplier;
-  float PostProcessGainR;
-  float PostProcessGainG;
-  float PostProcessGainB;
-  float PostProcessGainA;
-  float PostProcessSceneTintR;
-  float PostProcessSceneTintG;
-  float PostProcessSceneTintB;
-  float PostProcessSceneTintA;
-  float SkyAtmosphereSkyLuminanceR;
-  float SkyAtmosphereSkyLuminanceG;
-  float SkyAtmosphereSkyLuminanceB;
-  float SkyAtmosphereSkyLuminanceA;
-  float SkyAtmosphereAerialLuminanceR;
-  float SkyAtmosphereAerialLuminanceG;
-  float SkyAtmosphereAerialLuminanceB;
-  float SkyAtmosphereAerialLuminanceA;
-  float SkyAtmosphereHeightFogContribution;
-  float SkyLightIntensity;
-  float SkyLightColorR;
-  float SkyLightColorG;
-  float SkyLightColorB;
-  float SkyLightColorA;
-  bool bSkyLightRealTimeCapture;
-  bool bSkyDomeEnabled;
-  FString SkyDomeMeshPath;
-  FString SkyDomeMaterialPath;
-  float SkyDomeScale;
-  float SkyDomeZOffset;
-  float SkyDomeSkyBrightness;
-  float SkyDomeCloudBrightness;
-  float SkyDomeCloudDarkness;
-  float SkyDomeRimBrightness;
-  float SkyDomeStarColorR;
-  float SkyDomeStarColorG;
-  float SkyDomeStarColorB;
-  float SkyDomeStarColorA;
-  float SkyDomeHorizonColorR;
-  float SkyDomeHorizonColorG;
-  float SkyDomeHorizonColorB;
-  float SkyDomeHorizonColorA;
-  float SkyDomeZenithColorR;
-  float SkyDomeZenithColorG;
-  float SkyDomeZenithColorB;
-  float SkyDomeZenithColorA;
-  bool bMoonDiscEnabled;
-  FString MoonDiscMeshPath;
-  FString MoonDiscMaterialPath;
-  float MoonDiscDistance;
-  float MoonDiscScale;
-  float MoonDiscPitchDegrees;
-  float MoonDiscYawDegrees;
-  float MoonDiscRollDegrees;
-  float MoonDiscColorR;
-  float MoonDiscColorG;
-  float MoonDiscColorB;
-  float MoonDiscColorA;
-  int32 MoonPixelGridSize;
-  float MoonDiscWorldUnitsPerScale;
-  float MoonPixelOverlapMultiplier;
-  int32 PointStarCount;
-  float PointStarYawHashSalt;
-  float PointStarYawSpanDegrees;
-  float PointStarPitchHashSalt;
-  float PointStarPitchMinDegrees;
-  float PointStarPitchSpanDegrees;
-  float PointStarDistanceMultiplier;
-  float PointStarSizeHashSalt;
-  float PointStarWorldSizeMin;
-  float PointStarWorldSizeJitter;
-  int32 MoonPixelGridTerminalOffset;
-  float MoonPixelVisibleRadius;
-  float PointStarHashIndexOffset;
-  float PointStarHashMultiplier;
-  float PointStarRollDegrees;
-  FString RuntimeSkyDomeActorTag;
-  FString RuntimeMoonDiscActorTag;
-  FString RuntimePointStarsActorTag;
-  FString RuntimeMoonPixelsComponentName;
-  FString RuntimePointStarsComponentName;
-  FString MaterialBaseColorParameter;
-  FString MaterialColorParameter;
-  FString MaterialTintColorParameter;
-  FString MaterialDiffuseColorParameter;
-  FString MaterialEmissiveColorParameter;
-  FString SkyDomeSkyBrightnessParameter;
-  FString SkyDomeCloudBrightnessParameter;
-  FString SkyDomeCloudDarknessParameter;
-  FString SkyDomeRimBrightnessParameter;
-  FString SkyDomeStarsParameter;
-  FString SkyDomeStarColorParameter;
-  FString SkyDomeHorizonColorParameter;
-  FString SkyDomeZenithColorParameter;
-  float SkyDomeStarsScalarValue;
-  float SkyDomeTextureStarMaskColorR;
-  float SkyDomeTextureStarMaskColorG;
-  float SkyDomeTextureStarMaskColorB;
-  float SkyDomeTextureStarMaskColorA;
-  int32 RuntimePixelMeshSectionIndex;
-  int32 RuntimePixelMaterialIndex;
-  float PixelQuadHalfExtentMultiplier;
-  int32 PixelQuadIndexA;
-  int32 PixelQuadIndexB;
-  int32 PixelQuadIndexC;
-  int32 PixelQuadIndexD;
-  float PixelQuadUvMin;
-  float PixelQuadUvMax;
-  bool bFogEnabled;
-  bool bVolumetricFogEnabled;
-  float FogDensity;
-  float FogHeightFalloff;
-  float FogStartDistance;
-  float FogCutoffDistance;
-  float FogMaxOpacity;
-  float FogColorR;
-  float FogColorG;
-  float FogColorB;
-  float FogColorA;
+  RenderingProfile::FTime Time;
+  RenderingProfile::FOutput Output;
+  RenderingProfile::FScalability Scalability;
+  RenderingProfile::FLighting Lighting;
+  RenderingProfile::FPostProcess PostProcess;
+  RenderingProfile::FSky Sky;
+  RenderingProfile::FMaterial Material;
+  RenderingProfile::FQuad PixelQuad;
+  RenderingProfile::FFog Fog;
 };
+
+inline bool operator==(const FProfileSettings &Left,
+                       const FProfileSettings &Right) {
+  return Left.Time == Right.Time && Left.Output == Right.Output &&
+         Left.Scalability == Right.Scalability &&
+         Left.Lighting == Right.Lighting &&
+         Left.PostProcess == Right.PostProcess && Left.Sky == Right.Sky &&
+         Left.Material == Right.Material && Left.PixelQuad == Right.PixelQuad &&
+         Left.Fog == Right.Fog;
+}
 
 } // namespace Data
 } // namespace Game

@@ -44,29 +44,29 @@ FName SkyAtom(const FString &Atom) {
 
 /** User Story: As a profile sky component consumer, I need to invoke runtime profile sky dome tag through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfileSkyDomeTag(const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfileSkyDomeTag(const FLevelRetroRenderProfile &Profile) {
-  return SkyAtom(Profile.RuntimeSkyDomeActorTag);
+  return SkyAtom(Profile.Sky.Dome.Geometry.RuntimeSkyDomeActorTag);
 }
 
 /** User Story: As a profile sky component consumer, I need to invoke runtime profile moon disc tag through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfileMoonDiscTag(const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfileMoonDiscTag(const FLevelRetroRenderProfile &Profile) {
-  return SkyAtom(Profile.RuntimeMoonDiscActorTag);
+  return SkyAtom(Profile.Sky.Moon.Geometry.RuntimeMoonDiscActorTag);
 }
 
 /** User Story: As a profile sky component consumer, I need to invoke runtime profile point stars tag through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfilePointStarsTag(const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfilePointStarsTag(const FLevelRetroRenderProfile &Profile) {
-  return SkyAtom(Profile.RuntimePointStarsActorTag);
+  return SkyAtom(Profile.Sky.PointStars.Identity.RuntimePointStarsActorTag);
 }
 
 /** User Story: As a profile sky component consumer, I need to invoke runtime profile moon pixels component name through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfileMoonPixelsComponentName( const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfileMoonPixelsComponentName(
     const FLevelRetroRenderProfile &Profile) {
-  return SkyAtom(Profile.RuntimeMoonPixelsComponentName);
+  return SkyAtom(Profile.Sky.Moon.Pixels.RuntimeMoonPixelsComponentName);
 }
 
 /** User Story: As a profile sky component consumer, I need to invoke runtime profile point stars component name through a stable signature so the profile sky component workflow remains explicit and composable. @fn FName RuntimeProfilePointStarsComponentName( const FLevelRetroRenderProfile &Profile) */
 FName RuntimeProfilePointStarsComponentName(
     const FLevelRetroRenderProfile &Profile) {
-  return SkyAtom(Profile.RuntimePointStarsComponentName);
+  return SkyAtom(Profile.Sky.PointStars.Identity.RuntimePointStarsComponentName);
 }
 
 // --- Asset loading (side effect) -----------------------------------------
@@ -106,15 +106,15 @@ void ApplyRuntimeEmissiveColor(UMaterialInstanceDynamic *Material,
                                const FLinearColor &Color) {
   check(Material);
   Material->SetVectorParameterValue(
-      SkyAtom(Profile.MaterialBaseColorParameter), Color);
-  Material->SetVectorParameterValue(SkyAtom(Profile.MaterialColorParameter),
+      SkyAtom(Profile.Material.Base.MaterialBaseColorParameter), Color);
+  Material->SetVectorParameterValue(SkyAtom(Profile.Material.Base.MaterialColorParameter),
                                     Color);
   Material->SetVectorParameterValue(
-      SkyAtom(Profile.MaterialTintColorParameter), Color);
+      SkyAtom(Profile.Material.Base.MaterialTintColorParameter), Color);
   Material->SetVectorParameterValue(
-      SkyAtom(Profile.MaterialDiffuseColorParameter), Color);
+      SkyAtom(Profile.Material.Base.MaterialDiffuseColorParameter), Color);
   Material->SetVectorParameterValue(
-      SkyAtom(Profile.MaterialEmissiveColorParameter), Color);
+      SkyAtom(Profile.Material.Base.MaterialEmissiveColorParameter), Color);
 }
 
 /** User Story: As a profile sky component consumer, I need to invoke apply runtime sky dome material parameters through a stable signature so the profile sky component workflow remains explicit and composable. @fn void ApplyRuntimeSkyDomeMaterialParameters( UMaterialInstanceDynamic *Material, const FLevelRetroRenderProfile &Profile) */
@@ -123,27 +123,27 @@ void ApplyRuntimeSkyDomeMaterialParameters(
     const FLevelRetroRenderProfile &Profile) {
   check(Material);
   Material->SetScalarParameterValue(
-      SkyAtom(Profile.SkyDomeSkyBrightnessParameter),
-      Profile.SkyDomeSkyBrightness);
+      SkyAtom(Profile.Material.Illumination.SkyDomeSkyBrightnessParameter),
+      Profile.Sky.Dome.Illumination.SkyDomeSkyBrightness);
   Material->SetScalarParameterValue(
-      SkyAtom(Profile.SkyDomeCloudBrightnessParameter),
-      Profile.SkyDomeCloudBrightness);
+      SkyAtom(Profile.Material.Illumination.SkyDomeCloudBrightnessParameter),
+      Profile.Sky.Dome.Illumination.SkyDomeCloudBrightness);
   Material->SetScalarParameterValue(
-      SkyAtom(Profile.SkyDomeCloudDarknessParameter),
-      Profile.SkyDomeCloudDarkness);
+      SkyAtom(Profile.Material.Illumination.SkyDomeCloudDarknessParameter),
+      Profile.Sky.Dome.Illumination.SkyDomeCloudDarkness);
   Material->SetScalarParameterValue(
-      SkyAtom(Profile.SkyDomeRimBrightnessParameter),
-      Profile.SkyDomeRimBrightness);
-  Material->SetScalarParameterValue(SkyAtom(Profile.SkyDomeStarsParameter),
-                                    Profile.SkyDomeStarsScalarValue);
+      SkyAtom(Profile.Material.Illumination.SkyDomeRimBrightnessParameter),
+      Profile.Sky.Dome.Illumination.SkyDomeRimBrightness);
+  Material->SetScalarParameterValue(SkyAtom(Profile.Material.Illumination.SkyDomeStarsParameter),
+                                    Profile.Material.Stars.Visibility.SkyDomeStarsScalarValue);
   Material->SetVectorParameterValue(
-      SkyAtom(Profile.SkyDomeStarColorParameter),
+      SkyAtom(Profile.Material.Color.SkyDomeStarColorParameter),
       RenderingProfileSkyReducers::SkyDomeTextureStarMaskColor(Profile));
   Material->SetVectorParameterValue(
-      SkyAtom(Profile.SkyDomeHorizonColorParameter),
+      SkyAtom(Profile.Material.Color.SkyDomeHorizonColorParameter),
       RenderingProfileSkyReducers::SkyDomeHorizonColor(Profile));
   Material->SetVectorParameterValue(
-      SkyAtom(Profile.SkyDomeZenithColorParameter),
+      SkyAtom(Profile.Material.Color.SkyDomeZenithColorParameter),
       RenderingProfileSkyReducers::SkyDomeZenithColor(Profile));
 }
 
@@ -206,7 +206,7 @@ void ApplyRuntimePixelMeshSection(UProceduralMeshComponent *Component,
   check(Component);
   Component->ClearAllMeshSections();
   Component->CreateMeshSection_LinearColor(
-      Profile.RuntimePixelMeshSectionIndex, Buffers.Vertices,
+      Profile.PixelQuad.Binding.RuntimePixelMeshSectionIndex, Buffers.Vertices,
       Buffers.Triangles, Buffers.Normals, Buffers.UV0,
       Buffers.VertexColors, Buffers.Tangents, false, false);
 }
@@ -218,15 +218,15 @@ void ApplyRuntimePixelMaterial(const FRuntimePixelMaterialEval &Eval) {
   const FLevelRetroRenderProfile &Profile = *Eval.Profile;
   UMaterialInstanceDynamic *DynamicMaterial =
       Eval.Material ? Eval.Component->CreateDynamicMaterialInstance(
-                          Profile.RuntimePixelMaterialIndex, Eval.Material)
+                          Profile.PixelQuad.Binding.RuntimePixelMaterialIndex, Eval.Material)
                     : nullptr;
   DynamicMaterial
       ? (ApplyRuntimeEmissiveColor(DynamicMaterial, Profile, Eval.Color),
-         Eval.Component->SetMaterial(Profile.RuntimePixelMaterialIndex,
+         Eval.Component->SetMaterial(Profile.PixelQuad.Binding.RuntimePixelMaterialIndex,
                                      DynamicMaterial),
          void())
       : (Eval.Material ? (Eval.Component->SetMaterial(
-                              Profile.RuntimePixelMaterialIndex, Eval.Material),
+                              Profile.PixelQuad.Binding.RuntimePixelMaterialIndex, Eval.Material),
                           void())
                        : void());
 }

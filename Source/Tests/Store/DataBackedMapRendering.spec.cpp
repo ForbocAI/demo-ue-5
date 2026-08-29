@@ -24,66 +24,77 @@ bool FStoreDataBackedMapRendering::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FProfileSettings &ExpectedProfile =
       Settings.RenderingProfile;
   TestEqual(Labels.Next(),
-            RetroProfile.TimeOfDayHour, ExpectedProfile.TimeOfDayHour);
+            RetroProfile.Time.TimeOfDayHour,
+            ExpectedProfile.Time.TimeOfDayHour);
   TestEqual(Labels.Next(),
-            RetroProfile.PostProcessSaturationMultiplier,
-            ExpectedProfile.PostProcessSaturationMultiplier);
+            RetroProfile.PostProcess.Grade.PostProcessSaturationMultiplier,
+            ExpectedProfile.PostProcess.Grade.PostProcessSaturationMultiplier);
   TestEqual(Labels.Next(),
-            RetroProfile.PostProcessContrastMultiplier,
-            ExpectedProfile.PostProcessContrastMultiplier);
+            RetroProfile.PostProcess.Grade.PostProcessContrastMultiplier,
+            ExpectedProfile.PostProcess.Grade.PostProcessContrastMultiplier);
   TestTrue(Labels.Next(),
-           RetroProfile.DirectionalLightColorR >=
-               RetroProfile.DirectionalLightColorB);
+           RetroProfile.Lighting.Directional.Color.DirectionalLightColorR >=
+               RetroProfile.Lighting.Directional.Color.DirectionalLightColorB);
   TestEqual(Labels.Next(),
-            RetroProfile.AntiAliasingMethod,
-            ExpectedProfile.AntiAliasingMethod);
+            RetroProfile.Output.AntiAliasing.AntiAliasingMethod,
+            ExpectedProfile.Output.AntiAliasing.AntiAliasingMethod);
   TestEqual(Labels.Next(),
-            RetroProfile.ScreenPercentage, ExpectedProfile.ScreenPercentage);
+            RetroProfile.Output.AntiAliasing.ScreenPercentage,
+            ExpectedProfile.Output.AntiAliasing.ScreenPercentage);
   TestEqual(Labels.Next(),
-            RetroProfile.InternalRenderWidth,
-            ExpectedProfile.InternalRenderWidth);
+            RetroProfile.Output.Resolution.InternalRenderWidth,
+            ExpectedProfile.Output.Resolution.InternalRenderWidth);
   TestEqual(Labels.Next(),
-            RetroProfile.InternalRenderHeight,
-            ExpectedProfile.InternalRenderHeight);
+            RetroProfile.Output.Resolution.InternalRenderHeight,
+            ExpectedProfile.Output.Resolution.InternalRenderHeight);
   TestEqual(Labels.Next(),
-            RetroProfile.OutputScaleMultiplier,
-            ExpectedProfile.OutputScaleMultiplier);
+            RetroProfile.Output.Resolution.OutputScaleMultiplier,
+            ExpectedProfile.Output.Resolution.OutputScaleMultiplier);
   TestTrue(Labels.Next(),
-           RetroProfile.bFullscreenOutput == ExpectedProfile.bFullscreenOutput);
+           RetroProfile.Output.Resolution.bFullscreenOutput ==
+               ExpectedProfile.Output.Resolution.bFullscreenOutput);
   TestTrue(Labels.Next(),
-           FMath::IsNearlyEqual(RetroProfile.ViewDistanceScale,
-                                ExpectedProfile.ViewDistanceScale));
+           FMath::IsNearlyEqual(RetroProfile.Scalability.ViewDistanceScale,
+                                ExpectedProfile.Scalability.ViewDistanceScale));
   TestTrue(Labels.Next(),
-           RetroProfile.bSkyDomeEnabled == ExpectedProfile.bSkyDomeEnabled &&
-               RetroProfile.SkyDomeMeshPath == ExpectedProfile.SkyDomeMeshPath &&
-               RetroProfile.SkyDomeMaterialPath ==
-                   ExpectedProfile.SkyDomeMaterialPath);
+           RetroProfile.Sky.Dome.Geometry.bSkyDomeEnabled ==
+                   ExpectedProfile.Sky.Dome.Geometry.bSkyDomeEnabled &&
+               RetroProfile.Sky.Dome.Geometry.SkyDomeMeshPath ==
+                   ExpectedProfile.Sky.Dome.Geometry.SkyDomeMeshPath &&
+               RetroProfile.Sky.Dome.Geometry.SkyDomeMaterialPath ==
+                   ExpectedProfile.Sky.Dome.Geometry.SkyDomeMaterialPath);
   TestTrue(Labels.Next(),
-           RetroProfile.SkyDomeHorizonColorB >
-                   RetroProfile.SkyDomeZenithColorB &&
-               FMath::IsNearlyEqual(RetroProfile.SkyDomeSkyBrightness,
-                                    ExpectedProfile.SkyDomeSkyBrightness));
+           RetroProfile.Sky.Dome.HorizonColor.SkyDomeHorizonColorB >
+                   RetroProfile.Sky.Dome.ZenithColor.SkyDomeZenithColorB &&
+               FMath::IsNearlyEqual(
+                   RetroProfile.Sky.Dome.Illumination.SkyDomeSkyBrightness,
+                   ExpectedProfile.Sky.Dome.Illumination
+                       .SkyDomeSkyBrightness));
   TestTrue(Labels.Next(),
-           FMath::IsNearlyEqual(RetroProfile.SkyDomeStarColorR,
-                                ExpectedProfile.SkyDomeStarColorR) &&
-               FMath::IsNearlyEqual(RetroProfile.SkyDomeStarColorB,
-                                    ExpectedProfile.SkyDomeStarColorB));
+           FMath::IsNearlyEqual(
+               RetroProfile.Sky.Dome.StarColor.SkyDomeStarColorR,
+               ExpectedProfile.Sky.Dome.StarColor.SkyDomeStarColorR) &&
+               FMath::IsNearlyEqual(
+                   RetroProfile.Sky.Dome.StarColor.SkyDomeStarColorB,
+                   ExpectedProfile.Sky.Dome.StarColor.SkyDomeStarColorB));
   TestTrue(Labels.Next(),
-           RetroProfile.bMoonDiscEnabled == ExpectedProfile.bMoonDiscEnabled &&
-               RetroProfile.MoonDiscMeshPath ==
-                   ExpectedProfile.MoonDiscMeshPath &&
-               RetroProfile.MoonDiscMaterialPath ==
-                   ExpectedProfile.MoonDiscMaterialPath);
+           RetroProfile.Sky.Moon.Geometry.bMoonDiscEnabled ==
+                   ExpectedProfile.Sky.Moon.Geometry.bMoonDiscEnabled &&
+               RetroProfile.Sky.Moon.Geometry.MoonDiscMeshPath ==
+                   ExpectedProfile.Sky.Moon.Geometry.MoonDiscMeshPath &&
+               RetroProfile.Sky.Moon.Geometry.MoonDiscMaterialPath ==
+                   ExpectedProfile.Sky.Moon.Geometry.MoonDiscMaterialPath);
   TestTrue(Labels.Next(),
-           RetroProfile.bFogEnabled == ExpectedProfile.bFogEnabled &&
-               FMath::IsNearlyEqual(RetroProfile.FogDensity,
-                                    ExpectedProfile.FogDensity) &&
-               FMath::IsNearlyEqual(RetroProfile.FogMaxOpacity,
-                                    ExpectedProfile.FogMaxOpacity) &&
-               FMath::IsNearlyEqual(RetroProfile.FogColorB,
-                                    ExpectedProfile.FogColorB));
+           RetroProfile.Fog.State.bFogEnabled ==
+                   ExpectedProfile.Fog.State.bFogEnabled &&
+               FMath::IsNearlyEqual(RetroProfile.Fog.Shape.FogDensity,
+                                    ExpectedProfile.Fog.Shape.FogDensity) &&
+               FMath::IsNearlyEqual(RetroProfile.Fog.Shape.FogMaxOpacity,
+                                    ExpectedProfile.Fog.Shape.FogMaxOpacity) &&
+               FMath::IsNearlyEqual(RetroProfile.Fog.Color.FogColorB,
+                                    ExpectedProfile.Fog.Color.FogColorB));
   TestFalse(Labels.Next(),
-            RetroProfile.bVolumetricFogEnabled);
+            RetroProfile.Fog.State.bVolumetricFogEnabled);
 
   const TArray<FLevelDistanceLodStage> &DistanceLodStages =
       RenderingSelectors::SelectDistanceLodStages(

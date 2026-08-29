@@ -8,7 +8,7 @@
 #include "EngineUtils.h"
 #include "Features/Components/Rendering/Distance/Lod/ComponentsRenderingDistanceLodTypes.h"
 #include "Features/Components/Rendering/Texture/ComponentsRenderingTextureTypes.h"
-#include "Features/Components/Rendering/Profile/ComponentsRenderingProfileTypes.h"
+#include "Features/Components/Rendering/Profile/Render/RenderTypes.h"
 #include "Features/Systems/Rendering/Profile/Color/ColorTypes.h"
 #include "GameFramework/Actor.h"
 #include "HAL/IConsoleManager.h"
@@ -33,8 +33,8 @@ namespace Game {
 namespace Level {
 namespace RenderingThunks {
 
-using RenderingProfileColorTypes::FChannels;
 using RenderingProfileColorTypes::ProfileLinearColor;
+using RenderingProfileColorTypes::TChannels;
 
 // One world+profile transition payload shared by every runtime profile
 // subdomain. Replaces the former per-subdomain FRetroRuntime*Eval family, all

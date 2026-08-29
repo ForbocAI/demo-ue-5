@@ -9,21 +9,19 @@ namespace Game {
 namespace Level {
 namespace RenderingProfileColorTypes {
 
-using FProfileColorChannel = float FLevelRetroRenderProfile::*;
-
-struct FChannels {
-  FProfileColorChannel R;
-  FProfileColorChannel G;
-  FProfileColorChannel B;
-  FProfileColorChannel A;
+template <typename Color> struct TChannels {
+  float Color::*R;
+  float Color::*G;
+  float Color::*B;
+  float Color::*A;
 };
 
-/** User Story: As a rendering profile color consumer, I need to invoke profile linear color through a stable signature so the rendering profile color workflow remains explicit and composable. @fn inline FLinearColor ProfileLinearColor( const FLevelRetroRenderProfile &Profile, const FChannels &Channels) */
+/** User Story: As a rendering profile color consumer, I need one concern-local channel composer so color concerns remain reusable without root-profile member plumbing. @fn template <typename Color> FLinearColor ProfileLinearColor(const Color &Value, const TChannels<Color> &Channels) */
+template <typename Color>
 inline FLinearColor ProfileLinearColor(
-    const FLevelRetroRenderProfile &Profile,
-    const FChannels &Channels) {
-  return FLinearColor(Profile.*Channels.R, Profile.*Channels.G,
-                      Profile.*Channels.B, Profile.*Channels.A);
+    const Color &Value, const TChannels<Color> &Channels) {
+  return FLinearColor(Value.*Channels.R, Value.*Channels.G,
+                      Value.*Channels.B, Value.*Channels.A);
 }
 
 } // namespace RenderingProfileColorTypes

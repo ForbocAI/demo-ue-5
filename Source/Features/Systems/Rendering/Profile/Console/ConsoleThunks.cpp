@@ -33,12 +33,13 @@ func::Maybe<int32> FindRenderingDeclarationIndex(
 
 template <typename Value> struct TProfileFieldDeclaration {
   FString Name;
-  Value FLevelRetroRenderProfile::*Member;
+  TFunction<Value(const FLevelRetroRenderProfile &)> Select;
 
-  /** User Story: As a rendering profile console consumer, I need to invoke tprofile field declaration through a stable signature so the rendering profile console workflow remains explicit and composable. @fn TProfileFieldDeclaration(const FString &InName, Value FLevelRetroRenderProfile::*InMember) */
+  /** User Story: As a rendering profile console consumer, I need profile-field selectors declared as data so nested rendering concerns remain independent of console routing. @fn TProfileFieldDeclaration(const FString &InName, TFunction<Value(const FLevelRetroRenderProfile &)> InSelect) */
   TProfileFieldDeclaration(const FString &InName,
-                           Value FLevelRetroRenderProfile::*InMember)
-      : Name(InName), Member(InMember) {}
+                           TFunction<Value(const FLevelRetroRenderProfile &)>
+                               InSelect)
+      : Name(InName), Select(MoveTemp(InSelect)) {}
 };
 
 template <typename Apply> struct TRenderingDispatchDeclaration {
@@ -69,13 +70,21 @@ template <> struct TProfileFieldRegistry<int32> {
   static TArray<TProfileFieldDeclaration<int32>> Fields(
       const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
     return {{Settings.IntegerProfile.AntiAliasingMethod,
-             &FLevelRetroRenderProfile::AntiAliasingMethod},
+             [](const FLevelRetroRenderProfile &Profile) {
+               return Profile.Output.AntiAliasing.AntiAliasingMethod;
+             }},
             {Settings.IntegerProfile.PostProcessAaQuality,
-             &FLevelRetroRenderProfile::PostProcessAAQuality},
+             [](const FLevelRetroRenderProfile &Profile) {
+               return Profile.Output.AntiAliasing.PostProcessAAQuality;
+             }},
             {Settings.IntegerProfile.ShadowCascades,
-             &FLevelRetroRenderProfile::ShadowCascades},
+             [](const FLevelRetroRenderProfile &Profile) {
+               return Profile.Lighting.Shadows.ShadowCascades;
+             }},
             {Settings.IntegerProfile.ShadowMaxResolution,
-             &FLevelRetroRenderProfile::ShadowMaxResolution}};
+             [](const FLevelRetroRenderProfile &Profile) {
+               return Profile.Lighting.Shadows.ShadowMaxResolution;
+             }}};
   }
 };
 
@@ -84,13 +93,21 @@ template <> struct TProfileFieldRegistry<float> {
   static TArray<TProfileFieldDeclaration<float>> Fields(
       const ForbocAI::Game::Data::FRenderingConsoleSettings &Settings) {
     return {{Settings.FloatProfile.ScreenPercentage,
-             &FLevelRetroRenderProfile::ScreenPercentage},
+             [](const FLevelRetroRenderProfile &Profile) {
+               return Profile.Output.AntiAliasing.ScreenPercentage;
+             }},
             {Settings.FloatProfile.ViewDistanceScale,
-             &FLevelRetroRenderProfile::ViewDistanceScale},
+             [](const FLevelRetroRenderProfile &Profile) {
+               return Profile.Scalability.ViewDistanceScale;
+             }},
             {Settings.FloatProfile.FoliageDensityScale,
-             &FLevelRetroRenderProfile::FoliageDensityScale},
+             [](const FLevelRetroRenderProfile &Profile) {
+               return Profile.Scalability.FoliageDensityScale;
+             }},
             {Settings.FloatProfile.GrassDensityScale,
-             &FLevelRetroRenderProfile::GrassDensityScale}};
+             [](const FLevelRetroRenderProfile &Profile) {
+               return Profile.Scalability.GrassDensityScale;
+             }}};
   }
 };
 
@@ -131,7 +148,7 @@ SelectProfileValue(const TProfileValueSelectRequest<Value> &Request) {
   return func::match(
       FindRenderingDeclarationIndex(Request.Field, FieldList),
       [&Request, &FieldList](int32 Index) {
-        return func::just<Value>(Request.Profile->*FieldList[Index].Member);
+        return func::just<Value>(FieldList[Index].Select(*Request.Profile));
       },
       []() { return func::nothing<Value>(); });
 }

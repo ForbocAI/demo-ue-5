@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
-#include "Features/Components/Rendering/Profile/ComponentsRenderingProfileTypes.h"
+#include "Features/Components/Rendering/Profile/Render/RenderTypes.h"
 
 class UWorld;
 

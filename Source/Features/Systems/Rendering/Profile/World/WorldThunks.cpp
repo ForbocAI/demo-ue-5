@@ -25,33 +25,36 @@ FName RuntimeProfileFogTag() {
 
 /** User Story: As a rendering profile world consumer, I need to invoke fog color through a stable signature so the rendering profile world workflow remains explicit and composable. @fn FLinearColor FogColor(const FLevelRetroRenderProfile &Profile) */
 FLinearColor FogColor(const FLevelRetroRenderProfile &Profile) {
-  return ProfileLinearColor(Profile, {&FLevelRetroRenderProfile::FogColorR,
-                                      &FLevelRetroRenderProfile::FogColorG,
-                                      &FLevelRetroRenderProfile::FogColorB,
-                                      &FLevelRetroRenderProfile::FogColorA});
+  return ProfileLinearColor(
+      Profile.Fog.Color,
+      {&RenderingProfile::FFogColor::FogColorR,
+       &RenderingProfile::FFogColor::FogColorG,
+       &RenderingProfile::FFogColor::FogColorB,
+       &RenderingProfile::FFogColor::FogColorA});
 }
 
 /** User Story: As a rendering profile world consumer, I need to invoke directional light color through a stable signature so the rendering profile world workflow remains explicit and composable. @fn FLinearColor DirectionalLightColor(const FLevelRetroRenderProfile &Profile) */
 FLinearColor DirectionalLightColor(const FLevelRetroRenderProfile &Profile) {
   return ProfileLinearColor(
-      Profile, {&FLevelRetroRenderProfile::DirectionalLightColorR,
-                &FLevelRetroRenderProfile::DirectionalLightColorG,
-                &FLevelRetroRenderProfile::DirectionalLightColorB,
-                &FLevelRetroRenderProfile::DirectionalLightColorA});
+      Profile.Lighting.Directional.Color,
+      {&RenderingProfile::FDirectionalLightColor::DirectionalLightColorR,
+       &RenderingProfile::FDirectionalLightColor::DirectionalLightColorG,
+       &RenderingProfile::FDirectionalLightColor::DirectionalLightColorB,
+       &RenderingProfile::FDirectionalLightColor::DirectionalLightColorA});
 }
 
 /** User Story: As a rendering profile world consumer, I need to invoke apply runtime fog component through a stable signature so the rendering profile world workflow remains explicit and composable. @fn void ApplyRuntimeFogComponent(UExponentialHeightFogComponent *Component, const FLevelRetroRenderProfile &Profile) */
 void ApplyRuntimeFogComponent(UExponentialHeightFogComponent *Component,
                               const FLevelRetroRenderProfile &Profile) {
   check(Component);
-  Component->SetVisibility(Profile.bFogEnabled);
-  Component->SetFogDensity(Profile.FogDensity);
-  Component->SetFogHeightFalloff(Profile.FogHeightFalloff);
-  Component->SetStartDistance(Profile.FogStartDistance);
-  Component->SetFogCutoffDistance(Profile.FogCutoffDistance);
-  Component->SetFogMaxOpacity(Profile.FogMaxOpacity);
+  Component->SetVisibility(Profile.Fog.State.bFogEnabled);
+  Component->SetFogDensity(Profile.Fog.Shape.FogDensity);
+  Component->SetFogHeightFalloff(Profile.Fog.Shape.FogHeightFalloff);
+  Component->SetStartDistance(Profile.Fog.Shape.FogStartDistance);
+  Component->SetFogCutoffDistance(Profile.Fog.Shape.FogCutoffDistance);
+  Component->SetFogMaxOpacity(Profile.Fog.Shape.FogMaxOpacity);
   Component->SetFogInscatteringColor(FogColor(Profile));
-  Component->SetVolumetricFog(Profile.bVolumetricFogEnabled);
+  Component->SetVolumetricFog(Profile.Fog.State.bVolumetricFogEnabled);
 }
 
 /** User Story: As a rendering profile world consumer, I need to invoke apply runtime fog actor through a stable signature so the rendering profile world workflow remains explicit and composable. @fn void ApplyRuntimeFogActor(AExponentialHeightFog *Fog, const FLevelRetroRenderProfile &Profile) */
@@ -65,17 +68,17 @@ void ApplyRuntimeDirectionalLight(ADirectionalLight *Light,
                                   const FLevelRetroRenderProfile &Profile) {
   check(Light);
   Light->GetLightComponent()->SetMobility(EComponentMobility::Movable);
-  Light->SetActorRotation(FRotator(Profile.SunPitchDegrees,
-                                   Profile.SunYawDegrees,
-                                   Profile.SunRollDegrees));
-  Light->SetBrightness(Profile.DirectionalLightIntensity);
+  Light->SetActorRotation(FRotator(Profile.Lighting.Sun.SunPitchDegrees,
+                                   Profile.Lighting.Sun.SunYawDegrees,
+                                   Profile.Lighting.Sun.SunRollDegrees));
+  Light->SetBrightness(Profile.Lighting.Directional.Values.DirectionalLightIntensity);
   Light->SetLightColor(DirectionalLightColor(Profile));
-  Light->SetCastShadows(Profile.ShadowCascades > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA);
+  Light->SetCastShadows(Profile.Lighting.Shadows.ShadowCascades > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA);
   UDirectionalLightComponent *Component =
       Cast<UDirectionalLightComponent>(Light->GetLightComponent());
   Component ? (Component->SetLightSourceAngle(
-                   Profile.DirectionalLightSourceAngle),
-               Component->SetDynamicShadowCascades(Profile.ShadowCascades),
+                   Profile.Lighting.Directional.Values.DirectionalLightSourceAngle),
+               Component->SetDynamicShadowCascades(Profile.Lighting.Shadows.ShadowCascades),
                void())
             : void();
 }

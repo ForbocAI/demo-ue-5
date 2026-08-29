@@ -4,7 +4,7 @@
 
 #include "Features/Components/Rendering/Distance/Lod/ComponentsRenderingDistanceLodTypes.h"
 #include "Features/Components/Rendering/Texture/ComponentsRenderingTextureTypes.h"
-#include "Features/Components/Rendering/Profile/ComponentsRenderingProfileTypes.h"
+#include "Features/Components/Rendering/Profile/Render/RenderTypes.h"
 #include "Features/Systems/Rendering/RenderingTypes.h"
 
 namespace ForbocAI {

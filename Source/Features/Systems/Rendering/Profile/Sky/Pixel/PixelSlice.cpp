@@ -11,9 +11,9 @@ namespace {
 
 /** User Story: As a profile sky pixel consumer, I need to invoke moon pixel grid center through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float MoonPixelGridCenter(const FLevelRetroRenderProfile &Profile) */
 float MoonPixelGridCenter(const FLevelRetroRenderProfile &Profile) {
-  return static_cast<float>(Profile.MoonPixelGridSize -
-                            Profile.MoonPixelGridTerminalOffset) *
-         Profile.PixelQuadHalfExtentMultiplier;
+  return static_cast<float>(Profile.Sky.Moon.Pixels.MoonPixelGridSize -
+                            Profile.Sky.Moon.Pixels.MoonPixelGridTerminalOffset) *
+         Profile.PixelQuad.Bounds.PixelQuadHalfExtentMultiplier;
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke moon pixel coordinate through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float MoonPixelCoordinate(const FLevelRetroRenderProfile &Profile, int32 Pixel) */
@@ -29,18 +29,18 @@ bool MoonPixelVisible(const FLevelRetroRenderProfile &Profile,
   const float X =
       MoonPixelCoordinate(Profile, static_cast<int32>(Index.Column));
   const float Y = MoonPixelCoordinate(Profile, static_cast<int32>(Index.Row));
-  return FVector2D(X, Y).Size() <= Profile.MoonPixelVisibleRadius;
+  return FVector2D(X, Y).Size() <= Profile.Sky.Moon.Pixels.MoonPixelVisibleRadius;
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke moon pixel world diameter through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float MoonPixelWorldDiameter(const FLevelRetroRenderProfile &Profile) */
 float MoonPixelWorldDiameter(const FLevelRetroRenderProfile &Profile) {
-  return Profile.MoonDiscScale * Profile.MoonDiscWorldUnitsPerScale;
+  return Profile.Sky.Moon.Geometry.MoonDiscScale * Profile.Sky.Moon.Pixels.MoonDiscWorldUnitsPerScale;
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke moon pixel cell world size through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float MoonPixelCellWorldSize(const FLevelRetroRenderProfile &Profile) */
 float MoonPixelCellWorldSize(const FLevelRetroRenderProfile &Profile) {
   return MoonPixelWorldDiameter(Profile) /
-         static_cast<float>(Profile.MoonPixelGridSize);
+         static_cast<float>(Profile.Sky.Moon.Pixels.MoonPixelGridSize);
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke moon pixel plane right through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector MoonPixelPlaneRight(const FLevelRetroRenderProfile &Profile) */
@@ -62,7 +62,7 @@ FVector MoonPixelOffset(const FLevelRetroRenderProfile &Profile,
       MoonPixelCoordinate(Profile, static_cast<int32>(Index.Column));
   const float Y = MoonPixelCoordinate(Profile, static_cast<int32>(Index.Row));
   const float Radius =
-      MoonPixelWorldDiameter(Profile) * Profile.PixelQuadHalfExtentMultiplier;
+      MoonPixelWorldDiameter(Profile) * Profile.PixelQuad.Bounds.PixelQuadHalfExtentMultiplier;
   return MoonPixelPlaneRight(Profile) * (X * Radius) +
          MoonPixelPlaneUp(Profile) * (Y * Radius);
 }
@@ -78,29 +78,29 @@ float PointStarHash(const FPointStarHashRequest &Request) {
   const FLevelRetroRenderProfile &Profile = *Request.Profile;
   return FMath::Frac(
       FMath::Sin((static_cast<float>(Request.Index) +
-                  Profile.PointStarHashIndexOffset) *
+                  Profile.Sky.PointStars.Hash.PointStarHashIndexOffset) *
                  Request.Salt) *
-      Profile.PointStarHashMultiplier);
+      Profile.Sky.PointStars.Hash.PointStarHashMultiplier);
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke point star yaw degrees through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarYawDegrees(const FLevelRetroRenderProfile &Profile, int32 Index) */
 float PointStarYawDegrees(const FLevelRetroRenderProfile &Profile,
                           int32 Index) {
-  return PointStarHash({&Profile, Index, Profile.PointStarYawHashSalt}) *
-         Profile.PointStarYawSpanDegrees;
+  return PointStarHash({&Profile, Index, Profile.Sky.PointStars.Hash.PointStarYawHashSalt}) *
+         Profile.Sky.PointStars.Distribution.PointStarYawSpanDegrees;
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke point star pitch degrees through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarPitchDegrees(const FLevelRetroRenderProfile &Profile, int32 Index) */
 float PointStarPitchDegrees(const FLevelRetroRenderProfile &Profile,
                             int32 Index) {
-  return Profile.PointStarPitchMinDegrees +
-         PointStarHash({&Profile, Index, Profile.PointStarPitchHashSalt}) *
-             Profile.PointStarPitchSpanDegrees;
+  return Profile.Sky.PointStars.Distribution.PointStarPitchMinDegrees +
+         PointStarHash({&Profile, Index, Profile.Sky.PointStars.Hash.PointStarPitchHashSalt}) *
+             Profile.Sky.PointStars.Distribution.PointStarPitchSpanDegrees;
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke point star distance through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarDistance(const FLevelRetroRenderProfile &Profile) */
 float PointStarDistance(const FLevelRetroRenderProfile &Profile) {
-  return Profile.MoonDiscDistance * Profile.PointStarDistanceMultiplier;
+  return Profile.Sky.Moon.Geometry.MoonDiscDistance * Profile.Sky.PointStars.Distribution.PointStarDistanceMultiplier;
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke point star location through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FVector PointStarLocation(const FLevelRetroRenderProfile &Profile, int32 Index) */
@@ -108,7 +108,7 @@ FVector PointStarLocation(const FLevelRetroRenderProfile &Profile,
                           int32 Index) {
   return FRotator(PointStarPitchDegrees(Profile, Index),
                   PointStarYawDegrees(Profile, Index),
-                  Profile.PointStarRollDegrees)
+                  Profile.Sky.PointStars.Distribution.PointStarRollDegrees)
              .Vector() *
          PointStarDistance(Profile);
 }
@@ -116,9 +116,9 @@ FVector PointStarLocation(const FLevelRetroRenderProfile &Profile,
 /** User Story: As a profile sky pixel consumer, I need to invoke point star world size through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn float PointStarWorldSize(const FLevelRetroRenderProfile &Profile, int32 Index) */
 float PointStarWorldSize(const FLevelRetroRenderProfile &Profile,
                          int32 Index) {
-  return Profile.PointStarWorldSizeMin +
-         PointStarHash({&Profile, Index, Profile.PointStarSizeHashSalt}) *
-             Profile.PointStarWorldSizeJitter;
+  return Profile.Sky.PointStars.Scale.PointStarWorldSizeMin +
+         PointStarHash({&Profile, Index, Profile.Sky.PointStars.Hash.PointStarSizeHashSalt}) *
+             Profile.Sky.PointStars.Scale.PointStarWorldSizeJitter;
 }
 
 /** User Story: As a profile sky pixel consumer, I need to invoke point star rotation through a stable signature so the profile sky pixel workflow remains explicit and composable. @fn FRotator PointStarRotation(const FLevelRetroRenderProfile &Profile, int32 Index) */
@@ -150,8 +150,8 @@ TArray<func::GridIndex> ReduceMoonPixelIndices(
     const FLevelRetroRenderProfile &Profile) {
   return func::filter_array<func::GridIndex>(
       func::map_grid_array<func::GridIndex>(
-          static_cast<size_t>(Profile.MoonPixelGridSize),
-          static_cast<size_t>(Profile.MoonPixelGridSize),
+          static_cast<size_t>(Profile.Sky.Moon.Pixels.MoonPixelGridSize),
+          static_cast<size_t>(Profile.Sky.Moon.Pixels.MoonPixelGridSize),
           [](const func::GridIndex &Index) { return Index; }),
       [&Profile](const func::GridIndex &Index) {
         return MoonPixelVisible(Profile, Index);
@@ -165,7 +165,7 @@ FRuntimePixelQuad ReduceMoonPixelQuad(const FLevelRetroRenderProfile &Profile,
               MoonPixelOffset(Profile, Index),
           MoonPixelPlaneRight(Profile), MoonPixelPlaneUp(Profile),
           MoonPixelCellWorldSize(Profile) *
-              Profile.MoonPixelOverlapMultiplier,
+              Profile.Sky.Moon.Pixels.MoonPixelOverlapMultiplier,
           MoonDiscColor(Profile)};
 }
 
@@ -197,7 +197,7 @@ FRuntimePixelMeshBuffers ReducePointStarMeshBuffers(
     const FLevelRetroRenderProfile &Profile) {
   FRuntimePixelMeshBuffers Buffers;
   func::for_each_array<int32>(
-      func::index_range(Profile.PointStarCount),
+      func::index_range(Profile.Sky.PointStars.Scale.PointStarCount),
       [&Profile, &Buffers](const int32 &Index) {
         AppendPixelQuad(Buffers, Profile, ReducePointStarQuad(Profile, Index));
       });
@@ -217,24 +217,24 @@ void AppendPixelQuad(FRuntimePixelMeshBuffers &Buffers,
                      const FRuntimePixelQuad &Quad) {
   const int32 BaseIndex = Buffers.Vertices.Num();
   const FVector Right =
-      Quad.Right * (Quad.Size * Profile.PixelQuadHalfExtentMultiplier);
+      Quad.Right * (Quad.Size * Profile.PixelQuad.Bounds.PixelQuadHalfExtentMultiplier);
   const FVector Up =
-      Quad.Up * (Quad.Size * Profile.PixelQuadHalfExtentMultiplier);
+      Quad.Up * (Quad.Size * Profile.PixelQuad.Bounds.PixelQuadHalfExtentMultiplier);
   const FVector Normal = ReducePixelQuadNormal(Quad);
-  const int32 A = BaseIndex + Profile.PixelQuadIndexA;
-  const int32 B = BaseIndex + Profile.PixelQuadIndexB;
-  const int32 C = BaseIndex + Profile.PixelQuadIndexC;
-  const int32 D = BaseIndex + Profile.PixelQuadIndexD;
+  const int32 A = BaseIndex + Profile.PixelQuad.Indices.PixelQuadIndexA;
+  const int32 B = BaseIndex + Profile.PixelQuad.Indices.PixelQuadIndexB;
+  const int32 C = BaseIndex + Profile.PixelQuad.Indices.PixelQuadIndexC;
+  const int32 D = BaseIndex + Profile.PixelQuad.Indices.PixelQuadIndexD;
   Buffers.Vertices.Append(
       {Quad.Center - Right - Up, Quad.Center + Right - Up,
        Quad.Center + Right + Up, Quad.Center - Right + Up});
   Buffers.Triangles.Append({A, B, C, A, C, D, C, B, A, D, C, A});
   Buffers.Normals.Append({Normal, Normal, Normal, Normal});
   Buffers.UV0.Append(
-      {FVector2D(Profile.PixelQuadUvMin, Profile.PixelQuadUvMin),
-       FVector2D(Profile.PixelQuadUvMax, Profile.PixelQuadUvMin),
-       FVector2D(Profile.PixelQuadUvMax, Profile.PixelQuadUvMax),
-       FVector2D(Profile.PixelQuadUvMin, Profile.PixelQuadUvMax)});
+      {FVector2D(Profile.PixelQuad.Bounds.PixelQuadUvMin, Profile.PixelQuad.Bounds.PixelQuadUvMin),
+       FVector2D(Profile.PixelQuad.Bounds.PixelQuadUvMax, Profile.PixelQuad.Bounds.PixelQuadUvMin),
+       FVector2D(Profile.PixelQuad.Bounds.PixelQuadUvMax, Profile.PixelQuad.Bounds.PixelQuadUvMax),
+       FVector2D(Profile.PixelQuad.Bounds.PixelQuadUvMin, Profile.PixelQuad.Bounds.PixelQuadUvMax)});
   Buffers.VertexColors.Append({Quad.Color, Quad.Color, Quad.Color,
                                Quad.Color});
   Buffers.Tangents.Append({FProcMeshTangent(Quad.Right, false),

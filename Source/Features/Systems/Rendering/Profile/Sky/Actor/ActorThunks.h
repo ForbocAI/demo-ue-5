@@ -17,7 +17,7 @@ void ApplyRuntimeSkyAtmosphereComponent(
   Component->SetSkyAndAerialPerspectiveLuminanceFactor(
       RenderingProfileSkyReducers::SkyAtmosphereAerialLuminance(Profile));
   Component->SetHeightFogContribution(
-      Profile.SkyAtmosphereHeightFogContribution);
+      Profile.Sky.Atmosphere.Contribution.SkyAtmosphereHeightFogContribution);
 }
 
 /** User Story: As a profile sky actor consumer, I need to invoke apply runtime sky atmosphere actor through a stable signature so the profile sky actor workflow remains explicit and composable. @fn void ApplyRuntimeSkyAtmosphereActor(ASkyAtmosphere *Sky, const FLevelRetroRenderProfile &Profile) */
@@ -30,10 +30,10 @@ void ApplyRuntimeSkyAtmosphereActor(ASkyAtmosphere *Sky,
 void ApplyRuntimeSkyLightComponent(USkyLightComponent *Component,
                                    const FLevelRetroRenderProfile &Profile) {
   check(Component);
-  Component->SetIntensity(Profile.SkyLightIntensity);
+  Component->SetIntensity(Profile.Sky.Light.SkyLightIntensity);
   Component->SetLightColor(
       RenderingProfileSkyReducers::SkyLightColor(Profile));
-  Component->SetRealTimeCapture(Profile.bSkyLightRealTimeCapture);
+  Component->SetRealTimeCapture(Profile.Sky.Light.bSkyLightRealTimeCapture);
 }
 
 /** User Story: As a profile sky actor consumer, I need to invoke apply runtime sky light actor through a stable signature so the profile sky actor workflow remains explicit and composable. @fn void ApplyRuntimeSkyLightActor(ASkyLight *SkyLight, const FLevelRetroRenderProfile &Profile) */
@@ -49,27 +49,27 @@ void ApplyRuntimeSkyDomeActor(AStaticMeshActor *Actor,
   UStaticMeshComponent *Component = Actor->GetStaticMeshComponent();
   check(Component);
   Component->SetMobility(EComponentMobility::Movable);
-  Actor->SetActorHiddenInGame(!Profile.bSkyDomeEnabled);
+  Actor->SetActorHiddenInGame(!Profile.Sky.Dome.Geometry.bSkyDomeEnabled);
   Actor->SetActorLocation(
       RenderingProfileSkyReducers::ReduceSkyDomeLocation(Profile));
   Actor->SetActorScale3D(
       RenderingProfileSkyReducers::ReduceSkyDomeScale(Profile));
-  Component->SetVisibility(Profile.bSkyDomeEnabled);
+  Component->SetVisibility(Profile.Sky.Dome.Geometry.bSkyDomeEnabled);
   Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   Component->SetCastShadow(false);
   UStaticMesh *Mesh =
-      LoadRuntimeProfileAsset<UStaticMesh>(Profile.SkyDomeMeshPath);
+      LoadRuntimeProfileAsset<UStaticMesh>(Profile.Sky.Dome.Geometry.SkyDomeMeshPath);
   UMaterialInterface *Material =
-      LoadRuntimeProfileAsset<UMaterialInterface>(Profile.SkyDomeMaterialPath);
+      LoadRuntimeProfileAsset<UMaterialInterface>(Profile.Sky.Dome.Geometry.SkyDomeMaterialPath);
   Mesh ? (Component->SetStaticMesh(Mesh), void()) : void();
   UMaterialInstanceDynamic *DynamicMaterial =
       Material ? Component->CreateDynamicMaterialInstance(
-                     Profile.RuntimePixelMaterialIndex, Material)
+                     Profile.PixelQuad.Binding.RuntimePixelMaterialIndex, Material)
                : nullptr;
   DynamicMaterial
       ? (ApplyRuntimeSkyDomeMaterialParameters(DynamicMaterial, Profile),
          void())
-      : (Material ? (Component->SetMaterial(Profile.RuntimePixelMaterialIndex,
+      : (Material ? (Component->SetMaterial(Profile.PixelQuad.Binding.RuntimePixelMaterialIndex,
                                             Material),
                      void())
                   : void());
@@ -83,16 +83,16 @@ void ApplyRuntimePointStarsActor(AActor *Actor,
       RuntimePointStarsComponent(Actor, Profile);
   check(Component);
   Component->SetMobility(EComponentMobility::Movable);
-  Actor->SetActorHiddenInGame(!Profile.bSkyDomeEnabled);
+  Actor->SetActorHiddenInGame(!Profile.Sky.Dome.Geometry.bSkyDomeEnabled);
   Actor->SetActorLocation(FVector::ZeroVector);
   Actor->SetActorRotation(FRotator::ZeroRotator);
   Actor->SetActorScale3D(FVector::OneVector);
-  Component->SetVisibility(Profile.bSkyDomeEnabled);
-  Component->SetHiddenInGame(!Profile.bSkyDomeEnabled);
+  Component->SetVisibility(Profile.Sky.Dome.Geometry.bSkyDomeEnabled);
+  Component->SetHiddenInGame(!Profile.Sky.Dome.Geometry.bSkyDomeEnabled);
   Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   Component->SetCastShadow(false);
   UMaterialInterface *Material =
-      LoadRuntimeProfileAsset<UMaterialInterface>(Profile.MoonDiscMaterialPath);
+      LoadRuntimeProfileAsset<UMaterialInterface>(Profile.Sky.Moon.Geometry.MoonDiscMaterialPath);
   ApplyRuntimePixelMaterial(
       {Component, Material,
        RenderingProfileSkyReducers::SkyDomeStarColor(Profile), &Profile});
@@ -109,16 +109,16 @@ void ApplyRuntimeMoonDiscActor(AActor *Actor,
   check(Component);
   HideRuntimeMoonMeshComponent(Actor);
   Component->SetMobility(EComponentMobility::Movable);
-  Actor->SetActorHiddenInGame(!Profile.bMoonDiscEnabled);
+  Actor->SetActorHiddenInGame(!Profile.Sky.Moon.Geometry.bMoonDiscEnabled);
   Actor->SetActorLocation(FVector::ZeroVector);
   Actor->SetActorRotation(FRotator::ZeroRotator);
   Actor->SetActorScale3D(FVector::OneVector);
-  Component->SetVisibility(Profile.bMoonDiscEnabled);
-  Component->SetHiddenInGame(!Profile.bMoonDiscEnabled);
+  Component->SetVisibility(Profile.Sky.Moon.Geometry.bMoonDiscEnabled);
+  Component->SetHiddenInGame(!Profile.Sky.Moon.Geometry.bMoonDiscEnabled);
   Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   Component->SetCastShadow(false);
   UMaterialInterface *Material =
-      LoadRuntimeProfileAsset<UMaterialInterface>(Profile.MoonDiscMaterialPath);
+      LoadRuntimeProfileAsset<UMaterialInterface>(Profile.Sky.Moon.Geometry.MoonDiscMaterialPath);
   ApplyRuntimePixelMaterial(
       {Component, Material,
        RenderingProfileSkyReducers::MoonDiscColor(Profile), &Profile});
