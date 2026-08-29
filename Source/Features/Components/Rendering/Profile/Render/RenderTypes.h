@@ -21,5 +21,3 @@ struct FLevelRetroRenderProfile {
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI
-
-#include "Features/Components/Rendering/Profile/Render/Equality/EqualityTypes.h"
