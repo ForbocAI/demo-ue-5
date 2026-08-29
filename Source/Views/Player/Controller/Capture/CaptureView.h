@@ -26,7 +26,7 @@ void APlayerRuntimeControllerView::ConfigureScaleAuditCapture() {
   const FAuditCaptureSettings &Settings =
       ScaleAuditCaptureSettings();
   const FCS::FScaleAuditCaptureConfig Config =
-      FCS::SelectScaleAuditCommandLineConfig(Settings, Geometry.TerrainWorldSize);
+      FCS::SelectScaleAuditCommandLineConfig(Settings, Geometry.TerrainExtent.TerrainWorldSize);
   bScaleAuditQuitWhenDone = Config.Run.bQuitWhenDone;
   ScaleAuditOutputDirectory = Config.Run.OutputDirectory;
   ScaleAuditInitialDelaySeconds = Config.Timing.InitialDelaySeconds;

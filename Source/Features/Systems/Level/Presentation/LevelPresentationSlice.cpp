@@ -51,8 +51,8 @@ FLevelDistanceLodStage ReduceDistanceLodForLocation(
 FVector ReduceRouteLodLocation(
     const TArray<FVector> &PatrolRoute,
     const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
-  check(PatrolRoute.IsValidIndex(Geometry.InitialPatrolRouteIndex));
-  return PatrolRoute[Geometry.InitialPatrolRouteIndex];
+  check(PatrolRoute.IsValidIndex(Geometry.PatrolRoute.InitialPatrolRouteIndex));
+  return PatrolRoute[Geometry.PatrolRoute.InitialPatrolRouteIndex];
 }
 
 /** User Story: As a systems level presentation consumer, I need to invoke reduce block distance lod through a stable signature so the systems level presentation workflow remains explicit and composable. @fn FBlockSpawn ReduceBlockDistanceLod( const FRuntimeDistanceLodReduceRequest &Request, const FBlockSpawn &Block) */

@@ -79,7 +79,7 @@ BuildLandmarkSectionSpawn(const FLandmarkSectionSpawnRequest &Request) {
                     detail::LabelLocationForLandmark(
                         {Landmark, Request.Geometry}),
                     LevelLayoutAdapters::CubeHalfExtent(Request.Geometry) *
-                        Request.Geometry.LandmarkLabelWorldSizeScale};
+                        Request.Geometry.Labels.LandmarkLabelWorldSizeScale};
               })};
 }
 
@@ -110,7 +110,7 @@ BuildNatureSectionSpawn(const FNatureSectionSpawnRequest &Request) {
                              {Request.Geometry, Feature.Location,
                               Feature.Scale})}),
                     LevelLayoutAdapters::CubeHalfExtent(Request.Geometry) *
-                        Request.Geometry.NatureLabelWorldSizeScale};
+                        Request.Geometry.Labels.NatureLabelWorldSizeScale};
               })};
 }
 

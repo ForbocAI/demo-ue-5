@@ -63,9 +63,9 @@ ReserveTerrainMeshPayload(const FMeshReserveRequest &Request) {
           [&Request](FMeshPayload Payload) {
             Payload.bLoaded = true;
             Payload.MaterialSlotIndex =
-                Request.Geometry.TerrainMaterialSlotIndex;
-            Payload.MeshSectionIndex = Request.Geometry.TerrainMeshSectionIndex;
-            Payload.bCreateCollision = Request.Geometry.bTerrainCreateCollision;
+                Request.Geometry.TerrainMesh.TerrainMaterialSlotIndex;
+            Payload.MeshSectionIndex = Request.Geometry.TerrainMesh.TerrainMeshSectionIndex;
+            Payload.bCreateCollision = Request.Geometry.TerrainMesh.bTerrainCreateCollision;
             Payload.Vertices.Reserve(Request.LodGridSize *
                                      Request.LodGridSize);
             Payload.Normals.Reserve(Request.LodGridSize *
@@ -75,10 +75,10 @@ ReserveTerrainMeshPayload(const FMeshReserveRequest &Request) {
                                          Request.LodGridSize);
             Payload.Triangles.Reserve(
                 (Request.LodGridSize -
-                 Request.Geometry.TerrainGridTerminalOffset) *
+                 Request.Geometry.TerrainSampling.TerrainGridTerminalOffset) *
                 (Request.LodGridSize -
-                 Request.Geometry.TerrainGridTerminalOffset) *
-                Request.Geometry.TerrainQuadIndexReserveCount);
+                 Request.Geometry.TerrainSampling.TerrainGridTerminalOffset) *
+                Request.Geometry.TerrainQuad.TerrainQuadIndexReserveCount);
             return Payload;
           })
       .val;
@@ -87,15 +87,15 @@ ReserveTerrainMeshPayload(const FMeshReserveRequest &Request) {
 /** User Story: As a features systems terrain consumer, I need to invoke select terrain lod step through a stable signature so the features systems terrain workflow remains explicit and composable. @fn int32 SelectTerrainLodStep( const ForbocAI::Game::Data::FGeometrySettings &Geometry) */
 int32 SelectTerrainLodStep(
     const ForbocAI::Game::Data::FGeometrySettings &Geometry) {
-  return FMath::Max(Geometry.TerrainLodStep, Geometry.TerrainMinimumLodStep);
+  return FMath::Max(Geometry.TerrainSampling.TerrainLodStep, Geometry.TerrainSampling.TerrainMinimumLodStep);
 }
 
 /** User Story: As a features systems terrain consumer, I need to invoke select terrain lod grid size through a stable signature so the features systems terrain workflow remains explicit and composable. @fn int32 SelectTerrainLodGridSize(const FLodGridSizeRequest &Request) */
 int32 SelectTerrainLodGridSize(const FLodGridSizeRequest &Request) {
   return ((Request.SourceGridSize -
-           Request.Geometry.TerrainGridTerminalOffset) /
+           Request.Geometry.TerrainSampling.TerrainGridTerminalOffset) /
           Request.LodStep) +
-         Request.Geometry.TerrainLodGridPadding;
+         Request.Geometry.TerrainSampling.TerrainLodGridPadding;
 }
 
 /** User Story: As a features systems terrain consumer, I need to invoke select terrain source grid index through a stable signature so the features systems terrain workflow remains explicit and composable. @fn int32 SelectTerrainSourceGridIndex(const FMeshBuildContext &Context, int32 LodIndex) */
@@ -162,15 +162,15 @@ FMeshPayload BuildLoadedTerrainMeshPayload(
   const FMeshBuildContext Context{
       TerrainData,
       OrthoData,
-      {SourceGridSize, SourceGridSize - Geometry.TerrainGridTerminalOffset},
-      {LodGridSize, LodGridSize - Geometry.TerrainGridTerminalOffset,
+      {SourceGridSize, SourceGridSize - Geometry.TerrainSampling.TerrainGridTerminalOffset},
+      {LodGridSize, LodGridSize - Geometry.TerrainSampling.TerrainGridTerminalOffset,
        LodStep},
-      {Geometry.TerrainQuadColumnStep, Geometry.TerrainQuadRowStep},
-      {TerrainData.GetTerrainWorldSize() * Geometry.TerrainHalfWorldSizeScale,
+      {Geometry.TerrainQuad.TerrainQuadColumnStep, Geometry.TerrainQuad.TerrainQuadRowStep},
+      {TerrainData.GetTerrainWorldSize() * Geometry.TerrainExtent.TerrainHalfWorldSizeScale,
        TerrainData.GetTerrainWorldSize() /
            static_cast<float>(SourceGridSize -
-                              Geometry.TerrainGridTerminalOffset),
-       Geometry.TerrainVertexHeightOffset}};
+                              Geometry.TerrainSampling.TerrainGridTerminalOffset),
+       Geometry.TerrainMesh.TerrainVertexHeightOffset}};
   const FMeshPayload WithVertices =
       func::fold_grid_range<FMeshPayload>(
           LodGridSize, LodGridSize,

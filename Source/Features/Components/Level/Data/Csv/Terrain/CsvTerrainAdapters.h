@@ -9,11 +9,11 @@ bool FLevelTerrainData::LoadFromContent(
   MinimumGridSize = Request.Csv.Grid.MinimumGridSize;
   MinimumGridIndex = Request.Csv.Grid.EmptyCount;
   GridTerminalOffset = Request.Csv.Grid.TerminalOffset;
-  TerrainWorldSize = Request.Geometry.TerrainWorldSize;
-  ElevationScale = Request.Geometry.TerrainElevationScale;
-  TerrainHalfWorldSizeScale = Request.Geometry.TerrainHalfWorldSizeScale;
-  TerrainSampleNormalizedMin = Request.Geometry.TerrainSampleNormalizedMin;
-  TerrainSampleNormalizedMax = Request.Geometry.TerrainSampleNormalizedMax;
+  TerrainWorldSize = Request.Geometry.TerrainExtent.TerrainWorldSize;
+  ElevationScale = Request.Geometry.TerrainExtent.TerrainElevationScale;
+  TerrainHalfWorldSizeScale = Request.Geometry.TerrainExtent.TerrainHalfWorldSizeScale;
+  TerrainSampleNormalizedMin = Request.Geometry.TerrainExtent.TerrainSampleNormalizedMin;
+  TerrainSampleNormalizedMax = Request.Geometry.TerrainExtent.TerrainSampleNormalizedMax;
   SourcePath = FPaths::ProjectContentDir() / Request.Sources.TerrainCsvPath;
 
   TArray<FString> Lines;

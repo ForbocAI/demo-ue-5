@@ -42,15 +42,15 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const float ActorWorldUnitsPerFoot =
       LevelLayoutAdapters::ActorWorldUnitsFromFeet(
           {Geometry,
-           Geometry.ActorReferenceFeetAcross /
-               Geometry.ActorReferenceFeetAcross});
+           Geometry.WorldScale.ActorReferenceFeetAcross /
+               Geometry.WorldScale.ActorReferenceFeetAcross});
   const float BlockWorldUnitsPerFoot =
-      Geometry.BlockScalePerFoot * Geometry.CubeMeshSize;
+      Geometry.TownLayout.BlockScalePerFoot * Geometry.WorldScale.CubeMeshSize;
   TestTrue(Labels.Next(),
            FMath::IsNearlyEqual(BlockWorldUnitsPerFoot,
                                 ActorWorldUnitsPerFoot));
   const float StoryWorldUnits =
-      Geometry.HeightScalePerStory * Geometry.CubeMeshSize;
+      Geometry.TownLayout.HeightScalePerStory * Geometry.WorldScale.CubeMeshSize;
   const float CharacterHeightFeet =
       Settings.TownspersonPresentation.Geometry.CharacterHeightFeet;
   TestTrue(Labels.Next(),

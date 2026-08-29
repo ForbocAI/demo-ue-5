@@ -54,7 +54,7 @@ ARuntimeLevelView::ARuntimeLevelView()
   BlockBaseMaterial = FG::RenderingActions::LoadBlockoutMaterial(
       AssetPaths.BlockoutMaterialPath);
   LevelGeometrySettings = FG::RuntimeSelectors::SelectLevelGeometry();
-  bSpawnOnBeginPlay = LevelGeometrySettings.bSpawnOnBeginPlay;
+  bSpawnOnBeginPlay = LevelGeometrySettings.Lifecycle.bSpawnOnBeginPlay;
   TextureCatalog = FG::RuntimeSelectors::SelectTextureCatalog();
   RenderingSettings = FG::RuntimeSelectors::SelectRenderingSettings();
 }
@@ -89,10 +89,10 @@ void ARuntimeLevelView::RenderLevel() {
 void ARuntimeLevelView::RenderLevelPayload(
     const FG::FRuntimeLevelViewPayload &Payload) {
   RenderTerrain(Payload);
-  RenderSections(Payload.Sections, LevelGeometrySettings.FirstRenderIndex);
+  RenderSections(Payload.Sections, LevelGeometrySettings.Lifecycle.FirstRenderIndex);
   RenderTownspeople(Payload.Townspeople,
-                    LevelGeometrySettings.FirstRenderIndex);
-  RenderHorses(Payload.Horses, LevelGeometrySettings.FirstRenderIndex);
+                    LevelGeometrySettings.Lifecycle.FirstRenderIndex);
+  RenderHorses(Payload.Horses, LevelGeometrySettings.Lifecycle.FirstRenderIndex);
 }
 
 /** User Story: As a views level consumer, I need to invoke render terrain through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderTerrain( const FG::FRuntimeLevelViewPayload &Payload) */
@@ -121,14 +121,14 @@ void ARuntimeLevelView::RenderSections(
   Index >= Sections.Num()
       ? void()
       : (RenderSection(Sections[Index]),
-         RenderSections(Sections, Index + LevelGeometrySettings.IndexStep));
+         RenderSections(Sections, Index + LevelGeometrySettings.Lifecycle.IndexStep));
 }
 
 /** User Story: As a views level consumer, I need to invoke render section through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderSection( const FG::FSectionSpawn &Section) */
 void ARuntimeLevelView::RenderSection(
     const FG::FSectionSpawn &Section) {
-  RenderBlocks(Section.Blocks, LevelGeometrySettings.FirstRenderIndex);
-  RenderLabels(Section.Labels, LevelGeometrySettings.FirstRenderIndex);
+  RenderBlocks(Section.Blocks, LevelGeometrySettings.Lifecycle.FirstRenderIndex);
+  RenderLabels(Section.Labels, LevelGeometrySettings.Lifecycle.FirstRenderIndex);
 }
 
 /** User Story: As a views level consumer, I need to invoke render blocks through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderBlocks( const TArray<FG::FBlockSpawn> &Blocks, int32 Index) */
@@ -137,7 +137,7 @@ void ARuntimeLevelView::RenderBlocks(
   Index >= Blocks.Num()
       ? void()
       : (RenderBlock(Blocks[Index]),
-         RenderBlocks(Blocks, Index + LevelGeometrySettings.IndexStep));
+         RenderBlocks(Blocks, Index + LevelGeometrySettings.Lifecycle.IndexStep));
 }
 
 /** User Story: As a views level consumer, I need to invoke render labels through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderLabels( const TArray<FG::FLabelSpawn> &Labels, int32 Index) */
@@ -146,7 +146,7 @@ void ARuntimeLevelView::RenderLabels(
   Index >= Labels.Num()
       ? void()
       : (RenderLabel(Labels[Index]),
-         RenderLabels(Labels, Index + LevelGeometrySettings.IndexStep));
+         RenderLabels(Labels, Index + LevelGeometrySettings.Lifecycle.IndexStep));
 }
 
 /** User Story: As a views level consumer, I need to invoke render townspeople through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderTownspeople( const TArray<FG::FRuntimeTownspersonViewSpawn> &Townspeople, int32 Index) */
@@ -157,7 +157,7 @@ void ARuntimeLevelView::RenderTownspeople(
       ? void()
       : (RenderTownsperson(Townspeople[Index]),
          RenderTownspeople(Townspeople,
-                           Index + LevelGeometrySettings.IndexStep));
+                           Index + LevelGeometrySettings.Lifecycle.IndexStep));
 }
 
 /** User Story: As a views level consumer, I need to invoke render horses through a stable signature so the views level workflow remains explicit and composable. @fn void ARuntimeLevelView::RenderHorses( const TArray<FG::FRuntimeHorseViewSpawn> &Horses, int32 Index) */
@@ -166,7 +166,7 @@ void ARuntimeLevelView::RenderHorses(
   Index >= Horses.Num()
       ? void()
       : (RenderHorse(Horses[Index]),
-         RenderHorses(Horses, Index + LevelGeometrySettings.IndexStep));
+         RenderHorses(Horses, Index + LevelGeometrySettings.Lifecycle.IndexStep));
 }
 
 /** User Story: As a views level consumer, I need to invoke render block through a stable signature so the views level workflow remains explicit and composable. @fn AStaticMeshActor *ARuntimeLevelView::RenderBlock( const FG::FBlockSpawn &BlockSpawn) */
@@ -238,11 +238,11 @@ ATownspersonView *ARuntimeLevelView::RenderTownsperson(
       func::from_nullable_value(
           World, World != nullptr &&
                      Spawn.PatrolRoute.Num() >=
-                         LevelGeometrySettings.PatrolRouteRequiredPointCount),
+                         LevelGeometrySettings.PatrolRoute.PatrolRouteRequiredPointCount),
       [this, &Spawn](UWorld *WorldValue) -> ATownspersonView * {
         ATownspersonView *Townsperson =
             WorldValue->SpawnActor<ATownspersonView>(
-                Spawn.PatrolRoute[LevelGeometrySettings.InitialPatrolRouteIndex],
+                Spawn.PatrolRoute[LevelGeometrySettings.PatrolRoute.InitialPatrolRouteIndex],
                 FRotator::ZeroRotator);
         FTownspersonViewConfig Config;
         Config.Identity.Id = Spawn.Identity.Id;
@@ -272,10 +272,10 @@ AHorseView *ARuntimeLevelView::RenderHorse(
       func::from_nullable_value(
           World, World != nullptr &&
                      Spawn.PatrolRoute.Num() >=
-                         LevelGeometrySettings.PatrolRouteRequiredPointCount),
+                         LevelGeometrySettings.PatrolRoute.PatrolRouteRequiredPointCount),
       [this, &Spawn](UWorld *WorldValue) -> AHorseView * {
         AHorseView *Horse = WorldValue->SpawnActor<AHorseView>(
-            Spawn.PatrolRoute[LevelGeometrySettings.InitialPatrolRouteIndex],
+            Spawn.PatrolRoute[LevelGeometrySettings.PatrolRoute.InitialPatrolRouteIndex],
             FRotator::ZeroRotator);
         FHorseViewConfig Config;
         Config.Name = Spawn.Name;
