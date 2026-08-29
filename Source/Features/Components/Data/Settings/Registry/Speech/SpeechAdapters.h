@@ -140,23 +140,23 @@ template <> struct TJsonSettingsRegistry<FSpeechSettings> {
         FORBOCAI_SPEECH_SETTING_FIELD(
             Diagnostics, FDiagnosticSettings, SpeechAudioReceivedLogFormat),
         NestedObjectArraySettingField(
-            JSON_SETTING_ATOM(VowelPhonemes),
             NestedFieldMembers(&FSpeechSettings::Phoneme,
                                &FPhonemeSettings::VowelPhonemes),
             ReadSettingsWith<FVowelPhonemeSettings>(
-                JSON_SETTINGS_ATOMS(Character, Phoneme))),
+                JSON_SETTINGS_ATOMS(Character, Phoneme)))(
+            JSON_SETTING_ATOM(VowelPhonemes)),
         NestedObjectArraySettingField(
-            JSON_SETTING_ATOM(VisemeMappings),
             NestedFieldMembers(&FSpeechSettings::LipSync,
                                &FLipSyncSettings::VisemeMappings),
             ReadSettingsWith<FMappingSettings>(JSON_SETTINGS_ATOMS(
-                Phoneme, MorphTargetName, BlendWeight))),
+                Phoneme, MorphTargetName, BlendWeight)))(
+            JSON_SETTING_ATOM(VisemeMappings)),
         NestedObjectArraySettingField(
-            JSON_SETTING_ATOM(DurationRules),
             NestedFieldMembers(&FSpeechSettings::Phoneme,
                                &FPhonemeSettings::DurationRules),
             ReadSettingsWith<FDurationRuleSettings>(
-                JSON_SETTINGS_ATOMS(Kind, Phoneme, Multiplier))),
+                JSON_SETTINGS_ATOMS(Kind, Phoneme, Multiplier)))(
+            JSON_SETTING_ATOM(DurationRules)),
         JSON_OBJECT_SETTING_FIELDS(
             FSpeechSettings,
             ReadSettingsWith<FAutomationSettings>(JSON_SETTINGS_ATOMS(

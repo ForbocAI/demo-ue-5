@@ -13,9 +13,8 @@ namespace JsonAdapters {
                                         &GroupType::Field))
 #define FORBOCAI_UI_COLOR_FIELD(Group, GroupType, Field)                     \
   NestedObjectSettingField(                                                 \
-      JSON_SETTING_ATOM(Field),                                             \
       NestedFieldMembers(&FUISettings::Group, &GroupType::Field),           \
-      SettingsAdapters::ReadLinearColorSettings)
+      SettingsAdapters::ReadLinearColorSettings)(JSON_SETTING_ATOM(Field))
 
 template <> struct TJsonSettingsRegistry<FUISettings> {
   /** User Story: As a UI root registry consumer, I need to enumerate authored fields through a stable signature so UI concerns remain explicit and composable. @fn static const TArray<TField<FUISettings>> &Fields() */

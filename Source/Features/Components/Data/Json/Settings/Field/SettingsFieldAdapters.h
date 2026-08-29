@@ -223,55 +223,40 @@ NestedSettingField(
       });
 }
 
-/** User Story: As a json settings field consumer, I need to invoke nested object setting field through a stable signature so object-backed concern records remain composable. @fn template <typename Settings, typename Group, typename Value> TField<Settings> NestedObjectSettingField( const char *FieldAtom, const TNestedFieldMembers<Settings, Group, Value> &Members, TJsonObjectSettingsReader<Value> ReadObjectFn) */
-template <typename Settings, typename Group, typename Value>
-TField<Settings> NestedObjectSettingField(
-    const char *FieldAtom,
+/** User Story: As a json settings field consumer, I need a nested-object field factory so the stable member path and reader compose into a unary authored-field declaration. @fn template <typename Settings, typename Group, typename Value, typename Reader> TFunction<TField<Settings>(const char *)> NestedObjectSettingField(const TNestedFieldMembers<Settings, Group, Value> &Members, Reader ReadObjectFn) */
+template <typename Settings, typename Group, typename Value, typename Reader>
+TFunction<TField<Settings>(const char *)> NestedObjectSettingField(
     const TNestedFieldMembers<Settings, Group, Value> &Members,
-    TJsonObjectSettingsReader<Value> ReadObjectFn) {
-  return TField<Settings>(
-      FieldAtom,
-      [Members, ReadObjectFn](const FFieldRequest &Request,
-                              const Settings &Current) {
-        Settings Next = Current;
-        ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
-            ReadObjectFn(ReadObjectValue(Request));
-        return Next;
-      });
+    Reader ReadObjectFn) {
+  return [Members, ReadObjectFn](const char *FieldAtom) {
+    return TField<Settings>(
+        FieldAtom,
+        [Members, ReadObjectFn](const FFieldRequest &Request,
+                                const Settings &Current) {
+          Settings Next = Current;
+          ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
+              ReadObjectFn(ReadObjectValue(Request));
+          return Next;
+        });
+  };
 }
 
-/** User Story: As a json settings field consumer, I need to compose a nested object field with a function reader so object-backed concern records remain explicit. @fn template <typename Settings, typename Group, typename Value> TField<Settings> NestedObjectSettingField( const char *FieldAtom, const TNestedFieldMembers<Settings, Group, Value> &Members, Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &)) */
-template <typename Settings, typename Group, typename Value>
-TField<Settings> NestedObjectSettingField(
-    const char *FieldAtom,
-    const TNestedFieldMembers<Settings, Group, Value> &Members,
-    Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &)) {
-  return TField<Settings>(
-      FieldAtom,
-      [Members, ReadObjectFn](const FFieldRequest &Request,
-                              const Settings &Current) {
-        Settings Next = Current;
-        ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
-            ReadObjectFn(ReadObjectValue(Request));
-        return Next;
-      });
-}
-
-/** User Story: As a json settings field consumer, I need to compose a nested object array so authored collections remain reusable across concern records. @fn template <typename Settings, typename Group, typename Output> TField<Settings> NestedObjectArraySettingField( const char *FieldAtom, const TNestedFieldMembers<Settings, Group, TArray<Output>> &Members, TJsonObjectSettingsReader<Output> MapObjectFn) */
-template <typename Settings, typename Group, typename Output>
-TField<Settings> NestedObjectArraySettingField(
-    const char *FieldAtom,
+/** User Story: As a json settings field consumer, I need a nested-object-array field factory so one member path and object reader compose into a unary authored-field declaration. @fn template <typename Settings, typename Group, typename Output, typename Reader> TFunction<TField<Settings>(const char *)> NestedObjectArraySettingField(const TNestedFieldMembers<Settings, Group, TArray<Output>> &Members, Reader MapObjectFn) */
+template <typename Settings, typename Group, typename Output, typename Reader>
+TFunction<TField<Settings>(const char *)> NestedObjectArraySettingField(
     const TNestedFieldMembers<Settings, Group, TArray<Output>> &Members,
-    TJsonObjectSettingsReader<Output> MapObjectFn) {
-  return TField<Settings>(
-      FieldAtom,
-      [Members, MapObjectFn](const FFieldRequest &Request,
-                             const Settings &Current) {
-        Settings Next = Current;
-        ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
-            MapJsonValues<Output>(ReadArray(Request), MapObjectFn);
-        return Next;
-      });
+    Reader MapObjectFn) {
+  return [Members, MapObjectFn](const char *FieldAtom) {
+    return TField<Settings>(
+        FieldAtom,
+        [Members, MapObjectFn](const FFieldRequest &Request,
+                               const Settings &Current) {
+          Settings Next = Current;
+          ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
+              MapJsonValues<Output>(ReadArray(Request), MapObjectFn);
+          return Next;
+        });
+  };
 }
 
 } // namespace JsonAdapters

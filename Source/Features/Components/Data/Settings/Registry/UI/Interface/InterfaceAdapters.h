@@ -58,10 +58,9 @@ template <> struct TJsonSettingsRegistry<FCaptureViewSettings> {
                          &GroupType::Field))
 #define FORBOCAI_MARKETING_COLOR_FIELD(Field)                               \
   NestedObjectSettingField(                                                 \
-      JSON_SETTING_ATOM(Field),                                             \
       NestedFieldMembers(&FMarketingCaptureSettings::Colors,                \
                          &FMenuColorSettings::Field),                       \
-      SettingsAdapters::ReadLinearColorSettings)
+      SettingsAdapters::ReadLinearColorSettings)(JSON_SETTING_ATOM(Field))
 
 template <> struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
   /** User Story: As a registry ui interface consumer, I need to invoke fields through a stable signature so the registry ui interface workflow remains explicit and composable. @fn static const TArray<TField<FMarketingCaptureSettings>> &Fields() */
