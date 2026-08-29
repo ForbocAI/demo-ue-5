@@ -41,6 +41,7 @@ REDUX_CHECK_ENV=(
 RUNTIME_BUDGET_VIA_POWERSHELL=0
 UNREAL_BUILD=""
 UNREAL_BUILD_ARG=""
+UNREAL_EDITOR_ARG=""
 BUILD_VIA_CMD=0
 
 if [ ! -f "$PROJECT_FILE" ]; then
@@ -52,6 +53,7 @@ fi
 if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" == "win32"* ]]; then
     UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.8}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
+    UNREAL_EDITOR_ARG="$UNREAL_EDITOR"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Build.bat"
     UNREAL_BUILD_ARG="$UNREAL_BUILD"
     RUNTIME_BUDGET_VIA_POWERSHELL=1
@@ -63,6 +65,7 @@ elif grep -qi microsoft /proc/version 2>/dev/null; then
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Build.bat"
     PROJECT_FILE_ARG="$(wslpath -w "$PROJECT_FILE")"
+    UNREAL_EDITOR_ARG="$(wslpath -w "$UNREAL_EDITOR")"
     UNREAL_BUILD_ARG="$(wslpath -w "$UNREAL_BUILD")"
     RUNTIME_BUDGET_POWERSHELL_ARG="$(wslpath -w "$RUNTIME_BUDGET_POWERSHELL_SCRIPT")"
     RUNTIME_BUDGET_VIA_POWERSHELL=1
@@ -71,6 +74,7 @@ elif grep -qi microsoft /proc/version 2>/dev/null; then
 else
     UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Mac/UnrealEditor-Cmd"
+    UNREAL_EDITOR_ARG="$UNREAL_EDITOR"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Mac/Build.sh"
     UNREAL_BUILD_ARG="$UNREAL_BUILD"
 fi
@@ -180,7 +184,7 @@ fi
 # Run UE Automation tests through the native host shell under WSL so the
 # verified test environment reaches Unreal without an interoperability hop.
 if [ "$BUILD_VIA_CMD" -eq 1 ]; then
-  powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { if ([string]::IsNullOrEmpty(\$env:FORBOCAI_API_KEY)) { exit 64 }; & '$UNREAL_EDITOR' '$PROJECT_FILE_ARG' '-ExecCmds=Automation RunTests ForbocAI; Quit' '-log' '-NoUI' '-stdout' '-FullStdOutLogOutput' '-unattended' '-nop4' '-nosplash' '-nullrhi' '-nosound' '-NoLiveCoding'; exit \$LASTEXITCODE }" < /dev/null \
+  powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { if ([string]::IsNullOrEmpty(\$env:FORBOCAI_API_KEY)) { exit 64 }; if (!(Test-Path -LiteralPath '$UNREAL_EDITOR_ARG')) { Write-Error 'UnrealEditor-Cmd executable was not found'; exit 66 }; & '$UNREAL_EDITOR_ARG' '$PROJECT_FILE_ARG' '-ExecCmds=Automation RunTests ForbocAI; Quit' '-log' '-NoUI' '-stdout' '-FullStdOutLogOutput' '-unattended' '-nop4' '-nosplash' '-nullrhi' '-nosound' '-NoLiveCoding'; if (\$null -eq \$LASTEXITCODE) { exit 67 }; exit \$LASTEXITCODE }" < /dev/null \
     | tee "$LOG_FILE"
   UE_EXIT=${PIPESTATUS[0]}
 else
@@ -202,11 +206,25 @@ CONTROLLER_ERRORS=$(grep -Fc "LogAutomationController: Error:" "$LOG_FILE" || tr
 COMMAND_ERRORS=$(grep -Fc "LogAutomationCommandLine: Error:" "$LOG_FILE" || true)
 WARNINGS=$(grep -Eic '(^|[[:space:]])Warning:' "$LOG_FILE" || true)
 SKIPS=$(grep -Eic "skipp(ed|ing)" "$LOG_FILE" || true)
+DISCOVERED=$(grep -Eo "Found [0-9]+ automation tests based on" "$LOG_FILE" | tail -1 | awk '{print $2}' || true)
+STARTED=$(grep -Fc "Test Started." "$LOG_FILE" || true)
+COMPLETED=$(grep -Fc "Test Completed. Result={" "$LOG_FILE" || true)
+EXECUTION_ERRORS=0
 
-TOTAL_FAILURES=$((FAILURES + CONTROLLER_ERRORS + COMMAND_ERRORS + WARNINGS))
+if [ -z "$DISCOVERED" ] || [ "$DISCOVERED" -eq 0 ]; then
+  echo "✗ Automation did not discover any ForbocAI tests."
+  EXECUTION_ERRORS=1
+elif [ "$STARTED" -ne "$DISCOVERED" ] || [ "$COMPLETED" -ne "$DISCOVERED" ]; then
+  echo "✗ Automation execution was incomplete: discovered=$DISCOVERED started=$STARTED completed=$COMPLETED."
+  EXECUTION_ERRORS=1
+else
+  echo "Automation execution evidence: discovered=$DISCOVERED started=$STARTED completed=$COMPLETED."
+fi
+
+TOTAL_FAILURES=$((FAILURES + CONTROLLER_ERRORS + COMMAND_ERRORS + EXECUTION_ERRORS))
 
 if [ "$TOTAL_FAILURES" -gt 0 ]; then
-  echo "✗ Tests failed. Found $TOTAL_FAILURES failure(s), including $WARNINGS warning(s)."
+  echo "✗ Tests failed. Found $TOTAL_FAILURES failure record(s); Unreal also reported $WARNINGS warning(s)."
   echo "  (Found $SKIPS offline skip(s))"
   exit 1
 else
@@ -231,6 +249,6 @@ else
     exit 1
   fi
   echo "✓ All tests passed."
-  echo "  (Found $SKIPS offline skip(s))"
+  echo "  (Found $WARNINGS diagnostic warning(s) and $SKIPS offline skip(s))"
   exit 0
 fi

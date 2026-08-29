@@ -7,10 +7,10 @@
     "bridge_validation": "Bridge Validation"
   },
   "cases": {
-    "create_agent": "Should create an agent via AgentFactory with valid config",
-    "create_immutable_agent": "Should create an immutable agent wrapped in TSharedPtr",
-    "with_state_update": "Should return a new agent on WithState (immutable update)",
-    "invoke_process": "Should complete AgentOps::Process through the live API",
+    "create_agent": "Should create an NPC through the SDK root store",
+    "create_immutable_agent": "Should preserve an immutable NPC snapshot",
+    "with_state_update": "Should reduce an immutable NPC state update",
+    "invoke_process": "Should complete the SDK processNPC thunk through the live API",
     "validate_accepted_action": "Should accept a complete action through the live Bridge API",
     "validate_rejected_action": "Should reject an incomplete action through the live Bridge API"
   },
@@ -21,9 +21,9 @@
     "persona_preserved": "Persona preserved",
     "original_id_preserved": "Original ID preserved",
     "updated_state_contains_mood": "Updated state contains mood",
-    "api_url_present": "FORBOCAI_API_URL is present",
-    "api_key_present": "FORBOCAI_API_KEY is present",
-    "response_payload_present": "AgentOps::Process returns a response payload",
+    "response_payload_present": "processNPC returns an analytical response payload",
+    "bridge_configuration_available": "Bridge validation has API configuration",
+    "bridge_response_received": "Bridge validation returns an API verdict",
     "accepted_action_valid": "Complete action is valid",
     "rejected_action_invalid": "Incomplete action is invalid"
   },
@@ -39,13 +39,13 @@
   },
   "async": {
     "prompt": "What do you notice?",
-    "api_url_variable": "FORBOCAI_API_URL",
-    "api_key_variable": "FORBOCAI_API_KEY",
-    "failure_prefix": "AgentOps::Process failed: ",
+    "failure_prefix": "processNPC failed: ",
     "timeout_seconds": 180
   },
   "bridge": {
     "valid_action_json": "{\"type\":\"MOVE\",\"target\":\"destination\"}",
-    "invalid_action_json": "{\"type\":\"MOVE\"}"
+    "invalid_action_json": "{\"type\":\"MOVE\"}",
+    "failure_prefix": "Bridge validation failed before an API verdict: ",
+    "missing_error": "the SDK recorded no transport error"
   }
 }

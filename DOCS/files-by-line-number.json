@@ -93,10 +93,6 @@
       "lines": 271
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
-      "lines": 270
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Rendering/Registry/RenderingRegistryAdapters.h",
       "lines": 269
     },
@@ -107,6 +103,10 @@
     {
       "path": "Source/Features/Systems/Bots/Pipeline/PipelineSlice.h",
       "lines": 267
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
+      "lines": 266
     },
     {
       "path": "Source/Features/Systems/Level/SystemsLevelTypes.h",
@@ -135,6 +135,10 @@
     {
       "path": "Source/Features/Systems/Presentation/PresentationSelectors.cpp",
       "lines": 257
+    },
+    {
+      "path": "Scripts/Run/run-tests.sh",
+      "lines": 254
     },
     {
       "path": "Source/Features/Components/Data/Json/Read/Field/ReadFieldAdapters.h",
@@ -183,10 +187,6 @@
     {
       "path": "Source/Features/Systems/Level/Geometry/GeometrySlice.h",
       "lines": 232
-    },
-    {
-      "path": "Scripts/Run/run-tests.sh",
-      "lines": 231
     },
     {
       "path": "Source/Tests/BotFunctionalCore.spec.cpp",
@@ -329,6 +329,10 @@
       "lines": 187
     },
     {
+      "path": "Source/Tests/ProtocolLoop.spec.cpp",
+      "lines": 187
+    },
+    {
       "path": "Source/Views/Player/Controller/Capture/CaptureView.h",
       "lines": 187
     },
@@ -338,10 +342,6 @@
     },
     {
       "path": "Scripts/Tools/inventory_outlaw_assets.py",
-      "lines": 184
-    },
-    {
-      "path": "Source/Tests/ProtocolLoop.spec.cpp",
       "lines": 184
     },
     {
@@ -381,6 +381,10 @@
       "lines": 175
     },
     {
+      "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorAdapters.cpp",
+      "lines": 175
+    },
+    {
       "path": "Source/Features/Systems/Rendering/Presentation/RenderingPresentationTypes.h",
       "lines": 175
     },
@@ -409,14 +413,6 @@
       "lines": 170
     },
     {
-      "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorAdapters.cpp",
-      "lines": 170
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h",
-      "lines": 169
-    },
-    {
       "path": "Source/Features/Components/Rendering/Profile/Render/RenderTypes.h",
       "lines": 167
     },
@@ -427,6 +423,10 @@
     {
       "path": "Source/Features/Systems/Rendering/Profile/Sky/Actor/ActorThunks.h",
       "lines": 165
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h",
+      "lines": 162
     },
     {
       "path": "Source/Features/Entities/Environments/Nature/Seed/Construction/ConstructionAdapters.h",
@@ -1337,10 +1337,6 @@
       "lines": 52
     },
     {
-      "path": "Content/Data/settings/core/automation/protocol/loop.json",
-      "lines": 51
-    },
-    {
       "path": "Source/Features/Systems/Rendering/Diagnostics/DiagnosticsAdapters.h",
       "lines": 51
     },
@@ -1359,6 +1355,10 @@
     {
       "path": "Source/Features/Systems/Rendering/Distance/Lod/Clamp/ClampSelectors.h",
       "lines": 50
+    },
+    {
+      "path": "Content/Data/settings/core/automation/protocol/loop.json",
+      "lines": 49
     },
     {
       "path": "Source/Features/Components/Data/Settings/Automation/Tests/TestsTypes.h",
@@ -1717,6 +1717,10 @@
       "lines": 27
     },
     {
+      "path": "Source/Features/Systems/Bots/Orchestrator/NPC/NPCThunks.cpp",
+      "lines": 27
+    },
+    {
       "path": "Source/Features/Systems/Bots/Position/PositionActions.h",
       "lines": 27
     },
@@ -1850,6 +1854,10 @@
     },
     {
       "path": "Source/Features/Systems/Bots/Horses/HorsesSelectors.cpp",
+      "lines": 22
+    },
+    {
+      "path": "Source/Features/Systems/Bots/Orchestrator/NPC/NPCThunks.h",
       "lines": 22
     },
     {

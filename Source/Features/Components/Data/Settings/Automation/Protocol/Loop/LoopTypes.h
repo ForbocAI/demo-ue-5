@@ -23,8 +23,6 @@ struct FState {
 
 struct FAsync {
   FString Prompt;
-  FString ApiUrlVariable;
-  FString ApiKeyVariable;
   FString FailurePrefix;
   float TimeoutSeconds;
 };
@@ -32,6 +30,8 @@ struct FAsync {
 struct FBridge {
   FString ValidActionJson;
   FString InvalidActionJson;
+  FString FailurePrefix;
+  FString MissingError;
 };
 
 struct FGroups {
@@ -66,12 +66,12 @@ struct FStateAssertions {
 };
 
 struct FAsyncAssertions {
-  FString ApiUrlPresent;
-  FString ApiKeyPresent;
   FString ResponsePayloadPresent;
 };
 
 struct FBridgeAssertions {
+  FString BridgeConfigurationAvailable;
+  FString BridgeResponseReceived;
   FString AcceptedActionValid;
   FString RejectedActionInvalid;
 };
@@ -119,8 +119,6 @@ inline bool operator!=(const FState &Left, const FState &Right) {
 /** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FAsync &Left, const FAsync &Right) */
 inline bool operator==(const FAsync &Left, const FAsync &Right) {
   return Left.Prompt == Right.Prompt &&
-         Left.ApiUrlVariable == Right.ApiUrlVariable &&
-         Left.ApiKeyVariable == Right.ApiKeyVariable &&
          Left.FailurePrefix == Right.FailurePrefix &&
          Left.TimeoutSeconds == Right.TimeoutSeconds;
 }
@@ -133,7 +131,9 @@ inline bool operator!=(const FAsync &Left, const FAsync &Right) {
 /** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FBridge &Left, const FBridge &Right) */
 inline bool operator==(const FBridge &Left, const FBridge &Right) {
   return Left.ValidActionJson == Right.ValidActionJson &&
-         Left.InvalidActionJson == Right.InvalidActionJson;
+         Left.InvalidActionJson == Right.InvalidActionJson &&
+         Left.FailurePrefix == Right.FailurePrefix &&
+         Left.MissingError == Right.MissingError;
 }
 
 /** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FBridge &Left, const FBridge &Right) */
@@ -211,9 +211,7 @@ inline bool operator!=(const FStateAssertions &Left,
 /** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FAsyncAssertions &Left, const FAsyncAssertions &Right) */
 inline bool operator==(const FAsyncAssertions &Left,
                        const FAsyncAssertions &Right) {
-  return Left.ApiUrlPresent == Right.ApiUrlPresent &&
-         Left.ApiKeyPresent == Right.ApiKeyPresent &&
-         Left.ResponsePayloadPresent == Right.ResponsePayloadPresent;
+  return Left.ResponsePayloadPresent == Right.ResponsePayloadPresent;
 }
 
 /** User Story: As a automation protocol loop consumer, I need to compare values for inequality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator!=(const FAsyncAssertions &Left, const FAsyncAssertions &Right) */
@@ -225,7 +223,10 @@ inline bool operator!=(const FAsyncAssertions &Left,
 /** User Story: As a automation protocol loop consumer, I need to compare values for equality through a stable signature so the automation protocol loop workflow remains explicit and composable. @fn inline bool operator==(const FBridgeAssertions &Left, const FBridgeAssertions &Right) */
 inline bool operator==(const FBridgeAssertions &Left,
                        const FBridgeAssertions &Right) {
-  return Left.AcceptedActionValid == Right.AcceptedActionValid &&
+  return Left.BridgeConfigurationAvailable ==
+             Right.BridgeConfigurationAvailable &&
+         Left.BridgeResponseReceived == Right.BridgeResponseReceived &&
+         Left.AcceptedActionValid == Right.AcceptedActionValid &&
          Left.RejectedActionInvalid == Right.RejectedActionInvalid;
 }
 

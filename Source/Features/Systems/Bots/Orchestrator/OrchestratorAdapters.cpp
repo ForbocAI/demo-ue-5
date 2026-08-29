@@ -3,16 +3,20 @@
 
 #include "Core/frmt.hpp"
 #include "Core/fp.hpp"
+#include "Features/Systems/Bots/Orchestrator/NPC/NPCThunks.h"
 #include "Features/Systems/Bots/Orchestrator/OrchestratorThunks.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Features/Systems/SystemsSelectors.h"
+#include "Systems/Protocol/Process/ProtocolProcessAdapters.h"
 
 using namespace ForbocAI::Game::Level;
 
 namespace {
 
-/** User Story: As a systems bots orchestrator consumer, I need to invoke runtime state through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn const FRuntimeState &RuntimeState() */
-const FRuntimeState &RuntimeState() { return RuntimeSelectors::SelectState(); }
+/** User Story: As a systems bots orchestrator consumer, I need to invoke runtime state through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn const ForbocAI::Game::Level::FRuntimeState &RuntimeState() */
+const ForbocAI::Game::Level::FRuntimeState &RuntimeState() {
+  return RuntimeSelectors::SelectState();
+}
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke bot settings through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FBotSettings BotSettings() */
 FBotSettings BotSettings() {
@@ -84,10 +88,9 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
     Binding.Id = BotId;
     Binding.BotActor = Actor;
     Binding.LastObservationTime = Settings.InitialObservationTimeSeconds;
-
-    FAgentConfig Config;
-    Config.Persona = Persona;
-    Binding.Agent = MakeShared<const FAgent>(AgentFactory::Create(Config));
+    const FNPCInternalState Npc = BotNpcThunks::RegisterNpc(Persona);
+    Binding.NpcId = Npc.Id;
+    Binding.Persona = Npc.Persona;
 
     BotBindings.Add(Actor, Binding);
     DispatchRuntimeActionsForRegistration(
@@ -108,16 +111,18 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
 /** User Story: As a systems bots orchestrator consumer, I need to invoke request next action through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::RequestNextAction( const FBotRuntimeBinding &Binding) */
 void ABotOrchestratorAdapter::RequestNextAction(
     const FBotRuntimeBinding &Binding) {
-  return !Binding.Agent.IsValid()
+  return Binding.NpcId.IsEmpty()
              ? void()
              : [&]() {
     const FBotSettings Settings = BotSettings();
     const FString Observation = GetStateObservation(Binding.Id);
-
+    FProtocolProcessInput Input =
+        ProtocolProcess::ProcessInput(Binding.NpcId, Observation);
+    Input.Persona = Binding.Persona;
     AActor *BotActor = Binding.BotActor;
 
-    AgentOps::Process(*Binding.Agent, Observation, {})
-        .then([this, BotActor](FAgentResponse Response) {
+    BotNpcThunks::ProcessObservation(Input)
+        .then([this, BotActor](const FAgentResponse &Response) {
           ExecuteAction(BotActor, Response.Action.Type);
         })
         .catch_([BotActor, Settings](std::string Error) {
@@ -161,7 +166,7 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
 /** User Story: As a systems bots orchestrator consumer, I need to invoke get state observation through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FString ABotOrchestratorAdapter::GetStateObservation( const FString &BotId) const */
 FString ABotOrchestratorAdapter::GetStateObservation(
     const FString &BotId) const {
-  const FRuntimeState &State = RuntimeState();
+  const ForbocAI::Game::Level::FRuntimeState &State = RuntimeState();
   return BotStateObservation(FBotObservationSource{
       BotId, RuntimeSelectors::SelectBotSettings(State),
       RuntimeSelectors::SelectBotById(State, BotId),

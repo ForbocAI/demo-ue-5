@@ -13,11 +13,10 @@ JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FPersonas, Agent, Immutable,
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FState, Json, Needle);
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FAsync, Prompt,
-                       ApiUrlVariable, ApiKeyVariable, FailurePrefix,
-                       TimeoutSeconds);
+                       FailurePrefix, TimeoutSeconds);
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FBridge, ValidActionJson,
-                       InvalidActionJson);
+                       InvalidActionJson, FailurePrefix, MissingError);
 
 JSON_SETTINGS_REGISTRY(Automation::Protocol::Loop::FGroups, AgentCreation,
                        StateUpdates, AsyncProcessPipeline, BridgeValidation);
@@ -71,23 +70,23 @@ struct TJsonSettingsRegistry<Automation::Protocol::Loop::FAssertions> {
                     &Automation::Protocol::Loop::FStateAssertions::
                         UpdatedStateContainsMood)),
             NestedSettingField(
-                JSON_SETTING_ATOM(ApiUrlPresent),
-                NestedFieldMembers(
-                    &Automation::Protocol::Loop::FAssertions::Async,
-                    &Automation::Protocol::Loop::FAsyncAssertions::
-                        ApiUrlPresent)),
-            NestedSettingField(
-                JSON_SETTING_ATOM(ApiKeyPresent),
-                NestedFieldMembers(
-                    &Automation::Protocol::Loop::FAssertions::Async,
-                    &Automation::Protocol::Loop::FAsyncAssertions::
-                        ApiKeyPresent)),
-            NestedSettingField(
                 JSON_SETTING_ATOM(ResponsePayloadPresent),
                 NestedFieldMembers(
                     &Automation::Protocol::Loop::FAssertions::Async,
                     &Automation::Protocol::Loop::FAsyncAssertions::
                         ResponsePayloadPresent)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(BridgeConfigurationAvailable),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Bridge,
+                    &Automation::Protocol::Loop::FBridgeAssertions::
+                        BridgeConfigurationAvailable)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(BridgeResponseReceived),
+                NestedFieldMembers(
+                    &Automation::Protocol::Loop::FAssertions::Bridge,
+                    &Automation::Protocol::Loop::FBridgeAssertions::
+                        BridgeResponseReceived)),
             NestedSettingField(
                 JSON_SETTING_ATOM(AcceptedActionValid),
                 NestedFieldMembers(
@@ -133,8 +132,9 @@ template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> 
                     JSON_SETTINGS_ATOMS(
                         AgentIdNotEmpty, PersonaMatches, AgentPointerValid,
                         PersonaPreserved, OriginalIdPreserved,
-                        UpdatedStateContainsMood, ApiUrlPresent, ApiKeyPresent,
-                        ResponsePayloadPresent, AcceptedActionValid,
+                        UpdatedStateContainsMood, ResponsePayloadPresent,
+                        BridgeConfigurationAvailable, BridgeResponseReceived,
+                        AcceptedActionValid,
                         RejectedActionInvalid)),
                 Assertions),
             JSON_OBJECT_SETTING_FIELDS(
@@ -150,14 +150,15 @@ template <> struct TJsonSettingsRegistry<Automation::Protocol::Loop::FSettings> 
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
                 ReadSettingsWith<Automation::Protocol::Loop::FAsync>(
-                    JSON_SETTINGS_ATOMS(Prompt, ApiUrlVariable, ApiKeyVariable,
-                                        FailurePrefix, TimeoutSeconds)),
+                    JSON_SETTINGS_ATOMS(Prompt, FailurePrefix,
+                                        TimeoutSeconds)),
                 Async),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Protocol::Loop::FSettings,
                 ReadSettingsWith<Automation::Protocol::Loop::FBridge>(
                     JSON_SETTINGS_ATOMS(ValidActionJson,
-                                        InvalidActionJson)),
+                                        InvalidActionJson, FailurePrefix,
+                                        MissingError)),
                 Bridge)};
     return RegisteredFields;
   }

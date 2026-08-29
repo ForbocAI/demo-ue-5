@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "NPC/NPCModule.h"
 #include "OrchestratorAdapters.generated.h"
 /**
  * ABotOrchestratorAdapter - The central brain for the Game's AI entities.
@@ -44,8 +43,9 @@ public:
 private:
   struct FBotRuntimeBinding {
     FString Id;
+    FString NpcId;
+    FString Persona;
     AActor *BotActor;
-    TSharedPtr<const FAgent> Agent;
     float LastObservationTime;
   };
 
