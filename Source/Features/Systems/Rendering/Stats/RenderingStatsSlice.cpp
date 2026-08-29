@@ -28,13 +28,13 @@ inline FStatsTextModel ReduceRuntimeStatsValue(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FStatsTextModel Model;
   Model.Text = FormatRuntimeStatsText(
-      {&Settings.ValueFormat, Settings.FormatBufferCharacterCount},
+      {&Settings.Presentation.Format.ValueFormat, Settings.Presentation.Format.FormatBufferCharacterCount},
       static_cast<long long>(Value));
   Model.Color =
       Value >= HighThreshold
-          ? Settings.HighValueColor
-          : (Value >= MediumThreshold ? Settings.MediumValueColor
-                                      : Settings.LowValueColor);
+          ? Settings.Presentation.Colors.HighValueColor
+          : (Value >= MediumThreshold ? Settings.Presentation.Colors.MediumValueColor
+                                      : Settings.Presentation.Colors.LowValueColor);
   return Model;
 }
 
@@ -44,9 +44,9 @@ inline FStatsTextModel ReduceRuntimeStatsDecimalValue(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FStatsTextModel Model;
   Model.Text = FormatRuntimeStatsText(
-      {&Settings.DecimalValueFormat, Settings.FormatBufferCharacterCount},
+      {&Settings.Presentation.Format.DecimalValueFormat, Settings.Presentation.Format.FormatBufferCharacterCount},
       Value);
-  Model.Color = Settings.TextColor;
+  Model.Color = Settings.Presentation.Colors.TextColor;
   return Model;
 }
 
@@ -56,9 +56,9 @@ inline FStatsTextModel ReduceRuntimeStatsPlainValue(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FStatsTextModel Model;
   Model.Text = FormatRuntimeStatsText(
-      {&Settings.ValueFormat, Settings.FormatBufferCharacterCount},
+      {&Settings.Presentation.Format.ValueFormat, Settings.Presentation.Format.FormatBufferCharacterCount},
       static_cast<long long>(Value));
-  Model.Color = Settings.TextColor;
+  Model.Color = Settings.Presentation.Colors.TextColor;
   return Model;
 }
 
@@ -68,9 +68,9 @@ inline FStatsTextModel ReduceRuntimeStatsPlainValue(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FStatsTextModel Model;
   Model.Text = FormatRuntimeStatsText(
-      {&Settings.ValueFormat, Settings.FormatBufferCharacterCount},
+      {&Settings.Presentation.Format.ValueFormat, Settings.Presentation.Format.FormatBufferCharacterCount},
       static_cast<long long>(Value));
-  Model.Color = Settings.TextColor;
+  Model.Color = Settings.Presentation.Colors.TextColor;
   return Model;
 }
 
@@ -80,24 +80,24 @@ inline FRuntimeStatsPresentationModel ReduceRuntimeStatsPresentationModel(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   FRuntimeStatsPresentationModel Presentation;
   Presentation.FramesPerSecond = ReduceRuntimeStatsValue(
-      Stats.Summary.FramesPerSecond, Settings.FramesPerSecondMediumThreshold,
-      Settings.FramesPerSecondHighThreshold, Settings);
+      Stats.Summary.FramesPerSecond, Settings.Thresholds.Performance.FramesPerSecondMediumThreshold,
+      Settings.Thresholds.Performance.FramesPerSecondHighThreshold, Settings);
   Presentation.StackDepth = ReduceRuntimeStatsValue(
-      Stats.Summary.StackDepth, Settings.StackDepthMediumThreshold,
-      Settings.StackDepthHighThreshold, Settings);
+      Stats.Summary.StackDepth, Settings.Thresholds.Performance.StackDepthMediumThreshold,
+      Settings.Thresholds.Performance.StackDepthHighThreshold, Settings);
   Presentation.PolyCount =
       ReduceRuntimeStatsValue(Stats.Summary.PolyCount,
-                              Settings.PolyCountMediumThreshold,
-                              Settings.PolyCountHighThreshold, Settings);
+                              Settings.Thresholds.Resource.PolyCountMediumThreshold,
+                              Settings.Thresholds.Resource.PolyCountHighThreshold, Settings);
   Presentation.UsedPhysicalMemoryMegabytes = ReduceRuntimeStatsValue(
-      Stats.Memory.UsedPhysicalMegabytes, Settings.MemoryMediumThreshold,
-      Settings.MemoryHighThreshold, Settings);
+      Stats.Memory.UsedPhysicalMegabytes, Settings.Thresholds.Resource.MemoryMediumThreshold,
+      Settings.Thresholds.Resource.MemoryHighThreshold, Settings);
   Presentation.PeakPhysicalMemoryMegabytes = ReduceRuntimeStatsValue(
-      Stats.Memory.PeakUsedPhysicalMegabytes, Settings.MemoryMediumThreshold,
-      Settings.MemoryHighThreshold, Settings);
+      Stats.Memory.PeakUsedPhysicalMegabytes, Settings.Thresholds.Resource.MemoryMediumThreshold,
+      Settings.Thresholds.Resource.MemoryHighThreshold, Settings);
   Presentation.UsedVirtualMemoryMegabytes = ReduceRuntimeStatsValue(
-      Stats.Memory.UsedVirtualMegabytes, Settings.MemoryMediumThreshold,
-      Settings.MemoryHighThreshold, Settings);
+      Stats.Memory.UsedVirtualMegabytes, Settings.Thresholds.Resource.MemoryMediumThreshold,
+      Settings.Thresholds.Resource.MemoryHighThreshold, Settings);
   Presentation.GameThreadMilliseconds =
       ReduceRuntimeStatsDecimalValue(Stats.Timing.GameThreadMilliseconds, Settings);
   Presentation.RenderThreadMilliseconds =
@@ -180,7 +180,7 @@ FRenderingState ReduceRuntimeStatsSampled(
                 Payload.BudgetScreenshotIndex;
             float WallDeltaSeconds =
                 (State.StatsClock.FrameClockSeconds == double{})
-                    ? Settings.InitialDeltaSeconds
+                    ? Settings.Measurement.Frame.InitialDeltaSeconds
                     : Payload.BudgetClockSeconds -
                           State.StatsClock.FrameClockSeconds;
             Next.StatsClock.StatsRefreshElapsedSeconds += WallDeltaSeconds;
@@ -194,7 +194,7 @@ FRenderingState ReduceRuntimeStatsSampled(
                   Updated.PolyCache.CachedPolyCountMilliseconds =
                       PolyCount.MeasurementMilliseconds;
                   Updated.StatsClock.PolyCountRefreshElapsedSeconds =
-                      Settings.IntervalResetElapsedSeconds;
+                      Settings.Refresh.IntervalResetElapsedSeconds;
                   return Updated;
                 },
                 [&Next]() { return Next; });
@@ -206,7 +206,7 @@ FRenderingState ReduceRuntimeStatsSampled(
                   Updated.Presentation.StatsPresentation =
                       ReduceRuntimeStatsPresentationModel(Stats, Settings);
                   Updated.StatsClock.StatsRefreshElapsedSeconds =
-                      Settings.IntervalResetElapsedSeconds;
+                      Settings.Refresh.IntervalResetElapsedSeconds;
                   return Updated;
                 },
                 [&Next]() { return Next; });

@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FRequestSettings {
+struct FTtsRequestSettings {
   FString TtsEndpoint;
   FString TtsVerb;
   FString TtsContentTypeHeader;
@@ -14,9 +14,9 @@ struct FRequestSettings {
   FString TtsRequestFormat;
 };
 
-/** User Story: As a speech request consumer, I need to compare TTS request settings so transport remains deterministic. @fn inline bool operator==(const FRequestSettings &Left, const FRequestSettings &Right) */
-inline bool operator==(const FRequestSettings &Left,
-                       const FRequestSettings &Right) {
+/** User Story: As a speech request consumer, I need to compare TTS request settings so transport remains deterministic. @fn inline bool operator==(const FTtsRequestSettings &Left, const FTtsRequestSettings &Right) */
+inline bool operator==(const FTtsRequestSettings &Left,
+                       const FTtsRequestSettings &Right) {
   return Left.TtsEndpoint == Right.TtsEndpoint &&
          Left.TtsVerb == Right.TtsVerb &&
          Left.TtsContentTypeHeader == Right.TtsContentTypeHeader &&

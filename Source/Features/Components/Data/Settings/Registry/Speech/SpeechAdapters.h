@@ -122,15 +122,15 @@ template <> struct TJsonSettingsRegistry<FSpeechSettings> {
         FORBOCAI_SPEECH_SETTING_FIELD(
             Phoneme, FPhonemeSettings, SilencePhoneme),
         FORBOCAI_SPEECH_SETTING_FIELD(
-            TtsRequest, FRequestSettings, TtsEndpoint),
+            TtsRequest, FTtsRequestSettings, TtsEndpoint),
         FORBOCAI_SPEECH_SETTING_FIELD(
-            TtsRequest, FRequestSettings, TtsVerb),
+            TtsRequest, FTtsRequestSettings, TtsVerb),
         FORBOCAI_SPEECH_SETTING_FIELD(
-            TtsRequest, FRequestSettings, TtsContentTypeHeader),
+            TtsRequest, FTtsRequestSettings, TtsContentTypeHeader),
         FORBOCAI_SPEECH_SETTING_FIELD(
-            TtsRequest, FRequestSettings, TtsContentType),
+            TtsRequest, FTtsRequestSettings, TtsContentType),
         FORBOCAI_SPEECH_SETTING_FIELD(
-            TtsRequest, FRequestSettings, TtsRequestFormat),
+            TtsRequest, FTtsRequestSettings, TtsRequestFormat),
         FORBOCAI_SPEECH_SETTING_FIELD(
             TtsResponse, FResponseSettings, TtsSuccessResponseCode),
         FORBOCAI_SPEECH_SETTING_FIELD(

@@ -61,6 +61,12 @@ template <typename Settings> struct TField {
       TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn)
       : FieldName(SettingsFieldName(FieldAtom)), Apply(ApplyFn) {}
 
+  /** User Story: As a composed settings registry, I need an existing Unreal field name paired with a pure binding so nested concern registries retain their authored key. @fn TField(const TCHAR *FieldAtom, TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn) */
+  TField(
+      const TCHAR *FieldAtom,
+      TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn)
+      : FieldName(SettingsFieldName(FieldAtom)), Apply(ApplyFn) {}
+
   /** User Story: As a json settings field consumer, I need to invoke tfield through a stable signature so the json settings field workflow remains explicit and composable. @fn template <typename Value> TField(const char *FieldAtom, Value Settings::*Member) */
   template <typename Value>
   TField(const char *FieldAtom, Value Settings::*Member)

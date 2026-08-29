@@ -41,7 +41,7 @@ namespace {
 double RuntimeMilliseconds(double ElapsedSeconds,
                            const FRuntimeState &State) {
   return ElapsedSeconds *
-         State.UI.Settings.StatsOverlay.SecondsToMilliseconds;
+         State.UI.Settings.StatsOverlay.Measurement.Diagnostics.SecondsToMilliseconds;
 }
 
 /** User Story: As a features systems state consumer, I need to invoke reduce root with diagnostics through a stable signature so the features systems state workflow remains explicit and composable. @fn FRuntimeState ReduceRootWithDiagnostics( FRuntimeState State, const rtk::CaseReducer<FRuntimeState> &CombinedReducers, const rtk::AnyAction &Action) */

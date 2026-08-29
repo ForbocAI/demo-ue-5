@@ -45,11 +45,12 @@ UTextBlock *BuildStatsTextElement(const FTextElementRequest &Request) {
       Request.Tree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
   check(Element);
   FSlateFontInfo Font = Element->GetFont();
-  Font.Size = Request.Settings->FontSize;
+  Font.Size = Request.Settings->Presentation.Typography.FontSize;
   Element->SetFont(Font);
   Element->SetText(FText::FromString(Request.Text));
   Element->SetColorAndOpacity(FSlateColor(Request.Color));
-  Element->SetAutoWrapText(Request.Settings->bAutoWrapText);
+  Element->SetAutoWrapText(
+      Request.Settings->Presentation.Typography.bAutoWrapText);
   return Element;
 }
 
@@ -63,10 +64,12 @@ UHorizontalBox *BuildStatsMetricRow(const FMetricRowRequest &Request) {
           UHorizontalBox::StaticClass());
   check(RowElement);
   RowElement->AddChildToHorizontalBox(BuildStatsTextElement(
-      {Request.Tree, Request.Label + Request.Settings->LabelValueSeparator,
-       Request.Settings->TextColor, Request.Settings}));
+      {Request.Tree,
+       Request.Label + Request.Settings->Presentation.Format.LabelValueSeparator,
+       Request.Settings->Presentation.Colors.TextColor, Request.Settings}));
   *Request.ValueTextElement = BuildStatsTextElement(
-      {Request.Tree, FString(), Request.Settings->LowValueColor,
+      {Request.Tree, FString(),
+       Request.Settings->Presentation.Colors.LowValueColor,
        Request.Settings});
   RowElement->AddChildToHorizontalBox(*Request.ValueTextElement);
   return RowElement;
@@ -90,10 +93,10 @@ void URuntimeStatsWidget::NativeConstruct() {
 
   const auto &Settings =
       FG::RuntimeSelectors::SelectUISettings().StatsOverlay;
-  SetPositionInViewport(FVector2D(Settings.ViewportLeft, Settings.ViewportTop),
-                        Settings.bRemoveDpIScale);
+  SetPositionInViewport(FVector2D(Settings.Presentation.Viewport.ViewportLeft, Settings.Presentation.Viewport.ViewportTop),
+                        Settings.Presentation.Typography.bRemoveDpIScale);
   SetDesiredSizeInViewport(
-      FVector2D(Settings.ViewportWidth, Settings.ViewportHeight));
+      FVector2D(Settings.Presentation.Viewport.ViewportWidth, Settings.Presentation.Viewport.ViewportHeight));
   SetVisibility(ESlateVisibility::Visible);
 
   check(WidgetTree);
@@ -109,114 +112,114 @@ void URuntimeStatsWidget::NativeConstruct() {
           check(PanelElement);
           check(StackElement);
 
-          PanelElement->SetPadding(FMargin(Settings.PanelPadding));
-          PanelElement->SetBrushColor(Settings.PanelColor);
+          PanelElement->SetPadding(FMargin(Settings.Presentation.Viewport.PanelPadding));
+          PanelElement->SetBrushColor(Settings.Presentation.Colors.PanelColor);
           PanelElement->AddChild(StackElement);
 
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.FramesPerSecondLabel,
+              {WidgetTree, Settings.Labels.Performance.FramesPerSecondLabel,
                &FramesPerSecondValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.StackDepthLabel,
+              {WidgetTree, Settings.Labels.Performance.StackDepthLabel,
                &StackDepthValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.PolyCountLabel, &PolyCountValueTextElement,
+              {WidgetTree, Settings.Labels.Performance.PolyCountLabel, &PolyCountValueTextElement,
                &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.UsedPhysicalMemoryLabel,
+              {WidgetTree, Settings.Labels.Memory.UsedPhysicalMemoryLabel,
                &UsedPhysicalMemoryValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.PeakPhysicalMemoryLabel,
+              {WidgetTree, Settings.Labels.Memory.PeakPhysicalMemoryLabel,
                &PeakPhysicalMemoryValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.UsedVirtualMemoryLabel,
+              {WidgetTree, Settings.Labels.Memory.UsedVirtualMemoryLabel,
                &UsedVirtualMemoryValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.GameThreadMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Timing.GameThreadMillisecondsLabel,
                &GameThreadMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.RenderThreadMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Timing.RenderThreadMillisecondsLabel,
                &RenderThreadMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.RhiThreadMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Timing.RhiThreadMillisecondsLabel,
                &RhiThreadMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.GpuMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Timing.GpuMillisecondsLabel,
                &GpuMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.DrawCallsLabel, &DrawCallsValueTextElement,
+              {WidgetTree, Settings.Labels.Rendering.DrawCallsLabel, &DrawCallsValueTextElement,
                &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.RhiPrimitivesLabel,
+              {WidgetTree, Settings.Labels.Rendering.RhiPrimitivesLabel,
                &RhiPrimitivesValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.WallDeltaMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Timing.WallDeltaMillisecondsLabel,
                &WallDeltaMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.InputDeltaMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Timing.InputDeltaMillisecondsLabel,
                &InputDeltaMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.StatsSelectionMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Rendering.StatsSelectionMillisecondsLabel,
                &StatsSelectionMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.PolyCountMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Rendering.PolyCountMillisecondsLabel,
                &PolyCountMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.EngineIdleMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Rendering.EngineIdleMillisecondsLabel,
                &EngineIdleMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.EngineIdleOvershootMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Rendering.EngineIdleOvershootMillisecondsLabel,
                &EngineIdleOvershootMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(
-              BuildStatsMetricRow({WidgetTree, Settings.MaxFpsLabel,
+              BuildStatsMetricRow({WidgetTree, Settings.Labels.Rate.MaxFpsLabel,
                                    &MaxFpsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.FrameRateLimitLabel,
+              {WidgetTree, Settings.Labels.Rate.FrameRateLimitLabel,
                &FrameRateLimitValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.EffectiveMaxTickRateLabel,
+              {WidgetTree, Settings.Labels.Rate.EffectiveMaxTickRateLabel,
                &EffectiveMaxTickRateValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.FixedFrameRateEnabledLabel,
+              {WidgetTree, Settings.Labels.Rate.FixedFrameRateEnabledLabel,
                &FixedFrameRateEnabledValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.FixedFrameRateLabel,
+              {WidgetTree, Settings.Labels.Rate.FixedFrameRateLabel,
                &FixedFrameRateValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.FixedTimeStepEnabledLabel,
+              {WidgetTree, Settings.Labels.State.FixedTimeStepEnabledLabel,
                &FixedTimeStepEnabledValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.FixedDeltaMillisecondsLabel,
+              {WidgetTree, Settings.Labels.State.FixedDeltaMillisecondsLabel,
                &FixedDeltaMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(
-              BuildStatsMetricRow({WidgetTree, Settings.VsyncEnabledLabel,
+              BuildStatsMetricRow({WidgetTree, Settings.Labels.Rate.VsyncEnabledLabel,
                                    &VsyncEnabledValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.IdleWhenNotForegroundEnabledLabel,
+              {WidgetTree, Settings.Labels.State.IdleWhenNotForegroundEnabledLabel,
                &IdleWhenNotForegroundEnabledValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(
-              BuildStatsMetricRow({WidgetTree, Settings.AppHasFocusLabel,
+              BuildStatsMetricRow({WidgetTree, Settings.Labels.State.AppHasFocusLabel,
                                    &AppHasFocusValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.CpuThrottleEnabledLabel,
+              {WidgetTree, Settings.Labels.State.CpuThrottleEnabledLabel,
                &CpuThrottleEnabledValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.AllWindowsHiddenLabel,
+              {WidgetTree, Settings.Labels.State.AllWindowsHiddenLabel,
                &AllWindowsHiddenValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.RootReducerMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Projection.RootReducerMillisecondsLabel,
                &RootReducerMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.CombinedReducerMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Projection.CombinedReducerMillisecondsLabel,
                &CombinedReducerMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.EcsProjectionMillisecondsLabel,
+              {WidgetTree, Settings.Labels.Projection.EcsProjectionMillisecondsLabel,
                &EcsProjectionMillisecondsValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.ProjectedEntityCountLabel,
+              {WidgetTree, Settings.Labels.Projection.ProjectedEntityCountLabel,
                &ProjectedEntityCountValueTextElement, &Settings}));
           StackElement->AddChildToVerticalBox(BuildStatsMetricRow(
-              {WidgetTree, Settings.ProjectedComponentTypeCountLabel,
+              {WidgetTree, Settings.Labels.Projection.ProjectedComponentTypeCountLabel,
                &ProjectedComponentTypeCountValueTextElement, &Settings}));
           WidgetTree->RootWidget = PanelElement;
         }(), void());

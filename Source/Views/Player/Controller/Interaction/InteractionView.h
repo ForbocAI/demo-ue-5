@@ -101,7 +101,7 @@ void APlayerRuntimeControllerView::PresentRuntimeStatsWidget() {
               this, RuntimeStatsWidgetClass);
           check(RuntimeStatsWidget);
           RuntimeStatsWidget->AddToViewport(
-              FG::RuntimeSelectors::SelectUISettings().StatsOverlay.ZOrder);
+              FG::RuntimeSelectors::SelectUISettings().StatsOverlay.Presentation.Viewport.ZOrder);
         }(), void());
 }
 

@@ -74,28 +74,28 @@ FRuntimeFramePacingStats SelectRuntimeFramePacingStats(
                                                       Settings),
        RenderingSelectors::SelectRuntimeMilliseconds(
            FApp::GetIdleTimeOvershoot(), Settings)},
-      {SelectConsoleVariableFloat(Settings.MaxFpsCVarName,
-                                  Settings.DiagnosticDefaultFloatValue),
+      {SelectConsoleVariableFloat(Settings.Measurement.CVars.MaxFpsCVarName,
+                                  Settings.Measurement.Diagnostics.DiagnosticDefaultFloatValue),
        GameUserSettings != nullptr
            ? GameUserSettings->GetFrameRateLimit()
-           : Settings.DiagnosticDefaultFloatValue,
+           : Settings.Measurement.Diagnostics.DiagnosticDefaultFloatValue,
        GEngine != nullptr
            ? GEngine->GetMaxTickRate(
                  Query.DeltaSeconds,
-                 Settings.bDiagnosticAllowFrameRateSmoothing)
-           : Settings.DiagnosticDefaultFloatValue,
+                 Settings.Measurement.Diagnostics.bDiagnosticAllowFrameRateSmoothing)
+           : Settings.Measurement.Diagnostics.DiagnosticDefaultFloatValue,
        GEngine != nullptr ? GEngine->FixedFrameRate
-                          : Settings.DiagnosticDefaultFloatValue},
+                          : Settings.Measurement.Diagnostics.DiagnosticDefaultFloatValue},
       {RenderingSelectors::SelectIntFromBool(
            GEngine != nullptr && GEngine->bUseFixedFrameRate, Settings),
        RenderingSelectors::SelectIntFromBool(FApp::UseFixedTimeStep(),
                                              Settings),
        RenderingSelectors::SelectRuntimeMilliseconds(FApp::GetFixedDeltaTime(),
                                                       Settings),
-       SelectConsoleVariableInt(Settings.VsyncCVarName,
-                                Settings.DiagnosticDefaultIntValue),
-       SelectConsoleVariableInt(Settings.IdleWhenNotForegroundCVarName,
-                                Settings.DiagnosticDefaultIntValue),
+       SelectConsoleVariableInt(Settings.Measurement.CVars.VsyncCVarName,
+                                Settings.Measurement.Diagnostics.DiagnosticDefaultIntValue),
+       SelectConsoleVariableInt(Settings.Measurement.CVars.IdleWhenNotForegroundCVarName,
+                                Settings.Measurement.Diagnostics.DiagnosticDefaultIntValue),
        RenderingSelectors::SelectIntFromBool(FApp::HasFocus(), Settings)},
       {RenderingSelectors::SelectIntFromBool(
            GEngine != nullptr && GEngine->ShouldThrottleCPUUsage(), Settings),
@@ -107,7 +107,7 @@ FRuntimeFramePacingStats SelectRuntimeFramePacingStats(
 FString RuntimeBudgetScreenshotDirectory(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return FPaths::Combine(FPaths::ProjectDir(),
-                         Settings.BudgetScreenshotDirectory);
+                         Settings.BudgetCapture.Path.BudgetScreenshotDirectory);
 }
 
 /** User Story: As a systems rendering diagnostics consumer, I need to invoke runtime budget screenshot path through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn FString RuntimeBudgetScreenshotPath( const ForbocAI::Game::Data::FOverlaySettings &Settings, int32 Index) */
@@ -116,7 +116,7 @@ FString RuntimeBudgetScreenshotPath(
     int32 Index) {
   return FPaths::Combine(
       RuntimeBudgetScreenshotDirectory(Settings),
-      frmt::RuntimeString(Settings.BudgetScreenshotFileNameFormat,
+      frmt::RuntimeString(Settings.BudgetCapture.Path.BudgetScreenshotFileNameFormat,
                           frmt::Args({frmt::Arg(Index)})));
 }
 
@@ -126,8 +126,8 @@ FString RuntimeBudgetScreenshotPath(
 float SelectRuntimeBudgetScreenshotIntervalSeconds(
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return SelectCommandLineFloat(
-      Settings.BudgetScreenshotIntervalCommandLineKey,
-      Settings.BudgetScreenshotIntervalSeconds);
+      Settings.BudgetCapture.Request.BudgetScreenshotIntervalCommandLineKey,
+      Settings.Refresh.BudgetScreenshotIntervalSeconds);
 }
 
 /** User Story: As a systems rendering diagnostics consumer, I need to invoke select runtime budget clock seconds through a stable signature so the systems rendering diagnostics workflow remains explicit and composable. @fn double SelectRuntimeBudgetClockSeconds() */
@@ -195,11 +195,11 @@ void RequestRuntimeBudgetScreenshot(
     int32 Index) {
   const FString Directory = RuntimeBudgetScreenshotDirectory(Settings);
   IFileManager::Get().MakeDirectory(
-      *Directory, Settings.bBudgetScreenshotCreateDirectoryTree);
+      *Directory, Settings.BudgetCapture.Output.bBudgetScreenshotCreateDirectoryTree);
   const FString Path = RuntimeBudgetScreenshotPath(Settings, Index);
   FScreenshotRequest::RequestScreenshot(
-      Path, Settings.bBudgetScreenshotShowUI,
-      Settings.bBudgetScreenshotAddFilenameSuffix);
+      Path, Settings.BudgetCapture.Output.bBudgetScreenshotShowUI,
+      Settings.BudgetCapture.Output.bBudgetScreenshotAddFilenameSuffix);
   UE_LOG(LogForbocRenderingDiagnostics, Display,
          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03FD09410919), *Path);
 }

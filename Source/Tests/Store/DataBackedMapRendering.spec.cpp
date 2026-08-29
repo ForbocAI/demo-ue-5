@@ -114,14 +114,14 @@ bool FStoreDataBackedMapRendering::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FOverlaySettings
       &ExpectedStatsOverlay = Settings.UI.StatsOverlay;
   TestEqual(Labels.Next(),
-            StatsOverlay.MemoryBytesPerMegabyte,
-            ExpectedStatsOverlay.MemoryBytesPerMegabyte);
+            StatsOverlay.Measurement.Memory.MemoryBytesPerMegabyte,
+            ExpectedStatsOverlay.Measurement.Memory.MemoryBytesPerMegabyte);
   TestEqual(Labels.Next(),
-            StatsOverlay.UsedPhysicalMemoryLabel,
-            ExpectedStatsOverlay.UsedPhysicalMemoryLabel);
+            StatsOverlay.Labels.Memory.UsedPhysicalMemoryLabel,
+            ExpectedStatsOverlay.Labels.Memory.UsedPhysicalMemoryLabel);
   TestEqual(Labels.Next(),
-            StatsOverlay.PeakPhysicalMemoryLabel,
-            ExpectedStatsOverlay.PeakPhysicalMemoryLabel);
+            StatsOverlay.Labels.Memory.PeakPhysicalMemoryLabel,
+            ExpectedStatsOverlay.Labels.Memory.PeakPhysicalMemoryLabel);
 
   const TArray<FLevelRetroTextureSpec> &TextureCatalog =
       RenderingSelectors::SelectTextureCatalog(

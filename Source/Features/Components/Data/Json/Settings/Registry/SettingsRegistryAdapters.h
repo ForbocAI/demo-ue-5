@@ -45,11 +45,73 @@ ReadSettingsFields(const TSharedPtr<FJsonObject> &Object,
 
 template <typename Settings> struct TJsonSettingsRegistry;
 
+template <typename Settings> struct TSettingsConcern {
+  TArray<TField<Settings>> Bindings;
+
+  /** User Story: As a composed settings reader, I need a concern member to lift its registered fields into the parent without re-declaring each field path. @fn template <typename Concern> TSettingsConcern(Concern Settings::*Member) */
+  template <typename Concern>
+  TSettingsConcern(Concern Settings::*Member)
+      : Bindings(func::map_array<TField<Concern>, TField<Settings>>(
+            TJsonSettingsRegistry<Concern>::Fields(),
+            [Member](const TField<Concern> &Binding) {
+              return TField<Settings>(
+                  *Binding.FieldName,
+                  [Member, Binding](const FFieldRequest &Request,
+                                    const Settings &Current) {
+                    Settings Next = Current;
+                    Next.*Member = Binding.Apply(Request, Current.*Member);
+                    return Next;
+                  });
+            })) {}
+};
+
+/** User Story: As a composed settings reader, I need concern bindings flattened through one fold so parent registries remain declaration data. @fn template <typename Settings> TArray<TField<Settings>> SettingsFieldsFromConcerns(const TArray<TSettingsConcern<Settings>> &Concerns) */
+template <typename Settings>
+TArray<TField<Settings>> SettingsFieldsFromConcerns(
+    const TArray<TSettingsConcern<Settings>> &Concerns) {
+  return func::fold_array<TSettingsConcern<Settings>, TArray<TField<Settings>>>(
+      Concerns, TArray<TField<Settings>>(),
+      [](const TArray<TField<Settings>> &Current,
+         const TSettingsConcern<Settings> &Concern) {
+        return func::append_values<TField<Settings>>(Current,
+                                                     Concern.Bindings);
+      });
+}
+
+#define JSON_SETTINGS_CONCERN(Type, Concern) {&Type::Concern}
+#define JSON_SETTINGS_CONCERN_LIST_INDIRECT() JSON_SETTINGS_CONCERN_LIST
+#define JSON_SETTINGS_CONCERN_LIST(Type, Concern, ...)                       \
+  JSON_SETTINGS_CONCERN(Type, Concern)                                      \
+  __VA_OPT__(, JSON_OBSTRUCT(JSON_SETTINGS_CONCERN_LIST_INDIRECT)()(         \
+                    Type, __VA_ARGS__))
+#define JSON_SETTINGS_CONCERNS(Type, ...)                                    \
+  {JSON_EXPAND(JSON_SETTINGS_CONCERN_LIST(Type, __VA_ARGS__))}
+
 #define JSON_SETTINGS_REGISTRY(Type, ...)                                    \
   template <> struct TJsonSettingsRegistry<Type> {                           \
-    static const TArray<TField<Type>> &Fields() {                \
-      static const TArray<TField<Type>> RegisteredFields =       \
+    static const TArray<TField<Type>> &Fields() {                            \
+      static const TArray<TField<Type>> RegisteredFields =                   \
           JSON_SETTINGS_FIELDS(Type, __VA_ARGS__);                           \
+      return RegisteredFields;                                               \
+    }                                                                        \
+  }
+
+#define JSON_OBJECT_SETTINGS_REGISTRY(Type, Reader, ...)                     \
+  template <> struct TJsonSettingsRegistry<Type> {                           \
+    static const TArray<TField<Type>> &Fields() {                            \
+      static const TArray<TField<Type>> RegisteredFields =                   \
+          JSON_OBJECT_SETTINGS_FIELDS(Type, Reader, __VA_ARGS__);            \
+      return RegisteredFields;                                               \
+    }                                                                        \
+  }
+
+#define JSON_SETTINGS_CONCERN_REGISTRY(Type, ...)                            \
+  template <> struct TJsonSettingsRegistry<Type> {                           \
+    static const TArray<TField<Type>> &Fields() {                            \
+      static const TArray<TSettingsConcern<Type>> Concerns =                 \
+          JSON_SETTINGS_CONCERNS(Type, __VA_ARGS__);                         \
+      static const TArray<TField<Type>> RegisteredFields =                   \
+          SettingsFieldsFromConcerns<Type>(Concerns);                        \
       return RegisteredFields;                                               \
     }                                                                        \
   }

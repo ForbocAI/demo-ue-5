@@ -30,7 +30,7 @@ struct FSpeechSettings {
   FLipSyncSettings LipSync;
   FPlaybackSettings Playback;
   FPhonemeSettings Phoneme;
-  FRequestSettings TtsRequest;
+  FTtsRequestSettings TtsRequest;
   FResponseSettings TtsResponse;
   FDiagnosticSettings Diagnostics;
   FAutomationSettings Automation;

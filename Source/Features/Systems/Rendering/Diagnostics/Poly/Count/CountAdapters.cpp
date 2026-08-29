@@ -41,13 +41,13 @@ int64 CountStaticMeshTriangles(
               const int32 LodIndex = RenderingSelectors::ClampRuntimeStatsLodIndex(
                   {RenderingSelectors::SelectRuntimeStatsLodIndex(
                        {ComponentValue->GetForcedLodModel(),
-                        Settings.MeshLodIndex}, Settings),
+                        Settings.Measurement.Mesh.MeshLodIndex}, Settings),
                    MeshValue->GetNumLODs()}, Settings);
               return static_cast<int64>(MeshValue->GetNumTriangles(LodIndex));
             },
-            [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
+            [&Settings]() -> int64 { return Settings.Measurement.Empty.EmptyTriangleCount; });
       },
-      [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
+      [&Settings]() -> int64 { return Settings.Measurement.Empty.EmptyTriangleCount; });
 }
 
 /** User Story: As a diagnostics poly count consumer, I need to invoke count procedural mesh section triangles through a stable signature so the diagnostics poly count workflow remains explicit and composable. @fn int64 CountProceduralMeshSectionTriangles( UProceduralMeshComponent &Component, int32 SectionIndex, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
@@ -65,14 +65,14 @@ int64 CountExistingProceduralMeshSectionTriangles(
       [&Component, SectionIndex, &Settings](FProcMeshSection *SectionValue)
           -> int64 {
         return static_cast<int64>(SectionValue->ProcIndexBuffer.Num() /
-                                  Settings.TriangleIndexDivisor) +
+                                  Settings.Measurement.Mesh.TriangleIndexDivisor) +
                CountProceduralMeshSectionTriangles(
-                   Component, SectionIndex + Settings.ProcMeshSectionStep,
+                   Component, SectionIndex + Settings.Measurement.Mesh.ProcMeshSectionStep,
                    Settings);
       },
       [&Component, SectionIndex, &Settings]() -> int64 {
         return CountProceduralMeshSectionTriangles(
-            Component, SectionIndex + Settings.ProcMeshSectionStep, Settings);
+            Component, SectionIndex + Settings.Measurement.Mesh.ProcMeshSectionStep, Settings);
       });
 }
 
@@ -81,7 +81,7 @@ int64 CountProceduralMeshSectionTriangles(
     UProceduralMeshComponent &Component, int32 SectionIndex,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   return SectionIndex >= Component.GetNumSections()
-             ? static_cast<int64>(Settings.EmptyTriangleCount)
+             ? static_cast<int64>(Settings.Measurement.Empty.EmptyTriangleCount)
              : CountExistingProceduralMeshSectionTriangles(Component,
                                                            SectionIndex,
                                                            Settings);
@@ -96,9 +96,9 @@ int64 CountProceduralMeshTriangles(
                                                Component)),
       [&Settings](UProceduralMeshComponent *ComponentValue) -> int64 {
         return CountProceduralMeshSectionTriangles(
-            *ComponentValue, Settings.ProcMeshFirstSectionIndex, Settings);
+            *ComponentValue, Settings.Measurement.Mesh.ProcMeshFirstSectionIndex, Settings);
       },
-      [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
+      [&Settings]() -> int64 { return Settings.Measurement.Empty.EmptyTriangleCount; });
 }
 
 /** User Story: As a diagnostics poly count consumer, I need to invoke count skinned mesh triangles through a stable signature so the diagnostics poly count workflow remains explicit and composable. @fn int64 CountSkinnedMeshTriangles( USkinnedMeshComponent *Component, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
@@ -122,18 +122,18 @@ int64 CountSkinnedMeshTriangles(
                                  {ComponentValue->GetForcedLOD(),
                                   ComponentValue->GetPredictedLODLevel()}, Settings),
                              RenderData->LODRenderData.Num()}, Settings)
-                      : Settings.MeshLodIndex;
+                      : Settings.Measurement.Mesh.MeshLodIndex;
               return RenderData != nullptr &&
                              RenderData->LODRenderData.IsValidIndex(
                                  LodIndex)
                          ? static_cast<int64>(
                                RenderData->LODRenderData[LodIndex]
                                    .GetTotalFaces())
-                         : static_cast<int64>(Settings.EmptyTriangleCount);
+                         : static_cast<int64>(Settings.Measurement.Empty.EmptyTriangleCount);
             },
-            [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
+            [&Settings]() -> int64 { return Settings.Measurement.Empty.EmptyTriangleCount; });
       },
-      [&Settings]() -> int64 { return Settings.EmptyTriangleCount; });
+      [&Settings]() -> int64 { return Settings.Measurement.Empty.EmptyTriangleCount; });
 }
 
 /** User Story: As a diagnostics poly count consumer, I need to invoke count actor component triangles through a stable signature so the diagnostics poly count workflow remains explicit and composable. @fn template <typename Component> int64 CountActorComponentTriangles( AActor *Actor, int64 (*CountTriangles)( Component *, const ForbocAI::Game::Data::FOverlaySettings &), const ForbocAI::Game::Data::FOverlaySettings &Settings) */
@@ -150,13 +150,13 @@ int64 CountActorComponentTriangles(
         TArray<Component *> Components;
         ActorValue->GetComponents<Component>(Components);
         return func::fold_array<Component *, int64>(
-            Components, Settings.EmptyPolyCount,
+            Components, Settings.Measurement.Empty.EmptyPolyCount,
             [CountTriangles,
              &Settings](const int64 &Total, Component *MeshComponent) {
               return Total + CountTriangles(MeshComponent, Settings);
             });
       },
-      [&Settings]() -> int64 { return Settings.EmptyPolyCount; });
+      [&Settings]() -> int64 { return Settings.Measurement.Empty.EmptyPolyCount; });
 }
 
 /** User Story: As a diagnostics poly count consumer, I need to invoke count actor triangles through a stable signature so the diagnostics poly count workflow remains explicit and composable. @fn int64 CountActorTriangles( AActor *Actor, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
@@ -182,12 +182,12 @@ int64 CountWorldTriangles(
         UGameplayStatics::GetAllActorsOfClass(WorldValue, AActor::StaticClass(),
                                               Actors);
         return func::fold_array<AActor *, int64>(
-            Actors, Settings.EmptyPolyCount,
+            Actors, Settings.Measurement.Empty.EmptyPolyCount,
             [&Settings](const int64 &Total, AActor *Actor) {
               return Total + CountActorTriangles(Actor, Settings);
             });
       },
-      [&Settings]() -> int64 { return Settings.EmptyPolyCount; });
+      [&Settings]() -> int64 { return Settings.Measurement.Empty.EmptyPolyCount; });
 }
 
 } // namespace

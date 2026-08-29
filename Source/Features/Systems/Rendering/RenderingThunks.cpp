@@ -39,9 +39,9 @@ void PresentRuntimeStatsDebugMessage(
     const FRuntimeStatsViewModel &Stats,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
   GEngine ? (GEngine->AddOnScreenDebugMessage(
-                 Settings.DebugMessageKey,
-                 Settings.DebugMessageDurationSeconds,
-                 Settings.TextColor.ToFColor(true),
+                 Settings.Presentation.Message.DebugMessageKey,
+                 Settings.Presentation.Message.DebugMessageDurationSeconds,
+                 Settings.Presentation.Colors.TextColor.ToFColor(true),
                  RenderingStatsSelectors::FormatRuntimeStatsDebugMessage(Stats,
                                                                          Settings)),
              void())
@@ -61,15 +61,15 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
       double BudgetClockSeconds = RenderingAdapters::SelectRuntimeBudgetClockSeconds();
     float WallDeltaSeconds = (RenderState.StatsClock.FrameClockSeconds ==
                               double{})
-        ? Settings.InitialDeltaSeconds
+        ? Settings.Measurement.Frame.InitialDeltaSeconds
         : (BudgetClockSeconds - RenderState.StatsClock.FrameClockSeconds);
 
     bool bRefreshPolyCount =
         (RenderState.StatsClock.PolyCountRefreshElapsedSeconds +
-         WallDeltaSeconds) >= Settings.PolyCountRefreshIntervalSeconds;
+         WallDeltaSeconds) >= Settings.Refresh.PolyCountRefreshIntervalSeconds;
     bool bRefreshStats =
         (RenderState.StatsClock.StatsRefreshElapsedSeconds +
-         WallDeltaSeconds) >= Settings.StatsRefreshIntervalSeconds;
+         WallDeltaSeconds) >= Settings.Refresh.StatsRefreshIntervalSeconds;
 
     FRuntimeStatsSamplePayload Payload;
     Payload.DeltaSeconds = DeltaSeconds;
@@ -95,7 +95,7 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
     bool bShouldLog = bRefreshStats && RenderingSelectors::ShouldRunRuntimeBudgetWallInterval(
                 {BudgetClockSeconds,
                  RenderState.BudgetClock.BudgetLogPreviousSeconds,
-                 Settings.BudgetLogIntervalSeconds});
+                 Settings.Refresh.BudgetLogIntervalSeconds});
 
     bShouldLog ? LogRuntimeBudgetSample(Payload.Stats.value, Settings), void() : void();
     Payload.BudgetLogPreviousSeconds =
@@ -111,7 +111,7 @@ ObserveRuntimeStatsTick(UWorld *World, float DeltaSeconds) {
     Payload.BudgetScreenshotIndex =
         bShouldScreenshot
             ? RenderState.BudgetClock.BudgetScreenshotIndex +
-                  Settings.BudgetScreenshotIndexStep
+                  Settings.BudgetCapture.Request.BudgetScreenshotIndexStep
             : RenderState.BudgetClock.BudgetScreenshotIndex;
     bShouldScreenshot ? RenderingAdapters::RequestRuntimeBudgetScreenshot(Settings, Payload.BudgetScreenshotIndex), void() : void();
       Payload.BudgetScreenshotPreviousSeconds =

@@ -50,7 +50,7 @@ inline FString FormatRuntimeStatsText(FFormatContext Context, ...) {
 inline FString FormatRuntimeStatsValue(
     int64 Value, const FOverlaySettings &Settings) {
   return FormatRuntimeStatsText(
-      {&Settings.ValueFormat, Settings.FormatBufferCharacterCount},
+      {&Settings.Presentation.Format.ValueFormat, Settings.Presentation.Format.FormatBufferCharacterCount},
       static_cast<long long>(Value));
 }
 
@@ -58,7 +58,7 @@ inline FString FormatRuntimeStatsValue(
 inline FString FormatRuntimeStatsDecimalValue(
     double Value, const FOverlaySettings &Settings) {
   return FormatRuntimeStatsText(
-      {&Settings.DecimalValueFormat, Settings.FormatBufferCharacterCount},
+      {&Settings.Presentation.Format.DecimalValueFormat, Settings.Presentation.Format.FormatBufferCharacterCount},
       Value);
 }
 
@@ -68,7 +68,7 @@ inline FString FormatRuntimeStatsMessage(
   const FRuntimeStatsViewModel &Stats = *Request.Stats;
   const FOverlaySettings &Settings = *Request.Settings;
   return FormatRuntimeStatsText(
-      {Request.Format, Settings.FormatBufferCharacterCount},
+      {Request.Format, Settings.Presentation.Format.FormatBufferCharacterCount},
       Stats.Summary.FramesPerSecond, Stats.Summary.StackDepth,
       static_cast<long long>(Stats.Summary.PolyCount),
       static_cast<long long>(Stats.Memory.UsedPhysicalMegabytes),
@@ -96,11 +96,12 @@ inline FString FormatRuntimeStatsMessage(
 /** User Story: As a systems rendering stats consumer, I need to invoke select runtime stats value color through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline FLinearColor SelectRuntimeStatsValueColor( const FValueUpdateRequest &Request) */
 inline FLinearColor SelectRuntimeStatsValueColor(
     const FValueUpdateRequest &Request) {
+  const auto &Colors = Request.Settings->Presentation.Colors;
   return Request.Value >= Request.HighThreshold
-             ? Request.Settings->HighValueColor
+             ? Colors.HighValueColor
              : (Request.Value >= Request.MediumThreshold
-                    ? Request.Settings->MediumValueColor
-                    : Request.Settings->LowValueColor);
+                    ? Colors.MediumValueColor
+                    : Colors.LowValueColor);
 }
 
 /** User Story: As a systems rendering stats consumer, I need to invoke should run interval through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline bool ShouldRunInterval(float ElapsedSeconds, float IntervalSeconds) */
@@ -113,7 +114,7 @@ inline FString FormatRuntimeStatsDebugMessage(
     const FRuntimeStatsViewModel &Stats,
     const FOverlaySettings &Settings) {
   return FormatRuntimeStatsMessage(
-      {&Stats, &Settings.DebugMessageFormat, &Settings});
+      {&Stats, &Settings.Presentation.Format.DebugMessageFormat, &Settings});
 }
 
 /** User Story: As a systems rendering stats consumer, I need to invoke format runtime stats budget log message through a stable signature so the systems rendering stats workflow remains explicit and composable. @fn inline FString FormatRuntimeStatsBudgetLogMessage( const FRuntimeStatsViewModel &Stats, const FOverlaySettings &Settings) */
@@ -121,7 +122,7 @@ inline FString FormatRuntimeStatsBudgetLogMessage(
     const FRuntimeStatsViewModel &Stats,
     const FOverlaySettings &Settings) {
   return FormatRuntimeStatsMessage(
-      {&Stats, &Settings.BudgetLogFormat, &Settings});
+      {&Stats, &Settings.Presentation.Format.BudgetLogFormat, &Settings});
 }
 
 } // namespace RenderingStatsSelectors

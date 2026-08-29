@@ -40,10 +40,10 @@ struct FCaptureViewSettings {
 struct FMarketingCaptureSettings {
   FCommandSettings Command;
   FTiming Timing;
-  FViewportSettings Viewport;
+  FMenuViewportSettings Viewport;
   FPlacementSettings Placement;
   FContentSettings Content;
-  FTypographySettings Typography;
+  FMenuTypographySettings Typography;
   FMenuColorSettings Colors;
   TArray<FCaptureViewSettings> CaptureViews;
 };

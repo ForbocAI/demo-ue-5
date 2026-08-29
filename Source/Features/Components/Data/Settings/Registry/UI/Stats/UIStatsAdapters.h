@@ -1,77 +1,12 @@
 #pragma once
 
 #include "Features/Components/Data/Settings/Registry/Color/ColorAdapters.h"
+#include "Features/Components/Data/Settings/Registry/UI/Stats/Overlay/OverlayAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
 namespace Data {
 namespace JsonAdapters {
-
-template <> struct TJsonSettingsRegistry<FOverlaySettings> {
-  /** User Story: As a registry ui stats consumer, I need to invoke fields through a stable signature so the registry ui stats workflow remains explicit and composable. @fn static const TArray<TField<FOverlaySettings>> &Fields() */
-  static const TArray<TField<FOverlaySettings>>
-      &Fields() {
-    static const TArray<TField<FOverlaySettings>>
-        RegisteredFields = {
-            JSON_SETTING_FIELDS(
-                FOverlaySettings, FramesPerSecondLabel,
-                StackDepthLabel, PolyCountLabel,
-                UsedPhysicalMemoryLabel, PeakPhysicalMemoryLabel,
-                UsedVirtualMemoryLabel, GameThreadMillisecondsLabel,
-                RenderThreadMillisecondsLabel,
-                RhiThreadMillisecondsLabel, GpuMillisecondsLabel,
-                DrawCallsLabel, RhiPrimitivesLabel,
-                WallDeltaMillisecondsLabel, InputDeltaMillisecondsLabel,
-                StatsSelectionMillisecondsLabel, PolyCountMillisecondsLabel,
-                EngineIdleMillisecondsLabel,
-                EngineIdleOvershootMillisecondsLabel, MaxFpsLabel,
-                FrameRateLimitLabel, EffectiveMaxTickRateLabel,
-                FixedFrameRateEnabledLabel, FixedFrameRateLabel,
-                FixedTimeStepEnabledLabel, FixedDeltaMillisecondsLabel,
-                VsyncEnabledLabel, IdleWhenNotForegroundEnabledLabel,
-                AppHasFocusLabel, CpuThrottleEnabledLabel,
-                AllWindowsHiddenLabel, RootReducerMillisecondsLabel,
-                CombinedReducerMillisecondsLabel,
-                EcsProjectionMillisecondsLabel, ProjectedEntityCountLabel,
-                ProjectedComponentTypeCountLabel, LabelValueSeparator,
-                ValueFormat, DecimalValueFormat, DebugMessageFormat,
-                BudgetLogFormat, FormatBufferCharacterCount, DebugMessageKey,
-                DebugMessageDurationSeconds,
-                ViewportLeft, ViewportTop, ViewportWidth, ViewportHeight,
-                PanelPadding, StatsRefreshIntervalSeconds,
-                PolyCountRefreshIntervalSeconds, BudgetLogIntervalSeconds,
-                IntervalResetElapsedSeconds, BudgetScreenshotIntervalSeconds,
-                BudgetScreenshotDisabledIntervalSeconds,
-                BudgetScreenshotIntervalCommandLineKey,
-                BudgetScreenshotDirectory, BudgetScreenshotFileNameFormat,
-                BudgetScreenshotInitialIndex, BudgetScreenshotIndexStep,
-                FramesPerSecondNumerator, MinimumDeltaSeconds,
-                InitialDeltaSeconds, InitialFramesPerSecond, EmptyStackDepth,
-                EmptyPolyCount, EmptyTriangleCount, EmptyMemoryMegabytes,
-                MemoryBytesPerMegabyte, RhiStatsGpuIndex,
-                RhiStatsMinimumGpuIndex, RhiStatsMaximumGpuIndex,
-                IdleWhenNotForegroundCVarName, MaxFpsCVarName, VsyncCVarName,
-                SecondsToMilliseconds, DiagnosticFalseIntValue,
-                DiagnosticTrueIntValue, DiagnosticDefaultIntValue,
-                DiagnosticDefaultFloatValue,
-                MeshLodIndex, ForcedLodAutomaticModel, LodModelIndexOffset,
-                ProcMeshFirstSectionIndex, ProcMeshSectionStep,
-                TriangleIndexDivisor, ZOrder, FontSize, bRemoveDpIScale,
-                bAutoWrapText, bBudgetScreenshotCreateDirectoryTree,
-                bBudgetScreenshotShowUI,
-                bBudgetScreenshotAddFilenameSuffix,
-                bDiagnosticAllowFrameRateSmoothing,
-                FramesPerSecondMediumThreshold, FramesPerSecondHighThreshold,
-                StackDepthMediumThreshold, StackDepthHighThreshold,
-                PolyCountMediumThreshold, PolyCountHighThreshold,
-                MemoryMediumThreshold, MemoryHighThreshold),
-            JSON_OBJECT_SETTING_FIELDS(
-                FOverlaySettings,
-                SettingsAdapters::ReadLinearColorSettings, PanelColor,
-                TextColor, LowValueColor, MediumValueColor, HighValueColor)};
-    return RegisteredFields;
-  }
-};
 
 JSON_SETTINGS_REGISTRY(FObservationIdSettings,
                        PlayerPresentationRequested,

@@ -94,11 +94,11 @@ template <> struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
             FORBOCAI_MARKETING_SETTING_FIELD(
                 Timing, FTiming, BetweenSeconds),
             FORBOCAI_MARKETING_SETTING_FIELD(
-                Viewport, FViewportSettings, MenuViewportWidth),
+                Viewport, FMenuViewportSettings, MenuViewportWidth),
             FORBOCAI_MARKETING_SETTING_FIELD(
-                Viewport, FViewportSettings, MenuViewportHeight),
+                Viewport, FMenuViewportSettings, MenuViewportHeight),
             FORBOCAI_MARKETING_SETTING_FIELD(
-                Viewport, FViewportSettings, MenuZOrder),
+                Viewport, FMenuViewportSettings, MenuZOrder),
             FORBOCAI_MARKETING_SETTING_FIELD(
                 Placement, FPlacementSettings, MenuAnchorX),
             FORBOCAI_MARKETING_SETTING_FIELD(
@@ -118,11 +118,11 @@ template <> struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
             FORBOCAI_MARKETING_SETTING_FIELD(
                 Content, FContentSettings, MenuResumeButtonText),
             FORBOCAI_MARKETING_SETTING_FIELD(
-                Typography, FTypographySettings, MenuPanelPadding),
+                Typography, FMenuTypographySettings, MenuPanelPadding),
             FORBOCAI_MARKETING_SETTING_FIELD(
-                Typography, FTypographySettings, MenuTitleSize),
+                Typography, FMenuTypographySettings, MenuTitleSize),
             FORBOCAI_MARKETING_SETTING_FIELD(
-                Typography, FTypographySettings, MenuButtonTextSize),
+                Typography, FMenuTypographySettings, MenuButtonTextSize),
             FORBOCAI_MARKETING_COLOR_FIELD(MenuPanelColor),
             FORBOCAI_MARKETING_COLOR_FIELD(MenuTitleColor),
             FORBOCAI_MARKETING_COLOR_FIELD(MenuButtonTextColor),

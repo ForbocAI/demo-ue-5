@@ -6,15 +6,15 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FTypographySettings {
+struct FMenuTypographySettings {
   float MenuPanelPadding;
   float MenuTitleSize;
   float MenuButtonTextSize;
 };
 
-/** User Story: As a marketing menu consumer, I need to compare typography settings so menu scale remains deterministic. @fn inline bool operator==(const FTypographySettings &Left, const FTypographySettings &Right) */
-inline bool operator==(const FTypographySettings &Left,
-                       const FTypographySettings &Right) {
+/** User Story: As a marketing menu consumer, I need to compare typography settings so menu scale remains deterministic. @fn inline bool operator==(const FMenuTypographySettings &Left, const FMenuTypographySettings &Right) */
+inline bool operator==(const FMenuTypographySettings &Left,
+                       const FMenuTypographySettings &Right) {
   return FMath::IsNearlyEqual(Left.MenuPanelPadding,
                               Right.MenuPanelPadding) &&
          FMath::IsNearlyEqual(Left.MenuTitleSize, Right.MenuTitleSize) &&
