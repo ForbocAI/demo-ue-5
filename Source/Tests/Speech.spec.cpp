@@ -2,7 +2,7 @@
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechPhonemeEstimation,
-    SpeechAutomationSettings().PhonemeEstimationTest,
+    SpeechAutomationSettings().Cases.PhonemeEstimationTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -12,17 +12,21 @@ bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) {
       LoadSpeechSettings();
   const TArray<FPhonemeEvent> Phonemes =
       SpeechOps::EstimatePhonemesFromText(
-          Settings.Automation.PhonemeEstimationText, Settings);
+          Settings.Automation.Samples.PhonemeEstimationText, Settings);
 
-  TestTrue(Label(Settings.Automation.ProducesPhonemesLabelFormat,
-                 Settings.Automation.PhonemeEstimationText),
+  TestTrue(Label(
+               Settings.Automation.PhonemeAssertions
+                   .ProducesPhonemesLabelFormat,
+               Settings.Automation.Samples.PhonemeEstimationText),
            !Phonemes.IsEmpty());
 
-  TestEqual(Settings.Automation.CorrectPhonemeCountLabel, Phonemes.Num(),
-            Settings.Automation.PhonemeEstimationText.Len());
+  TestEqual(Settings.Automation.PhonemeAssertions.CorrectPhonemeCountLabel,
+            Phonemes.Num(),
+            Settings.Automation.Samples.PhonemeEstimationText.Len());
 
-  TestEqual(Settings.Automation.FirstPhonemeStartLabel,
-            Phonemes[int32{}].StartTime, Settings.InitialPlaybackTime);
+  TestEqual(Settings.Automation.PhonemeAssertions.FirstPhonemeStartLabel,
+            Phonemes[int32{}].StartTime,
+            Settings.Playback.InitialPlaybackTime);
 
   const auto CheckDurationsRecursive =
       [this, &Phonemes, &Settings](int32 Idx, const auto &Self) -> void {
@@ -30,7 +34,8 @@ bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) {
                ? void()
                : [&]() {
                    TestTrue(
-                       Label(Settings.Automation.PositiveDurationLabelFormat,
+                       Label(Settings.Automation.PhonemeAssertions
+                                 .PositiveDurationLabelFormat,
                              Idx),
                        Phonemes[Idx].Duration > float{});
                    int32 Next = Idx;
@@ -45,7 +50,7 @@ bool FSpeechPhonemeEstimation::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechPhonemeWithSpaces,
-    SpeechAutomationSettings().PhonemeEstimationWithSpacesTest,
+    SpeechAutomationSettings().Cases.PhonemeEstimationWithSpacesTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -54,11 +59,13 @@ bool FSpeechPhonemeWithSpaces::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSpeechSettings Settings =
       LoadSpeechSettings();
   const TArray<FPhonemeEvent> Phonemes =
-      SpeechOps::EstimatePhonemesFromText(Settings.Automation.SilenceText,
-                                          Settings);
+      SpeechOps::EstimatePhonemesFromText(
+          Settings.Automation.Samples.SilenceText, Settings);
 
-  TestTrue(Label(Settings.Automation.ProducesPhonemesLabelFormat,
-                 Settings.Automation.SilenceText),
+  TestTrue(Label(
+               Settings.Automation.PhonemeAssertions
+                   .ProducesPhonemesLabelFormat,
+               Settings.Automation.Samples.SilenceText),
            !Phonemes.IsEmpty());
 
   bool bHasSilence = false;
@@ -68,7 +75,8 @@ bool FSpeechPhonemeWithSpaces::RunTest(const FString &Parameters) {
     return Idx >= Phonemes.Num()
                ? void()
                : [&]() {
-                   Phonemes[Idx].Phoneme == Settings.SilencePhoneme
+                   Phonemes[Idx].Phoneme ==
+                           Settings.Phoneme.SilencePhoneme
                        ? (void)(bHasSilence = true)
                        : void();
                    int32 Next = Idx;
@@ -78,14 +86,15 @@ bool FSpeechPhonemeWithSpaces::RunTest(const FString &Parameters) {
   };
   FindSilRecursive(int32{}, FindSilRecursive);
 
-  TestTrue(Settings.Automation.SilencePhonemeLabel, bHasSilence);
+  TestTrue(Settings.Automation.PhonemeAssertions.SilencePhonemeLabel,
+           bHasSilence);
 
   return true;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechVisemeMapCompleteness,
-    SpeechAutomationSettings().VisemeMapCompletenessTest,
+    SpeechAutomationSettings().Cases.VisemeMapCompletenessTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -95,19 +104,21 @@ bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
       LoadSpeechSettings();
   const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
 
-  TestEqual(Settings.Automation.VisemeMapCountLabel, Map.Num(),
-            Settings.VisemeMappings.Num());
+  TestEqual(Settings.Automation.VisemeAssertions.VisemeMapCountLabel,
+            Map.Num(), Settings.LipSync.VisemeMappings.Num());
 
   const auto CheckVowelsRecursive = [this, &Map, &Settings](
                                         int32 Idx,
                                         const auto &Self) -> void {
-    return Idx >= Settings.VowelPhonemes.Num()
+    return Idx >= Settings.Phoneme.VowelPhonemes.Num()
                ? void()
                : [&]() {
                    const ForbocAI::Game::Data::FVowelPhonemeSettings
-                       Vowel = Settings.VowelPhonemes[Idx];
-                   TestTrue(Label(Settings.Automation.VowelMappedLabelFormat,
-                                  Vowel.Character),
+                       Vowel = Settings.Phoneme.VowelPhonemes[Idx];
+                   TestTrue(Label(
+                                Settings.Automation.VisemeAssertions
+                                    .VowelMappedLabelFormat,
+                                Vowel.Character),
                             Map.Contains(Vowel.Phoneme));
                    int32 Next = Idx;
                    ++Next;
@@ -121,7 +132,7 @@ bool FSpeechVisemeMapCompleteness::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechActiveVisemeAtTime,
-    SpeechAutomationSettings().ActiveVisemeAtTimeTest,
+    SpeechAutomationSettings().Cases.ActiveVisemeAtTimeTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -131,20 +142,21 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
       LoadSpeechSettings();
   const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
   const FVisemeMapping Rest = SpeechOps::RestViseme(Settings);
-  const ForbocAI::Game::Data::FVisemeMappingSettings &Primary =
+  const ForbocAI::Game::Data::FMappingSettings &Primary =
       RequiredNonSilenceMapping(Settings);
   const ForbocAI::Game::Data::FVowelPhonemeSettings &SecondaryVowel =
-      RequiredFirst(Settings.VowelPhonemes);
+      RequiredFirst(Settings.Phoneme.VowelPhonemes);
 
   TArray<FPhonemeEvent> Phonemes;
-  float CurrentTime = Settings.InitialPlaybackTime;
+  float CurrentTime = Settings.Playback.InitialPlaybackTime;
   Phonemes.Add({Primary.Phoneme, CurrentTime,
                 SpeechOps::EstimatePhonemeDuration(Primary.Phoneme,
                                                     Settings)});
   CurrentTime += Phonemes.Last().Duration;
-  Phonemes.Add({Settings.SilencePhoneme, CurrentTime,
-                SpeechOps::EstimatePhonemeDuration(Settings.SilencePhoneme,
-                                                    Settings)});
+  Phonemes.Add(
+      {Settings.Phoneme.SilencePhoneme, CurrentTime,
+       SpeechOps::EstimatePhonemeDuration(
+           Settings.Phoneme.SilencePhoneme, Settings)});
   CurrentTime += Phonemes.Last().Duration;
   Phonemes.Add({SecondaryVowel.Phoneme, CurrentTime,
                 SpeechOps::EstimatePhonemeDuration(SecondaryVowel.Phoneme,
@@ -159,7 +171,8 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
   const FVisemeMapping ExpectedAa =
       SpeechOps::RequiredVisemeForPhoneme(Primary.Phoneme, Map);
   const FVisemeMapping ExpectedSilence =
-      SpeechOps::RequiredVisemeForPhoneme(Settings.SilencePhoneme, Map);
+      SpeechOps::RequiredVisemeForPhoneme(
+          Settings.Phoneme.SilencePhoneme, Map);
   const FVisemeMapping ExpectedEh =
       SpeechOps::RequiredVisemeForPhoneme(SecondaryVowel.Phoneme, Map);
 
@@ -167,12 +180,14 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
       SpeechOps::ActiveVisemeAtTime(
           Phonemes,
           {SampleTime(Phonemes[PrimaryIndex],
-                      Settings.Automation.ActiveVisemeSampleRatio),
+                      Settings.Automation.Samples.ActiveVisemeSampleRatio),
            Map, Rest});
-  TestEqual(Label(Settings.Automation.ActiveVisemeLabelFormat,
+  TestEqual(Label(Settings.Automation.VisemeAssertions
+                      .ActiveVisemeLabelFormat,
                   Primary.Phoneme),
             V1.MorphTargetName, ExpectedAa.MorphTargetName);
-  TestTrue(Label(Settings.Automation.ActiveVisemeWeightLabelFormat,
+  TestTrue(Label(Settings.Automation.VisemeAssertions
+                     .ActiveVisemeWeightLabelFormat,
                  Primary.Phoneme),
            V1.BlendWeight > float{});
 
@@ -180,10 +195,11 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
       SpeechOps::ActiveVisemeAtTime(
           Phonemes,
           {SampleTime(Phonemes[SilenceIndex],
-                      Settings.Automation.ActiveVisemeSampleRatio),
+                      Settings.Automation.Samples.ActiveVisemeSampleRatio),
            Map, Rest});
-  TestEqual(Label(Settings.Automation.ActiveVisemeLabelFormat,
-                  Settings.SilencePhoneme),
+  TestEqual(Label(Settings.Automation.VisemeAssertions
+                      .ActiveVisemeLabelFormat,
+                  Settings.Phoneme.SilencePhoneme),
             V2.MorphTargetName,
             ExpectedSilence.MorphTargetName);
 
@@ -191,9 +207,10 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
       SpeechOps::ActiveVisemeAtTime(
           Phonemes,
           {SampleTime(Phonemes[SecondaryIndex],
-                      Settings.Automation.ActiveVisemeSampleRatio),
+                      Settings.Automation.Samples.ActiveVisemeSampleRatio),
            Map, Rest});
-  TestEqual(Label(Settings.Automation.ActiveVisemeLabelFormat,
+  TestEqual(Label(Settings.Automation.VisemeAssertions
+                      .ActiveVisemeLabelFormat,
                   SecondaryVowel.Phoneme),
             V3.MorphTargetName,
             ExpectedEh.MorphTargetName);
@@ -203,9 +220,11 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
       SpeechOps::ActiveVisemeAtTime(
           Phonemes,
           {Last.StartTime + Last.Duration +
-               Last.Duration * Settings.Automation.PastEndSampleRatio,
+               Last.Duration *
+                   Settings.Automation.Samples.PastEndSampleRatio,
            Map, Rest});
-  TestEqual(Settings.Automation.PastEndSilenceLabel, V4.MorphTargetName,
+  TestEqual(Settings.Automation.VisemeAssertions.PastEndSilenceLabel,
+            V4.MorphTargetName,
             Rest.MorphTargetName);
 
   return true;
@@ -213,7 +232,7 @@ bool FSpeechActiveVisemeAtTime::RunTest(const FString &Parameters) {
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FSpeechVisemeLookup,
-    SpeechAutomationSettings().VisemeLookupUnknownTest,
+    SpeechAutomationSettings().Cases.VisemeLookupUnknownTest,
     EAutomationTestFlags::EditorContext |
         EAutomationTestFlags::EngineFilter)
 
@@ -222,7 +241,7 @@ bool FSpeechVisemeLookup::RunTest(const FString &Parameters) {
   const ForbocAI::Game::Data::FSpeechSettings Settings =
       LoadSpeechSettings();
   const TMap<FString, FVisemeMapping> Map = LoadVisemeMap(Settings);
-  const ForbocAI::Game::Data::FVisemeMappingSettings &KnownMapping =
+  const ForbocAI::Game::Data::FMappingSettings &KnownMapping =
       RequiredNonSilenceMapping(Settings);
 
   const func::Maybe<FVisemeMapping> Known =
@@ -230,14 +249,17 @@ bool FSpeechVisemeLookup::RunTest(const FString &Parameters) {
   const FVisemeMapping Expected =
       SpeechOps::RequiredVisemeForPhoneme(KnownMapping.Phoneme, Map);
   check(Known.hasValue);
-  TestEqual(Label(Settings.Automation.KnownPhonemeLabelFormat,
+  TestEqual(Label(Settings.Automation.LookupAssertions
+                      .KnownPhonemeLabelFormat,
                   KnownMapping.Phoneme),
             Known.value.MorphTargetName, Expected.MorphTargetName);
 
   const func::Maybe<FVisemeMapping> Unknown =
-      SpeechOps::LookupViseme(Settings.Automation.UnknownPhoneme, Map);
-  TestFalse(Label(Settings.Automation.UnknownPhonemeLabelFormat,
-                  Settings.Automation.UnknownPhoneme),
+      SpeechOps::LookupViseme(
+          Settings.Automation.Samples.UnknownPhoneme, Map);
+  TestFalse(Label(Settings.Automation.LookupAssertions
+                      .UnknownPhonemeLabelFormat,
+                  Settings.Automation.Samples.UnknownPhoneme),
             Unknown.hasValue);
 
   return true;

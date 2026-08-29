@@ -251,6 +251,23 @@ TField<Settings> NestedObjectSettingField(
       });
 }
 
+/** User Story: As a json settings field consumer, I need to compose a nested object array so authored collections remain reusable across concern records. @fn template <typename Settings, typename Group, typename Output> TField<Settings> NestedObjectArraySettingField( const char *FieldAtom, const TNestedFieldMembers<Settings, Group, TArray<Output>> &Members, TJsonObjectSettingsReader<Output> MapObjectFn) */
+template <typename Settings, typename Group, typename Output>
+TField<Settings> NestedObjectArraySettingField(
+    const char *FieldAtom,
+    const TNestedFieldMembers<Settings, Group, TArray<Output>> &Members,
+    TJsonObjectSettingsReader<Output> MapObjectFn) {
+  return TField<Settings>(
+      FieldAtom,
+      [Members, MapObjectFn](const FFieldRequest &Request,
+                             const Settings &Current) {
+        Settings Next = Current;
+        ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
+            MapJsonValues<Output>(ReadArray(Request), MapObjectFn);
+        return Next;
+      });
+}
+
 } // namespace JsonAdapters
 } // namespace Data
 } // namespace Game

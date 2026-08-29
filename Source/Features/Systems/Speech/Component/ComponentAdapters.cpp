@@ -13,17 +13,17 @@ USpeechComponent::USpeechComponent() {
   Settings =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
           .Speech;
-  PrimaryComponentTick.bCanEverTick = Settings.bCanEverTick;
+  PrimaryComponentTick.bCanEverTick = Settings.Playback.bCanEverTick;
   PrimaryComponentTick.bStartWithTickEnabled =
-      Settings.bStartTickEnabled;
-  TTSEndpoint = Settings.TtsEndpoint;
-  SpeechRate = Settings.SpeechRate;
-  Volume = Settings.Volume;
-  bEnableLipSync = Settings.bEnableLipSync;
-  PlaybackTime = Settings.InitialPlaybackTime;
-  bSpeechActive = Settings.bInitialSpeechActive;
-  CurrentVisemeName = Settings.RestViseme;
-  CurrentVisemeWeight = Settings.RestWeight;
+      Settings.Playback.bStartTickEnabled;
+  TTSEndpoint = Settings.TtsRequest.TtsEndpoint;
+  SpeechRate = Settings.Voice.SpeechRate;
+  Volume = Settings.Voice.Volume;
+  bEnableLipSync = Settings.LipSync.bEnableLipSync;
+  PlaybackTime = Settings.Playback.InitialPlaybackTime;
+  bSpeechActive = Settings.Playback.bInitialSpeechActive;
+  CurrentVisemeName = Settings.LipSync.RestViseme;
+  CurrentVisemeWeight = Settings.LipSync.RestWeight;
 }
 
 /** User Story: As a systems speech component consumer, I need to invoke ensure viseme map through a stable signature so the systems speech component workflow remains explicit and composable. @fn void USpeechComponent::EnsureVisemeMap() */
@@ -41,18 +41,18 @@ void USpeechComponent::SpeakText(const FString &Text) {
 
   ForbocAI::Game::Data::FSpeechSettings EffectiveSettings =
       Settings;
-  EffectiveSettings.EstimatedBasePhonemeSeconds =
-      Settings.EstimatedBasePhonemeSeconds / SpeechRate;
+  EffectiveSettings.Phoneme.EstimatedBasePhonemeSeconds =
+      Settings.Phoneme.EstimatedBasePhonemeSeconds / SpeechRate;
   ActivePhonemes =
       SpeechOps::EstimatePhonemesFromText(Text, EffectiveSettings);
-  PlaybackTime = Settings.InitialPlaybackTime;
+  PlaybackTime = Settings.Playback.InitialPlaybackTime;
   bSpeechActive = true;
 
   PrimaryComponentTick.SetTickFunctionEnable(true);
   OnSpeechStarted(Text);
 
   const FString StartLog = frmt::RuntimeString(
-      Settings.SpeechStartLogFormat,
+      Settings.Diagnostics.SpeechStartLogFormat,
       frmt::Args({frmt::Arg(ActivePhonemes.Num()), frmt::Arg(Text)}));
   UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *StartLog);
 
@@ -62,11 +62,11 @@ void USpeechComponent::SpeakText(const FString &Text) {
   TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =
       Http.CreateRequest();
   Request->SetURL(TTSEndpoint);
-  Request->SetVerb(Settings.TtsVerb);
-  Request->SetHeader(Settings.TtsContentTypeHeader,
-                     Settings.TtsContentType);
+  Request->SetVerb(Settings.TtsRequest.TtsVerb);
+  Request->SetHeader(Settings.TtsRequest.TtsContentTypeHeader,
+                     Settings.TtsRequest.TtsContentType);
   Request->SetContentAsString(frmt::RuntimeString(
-      Settings.TtsRequestFormat,
+      Settings.TtsRequest.TtsRequestFormat,
       frmt::Args({frmt::Arg(Text.ReplaceCharWithEscapedChar()),
                   frmt::Arg(SpeechRate)})));
 
@@ -75,13 +75,13 @@ void USpeechComponent::SpeakText(const FString &Text) {
         const bool bValidResponse =
             bSuccess && Resp.IsValid() &&
             Resp->GetResponseCode() ==
-                Settings.TtsSuccessResponseCode;
+                Settings.TtsResponse.TtsSuccessResponseCode;
         check(bValidResponse);
 
         const TArray<uint8> &AudioData = Resp->GetContent();
-        check(AudioData.Num() > Settings.MinimumAudioBytes);
+        check(AudioData.Num() > Settings.TtsResponse.MinimumAudioBytes);
         const FString AudioLog = frmt::RuntimeString(
-            Settings.SpeechAudioReceivedLogFormat,
+            Settings.Diagnostics.SpeechAudioReceivedLogFormat,
             frmt::Args({frmt::Arg(AudioData.Num())}));
         UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *AudioLog);
       });
@@ -92,7 +92,7 @@ void USpeechComponent::SpeakText(const FString &Text) {
 /** User Story: As a systems speech component consumer, I need to invoke stop speaking through a stable signature so the systems speech component workflow remains explicit and composable. @fn void USpeechComponent::StopSpeaking() */
 void USpeechComponent::StopSpeaking() {
   bSpeechActive = false;
-  PlaybackTime = Settings.InitialPlaybackTime;
+  PlaybackTime = Settings.Playback.InitialPlaybackTime;
   ActivePhonemes.Empty();
   const FVisemeMapping Rest = SpeechOps::RestViseme(Settings);
   CurrentVisemeName = Rest.MorphTargetName;
@@ -132,7 +132,7 @@ void USpeechComponent::TickComponent(
     const float TotalDuration =
         ActivePhonemes.Num() > FORBOCAI_DEMOUE5_AUTHORED_NUMBERV60732C8368BA
             ? ActivePhonemes.Last().StartTime + ActivePhonemes.Last().Duration
-            : Settings.InitialPlaybackTime;
+            : Settings.Playback.InitialPlaybackTime;
 
     PlaybackTime >= TotalDuration
         ? (StopSpeaking(), void())
@@ -144,7 +144,7 @@ void USpeechComponent::TickComponent(
             const bool bChanged =
                 Viseme.MorphTargetName != CurrentVisemeName ||
                 FMath::Abs(Viseme.BlendWeight - CurrentVisemeWeight) >
-                    Settings.VisemeChangeTolerance;
+                    Settings.LipSync.VisemeChangeTolerance;
             bChanged ? ([this, Viseme]() {
               CurrentVisemeName = Viseme.MorphTargetName;
               CurrentVisemeWeight = Viseme.BlendWeight;
@@ -171,10 +171,10 @@ void USpeechComponent::ApplyVisemeToMesh(const FString &VisemeName,
   check(Mesh);
 
   func::for_each_indexed(
-      Settings.ResetMorphTargets,
-      static_cast<size_t>(Settings.ResetMorphTargets.Num()),
+      Settings.LipSync.ResetMorphTargets,
+      static_cast<size_t>(Settings.LipSync.ResetMorphTargets.Num()),
       [Mesh, this](const FString &Name) {
-        Mesh->SetMorphTarget(FName(*Name), Settings.RestWeight);
+        Mesh->SetMorphTarget(FName(*Name), Settings.LipSync.RestWeight);
       });
 
   Mesh->SetMorphTarget(FName(*VisemeName), Weight);

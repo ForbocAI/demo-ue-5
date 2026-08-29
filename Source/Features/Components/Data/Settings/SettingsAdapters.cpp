@@ -281,7 +281,7 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
           TtsEndpoint, TtsVerb, TtsContentTypeHeader, TtsContentType,
           TtsRequestFormat, TtsSuccessResponseCode, MinimumAudioBytes,
           SpeechStartLogFormat, SpeechAudioReceivedLogFormat,
-          ResetMorphTargets, VisemeMappings, DurationRules))(
+          ResetMorphTargets, VisemeMappings, DurationRules, Automation))(
       SettingsSource(Sources, "Speech"));
   return Settings;
 }

@@ -22,13 +22,14 @@ inline bool DurationAlways(const FSpeechDurationRuleEval &) { return true; }
 
 /** User Story: As a speech estimate consumer, I need to select the rest viseme through a stable signature so inactive speech has a deterministic presentation. @fn inline FVisemeMapping RestViseme(const FSpeechSettings &Settings) */
 inline FVisemeMapping RestViseme(const FSpeechSettings &Settings) {
-  return {Settings.RestViseme, Settings.RestWeight};
+  return {Settings.LipSync.RestViseme, Settings.LipSync.RestWeight};
 }
 
 /** User Story: As a speech estimate consumer, I need to build the authored viseme map through a stable signature so phoneme presentation remains data-driven. @fn inline TMap<FString, FVisemeMapping> VisemeMapFromSettings(const FSpeechSettings &Settings) */
 inline TMap<FString, FVisemeMapping>
 VisemeMapFromSettings(const FSpeechSettings &Settings) {
-  return BuildSpeechMap<FVisemeMappingSettings>(Settings.VisemeMappings);
+  return BuildSpeechMap<FMappingSettings>(
+      Settings.LipSync.VisemeMappings);
 }
 
 /** User Story: As a speech estimate consumer, I need to look up a speech map value through a stable signature so optional lookup remains explicit. @fn template <typename Key, typename Value> func::Maybe<Value> LookupSpeechMapValue(const Key &KeyValue, const TMap<Key, Value> &Map) */
@@ -93,12 +94,13 @@ inline bool ContainsCharacter(const FString &Characters, TCHAR Character) {
 
 /** User Story: As a speech estimate consumer, I need to classify silence through a stable signature so non-spoken characters remain deterministic. @fn inline bool CharacterIsSilence(const FSpeechCharacterEval &Eval) */
 inline bool CharacterIsSilence(const FSpeechCharacterEval &Eval) {
-  return ContainsCharacter(Eval.Settings->SilenceCharacters, Eval.Character);
+  return ContainsCharacter(Eval.Settings->Phoneme.SilenceCharacters,
+                           Eval.Character);
 }
 
 /** User Story: As a speech estimate consumer, I need to map silence through a stable signature so non-spoken characters use authored phonemes. @fn inline FString CharacterSilencePhoneme(const FSpeechCharacterEval &Eval) */
 inline FString CharacterSilencePhoneme(const FSpeechCharacterEval &Eval) {
-  return Eval.Settings->SilencePhoneme;
+  return Eval.Settings->Phoneme.SilencePhoneme;
 }
 
 /** User Story: As a speech estimate consumer, I need to classify alphabetic characters through a stable signature so speech mapping remains deterministic. @fn inline bool CharacterIsAlpha(const FSpeechCharacterEval &Eval) */
@@ -117,7 +119,7 @@ LookupVowelPhoneme(TCHAR Ch, const FSpeechSettings &Settings) {
   const FString Character = UpperString(FChar::ToUpper(Ch));
   return func::fmap(
       func::find_array<FVowelPhonemeSettings>(
-          Settings.VowelPhonemes,
+          Settings.Phoneme.VowelPhonemes,
           [Character](const FVowelPhonemeSettings &Mapping) {
             return Mapping.Character == Character;
           }),
@@ -140,14 +142,15 @@ EstimatePhonemeForChar(TCHAR Ch, const FSpeechSettings &Settings) {
 /** User Story: As a speech estimate consumer, I need to estimate one phoneme duration through a stable signature so speech timing remains data-driven. @fn inline float EstimatePhonemeDuration(const FString &Phoneme, const FSpeechSettings &Settings) */
 inline float EstimatePhonemeDuration(const FString &Phoneme,
                                      const FSpeechSettings &Settings) {
-  const func::Maybe<FPhonemeDurationRuleSettings> Rule =
-      func::find_array<FPhonemeDurationRuleSettings>(
-          Settings.DurationRules,
-          [&Phoneme](const FPhonemeDurationRuleSettings &Candidate) {
+  const func::Maybe<FDurationRuleSettings> Rule =
+      func::find_array<FDurationRuleSettings>(
+          Settings.Phoneme.DurationRules,
+          [&Phoneme](const FDurationRuleSettings &Candidate) {
             return DurationRuleMatches({Phoneme, Candidate});
           });
   check(Rule.hasValue);
-  return Settings.EstimatedBasePhonemeSeconds * Rule.value.Multiplier;
+  return Settings.Phoneme.EstimatedBasePhonemeSeconds *
+         Rule.value.Multiplier;
 }
 
 /** User Story: As a speech estimate consumer, I need to estimate phonemes from text through a stable signature so speech events remain deterministic and composable. @fn inline TArray<FPhonemeEvent> EstimatePhonemesFromText(const FString &Text, const FSpeechSettings &Settings) */

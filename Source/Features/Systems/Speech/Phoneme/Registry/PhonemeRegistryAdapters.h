@@ -28,19 +28,19 @@ inline bool DurationAlways(const FSpeechDurationRuleEval &Eval);
 
 template <typename Item> struct TSpeechMapRegistry;
 
-template <> struct TSpeechMapRegistry<FVisemeMappingSettings> {
+template <> struct TSpeechMapRegistry<FMappingSettings> {
   typedef FString Key;
   typedef FVisemeMapping Value;
 
-  /** User Story: As a systems speech phoneme consumer, I need to invoke declaration through a stable signature so the systems speech phoneme workflow remains explicit and composable. @fn static const TSpeechMapDeclaration<FVisemeMappingSettings, Key, Value> &Declaration() */
-  static const TSpeechMapDeclaration<FVisemeMappingSettings, Key, Value>
+  /** User Story: As a systems speech phoneme consumer, I need to invoke declaration through a stable signature so the systems speech phoneme workflow remains explicit and composable. @fn static const TSpeechMapDeclaration<FMappingSettings, Key, Value> &Declaration() */
+  static const TSpeechMapDeclaration<FMappingSettings, Key, Value>
       &Declaration() {
-    static const TSpeechMapDeclaration<FVisemeMappingSettings, Key, Value>
+    static const TSpeechMapDeclaration<FMappingSettings, Key, Value>
         RegisteredDeclaration = {
-            [](const FVisemeMappingSettings &Mapping) {
+            [](const FMappingSettings &Mapping) {
               return Mapping.Phoneme;
             },
-            [](const FVisemeMappingSettings &Mapping) {
+            [](const FMappingSettings &Mapping) {
               return FVisemeMapping{Mapping.MorphTargetName,
                                     Mapping.BlendWeight};
             }};

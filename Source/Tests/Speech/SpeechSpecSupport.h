@@ -47,23 +47,23 @@ template <typename Item> const Item &RequiredFirst(const TArray<Item> &Items) {
   return Items[int32{}];
 }
 
-/** User Story: As a tests speech consumer, I need to invoke required non silence mapping through a stable signature so the tests speech workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FVisemeMappingSettings & RequiredNonSilenceMapping( const ForbocAI::Game::Data::FSpeechSettings &Settings) */
-const ForbocAI::Game::Data::FVisemeMappingSettings &
+/** User Story: As a tests speech consumer, I need to invoke required non silence mapping through a stable signature so the tests speech workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FMappingSettings & RequiredNonSilenceMapping( const ForbocAI::Game::Data::FSpeechSettings &Settings) */
+const ForbocAI::Game::Data::FMappingSettings &
 RequiredNonSilenceMapping(
     const ForbocAI::Game::Data::FSpeechSettings &Settings) {
-  const func::Maybe<ForbocAI::Game::Data::FVisemeMappingSettings>
+  const func::Maybe<ForbocAI::Game::Data::FMappingSettings>
       Mapping = func::find_array<
-          ForbocAI::Game::Data::FVisemeMappingSettings>(
-          Settings.VisemeMappings, [&Settings](
+          ForbocAI::Game::Data::FMappingSettings>(
+          Settings.LipSync.VisemeMappings, [&Settings](
                                        const ForbocAI::Game::Data::
-                                           FVisemeMappingSettings &Item) {
-            return Item.Phoneme != Settings.SilencePhoneme;
+                                           FMappingSettings &Item) {
+            return Item.Phoneme != Settings.Phoneme.SilencePhoneme;
           });
   check(Mapping.hasValue);
-  const ForbocAI::Game::Data::FVisemeMappingSettings *Found =
-      Settings.VisemeMappings.FindByPredicate(
+  const ForbocAI::Game::Data::FMappingSettings *Found =
+      Settings.LipSync.VisemeMappings.FindByPredicate(
           [&Mapping](
-              const ForbocAI::Game::Data::FVisemeMappingSettings &Item) {
+              const ForbocAI::Game::Data::FMappingSettings &Item) {
             return Item == Mapping.value;
           });
   check(Found != nullptr);

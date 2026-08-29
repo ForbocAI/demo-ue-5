@@ -18,7 +18,7 @@ inline FSpeechState ReduceSettings(
           [&Settings](FSpeechState Next) -> FSpeechState {
             Next.Settings = Settings;
             Next.CurrentViseme = SpeechOps::RestViseme(Settings);
-            Next.bSpeaking = Settings.bInitialSpeechActive;
+            Next.bSpeaking = Settings.Playback.bInitialSpeechActive;
             return Next;
           })
       .val;
