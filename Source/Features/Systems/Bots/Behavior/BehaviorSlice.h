@@ -22,7 +22,7 @@ inline FBotCoreRuntimeState ReduceBotTicked(
             Next.Memory.TimeSinceSeenPlayer += Action.PayloadValue.DeltaTime;
             Next.Memory.bHasAggro =
                 Next.Memory.TimeSinceSeenPlayer >
-                        Next.Settings.AggroTimeoutSeconds
+                        Next.Settings.Awareness.AggroTimeoutSeconds
                     ? false
                     : Next.Memory.bHasAggro;
             return Next;
@@ -49,12 +49,12 @@ inline FBotCoreRuntimeState ReduceBotDamageTaken(
   return (func::pipe(State) |
           [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.Stats.Health =
-                FMath::Max(Next.Settings.MinimumHealth,
+                FMath::Max(Next.Settings.Health.MinimumHealth,
                            Next.Stats.Health - Action.PayloadValue.Amount);
             Next.Phase =
                 Next.Stats.Health <
                         Next.Stats.MaxHealth *
-                            Next.Settings.DamageFleeHealthRatio
+                            Next.Settings.Behavior.DamageFleeHealthRatio
                     ? EBotCorePhase::Flee
                     : EBotCorePhase::Combat;
             return Next;
@@ -70,7 +70,7 @@ inline FBotCoreRuntimeState ReduceBotEnemySpotted(
           [&Action](FBotCoreRuntimeState Next) -> FBotCoreRuntimeState {
             Next.Memory.KnownPlayerPos = Action.PayloadValue.EnemyLocation;
             Next.Memory.TimeSinceSeenPlayer =
-                Next.Settings.EnemySpottedTimeSinceSeenPlayer;
+                Next.Settings.Awareness.EnemySpottedTimeSinceSeenPlayer;
             Next.Memory.bHasAggro = true;
             Next.Phase = Next.Phase != EBotCorePhase::Flee
                              ? EBotCorePhase::Combat

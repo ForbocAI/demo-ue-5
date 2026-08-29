@@ -19,7 +19,7 @@ namespace {
 using FBotActionDispatch = void (*)(const FBotActionDispatchContext &);
 
 struct FBotActionDispatchDeclaration {
-  FString FBotSettings::*ActionType;
+  FString Data::FBotActionSettings::*ActionType;
   FBotActionDispatch Dispatch;
 };
 
@@ -47,23 +47,23 @@ FString BotDisplayName(const FString &BotId, const FString &Persona) {
 FBotEntity BotEntityPayload(const FBotRegistrationPayloadSource &Source) {
   return {Source.Id, BotDisplayName(Source.Id, Source.Persona),
           EBotEntityKind::Townsperson, EBotAlignment::Friendly,
-          Source.Settings.bRegisteredBotActive};
+          Source.Settings.Lifecycle.bRegisteredBotActive};
 }
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke bot position moved payload through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FBotPositionMoved BotPositionMovedPayload(const FBotPositionPayloadSource &Source) */
 FBotPositionMoved
 BotPositionMovedPayload(const FBotPositionPayloadSource &Source) {
   return {Source.Id, Source.LocalLocation, Source.WorldLocation,
-          Source.Settings.bPositionPayloadHasLocalLocation,
-          Source.Settings.bPositionPayloadHasWorldLocation};
+          Source.Settings.Projection.bPositionPayloadHasLocalLocation,
+          Source.Settings.Projection.bPositionPayloadHasWorldLocation};
 }
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke bot position component payload through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FBotPositionComponent BotPositionComponentPayload(const FBotPositionPayloadSource &Source) */
 FBotPositionComponent
 BotPositionComponentPayload(const FBotPositionPayloadSource &Source) {
   return {Source.Id, Source.LocalLocation, Source.WorldLocation,
-          Source.Settings.bPositionPayloadHasLocalLocation,
-          Source.Settings.bPositionPayloadHasWorldLocation};
+          Source.Settings.Projection.bPositionPayloadHasLocalLocation,
+          Source.Settings.Projection.bPositionPayloadHasWorldLocation};
 }
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke bot pipeline payload through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FBotPipelinePayload BotPipelinePayload(const FString &BotId) */
@@ -170,8 +170,9 @@ template <> struct TBotOrchestratorRegistry<FBotActionDispatchDeclaration> {
   static const TArray<FBotActionDispatchDeclaration> &Declarations() {
     static const TArray<FBotActionDispatchDeclaration>
         RegisteredDeclarations = {
-            {&FBotSettings::MoveActionType, DispatchMoveAction},
-            {&FBotSettings::AttackActionType, DispatchAttackAction}};
+            {&Data::FBotActionSettings::MoveActionType, DispatchMoveAction},
+            {&Data::FBotActionSettings::AttackActionType,
+             DispatchAttackAction}};
     return RegisteredDeclarations;
   }
 };
@@ -212,7 +213,7 @@ void DispatchRuntimeActions(
 void DispatchMoveAction(const FBotActionDispatchContext &Context) {
   DispatchRuntimeAction(BotPositionMovedAction(
       {Context.Id, Context.InitialLocalPoint,
-       Context.BotActor->GetActorLocation() + Context.Settings.MoveActionOffset,
+       Context.BotActor->GetActorLocation() + Context.Settings.Actions.MoveActionOffset,
        Context.Settings}));
 }
 
@@ -230,14 +231,14 @@ FString ObservationDisplayName(const FBotObservationSource &Source) {
 FVector ObservationWorldLocation(const FBotObservationSource &Source) {
   return Source.Position.hasValue && Source.Position.value.bHasWorldLocation
              ? Source.Position.value.WorldLocation
-             : Source.Settings.InitialPosition;
+             : Source.Settings.Spawn.InitialPosition;
 }
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke observation behavior state through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn int32 ObservationBehaviorState(const FBotObservationSource &Source) */
 int32 ObservationBehaviorState(const FBotObservationSource &Source) {
   return Source.AI.hasValue
              ? static_cast<int32>(Source.AI.value.BehaviorState)
-             : Source.Settings.DefaultBehaviorState;
+             : Source.Settings.Behavior.DefaultBehaviorState;
 }
 
 } // namespace
@@ -265,7 +266,8 @@ bool RunBotActionDispatch(const FBotActionDispatchRequest &Request) {
       [&Request](bool bHandled,
                  const FBotActionDispatchDeclaration &Declaration) {
         return bHandled ||
-                       (Request.Context.Settings.*(Declaration.ActionType)) !=
+                       (Request.Context.Settings.Actions.*(
+                           Declaration.ActionType)) !=
                            Request.ActionType
                    ? bHandled
                    : (Declaration.Dispatch(Request.Context), true);
@@ -275,7 +277,7 @@ bool RunBotActionDispatch(const FBotActionDispatchRequest &Request) {
 /** User Story: As a systems bots orchestrator consumer, I need to invoke bot state observation through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FString BotStateObservation(const FBotObservationSource &Source) */
 FString BotStateObservation(const FBotObservationSource &Source) {
   return frmt::RuntimeString(
-      Source.Settings.StateObservationFormat,
+      Source.Settings.Projection.StateObservationFormat,
       frmt::Args(
           {frmt::Arg(Source.BotId),
            frmt::Arg(ObservationDisplayName(Source)),

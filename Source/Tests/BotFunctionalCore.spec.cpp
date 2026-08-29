@@ -50,23 +50,23 @@ BotFunctionalCoreAssertions() {
 float FunctionalCoreHealthyDamage() {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       BotFunctionalCoreSettings();
-  return Settings.InitialHealth * Settings.PhaseFleeHealthRatio;
+  return Settings.Health.InitialHealth * Settings.Behavior.PhaseFleeHealthRatio;
 }
 
 /** User Story: As a tests consumer, I need to invoke functional core flee damage through a stable signature so the tests workflow remains explicit and composable. @fn float FunctionalCoreFleeDamage() */
 float FunctionalCoreFleeDamage() {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       BotFunctionalCoreSettings();
-  return Settings.InitialHealth -
-         (Settings.InitialMaxHealth * Settings.DamageFleeHealthRatio) +
-         Settings.MovementArrivalDistanceSquared;
+  return Settings.Health.InitialHealth -
+         (Settings.Health.InitialMaxHealth * Settings.Behavior.DamageFleeHealthRatio) +
+         Settings.Movement.MovementArrivalDistanceSquared;
 }
 
 /** User Story: As a tests consumer, I need to invoke functional core expected health after damage through a stable signature so the tests workflow remains explicit and composable. @fn float FunctionalCoreExpectedHealthAfterDamage(const float Damage) */
 float FunctionalCoreExpectedHealthAfterDamage(const float Damage) {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       BotFunctionalCoreSettings();
-  return FMath::Max(Settings.MinimumHealth, Settings.InitialHealth - Damage);
+  return FMath::Max(Settings.Health.MinimumHealth, Settings.Health.InitialHealth - Damage);
 }
 
 /** User Story: As a tests consumer, I need to invoke create state through a stable signature so the tests workflow remains explicit and composable. @fn FBotCoreRuntimeState CreateState(const FString &BotName) */
@@ -91,7 +91,7 @@ void FBotFunctionalCoreSpec::Define()
     {
         It(BotFunctionalCoreCases().State.CreateInitialState, [this]()
         {
-            const FString BotName = BotFunctionalCoreSettings().InitialName;
+            const FString BotName = BotFunctionalCoreSettings().Spawn.InitialName;
             const FBotCoreRuntimeState State = CreateState(BotName);
 
             TestEqual(BotFunctionalCoreAssertions().State.Name,
@@ -99,7 +99,7 @@ void FBotFunctionalCoreSpec::Define()
             TestTrue(BotFunctionalCoreAssertions().State.Health,
                      FMath::IsNearlyEqual(
                          State.Stats.Health,
-                         BotFunctionalCoreSettings().InitialHealth));
+                         BotFunctionalCoreSettings().Health.InitialHealth));
             TestTrue(BotFunctionalCoreAssertions().State.Phase,
                      State.Phase == EBotCorePhase::Idle);
             TestTrue(BotFunctionalCoreAssertions().State.IdValid,
@@ -116,13 +116,13 @@ void FBotFunctionalCoreSpec::Define()
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
                 const FBotCoreRuntimeState State = ReduceState(
-                    CreateState(Settings.MoveActionType),
+                    CreateState(Settings.Actions.MoveActionType),
                     BotCoreActions::BotMoved()(FBotMovePayload{
-                        Settings.MoveActionOffset,
-                        Settings.DefaultMovementInterpSpeed}));
+                        Settings.Actions.MoveActionOffset,
+                        Settings.Movement.DefaultMovementInterpSpeed}));
                 TestTrue(BotFunctionalCoreAssertions().Movement.PositionX,
                          FMath::IsNearlyEqual(State.Position.X,
-                                              Settings.MoveActionOffset.X));
+                                              Settings.Actions.MoveActionOffset.X));
             });
         });
 
@@ -132,7 +132,7 @@ void FBotFunctionalCoreSpec::Define()
             {
                 const float Damage = FunctionalCoreHealthyDamage();
                 const FBotCoreRuntimeState State = ReduceState(
-                    CreateState(BotFunctionalCoreSettings().AttackActionType),
+                    CreateState(BotFunctionalCoreSettings().Actions.AttackActionType),
                     BotCoreActions::BotDamageTaken()(
                         FBotDamageTakenPayload{Damage, nullptr}));
                 TestTrue(BotFunctionalCoreAssertions().Combat.HealthReduced,
@@ -144,7 +144,7 @@ void FBotFunctionalCoreSpec::Define()
             It(BotFunctionalCoreCases().Combat.TransitionToCombat, [this]()
             {
                 const FBotCoreRuntimeState State = ReduceState(
-                    CreateState(BotFunctionalCoreSettings().AttackActionType),
+                    CreateState(BotFunctionalCoreSettings().Actions.AttackActionType),
                     BotCoreActions::BotDamageTaken()(FBotDamageTakenPayload{
                         FunctionalCoreHealthyDamage(), nullptr}));
                 TestTrue(BotFunctionalCoreAssertions().Combat.PhaseCombat,
@@ -154,7 +154,7 @@ void FBotFunctionalCoreSpec::Define()
             It(BotFunctionalCoreCases().Combat.TransitionToFlee, [this]()
             {
                 const FBotCoreRuntimeState State = ReduceState(
-                    CreateState(BotFunctionalCoreSettings().AttackActionType),
+                    CreateState(BotFunctionalCoreSettings().Actions.AttackActionType),
                     BotCoreActions::BotDamageTaken()(FBotDamageTakenPayload{
                         FunctionalCoreFleeDamage(), nullptr}));
                 TestTrue(BotFunctionalCoreAssertions().Combat.PhaseFlee,
@@ -169,20 +169,20 @@ void FBotFunctionalCoreSpec::Define()
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
                 const FBotCoreRuntimeState State = ReduceState(
-                    CreateState(Settings.InitialName),
+                    CreateState(Settings.Spawn.InitialName),
                     BotCoreActions::BotEnemySpotted()(
-                        FBotEnemySpottedPayload{Settings.MoveActionOffset}));
+                        FBotEnemySpottedPayload{Settings.Actions.MoveActionOffset}));
                 TestTrue(BotFunctionalCoreAssertions().Awareness.HasAggro,
                          State.Memory.bHasAggro);
                 TestTrue(
                     BotFunctionalCoreAssertions().Awareness.TimeSinceSeen,
                     FMath::IsNearlyEqual(
                         State.Memory.TimeSinceSeenPlayer,
-                        Settings.EnemySpottedTimeSinceSeenPlayer));
+                        Settings.Awareness.EnemySpottedTimeSinceSeenPlayer));
                 TestTrue(
                     BotFunctionalCoreAssertions().Awareness.KnownPlayerPositionX,
                     FMath::IsNearlyEqual(State.Memory.KnownPlayerPos.X,
-                                         Settings.MoveActionOffset.X));
+                                         Settings.Actions.MoveActionOffset.X));
                 TestTrue(BotFunctionalCoreAssertions().Awareness.PhaseCombat,
                          State.Phase == EBotCorePhase::Combat);
             });
@@ -195,12 +195,12 @@ void FBotFunctionalCoreSpec::Define()
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
                 const FBotCoreRuntimeState State = ReduceState(
-                    CreateState(Settings.InitialName),
+                    CreateState(Settings.Spawn.InitialName),
                     BotCoreActions::BotTicked()(
-                        FBotTickPayload{Settings.PatrolTickIntervalSeconds}));
+                        FBotTickPayload{Settings.Schedule.PatrolTickIntervalSeconds}));
                 TestTrue(BotFunctionalCoreAssertions().Tick.TickCount,
                          State.TickCount >
-                             static_cast<uint64>(Settings.InitialTickCount));
+                             static_cast<uint64>(Settings.Spawn.InitialTickCount));
             });
 
             It(BotFunctionalCoreCases().Tick.DecayAggro, [this]()
@@ -208,10 +208,10 @@ void FBotFunctionalCoreSpec::Define()
                 const ForbocAI::Game::Data::FBotSettings &Settings =
                     BotFunctionalCoreSettings();
                 const FBotCoreRuntimeState AggroState = ReduceState(
-                    CreateState(Settings.InitialName),
+                    CreateState(Settings.Spawn.InitialName),
                     BotCoreActions::BotEnemySpotted()(
                         FBotEnemySpottedPayload{
-                            Settings.InitialKnownPlayerPosition}));
+                            Settings.Awareness.InitialKnownPlayerPosition}));
 
                 TestTrue(BotFunctionalCoreAssertions().Tick.InitiallyAggro,
                          AggroState.Memory.bHasAggro);
@@ -219,8 +219,8 @@ void FBotFunctionalCoreSpec::Define()
                 const FBotCoreRuntimeState DecayedState = ReduceState(
                     AggroState,
                     BotCoreActions::BotTicked()(FBotTickPayload{
-                        Settings.AggroTimeoutSeconds +
-                        Settings.PatrolTickIntervalSeconds}));
+                        Settings.Awareness.AggroTimeoutSeconds +
+                        Settings.Schedule.PatrolTickIntervalSeconds}));
 
                 TestFalse(BotFunctionalCoreAssertions().Tick.LostAggro,
                           DecayedState.Memory.bHasAggro);

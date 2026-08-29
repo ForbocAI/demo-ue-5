@@ -25,9 +25,9 @@ FBotSettings BotSettings() {
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke bot initial local point through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn FLevelLocalPoint BotInitialLocalPoint(const FBotSettings &Settings) */
 FLevelLocalPoint BotInitialLocalPoint(const FBotSettings &Settings) {
-  return {static_cast<float>(Settings.InitialPosition.X),
-          static_cast<float>(Settings.InitialPosition.Y),
-          static_cast<float>(Settings.InitialPosition.Z)};
+  return {static_cast<float>(Settings.Spawn.InitialPosition.X),
+          static_cast<float>(Settings.Spawn.InitialPosition.Y),
+          static_cast<float>(Settings.Spawn.InitialPosition.Z)};
 }
 
 } // namespace
@@ -36,15 +36,15 @@ FLevelLocalPoint BotInitialLocalPoint(const FBotSettings &Settings) {
 ABotOrchestratorAdapter::ABotOrchestratorAdapter() {
   PrimaryActorTick.bCanEverTick =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
-          .Bot.bOrchestratorCanEverTick;
+          .Bot.Lifecycle.bOrchestratorCanEverTick;
 }
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke begin play through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::BeginPlay() */
 void ABotOrchestratorAdapter::BeginPlay() {
   Super::BeginPlay();
   const FBotSettings Settings = BotSettings();
-  ObservationInterval = Settings.ObservationIntervalSeconds;
-  UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *Settings.StartLog);
+  ObservationInterval = Settings.Schedule.ObservationIntervalSeconds;
+  UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *Settings.Diagnostics.StartLog);
 }
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke tick through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::Tick(float DeltaTime) */
@@ -67,7 +67,7 @@ void ABotOrchestratorAdapter::Tick(float DeltaTime) {
                    FBotPositionPayloadSource{Binding->Id, InitialLocalPoint,
                     Binding->BotActor->GetActorLocation(), Settings}),
                (CurrentTime - Binding->LastObservationTime >=
-                Settings.ObservationIntervalSeconds)
+                Settings.Schedule.ObservationIntervalSeconds)
                    ? (Binding->LastObservationTime = CurrentTime,
                       RequestNextAction(*Binding), void())
                    : void(),
@@ -87,7 +87,7 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
     FBotRuntimeBinding Binding;
     Binding.Id = BotId;
     Binding.BotActor = Actor;
-    Binding.LastObservationTime = Settings.InitialObservationTimeSeconds;
+    Binding.LastObservationTime = Settings.Schedule.InitialObservationTimeSeconds;
     const FNPCInternalState Npc = BotNpcThunks::RegisterNpc(Persona);
     Binding.NpcId = Npc.Id;
     Binding.Persona = Npc.Persona;
@@ -101,7 +101,7 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
 
     const FString RegisteredLog =
         frmt::RuntimeString(
-            Settings.RegisteredLogFormat,
+            Settings.Diagnostics.RegisteredLogFormat,
             frmt::Args(
                 {frmt::Arg(Actor->GetName())}));
     UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *RegisteredLog);
@@ -127,10 +127,10 @@ void ABotOrchestratorAdapter::RequestNextAction(
         })
         .catch_([BotActor, Settings](std::string Error) {
           const FString ActorName =
-              BotActor ? BotActor->GetName() : Settings.NullActorLabel;
+              BotActor ? BotActor->GetName() : Settings.Diagnostics.NullActorLabel;
           const FString ProcessFailedLog =
               frmt::RuntimeString(
-                  Settings.ProcessFailedLogFormat,
+                  Settings.Diagnostics.ProcessFailedLogFormat,
                   frmt::Args(
                       {frmt::Arg(ActorName),
                        frmt::Arg(
@@ -152,7 +152,7 @@ void ABotOrchestratorAdapter::ExecuteAction(AActor *BotActor,
     const FBotSettings Settings = BotSettings();
     const FLevelLocalPoint InitialLocalPoint = BotInitialLocalPoint(Settings);
     const FString ExecuteLog = frmt::RuntimeString(
-        Settings.ExecuteLogFormat,
+        Settings.Diagnostics.ExecuteLogFormat,
         frmt::Args(
             {frmt::Arg(ActionType),
              frmt::Arg(BotActor->GetName())}));

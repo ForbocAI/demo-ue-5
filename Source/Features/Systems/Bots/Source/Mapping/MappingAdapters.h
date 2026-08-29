@@ -23,9 +23,10 @@ inline FLevelLocalPoint LocalOrigin() {
 /** User Story: As a systems bots mapping consumer, I need to invoke initial settings point through a stable signature so the systems bots mapping workflow remains explicit and composable. @fn template <typename SettingsValue> FLevelLocalPoint InitialSettingsPoint(const SettingsValue &Settings) */
 template <typename SettingsValue>
 FLevelLocalPoint InitialSettingsPoint(const SettingsValue &Settings) {
-  return FLevelLocalPoint{static_cast<float>(Settings.InitialPosition.X),
-                          static_cast<float>(Settings.InitialPosition.Y),
-                          static_cast<float>(Settings.InitialPosition.Z)};
+  return FLevelLocalPoint{
+      static_cast<float>(Settings.Spawn.InitialPosition.X),
+      static_cast<float>(Settings.Spawn.InitialPosition.Y),
+      static_cast<float>(Settings.Spawn.InitialPosition.Z)};
 }
 
 /** User Story: As a systems bots mapping consumer, I need to invoke first route point or through a stable signature so the systems bots mapping workflow remains explicit and composable. @fn inline FLevelLocalPoint FirstRoutePointOr(const TArray<FLevelLocalPoint> &Route, const FLevelLocalPoint &DefaultPoint) */

@@ -30,13 +30,13 @@ inline FBotPipelineInputResult
 ReduceDefaultInputSnapshot(const FBotPipelineDefaultInputRequest &Request) {
   return ReduceInputSnapshot(
       {Request.DeltaTime,
-       {Request.State.Settings.bDefaultHazardOverlapping,
-        Request.State.Settings.MinimumHealth, nullptr},
-       {Request.State.Settings.bDefaultVisibilityCanSeeEnemy,
-        Request.State.Settings.InitialKnownPlayerPosition,
-        Request.State.Settings.MinimumHealth},
+       {Request.State.Settings.WorldSense.bDefaultHazardOverlapping,
+        Request.State.Settings.Health.MinimumHealth, nullptr},
+       {Request.State.Settings.WorldSense.bDefaultVisibilityCanSeeEnemy,
+        Request.State.Settings.Awareness.InitialKnownPlayerPosition,
+        Request.State.Settings.Health.MinimumHealth},
        {Request.State.Position, Request.DeltaTime,
-        Request.State.Settings.DefaultMovementInterpSpeed}});
+        Request.State.Settings.Movement.DefaultMovementInterpSpeed}});
 }
 
 /** User Story: As a systems bots pipeline consumer, I need to invoke reduce pipeline observed through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline FBotPipelineState ReducePipelineObserved( const FBotPipelineState &State, const rtk::PayloadAction<FBotPipelinePayload> &Action) */
@@ -57,7 +57,7 @@ inline FBotPipelineState ReducePipelineObserved(
 inline func::Maybe<rtk::AnyAction> ReduceHazardAction(
     const FBotPipelineHazardActionRequest &Request) {
   return (!Request.Overlap.bOverlapping ||
-          Request.State.Stats.Health <= Request.State.Settings.MinimumHealth)
+          Request.State.Stats.Health <= Request.State.Settings.Health.MinimumHealth)
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
                    BotCoreActions::BotDamageTaken()(
@@ -72,8 +72,8 @@ inline func::Maybe<rtk::AnyAction> ReduceMovementAction(
     const FBotPipelineMovementActionRequest &Request) {
   const float DistSq = FVector::DistSquared(Request.State.Position,
                                             Request.Movement.TargetPosition);
-  return (DistSq < Request.State.Settings.MovementArrivalDistanceSquared ||
-          Request.State.Stats.Health <= Request.State.Settings.MinimumHealth)
+  return (DistSq < Request.State.Settings.Movement.MovementArrivalDistanceSquared ||
+          Request.State.Stats.Health <= Request.State.Settings.Health.MinimumHealth)
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
                    BotCoreActions::BotMoved()(
@@ -92,14 +92,14 @@ inline bool ReduceAlreadyHasAggro(
   return Request.State.Memory.bHasAggro &&
          FVector::DistSquared(Request.State.Memory.KnownPlayerPos,
                               Request.Visibility.EnemyPosition) <
-             Request.State.Settings.AggroPositionToleranceSquared;
+             Request.State.Settings.Movement.AggroPositionToleranceSquared;
 }
 
 /** User Story: As a systems bots pipeline consumer, I need to invoke reduce awareness action through a stable signature so the systems bots pipeline workflow remains explicit and composable. @fn inline func::Maybe<rtk::AnyAction> ReduceAwarenessAction( const FBotPipelineAwarenessActionRequest &Request) */
 inline func::Maybe<rtk::AnyAction> ReduceAwarenessAction(
     const FBotPipelineAwarenessActionRequest &Request) {
   return (!Request.Visibility.bCanSeeEnemy ||
-          Request.State.Stats.Health <= Request.State.Settings.MinimumHealth ||
+          Request.State.Stats.Health <= Request.State.Settings.Health.MinimumHealth ||
           ReduceAlreadyHasAggro(Request))
              ? func::nothing<rtk::AnyAction>()
              : func::just<rtk::AnyAction>(
@@ -114,7 +114,7 @@ inline func::Maybe<rtk::AnyAction> ReducePhaseAction(
   return (Request.State.Phase == EBotCorePhase::Combat &&
           Request.State.Stats.Health <
               Request.State.Stats.MaxHealth *
-                  Request.State.Settings.PhaseFleeHealthRatio &&
+                  Request.State.Settings.Behavior.PhaseFleeHealthRatio &&
           Request.State.Memory.bHasAggro)
              ? func::just<rtk::AnyAction>(
                    BotCoreActions::BotFleeRequested()(

@@ -213,15 +213,15 @@ struct FActiveGoalSource {
 FBotStrategicGoal PatrolGoal(const FRouteGoalSource &Source) {
   FBotStrategicGoal Result;
   Result.Id = frmt::RuntimeString(
-      Source.Settings.PatrolGoalIdFormat,
+      Source.Settings.Goals.PatrolGoalIdFormat,
       frmt::Args({frmt::Arg(Source.BotId)}));
   Result.Type = EBotGoalType::Patrol;
-  Result.Priority = Source.Settings.PatrolGoalPriority;
+  Result.Priority = Source.Settings.Goals.PatrolGoalPriority;
   Result.TargetEntityId = FString();
   Result.TargetLocation =
       BotSourceMappingAdapters::FirstRoutePoint(Source.Route, Source.Settings);
   Result.bHasTargetLocation = !Source.Route.IsEmpty();
-  Result.bCompleted = Source.Settings.bPatrolGoalInitialCompleted;
+  Result.bCompleted = Source.Settings.Goals.bPatrolGoalInitialCompleted;
   return Result;
 }
 
@@ -230,7 +230,7 @@ FBotGoalComponent ActiveGoalComponent(const FActiveGoalSource &Source) {
   FBotGoalComponent Result;
   Result.Id = Source.BotId;
   Result.bHasActiveGoal =
-      Source.Settings.bActiveGoalComponentHasActiveGoal;
+      Source.Settings.Goals.bActiveGoalComponentHasActiveGoal;
   Result.ActiveGoal = Source.ActiveGoal;
   Result.GoalQueue = {};
   Result.Knowledge = {{}, {}};

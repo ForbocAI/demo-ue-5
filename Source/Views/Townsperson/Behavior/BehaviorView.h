@@ -37,7 +37,7 @@ void ATownspersonView::ConfigureTownsperson(
   ApplyDistanceLod(Config.Lod);
   PauseRemaining =
       FG::RuntimeSelectors::SelectBotSettings()
-          .InitialPatrolPauseRemainingSeconds;
+          .Schedule.InitialPatrolPauseRemainingSeconds;
 
   const ForbocAI::Game::Level::FBotInitialPatrolLocationPayload Initial =
       ObserveTownspersonInitialPatrol(PatrolRoute, PatrolIndex);

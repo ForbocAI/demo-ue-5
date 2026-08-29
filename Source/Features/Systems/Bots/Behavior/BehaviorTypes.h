@@ -72,16 +72,16 @@ inline bool operator!=(const FBotCoreState &Left,
 /** User Story: As a systems bots behavior consumer, I need to invoke create bot core stats through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreStats CreateBotCoreStats(const ForbocAI::Game::Data::FBotSettings &Settings) */
 inline FBotCoreStats
 CreateBotCoreStats(const ForbocAI::Game::Data::FBotSettings &Settings) {
-  return {Settings.InitialHealth, Settings.InitialMaxHealth,
-          Settings.InitialMana, Settings.InitialMaxMana,
-          Settings.InitialStamina, Settings.InitialMaxStamina};
+  return {Settings.Health.InitialHealth, Settings.Health.InitialMaxHealth,
+          Settings.Resources.InitialMana, Settings.Resources.InitialMaxMana,
+          Settings.Resources.InitialStamina, Settings.Resources.InitialMaxStamina};
 }
 
 /** User Story: As a systems bots behavior consumer, I need to invoke create bot core memory through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreMemory CreateBotCoreMemory(const ForbocAI::Game::Data::FBotSettings &Settings) */
 inline FBotCoreMemory
 CreateBotCoreMemory(const ForbocAI::Game::Data::FBotSettings &Settings) {
-  return {Settings.InitialKnownPlayerPosition,
-          Settings.InitialTimeSinceSeenPlayer, Settings.bInitialHasAggro};
+  return {Settings.Awareness.InitialKnownPlayerPosition,
+          Settings.Awareness.InitialTimeSinceSeenPlayer, Settings.Awareness.bInitialHasAggro};
 }
 
 /** User Story: As a systems bots behavior consumer, I need to invoke create bot core runtime initial state through a stable signature so the systems bots behavior workflow remains explicit and composable. @fn inline FBotCoreRuntimeState CreateBotCoreRuntimeInitialState( const FBotCoreRuntimeInitialStateRequest &Request) */
@@ -91,13 +91,13 @@ CreateBotCoreRuntimeInitialState(
   FBotCoreRuntimeState State;
   State.Id = FGuid::NewGuid();
   State.Name = Request.Name;
-  State.Position = Request.Settings.InitialPosition;
-  State.Rotation = Request.Settings.InitialRotation;
+  State.Position = Request.Settings.Spawn.InitialPosition;
+  State.Rotation = Request.Settings.Spawn.InitialRotation;
   State.Stats = CreateBotCoreStats(Request.Settings);
   State.Memory = CreateBotCoreMemory(Request.Settings);
   State.Settings = Request.Settings;
-  State.Phase = static_cast<EBotCorePhase>(Request.Settings.InitialPhase);
-  State.TickCount = static_cast<uint64>(Request.Settings.InitialTickCount);
+  State.Phase = static_cast<EBotCorePhase>(Request.Settings.Spawn.InitialPhase);
+  State.TickCount = static_cast<uint64>(Request.Settings.Spawn.InitialTickCount);
   return State;
 }
 

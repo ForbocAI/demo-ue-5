@@ -61,7 +61,7 @@ ATownspersonView::ATownspersonView()
       bPlayerNearby(false), CurrentLod() {
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =
-      FG::RuntimeSelectors::SelectBotSettings().PatrolTickIntervalSeconds;
+      FG::RuntimeSelectors::SelectBotSettings().Schedule.PatrolTickIntervalSeconds;
   const FG::FTownspersonPresentationViewModel Presentation =
       ObserveTownspersonPresentation();
   const ForbocAI::Game::Data::FViewNameSettings &ViewNames =

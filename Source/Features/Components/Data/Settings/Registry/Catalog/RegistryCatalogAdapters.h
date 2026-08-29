@@ -7,4 +7,5 @@
 #include "Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h"
 #include "Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h"
 #include "Features/Components/Data/Settings/Registry/UI/Interface/InterfaceAdapters.h"
+#include "Features/Components/Data/Settings/Registry/Bot/BotRegistryAdapters.h"
 #include "Features/Components/Data/Settings/Registry/Speech/SpeechAdapters.h"

@@ -32,7 +32,7 @@ bool FPipelineIdleTick::RunTest(const FString &Parameters) {
            Result.ActionsDispatched > static_cast<int32>(Initial.TickCount));
   TestEqual(PipelineAssertions().Tick.HealthUnchanged,
             Result.NewState.Stats.Health,
-            PipelineBotSettings().InitialHealth);
+            PipelineBotSettings().Health.InitialHealth);
 
   return true;
 }
@@ -57,7 +57,7 @@ bool FPipelineHazardDamage::RunTest(const FString &Parameters) {
 
   TestTrue(PipelineAssertions().Hazard.HealthReducedByHazard,
            Result.NewState.Stats.Health <
-               PipelineBotSettings().InitialHealth);
+               PipelineBotSettings().Health.InitialHealth);
   TestEqual(PipelineAssertions().Hazard.HealthAfterHazard,
             Result.NewState.Stats.Health,
             PipelineExpectedHazardHealth());
@@ -165,7 +165,7 @@ bool FPipelineMultiBot::RunTest(const FString &Parameters) {
             ? static_cast<void>(TestEqual(
                   PipelineAssertions().Bots.IdleBotFullHealth,
                   Result.NewState.Stats.Health,
-                  PipelineBotSettings().InitialHealth))
+                  PipelineBotSettings().Health.InitialHealth))
             : void();
         Result.NewState.Name == Hazard.State.Name
             ? static_cast<void>(TestEqual(

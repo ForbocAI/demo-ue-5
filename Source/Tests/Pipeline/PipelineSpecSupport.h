@@ -42,29 +42,29 @@ PipelineAssertions() {
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline initial bot name through a stable signature so the tests pipeline workflow remains explicit and composable. @fn FString PipelineInitialBotName() */
 FString PipelineInitialBotName() {
-  return PipelineBotSettings().InitialName;
+  return PipelineBotSettings().Spawn.InitialName;
 }
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline move bot name through a stable signature so the tests pipeline workflow remains explicit and composable. @fn FString PipelineMoveBotName() */
 FString PipelineMoveBotName() {
-  return PipelineBotSettings().MoveActionType;
+  return PipelineBotSettings().Actions.MoveActionType;
 }
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline attack bot name through a stable signature so the tests pipeline workflow remains explicit and composable. @fn FString PipelineAttackBotName() */
 FString PipelineAttackBotName() {
-  return PipelineBotSettings().AttackActionType;
+  return PipelineBotSettings().Actions.AttackActionType;
 }
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline tick delta through a stable signature so the tests pipeline workflow remains explicit and composable. @fn float PipelineTickDelta() */
 float PipelineTickDelta() {
-  return PipelineBotSettings().PatrolTickIntervalSeconds;
+  return PipelineBotSettings().Schedule.PatrolTickIntervalSeconds;
 }
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline hazard damage through a stable signature so the tests pipeline workflow remains explicit and composable. @fn float PipelineHazardDamage() */
 float PipelineHazardDamage() {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       PipelineBotSettings();
-  return Settings.InitialHealth * Settings.PhaseFleeHealthRatio;
+  return Settings.Health.InitialHealth * Settings.Behavior.PhaseFleeHealthRatio;
 }
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline damage per second through a stable signature so the tests pipeline workflow remains explicit and composable. @fn float PipelineDamagePerSecond(const float DeltaTime) */
@@ -76,21 +76,21 @@ float PipelineDamagePerSecond(const float DeltaTime) {
 float PipelineExpectedHazardHealth() {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       PipelineBotSettings();
-  return FMath::Max(Settings.MinimumHealth,
-                    Settings.InitialHealth - PipelineHazardDamage());
+  return FMath::Max(Settings.Health.MinimumHealth,
+                    Settings.Health.InitialHealth - PipelineHazardDamage());
 }
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline flee health through a stable signature so the tests pipeline workflow remains explicit and composable. @fn float PipelineFleeHealth() */
 float PipelineFleeHealth() {
   const ForbocAI::Game::Data::FBotSettings &Settings =
       PipelineBotSettings();
-  return Settings.InitialMaxHealth * Settings.PhaseFleeHealthRatio -
-         Settings.MovementArrivalDistanceSquared;
+  return Settings.Health.InitialMaxHealth * Settings.Behavior.PhaseFleeHealthRatio -
+         Settings.Movement.MovementArrivalDistanceSquared;
 }
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline enemy position through a stable signature so the tests pipeline workflow remains explicit and composable. @fn FVector PipelineEnemyPosition() */
 FVector PipelineEnemyPosition() {
-  return PipelineBotSettings().MoveActionOffset;
+  return PipelineBotSettings().Actions.MoveActionOffset;
 }
 
 /** User Story: As a tests pipeline consumer, I need to invoke create test bot state through a stable signature so the tests pipeline workflow remains explicit and composable. @fn FBotCoreRuntimeState CreateTestBotState(const FString &Name) */

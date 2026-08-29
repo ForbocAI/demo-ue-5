@@ -46,24 +46,24 @@ TArray<FBotEntity> OrchestratorSeedBots() {
       FBotEntity{Settings.TownspersonDefaults.Id,
                  Settings.TownspersonDefaults.Name,
                  EBotEntityKind::Townsperson, EBotAlignment::Friendly,
-                 Settings.Bot.bRegisteredBotActive},
-      FBotEntity{Settings.Bot.InitialName,
-                 Settings.Bot.InitialName,
+                 Settings.Bot.Lifecycle.bRegisteredBotActive},
+      FBotEntity{Settings.Bot.Spawn.InitialName,
+                 Settings.Bot.Spawn.InitialName,
                  EBotEntityKind::Townsperson, EBotAlignment::Friendly,
-                 Settings.Bot.bRegisteredBotActive},
+                 Settings.Bot.Lifecycle.bRegisteredBotActive},
       FBotEntity{Settings.HorsePresentation.Name.DefaultName,
                  Settings.HorsePresentation.Name.DefaultName,
                  EBotEntityKind::Horse, EBotAlignment::Neutral,
-                 Settings.Bot.bRegisteredBotActive}};
+                 Settings.Bot.Lifecycle.bRegisteredBotActive}};
 }
 
 /** User Story: As a tests consumer, I need to invoke orchestrator moving bot through a stable signature so the tests workflow remains explicit and composable. @fn FBotEntity OrchestratorMovingBot() */
 FBotEntity OrchestratorMovingBot() {
   const ForbocAI::Game::Data::FSettings &Settings =
       OrchestratorSettings();
-  return {Settings.Bot.InitialName, Settings.TownspersonDefaults.Name,
+  return {Settings.Bot.Spawn.InitialName, Settings.TownspersonDefaults.Name,
           EBotEntityKind::Townsperson, EBotAlignment::Friendly,
-          Settings.Bot.bRegisteredBotActive};
+          Settings.Bot.Lifecycle.bRegisteredBotActive};
 }
 
 } // namespace
@@ -114,23 +114,23 @@ void FOrchestratorMultiBotSpec::Define() {
           OrchestratorSettings();
       const FBotEntity MovingBot = OrchestratorMovingBot();
       const FLevelLocalPoint InitialLocalLocation =
-          LocalPointFromVector(Settings.Bot.InitialPosition);
+          LocalPointFromVector(Settings.Bot.Spawn.InitialPosition);
       const FLevelLocalPoint TargetLocalLocation =
-          LocalPointFromVector(Settings.Bot.MoveActionOffset);
+          LocalPointFromVector(Settings.Bot.Actions.MoveActionOffset);
 
       EnhancedStoreValue.dispatch(BotActions::BotUpserted()(MovingBot));
       EnhancedStoreValue.dispatch(BotPositionActions::BotPositionUpserted()(
           FBotPositionComponent{
               MovingBot.Id, InitialLocalLocation,
-              Settings.Bot.InitialPosition,
-              Settings.Bot.bPositionPayloadHasWorldLocation,
-              Settings.Bot.bPositionPayloadHasLocalLocation}));
+              Settings.Bot.Spawn.InitialPosition,
+              Settings.Bot.Projection.bPositionPayloadHasWorldLocation,
+              Settings.Bot.Projection.bPositionPayloadHasLocalLocation}));
       EnhancedStoreValue.dispatch(BotPositionActions::BotPositionMoved()(
           FBotPositionMoved{
               MovingBot.Id, TargetLocalLocation,
-              Settings.Bot.MoveActionOffset,
-              Settings.Bot.bPositionPayloadHasWorldLocation,
-              Settings.Bot.bPositionPayloadHasLocalLocation}));
+              Settings.Bot.Actions.MoveActionOffset,
+              Settings.Bot.Projection.bPositionPayloadHasWorldLocation,
+              Settings.Bot.Projection.bPositionPayloadHasLocalLocation}));
 
       const func::Maybe<FBotPositionComponent> Position =
           RuntimeSelectors::SelectBotPositionById(EnhancedStoreValue.getState(),
@@ -140,7 +140,7 @@ void FOrchestratorMultiBotSpec::Define() {
       TestEqual(Automation.Assertions.WorldPositionUpdated,
                 Position.hasValue ? Position.value.WorldLocation
                                   : FVector::ZeroVector,
-                Settings.Bot.MoveActionOffset);
+                Settings.Bot.Actions.MoveActionOffset);
     });
   });
 }

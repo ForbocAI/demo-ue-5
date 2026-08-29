@@ -1,6 +1,18 @@
 #pragma once
 
-#include "Core/rtk.hpp"
+#include "Features/Components/Data/Settings/Bot/Configuration/Actions/BotActionTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Behavior/BotBehaviorTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Diagnostics/BotDiagnosticTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Goals/BotGoalTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Lifecycle/BotLifecycleTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Movement/BotMovementTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Awareness/BotAwarenessTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Health/BotHealthTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Projection/BotProjectionTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Schedule/BotScheduleTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Spawn/BotSpawnTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/Resources/BotResourceTypes.h"
+#include "Features/Components/Data/Settings/Bot/Configuration/WorldSense/BotWorldSenseTypes.h"
 #include "Features/Components/Data/Settings/Bot/Stats/BotStatsTypes.h"
 
 namespace ForbocAI {
@@ -8,129 +20,38 @@ namespace Game {
 namespace Data {
 
 struct FBotSettings {
-  FString InitialName;
-  float InitialHealth;
-  float InitialMaxHealth;
-  float InitialMana;
-  float InitialMaxMana;
-  float InitialStamina;
-  float InitialMaxStamina;
-  float MinimumHealth;
-  FVector InitialPosition;
-  FRotator InitialRotation;
-  FVector InitialKnownPlayerPosition;
-  float InitialTimeSinceSeenPlayer;
-  float EnemySpottedTimeSinceSeenPlayer;
-  bool bInitialHasAggro;
-  bool bDefaultHazardOverlapping;
-  bool bDefaultVisibilityCanSeeEnemy;
-  int32 InitialPhase;
-  int32 InitialTickCount;
-  float AggroTimeoutSeconds;
-  float DamageFleeHealthRatio;
-  float PhaseFleeHealthRatio;
-  float MovementArrivalDistanceSquared;
-  float AggroPositionToleranceSquared;
-  float DefaultMovementInterpSpeed;
-  int32 PatrolGoalPriority;
-  FString PatrolGoalIdFormat;
-  bool bPatrolGoalInitialCompleted;
-  bool bActiveGoalComponentHasActiveGoal;
+  FBotHealthSettings Health;
+  FBotResourceSettings Resources;
+  FBotSpawnSettings Spawn;
+  FBotAwarenessSettings Awareness;
+  FBotWorldSenseSettings WorldSense;
+  FBotBehaviorSettings Behavior;
+  FBotMovementSettings Movement;
+  FBotGoalSettings Goals;
+  FBotScheduleSettings Schedule;
+  FBotLifecycleSettings Lifecycle;
+  FBotProjectionSettings Projection;
+  FBotDiagnosticSettings Diagnostics;
+  FBotActionSettings Actions;
   FStatPresetSettings TownspersonStats;
   FStatPresetSettings HorseStats;
-  float ObservationIntervalSeconds;
-  float InitialObservationTimeSeconds;
-  bool bOrchestratorCanEverTick;
-  float PatrolTickIntervalSeconds;
-  float InitialPatrolPauseRemainingSeconds;
-  bool bRegisteredBotActive;
-  bool bPositionPayloadHasLocalLocation;
-  bool bPositionPayloadHasWorldLocation;
-  FString StartLog;
-  FString RegisteredLogFormat;
-  FString ProcessFailedLogFormat;
-  FString ExecuteLogFormat;
-  FString NullActorLabel;
-  FString MoveActionType;
-  FString AttackActionType;
-  FVector MoveActionOffset;
-  FString StateObservationFormat;
-  int32 DefaultBehaviorState;
 };
 
 /** User Story: As a bot runtime consumer, I need to compare values for equality through a stable signature so runtime settings remain explicit and composable. @fn inline bool operator==(const FBotSettings &Left, const FBotSettings &Right) */
 inline bool operator==(const FBotSettings &Left,
                        const FBotSettings &Right) {
-  return Left.InitialName == Right.InitialName &&
-         FMath::IsNearlyEqual(Left.InitialHealth, Right.InitialHealth) &&
-         FMath::IsNearlyEqual(Left.InitialMaxHealth,
-                              Right.InitialMaxHealth) &&
-         FMath::IsNearlyEqual(Left.InitialMana, Right.InitialMana) &&
-         FMath::IsNearlyEqual(Left.InitialMaxMana, Right.InitialMaxMana) &&
-         FMath::IsNearlyEqual(Left.InitialStamina, Right.InitialStamina) &&
-         FMath::IsNearlyEqual(Left.InitialMaxStamina,
-                              Right.InitialMaxStamina) &&
-         FMath::IsNearlyEqual(Left.MinimumHealth, Right.MinimumHealth) &&
-         Left.InitialPosition == Right.InitialPosition &&
-         Left.InitialRotation == Right.InitialRotation &&
-         Left.InitialKnownPlayerPosition ==
-             Right.InitialKnownPlayerPosition &&
-         FMath::IsNearlyEqual(Left.InitialTimeSinceSeenPlayer,
-                              Right.InitialTimeSinceSeenPlayer) &&
-         FMath::IsNearlyEqual(Left.EnemySpottedTimeSinceSeenPlayer,
-                              Right.EnemySpottedTimeSinceSeenPlayer) &&
-         Left.bInitialHasAggro == Right.bInitialHasAggro &&
-         Left.bDefaultHazardOverlapping ==
-             Right.bDefaultHazardOverlapping &&
-         Left.bDefaultVisibilityCanSeeEnemy ==
-             Right.bDefaultVisibilityCanSeeEnemy &&
-         Left.InitialPhase == Right.InitialPhase &&
-         Left.InitialTickCount == Right.InitialTickCount &&
-         FMath::IsNearlyEqual(Left.AggroTimeoutSeconds,
-                              Right.AggroTimeoutSeconds) &&
-         FMath::IsNearlyEqual(Left.DamageFleeHealthRatio,
-                              Right.DamageFleeHealthRatio) &&
-         FMath::IsNearlyEqual(Left.PhaseFleeHealthRatio,
-                              Right.PhaseFleeHealthRatio) &&
-         FMath::IsNearlyEqual(Left.MovementArrivalDistanceSquared,
-                              Right.MovementArrivalDistanceSquared) &&
-         FMath::IsNearlyEqual(Left.AggroPositionToleranceSquared,
-                              Right.AggroPositionToleranceSquared) &&
-         FMath::IsNearlyEqual(Left.DefaultMovementInterpSpeed,
-                              Right.DefaultMovementInterpSpeed) &&
-         Left.PatrolGoalPriority == Right.PatrolGoalPriority &&
-         Left.PatrolGoalIdFormat == Right.PatrolGoalIdFormat &&
-         Left.bPatrolGoalInitialCompleted ==
-             Right.bPatrolGoalInitialCompleted &&
-         Left.bActiveGoalComponentHasActiveGoal ==
-             Right.bActiveGoalComponentHasActiveGoal &&
+  return Left.Health == Right.Health && Left.Resources == Right.Resources &&
+         Left.Spawn == Right.Spawn && Left.Awareness == Right.Awareness &&
+         Left.WorldSense == Right.WorldSense &&
+         Left.Behavior == Right.Behavior &&
+         Left.Movement == Right.Movement && Left.Goals == Right.Goals &&
+         Left.Schedule == Right.Schedule &&
+         Left.Lifecycle == Right.Lifecycle &&
+         Left.Projection == Right.Projection &&
+         Left.Diagnostics == Right.Diagnostics &&
+         Left.Actions == Right.Actions &&
          Left.TownspersonStats == Right.TownspersonStats &&
-         Left.HorseStats == Right.HorseStats &&
-         FMath::IsNearlyEqual(Left.ObservationIntervalSeconds,
-                              Right.ObservationIntervalSeconds) &&
-         FMath::IsNearlyEqual(Left.InitialObservationTimeSeconds,
-                              Right.InitialObservationTimeSeconds) &&
-         Left.bOrchestratorCanEverTick ==
-             Right.bOrchestratorCanEverTick &&
-         FMath::IsNearlyEqual(Left.PatrolTickIntervalSeconds,
-                              Right.PatrolTickIntervalSeconds) &&
-         FMath::IsNearlyEqual(Left.InitialPatrolPauseRemainingSeconds,
-                              Right.InitialPatrolPauseRemainingSeconds) &&
-         Left.bRegisteredBotActive == Right.bRegisteredBotActive &&
-         Left.bPositionPayloadHasLocalLocation ==
-             Right.bPositionPayloadHasLocalLocation &&
-         Left.bPositionPayloadHasWorldLocation ==
-             Right.bPositionPayloadHasWorldLocation &&
-         Left.StartLog == Right.StartLog &&
-         Left.RegisteredLogFormat == Right.RegisteredLogFormat &&
-         Left.ProcessFailedLogFormat == Right.ProcessFailedLogFormat &&
-         Left.ExecuteLogFormat == Right.ExecuteLogFormat &&
-         Left.NullActorLabel == Right.NullActorLabel &&
-         Left.MoveActionType == Right.MoveActionType &&
-         Left.AttackActionType == Right.AttackActionType &&
-         Left.MoveActionOffset == Right.MoveActionOffset &&
-         Left.StateObservationFormat == Right.StateObservationFormat &&
-         Left.DefaultBehaviorState == Right.DefaultBehaviorState;
+         Left.HorseStats == Right.HorseStats;
 }
 
 /** User Story: As a bot runtime consumer, I need to compare values for inequality through a stable signature so runtime settings remain explicit and composable. @fn inline bool operator!=(const FBotSettings &Left, const FBotSettings &Right) */

@@ -43,7 +43,7 @@ AHorseView::AHorseView()
       bMountedRider(false), CurrentLod() {
   PrimaryActorTick.bCanEverTick = true;
   PrimaryActorTick.TickInterval =
-      FG::RuntimeSelectors::SelectBotSettings().PatrolTickIntervalSeconds;
+      FG::RuntimeSelectors::SelectBotSettings().Schedule.PatrolTickIntervalSeconds;
   const FG::FHorsePresentationViewModel Presentation =
       ObserveHorsePresentation();
   const ForbocAI::Game::Data::FViewNameSettings &ViewNames =
@@ -104,7 +104,7 @@ void AHorseView::ConfigureHorse(const FHorseViewConfig &Config) {
   CurrentLod = Config.Lod;
   PauseRemaining =
       FG::RuntimeSelectors::SelectBotSettings()
-          .InitialPatrolPauseRemainingSeconds;
+          .Schedule.InitialPatrolPauseRemainingSeconds;
   const ForbocAI::Game::Level::FBotInitialPatrolLocationPayload Initial =
       ObserveHorseInitialPatrol(PatrolRoute, PatrolIndex);
   Initial.bShouldMove ? (SetActorLocation(Initial.Location), void()) : void();
