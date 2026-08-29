@@ -217,6 +217,40 @@ NestedSettingField(
       });
 }
 
+/** User Story: As a json settings field consumer, I need to invoke nested object setting field through a stable signature so object-backed concern records remain composable. @fn template <typename Settings, typename Group, typename Value> TField<Settings> NestedObjectSettingField( const char *FieldAtom, const TNestedFieldMembers<Settings, Group, Value> &Members, TJsonObjectSettingsReader<Value> ReadObjectFn) */
+template <typename Settings, typename Group, typename Value>
+TField<Settings> NestedObjectSettingField(
+    const char *FieldAtom,
+    const TNestedFieldMembers<Settings, Group, Value> &Members,
+    TJsonObjectSettingsReader<Value> ReadObjectFn) {
+  return TField<Settings>(
+      FieldAtom,
+      [Members, ReadObjectFn](const FFieldRequest &Request,
+                              const Settings &Current) {
+        Settings Next = Current;
+        ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
+            ReadObjectFn(ReadObjectValue(Request));
+        return Next;
+      });
+}
+
+/** User Story: As a json settings field consumer, I need to compose a nested object field with a function reader so object-backed concern records remain explicit. @fn template <typename Settings, typename Group, typename Value> TField<Settings> NestedObjectSettingField( const char *FieldAtom, const TNestedFieldMembers<Settings, Group, Value> &Members, Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &)) */
+template <typename Settings, typename Group, typename Value>
+TField<Settings> NestedObjectSettingField(
+    const char *FieldAtom,
+    const TNestedFieldMembers<Settings, Group, Value> &Members,
+    Value (*ReadObjectFn)(const TSharedPtr<FJsonObject> &)) {
+  return TField<Settings>(
+      FieldAtom,
+      [Members, ReadObjectFn](const FFieldRequest &Request,
+                              const Settings &Current) {
+        Settings Next = Current;
+        ((Next.*(Members.GroupMember)).*(Members.ValueMember)) =
+            ReadObjectFn(ReadObjectValue(Request));
+        return Next;
+      });
+}
+
 } // namespace JsonAdapters
 } // namespace Data
 } // namespace Game

@@ -19,10 +19,14 @@ using FRuntimeConversationViewModel =
     ForbocAI::Game::UI::FRuntimeConversationViewModel;
 using FUISettings =
     ForbocAI::Game::Data::FUISettings;
+using FRoleSettings =
+    ForbocAI::Game::Data::FRoleSettings;
+using FRoleColorSettings =
+    ForbocAI::Game::Data::FRoleColorSettings;
 
 struct FUIRoleColorDeclaration {
-  FString FUISettings::*Role;
-  FLinearColor FUISettings::*Color;
+  FString FRoleSettings::*Role;
+  FLinearColor FRoleColorSettings::*Color;
 };
 
 template <typename Value> struct TUIStatePayloadFieldDeclaration {
@@ -38,11 +42,13 @@ template <> struct TUIReducerRegistry<FUIRoleColorDeclaration> {
   /** User Story: As a ui chat rendering consumer, I need to invoke declarations through a stable signature so the ui chat rendering workflow remains explicit and composable. @fn static const TArray<FUIRoleColorDeclaration> &Declarations() */
   static const TArray<FUIRoleColorDeclaration> &Declarations() {
     static const TArray<FUIRoleColorDeclaration> RegisteredDeclarations = {
-        {&FUISettings::PlayerRoleLabel, &FUISettings::PlayerColor},
-        {&FUISettings::SystemRoleLabel, &FUISettings::SystemColor},
-        {&FUISettings::NpcRoleLabel, &FUISettings::NpcColor},
-        {&FUISettings::UnknownRoleLabel,
-         &FUISettings::UnknownColor}};
+        {&FRoleSettings::PlayerRoleLabel,
+         &FRoleColorSettings::PlayerColor},
+        {&FRoleSettings::SystemRoleLabel,
+         &FRoleColorSettings::SystemColor},
+        {&FRoleSettings::NpcRoleLabel, &FRoleColorSettings::NpcColor},
+        {&FRoleSettings::UnknownRoleLabel,
+         &FRoleColorSettings::UnknownColor}};
     return RegisteredDeclarations;
   }
 };
@@ -69,9 +75,11 @@ inline func::Maybe<FLinearColor> FindRoleColor(
       Declarations, func::nothing<FLinearColor>(),
       [&Role, &Settings](const func::Maybe<FLinearColor> &Acc,
                          const FUIRoleColorDeclaration &Declaration) {
-        return Acc.hasValue || (Settings.*(Declaration.Role)) != Role
+        return Acc.hasValue ||
+                       (Settings.Roles.*(Declaration.Role)) != Role
                    ? Acc
-                   : func::just(Settings.*(Declaration.Color));
+                   : func::just(
+                         Settings.RoleColors.*(Declaration.Color));
       });
 }
 

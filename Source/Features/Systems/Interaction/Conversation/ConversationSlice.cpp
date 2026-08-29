@@ -54,7 +54,7 @@ FUIPayload ReduceConversationPresentedPayload(
     const ForbocAI::Game::Data::FUISettings &UISettings) {
   FUIPayload Payload;
   Payload.Id = frmt::RuntimeString(
-      UISettings.PayloadIdFormat,
+      UISettings.Format.PayloadIdFormat,
       frmt::Args(
           {frmt::Arg(DialogueReply.Request.Name)}));
   Payload.Conversation = UIReducers::ReduceRuntimeConversationViewModel(

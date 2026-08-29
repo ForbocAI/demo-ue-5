@@ -20,9 +20,13 @@ ReduceRuntimeConversationViewModel(
     const FUIRuntimeConversationText &Text,
     const FUISettings &Settings) {
   return {{Text.Title, Text.PlayerLine, Text.NpcReply},
-          {Settings.PanelColor, Settings.TitleColor, Settings.PlayerColor,
-           Settings.ReplyColor},
-          {Settings.PanelPadding, Settings.TitleSize, Settings.BodySize}};
+          {Settings.SurfaceColors.PanelColor,
+           Settings.SurfaceColors.TitleColor,
+           Settings.RoleColors.PlayerColor,
+           Settings.SurfaceColors.ReplyColor},
+          {Settings.ConversationLayout.PanelPadding,
+           Settings.ConversationLayout.TitleSize,
+           Settings.ConversationLayout.BodySize}};
 }
 
 } // namespace detail
@@ -46,8 +50,9 @@ inline ForbocAI::Game::UI::FRuntimeConversationViewModel
 ReduceRuntimeConversationPlaceholder(
     const ForbocAI::Game::Data::FUISettings &Settings) {
   return detail::ReduceRuntimeConversationViewModel(
-      {Settings.PlaceholderTitle, Settings.PlaceholderPlayerLine,
-       Settings.PlaceholderNpcReply},
+      {Settings.Placeholder.PlaceholderTitle,
+       Settings.Placeholder.PlaceholderPlayerLine,
+       Settings.Placeholder.PlaceholderNpcReply},
       Settings);
 }
 
@@ -58,16 +63,16 @@ ReduceRuntimeConversationViewModel(
     const ForbocAI::Game::Data::FUISettings &Settings) {
   return detail::ReduceRuntimeConversationViewModel(
       {frmt::RuntimeString(
-           Settings.ConversationTitleFormat,
+           Settings.Format.ConversationTitleFormat,
            frmt::Args(
                {frmt::Arg(Request.NpcName),
                 frmt::Arg(Request.Role)})),
        frmt::RuntimeString(
-           Settings.PlayerLineFormat,
+           Settings.Format.PlayerLineFormat,
            frmt::Args(
                {frmt::Arg(Request.PlayerLine)})),
        frmt::RuntimeString(
-           Settings.NpcReplyFormat,
+           Settings.Format.NpcReplyFormat,
            frmt::Args(
                {frmt::Arg(Request.NpcReply)}))},
       Settings);
@@ -81,9 +86,9 @@ inline FBindDialogueViewModel ReduceBindDialogueViewModel(
   Model.bBound = Request.bBound;
   Model.Persona = Request.Persona;
   Model.ConnectionMessage = ReduceChatMessageViewModel(
-      {Settings.SystemRoleLabel,
+      {Settings.Roles.SystemRoleLabel,
        frmt::RuntimeString(
-           Settings.ConnectionMessageFormat,
+           Settings.Format.ConnectionMessageFormat,
            frmt::Args(
                {frmt::Arg(Request.Persona)}))},
       Settings);
@@ -98,7 +103,7 @@ inline FDialogueResponseViewModel ReduceDialogueResponseViewModel(
     const ForbocAI::Game::Data::FUISettings &Settings) {
   FDialogueResponseViewModel Model;
   Model.Message = ReduceChatMessageViewModel(
-      {Settings.NpcRoleLabel, Request.NPCText}, Settings);
+      {Settings.Roles.NpcRoleLabel, Request.NPCText}, Settings);
   return Model;
 }
 

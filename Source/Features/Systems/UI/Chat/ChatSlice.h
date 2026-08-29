@@ -21,7 +21,7 @@ inline FChatMessageViewModel ReduceChatMessageViewModel(
     const FChatMessageViewModelRequest &Request,
     const FUISettings &Settings) {
   return {frmt::RuntimeString(
-              Settings.ChatMessageFormat,
+              Settings.History.ChatMessageFormat,
               frmt::Args(
                   {frmt::Arg(Request.Role),
                    frmt::Arg(Request.Text)})),
@@ -32,14 +32,15 @@ inline FChatMessageViewModel ReduceChatMessageViewModel(
 inline FChatMessageViewModel
 ReduceHistoryEntryViewModel(const FString &Entry,
                             const FUISettings &Settings) {
-  const int32 SeparatorIndex = Entry.Find(Settings.HistoryRoleSeparator);
-  return SeparatorIndex > Settings.HistoryMinimumRoleIndex
+  const int32 SeparatorIndex = Entry.Find(Settings.History.HistoryRoleSeparator);
+  return SeparatorIndex > Settings.History.HistoryMinimumRoleIndex
              ? ReduceChatMessageViewModel(
-                   {Entry.Left(SeparatorIndex),
+                    {Entry.Left(SeparatorIndex),
                     Entry.Mid(SeparatorIndex +
-                              Settings.HistoryTextStartOffset)},
+                              Settings.History.HistoryTextStartOffset)},
                    Settings)
-             : ReduceChatMessageViewModel({Settings.UnknownRoleLabel, Entry},
+             : ReduceChatMessageViewModel({Settings.Roles.UnknownRoleLabel,
+                                           Entry},
                                           Settings);
 }
 
@@ -94,11 +95,11 @@ inline FChatInputViewModel ReduceChatInputViewModel(
       Request.CommitMethod == ETextCommit::OnEnter && !InputText.IsEmpty();
   Model.InputText = InputText;
   Model.PlayerMessage =
-      ReduceChatMessageViewModel({Settings.PlayerRoleLabel, InputText},
+      ReduceChatMessageViewModel({Settings.Roles.PlayerRoleLabel, InputText},
                                  Settings);
   Model.ErrorMessage =
-      ReduceChatMessageViewModel({Settings.SystemRoleLabel,
-                                  Settings.UnboundDialogueError},
+      ReduceChatMessageViewModel({Settings.Roles.SystemRoleLabel,
+                                  Settings.Format.UnboundDialogueError},
                                  Settings);
   return Model;
 }

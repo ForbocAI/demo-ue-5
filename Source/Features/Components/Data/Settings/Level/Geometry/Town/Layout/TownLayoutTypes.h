@@ -6,7 +6,7 @@ namespace ForbocAI {
 namespace Game {
 namespace Data {
 
-struct FLayoutSettings {
+struct FTownLayoutSettings {
   float PostOfficeEastLots;
   float PostOfficeNorthLots;
   float BlockScalePerFoot;
@@ -15,9 +15,9 @@ struct FLayoutSettings {
   float RoadClearanceRatio;
 };
 
-/** User Story: As a level geometry consumer, I need to compare town layout settings so settlement placement remains deterministic. @fn inline bool operator==(const FLayoutSettings &Left, const FLayoutSettings &Right) */
-inline bool operator==(const FLayoutSettings &Left,
-                       const FLayoutSettings &Right) {
+/** User Story: As a level geometry consumer, I need to compare town layout settings so settlement placement remains deterministic. @fn inline bool operator==(const FTownLayoutSettings &Left, const FTownLayoutSettings &Right) */
+inline bool operator==(const FTownLayoutSettings &Left,
+                       const FTownLayoutSettings &Right) {
   return FMath::IsNearlyEqual(Left.PostOfficeEastLots,
                               Right.PostOfficeEastLots) &&
          FMath::IsNearlyEqual(Left.PostOfficeNorthLots,

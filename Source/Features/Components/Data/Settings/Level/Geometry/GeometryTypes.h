@@ -18,7 +18,7 @@ namespace Data {
 
 struct FGeometrySettings {
   FExtentSettings TerrainExtent;
-  FLayoutSettings TownLayout;
+  FTownLayoutSettings TownLayout;
   FScaleSettings WorldScale;
   FSpawnGeometrySettings PlayerSpawn;
   FLabelGeometrySettings Labels;
