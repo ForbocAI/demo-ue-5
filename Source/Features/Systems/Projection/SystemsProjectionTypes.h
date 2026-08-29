@@ -5,7 +5,7 @@
 
 #include "Features/Entities/Characters/Player/CharactersPlayerTypes.h"
 #include "Features/Systems/Bots/AI/AITypes.h"
-#include "Features/Systems/Bots/Goals/GoalsTypes.h"
+#include "Features/Systems/Bots/Goals/BotsGoalsTypes.h"
 #include "Features/Systems/Bots/Position/PositionTypes.h"
 #include "Features/Systems/Bots/Stats/BotsStatsTypes.h"
 #include "Features/Systems/Interaction/SystemsInteractionTypes.h"

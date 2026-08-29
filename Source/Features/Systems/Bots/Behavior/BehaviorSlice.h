@@ -4,7 +4,7 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Bots/Behavior/BehaviorActions.h"
-#include "Features/Systems/Bots/Behavior/BehaviorTypes.h"
+#include "Features/Systems/Bots/Behavior/BotsBehaviorTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -139,7 +139,7 @@ ReduceBotCoreRuntime(const FBotCoreRuntimeState &State,
 #include "Core/rtk.hpp"
 
 #include "Features/Systems/Bots/Behavior/BehaviorSelectors.h"
-#include "Features/Systems/Bots/Behavior/BehaviorTypes.h"
+#include "Features/Systems/Bots/Behavior/BotsBehaviorTypes.h"
 
 namespace ForbocAI {
 namespace Game {

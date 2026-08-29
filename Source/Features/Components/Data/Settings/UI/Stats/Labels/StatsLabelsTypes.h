@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/UI/Stats/Labels/Memory/MemoryLabelTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Labels/Performance/PerformanceLabelTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Labels/Projection/ProjectionLabelTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Labels/Rate/RateLabelTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Labels/Rendering/RenderingLabelTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Labels/State/StateLabelTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Labels/Timing/TimingLabelTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Labels/Memory/LabelsMemoryTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Labels/Performance/LabelsPerformanceTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Labels/Projection/LabelsProjectionTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Labels/Rate/RateTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Labels/Rendering/LabelsRenderingTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Labels/State/LabelsStateTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Labels/Timing/LabelsTimingTypes.h"
 
 namespace ForbocAI {
 namespace Game {

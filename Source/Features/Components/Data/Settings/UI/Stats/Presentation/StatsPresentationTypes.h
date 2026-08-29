@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/UI/Stats/Presentation/Colors/PresentationColorTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Presentation/Colors/PresentationColorsTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/Presentation/Format/PresentationFormatTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/Presentation/Message/MessageTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/Presentation/Typography/PresentationTypographyTypes.h"

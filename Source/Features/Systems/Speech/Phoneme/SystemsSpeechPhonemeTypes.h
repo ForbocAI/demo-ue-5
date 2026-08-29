@@ -3,7 +3,7 @@
 
 #include "Core/fp.hpp"
 
-#include "PhonemeTypes.generated.h"
+#include "SystemsSpeechPhonemeTypes.generated.h"
 
 USTRUCT(BlueprintType)
 struct FPhonemeEvent {

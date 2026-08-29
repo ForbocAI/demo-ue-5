@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Lifecycle/LifecycleTypes.h"
+#include "Features/Systems/Lifecycle/SystemsLifecycleTypes.h"
 
 namespace ForbocAI {
 namespace Game {

@@ -3,7 +3,7 @@
 
 #include "Core/fp.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
-#include "Features/Systems/Speech/Phoneme/PhonemeTypes.h"
+#include "Features/Systems/Speech/Phoneme/SystemsSpeechPhonemeTypes.h"
 #include "Sound/SoundWave.h"
 #include "PhonemeAdapters.generated.h"
 

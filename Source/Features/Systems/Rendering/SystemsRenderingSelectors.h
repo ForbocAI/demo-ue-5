@@ -5,7 +5,7 @@
 #include "Features/Components/Rendering/Distance/Lod/ComponentsRenderingDistanceLodTypes.h"
 #include "Features/Components/Rendering/Texture/ComponentsRenderingTextureTypes.h"
 #include "Features/Components/Rendering/Profile/Render/RenderTypes.h"
-#include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/SystemsRenderingTypes.h"
 
 namespace ForbocAI {
 namespace Game {

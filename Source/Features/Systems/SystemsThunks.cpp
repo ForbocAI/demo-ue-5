@@ -2,7 +2,7 @@
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Level/ComponentsLevelTypes.h"
-#include "Features/Systems/Lifecycle/LifecycleTypes.h"
+#include "Features/Systems/Lifecycle/SystemsLifecycleTypes.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
 #include "Features/Entities/Characters/Bots/CharactersBotsAdapters.h"
 #include "Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.h"

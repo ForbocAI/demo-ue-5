@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Data/Settings/UI/Capture/Timing/TimingTypes.h"
+#include "Features/Components/Data/Settings/UI/Capture/Timing/CaptureTimingTypes.h"
 #include "Features/Components/Data/Settings/UI/Marketing/Command/CommandTypes.h"
-#include "Features/Components/Data/Settings/UI/Marketing/Menu/Colors/MenuColorTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Menu/Colors/MenuColorsTypes.h"
 #include "Features/Components/Data/Settings/UI/Marketing/Menu/Content/ContentTypes.h"
 #include "Features/Components/Data/Settings/UI/Marketing/Menu/Placement/PlacementTypes.h"
-#include "Features/Components/Data/Settings/UI/Marketing/Menu/Typography/TypographyTypes.h"
-#include "Features/Components/Data/Settings/UI/Marketing/Menu/Viewport/ViewportTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Menu/Typography/MenuTypographyTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Menu/Viewport/MenuViewportTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/UIStatsTypes.h"
 
 namespace ForbocAI {

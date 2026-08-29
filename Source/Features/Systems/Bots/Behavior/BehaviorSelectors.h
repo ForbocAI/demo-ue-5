@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/Behavior/BehaviorTypes.h"
+#include "Features/Systems/Bots/Behavior/BotsBehaviorTypes.h"
 
 namespace ForbocAI {
 namespace Game {

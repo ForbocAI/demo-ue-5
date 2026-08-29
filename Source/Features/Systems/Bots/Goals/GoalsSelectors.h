@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/Goals/GoalsTypes.h"
+#include "Features/Systems/Bots/Goals/BotsGoalsTypes.h"
 
 namespace ForbocAI {
 namespace Game {

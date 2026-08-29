@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Data/Settings/Speech/Phoneme/Duration/PhonemeDurationRuleTypes.h"
-#include "Features/Components/Data/Settings/Speech/Phoneme/Vowel/VowelPhonemeTypes.h"
+#include "Features/Components/Data/Settings/Speech/Phoneme/Duration/DurationTypes.h"
+#include "Features/Components/Data/Settings/Speech/Phoneme/Vowel/VowelTypes.h"
 
 namespace ForbocAI {
 namespace Game {

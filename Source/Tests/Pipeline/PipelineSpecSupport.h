@@ -4,7 +4,7 @@
 #include "Core/fp.hpp"
 #include "Misc/AutomationTest.h"
 #include "Features/Systems/Bots/Behavior/BehaviorActions.h"
-#include "Features/Systems/Bots/Behavior/BehaviorTypes.h"
+#include "Features/Systems/Bots/Behavior/BotsBehaviorTypes.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Features/Systems/Bots/Pipeline/PipelineSlice.h"
 

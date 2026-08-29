@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Data/Settings/Speech/Phoneme/Viseme/Mapping/VisemeMappingTypes.h"
+#include "Features/Components/Data/Settings/Speech/Phoneme/Viseme/Mapping/MappingTypes.h"
 
 namespace ForbocAI {
 namespace Game {

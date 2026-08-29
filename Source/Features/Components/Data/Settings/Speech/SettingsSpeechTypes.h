@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/Speech/Automation/Assertions/Lookup/LookupAssertionTypes.h"
-#include "Features/Components/Data/Settings/Speech/Automation/Assertions/Phoneme/PhonemeAssertionTypes.h"
-#include "Features/Components/Data/Settings/Speech/Automation/Assertions/Viseme/VisemeAssertionTypes.h"
-#include "Features/Components/Data/Settings/Speech/Automation/Cases/CaseTypes.h"
-#include "Features/Components/Data/Settings/Speech/Automation/Samples/SampleTypes.h"
-#include "Features/Components/Data/Settings/Speech/Diagnostics/DiagnosticTypes.h"
+#include "Features/Components/Data/Settings/Speech/Automation/Assertions/Lookup/LookupTypes.h"
+#include "Features/Components/Data/Settings/Speech/Automation/Assertions/Phoneme/AssertionsPhonemeTypes.h"
+#include "Features/Components/Data/Settings/Speech/Automation/Assertions/Viseme/VisemeTypes.h"
+#include "Features/Components/Data/Settings/Speech/Automation/Cases/CasesTypes.h"
+#include "Features/Components/Data/Settings/Speech/Automation/Samples/SamplesTypes.h"
+#include "Features/Components/Data/Settings/Speech/Diagnostics/SpeechDiagnosticsTypes.h"
 #include "Features/Components/Data/Settings/Speech/LipSync/LipSyncTypes.h"
-#include "Features/Components/Data/Settings/Speech/Phoneme/PhonemeTypes.h"
+#include "Features/Components/Data/Settings/Speech/Phoneme/SettingsSpeechPhonemeTypes.h"
 #include "Features/Components/Data/Settings/Speech/Playback/PlaybackTypes.h"
 #include "Features/Components/Data/Settings/Speech/Tts/Request/TtsRequestTypes.h"
-#include "Features/Components/Data/Settings/Speech/Tts/Response/TtsResponseTypes.h"
+#include "Features/Components/Data/Settings/Speech/Tts/Response/ResponseTypes.h"
 #include "Features/Components/Data/Settings/Speech/Voice/VoiceTypes.h"
 
 namespace ForbocAI {

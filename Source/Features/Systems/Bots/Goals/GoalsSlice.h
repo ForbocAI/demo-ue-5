@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
-#include "Features/Systems/Bots/Goals/GoalsTypes.h"
+#include "Features/Systems/Bots/Goals/BotsGoalsTypes.h"
 #include "Features/Systems/Bots/Horses/HorsesTypes.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
 
@@ -53,7 +53,7 @@ FBotGoalState ReduceHorsesSeeded(
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/Goals/GoalsActions.h"
 #include "Features/Systems/Bots/Goals/GoalsSelectors.h"
-#include "Features/Systems/Bots/Goals/GoalsTypes.h"
+#include "Features/Systems/Bots/Goals/BotsGoalsTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -70,7 +70,7 @@ const rtk::Slice<FBotGoalState> &GetSlice();
 
 #include "Features/Components/Data/ComponentsDataTypes.h"
 #include "Features/Systems/Bots/Source/Mapping/MappingAdapters.h"
-#include "Features/Systems/Bots/Goals/GoalsTypes.h"
+#include "Features/Systems/Bots/Goals/BotsGoalsTypes.h"
 #include "Features/Systems/Bots/Horses/HorsesTypes.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
 

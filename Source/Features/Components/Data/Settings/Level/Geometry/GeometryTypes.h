@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/Level/Geometry/Block/Rendering/BlockRenderTypes.h"
-#include "Features/Components/Data/Settings/Level/Geometry/Labels/LabelGeometryTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/Block/Rendering/BlockRenderingTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/Labels/GeometryLabelsTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/Lifecycle/GeometryLifecycleTypes.h"
-#include "Features/Components/Data/Settings/Level/Geometry/Patrol/Route/PatrolRouteGeometryTypes.h"
-#include "Features/Components/Data/Settings/Level/Geometry/Player/Spawn/PlayerSpawnGeometryTypes.h"
-#include "Features/Components/Data/Settings/Level/Geometry/Terrain/Extent/TerrainExtentTypes.h"
-#include "Features/Components/Data/Settings/Level/Geometry/Terrain/Sampling/TerrainSamplingTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/Patrol/Route/RouteTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/Player/Spawn/PlayerSpawnTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/Terrain/Extent/ExtentTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/Terrain/Sampling/SamplingTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/Terrain/Mesh/TerrainMeshTypes.h"
-#include "Features/Components/Data/Settings/Level/Geometry/Terrain/Quad/TerrainQuadTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/Terrain/Quad/QuadTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/Town/Layout/TownLayoutTypes.h"
-#include "Features/Components/Data/Settings/Level/Geometry/World/Scale/WorldScaleTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/World/Scale/ScaleTypes.h"
 
 namespace ForbocAI {
 namespace Game {

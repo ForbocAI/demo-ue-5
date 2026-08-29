@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/UI/Stats/Threshold/Performance/PerformanceThresholdTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Threshold/Resource/ResourceThresholdTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Threshold/Performance/ThresholdPerformanceTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Threshold/Resource/ResourceTypes.h"
 
 namespace ForbocAI {
 namespace Game {

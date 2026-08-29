@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/UI/Stats/Budget/Capture/Output/OutputTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Budget/Capture/Output/CaptureOutputTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/Budget/Capture/Path/PathTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/Budget/Capture/Request/CaptureRequestTypes.h"
 

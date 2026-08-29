@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Features/Components/Data/Settings/UI/Stats/Measurement/CVar/CVarTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Measurement/Diagnostic/DiagnosticValueTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Measurement/Empty/EmptyMetricTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Measurement/Frame/FrameMetricTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Measurement/Gpu/GpuMetricTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Measurement/Memory/MemoryMetricTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Measurement/Mesh/MeshMetricTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Measurement/Diagnostic/DiagnosticTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Measurement/Empty/EmptyTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Measurement/Frame/FrameTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Measurement/Gpu/GpuTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Measurement/Memory/MeasurementMemoryTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Measurement/Mesh/MeasurementMeshTypes.h"
 
 namespace ForbocAI {
 namespace Game {

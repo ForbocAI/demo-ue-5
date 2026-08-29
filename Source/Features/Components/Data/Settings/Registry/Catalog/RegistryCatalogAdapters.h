@@ -6,6 +6,6 @@
 #include "Features/Components/Data/Settings/Registry/Automation/Scenarios/ScenariosAdapters.h"
 #include "Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h"
 #include "Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h"
-#include "Features/Components/Data/Settings/Registry/UI/Root/UIRootRegistryAdapters.h"
-#include "Features/Components/Data/Settings/Registry/Bot/BotRegistryAdapters.h"
+#include "Features/Components/Data/Settings/Registry/UI/Root/RootAdapters.h"
+#include "Features/Components/Data/Settings/Registry/Bot/RegistryBotAdapters.h"
 #include "Features/Components/Data/Settings/Registry/Speech/SpeechAdapters.h"

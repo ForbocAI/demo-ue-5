@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Data/Settings/UI/Capture/Timing/TimingTypes.h"
+#include "Features/Components/Data/Settings/UI/Capture/Timing/CaptureTimingTypes.h"
 
 namespace ForbocAI {
 namespace Game {

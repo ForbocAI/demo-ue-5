@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
-#include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/SystemsRenderingTypes.h"
 #include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 
 namespace ForbocAI {

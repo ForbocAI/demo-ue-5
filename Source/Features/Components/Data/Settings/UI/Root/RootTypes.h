@@ -6,9 +6,9 @@
 #include "Features/Components/Data/Settings/UI/Root/Conversation/Layout/ConversationLayoutTypes.h"
 #include "Features/Components/Data/Settings/UI/Root/History/HistoryTypes.h"
 #include "Features/Components/Data/Settings/UI/Root/Placeholder/PlaceholderTypes.h"
-#include "Features/Components/Data/Settings/UI/Root/Role/Colors/RoleColorTypes.h"
-#include "Features/Components/Data/Settings/UI/Root/Roles/RoleTypes.h"
-#include "Features/Components/Data/Settings/UI/Root/Surface/Colors/SurfaceColorTypes.h"
+#include "Features/Components/Data/Settings/UI/Root/Role/Colors/RoleColorsTypes.h"
+#include "Features/Components/Data/Settings/UI/Root/Roles/RolesTypes.h"
+#include "Features/Components/Data/Settings/UI/Root/Surface/Colors/SurfaceColorsTypes.h"
 #include "Features/Components/Data/Settings/UI/Scale/Audit/AuditTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/UIStatsTypes.h"
 

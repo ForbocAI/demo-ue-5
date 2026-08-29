@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Components/Data/ComponentsDataTypes.h"
-#include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/SystemsRenderingTypes.h"
 
 // Forward includes for split reducers
 #include "Features/Systems/Rendering/Texture/TextureSlice.h"
@@ -43,7 +43,7 @@ FRenderingState ReduceRuntimeStatsSampled(
 
 #include "Features/Components/Data/Settings/UI/SettingsUITypes.h"
 #include "Features/Systems/Rendering/SystemsRenderingActions.h"
-#include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/SystemsRenderingTypes.h"
 #include "Features/Systems/Rendering/Payload/Application/PayloadApplicationAdapters.h"
 #include "Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h"
 

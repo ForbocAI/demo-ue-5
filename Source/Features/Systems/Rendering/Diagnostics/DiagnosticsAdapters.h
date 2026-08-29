@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Features/Components/Data/Settings/UI/SettingsUITypes.h"
-#include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/SystemsRenderingTypes.h"
 #include "Features/Systems/Interaction/Conversation/ConversationTypes.h"
 #include "Features/Systems/Level/Presentation/LevelPresentationTypes.h"
 #include "Features/Systems/State/SystemsStateTypes.h"

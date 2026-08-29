@@ -3,7 +3,7 @@
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
 #include "Features/Components/Rendering/Profile/Render/RenderTypes.h"
-#include "Features/Systems/Rendering/RenderingTypes.h"
+#include "Features/Systems/Rendering/SystemsRenderingTypes.h"
 
 namespace ForbocAI {
 namespace Game {

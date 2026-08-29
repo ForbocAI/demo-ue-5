@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/UI/Stats/Budget/Capture/BudgetCaptureTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Labels/LabelTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Budget/Capture/CaptureTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Labels/StatsLabelsTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/Measurement/MeasurementTypes.h"
-#include "Features/Components/Data/Settings/UI/Stats/Presentation/PresentationTypes.h"
+#include "Features/Components/Data/Settings/UI/Stats/Presentation/StatsPresentationTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/Refresh/RefreshTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/Threshold/ThresholdTypes.h"
 
