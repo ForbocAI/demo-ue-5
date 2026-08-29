@@ -1,6 +1,13 @@
 #pragma once
 
 #include "Core/rtk.hpp"
+#include "Features/Components/Data/Settings/UI/Capture/Timing/TimingTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Command/CommandTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Menu/Colors/MenuColorTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Menu/Content/ContentTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Menu/Placement/PlacementTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Menu/Typography/TypographyTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Menu/Viewport/ViewportTypes.h"
 #include "Features/Components/Data/Settings/UI/Stats/UIStatsTypes.h"
 
 namespace ForbocAI {
@@ -31,36 +38,13 @@ struct FCaptureViewSettings {
 };
 
 struct FMarketingCaptureSettings {
-  FString CaptureCommandLineKey;
-  FString QuitWhenDoneCommandLineKey;
-  FString OutputDirectoryCommandLineKey;
-  FString InitialDelayCommandLineKey;
-  FString SettleSecondsCommandLineKey;
-  FString BetweenSecondsCommandLineKey;
-  FString DefaultOutputDirectory;
-  FString ConsoleQuitCommand;
-  FString ScreenshotLogFormat;
-  float InitialDelaySeconds;
-  float SettleSeconds;
-  float BetweenSeconds;
-  float MenuViewportWidth;
-  float MenuViewportHeight;
-  float MenuAnchorX;
-  float MenuAnchorY;
-  float MenuAlignmentX;
-  float MenuAlignmentY;
-  float MenuPositionX;
-  float MenuPositionY;
-  int32 MenuZOrder;
-  FString MenuTitle;
-  FString MenuRetakeButtonText;
-  FString MenuResumeButtonText;
-  float MenuPanelPadding;
-  float MenuTitleSize;
-  float MenuButtonTextSize;
-  FLinearColor MenuPanelColor;
-  FLinearColor MenuTitleColor;
-  FLinearColor MenuButtonTextColor;
+  FCommandSettings Command;
+  FTiming Timing;
+  FViewportSettings Viewport;
+  FPlacementSettings Placement;
+  FContentSettings Content;
+  FTypographySettings Typography;
+  FMenuColorSettings Colors;
   TArray<FCaptureViewSettings> CaptureViews;
 };
 
@@ -122,46 +106,12 @@ inline bool operator!=(const FCaptureViewSettings &Left,
 /** User Story: As a settings ui marketing consumer, I need to compare values for equality through a stable signature so the settings ui marketing workflow remains explicit and composable. @fn inline bool operator==(const FMarketingCaptureSettings &Left, const FMarketingCaptureSettings &Right) */
 inline bool operator==(const FMarketingCaptureSettings &Left,
                        const FMarketingCaptureSettings &Right) {
-  return Left.CaptureCommandLineKey == Right.CaptureCommandLineKey &&
-         Left.QuitWhenDoneCommandLineKey ==
-             Right.QuitWhenDoneCommandLineKey &&
-         Left.OutputDirectoryCommandLineKey ==
-             Right.OutputDirectoryCommandLineKey &&
-         Left.InitialDelayCommandLineKey ==
-             Right.InitialDelayCommandLineKey &&
-         Left.SettleSecondsCommandLineKey ==
-             Right.SettleSecondsCommandLineKey &&
-         Left.BetweenSecondsCommandLineKey ==
-             Right.BetweenSecondsCommandLineKey &&
-         Left.DefaultOutputDirectory == Right.DefaultOutputDirectory &&
-         Left.ConsoleQuitCommand == Right.ConsoleQuitCommand &&
-         Left.ScreenshotLogFormat == Right.ScreenshotLogFormat &&
-         FMath::IsNearlyEqual(Left.InitialDelaySeconds,
-                              Right.InitialDelaySeconds) &&
-         FMath::IsNearlyEqual(Left.SettleSeconds, Right.SettleSeconds) &&
-         FMath::IsNearlyEqual(Left.BetweenSeconds, Right.BetweenSeconds) &&
-         FMath::IsNearlyEqual(Left.MenuViewportWidth,
-                              Right.MenuViewportWidth) &&
-         FMath::IsNearlyEqual(Left.MenuViewportHeight,
-                              Right.MenuViewportHeight) &&
-         FMath::IsNearlyEqual(Left.MenuAnchorX, Right.MenuAnchorX) &&
-         FMath::IsNearlyEqual(Left.MenuAnchorY, Right.MenuAnchorY) &&
-         FMath::IsNearlyEqual(Left.MenuAlignmentX, Right.MenuAlignmentX) &&
-         FMath::IsNearlyEqual(Left.MenuAlignmentY, Right.MenuAlignmentY) &&
-         FMath::IsNearlyEqual(Left.MenuPositionX, Right.MenuPositionX) &&
-         FMath::IsNearlyEqual(Left.MenuPositionY, Right.MenuPositionY) &&
-         Left.MenuZOrder == Right.MenuZOrder &&
-         Left.MenuTitle == Right.MenuTitle &&
-         Left.MenuRetakeButtonText == Right.MenuRetakeButtonText &&
-         Left.MenuResumeButtonText == Right.MenuResumeButtonText &&
-         FMath::IsNearlyEqual(Left.MenuPanelPadding,
-                              Right.MenuPanelPadding) &&
-         FMath::IsNearlyEqual(Left.MenuTitleSize, Right.MenuTitleSize) &&
-         FMath::IsNearlyEqual(Left.MenuButtonTextSize,
-                              Right.MenuButtonTextSize) &&
-         Left.MenuPanelColor == Right.MenuPanelColor &&
-         Left.MenuTitleColor == Right.MenuTitleColor &&
-         Left.MenuButtonTextColor == Right.MenuButtonTextColor &&
+  return Left.Command == Right.Command && Left.Timing == Right.Timing &&
+         Left.Viewport == Right.Viewport &&
+         Left.Placement == Right.Placement &&
+         Left.Content == Right.Content &&
+         Left.Typography == Right.Typography &&
+         Left.Colors == Right.Colors &&
          Left.CaptureViews == Right.CaptureViews;
 }
 

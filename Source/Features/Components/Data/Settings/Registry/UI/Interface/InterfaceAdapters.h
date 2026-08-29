@@ -51,28 +51,81 @@ template <> struct TJsonSettingsRegistry<FCaptureViewSettings> {
   }
 };
 
-template <>
-struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
+#define FORBOCAI_MARKETING_SETTING_FIELD(Group, GroupType, Field)            \
+  NestedSettingField(                                                       \
+      JSON_SETTING_ATOM(Field),                                             \
+      NestedFieldMembers(&FMarketingCaptureSettings::Group,                 \
+                         &GroupType::Field))
+#define FORBOCAI_MARKETING_COLOR_FIELD(Field)                               \
+  NestedObjectSettingField(                                                 \
+      JSON_SETTING_ATOM(Field),                                             \
+      NestedFieldMembers(&FMarketingCaptureSettings::Colors,                \
+                         &FMenuColorSettings::Field),                       \
+      SettingsAdapters::ReadLinearColorSettings)
+
+template <> struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
   /** User Story: As a registry ui interface consumer, I need to invoke fields through a stable signature so the registry ui interface workflow remains explicit and composable. @fn static const TArray<TField<FMarketingCaptureSettings>> &Fields() */
   static const TArray<TField<FMarketingCaptureSettings>>
       &Fields() {
     static const TArray<TField<FMarketingCaptureSettings>>
         RegisteredFields = {
-            JSON_SETTING_FIELDS(
-                FMarketingCaptureSettings, CaptureCommandLineKey,
-                QuitWhenDoneCommandLineKey, OutputDirectoryCommandLineKey,
-                InitialDelayCommandLineKey, SettleSecondsCommandLineKey,
-                BetweenSecondsCommandLineKey, DefaultOutputDirectory,
-                ConsoleQuitCommand, ScreenshotLogFormat, InitialDelaySeconds,
-                SettleSeconds, BetweenSeconds, MenuViewportWidth,
-                MenuViewportHeight, MenuAnchorX, MenuAnchorY, MenuAlignmentX,
-                MenuAlignmentY, MenuPositionX, MenuPositionY, MenuZOrder,
-                MenuTitle, MenuRetakeButtonText, MenuResumeButtonText,
-                MenuPanelPadding, MenuTitleSize, MenuButtonTextSize),
-            JSON_OBJECT_SETTING_FIELDS(
-                FMarketingCaptureSettings,
-                SettingsAdapters::ReadLinearColorSettings,
-                MenuPanelColor, MenuTitleColor, MenuButtonTextColor),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Command, FCommandSettings, CaptureCommandLineKey),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Command, FCommandSettings, QuitWhenDoneCommandLineKey),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Command, FCommandSettings, OutputDirectoryCommandLineKey),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Command, FCommandSettings, DefaultOutputDirectory),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Command, FCommandSettings, ConsoleQuitCommand),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Command, FCommandSettings, ScreenshotLogFormat),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Timing, FTiming, InitialDelayCommandLineKey),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Timing, FTiming, SettleSecondsCommandLineKey),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Timing, FTiming, BetweenSecondsCommandLineKey),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Timing, FTiming, InitialDelaySeconds),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Timing, FTiming, SettleSeconds),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Timing, FTiming, BetweenSeconds),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Viewport, FViewportSettings, MenuViewportWidth),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Viewport, FViewportSettings, MenuViewportHeight),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Viewport, FViewportSettings, MenuZOrder),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Placement, FPlacementSettings, MenuAnchorX),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Placement, FPlacementSettings, MenuAnchorY),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Placement, FPlacementSettings, MenuAlignmentX),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Placement, FPlacementSettings, MenuAlignmentY),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Placement, FPlacementSettings, MenuPositionX),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Placement, FPlacementSettings, MenuPositionY),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Content, FContentSettings, MenuTitle),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Content, FContentSettings, MenuRetakeButtonText),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Content, FContentSettings, MenuResumeButtonText),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Typography, FTypographySettings, MenuPanelPadding),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Typography, FTypographySettings, MenuTitleSize),
+            FORBOCAI_MARKETING_SETTING_FIELD(
+                Typography, FTypographySettings, MenuButtonTextSize),
+            FORBOCAI_MARKETING_COLOR_FIELD(MenuPanelColor),
+            FORBOCAI_MARKETING_COLOR_FIELD(MenuTitleColor),
+            FORBOCAI_MARKETING_COLOR_FIELD(MenuButtonTextColor),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
                 FMarketingCaptureSettings,
                 ReadSettingsWith<FCaptureViewSettings>(
@@ -84,6 +137,9 @@ struct TJsonSettingsRegistry<FMarketingCaptureSettings> {
     return RegisteredFields;
   }
 };
+
+#undef FORBOCAI_MARKETING_COLOR_FIELD
+#undef FORBOCAI_MARKETING_SETTING_FIELD
 
 JSON_SETTINGS_REGISTRY(FModeSettings, EnabledMessage,
                        DisabledMessage, FlyingGravityScale,

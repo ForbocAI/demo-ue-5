@@ -33,17 +33,21 @@ void URuntimeMarketingMenuWidget::NativeConstruct() {
                   UVerticalBox::StaticClass());
 
           UTextBlock *TitleElement =
-              BuildTextElement(Settings.MenuTitle, Settings.MenuTitleColor,
-                               Settings.MenuTitleSize);
+              BuildTextElement(Settings.Content.MenuTitle,
+                               Settings.Colors.MenuTitleColor,
+                               Settings.Typography.MenuTitleSize);
           RetakeButton = BuildButtonElement(
-              Settings.MenuRetakeButtonText, Settings.MenuButtonTextColor,
-              Settings.MenuButtonTextSize);
-          ResumeButton = BuildButtonElement(Settings.MenuResumeButtonText,
-                                            Settings.MenuButtonTextColor,
-                                            Settings.MenuButtonTextSize);
+              Settings.Content.MenuRetakeButtonText,
+              Settings.Colors.MenuButtonTextColor,
+              Settings.Typography.MenuButtonTextSize);
+          ResumeButton = BuildButtonElement(
+              Settings.Content.MenuResumeButtonText,
+              Settings.Colors.MenuButtonTextColor,
+              Settings.Typography.MenuButtonTextSize);
 
-          PanelElement->SetPadding(FMargin(Settings.MenuPanelPadding));
-          PanelElement->SetBrushColor(Settings.MenuPanelColor);
+          PanelElement->SetPadding(
+              FMargin(Settings.Typography.MenuPanelPadding));
+          PanelElement->SetBrushColor(Settings.Colors.MenuPanelColor);
           PanelElement->SetContent(StackElement);
           StackElement->AddChildToVerticalBox(TitleElement);
           StackElement->AddChildToVerticalBox(RetakeButton);

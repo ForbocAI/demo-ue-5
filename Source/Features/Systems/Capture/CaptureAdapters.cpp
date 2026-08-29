@@ -89,18 +89,22 @@ FScaleAuditCaptureConfig ParseScaleAuditCommandLine(
 FMarketingCaptureConfig ParseMarketingCommandLine(
     const ForbocAI::Game::Data::FMarketingCaptureSettings &Settings) {
   const FString DefaultOutputDirectory =
-      ResolveCaptureOutputPath(Settings.DefaultOutputDirectory);
+      ResolveCaptureOutputPath(Settings.Command.DefaultOutputDirectory);
   FMarketingCaptureConfig Config;
   Config.Run.bQuitWhenDone =
-      CommandLineParam(Settings.QuitWhenDoneCommandLineKey);
+      CommandLineParam(Settings.Command.QuitWhenDoneCommandLineKey);
   Config.Run.OutputDirectory = CommandLineString(
-      Settings.OutputDirectoryCommandLineKey, DefaultOutputDirectory);
+      Settings.Command.OutputDirectoryCommandLineKey,
+      DefaultOutputDirectory);
   Config.Timing.InitialDelaySeconds = CommandLineFloat(
-      Settings.InitialDelayCommandLineKey, Settings.InitialDelaySeconds);
+      Settings.Timing.InitialDelayCommandLineKey,
+      Settings.Timing.InitialDelaySeconds);
   Config.Timing.SettleSeconds = CommandLineFloat(
-      Settings.SettleSecondsCommandLineKey, Settings.SettleSeconds);
+      Settings.Timing.SettleSecondsCommandLineKey,
+      Settings.Timing.SettleSeconds);
   Config.Timing.BetweenSeconds = CommandLineFloat(
-      Settings.BetweenSecondsCommandLineKey, Settings.BetweenSeconds);
+      Settings.Timing.BetweenSecondsCommandLineKey,
+      Settings.Timing.BetweenSeconds);
   CreateCaptureOutputDirectory(Config.Run.OutputDirectory);
   return Config;
 }

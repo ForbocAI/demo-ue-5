@@ -117,18 +117,22 @@ void APlayerRuntimeControllerView::PresentMarketingCaptureMenu() {
           check(MarketingMenuWidget);
           MarketingMenuWidget->BindController(this);
           MarketingMenuWidget->SetDesiredSizeInViewport(
-              FVector2D(Settings.MenuViewportWidth,
-                        Settings.MenuViewportHeight));
+              FVector2D(Settings.Viewport.MenuViewportWidth,
+                        Settings.Viewport.MenuViewportHeight));
           MarketingMenuWidget->SetAnchorsInViewport(
-              FAnchors(Settings.MenuAnchorX, Settings.MenuAnchorY));
+              FAnchors(Settings.Placement.MenuAnchorX,
+                       Settings.Placement.MenuAnchorY));
           MarketingMenuWidget->SetAlignmentInViewport(
-              FVector2D(Settings.MenuAlignmentX, Settings.MenuAlignmentY));
+              FVector2D(Settings.Placement.MenuAlignmentX,
+                        Settings.Placement.MenuAlignmentY));
           MarketingMenuWidget->SetPositionInViewport(
-              FVector2D(Settings.MenuPositionX, Settings.MenuPositionY));
+              FVector2D(Settings.Placement.MenuPositionX,
+                        Settings.Placement.MenuPositionY));
         }(), void());
   MarketingMenuWidget->IsInViewport()
       ? void()
-      : (MarketingMenuWidget->AddToViewport(Settings.MenuZOrder), void());
+      : (MarketingMenuWidget->AddToViewport(Settings.Viewport.MenuZOrder),
+         void());
   ApplyMarketingCaptureMenuOpen();
 }
 

@@ -5,7 +5,8 @@ void APlayerRuntimeControllerView::StartScaleAuditCaptureIfRequested() {
   const FMarketingCaptureSettings &MarketingSettings =
       MarketingCaptureSettings();
   const bool bMarketingRequested =
-      FCS::SelectCommandLineParam(MarketingSettings.CaptureCommandLineKey);
+      FCS::SelectCommandLineParam(
+          MarketingSettings.Command.CaptureCommandLineKey);
   const FAuditCaptureSettings &ScaleAuditSettings =
       ScaleAuditCaptureSettings();
   const bool bScaleRequested =
@@ -182,6 +183,7 @@ void APlayerRuntimeControllerView::CompleteScaleAuditCapture() {
   bScaleAuditCaptureEnabled = false;
   bMarketingCaptureEnabled = false;
   bScaleAuditQuitWhenDone
-      ? (ConsoleCommand(*MarketingSettings.ConsoleQuitCommand), void())
+      ? (ConsoleCommand(*MarketingSettings.Command.ConsoleQuitCommand),
+         void())
       : void();
 }
