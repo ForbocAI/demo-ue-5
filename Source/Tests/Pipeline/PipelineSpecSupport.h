@@ -8,10 +8,12 @@
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Features/Systems/Bots/Pipeline/PipelineSlice.h"
 
-using namespace ForbocAI::Game::Level;
-using namespace ForbocAI::Game::Level::BotPipelineReducers;
+namespace ForbocAIAutomation {
 
 namespace {
+
+using namespace ForbocAI::Game::Level;
+using namespace ForbocAI::Game::Level::BotPipelineReducers;
 
 /** User Story: As a tests pipeline consumer, I need to invoke pipeline bot settings through a stable signature so the tests pipeline workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FBotSettings & PipelineBotSettings() */
 const ForbocAI::Game::Data::FBotSettings &
@@ -105,3 +107,5 @@ FBotPipelineWorldSnapshot DefaultWorld(const FBotCoreRuntimeState &State,
 }
 
 } // namespace
+
+} // namespace ForbocAIAutomation

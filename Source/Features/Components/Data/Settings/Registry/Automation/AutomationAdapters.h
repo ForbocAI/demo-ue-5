@@ -18,8 +18,9 @@ template <> struct TJsonSettingsRegistry<Automation::FSettings> {
                 Automation::FSettings,
                 ReadSettingsWith<Automation::Store::FSettings>(
                     JSON_SETTINGS_ATOMS(
-                        DataBackedMapLabels, ReduxLoggerMiddlewareLabels,
-                        ProjectionGateLabels, ReduxLoggerCategory,
+                        DataBackedMapLabels, RuntimeStatsSamplingLabels,
+                        ReduxLoggerMiddlewareLabels, ProjectionGateLabels,
+                        ReduxLoggerCategory,
                         ReduxLoggerActionTitlePrefix, TerrainEntity,
                         TerrainProjectionDomain)),
                 Store),

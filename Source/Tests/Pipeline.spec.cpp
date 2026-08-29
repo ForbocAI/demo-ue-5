@@ -1,5 +1,10 @@
 #include "Tests/Pipeline/PipelineSpecSupport.h"
 
+namespace ForbocAIAutomation {
+
+using namespace ForbocAI::Game::Level;
+using namespace ForbocAI::Game::Level::BotPipelineReducers;
+
 /**
  * Pipeline Tests — validates the deterministic tick pipeline.
  *
@@ -222,3 +227,5 @@ bool FPipelineDeterministic::RunTest(const FString &Parameters) {
 
   return true;
 }
+
+} // namespace ForbocAIAutomation

@@ -42,7 +42,7 @@
     },
     {
       "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorThunks.cpp",
-      "lines": 288
+      "lines": 290
     },
     {
       "path": "Source/Views/Level/LevelView.cpp",
@@ -65,11 +65,19 @@
       "lines": 278
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Level/SettingsLevelAdapters.cpp",
+      "lines": 277
+    },
+    {
       "path": "Source/Blueprints/GenericStateBlueprintLibrary.cpp",
       "lines": 276
     },
     {
       "path": "Source/Tests/Store/DataBackedMap.spec.cpp",
+      "lines": 276
+    },
+    {
+      "path": "Source/Views/Stats/StatsView.cpp",
       "lines": 276
     },
     {
@@ -81,20 +89,12 @@
       "lines": 275
     },
     {
-      "path": "Source/Features/Components/Data/Settings/UI/Stats/UIStatsTypes.h",
-      "lines": 274
-    },
-    {
-      "path": "Source/Views/Stats/StatsView.cpp",
-      "lines": 273
+      "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
+      "lines": 271
     },
     {
       "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.cpp",
       "lines": 271
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/RenderingRegistryAdapters.h",
-      "lines": 269
     },
     {
       "path": "Source/Features/Systems/Bots/Position/PositionSlice.cpp",
@@ -105,12 +105,16 @@
       "lines": 267
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
+      "path": "Source/Features/Systems/Level/SystemsLevelTypes.h",
       "lines": 266
     },
     {
-      "path": "Source/Features/Systems/Level/SystemsLevelTypes.h",
+      "path": "Source/Tests/Speech.spec.cpp",
       "lines": 266
+    },
+    {
+      "path": "Source/Features/Components/Data/Json/Settings/Field/SettingsFieldAdapters.h",
+      "lines": 265
     },
     {
       "path": "Source/Features/Systems/Level/Presentation/LevelPresentationSlice.cpp",
@@ -121,19 +125,15 @@
       "lines": 263
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Render/Equality/EqualityTypes.h",
-      "lines": 263
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Automation/Bot/BotTypes.h",
       "lines": 260
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/UI/Interface/InterfaceAdapters.h",
-      "lines": 259
+      "path": "Source/Features/Systems/Presentation/PresentationSelectors.cpp",
+      "lines": 257
     },
     {
-      "path": "Source/Features/Systems/Presentation/PresentationSelectors.cpp",
+      "path": "Source/Views/Player/Controller/Interaction/InteractionView.h",
       "lines": 257
     },
     {
@@ -145,10 +145,6 @@
       "lines": 254
     },
     {
-      "path": "Source/Views/Player/Controller/Interaction/InteractionView.h",
-      "lines": 253
-    },
-    {
       "path": "Source/Features/Systems/State/StateSelectors.cpp",
       "lines": 252
     },
@@ -157,12 +153,8 @@
       "lines": 248
     },
     {
-      "path": "Source/Tests/Speech.spec.cpp",
-      "lines": 244
-    },
-    {
       "path": "Source/Features/Systems/Rendering/Profile/Output/OutputThunks.cpp",
-      "lines": 242
+      "lines": 244
     },
     {
       "path": "Source/Views/Player/Character/CharacterView.cpp",
@@ -189,6 +181,10 @@
       "lines": 232
     },
     {
+      "path": "Source/Tests/Pipeline.spec.cpp",
+      "lines": 231
+    },
+    {
       "path": "Source/Tests/BotFunctionalCore.spec.cpp",
       "lines": 230
     },
@@ -201,12 +197,8 @@
       "lines": 225
     },
     {
-      "path": "Source/Tests/Pipeline.spec.cpp",
+      "path": "Source/Features/Systems/Rendering/Profile/Console/ConsoleThunks.cpp",
       "lines": 224
-    },
-    {
-      "path": "Source/Features/Components/Data/Json/Settings/Field/SettingsFieldAdapters.h",
-      "lines": 223
     },
     {
       "path": "Content/Data/Source/french_gulch/osm/overpass/landmarks.json",
@@ -241,10 +233,6 @@
       "lines": 214
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Rendering/Readers/ReadersAdapters.h",
-      "lines": 213
-    },
-    {
       "path": "Source/Features/Components/Level/Data/Csv/Parsing/ParsingAdapters.h",
       "lines": 213
     },
@@ -253,8 +241,8 @@
       "lines": 213
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/UIStatsAdapters.h",
-      "lines": 210
+      "path": "Source/Tests/Store/DataBackedMapRendering.spec.cpp",
+      "lines": 211
     },
     {
       "path": "Source/Features/Systems/Rendering/Diagnostics/DiagnosticsAdapters.cpp",
@@ -273,19 +261,15 @@
       "lines": 209
     },
     {
-      "path": "Source/Features/Systems/Rendering/Profile/Console/ConsoleThunks.cpp",
-      "lines": 207
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Speech/SettingsSpeechTypes.h",
-      "lines": 206
-    },
-    {
       "path": "Source/Features/Systems/Bots/Stats/BotsStatsSlice.cpp",
       "lines": 203
     },
     {
       "path": "Content/Data/settings/speech/viseme/mappings.json",
+      "lines": 202
+    },
+    {
+      "path": "Source/Tests/ProtocolLoop.spec.cpp",
       "lines": 202
     },
     {
@@ -309,6 +293,10 @@
       "lines": 195
     },
     {
+      "path": "Source/Features/Components/Data/Json/Settings/Registry/SettingsRegistryAdapters.h",
+      "lines": 193
+    },
+    {
       "path": "Source/Features/Systems/Rendering/Profile/ProfileThunks.h",
       "lines": 193
     },
@@ -325,24 +313,36 @@
       "lines": 190
     },
     {
+      "path": "Source/Views/Player/Controller/Capture/CaptureView.h",
+      "lines": 189
+    },
+    {
       "path": "Source/Features/Systems/Seed/SeedThunks.h",
       "lines": 187
     },
     {
-      "path": "Source/Tests/ProtocolLoop.spec.cpp",
-      "lines": 187
-    },
-    {
-      "path": "Source/Views/Player/Controller/Capture/CaptureView.h",
-      "lines": 187
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Level/SettingsLevelAdapters.cpp",
-      "lines": 186
-    },
-    {
       "path": "Scripts/Tools/inventory_outlaw_assets.py",
       "lines": 184
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h",
+      "lines": 184
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/Speech/SpeechAdapters.h",
+      "lines": 184
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Interface/InterfaceAdapters.h",
+      "lines": 183
+    },
+    {
+      "path": "Source/Features/Systems/Speech/Phoneme/Estimate/EstimateSlice.h",
+      "lines": 183
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/RenderingRegistryAdapters.h",
+      "lines": 182
     },
     {
       "path": "Source/Blueprints/GenericStateBlueprintLibrary.h",
@@ -357,20 +357,8 @@
       "lines": 180
     },
     {
-      "path": "Source/Features/Systems/Speech/Phoneme/Estimate/EstimateSlice.h",
-      "lines": 180
-    },
-    {
       "path": "Scripts/SDK/lock_sdk_submodule.sh",
       "lines": 179
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h",
-      "lines": 179
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/UI/Marketing/MarketingTypes.h",
-      "lines": 176
     },
     {
       "path": "Source/Features/Components/Data/Settings/Automation/Conversation/UI/ConversationUITypes.h",
@@ -393,28 +381,20 @@
       "lines": 175
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Rendering/Profile/SettingsRenderingProfileTypes.h",
-      "lines": 174
-    },
-    {
       "path": "Content/Data/settings/core/automation/content/assets.json",
       "lines": 172
-    },
-    {
-      "path": "Source/Features/Systems/Rendering/Profile/ProfileSlice.cpp",
-      "lines": 171
     },
     {
       "path": "Source/Features/Components/Data/Settings/Player/SettingsPlayerTypes.h",
       "lines": 170
     },
     {
-      "path": "Source/Features/Systems/Bots/BotsSlice.cpp",
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h",
       "lines": 170
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Render/RenderTypes.h",
-      "lines": 167
+      "path": "Source/Features/Systems/Bots/BotsSlice.cpp",
+      "lines": 170
     },
     {
       "path": "Source/Features/Systems/Rendering/RenderingSlice.cpp",
@@ -423,10 +403,6 @@
     {
       "path": "Source/Features/Systems/Rendering/Profile/Sky/Actor/ActorThunks.h",
       "lines": 165
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h",
-      "lines": 162
     },
     {
       "path": "Source/Features/Entities/Environments/Nature/Seed/Construction/ConstructionAdapters.h",
@@ -439,6 +415,10 @@
     {
       "path": "Source/Features/Systems/SystemsThunks.cpp",
       "lines": 161
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Root/RootAdapters.h",
+      "lines": 159
     },
     {
       "path": "Source/Features/Systems/Bots/Townspeople/TownspeopleSlice.cpp",
@@ -497,6 +477,10 @@
       "lines": 152
     },
     {
+      "path": "Source/Tests/OrchestratorMultiBot.spec.cpp",
+      "lines": 150
+    },
+    {
       "path": "Scripts/Docs/count_project_lines.py",
       "lines": 148
     },
@@ -517,24 +501,20 @@
       "lines": 146
     },
     {
-      "path": "Source/Tests/OrchestratorMultiBot.spec.cpp",
-      "lines": 146
-    },
-    {
-      "path": "Source/Features/Systems/Bots/Goals/GoalsTypes.h",
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/UIStatsAdapters.h",
       "lines": 145
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/ConfigurationTypes.h",
-      "lines": 144
+      "path": "Source/Features/Systems/Bots/Goals/BotsGoalsTypes.h",
+      "lines": 145
+    },
+    {
+      "path": "Source/Features/Systems/UI/Chat/Rendering/ChatRenderingSlice.h",
+      "lines": 145
     },
     {
       "path": "Scripts/Tools/create_french_gulch_map.py",
       "lines": 143
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Speech/SpeechAdapters.h",
-      "lines": 142
     },
     {
       "path": "Source/Features/Systems/Level/Spawn/LevelSpawnSlice.h",
@@ -569,7 +549,7 @@
       "lines": 140
     },
     {
-      "path": "Source/Features/Systems/Projection/ProjectionTypes.h",
+      "path": "Source/Features/Systems/Projection/SystemsProjectionTypes.h",
       "lines": 139
     },
     {
@@ -589,14 +569,6 @@
       "lines": 137
     },
     {
-      "path": "Source/Features/Systems/UI/Chat/Rendering/ChatRenderingSlice.h",
-      "lines": 137
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Level/Geometry/GeometryTypes.h",
-      "lines": 136
-    },
-    {
       "path": "Content/Data/settings/bots.json",
       "lines": 135
     },
@@ -613,11 +585,11 @@
       "lines": 134
     },
     {
-      "path": "Source/Tests/Store/DataBackedMapRendering.spec.cpp",
-      "lines": 134
+      "path": "Content/Data/settings/ui/stats/overlay.json",
+      "lines": 133
     },
     {
-      "path": "Content/Data/settings/ui/stats/overlay.json",
+      "path": "Source/Views/Marketing/Menu/MenuView.cpp",
       "lines": 133
     },
     {
@@ -625,15 +597,11 @@
       "lines": 132
     },
     {
-      "path": "Source/Features/Components/Data/Json/Settings/Registry/SettingsRegistryAdapters.h",
-      "lines": 131
-    },
-    {
       "path": "Source/Features/Systems/Rendering/Presentation/RenderingPresentationSlice.cpp",
       "lines": 131
     },
     {
-      "path": "Source/Features/Systems/Rendering/RenderingThunks.cpp",
+      "path": "Source/Features/Systems/Rendering/Stats/RenderingStatsSelectors.h",
       "lines": 131
     },
     {
@@ -641,16 +609,20 @@
       "lines": 130
     },
     {
-      "path": "Source/Features/Systems/Rendering/Stats/RenderingStatsSelectors.h",
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingSelectors.cpp",
       "lines": 130
     },
     {
-      "path": "Source/Views/Marketing/Menu/MenuView.cpp",
+      "path": "Source/Features/Systems/Rendering/Profile/Sky/Color/ColorSlice.cpp",
       "lines": 129
     },
     {
       "path": "Source/Features/Systems/Rendering/Texture/Palette/Texture/TextureThunks.h",
       "lines": 127
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Marketing/MarketingTypes.h",
+      "lines": 126
     },
     {
       "path": "Source/Features/Entities/Characters/Player/PlayerSlice.h",
@@ -673,7 +645,7 @@
       "lines": 124
     },
     {
-      "path": "Source/Features/Systems/Rendering/Profile/Sky/Color/ColorSlice.cpp",
+      "path": "Source/Features/Components/Rendering/Profile/Sky/Dome/DomeTypes.h",
       "lines": 122
     },
     {
@@ -693,6 +665,10 @@
       "lines": 120
     },
     {
+      "path": "Source/Features/Components/Rendering/Profile/Material/MaterialTypes.h",
+      "lines": 119
+    },
+    {
       "path": "Source/Features/Systems/Dialogue/SystemsDialogueTypes.h",
       "lines": 119
     },
@@ -701,11 +677,15 @@
       "lines": 118
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Registry/Bot/RegistryBotAdapters.h",
+      "lines": 118
+    },
+    {
       "path": "Source/Features/Systems/Rendering/Diagnostics/DiagnosticsSelectors.cpp",
       "lines": 118
     },
     {
-      "path": "Source/Features/Systems/Rendering/RenderingTypes.h",
+      "path": "Source/Features/Systems/Rendering/SystemsRenderingTypes.h",
       "lines": 116
     },
     {
@@ -717,11 +697,19 @@
       "lines": 115
     },
     {
+      "path": "Source/Features/Systems/Capture/CaptureAdapters.cpp",
+      "lines": 115
+    },
+    {
       "path": "Source/Features/Systems/Projection/ProjectionAdapters.cpp",
       "lines": 115
     },
     {
-      "path": "Source/Features/Systems/Capture/CaptureAdapters.cpp",
+      "path": "Source/Features/Systems/UI/Conversation/UIConversationSlice.h",
+      "lines": 113
+    },
+    {
+      "path": "Source/Tests/Pipeline/PipelineSpecSupport.h",
       "lines": 111
     },
     {
@@ -730,6 +718,10 @@
     },
     {
       "path": "Source/Features/Systems/Lifecycle/LifecycleSlice.cpp",
+      "lines": 110
+    },
+    {
+      "path": "Source/Features/Systems/UI/Chat/ChatSlice.h",
       "lines": 110
     },
     {
@@ -745,24 +737,16 @@
       "lines": 109
     },
     {
-      "path": "Source/Features/Systems/UI/Chat/ChatSlice.h",
-      "lines": 109
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Automation/Rtk/Compliance/ComplianceTypes.h",
       "lines": 108
     },
     {
-      "path": "Source/Features/Systems/UI/Conversation/UIConversationSlice.h",
-      "lines": 108
-    },
-    {
-      "path": "Source/Tests/Pipeline/PipelineSpecSupport.h",
-      "lines": 107
-    },
-    {
-      "path": "Source/Features/Systems/Bots/Behavior/BehaviorTypes.h",
+      "path": "Source/Features/Systems/Bots/Behavior/BotsBehaviorTypes.h",
       "lines": 106
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Readers/ReadersAdapters.h",
+      "lines": 105
     },
     {
       "path": "Source/Features/Systems/Bots/AI/AITypes.h",
@@ -774,6 +758,10 @@
     },
     {
       "path": "Content/Data/settings/ui/marketing/capture.json",
+      "lines": 103
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/Profile/World/WorldThunks.cpp",
       "lines": 103
     },
     {
@@ -797,8 +785,8 @@
       "lines": 100
     },
     {
-      "path": "Source/Features/Systems/Rendering/Profile/World/WorldThunks.cpp",
-      "lines": 100
+      "path": "Content/Data/settings/core/automation/store.json",
+      "lines": 98
     },
     {
       "path": "Source/Features/Systems/Interaction/Conversation/ConversationTypes.h",
@@ -813,7 +801,7 @@
       "lines": 96
     },
     {
-      "path": "Source/Features/Components/Data/Settings/UI/Scale/Audit/AuditTypes.h",
+      "path": "Source/Features/Components/Rendering/Profile/Sky/Moon/MoonTypes.h",
       "lines": 95
     },
     {
@@ -857,16 +845,16 @@
       "lines": 91
     },
     {
-      "path": "Source/Features/Components/Data/Settings/UI/Root/RootTypes.h",
+      "path": "Source/Features/Components/Rendering/Profile/PostProcess/PostProcessTypes.h",
+      "lines": 91
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Sky/Stars/StarsTypes.h",
       "lines": 91
     },
     {
       "path": "Source/Features/Entities/Environments/Nature/Seed/Project/ProjectAdapters.h",
       "lines": 91
-    },
-    {
-      "path": "Content/Data/settings/core/automation/store.json",
-      "lines": 90
     },
     {
       "path": "Source/Features/Systems/Speech/Phoneme/PhonemeAdapters.h",
@@ -877,6 +865,10 @@
       "lines": 90
     },
     {
+      "path": "Source/Features/Components/Rendering/Profile/Sky/Atmosphere/AtmosphereTypes.h",
+      "lines": 89
+    },
+    {
       "path": "Source/Features/Systems/Bots/Position/PositionSlice.h",
       "lines": 88
     },
@@ -885,11 +877,19 @@
       "lines": 88
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Automation/Store/StoreTypes.h",
+      "lines": 87
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Player/SettingsPlayerAdapters.cpp",
       "lines": 87
     },
     {
       "path": "Source/Features/Components/Data/Settings/Rendering/RenderingAdapters.h",
+      "lines": 87
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Lighting/LightingTypes.h",
       "lines": 87
     },
     {
@@ -925,16 +925,12 @@
       "lines": 85
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Store/StoreTypes.h",
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h",
       "lines": 84
     },
     {
       "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Pipeline/ScenariosPipelineAdapters.h",
       "lines": 84
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h",
-      "lines": 83
     },
     {
       "path": "Source/Features/Systems/Bots/Townspeople/TownspeopleSlice.h",
@@ -965,6 +961,10 @@
       "lines": 81
     },
     {
+      "path": "Source/Features/Systems/Rendering/Stats/Effects/EffectsAdapters.cpp",
+      "lines": 81
+    },
+    {
       "path": "Source/Views/Level/Game/Mode/ModeView.cpp",
       "lines": 81
     },
@@ -973,11 +973,11 @@
       "lines": 79
     },
     {
-      "path": "Source/Features/Systems/Bots/Orchestrator/Readiness/ReadinessSlice.h",
-      "lines": 78
+      "path": "Source/Features/Systems/Bots/Source/Mapping/MappingAdapters.h",
+      "lines": 79
     },
     {
-      "path": "Source/Features/Systems/Bots/Source/Mapping/MappingAdapters.h",
+      "path": "Source/Features/Systems/Bots/Orchestrator/Readiness/ReadinessSlice.h",
       "lines": 78
     },
     {
@@ -1057,6 +1057,10 @@
       "lines": 74
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Speech/SettingsSpeechTypes.h",
+      "lines": 74
+    },
+    {
       "path": "Source/Features/Entities/EntitiesAdapters.h",
       "lines": 74
     },
@@ -1086,6 +1090,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Level/Layout/SettingsLevelLayoutTypes.h",
+      "lines": 72
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Output/ProfileOutputTypes.h",
       "lines": 72
     },
     {
@@ -1125,6 +1133,10 @@
       "lines": 68
     },
     {
+      "path": "Source/Features/Components/Data/Settings/UI/Scale/Audit/AuditTypes.h",
+      "lines": 68
+    },
+    {
       "path": "Source/Views/Chat/ChatView.h",
       "lines": 68
     },
@@ -1137,11 +1149,23 @@
       "lines": 66
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/ConfigurationTypes.h",
+      "lines": 65
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Fog/FogTypes.h",
+      "lines": 65
+    },
+    {
       "path": "Source/Features/Systems/Capture/CaptureSelectors.h",
       "lines": 65
     },
     {
       "path": "Source/Features/Systems/Level/Layout/SystemsLevelLayoutAdapters.cpp",
+      "lines": 65
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingAdapters.cpp",
       "lines": 65
     },
     {
@@ -1182,6 +1206,14 @@
     },
     {
       "path": "Source/Features/Components/Data/Json/Read/Text/TextAdapters.h",
+      "lines": 62
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Pixel/PixelTypes.h",
+      "lines": 62
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/RenderingThunks.cpp",
       "lines": 62
     },
     {
@@ -1241,7 +1273,7 @@
       "lines": 58
     },
     {
-      "path": "Source/Features/Systems/Speech/Phoneme/PhonemeTypes.h",
+      "path": "Source/Features/Systems/Speech/Phoneme/SystemsSpeechPhonemeTypes.h",
       "lines": 58
     },
     {
@@ -1253,11 +1285,23 @@
       "lines": 57
     },
     {
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/StatsSamplingTypes.h",
+      "lines": 57
+    },
+    {
       "path": "Source/Views/Level/Game/Mode/ModeView.h",
       "lines": 57
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/GeometryTypes.h",
+      "lines": 56
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/SettingsSlice.h",
+      "lines": 56
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Root/RootTypes.h",
       "lines": 56
     },
     {
@@ -1337,6 +1381,10 @@
       "lines": 52
     },
     {
+      "path": "Content/Data/settings/core/automation/protocol/loop.json",
+      "lines": 51
+    },
+    {
       "path": "Source/Features/Systems/Rendering/Diagnostics/DiagnosticsAdapters.h",
       "lines": 51
     },
@@ -1357,15 +1405,11 @@
       "lines": 50
     },
     {
-      "path": "Content/Data/settings/core/automation/protocol/loop.json",
-      "lines": 49
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Automation/Tests/TestsTypes.h",
       "lines": 49
     },
     {
-      "path": "Source/Features/Systems/Lifecycle/LifecycleTypes.h",
+      "path": "Source/Features/Systems/Lifecycle/SystemsLifecycleTypes.h",
       "lines": 49
     },
     {
@@ -1441,12 +1485,28 @@
       "lines": 44
     },
     {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Refresh/RefreshTypes.h",
+      "lines": 43
+    },
+    {
       "path": "Source/Features/Systems/Rendering/SystemsRenderingSelectors.h",
       "lines": 43
     },
     {
       "path": "Source/Views/Speech/Presenter/PresenterView.h",
       "lines": 43
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/StatsLabelsTypes.h",
+      "lines": 42
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/MeasurementTypes.h",
+      "lines": 42
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/UIStatsTypes.h",
+      "lines": 42
     },
     {
       "path": "Source/Features/Systems/Bots/Goals/GoalsActions.cpp",
@@ -1477,6 +1537,10 @@
       "lines": 41
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/Labels/LabelsAdapters.h",
+      "lines": 41
+    },
+    {
       "path": "Source/Features/Entities/Environments/Nature/Seed/Json/SeedJsonTypes.h",
       "lines": 41
     },
@@ -1489,7 +1553,39 @@
       "lines": 40
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Material/MaterialAdapters.h",
+      "lines": 40
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/Rendering/LabelsRenderingTypes.h",
+      "lines": 40
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/Diagnostic/DiagnosticTypes.h",
+      "lines": 40
+    },
+    {
       "path": "Content/Map/Heightmaps/french_gulch_ca_terrain_metadata.json",
+      "lines": 39
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Profile/SettingsRenderingProfileTypes.h",
+      "lines": 39
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Capture/Timing/CaptureTimingTypes.h",
+      "lines": 39
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/Projection/LabelsProjectionTypes.h",
+      "lines": 39
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/State/LabelsStateTypes.h",
+      "lines": 39
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/Timing/LabelsTimingTypes.h",
       "lines": 39
     },
     {
@@ -1513,6 +1609,34 @@
       "lines": 38
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Terrain/Extent/ExtentTypes.h",
+      "lines": 37
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Town/Layout/TownLayoutTypes.h",
+      "lines": 37
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/Rate/RateTypes.h",
+      "lines": 37
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/Mesh/MeasurementMeshTypes.h",
+      "lines": 37
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Presentation/Format/PresentationFormatTypes.h",
+      "lines": 37
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Presentation/StatsPresentationTypes.h",
+      "lines": 37
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Presentation/Viewport/PresentationViewportTypes.h",
+      "lines": 37
+    },
+    {
       "path": "Source/Features/Systems/Rendering/Texture/TextureSlice.h",
       "lines": 37
     },
@@ -1525,7 +1649,19 @@
       "lines": 36
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/Measurement/MeasurementAdapters.h",
+      "lines": 36
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/Frame/FrameTypes.h",
+      "lines": 36
+    },
+    {
       "path": "Source/Features/Entities/Characters/Bots/CharactersBotsAdapters.h",
+      "lines": 36
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingSelectors.h",
       "lines": 36
     },
     {
@@ -1542,6 +1678,14 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Player/PlayerAdapters.h",
+      "lines": 35
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Presentation/Colors/PresentationColorsTypes.h",
+      "lines": 35
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Threshold/Performance/ThresholdPerformanceTypes.h",
       "lines": 35
     },
     {
@@ -1577,7 +1721,43 @@
       "lines": 33
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Awareness/AwarenessTypes.h",
+      "lines": 33
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Bot/Stats/BotStatsTypes.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Player/Spawn/PlayerSpawnTypes.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/World/Scale/ScaleTypes.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Sky/Dome/DomeAdapters.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/LipSync/LipSyncTypes.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Marketing/Command/CommandTypes.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Budget/Capture/Output/CaptureOutputTypes.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Budget/Capture/Request/CaptureRequestTypes.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Threshold/Resource/ResourceTypes.h",
       "lines": 33
     },
     {
@@ -1591,6 +1771,26 @@
     {
       "path": "Source/Features/Systems/Interaction/InteractionActions.h",
       "lines": 33
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/Presentation/PresentationAdapters.h",
+      "lines": 32
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Sky/Atmosphere/AtmosphereAdapters.h",
+      "lines": 32
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Phoneme/SettingsSpeechPhonemeTypes.h",
+      "lines": 32
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Budget/Capture/CaptureTypes.h",
+      "lines": 32
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/CVar/CVarTypes.h",
+      "lines": 32
     },
     {
       "path": "Source/Features/Systems/Bots/AI/AIActions.cpp",
@@ -1617,15 +1817,59 @@
       "lines": 32
     },
     {
-      "path": "Source/Features/Systems/Rendering/Profile/Color/ColorTypes.h",
-      "lines": 32
-    },
-    {
       "path": "Source/Features/Systems/SystemsListeners.h",
       "lines": 32
     },
     {
       "path": ".editorconfig",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Schedule/ScheduleTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Automation/Assertions/Phoneme/AssertionsPhonemeTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Automation/Cases/CasesTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Automation/Samples/SamplesTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Phoneme/Viseme/Mapping/MappingTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Marketing/Menu/Placement/PlacementTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Root/Conversation/Format/ConversationFormatTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/Memory/LabelsMemoryTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/Performance/LabelsPerformanceTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/Empty/EmptyTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/Gpu/GpuTypes.h",
+      "lines": 31
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Presentation/Typography/PresentationTypographyTypes.h",
       "lines": 31
     },
     {
@@ -1641,11 +1885,43 @@
       "lines": 31
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/PostProcess/PostProcessAdapters.h",
+      "lines": 30
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Sky/Moon/MoonAdapters.h",
+      "lines": 30
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Sky/Stars/StarsAdapters.h",
+      "lines": 30
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Automation/Assertions/Viseme/VisemeTypes.h",
+      "lines": 30
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Phoneme/Duration/DurationTypes.h",
+      "lines": 30
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Presentation/Message/MessageTypes.h",
+      "lines": 30
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Threshold/ThresholdTypes.h",
+      "lines": 30
+    },
+    {
       "path": "Source/Features/Systems/Bots/AI/AISelectors.cpp",
       "lines": 30
     },
     {
       "path": "Source/Features/Systems/Bots/Orchestrator/Readiness/ReadinessActions.h",
+      "lines": 30
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/Profile/Color/ColorTypes.h",
       "lines": 30
     },
     {
@@ -1657,7 +1933,27 @@
       "lines": 30
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Diagnostics/ConfigurationDiagnosticsTypes.h",
+      "lines": 29
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Goals/ConfigurationGoalsTypes.h",
+      "lines": 29
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Spawn/ConfigurationSpawnTypes.h",
+      "lines": 29
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Level/Terrain/LevelTerrainTypes.h",
+      "lines": 29
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Tts/Request/TtsRequestTypes.h",
+      "lines": 29
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/Memory/MeasurementMemoryTypes.h",
       "lines": 29
     },
     {
@@ -1685,11 +1981,51 @@
       "lines": 29
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Movement/MovementTypes.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Resources/ResourcesTypes.h",
+      "lines": 28
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Dialogue/SettingsDialogueTypes.h",
       "lines": 28
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Terrain/Mesh/TerrainMeshTypes.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Terrain/Sampling/TerrainSamplingTypes.h",
+      "lines": 28
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Registry/Ecs/EcsAdapters.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Lighting/LightingAdapters.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Output/OutputAdapters.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Phoneme/Vowel/VowelTypes.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Playback/PlaybackTypes.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Stats/Budget/Capture/Path/PathTypes.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Sky/SkyTypes.h",
       "lines": 28
     },
     {
@@ -1709,8 +2045,44 @@
       "lines": 28
     },
     {
+      "path": "Source/Features/Systems/Rendering/Profile/ProfileSlice.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingAdapters.h",
+      "lines": 28
+    },
+    {
       "path": "Source/Features/Systems/Rendering/Texture/SystemsRenderingTextureTypes.h",
       "lines": 28
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Behavior/ConfigurationBehaviorTypes.h",
+      "lines": 27
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Projection/ConfigurationProjectionTypes.h",
+      "lines": 27
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Marketing/Menu/Typography/MenuTypographyTypes.h",
+      "lines": 27
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Marketing/Menu/Viewport/MenuViewportTypes.h",
+      "lines": 27
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Root/History/HistoryTypes.h",
+      "lines": 27
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Root/Role/Colors/RoleColorsTypes.h",
+      "lines": 27
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Root/Roles/RolesTypes.h",
+      "lines": 27
     },
     {
       "path": "Source/Features/Systems/Bot/BotSlice.h",
@@ -1737,11 +2109,27 @@
       "lines": 27
     },
     {
-      "path": "Source/Features/Systems/Rendering/Profile/ProfileSlice.h",
-      "lines": 27
+      "path": "Source/Features/Components/Data/DataSelectors.cpp",
+      "lines": 26
     },
     {
-      "path": "Source/Features/Components/Data/DataSelectors.cpp",
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Terrain/Quad/QuadTypes.h",
+      "lines": 26
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/Budget/BudgetAdapters.h",
+      "lines": 26
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/ProfileAdapters.h",
+      "lines": 26
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Render/Equality/EqualityTypes.h",
+      "lines": 26
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Scalability/ScalabilityTypes.h",
       "lines": 26
     },
     {
@@ -1758,6 +2146,46 @@
     },
     {
       "path": "Content/Data/Source/french_gulch/layout/metadata.json",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Commands/CommandsTypes.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Health/HealthTypes.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Labels/GeometryLabelsTypes.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Lifecycle/GeometryLifecycleTypes.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Pixel/PixelAdapters.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Marketing/Menu/Colors/MenuColorsTypes.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Marketing/Menu/Content/ContentTypes.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Root/Conversation/Layout/ConversationLayoutTypes.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Root/Placeholder/PlaceholderTypes.h",
+      "lines": 25
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/UI/Root/Surface/Colors/SurfaceColorsTypes.h",
       "lines": 25
     },
     {
@@ -1781,12 +2209,56 @@
       "lines": 24
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Block/Rendering/BlockRenderingTypes.h",
+      "lines": 24
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Level/Geometry/Patrol/Route/RouteTypes.h",
+      "lines": 24
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Diagnostics/SpeechDiagnosticsTypes.h",
+      "lines": 24
+    },
+    {
       "path": "Source/Features/Components/Spatial/SpatialSelectors.cpp",
+      "lines": 24
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/Stats/Effects/EffectsAdapters.h",
       "lines": 24
     },
     {
       "path": "Source/Features/Systems/Rendering/Texture/Application/TextureApplicationAdapters.h",
       "lines": 24
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/WorldSense/WorldSenseTypes.h",
+      "lines": 23
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/Threshold/ThresholdAdapters.h",
+      "lines": 23
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Fog/FogAdapters.h",
+      "lines": 23
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Automation/Assertions/Lookup/LookupTypes.h",
+      "lines": 23
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Tts/Response/ResponseTypes.h",
+      "lines": 23
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Speech/Voice/VoiceTypes.h",
+      "lines": 23
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Render/RenderTypes.h",
+      "lines": 23
     },
     {
       "path": "Source/Features/Systems/Bots/AI/AISelectors.h",
@@ -1897,6 +2369,14 @@
       "lines": 21
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/Lifecycle/ConfigurationLifecycleTypes.h",
+      "lines": 21
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/OverlayAdapters.h",
+      "lines": 21
+    },
+    {
       "path": "Source/Features/Components/Spatial/SpatialSelectors.h",
       "lines": 21
     },
@@ -1937,6 +2417,10 @@
       "lines": 21
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/Refresh/RefreshAdapters.h",
+      "lines": 20
+    },
+    {
       "path": "Source/Features/Systems/Landmarks/SystemsLandmarksSelectors.h",
       "lines": 20
     },
@@ -1949,6 +2433,14 @@
       "lines": 19
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Sky/SkyAdapters.h",
+      "lines": 19
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Time/TimeTypes.h",
+      "lines": 19
+    },
+    {
       "path": "Source/Features/Systems/Bots/AI/AIActions.h",
       "lines": 19
     },
@@ -1958,6 +2450,10 @@
     },
     {
       "path": "Source/Features/Systems/Bots/SystemsBotsActions.h",
+      "lines": 19
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/Profile/ProfileSlice.cpp",
       "lines": 19
     },
     {
@@ -2022,6 +2518,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Level/Validation/ValidationTypes.h",
+      "lines": 17
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Scalability/ScalabilityAdapters.h",
       "lines": 17
     },
     {
@@ -2090,6 +2590,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Interaction/SettingsInteractionTypes.h",
+      "lines": 16
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Time/TimeAdapters.h",
       "lines": 16
     },
     {
@@ -2205,6 +2709,14 @@
       "lines": 11
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Registry/Catalog/RegistryCatalogAdapters.h",
+      "lines": 11
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/ComponentsRenderingProfileTypes.h",
+      "lines": 11
+    },
+    {
       "path": "Source/Features/Entities/Characters/Bots/CharactersBotsActions.h",
       "lines": 11
     },
@@ -2222,10 +2734,6 @@
     },
     {
       "path": "Source/Features/Components/ComponentsTypes.h",
-      "lines": 10
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Catalog/RegistryCatalogAdapters.h",
       "lines": 10
     },
     {
@@ -2426,10 +2934,6 @@
     },
     {
       "path": "Source/Features/Components/Level/Data/DataAdapters.h",
-      "lines": 4
-    },
-    {
-      "path": "Source/Features/Components/Rendering/Profile/ComponentsRenderingProfileTypes.h",
       "lines": 4
     },
     {

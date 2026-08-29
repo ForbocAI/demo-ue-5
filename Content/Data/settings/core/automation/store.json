@@ -74,6 +74,14 @@
     "Stats overlay shows peak physical memory",
     "Retro texture catalog covers terrain, level, NPC, and horse surfaces"
   ],
+  "runtime_stats_sampling_labels": [
+    "Runtime stats retain cached observations before refresh intervals mature",
+    "Runtime stats refresh poly count and diagnostics when authored intervals mature",
+    "Runtime budget log checkpoint advances on a due diagnostics sample",
+    "Runtime budget screenshot checkpoint and index advance together",
+    "Runtime stats effect plan preserves presentation, log, and screenshot order",
+    "Runtime stats payload distinguishes retained cache values from refreshed observations"
+  ],
   "redux_logger_middleware_labels": [
     "Redux logger writes action title to UE automation output",
     "Redux logger writes action payload row to UE automation output"

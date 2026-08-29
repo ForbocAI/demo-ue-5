@@ -14,6 +14,8 @@
 #include "frontierOfJeffersonStore.h"
 #include "Misc/AutomationTest.h"
 
+namespace ForbocAIAutomation {
+
 using namespace ForbocAI::Game::Level;
 
 namespace {
@@ -144,3 +146,5 @@ void FOrchestratorMultiBotSpec::Define() {
     });
   });
 }
+
+} // namespace ForbocAIAutomation

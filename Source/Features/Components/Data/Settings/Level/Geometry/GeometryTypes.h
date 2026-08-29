@@ -6,7 +6,7 @@
 #include "Features/Components/Data/Settings/Level/Geometry/Patrol/Route/RouteTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/Player/Spawn/PlayerSpawnTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/Terrain/Extent/ExtentTypes.h"
-#include "Features/Components/Data/Settings/Level/Geometry/Terrain/Sampling/SamplingTypes.h"
+#include "Features/Components/Data/Settings/Level/Geometry/Terrain/Sampling/TerrainSamplingTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/Terrain/Mesh/TerrainMeshTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/Terrain/Quad/QuadTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/Town/Layout/TownLayoutTypes.h"

@@ -1,5 +1,6 @@
 #include "Tests/Store/StoreSpecSupport.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
+#include "Features/Systems/Rendering/Stats/Sampling/SamplingSelectors.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FStoreDataBackedMapRendering,
@@ -140,6 +141,71 @@ bool FStoreDataBackedMapRendering::RunTest(const FString &Parameters) {
   TestTrue(Labels.Next(),
            TextureCatalog.Num() >= Settings.TextureCatalog.Num());
 
+  FLabelCursor SamplingLabels = StoreLabels(
+      StoreAutomation.Labels.RuntimeStatsSamplingLabels);
+  const FRenderingState &RenderingState =
+      RuntimeSelectors::SelectRenderingState(State);
+  const FRuntimeStatsSamplingPlan RetainedPlan =
+      RenderingStatsSelectors::SelectRuntimeStatsSamplingPlan(
+          {&RenderingState, &StatsOverlay,
+           RenderingState.StatsClock.FrameClockSeconds,
+           StatsOverlay.Refresh.BudgetScreenshotIntervalSeconds});
+  TestTrue(
+      SamplingLabels.Next(),
+      RetainedPlan.Refresh.PolyCountMode ==
+              ERuntimeStatsSampleMode::Retain &&
+          RetainedPlan.Refresh.StatsMode == ERuntimeStatsSampleMode::Retain);
+
+  FRenderingState DueState = RenderingState;
+  DueState.StatsClock.PolyCountRefreshElapsedSeconds =
+      StatsOverlay.Refresh.PolyCountRefreshIntervalSeconds;
+  DueState.StatsClock.StatsRefreshElapsedSeconds =
+      StatsOverlay.Refresh.StatsRefreshIntervalSeconds;
+  const double DueClockSeconds =
+      StatsOverlay.Refresh.BudgetLogIntervalSeconds;
+  const float DueScreenshotIntervalSeconds =
+      StatsOverlay.Refresh.BudgetLogIntervalSeconds;
+  const FRuntimeStatsSamplingPlan DuePlan =
+      RenderingStatsSelectors::SelectRuntimeStatsSamplingPlan(
+          {&DueState, &StatsOverlay, DueClockSeconds,
+           DueScreenshotIntervalSeconds});
+  TestTrue(
+      SamplingLabels.Next(),
+      DuePlan.Refresh.PolyCountMode == ERuntimeStatsSampleMode::Refresh &&
+          DuePlan.Refresh.StatsMode == ERuntimeStatsSampleMode::Refresh);
+  TestTrue(SamplingLabels.Next(),
+           DuePlan.Budget.Log.bTriggered &&
+               FMath::IsNearlyEqual(DuePlan.Budget.Log.PreviousSeconds,
+                                    DueClockSeconds));
+  TestTrue(
+      SamplingLabels.Next(),
+      DuePlan.Budget.Screenshot.Checkpoint.bTriggered &&
+          FMath::IsNearlyEqual(
+              DuePlan.Budget.Screenshot.Checkpoint.PreviousSeconds,
+              DueClockSeconds) &&
+          DuePlan.Budget.Screenshot.Index ==
+              DueState.BudgetClock.BudgetScreenshotIndex +
+                  StatsOverlay.BudgetCapture.Request
+                      .BudgetScreenshotIndexStep);
+  TestTrue(
+      SamplingLabels.Next(),
+      DuePlan.Budget.Effects ==
+          TArray<ERuntimeStatsEffect>{
+              ERuntimeStatsEffect::Present,
+              ERuntimeStatsEffect::BudgetLog,
+              ERuntimeStatsEffect::BudgetScreenshot});
+
+  const FRuntimeStatsObservation RetainedObservation = {
+      {RenderingState.PolyCache.CachedPolyCount,
+       RenderingState.PolyCache.CachedPolyCountMilliseconds},
+      func::nothing<FRuntimeStatsViewModel>()};
+  const FRuntimeStatsSamplePayload RetainedPayload =
+      RenderingStatsSelectors::SelectRuntimeStatsSamplePayload(
+          {StatsOverlay.Measurement.Frame.InitialDeltaSeconds, &RetainedPlan,
+           &StatsOverlay, RetainedObservation});
+  TestTrue(SamplingLabels.Next(),
+           func::is_nothing(RetainedPayload.PolyCount) &&
+               func::is_nothing(RetainedPayload.Stats));
 
   return true;
 }
