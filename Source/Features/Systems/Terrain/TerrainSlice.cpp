@@ -120,13 +120,22 @@ FMeshPayload ReduceTerrainVertex(FMeshPayload Payload,
   const int32 SourceColumn = SelectTerrainSourceGridIndex(Context, GridIndex.Column);
   const float NorthSouth = Context.Space.HalfSize - Context.Space.Step * SourceRow;
   const float EastWest = -Context.Space.HalfSize + Context.Space.Step * SourceColumn;
-  Payload.Vertices.Add(Context.TerrainData.ToWorld(FVector2D(EastWest, NorthSouth), Context.Space.VertexHeightOffset));
-  Payload.Normals.Add(FVector::UpVector);
-  Payload.UVs.Add(FVector2D(
-      static_cast<float>(SourceColumn) / Context.Source.SourceGridLastIndex,
-      static_cast<float>(SourceRow) / Context.Source.SourceGridLastIndex));
-  Payload.VertexColors.Add(TerrainVertexColor(Context,
-                                              {SourceRow, SourceColumn}));
+  Payload.Vertices = func::append_value(
+      Payload.Vertices,
+      Context.TerrainData.ToWorld(FVector2D(EastWest, NorthSouth),
+                                  Context.Space.VertexHeightOffset));
+  Payload.Normals =
+      func::append_value(Payload.Normals, FVector::UpVector);
+  Payload.UVs = func::append_value(
+      Payload.UVs,
+      FVector2D(
+          static_cast<float>(SourceColumn) /
+              Context.Source.SourceGridLastIndex,
+          static_cast<float>(SourceRow) /
+              Context.Source.SourceGridLastIndex));
+  Payload.VertexColors = func::append_value(
+      Payload.VertexColors,
+      TerrainVertexColor(Context, {SourceRow, SourceColumn}));
   return Payload;
 }
 
@@ -139,12 +148,8 @@ FMeshPayload ReduceTerrainQuadTriangles(
   const int32 B = A + Context.Quad.QuadColumnStep;
   const int32 C = A + Context.Lod.LodGridSize * Context.Quad.QuadRowStep;
   const int32 D = C + Context.Quad.QuadColumnStep;
-  Payload.Triangles.Add(A);
-  Payload.Triangles.Add(C);
-  Payload.Triangles.Add(B);
-  Payload.Triangles.Add(B);
-  Payload.Triangles.Add(C);
-  Payload.Triangles.Add(D);
+  Payload.Triangles =
+      func::append_values(Payload.Triangles, TArray<int32>{A, C, B, B, C, D});
   return Payload;
 }
 

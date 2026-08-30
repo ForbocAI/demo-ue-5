@@ -21,6 +21,15 @@ struct FStateJsonMergeRequest {
   TSharedPtr<FJsonObject> Source;
 };
 
+/** User Story: As the Blueprint JSON boundary, I need one required-object lift so every operation consumes a present value instead of repeating raw shared-pointer checks. @fn TSharedPtr<FJsonObject> RequireStateJsonObject(const TSharedPtr<FJsonObject> &Object) */
+TSharedPtr<FJsonObject>
+RequireStateJsonObject(const TSharedPtr<FJsonObject> &Object) {
+  const func::Maybe<TSharedPtr<FJsonObject>> Present =
+      func::from_shared(Object);
+  check(Present.hasValue);
+  return Present.value;
+}
+
 /** User Story: As a blueprints consumer, I need to invoke has json field through a stable signature so the blueprints workflow remains explicit and composable. @fn bool HasJsonField(const FFieldRequest &Request) */
 bool HasJsonField(const FFieldRequest &Request);
 /** User Story: As a blueprints consumer, I need to invoke write string json field through a stable signature so the blueprints workflow remains explicit and composable. @fn void WriteStringJsonField(const FFieldRequest &Request, const FString &Value) */
@@ -76,17 +85,15 @@ TSharedPtr<FJsonObject> ParseStateJson(const FString &JsonData) {
   TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonData);
   const bool bParsed = FJsonSerializer::Deserialize(Reader, JsonObject);
   check(bParsed);
-  check(JsonObject.IsValid());
-  return JsonObject;
+  return RequireStateJsonObject(JsonObject);
 }
 
 /** User Story: As a blueprints consumer, I need to invoke serialize state json through a stable signature so the blueprints workflow remains explicit and composable. @fn FString SerializeStateJson(const TSharedPtr<FJsonObject> &JsonObject) */
 FString SerializeStateJson(const TSharedPtr<FJsonObject> &JsonObject) {
   FString Output;
-  check(JsonObject.IsValid());
-
   TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&Output);
-  FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
+  FJsonSerializer::Serialize(RequireStateJsonObject(JsonObject).ToSharedRef(),
+                             Writer);
   return Output;
 }
 
@@ -126,44 +133,44 @@ bool HasStateJsonField(const FString &JsonData, const FString &FieldName) {
 
 /** User Story: As a blueprints consumer, I need to invoke has json field through a stable signature so the blueprints workflow remains explicit and composable. @fn bool HasJsonField(const FFieldRequest &Request) */
 bool HasJsonField(const FFieldRequest &Request) {
-  check(Request.Object.IsValid());
-  return Request.Object->HasField(Request.FieldName);
+  return RequireStateJsonObject(Request.Object)->HasField(Request.FieldName);
 }
 
 /** User Story: As a blueprints consumer, I need to invoke write string json field through a stable signature so the blueprints workflow remains explicit and composable. @fn void WriteStringJsonField(const FFieldRequest &Request, const FString &Value) */
 void WriteStringJsonField(const FFieldRequest &Request,
                           const FString &Value) {
-  check(Request.Object.IsValid());
-  Request.Object->SetStringField(Request.FieldName, Value);
+  RequireStateJsonObject(Request.Object)
+      ->SetStringField(Request.FieldName, Value);
 }
 
 /** User Story: As a blueprints consumer, I need to invoke write float json field through a stable signature so the blueprints workflow remains explicit and composable. @fn void WriteFloatJsonField(const FFieldRequest &Request, const float &Value) */
 void WriteFloatJsonField(const FFieldRequest &Request,
                          const float &Value) {
-  check(Request.Object.IsValid());
-  Request.Object->SetNumberField(Request.FieldName, Value);
+  RequireStateJsonObject(Request.Object)
+      ->SetNumberField(Request.FieldName, Value);
 }
 
 /** User Story: As a blueprints consumer, I need to invoke write int json field through a stable signature so the blueprints workflow remains explicit and composable. @fn void WriteIntJsonField(const FFieldRequest &Request, const int32 &Value) */
 void WriteIntJsonField(const FFieldRequest &Request,
                        const int32 &Value) {
-  check(Request.Object.IsValid());
-  Request.Object->SetNumberField(Request.FieldName, static_cast<double>(Value));
+  RequireStateJsonObject(Request.Object)
+      ->SetNumberField(Request.FieldName, static_cast<double>(Value));
 }
 
 /** User Story: As a blueprints consumer, I need to invoke write bool json field through a stable signature so the blueprints workflow remains explicit and composable. @fn void WriteBoolJsonField(const FFieldRequest &Request, const bool &Value) */
 void WriteBoolJsonField(const FFieldRequest &Request,
                         const bool &Value) {
-  check(Request.Object.IsValid());
-  Request.Object->SetBoolField(Request.FieldName, Value);
+  RequireStateJsonObject(Request.Object)
+      ->SetBoolField(Request.FieldName, Value);
 }
 
 /** User Story: As a blueprints consumer, I need to invoke json field names through a stable signature so the blueprints workflow remains explicit and composable. @fn TArray<FString> JsonFieldNames(const TSharedPtr<FJsonObject> &JsonObject) */
 TArray<FString> JsonFieldNames(const TSharedPtr<FJsonObject> &JsonObject) {
-  check(JsonObject.IsValid());
+  const TSharedPtr<FJsonObject> Present =
+      RequireStateJsonObject(JsonObject);
   TArray<FString> FieldNames;
-  FieldNames.Reserve(JsonObject->Values.Num());
-  Algo::Transform(JsonObject->Values, FieldNames, [](const auto &Field) {
+  FieldNames.Reserve(Present->Values.Num());
+  Algo::Transform(Present->Values, FieldNames, [](const auto &Field) {
     return FString(Field.Key.Len(), *Field.Key);
   });
   return FieldNames;
@@ -178,14 +185,15 @@ void CopyJsonField(const FStateJsonMergeRequest &Request,
 /** User Story: As a blueprints consumer, I need to invoke merge json objects through a stable signature so the blueprints workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> MergeJsonObjects( const FStateJsonMergeRequest &Request) */
 TSharedPtr<FJsonObject> MergeJsonObjects(
     const FStateJsonMergeRequest &Request) {
-  check(Request.Target.IsValid());
-  check(Request.Source.IsValid());
+  const FStateJsonMergeRequest Present{
+      RequireStateJsonObject(Request.Target),
+      RequireStateJsonObject(Request.Source)};
   func::for_each_array<FString>(
-      JsonFieldNames(Request.Source),
-      [Request](const FString &FieldName) {
-        CopyJsonField(Request, FieldName);
+      JsonFieldNames(Present.Source),
+      [Present](const FString &FieldName) {
+        CopyJsonField(Present, FieldName);
       });
-  return Request.Target;
+  return Present.Target;
 }
 
 /** User Story: As a blueprints consumer, I need to invoke merge state json through a stable signature so the blueprints workflow remains explicit and composable. @fn FString MergeStateJson(const FString &BaseJson, const FString &OverrideJson) */

@@ -19,8 +19,10 @@ FString ResolvePartPath(const FString &ParentRelativePath,
 /** User Story: As a data json manifest consumer, I need to invoke resolve part path through a stable signature so the data json manifest workflow remains explicit and composable. @fn FString ResolvePartPath(const FString &ParentRelativePath, const TSharedPtr<FJsonValue> &Value) */
 FString ResolvePartPath(const FString &ParentRelativePath,
                         const TSharedPtr<FJsonValue> &Value) {
-  check(Value.IsValid());
-  return ResolvePartPath(ParentRelativePath, Value->AsString());
+  const func::Maybe<TSharedPtr<FJsonValue>> Present =
+      func::from_shared(Value);
+  check(Present.hasValue);
+  return ResolvePartPath(ParentRelativePath, Present.value->AsString());
 }
 
 /** User Story: As a data json manifest consumer, I need to invoke manifest parts field name through a stable signature so the data json manifest workflow remains explicit and composable. @fn const FString &ManifestPartsFieldName() */
@@ -35,20 +37,34 @@ const FString &ManifestMergeFieldName() {
   return Name;
 }
 
-/** User Story: As a data json manifest consumer, I need to invoke read part values through a stable signature so the data json manifest workflow remains explicit and composable. @fn bool ReadPartValues(const TSharedPtr<FJsonObject> &Object, const TArray<TSharedPtr<FJsonValue>> *&Parts) */
-bool ReadPartValues(const TSharedPtr<FJsonObject> &Object,
-                    const TArray<TSharedPtr<FJsonValue>> *&Parts) {
-  return Object.IsValid() &&
-         Object->TryGetArrayField(ManifestPartsFieldName(), Parts) &&
-         Parts != nullptr;
+/** User Story: As manifest array loading, I need optional part declarations lifted once so callers compose over a Maybe instead of sharing nullable output pointers. @fn func::Maybe<TArray<TSharedPtr<FJsonValue>>> ReadPartValues(const TSharedPtr<FJsonObject> &Object) */
+func::Maybe<TArray<TSharedPtr<FJsonValue>>>
+ReadPartValues(const TSharedPtr<FJsonObject> &Object) {
+  return func::mbind(
+      func::from_shared(Object),
+      [](const TSharedPtr<FJsonObject> &Present) {
+        const TArray<TSharedPtr<FJsonValue>> *Parts = nullptr;
+        return Present->TryGetArrayField(ManifestPartsFieldName(), Parts)
+                   ? func::from_nullable(Parts)
+                   : func::nothing<TArray<TSharedPtr<FJsonValue>>>();
+      });
 }
 
-/** User Story: As a data json manifest consumer, I need to invoke read part object through a stable signature so the data json manifest workflow remains explicit and composable. @fn bool ReadPartObject(const TSharedPtr<FJsonObject> &Object, const TSharedPtr<FJsonObject> *&Parts) */
-bool ReadPartObject(const TSharedPtr<FJsonObject> &Object,
-                    const TSharedPtr<FJsonObject> *&Parts) {
-  return Object.IsValid() &&
-         Object->TryGetObjectField(ManifestPartsFieldName(), Parts) &&
-         Parts != nullptr && Parts->IsValid();
+/** User Story: As manifest object loading, I need optional keyed part declarations lifted once so callers compose over a Maybe instead of sharing nullable output pointers. @fn func::Maybe<TSharedPtr<FJsonObject>> ReadPartObject(const TSharedPtr<FJsonObject> &Object) */
+func::Maybe<TSharedPtr<FJsonObject>>
+ReadPartObject(const TSharedPtr<FJsonObject> &Object) {
+  return func::mbind(
+      func::from_shared(Object),
+      [](const TSharedPtr<FJsonObject> &Present) {
+        const TSharedPtr<FJsonObject> *Parts = nullptr;
+        return Present->TryGetObjectField(ManifestPartsFieldName(), Parts)
+                   ? func::mbind(
+                         func::from_nullable(Parts),
+                         [](const TSharedPtr<FJsonObject> &PartObject) {
+                           return func::from_shared(PartObject);
+                         })
+                   : func::nothing<TSharedPtr<FJsonObject>>();
+      });
 }
 
 struct FSetJsonObjectFieldRequest {
@@ -69,8 +85,7 @@ TSharedPtr<FJsonObject> MergeJsonObjects(
     const TSharedPtr<FJsonObject> &Left,
     const TSharedPtr<FJsonObject> &Right) {
   TSharedPtr<FJsonObject> Merged = MakeShared<FJsonObject>();
-  Merged->Values = Left->Values;
-  Merged->Values.Append(Right->Values);
+  Merged->Values = func::merge_maps_right(Left->Values, Right->Values);
   return Merged;
 }
 
@@ -108,21 +123,26 @@ LoadObjectManifestMergeParts(const FString &RelativePath,
                              const TSharedPtr<FJsonObject> &ManifestParts) {
   const TArray<TSharedPtr<FJsonValue>> *MergeParts = nullptr;
   const TSharedPtr<FJsonObject> Empty = MakeShared<FJsonObject>();
-  return ManifestParts->TryGetArrayField(ManifestMergeFieldName(),
-                                         MergeParts) &&
-                 MergeParts != nullptr
-             ? func::fold_indexed(
-                   *MergeParts, static_cast<size_t>(MergeParts->Num()),
-                   Empty,
-                   [&RelativePath](const TSharedPtr<FJsonObject> &Current,
-                                   const TSharedPtr<FJsonValue> &Part) {
-                     const func::Maybe<TSharedPtr<FJsonObject>> Object =
-                         LoadObjectFromContent({ResolvePartPath(RelativePath,
-                                                                Part)});
-                     check(Object.hasValue);
-                     return MergeJsonObjects(Current, Object.value);
-                   })
-             : MakeShared<FJsonObject>();
+  const func::Maybe<TArray<TSharedPtr<FJsonValue>>> Parts =
+      ManifestParts->TryGetArrayField(ManifestMergeFieldName(), MergeParts)
+          ? func::from_nullable(MergeParts)
+          : func::nothing<TArray<TSharedPtr<FJsonValue>>>();
+  return func::match(
+      Parts,
+      [&RelativePath, Empty](
+          const TArray<TSharedPtr<FJsonValue>> &Values) {
+        return func::fold_indexed(
+            Values, static_cast<size_t>(Values.Num()), Empty,
+            [&RelativePath](const TSharedPtr<FJsonObject> &Current,
+                            const TSharedPtr<FJsonValue> &Part) {
+              const func::Maybe<TSharedPtr<FJsonObject>> Object =
+                  LoadObjectFromContent(
+                      {ResolvePartPath(RelativePath, Part)});
+              check(Object.hasValue);
+              return MergeJsonObjects(Current, Object.value);
+            });
+      },
+      []() { return MakeShared<FJsonObject>(); });
 }
 
 /** User Story: As a data json manifest consumer, I need to invoke load object manifest field part through a stable signature so the data json manifest workflow remains explicit and composable. @fn TSharedPtr<FJsonObject> LoadObjectManifestFieldPart(const FFieldPartRequest &Request) */
@@ -130,9 +150,12 @@ TSharedPtr<FJsonObject>
 LoadObjectManifestFieldPart(const FFieldPartRequest &Request) {
   const TSharedPtr<FJsonValue> PartValue =
       Request.ManifestParts->TryGetField(Request.PartKey);
-  check(PartValue.IsValid());
+  const func::Maybe<TSharedPtr<FJsonValue>> Present =
+      func::from_shared(PartValue);
+  check(Present.hasValue);
   const func::Maybe<TSharedPtr<FJsonValue>> Value =
-      LoadManifestFieldValue(Request.RelativePath, PartValue->AsString());
+      LoadManifestFieldValue(Request.RelativePath,
+                             Present.value->AsString());
   check(Value.hasValue);
   return SetJsonObjectField({Request.Current, Request.PartKey, Value.value});
 }
@@ -165,47 +188,51 @@ LoadObjectManifestFieldParts(const FString &RelativePath,
 func::Maybe<TSharedPtr<FJsonObject>>
 LoadObjectManifestParts(const FString &RelativePath,
                         const TSharedPtr<FJsonObject> &Manifest) {
-  const TArray<TSharedPtr<FJsonValue>> *Parts = nullptr;
-  const TSharedPtr<FJsonObject> *PartObject = nullptr;
   const TSharedPtr<FJsonObject> Empty = MakeShared<FJsonObject>();
-  return ReadPartValues(Manifest, Parts)
-             ? func::just<TSharedPtr<FJsonObject>>(func::fold_indexed(
-                   *Parts, static_cast<size_t>(Parts->Num()),
-                   Empty,
-                   [&RelativePath](const TSharedPtr<FJsonObject> &Current,
-                                   const TSharedPtr<FJsonValue> &Part) {
-                     const func::Maybe<TSharedPtr<FJsonObject>> Object =
-                         LoadObjectFromContent({ResolvePartPath(RelativePath,
-                                                                Part)});
-                     check(Object.hasValue);
-                     return MergeJsonObjects(Current, Object.value);
-                   }))
-             : (ReadPartObject(Manifest, PartObject)
-                    ? func::just(LoadObjectManifestFieldParts(RelativePath,
-                                                              *PartObject))
-                    : func::nothing<TSharedPtr<FJsonObject>>());
+  return func::match(
+      ReadPartValues(Manifest),
+      [&RelativePath, Empty](
+          const TArray<TSharedPtr<FJsonValue>> &Parts) {
+        return func::just<TSharedPtr<FJsonObject>>(func::fold_indexed(
+            Parts, static_cast<size_t>(Parts.Num()), Empty,
+            [&RelativePath](const TSharedPtr<FJsonObject> &Current,
+                            const TSharedPtr<FJsonValue> &Part) {
+              const func::Maybe<TSharedPtr<FJsonObject>> Object =
+                  LoadObjectFromContent(
+                      {ResolvePartPath(RelativePath, Part)});
+              check(Object.hasValue);
+              return MergeJsonObjects(Current, Object.value);
+            }));
+      },
+      [&RelativePath, &Manifest]() {
+        return func::fmap(
+            ReadPartObject(Manifest),
+            [&RelativePath](const TSharedPtr<FJsonObject> &PartObject) {
+              return LoadObjectManifestFieldParts(RelativePath, PartObject);
+            });
+      });
 }
 
 /** User Story: As a data json manifest consumer, I need to invoke load array manifest parts through a stable signature so the data json manifest workflow remains explicit and composable. @fn func::Maybe<TArray<TSharedPtr<FJsonValue>>> LoadArrayManifestParts(const FString &RelativePath, const TSharedPtr<FJsonObject> &Manifest) */
 func::Maybe<TArray<TSharedPtr<FJsonValue>>>
 LoadArrayManifestParts(const FString &RelativePath,
                        const TSharedPtr<FJsonObject> &Manifest) {
-  const TArray<TSharedPtr<FJsonValue>> *Parts = nullptr;
-  return ReadPartValues(Manifest, Parts)
-             ? func::just(func::fold_indexed(
-                   *Parts, static_cast<size_t>(Parts->Num()),
-                   TArray<TSharedPtr<FJsonValue>>(),
-                   [&RelativePath](const TArray<TSharedPtr<FJsonValue>> &Current,
-                                   const TSharedPtr<FJsonValue> &Part) {
-                     const func::Maybe<TArray<TSharedPtr<FJsonValue>>> Values =
-                         LoadArrayFromContent({ResolvePartPath(RelativePath,
-                                                               Part)});
-                     check(Values.hasValue);
-                     TArray<TSharedPtr<FJsonValue>> Next = Current;
-                     Next.Append(Values.value);
-                     return Next;
-                   }))
-             : func::nothing<TArray<TSharedPtr<FJsonValue>>>();
+  return func::fmap(
+      ReadPartValues(Manifest),
+      [&RelativePath](const TArray<TSharedPtr<FJsonValue>> &Parts) {
+        return func::fold_indexed(
+            Parts, static_cast<size_t>(Parts.Num()),
+            TArray<TSharedPtr<FJsonValue>>(),
+            [&RelativePath](
+                const TArray<TSharedPtr<FJsonValue>> &Current,
+                const TSharedPtr<FJsonValue> &Part) {
+              const func::Maybe<TArray<TSharedPtr<FJsonValue>>> Values =
+                  LoadArrayFromContent(
+                      {ResolvePartPath(RelativePath, Part)});
+              check(Values.hasValue);
+              return func::append_values(Current, Values.value);
+            });
+      });
 }
 
 } // namespace

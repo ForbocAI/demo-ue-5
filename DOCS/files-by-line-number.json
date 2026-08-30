@@ -61,16 +61,16 @@
       "lines": 284
     },
     {
+      "path": "Source/Blueprints/GenericStateBlueprintLibrary.cpp",
+      "lines": 284
+    },
+    {
       "path": "Source/Features/Systems/Terrain/TerrainSlice.cpp",
-      "lines": 278
+      "lines": 283
     },
     {
       "path": "Source/Features/Components/Data/Settings/Level/SettingsLevelAdapters.cpp",
       "lines": 277
-    },
-    {
-      "path": "Source/Blueprints/GenericStateBlueprintLibrary.cpp",
-      "lines": 276
     },
     {
       "path": "Source/Tests/Store/DataBackedMap.spec.cpp",
@@ -157,6 +157,10 @@
       "lines": 244
     },
     {
+      "path": "Source/Features/Components/Data/Json/Manifest/ManifestAdapters.h",
+      "lines": 242
+    },
+    {
       "path": "Source/Views/Player/Character/CharacterView.cpp",
       "lines": 241
     },
@@ -215,10 +219,6 @@
     {
       "path": "Source/Features/Systems/UI/SystemsUITypes.h",
       "lines": 219
-    },
-    {
-      "path": "Source/Features/Components/Data/Json/Manifest/ManifestAdapters.h",
-      "lines": 215
     },
     {
       "path": "Source/Features/Systems/Level/Layout/Block/BlockAdapters.cpp",
