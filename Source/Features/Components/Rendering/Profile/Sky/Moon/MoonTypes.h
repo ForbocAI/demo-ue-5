@@ -15,6 +15,7 @@ struct FMoonGeometry {
   FString RuntimeMoonDiscActorTag;
 };
 
+/** User Story: As the sky profile state owner, I need moon geometry and pixel concerns compared structurally so unchanged lunar data does not rebuild its runtime surface. @fn inline bool operator==(const FMoonGeometry &Left, const FMoonGeometry &Right) */
 inline bool operator==(const FMoonGeometry &Left, const FMoonGeometry &Right) {
   return Left.bMoonDiscEnabled == Right.bMoonDiscEnabled &&
          Left.MoonDiscMeshPath == Right.MoonDiscMeshPath &&
@@ -30,6 +31,7 @@ struct FOrientation {
   float MoonDiscRollDegrees;
 };
 
+/** User Story: As the sky profile state owner, I need moon geometry and pixel concerns compared structurally so unchanged lunar data does not rebuild its runtime surface. @fn inline bool operator==(const FOrientation &Left, const FOrientation &Right) */
 inline bool operator==(const FOrientation &Left,
                        const FOrientation &Right) {
   return FMath::IsNearlyEqual(Left.MoonDiscPitchDegrees,
@@ -47,6 +49,7 @@ struct FMoonColor {
   float MoonDiscColorA;
 };
 
+/** User Story: As the sky profile state owner, I need moon geometry and pixel concerns compared structurally so unchanged lunar data does not rebuild its runtime surface. @fn inline bool operator==(const FMoonColor &Left, const FMoonColor &Right) */
 inline bool operator==(const FMoonColor &Left, const FMoonColor &Right) {
   return FMath::IsNearlyEqual(Left.MoonDiscColorR, Right.MoonDiscColorR) &&
          FMath::IsNearlyEqual(Left.MoonDiscColorG, Right.MoonDiscColorG) &&
@@ -63,6 +66,7 @@ struct FPixels {
   FString RuntimeMoonPixelsComponentName;
 };
 
+/** User Story: As the sky profile state owner, I need moon geometry and pixel concerns compared structurally so unchanged lunar data does not rebuild its runtime surface. @fn inline bool operator==(const FPixels &Left, const FPixels &Right) */
 inline bool operator==(const FPixels &Left, const FPixels &Right) {
   return Left.MoonPixelGridSize == Right.MoonPixelGridSize &&
          FMath::IsNearlyEqual(Left.MoonDiscWorldUnitsPerScale,
@@ -84,6 +88,7 @@ struct FMoon {
   FPixels Pixels;
 };
 
+/** User Story: As the sky profile state owner, I need moon geometry and pixel concerns compared structurally so unchanged lunar data does not rebuild its runtime surface. @fn inline bool operator==(const FMoon &Left, const FMoon &Right) */
 inline bool operator==(const FMoon &Left, const FMoon &Right) {
   return Left.Geometry == Right.Geometry &&
          Left.Orientation == Right.Orientation && Left.Color == Right.Color &&

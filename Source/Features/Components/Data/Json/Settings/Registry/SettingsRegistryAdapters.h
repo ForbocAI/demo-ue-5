@@ -65,7 +65,10 @@ template <typename Settings> struct TSettingsConcern {
             })) {}
 };
 
-/** User Story: As a composed settings reader, I need concern bindings flattened through one fold so parent registries remain declaration data. @fn template <typename Settings> TArray<TField<Settings>> SettingsFieldsFromConcerns(const TArray<TSettingsConcern<Settings>> &Concerns) */
+/**
+ * User Story: As a composed settings reader, I need concern bindings flattened through one fold so parent registries remain declaration data.
+ * @fn template <typename Settings> TArray<TField<Settings>> SettingsFieldsFromConcerns( const TArray<TSettingsConcern<Settings>> &Concerns)
+ */
 template <typename Settings>
 TArray<TField<Settings>> SettingsFieldsFromConcerns(
     const TArray<TSettingsConcern<Settings>> &Concerns) {

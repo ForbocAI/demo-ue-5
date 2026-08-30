@@ -24,6 +24,7 @@ struct FProfileSettings {
   RenderingProfile::FFog Fog;
 };
 
+/** User Story: As the rendering profile reducer, I need the composed profile compared structurally so identical authored settings preserve the current state value. @fn inline bool operator==(const FProfileSettings &Left, const FProfileSettings &Right) */
 inline bool operator==(const FProfileSettings &Left,
                        const FProfileSettings &Right) {
   return Left.Time == Right.Time && Left.Output == Right.Output &&

@@ -46,7 +46,10 @@ RuntimeStatsCatalog(const FRuntimeStatsObservationRequest &Request,
 
 } // namespace
 
-/** User Story: As a rendering stats thunk, I need live or retained engine observations selected through registered sample-mode handlers so timing predicates stay in the pure plan. @fn FRuntimeStatsObservation ObserveRuntimeStats(const FRuntimeStatsObservationRequest &Request) */
+/**
+ * User Story: As a rendering stats thunk, I need live or retained engine observations selected through registered sample-mode handlers so timing predicates stay in the pure plan.
+ * @fn FRuntimeStatsObservation ObserveRuntimeStats( const FRuntimeStatsObservationRequest &Request)
+ */
 FRuntimeStatsObservation ObserveRuntimeStats(
     const FRuntimeStatsObservationRequest &Request) {
   const func::Maybe<FRuntimePolyCountStats> PolyCount = func::dispatch(

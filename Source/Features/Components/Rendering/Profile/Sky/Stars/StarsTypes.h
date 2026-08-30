@@ -14,6 +14,7 @@ struct FDistribution {
   float PointStarRollDegrees;
 };
 
+/** User Story: As the sky profile state owner, I need star distribution and identity concerns compared structurally so deterministic stars change only with authored parameters. @fn inline bool operator==(const FDistribution &Left, const FDistribution &Right) */
 inline bool operator==(const FDistribution &Left,
                        const FDistribution &Right) {
   return FMath::IsNearlyEqual(Left.PointStarYawSpanDegrees,
@@ -36,6 +37,7 @@ struct FHash {
   float PointStarHashMultiplier;
 };
 
+/** User Story: As the sky profile state owner, I need star distribution and identity concerns compared structurally so deterministic stars change only with authored parameters. @fn inline bool operator==(const FHash &Left, const FHash &Right) */
 inline bool operator==(const FHash &Left, const FHash &Right) {
   return FMath::IsNearlyEqual(Left.PointStarYawHashSalt,
                               Right.PointStarYawHashSalt) &&
@@ -55,6 +57,7 @@ struct FScale {
   float PointStarWorldSizeJitter;
 };
 
+/** User Story: As the sky profile state owner, I need star distribution and identity concerns compared structurally so deterministic stars change only with authored parameters. @fn inline bool operator==(const FScale &Left, const FScale &Right) */
 inline bool operator==(const FScale &Left, const FScale &Right) {
   return Left.PointStarCount == Right.PointStarCount &&
          FMath::IsNearlyEqual(Left.PointStarWorldSizeMin,
@@ -68,6 +71,7 @@ struct FIdentity {
   FString RuntimePointStarsComponentName;
 };
 
+/** User Story: As the sky profile state owner, I need star distribution and identity concerns compared structurally so deterministic stars change only with authored parameters. @fn inline bool operator==(const FIdentity &Left, const FIdentity &Right) */
 inline bool operator==(const FIdentity &Left, const FIdentity &Right) {
   return Left.RuntimePointStarsActorTag == Right.RuntimePointStarsActorTag &&
          Left.RuntimePointStarsComponentName ==
@@ -81,6 +85,7 @@ struct FPointStars {
   FIdentity Identity;
 };
 
+/** User Story: As the sky profile state owner, I need star distribution and identity concerns compared structurally so deterministic stars change only with authored parameters. @fn inline bool operator==(const FPointStars &Left, const FPointStars &Right) */
 inline bool operator==(const FPointStars &Left, const FPointStars &Right) {
   return Left.Distribution == Right.Distribution && Left.Hash == Right.Hash &&
          Left.Scale == Right.Scale && Left.Identity == Right.Identity;

@@ -5,7 +5,10 @@ namespace Game {
 namespace Level {
 namespace RenderingProfileReducers {
 
-/** User Story: As a rendering slice owner, I need authored profile concerns projected as complete values so RTK state preserves the rendering contract without per-field copying. @fn FLevelRetroRenderProfile ReduceRuntimeProfile(const ForbocAI::Game::Data::FProfileSettings &Settings) */
+/**
+ * User Story: As a rendering slice owner, I need authored profile concerns projected as complete values so RTK state preserves the rendering contract without per-field copying.
+ * @fn FLevelRetroRenderProfile ReduceRuntimeProfile( const ForbocAI::Game::Data::FProfileSettings &Settings)
+ */
 FLevelRetroRenderProfile ReduceRuntimeProfile(
     const ForbocAI::Game::Data::FProfileSettings &Settings) {
   return {Settings.Time,       Settings.Output,    Settings.Scalability,

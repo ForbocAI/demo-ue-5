@@ -14,6 +14,7 @@ struct FBaseMaterialParameters {
   FString MaterialEmissiveColorParameter;
 };
 
+/** User Story: As the rendering profile state owner, I need material parameter concerns compared structurally so unchanged authored values do not rebuild runtime materials. @fn inline bool operator==(const FBaseMaterialParameters &Left, const FBaseMaterialParameters &Right) */
 inline bool operator==(const FBaseMaterialParameters &Left,
                        const FBaseMaterialParameters &Right) {
   return Left.MaterialBaseColorParameter == Right.MaterialBaseColorParameter &&
@@ -33,6 +34,7 @@ struct FSkyDomeIlluminationParameters {
   FString SkyDomeStarsParameter;
 };
 
+/** User Story: As the rendering profile state owner, I need material parameter concerns compared structurally so unchanged authored values do not rebuild runtime materials. @fn inline bool operator==(const FSkyDomeIlluminationParameters &Left, const FSkyDomeIlluminationParameters &Right) */
 inline bool operator==(const FSkyDomeIlluminationParameters &Left,
                        const FSkyDomeIlluminationParameters &Right) {
   return Left.SkyDomeSkyBrightnessParameter ==
@@ -52,6 +54,7 @@ struct FSkyDomeColorParameters {
   FString SkyDomeZenithColorParameter;
 };
 
+/** User Story: As the rendering profile state owner, I need material parameter concerns compared structurally so unchanged authored values do not rebuild runtime materials. @fn inline bool operator==(const FSkyDomeColorParameters &Left, const FSkyDomeColorParameters &Right) */
 inline bool operator==(const FSkyDomeColorParameters &Left,
                        const FSkyDomeColorParameters &Right) {
   return Left.SkyDomeStarColorParameter ==
@@ -69,6 +72,7 @@ struct FSkyDomeStarMaskColor {
   float SkyDomeTextureStarMaskColorA;
 };
 
+/** User Story: As the rendering profile state owner, I need material parameter concerns compared structurally so unchanged authored values do not rebuild runtime materials. @fn inline bool operator==(const FSkyDomeStarMaskColor &Left, const FSkyDomeStarMaskColor &Right) */
 inline bool operator==(const FSkyDomeStarMaskColor &Left,
                        const FSkyDomeStarMaskColor &Right) {
   return FMath::IsNearlyEqual(Left.SkyDomeTextureStarMaskColorR,
@@ -85,6 +89,7 @@ struct FSkyDomeStarVisibility {
   float SkyDomeStarsScalarValue;
 };
 
+/** User Story: As the rendering profile state owner, I need material parameter concerns compared structurally so unchanged authored values do not rebuild runtime materials. @fn inline bool operator==(const FSkyDomeStarVisibility &Left, const FSkyDomeStarVisibility &Right) */
 inline bool operator==(const FSkyDomeStarVisibility &Left,
                        const FSkyDomeStarVisibility &Right) {
   return FMath::IsNearlyEqual(Left.SkyDomeStarsScalarValue,
@@ -96,6 +101,7 @@ struct FSkyDomeStars {
   FSkyDomeStarMaskColor MaskColor;
 };
 
+/** User Story: As the rendering profile state owner, I need material parameter concerns compared structurally so unchanged authored values do not rebuild runtime materials. @fn inline bool operator==(const FSkyDomeStars &Left, const FSkyDomeStars &Right) */
 inline bool operator==(const FSkyDomeStars &Left,
                        const FSkyDomeStars &Right) {
   return Left.Visibility == Right.Visibility && Left.MaskColor == Right.MaskColor;
@@ -108,6 +114,7 @@ struct FMaterial {
   FSkyDomeStars Stars;
 };
 
+/** User Story: As the rendering profile state owner, I need material parameter concerns compared structurally so unchanged authored values do not rebuild runtime materials. @fn inline bool operator==(const FMaterial &Left, const FMaterial &Right) */
 inline bool operator==(const FMaterial &Left, const FMaterial &Right) {
   return Left.Base == Right.Base &&
          Left.Illumination == Right.Illumination &&

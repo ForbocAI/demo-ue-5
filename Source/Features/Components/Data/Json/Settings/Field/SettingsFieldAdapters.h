@@ -61,7 +61,10 @@ template <typename Settings> struct TField {
       TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn)
       : FieldName(SettingsFieldName(FieldAtom)), Apply(ApplyFn) {}
 
-  /** User Story: As a composed settings registry, I need an existing Unreal field name paired with a pure binding so nested concern registries retain their authored key. @fn TField(const TCHAR *FieldAtom, TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn) */
+  /**
+   * User Story: As a composed settings registry, I need an existing Unreal field name paired with a pure binding so nested concern registries retain their authored key.
+   * @fn TField( const TCHAR *FieldAtom, TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn)
+   */
   TField(
       const TCHAR *FieldAtom,
       TFunction<Settings(const FFieldRequest &, const Settings &)> ApplyFn)
@@ -223,7 +226,10 @@ NestedSettingField(
       });
 }
 
-/** User Story: As a json settings field consumer, I need a nested-object field factory so the stable member path and reader compose into a unary authored-field declaration. @fn template <typename Settings, typename Group, typename Value, typename Reader> TFunction<TField<Settings>(const char *)> NestedObjectSettingField(const TNestedFieldMembers<Settings, Group, Value> &Members, Reader ReadObjectFn) */
+/**
+ * User Story: As a json settings field consumer, I need a nested-object field factory so the stable member path and reader compose into a unary authored-field declaration.
+ * @fn template <typename Settings, typename Group, typename Value, typename Reader> TFunction<TField<Settings>(const char *)> NestedObjectSettingField( const TNestedFieldMembers<Settings, Group, Value> &Members, Reader ReadObjectFn)
+ */
 template <typename Settings, typename Group, typename Value, typename Reader>
 TFunction<TField<Settings>(const char *)> NestedObjectSettingField(
     const TNestedFieldMembers<Settings, Group, Value> &Members,
@@ -241,7 +247,10 @@ TFunction<TField<Settings>(const char *)> NestedObjectSettingField(
   };
 }
 
-/** User Story: As a json settings field consumer, I need a nested-object-array field factory so one member path and object reader compose into a unary authored-field declaration. @fn template <typename Settings, typename Group, typename Output, typename Reader> TFunction<TField<Settings>(const char *)> NestedObjectArraySettingField(const TNestedFieldMembers<Settings, Group, TArray<Output>> &Members, Reader MapObjectFn) */
+/**
+ * User Story: As a json settings field consumer, I need a nested-object-array field factory so one member path and object reader compose into a unary authored-field declaration.
+ * @fn template <typename Settings, typename Group, typename Output, typename Reader> TFunction<TField<Settings>(const char *)> NestedObjectArraySettingField( const TNestedFieldMembers<Settings, Group, TArray<Output>> &Members, Reader MapObjectFn)
+ */
 template <typename Settings, typename Group, typename Output, typename Reader>
 TFunction<TField<Settings>(const char *)> NestedObjectArraySettingField(
     const TNestedFieldMembers<Settings, Group, TArray<Output>> &Members,

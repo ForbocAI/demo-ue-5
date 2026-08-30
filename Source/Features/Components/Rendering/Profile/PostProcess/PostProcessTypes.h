@@ -14,6 +14,7 @@ struct FBlend {
   FString RuntimePostProcessActorTag;
 };
 
+/** User Story: As the rendering profile state owner, I need grading and tint concerns compared structurally so unchanged post-process values do not schedule duplicate effects. @fn inline bool operator==(const FBlend &Left, const FBlend &Right) */
 inline bool operator==(const FBlend &Left,
                        const FBlend &Right) {
   return FMath::IsNearlyEqual(Left.PostProcessPriority,
@@ -32,6 +33,7 @@ struct FGrade {
   float PostProcessContrastMultiplier;
 };
 
+/** User Story: As the rendering profile state owner, I need grading and tint concerns compared structurally so unchanged post-process values do not schedule duplicate effects. @fn inline bool operator==(const FGrade &Left, const FGrade &Right) */
 inline bool operator==(const FGrade &Left,
                        const FGrade &Right) {
   return FMath::IsNearlyEqual(Left.PostProcessSaturationMultiplier,
@@ -47,6 +49,7 @@ struct FGain {
   float PostProcessGainA;
 };
 
+/** User Story: As the rendering profile state owner, I need grading and tint concerns compared structurally so unchanged post-process values do not schedule duplicate effects. @fn inline bool operator==(const FGain &Left, const FGain &Right) */
 inline bool operator==(const FGain &Left,
                        const FGain &Right) {
   return FMath::IsNearlyEqual(Left.PostProcessGainR, Right.PostProcessGainR) &&
@@ -62,6 +65,7 @@ struct FSceneTint {
   float PostProcessSceneTintA;
 };
 
+/** User Story: As the rendering profile state owner, I need grading and tint concerns compared structurally so unchanged post-process values do not schedule duplicate effects. @fn inline bool operator==(const FSceneTint &Left, const FSceneTint &Right) */
 inline bool operator==(const FSceneTint &Left,
                        const FSceneTint &Right) {
   return FMath::IsNearlyEqual(Left.PostProcessSceneTintR,
@@ -81,6 +85,7 @@ struct FPostProcess {
   FSceneTint SceneTint;
 };
 
+/** User Story: As the rendering profile state owner, I need grading and tint concerns compared structurally so unchanged post-process values do not schedule duplicate effects. @fn inline bool operator==(const FPostProcess &Left, const FPostProcess &Right) */
 inline bool operator==(const FPostProcess &Left, const FPostProcess &Right) {
   return Left.Blend == Right.Blend && Left.Grade == Right.Grade &&
          Left.Gain == Right.Gain && Left.SceneTint == Right.SceneTint;

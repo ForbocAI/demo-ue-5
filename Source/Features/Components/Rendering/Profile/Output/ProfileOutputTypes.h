@@ -13,6 +13,7 @@ struct FAntiAliasing {
   float MinimumScreenPercentage;
 };
 
+/** User Story: As the rendering profile state owner, I need output concerns compared structurally so unchanged resolution and command data do not repeat console transitions. @fn inline bool operator==(const FAntiAliasing &Left, const FAntiAliasing &Right) */
 inline bool operator==(const FAntiAliasing &Left, const FAntiAliasing &Right) {
   return Left.AntiAliasingMethod == Right.AntiAliasingMethod &&
          Left.PostProcessAAQuality == Right.PostProcessAAQuality &&
@@ -28,6 +29,7 @@ struct FResolution {
   bool bFullscreenOutput;
 };
 
+/** User Story: As the rendering profile state owner, I need output concerns compared structurally so unchanged resolution and command data do not repeat console transitions. @fn inline bool operator==(const FResolution &Left, const FResolution &Right) */
 inline bool operator==(const FResolution &Left, const FResolution &Right) {
   return Left.InternalRenderWidth == Right.InternalRenderWidth &&
          Left.InternalRenderHeight == Right.InternalRenderHeight &&
@@ -44,6 +46,7 @@ struct FCommand {
   int32 RuntimeOutputFormatBufferCharacterCount;
 };
 
+/** User Story: As the rendering profile state owner, I need output concerns compared structurally so unchanged resolution and command data do not repeat console transitions. @fn inline bool operator==(const FCommand &Left, const FCommand &Right) */
 inline bool operator==(const FCommand &Left,
                        const FCommand &Right) {
   return Left.RuntimeResolutionCommandFormat ==
@@ -62,6 +65,7 @@ struct FOutput {
   FCommand Command;
 };
 
+/** User Story: As the rendering profile state owner, I need output concerns compared structurally so unchanged resolution and command data do not repeat console transitions. @fn inline bool operator==(const FOutput &Left, const FOutput &Right) */
 inline bool operator==(const FOutput &Left, const FOutput &Right) {
   return Left.AntiAliasing == Right.AntiAliasing &&
          Left.Resolution == Right.Resolution && Left.Command == Right.Command;

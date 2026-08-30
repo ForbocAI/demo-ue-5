@@ -11,6 +11,7 @@ struct FBinding {
   int32 RuntimePixelMaterialIndex;
 };
 
+/** User Story: As the rendering profile state owner, I need pixel-quad concerns compared structurally so unchanged bounds and indices do not reconstruct geometry. @fn inline bool operator==(const FBinding &Left, const FBinding &Right) */
 inline bool operator==(const FBinding &Left, const FBinding &Right) {
   return Left.RuntimePixelMeshSectionIndex ==
              Right.RuntimePixelMeshSectionIndex &&
@@ -24,6 +25,7 @@ struct FQuadIndices {
   int32 PixelQuadIndexD;
 };
 
+/** User Story: As the rendering profile state owner, I need pixel-quad concerns compared structurally so unchanged bounds and indices do not reconstruct geometry. @fn inline bool operator==(const FQuadIndices &Left, const FQuadIndices &Right) */
 inline bool operator==(const FQuadIndices &Left,
                        const FQuadIndices &Right) {
   return Left.PixelQuadIndexA == Right.PixelQuadIndexA &&
@@ -38,6 +40,7 @@ struct FQuadBounds {
   float PixelQuadUvMax;
 };
 
+/** User Story: As the rendering profile state owner, I need pixel-quad concerns compared structurally so unchanged bounds and indices do not reconstruct geometry. @fn inline bool operator==(const FQuadBounds &Left, const FQuadBounds &Right) */
 inline bool operator==(const FQuadBounds &Left,
                        const FQuadBounds &Right) {
   return FMath::IsNearlyEqual(Left.PixelQuadHalfExtentMultiplier,
@@ -52,6 +55,7 @@ struct FQuad {
   FQuadBounds Bounds;
 };
 
+/** User Story: As the rendering profile state owner, I need pixel-quad concerns compared structurally so unchanged bounds and indices do not reconstruct geometry. @fn inline bool operator==(const FQuad &Left, const FQuad &Right) */
 inline bool operator==(const FQuad &Left, const FQuad &Right) {
   return Left.Binding == Right.Binding && Left.Indices == Right.Indices &&
          Left.Bounds == Right.Bounds;

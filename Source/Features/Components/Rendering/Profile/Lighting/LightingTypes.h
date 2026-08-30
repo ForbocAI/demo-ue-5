@@ -12,6 +12,7 @@ struct FSunOrientation {
   float SunRollDegrees;
 };
 
+/** User Story: As the rendering profile state owner, I need light and shadow concerns compared structurally so unchanged lighting does not schedule redundant engine updates. @fn inline bool operator==(const FSunOrientation &Left, const FSunOrientation &Right) */
 inline bool operator==(const FSunOrientation &Left,
                        const FSunOrientation &Right) {
   return FMath::IsNearlyEqual(Left.SunPitchDegrees, Right.SunPitchDegrees) &&
@@ -26,6 +27,7 @@ struct FDirectionalLightColor {
   float DirectionalLightColorA;
 };
 
+/** User Story: As the rendering profile state owner, I need light and shadow concerns compared structurally so unchanged lighting does not schedule redundant engine updates. @fn inline bool operator==(const FDirectionalLightColor &Left, const FDirectionalLightColor &Right) */
 inline bool operator==(const FDirectionalLightColor &Left,
                        const FDirectionalLightColor &Right) {
   return FMath::IsNearlyEqual(Left.DirectionalLightColorR,
@@ -43,6 +45,7 @@ struct FDirectionalLightValues {
   float DirectionalLightSourceAngle;
 };
 
+/** User Story: As the rendering profile state owner, I need light and shadow concerns compared structurally so unchanged lighting does not schedule redundant engine updates. @fn inline bool operator==(const FDirectionalLightValues &Left, const FDirectionalLightValues &Right) */
 inline bool operator==(const FDirectionalLightValues &Left,
                        const FDirectionalLightValues &Right) {
   return FMath::IsNearlyEqual(Left.DirectionalLightIntensity,
@@ -56,6 +59,7 @@ struct FDirectionalLight {
   FDirectionalLightColor Color;
 };
 
+/** User Story: As the rendering profile state owner, I need light and shadow concerns compared structurally so unchanged lighting does not schedule redundant engine updates. @fn inline bool operator==(const FDirectionalLight &Left, const FDirectionalLight &Right) */
 inline bool operator==(const FDirectionalLight &Left,
                        const FDirectionalLight &Right) {
   return Left.Values == Right.Values && Left.Color == Right.Color;
@@ -66,6 +70,7 @@ struct FShadows {
   int32 ShadowMaxResolution;
 };
 
+/** User Story: As the rendering profile state owner, I need light and shadow concerns compared structurally so unchanged lighting does not schedule redundant engine updates. @fn inline bool operator==(const FShadows &Left, const FShadows &Right) */
 inline bool operator==(const FShadows &Left, const FShadows &Right) {
   return Left.ShadowCascades == Right.ShadowCascades &&
          Left.ShadowMaxResolution == Right.ShadowMaxResolution;
@@ -77,6 +82,7 @@ struct FLighting {
   FShadows Shadows;
 };
 
+/** User Story: As the rendering profile state owner, I need light and shadow concerns compared structurally so unchanged lighting does not schedule redundant engine updates. @fn inline bool operator==(const FLighting &Left, const FLighting &Right) */
 inline bool operator==(const FLighting &Left, const FLighting &Right) {
   return Left.Sun == Right.Sun && Left.Directional == Right.Directional &&
          Left.Shadows == Right.Shadows;

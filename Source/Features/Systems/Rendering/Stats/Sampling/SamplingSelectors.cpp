@@ -14,7 +14,10 @@ struct FRuntimeStatsEffectRegistration {
   bool bEnabled;
 };
 
-/** User Story: As a stats scheduler, I need wall time and interval curried into a unary elapsed-time selector so refresh composition stays explicit. @fn std::function<ERuntimeStatsSampleMode(float)> SelectRuntimeStatsSampleMode(float WallDeltaSeconds, float IntervalSeconds) */
+/**
+ * User Story: As a stats scheduler, I need wall time and interval curried into a unary elapsed-time selector so refresh composition stays explicit.
+ * @fn std::function<ERuntimeStatsSampleMode(float)> SelectRuntimeStatsSampleMode( float WallDeltaSeconds, float IntervalSeconds)
+ */
 std::function<ERuntimeStatsSampleMode(float)> SelectRuntimeStatsSampleMode(
     float WallDeltaSeconds, float IntervalSeconds) {
   return [WallDeltaSeconds, IntervalSeconds](float ElapsedSeconds) {
@@ -34,7 +37,10 @@ SelectRuntimeStatsBudgetCheckpoint(double CurrentSeconds, bool bTriggered) {
   };
 }
 
-/** User Story: As a stats effect router, I need enabled effects selected from grouped registrations so the thunk executes one ordered declaration list. @fn TArray<ERuntimeStatsEffect> SelectRuntimeStatsEffects(const TArray<FRuntimeStatsEffectRegistration> &Registrations) */
+/**
+ * User Story: As a stats effect router, I need enabled effects selected from grouped registrations so the thunk executes one ordered declaration list.
+ * @fn TArray<ERuntimeStatsEffect> SelectRuntimeStatsEffects( const TArray<FRuntimeStatsEffectRegistration> &Registrations)
+ */
 TArray<ERuntimeStatsEffect> SelectRuntimeStatsEffects(
     const TArray<FRuntimeStatsEffectRegistration> &Registrations) {
   return func::filter_map_array(
@@ -47,7 +53,10 @@ TArray<ERuntimeStatsEffect> SelectRuntimeStatsEffects(
       });
 }
 
-/** User Story: As a stats reducer caller, I need live poly observations represented explicitly so retained cache values are not mistaken for refreshed samples. @fn func::Maybe<FRuntimePolyCountStats> SelectRuntimePolyCountObservation(const FRuntimeStatsPayloadRequest &Request) */
+/**
+ * User Story: As a stats reducer caller, I need live poly observations represented explicitly so retained cache values are not mistaken for refreshed samples.
+ * @fn func::Maybe<FRuntimePolyCountStats> SelectRuntimePolyCountObservation( const FRuntimeStatsPayloadRequest &Request)
+ */
 func::Maybe<FRuntimePolyCountStats> SelectRuntimePolyCountObservation(
     const FRuntimeStatsPayloadRequest &Request) {
   return Request.Plan->Refresh.PolyCountMode ==
@@ -58,7 +67,10 @@ func::Maybe<FRuntimePolyCountStats> SelectRuntimePolyCountObservation(
 
 } // namespace
 
-/** User Story: As a rendering stats scheduler, I need a pure sampling plan so refresh, budget, and effect decisions remain testable outside the Unreal IO boundary. @fn FRuntimeStatsSamplingPlan SelectRuntimeStatsSamplingPlan(const FRuntimeStatsSamplingRequest &Request) */
+/**
+ * User Story: As a rendering stats scheduler, I need a pure sampling plan so refresh, budget, and effect decisions remain testable outside the Unreal IO boundary.
+ * @fn FRuntimeStatsSamplingPlan SelectRuntimeStatsSamplingPlan( const FRuntimeStatsSamplingRequest &Request)
+ */
 FRuntimeStatsSamplingPlan SelectRuntimeStatsSamplingPlan(
     const FRuntimeStatsSamplingRequest &Request) {
   const FRenderingState &State = *Request.State;
@@ -111,7 +123,10 @@ FRuntimeStatsSamplingPlan SelectRuntimeStatsSamplingPlan(
           {Log, {ScreenshotCheckpoint, ScreenshotIndex}, Effects}};
 }
 
-/** User Story: As a rendering stats reducer caller, I need observations composed into one action payload so the reducer remains the sole owner of clock, cache, and presentation state. @fn FRuntimeStatsSamplePayload SelectRuntimeStatsSamplePayload(const FRuntimeStatsPayloadRequest &Request) */
+/**
+ * User Story: As a rendering stats reducer caller, I need observations composed into one action payload so the reducer remains the sole owner of clock, cache, and presentation state.
+ * @fn FRuntimeStatsSamplePayload SelectRuntimeStatsSamplePayload( const FRuntimeStatsPayloadRequest &Request)
+ */
 FRuntimeStatsSamplePayload SelectRuntimeStatsSamplePayload(
     const FRuntimeStatsPayloadRequest &Request) {
   return {Request.DeltaSeconds,

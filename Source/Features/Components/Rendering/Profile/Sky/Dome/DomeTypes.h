@@ -15,6 +15,7 @@ struct FDomeGeometry {
   FString RuntimeSkyDomeActorTag;
 };
 
+/** User Story: As the sky profile state owner, I need dome geometry and color concerns compared structurally so unchanged dome data does not rebuild its runtime surface. @fn inline bool operator==(const FDomeGeometry &Left, const FDomeGeometry &Right) */
 inline bool operator==(const FDomeGeometry &Left,
                        const FDomeGeometry &Right) {
   return Left.bSkyDomeEnabled == Right.bSkyDomeEnabled &&
@@ -32,6 +33,7 @@ struct FIllumination {
   float SkyDomeRimBrightness;
 };
 
+/** User Story: As the sky profile state owner, I need dome geometry and color concerns compared structurally so unchanged dome data does not rebuild its runtime surface. @fn inline bool operator==(const FIllumination &Left, const FIllumination &Right) */
 inline bool operator==(const FIllumination &Left,
                        const FIllumination &Right) {
   return FMath::IsNearlyEqual(Left.SkyDomeSkyBrightness,
@@ -51,6 +53,7 @@ struct FStarColor {
   float SkyDomeStarColorA;
 };
 
+/** User Story: As the sky profile state owner, I need dome geometry and color concerns compared structurally so unchanged dome data does not rebuild its runtime surface. @fn inline bool operator==(const FStarColor &Left, const FStarColor &Right) */
 inline bool operator==(const FStarColor &Left,
                        const FStarColor &Right) {
   return FMath::IsNearlyEqual(Left.SkyDomeStarColorR,
@@ -70,6 +73,7 @@ struct FHorizonColor {
   float SkyDomeHorizonColorA;
 };
 
+/** User Story: As the sky profile state owner, I need dome geometry and color concerns compared structurally so unchanged dome data does not rebuild its runtime surface. @fn inline bool operator==(const FHorizonColor &Left, const FHorizonColor &Right) */
 inline bool operator==(const FHorizonColor &Left,
                        const FHorizonColor &Right) {
   return FMath::IsNearlyEqual(Left.SkyDomeHorizonColorR,
@@ -89,6 +93,7 @@ struct FZenithColor {
   float SkyDomeZenithColorA;
 };
 
+/** User Story: As the sky profile state owner, I need dome geometry and color concerns compared structurally so unchanged dome data does not rebuild its runtime surface. @fn inline bool operator==(const FZenithColor &Left, const FZenithColor &Right) */
 inline bool operator==(const FZenithColor &Left,
                        const FZenithColor &Right) {
   return FMath::IsNearlyEqual(Left.SkyDomeZenithColorR,
@@ -109,6 +114,7 @@ struct FSkyDome {
   FZenithColor ZenithColor;
 };
 
+/** User Story: As the sky profile state owner, I need dome geometry and color concerns compared structurally so unchanged dome data does not rebuild its runtime surface. @fn inline bool operator==(const FSkyDome &Left, const FSkyDome &Right) */
 inline bool operator==(const FSkyDome &Left, const FSkyDome &Right) {
   return Left.Geometry == Right.Geometry &&
          Left.Illumination == Right.Illumination &&

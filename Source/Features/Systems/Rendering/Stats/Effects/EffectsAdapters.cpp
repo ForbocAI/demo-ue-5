@@ -14,7 +14,10 @@ namespace {
 
 DEFINE_LOG_CATEGORY_STATIC(LogForbocRuntimeBudget, Log, All);
 
-/** User Story: As a runtime budget reader, I need sampled diagnostics logged with the authored format so capture output remains data-driven. @fn void LogRuntimeBudgetSample(const FRuntimeStatsViewModel &Stats, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
+/**
+ * User Story: As a runtime budget reader, I need sampled diagnostics logged with the authored format so capture output remains data-driven.
+ * @fn void LogRuntimeBudgetSample( const FRuntimeStatsViewModel &Stats, const ForbocAI::Game::Data::FOverlaySettings &Settings)
+ */
 void LogRuntimeBudgetSample(
     const FRuntimeStatsViewModel &Stats,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {
@@ -25,7 +28,10 @@ void LogRuntimeBudgetSample(
          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *Message);
 }
 
-/** User Story: As a runtime diagnostics reader, I need refreshed stats presented through the engine debug adapter so pure selectors remain free of Unreal effects. @fn void PresentRuntimeStatsDebugMessage(const FRuntimeStatsViewModel &Stats, const ForbocAI::Game::Data::FOverlaySettings &Settings) */
+/**
+ * User Story: As a runtime diagnostics reader, I need refreshed stats presented through the engine debug adapter so pure selectors remain free of Unreal effects.
+ * @fn void PresentRuntimeStatsDebugMessage( const FRuntimeStatsViewModel &Stats, const ForbocAI::Game::Data::FOverlaySettings &Settings)
+ */
 void PresentRuntimeStatsDebugMessage(
     const FRuntimeStatsViewModel &Stats,
     const ForbocAI::Game::Data::FOverlaySettings &Settings) {

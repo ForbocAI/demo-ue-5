@@ -11,6 +11,7 @@ struct FFogState {
   bool bVolumetricFogEnabled;
 };
 
+/** User Story: As the rendering profile state owner, I need each fog concern compared structurally so unchanged atmospheric data does not schedule redundant engine effects. @fn inline bool operator==(const FFogState &Left, const FFogState &Right) */
 inline bool operator==(const FFogState &Left, const FFogState &Right) {
   return Left.bFogEnabled == Right.bFogEnabled &&
          Left.bVolumetricFogEnabled == Right.bVolumetricFogEnabled;
@@ -24,6 +25,7 @@ struct FShape {
   float FogMaxOpacity;
 };
 
+/** User Story: As the rendering profile state owner, I need each fog concern compared structurally so unchanged atmospheric data does not schedule redundant engine effects. @fn inline bool operator==(const FShape &Left, const FShape &Right) */
 inline bool operator==(const FShape &Left, const FShape &Right) {
   return FMath::IsNearlyEqual(Left.FogDensity, Right.FogDensity) &&
          FMath::IsNearlyEqual(Left.FogHeightFalloff,
@@ -42,6 +44,7 @@ struct FFogColor {
   float FogColorA;
 };
 
+/** User Story: As the rendering profile state owner, I need each fog concern compared structurally so unchanged atmospheric data does not schedule redundant engine effects. @fn inline bool operator==(const FFogColor &Left, const FFogColor &Right) */
 inline bool operator==(const FFogColor &Left, const FFogColor &Right) {
   return FMath::IsNearlyEqual(Left.FogColorR, Right.FogColorR) &&
          FMath::IsNearlyEqual(Left.FogColorG, Right.FogColorG) &&
@@ -55,6 +58,7 @@ struct FFog {
   FFogColor Color;
 };
 
+/** User Story: As the rendering profile state owner, I need each fog concern compared structurally so unchanged atmospheric data does not schedule redundant engine effects. @fn inline bool operator==(const FFog &Left, const FFog &Right) */
 inline bool operator==(const FFog &Left, const FFog &Right) {
   return Left.State == Right.State && Left.Shape == Right.Shape &&
          Left.Color == Right.Color;

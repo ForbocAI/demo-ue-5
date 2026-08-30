@@ -17,6 +17,7 @@ struct FSky {
   FPointStars PointStars;
 };
 
+/** User Story: As the rendering profile state owner, I need the composed sky compared structurally so unchanged atmosphere, dome, moon, and star data preserve one projection. @fn inline bool operator==(const FSky &Left, const FSky &Right) */
 inline bool operator==(const FSky &Left, const FSky &Right) {
   return Left.Atmosphere == Right.Atmosphere && Left.Light == Right.Light &&
          Left.Dome == Right.Dome && Left.Moon == Right.Moon &&

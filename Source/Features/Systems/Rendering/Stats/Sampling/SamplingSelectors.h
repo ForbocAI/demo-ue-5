@@ -22,11 +22,17 @@ struct FRuntimeStatsPayloadRequest {
   FRuntimeStatsObservation Observation;
 };
 
-/** User Story: As a rendering stats scheduler, I need a pure sampling plan so refresh, budget, and effect decisions remain testable outside the Unreal IO boundary. @fn FRuntimeStatsSamplingPlan SelectRuntimeStatsSamplingPlan(const FRuntimeStatsSamplingRequest &Request) */
+/**
+ * User Story: As a rendering stats scheduler, I need a pure sampling plan so refresh, budget, and effect decisions remain testable outside the Unreal IO boundary.
+ * @fn FRuntimeStatsSamplingPlan SelectRuntimeStatsSamplingPlan( const FRuntimeStatsSamplingRequest &Request)
+ */
 FRuntimeStatsSamplingPlan SelectRuntimeStatsSamplingPlan(
     const FRuntimeStatsSamplingRequest &Request);
 
-/** User Story: As a rendering stats reducer caller, I need observations composed into one action payload so the reducer remains the sole owner of clock, cache, and presentation state. @fn FRuntimeStatsSamplePayload SelectRuntimeStatsSamplePayload(const FRuntimeStatsPayloadRequest &Request) */
+/**
+ * User Story: As a rendering stats reducer caller, I need observations composed into one action payload so the reducer remains the sole owner of clock, cache, and presentation state.
+ * @fn FRuntimeStatsSamplePayload SelectRuntimeStatsSamplePayload( const FRuntimeStatsPayloadRequest &Request)
+ */
 FRuntimeStatsSamplePayload SelectRuntimeStatsSamplePayload(
     const FRuntimeStatsPayloadRequest &Request);
 

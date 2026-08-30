@@ -16,7 +16,10 @@ template <typename Color> struct TChannels {
   float Color::*A;
 };
 
-/** User Story: As a rendering profile color consumer, I need one concern-local channel composer so color concerns remain reusable without root-profile member plumbing. @fn template <typename Color> FLinearColor ProfileLinearColor(const Color &Value, const TChannels<Color> &Channels) */
+/**
+ * User Story: As a rendering profile color consumer, I need one concern-local channel composer so color concerns remain reusable without root-profile member plumbing.
+ * @fn template <typename Color> inline FLinearColor ProfileLinearColor( const Color &Value, const TChannels<Color> &Channels)
+ */
 template <typename Color>
 inline FLinearColor ProfileLinearColor(
     const Color &Value, const TChannels<Color> &Channels) {
