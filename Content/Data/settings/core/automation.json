@@ -1,6 +1,7 @@
 {
   "parts": {
     "tests": "automation/tests.json",
+    "runner_build": "automation/runner/build.json",
     "content_assets": "automation/content/assets.json",
     "rtk_compliance": "automation/rtk/compliance.json",
     "bot": "automation/bot.json",

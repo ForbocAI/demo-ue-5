@@ -9,6 +9,8 @@ set -uo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PROJECT_FILE="$PROJECT_ROOT/ForbocAIDemo.uproject"
 PROJECT_FILE_ARG="$PROJECT_FILE"
+DATA_ROOT="$PROJECT_ROOT/Content/Data"
+BUILD_RUNNER_LIB="$PROJECT_ROOT/Scripts/Run/Compilation/build-runner.sh"
 RUNTIME_BUDGET_SCRIPT="$PROJECT_ROOT/Scripts/Run/run-runtime-budget.sh"
 RUNTIME_BUDGET_POWERSHELL_SCRIPT="$PROJECT_ROOT/Scripts/Run/run-runtime-budget.ps1"
 RUNTIME_BUDGET_POWERSHELL_ARG="$RUNTIME_BUDGET_POWERSHELL_SCRIPT"
@@ -43,6 +45,17 @@ UNREAL_BUILD=""
 UNREAL_BUILD_ARG=""
 UNREAL_EDITOR_ARG=""
 BUILD_VIA_CMD=0
+BUILD_HOST_PID_FILE="$PROJECT_ROOT/Saved/Automation/BuildHost.pid"
+BUILD_HOST_PID_FILE_ARG="$BUILD_HOST_PID_FILE"
+
+# shellcheck source=Compilation/build-runner.sh
+source "$BUILD_RUNNER_LIB"
+trap 'forbocai_cleanup_windows_build_host "$BUILD_VIA_CMD" "$BUILD_HOST_PID_FILE"' EXIT
+
+forbocai_load_build_runner_policy "$DATA_ROOT" || {
+  echo "Error: authored build-runner policy is invalid."
+  exit 1
+}
 
 if [ ! -f "$PROJECT_FILE" ]; then
   echo "Error: ForbocAIDemo.uproject not found at $PROJECT_FILE"
@@ -67,6 +80,7 @@ elif grep -qi microsoft /proc/version 2>/dev/null; then
     PROJECT_FILE_ARG="$(wslpath -w "$PROJECT_FILE")"
     UNREAL_EDITOR_ARG="$(wslpath -w "$UNREAL_EDITOR")"
     UNREAL_BUILD_ARG="$(wslpath -w "$UNREAL_BUILD")"
+    BUILD_HOST_PID_FILE_ARG="$(wslpath -w "$BUILD_HOST_PID_FILE")"
     RUNTIME_BUDGET_POWERSHELL_ARG="$(wslpath -w "$RUNTIME_BUDGET_POWERSHELL_SCRIPT")"
     RUNTIME_BUDGET_VIA_POWERSHELL=1
     BUILD_VIA_CMD=1
@@ -169,10 +183,14 @@ fi
 
 if [ -n "$UNREAL_BUILD" ]; then
   echo "Ensuring ForbocAIDemoEditor is built..."
+  BUILD_POLICY_ARGS=("-MaxParallelActions=$FORBOCAI_BUILD_MAX_PARALLEL_ACTIONS")
+  if [ "$FORBOCAI_BUILD_DISABLE_UBA" -eq 1 ]; then
+    BUILD_POLICY_ARGS+=("-NoUBA")
+  fi
   if [ "$BUILD_VIA_CMD" -eq 1 ]; then
-    powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { & '$UNREAL_BUILD_ARG' 'ForbocAIDemoEditor' 'Win64' 'Development' '-Project=$PROJECT_FILE_ARG' '-WaitMutex' '-NoHotReloadFromIDE' '-NoUBTMakefiles'; exit \$LASTEXITCODE }" < /dev/null
+    powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { Set-Content -LiteralPath '$BUILD_HOST_PID_FILE_ARG' -Value \$PID; try { \$BuildArguments = @('ForbocAIDemoEditor', 'Win64', 'Development', '-Project=$PROJECT_FILE_ARG', '-WaitMutex', '-NoHotReloadFromIDE', '-NoUBTMakefiles', '-MaxParallelActions=$FORBOCAI_BUILD_MAX_PARALLEL_ACTIONS'); if ('$FORBOCAI_BUILD_DISABLE_UBA' -eq '1') { \$BuildArguments += '-NoUBA' }; & '$UNREAL_BUILD_ARG' @BuildArguments; \$BuildExit = \$LASTEXITCODE } finally { Remove-Item -LiteralPath '$BUILD_HOST_PID_FILE_ARG' -Force -ErrorAction SilentlyContinue }; exit \$BuildExit }" < /dev/null
   else
-    "$UNREAL_BUILD" ForbocAIDemoEditor Win64 Development "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE -NoUBTMakefiles
+    "$UNREAL_BUILD" ForbocAIDemoEditor Win64 Development "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE -NoUBTMakefiles "${BUILD_POLICY_ARGS[@]}"
   fi
   BUILD_EXIT=$?
   if [ "$BUILD_EXIT" -ne 0 ]; then

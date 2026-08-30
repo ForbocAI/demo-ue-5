@@ -1,0 +1,6 @@
+{
+  "build_runner": {
+    "disable_uba": true,
+    "max_parallel_actions": 1
+  }
+}

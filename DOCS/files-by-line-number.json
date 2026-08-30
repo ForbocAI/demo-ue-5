@@ -93,6 +93,10 @@
       "lines": 274
     },
     {
+      "path": "Scripts/Run/run-tests.sh",
+      "lines": 272
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
       "lines": 271
     },
@@ -135,10 +139,6 @@
     {
       "path": "Source/Views/Player/Controller/Interaction/InteractionView.h",
       "lines": 257
-    },
-    {
-      "path": "Scripts/Run/run-tests.sh",
-      "lines": 254
     },
     {
       "path": "Source/Features/Components/Data/Json/Read/Field/ReadFieldAdapters.h",
@@ -1074,6 +1074,10 @@
     },
     {
       "path": "Content/Data/settings/core/automation/bot.json",
+      "lines": 73
+    },
+    {
+      "path": "Scripts/Run/Compilation/build-runner.sh",
       "lines": 73
     },
     {
@@ -2633,6 +2637,10 @@
       "lines": 13
     },
     {
+      "path": "Content/Data/settings/core/automation.json",
+      "lines": 13
+    },
+    {
       "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksSlice.h",
       "lines": 13
     },
@@ -2650,10 +2658,6 @@
     },
     {
       "path": "Content/Data/levels/french_gulch/town/labels.json",
-      "lines": 12
-    },
-    {
-      "path": "Content/Data/settings/core/automation.json",
       "lines": 12
     },
     {
@@ -2795,6 +2799,10 @@
     {
       "path": "Source/Features/Components/Data/Settings/UI/SettingsUITypes.h",
       "lines": 7
+    },
+    {
+      "path": "Content/Data/settings/core/automation/runner/build.json",
+      "lines": 6
     },
     {
       "path": "Content/Data/settings/interaction.json",
