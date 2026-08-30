@@ -2,6 +2,7 @@
 
 #include "Core/ecs.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
+#include "Features/Components/Data/Settings/Ecs/SettingsEcsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -18,9 +19,6 @@ namespace SettingsAdapters {
  */
 FSettings
 ReadSettings(const TSharedPtr<FJsonObject> &Object);
-
-/** User Story: As a components data settings consumer, I need to invoke ecs domain registry through a stable signature so the components data settings workflow remains explicit and composable. @fn ecs::FGraph EcsDomainRegistry(const FEcsSettings &Settings) */
-ecs::FGraph EcsDomainRegistry(const FEcsSettings &Settings);
 
 /**
  * @fn FSettings LoadSettings()

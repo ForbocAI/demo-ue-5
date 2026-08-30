@@ -1,6 +1,6 @@
 #include "Features/Systems/Rendering/Stats/Effects/EffectsAdapters.h"
-
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
+
 #include "Features/Systems/Rendering/Diagnostics/DiagnosticsAdapters.h"
 #include "Features/Systems/Rendering/Stats/RenderingStatsSelectors.h"
 

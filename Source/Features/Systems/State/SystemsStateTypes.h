@@ -11,11 +11,12 @@
 #include "Features/Systems/Bots/Position/PositionTypes.h"
 #include "Features/Systems/Bots/Stats/BotsStatsTypes.h"
 #include "Features/Systems/Bots/Horses/HorsesTypes.h"
-#include "Features/Systems/Bots/Orchestrator/OrchestratorTypes.h"
+#include "Features/Systems/Bots/Orchestrator/BotsOrchestratorTypes.h"
 #include "Features/Systems/Bots/Orchestrator/Readiness/ReadinessTypes.h"
 #include "Features/Systems/Bots/Pipeline/BotsPipelineTypes.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
 #include "Features/Systems/Dialogue/SystemsDialogueTypes.h"
+#include "Features/Systems/ForbocAI/Protocol/SystemsForbocAIProtocolTypes.h"
 #include "Features/Systems/Interaction/SystemsInteractionTypes.h"
 #include "Features/Systems/Level/SystemsLevelTypes.h"
 #include "Features/Systems/Landmarks/SystemsLandmarksTypes.h"
@@ -56,6 +57,7 @@ struct FRuntimeState {
   FRuntimeEcsState Ecs;
   FRuntimeReducerDiagnosticsState ReducerDiagnostics;
   FRuntimeLifecycleState Lifecycle;
+  FProtocolState ForbocAIProtocol;
   FRuntimeTownspersonInteractionRequest TownspersonInteractionRequest;
   FPlayerState Player;
   FSystemsState Systems;
@@ -127,6 +129,7 @@ inline bool operator==(const FRuntimeState &Left,
          Left.Ecs == Right.Ecs &&
          Left.ReducerDiagnostics == Right.ReducerDiagnostics &&
          Left.Lifecycle == Right.Lifecycle &&
+         Left.ForbocAIProtocol == Right.ForbocAIProtocol &&
          Left.TownspersonInteractionRequest ==
              Right.TownspersonInteractionRequest &&
          Left.Player == Right.Player &&

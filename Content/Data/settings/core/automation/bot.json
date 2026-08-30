@@ -49,25 +49,88 @@
   "orchestrator": {
     "spec": "ForbocAI.Bot.Orchestrator",
     "multi_bot_spec": "ForbocAI.Bot.Orchestrator.MultiBot",
+    "protocol_spec": "ForbocAI.Bot.Orchestrator.Protocol",
     "persona": "TestPersona",
     "world_context_index": 0,
     "groups": {
       "registration": "Bot Registration",
       "cycle": "Orchestration Cycle",
-      "runtime_store": "Single RTK Runtime Store"
+      "runtime_store": "Single RTK Runtime Store",
+      "protocol": "SDK CLI Protocol"
     },
     "cases": {
-      "register_bot": "Should successfully register a bot and initialize its agent",
-      "respect_observation_interval": "Should respect the observation interval",
-      "register_bots": "Should register bots into one root store",
-      "dispatch_movement": "Should dispatch movement through the position slice"
+      "registration": {
+        "register_bot": "Should successfully register a bot and initialize its agent",
+        "register_bots": "Should register bots into one root store"
+      },
+      "cycle": {
+        "respect_observation_interval": "Should respect the observation interval",
+        "dispatch_movement": "Should dispatch movement through the position slice"
+      },
+      "protocol": {
+        "reject_route_crossover": "Should reject NPC commands resolved against a Ghost route",
+        "project_action": "Should project an authored action from SDK CLI output",
+        "reduce_protocol_lifecycle": "Should preserve protocol lifecycle evidence in the root store",
+        "execute_live_flows": "Should complete playable NPC and Ghost flows through the SDK CLI"
+      }
     },
     "assertions": {
-      "three_bots_in_root_state": "Three bots in root state",
-      "bot_selectable": "Bot alpha selectable",
-      "horse_selectable": "Horse selectable",
-      "position_selectable": "Position selectable",
-      "world_position_updated": "World position updated"
+      "root_state": {
+        "three_bots_in_root_state": "Three bots in root state",
+        "bot_selectable": "Bot alpha selectable",
+        "horse_selectable": "Horse selectable",
+        "position_selectable": "Position selectable",
+        "world_position_updated": "World position updated"
+      },
+      "protocol": {
+        "core": {
+          "route_crossover_rejected": "Route crossover rejected before SDK dispatch",
+          "action_projected": "Authored CLI action projected",
+          "correlation_preserved": "Correlation ID preserved",
+          "protocol_failure_preserved": "Protocol failure preserved",
+          "townsperson_available": "Authored townsperson available"
+        },
+        "npc": {
+          "succeeded": "NPC flow succeeded",
+          "trace": {
+            "correlation_present": "NPC correlation ID present",
+            "family_matched": "NPC command family matched",
+            "command_matched": "NPC command key matched"
+          },
+          "result": {
+            "actor_present": "NPC actor ID present",
+            "output_present": "NPC API output present",
+            "error_absent": "NPC error absent"
+          }
+        },
+        "ghost": {
+          "succeeded": "Ghost flow succeeded",
+          "trace": {
+            "correlation_present": "Ghost correlation ID present",
+            "family_matched": "Ghost command family matched",
+            "command_matched": "Ghost command key matched"
+          },
+          "result": {
+            "actor_present": "Ghost actor ID present",
+            "session_present": "Ghost session ID present",
+            "output_present": "Ghost API output present",
+            "qualified_output": "Ghost output contains grounded Servitor evidence",
+            "error_absent": "Ghost error absent"
+          }
+        },
+        "log": {
+          "summary_npc_correlation": "Redux summary contains the NPC correlation ID",
+          "summary_ghost_correlation": "Redux summary contains the Ghost correlation ID",
+          "summary_ghost_session": "Redux summary contains the Ghost session ID",
+          "npc_output_redacted": "Redux summary redacts the NPC response body",
+          "ghost_output_redacted": "Redux summary redacts the Ghost response body"
+        }
+      }
+    },
+    "protocol_run": {
+      "timeout_seconds": 300,
+      "qualified_diagnostic_marker": "\"grounded\": true",
+      "failure_prefix": "Playable ForbocAI protocol flow failed: "
     }
   }
 }

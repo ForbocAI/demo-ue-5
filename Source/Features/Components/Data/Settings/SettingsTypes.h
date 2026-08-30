@@ -8,6 +8,7 @@
 #include "Features/Components/Data/Settings/Bot/Townsperson/TownspersonTypes.h"
 #include "Features/Components/Data/Settings/Dialogue/SettingsDialogueTypes.h"
 #include "Features/Components/Data/Settings/Ecs/EcsTypes.h"
+#include "Features/Components/Data/Settings/ForbocAI/Protocol/SettingsForbocAIProtocolTypes.h"
 #include "Features/Components/Data/Settings/Interaction/SettingsInteractionTypes.h"
 #include "Features/Components/Data/Settings/Level/Csv/CsvTypes.h"
 #include "Features/Components/Data/Settings/Level/Geometry/GeometryTypes.h"
@@ -139,6 +140,7 @@ struct FSettings {
   FTextSettings Text;
   FReduxLogSettings ReduxLog;
   FEcsSettings Ecs;
+  FProtocolSettings ForbocAI;
   Automation::FSettings Automation;
 };
 

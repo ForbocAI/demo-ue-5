@@ -1,0 +1,88 @@
+{
+  "errors": {
+    "command_unmatched": "SDK CLI command tokens did not resolve",
+    "route_family_mismatch_format": "SDK CLI route family mismatch: expected %s, resolved %s",
+    "action_missing": "SDK CLI NPC response did not contain an action line"
+  },
+  "logging": {
+    "state_format": "ForbocAIProtocol{npc={status=%s correlation_id=%s family=%s command=%s actor_id=%s output=%s error=%s} ghost={status=%s correlation_id=%s family=%s command=%s actor_id=%s session_id=%s output=%s error=%s}}",
+    "present": "present",
+    "absent": "absent",
+    "statuses": {
+      "idle": "idle",
+      "pending": "pending",
+      "succeeded": "succeeded",
+      "failed": "failed"
+    }
+  },
+  "npc": {
+    "commands": {
+      "create": {
+        "family": "npc",
+        "key_prefix": "npc_",
+        "tokens": ["npc", "create"]
+      },
+      "process": {
+        "family": "npc",
+        "key_prefix": "npc_",
+        "tokens": ["npc", "process"]
+      }
+    },
+    "presentation": {
+      "pending": "ForbocAI is considering the interaction...",
+      "succeeded": "ForbocAI NPC response received",
+      "failure_prefix": "ForbocAI NPC interaction failed: ",
+      "action_line_prefix": "Action: "
+    }
+  },
+  "ghost": {
+    "commands": {
+      "run": {
+        "family": "ghost",
+        "key_prefix": "ghost_",
+        "tokens": ["ghost", "run"]
+      },
+      "create": {
+        "family": "ghost",
+        "key_prefix": "ghost_",
+        "tokens": ["ghost", "create"]
+      },
+      "decide": {
+        "family": "ghost",
+        "key_prefix": "ghost_",
+        "tokens": ["ghost", "decide"]
+      },
+      "results": {
+        "family": "ghost",
+        "key_prefix": "ghost_",
+        "tokens": ["ghost", "results"]
+      },
+      "stop": {
+        "family": "ghost",
+        "key_prefix": "ghost_",
+        "tokens": ["ghost", "stop"]
+      }
+    },
+    "request": {
+      "run": {
+        "suite": "maze",
+        "duration_seconds": 90,
+        "duration_option": "--duration"
+      },
+      "actor": {
+        "persona": "Autonomous exploratory playtester evaluating level quality from observed runtime evidence"
+      },
+      "decision": {
+        "observation_format": "Evaluate the running level from current evidence: townspeople=%d, horses=%d, landmarks=%d, nature_features=%d. Identify the strongest quality finding and choose the next playtest action.",
+        "legal_actions_option": "--legal-actions",
+        "legal_actions_separator": ",",
+        "legal_actions": ["explore", "inspect", "measure", "report"]
+      }
+    },
+    "presentation": {
+      "pending": "Servitor is pre-playtesting the level...",
+      "succeeded": "Servitor level-quality analysis received",
+      "failure_prefix": "Servitor level-quality analysis failed: "
+    }
+  }
+}

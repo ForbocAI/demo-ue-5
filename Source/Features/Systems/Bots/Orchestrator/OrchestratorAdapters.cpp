@@ -3,11 +3,11 @@
 
 #include "Core/frmt.hpp"
 #include "Core/fp.hpp"
-#include "Features/Systems/Bots/Orchestrator/NPC/NPCThunks.h"
 #include "Features/Systems/Bots/Orchestrator/OrchestratorThunks.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
+#include "Features/Systems/ForbocAI/Protocol/NPC/NPCThunks.h"
+#include "Features/Systems/ForbocAI/Protocol/ProtocolSelectors.h"
 #include "Features/Systems/SystemsSelectors.h"
-#include "Systems/Protocol/Process/ProtocolProcessAdapters.h"
 
 using namespace ForbocAI::Game::Level;
 
@@ -30,13 +30,27 @@ FLevelLocalPoint BotInitialLocalPoint(const FBotSettings &Settings) {
           static_cast<float>(Settings.Spawn.InitialPosition.Z)};
 }
 
+void LogNpcCommandFailure(AActor *Actor, const FString &Error,
+                          const FBotSettings &Settings) {
+  const FString ActorName =
+      Actor ? Actor->GetName() : Settings.Diagnostics.NullActorLabel;
+  const FString ProcessFailedLog = frmt::RuntimeString(
+      Settings.Diagnostics.ProcessFailedLogFormat,
+      frmt::Args({frmt::Arg(ActorName), frmt::Arg(Error)}));
+  UE_LOG(LogTemp, Warning,
+         TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C),
+         *ProcessFailedLog);
+}
+
 } // namespace
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke abot orchestrator adapter through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn ABotOrchestratorAdapter::ABotOrchestratorAdapter() */
 ABotOrchestratorAdapter::ABotOrchestratorAdapter() {
+  const FBotSettings Settings =
+      ForbocAI::Game::Data::SettingsAdapters::LoadSettings().Bot;
   PrimaryActorTick.bCanEverTick =
-      ForbocAI::Game::Data::SettingsAdapters::LoadSettings()
-          .Bot.Lifecycle.bOrchestratorCanEverTick;
+      Settings.Lifecycle.bOrchestratorCanEverTick;
+  ObservationInterval = Settings.Schedule.ObservationIntervalSeconds;
 }
 
 /** User Story: As a systems bots orchestrator consumer, I need to invoke begin play through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void ABotOrchestratorAdapter::BeginPlay() */
@@ -84,27 +98,34 @@ void ABotOrchestratorAdapter::RegisterBot(AActor *Actor, FString Persona) {
     const FBotSettings Settings = BotSettings();
     const FLevelLocalPoint InitialLocalPoint = BotInitialLocalPoint(Settings);
     const FString BotId = Actor->GetName();
-    FBotRuntimeBinding Binding;
-    Binding.Id = BotId;
-    Binding.BotActor = Actor;
-    Binding.LastObservationTime = Settings.Schedule.InitialObservationTimeSeconds;
-    const FNPCInternalState Npc = BotNpcThunks::RegisterNpc(Persona);
-    Binding.NpcId = Npc.Id;
-    Binding.Persona = Npc.Persona;
-
-    BotBindings.Add(Actor, Binding);
-    DispatchRuntimeActionsForRegistration(
-        FBotRegistrationDispatchSource{
-            FBotRegistrationPayloadSource{BotId, Persona, Settings},
-            FBotPositionPayloadSource{BotId, InitialLocalPoint, Actor->GetActorLocation(), Settings}
+    func::ematch(
+        ForbocAINpcThunks::CreateNpc(Persona, RuntimeState()),
+        [Actor, Settings](const FString &Error) {
+          LogNpcCommandFailure(Actor, Error, Settings);
+        },
+        [this, Actor, Persona, BotId, InitialLocalPoint, Settings](
+            const ProtocolCLI::FCommandExecution &Created) {
+          FBotRuntimeBinding Binding;
+          Binding.Id = BotId;
+          Binding.BotActor = Actor;
+          Binding.LastObservationTime =
+              Settings.Schedule.InitialObservationTimeSeconds;
+          Binding.NpcId = Created.Output;
+          Binding.Persona = Persona;
+          BotBindings.Add(Actor, Binding);
+          DispatchRuntimeActionsForRegistration(
+              FBotRegistrationDispatchSource{
+                  FBotRegistrationPayloadSource{BotId, Persona, Settings},
+                  FBotPositionPayloadSource{BotId, InitialLocalPoint,
+                                            Actor->GetActorLocation(),
+                                            Settings}});
+          const FString RegisteredLog = frmt::RuntimeString(
+              Settings.Diagnostics.RegisteredLogFormat,
+              frmt::Args({frmt::Arg(Actor->GetName())}));
+          UE_LOG(LogTemp, Display,
+                 TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C),
+                 *RegisteredLog);
         });
-
-    const FString RegisteredLog =
-        frmt::RuntimeString(
-            Settings.Diagnostics.RegisteredLogFormat,
-            frmt::Args(
-                {frmt::Arg(Actor->GetName())}));
-    UE_LOG(LogTemp, Display, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *RegisteredLog);
   }();
 }
 
@@ -116,28 +137,29 @@ void ABotOrchestratorAdapter::RequestNextAction(
              : [&]() {
     const FBotSettings Settings = BotSettings();
     const FString Observation = GetStateObservation(Binding.Id);
-    FProtocolProcessInput Input =
-        ProtocolProcess::ProcessInput(Binding.NpcId, Observation);
-    Input.Persona = Binding.Persona;
     AActor *BotActor = Binding.BotActor;
-
-    BotNpcThunks::ProcessObservation(Input)
-        .then([this, BotActor](const FAgentResponse &Response) {
-          ExecuteAction(BotActor, Response.Action.Type);
-        })
-        .catch_([BotActor, Settings](std::string Error) {
-          const FString ActorName =
-              BotActor ? BotActor->GetName() : Settings.Diagnostics.NullActorLabel;
-          const FString ProcessFailedLog =
-              frmt::RuntimeString(
-                  Settings.Diagnostics.ProcessFailedLogFormat,
-                  frmt::Args(
-                      {frmt::Arg(ActorName),
-                       frmt::Arg(
-                           FString(UTF8_TO_TCHAR(Error.c_str())))}));
-          UE_LOG(LogTemp, Warning, TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV03A110C67C3C), *ProcessFailedLog);
-        })
-        .execute();
+    const FRuntimeState &State = RuntimeState();
+    func::ematch(
+        ForbocAINpcThunks::ProcessNpc(Binding.NpcId, State)(Observation),
+        [BotActor, Settings](const FString &Error) {
+          LogNpcCommandFailure(BotActor, Error, Settings);
+        },
+        [this, BotActor, Settings, &State](
+            const ProtocolCLI::FCommandExecution &Processed) {
+          const auto &ProtocolSettings = State.ForbocAIProtocol.Settings;
+          func::match(
+              ForbocAIProtocolSelectors::SelectNpcAction(
+                  Processed.Output,
+                  ProtocolSettings.Npc.Presentation.ActionLinePrefix),
+              [this, BotActor](const FString &Action) {
+                ExecuteAction(BotActor, Action);
+              },
+              [BotActor, Settings, &ProtocolSettings]() {
+                LogNpcCommandFailure(BotActor,
+                                     ProtocolSettings.Errors.ActionMissing,
+                                     Settings);
+              });
+        });
   }();
 }
 

@@ -17,12 +17,8 @@
       "lines": 336
     },
     {
-      "path": "Source/Features/Components/Data/Settings/SettingsAdapters.cpp",
-      "lines": 298
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/SettingsTypes.h",
-      "lines": 296
+      "lines": 298
     },
     {
       "path": "Source/Features/Systems/Bots/Goals/GoalsSlice.cpp",
@@ -57,6 +53,10 @@
       "lines": 287
     },
     {
+      "path": "Source/Views/Player/Controller/Interaction/InteractionView.h",
+      "lines": 285
+    },
+    {
       "path": "Scripts/Run/run-runtime-budget.sh",
       "lines": 284
     },
@@ -70,6 +70,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Level/SettingsLevelAdapters.cpp",
+      "lines": 277
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/SettingsAdapters.cpp",
       "lines": 277
     },
     {
@@ -89,11 +93,15 @@
       "lines": 275
     },
     {
+      "path": "Scripts/Run/run-tests.sh",
+      "lines": 274
+    },
+    {
       "path": "Source/Features/Components/Data/Json/Settings/Field/SettingsFieldAdapters.h",
       "lines": 274
     },
     {
-      "path": "Scripts/Run/run-tests.sh",
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/SettingsForbocAIProtocolTypes.h",
       "lines": 272
     },
     {
@@ -129,16 +137,12 @@
       "lines": 263
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Bot/BotTypes.h",
-      "lines": 260
-    },
-    {
       "path": "Source/Features/Systems/Presentation/PresentationSelectors.cpp",
       "lines": 257
     },
     {
-      "path": "Source/Views/Player/Controller/Interaction/InteractionView.h",
-      "lines": 257
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/ScenariosBotAdapters.h",
+      "lines": 256
     },
     {
       "path": "Source/Features/Components/Data/Json/Read/Field/ReadFieldAdapters.h",
@@ -147,6 +151,10 @@
     {
       "path": "Source/Features/Systems/State/StateSelectors.cpp",
       "lines": 252
+    },
+    {
+      "path": "Source/Tests/ForbocAIProtocol.spec.cpp",
+      "lines": 250
     },
     {
       "path": "Source/Features/Systems/Rendering/Profile/Sky/Pixel/PixelSlice.cpp",
@@ -185,16 +193,16 @@
       "lines": 232
     },
     {
+      "path": "Source/Tests/BotFunctionalCore.spec.cpp",
+      "lines": 232
+    },
+    {
       "path": "Source/Tests/Pipeline.spec.cpp",
       "lines": 231
     },
     {
-      "path": "Source/Tests/BotFunctionalCore.spec.cpp",
-      "lines": 230
-    },
-    {
       "path": "Source/Tests/Store/StoreSpecSupport.h",
-      "lines": 230
+      "lines": 229
     },
     {
       "path": "Source/Views/Player/Controller/Initialization/ControllerInitializationView.h",
@@ -261,6 +269,10 @@
       "lines": 209
     },
     {
+      "path": "Source/Views/Player/Controller/ControllerView.h",
+      "lines": 207
+    },
+    {
       "path": "Source/Features/Systems/Bots/Stats/BotsStatsSlice.cpp",
       "lines": 203
     },
@@ -285,6 +297,10 @@
       "lines": 197
     },
     {
+      "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorAdapters.cpp",
+      "lines": 197
+    },
+    {
       "path": "Source/Views/Townsperson/Behavior/BehaviorView.h",
       "lines": 197
     },
@@ -293,20 +309,16 @@
       "lines": 196
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/ScenariosBotAdapters.h",
-      "lines": 195
-    },
-    {
       "path": "Source/Features/Systems/Rendering/Profile/ProfileThunks.h",
       "lines": 193
     },
     {
-      "path": "Source/Views/Player/Controller/ControllerView.h",
-      "lines": 192
-    },
-    {
       "path": "Source/Features/Entities/Characters/Bots/Horses/Route/Seed/RouteSeedAdapters.cpp",
       "lines": 191
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Automation/Bot/Orchestrator/BotOrchestratorTypes.h",
+      "lines": 190
     },
     {
       "path": "Source/Features/Systems/Interaction/InteractionSlice.h",
@@ -361,15 +373,15 @@
       "lines": 179
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/SystemsForbocAIProtocolTypes.h",
+      "lines": 177
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Automation/Conversation/UI/ConversationUITypes.h",
       "lines": 175
     },
     {
       "path": "Source/Features/Systems/Bots/AI/AISlice.cpp",
-      "lines": 175
-    },
-    {
-      "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorAdapters.cpp",
       "lines": 175
     },
     {
@@ -389,12 +401,20 @@
       "lines": 170
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h",
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Protocol/AutomationProtocolAdapters.h",
       "lines": 170
     },
     {
       "path": "Source/Features/Systems/Bots/BotsSlice.cpp",
       "lines": 170
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Automation/Bot/BotTypes.h",
+      "lines": 169
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Automation/Bot/Orchestrator/Protocol/Assertions/ProtocolAssertionsTypes.h",
+      "lines": 169
     },
     {
       "path": "Source/Features/Systems/Rendering/RenderingSlice.cpp",
@@ -405,12 +425,12 @@
       "lines": 165
     },
     {
-      "path": "Source/Features/Entities/Environments/Nature/Seed/Construction/ConstructionAdapters.h",
-      "lines": 162
+      "path": "Source/Features/Systems/State/SystemsStateTypes.h",
+      "lines": 164
     },
     {
-      "path": "Source/Features/Systems/State/SystemsStateTypes.h",
-      "lines": 161
+      "path": "Source/Features/Entities/Environments/Nature/Seed/Construction/ConstructionAdapters.h",
+      "lines": 162
     },
     {
       "path": "Source/Features/Systems/SystemsThunks.cpp",
@@ -421,16 +441,16 @@
       "lines": 159
     },
     {
+      "path": "Source/Features/Systems/State/StateSlice.cpp",
+      "lines": 159
+    },
+    {
       "path": "Source/Features/Systems/Bots/Townspeople/TownspeopleSlice.cpp",
       "lines": 158
     },
     {
       "path": "Content/Data/settings/rendering/profile.json",
       "lines": 157
-    },
-    {
-      "path": "Source/Features/Systems/State/StateSlice.cpp",
-      "lines": 156
     },
     {
       "path": "Source/Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.cpp",
@@ -478,7 +498,11 @@
     },
     {
       "path": "Source/Tests/OrchestratorMultiBot.spec.cpp",
-      "lines": 150
+      "lines": 152
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/Ghost/GhostThunks.cpp",
+      "lines": 149
     },
     {
       "path": "Scripts/Docs/count_project_lines.py",
@@ -501,6 +525,10 @@
       "lines": 146
     },
     {
+      "path": "Source/frontierOfJeffersonStore.cpp",
+      "lines": 146
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/UIStatsAdapters.h",
       "lines": 145
     },
@@ -517,15 +545,15 @@
       "lines": 145
     },
     {
+      "path": "Content/Data/cpp-authored-values/values-000.json",
+      "lines": 143
+    },
+    {
       "path": "Scripts/Tools/create_french_gulch_map.py",
       "lines": 143
     },
     {
       "path": "Source/Features/Systems/Level/Spawn/LevelSpawnSlice.h",
-      "lines": 142
-    },
-    {
-      "path": "Source/frontierOfJeffersonStore.cpp",
       "lines": 142
     },
     {
@@ -537,7 +565,11 @@
       "lines": 141
     },
     {
-      "path": "Content/Data/cpp-authored-values/values-000.json",
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSelectors.cpp",
+      "lines": 141
+    },
+    {
+      "path": "Source/Features/Components/AuthoredValues/AuthoredValuesTypes.h",
       "lines": 140
     },
     {
@@ -561,10 +593,6 @@
       "lines": 138
     },
     {
-      "path": "Source/Features/Components/AuthoredValues/AuthoredValuesTypes.h",
-      "lines": 137
-    },
-    {
       "path": "Source/Features/Systems/Capture/CaptureAdapters.h",
       "lines": 137
     },
@@ -573,11 +601,15 @@
       "lines": 137
     },
     {
+      "path": "Content/Data/settings/core/automation/bot.json",
+      "lines": 136
+    },
+    {
       "path": "Content/Data/settings/bots.json",
       "lines": 135
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Bot/Assertions/AssertionsTypes.h",
+      "path": "Source/Features/Components/Data/Settings/Automation/Bot/Assertions/BotAssertionsTypes.h",
       "lines": 135
     },
     {
@@ -653,6 +685,10 @@
       "lines": 124
     },
     {
+      "path": "Source/Features/Systems/Initialization/InitializationAdapters.cpp",
+      "lines": 123
+    },
+    {
       "path": "Source/Views/Player/Character/CharacterView.h",
       "lines": 122
     },
@@ -661,11 +697,11 @@
       "lines": 121
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Level/Csv/CsvTypes.h",
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/ProtocolAdapters.cpp",
       "lines": 120
     },
     {
-      "path": "Source/Features/Systems/Initialization/InitializationAdapters.cpp",
+      "path": "Source/Features/Components/Data/Settings/Level/Csv/CsvTypes.h",
       "lines": 120
     },
     {
@@ -683,6 +719,10 @@
     {
       "path": "Source/Features/Systems/Rendering/Diagnostics/DiagnosticsSelectors.cpp",
       "lines": 118
+    },
+    {
+      "path": "Scripts/Run/Compilation/build-runner.sh",
+      "lines": 117
     },
     {
       "path": "Source/Features/Systems/Rendering/SystemsRenderingTypes.h",
@@ -717,6 +757,10 @@
       "lines": 110
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSlice.cpp",
+      "lines": 110
+    },
+    {
       "path": "Source/Features/Systems/Lifecycle/LifecycleSlice.cpp",
       "lines": 110
     },
@@ -739,6 +783,14 @@
     {
       "path": "Source/Features/Components/Data/Settings/Automation/Rtk/Compliance/ComplianceTypes.h",
       "lines": 108
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolThunks.cpp",
+      "lines": 108
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/Orchestrator/Protocol/Assertions/AssertionsAdapters.h",
+      "lines": 107
     },
     {
       "path": "Source/Features/Systems/Bots/Behavior/BotsBehaviorTypes.h",
@@ -857,6 +909,10 @@
       "lines": 92
     },
     {
+      "path": "Source/Features/Systems/SystemsActions.cpp",
+      "lines": 92
+    },
+    {
       "path": "Content/Data/settings/rendering/lod.json",
       "lines": 91
     },
@@ -871,6 +927,10 @@
     {
       "path": "Source/Tests/ConversationUI.spec.cpp",
       "lines": 90
+    },
+    {
+      "path": "Content/Data/settings/forboc-ai.json",
+      "lines": 88
     },
     {
       "path": "Source/Features/Systems/Bots/Position/PositionSlice.h",
@@ -901,6 +961,10 @@
       "lines": 87
     },
     {
+      "path": "README.md",
+      "lines": 86
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Automation/Content/Assets/AssetsTypes.h",
       "lines": 86
     },
@@ -910,10 +974,6 @@
     },
     {
       "path": "Source/Features/Systems/State/Aggregate/AggregateSelectors.cpp",
-      "lines": 86
-    },
-    {
-      "path": "Source/Features/Systems/SystemsActions.cpp",
       "lines": 86
     },
     {
@@ -942,10 +1002,6 @@
     },
     {
       "path": "Content/Data/settings/rendering/texture/catalog.json",
-      "lines": 82
-    },
-    {
-      "path": "README.md",
       "lines": 82
     },
     {
@@ -1073,15 +1129,11 @@
       "lines": 74
     },
     {
-      "path": "Content/Data/settings/core/automation/bot.json",
-      "lines": 73
-    },
-    {
-      "path": "Scripts/Run/Compilation/build-runner.sh",
-      "lines": 73
-    },
-    {
       "path": "Source/Features/Systems/Bots/AI/AISlice.h",
+      "lines": 73
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/NPC/NPCThunks.cpp",
       "lines": 73
     },
     {
@@ -1194,6 +1246,10 @@
     },
     {
       "path": "Source/Features/Systems/UI/UISlice.h",
+      "lines": 64
+    },
+    {
+      "path": "Source/Tests/BotOrchestrator.spec.cpp",
       "lines": 64
     },
     {
@@ -1329,6 +1385,10 @@
       "lines": 54
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLIAdapters.cpp",
+      "lines": 54
+    },
+    {
       "path": "Source/Features/Systems/Landmarks/SystemsLandmarksSlice.h",
       "lines": 54
     },
@@ -1338,10 +1398,6 @@
     },
     {
       "path": "Source/Features/Systems/Spawn/SystemsSpawnSlice.h",
-      "lines": 54
-    },
-    {
-      "path": "Source/Tests/BotOrchestrator.spec.cpp",
       "lines": 54
     },
     {
@@ -1399,6 +1455,10 @@
     {
       "path": "Source/Tests/Store/ReduxLoggerMiddleware.spec.cpp",
       "lines": 51
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLITypes.h",
+      "lines": 50
     },
     {
       "path": "Source/Features/Systems/Level/Layout/Scale/ScaleAdapters.h",
@@ -1561,6 +1621,10 @@
       "lines": 40
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Ecs/EcsAdapters.cpp",
+      "lines": 40
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Rendering/Profile/SettingsRenderingProfileTypes.h",
       "lines": 40
     },
@@ -1602,10 +1666,6 @@
     },
     {
       "path": "Source/Features/Components/Data/DataSlice.h",
-      "lines": 38
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/DataSettingsAdapters.h",
       "lines": 38
     },
     {
@@ -1657,6 +1717,10 @@
       "lines": 36
     },
     {
+      "path": "Source/Features/Components/Data/Settings/DataSettingsAdapters.h",
+      "lines": 36
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/Measurement/MeasurementAdapters.h",
       "lines": 36
     },
@@ -1697,7 +1761,7 @@
       "lines": 35
     },
     {
-      "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorTypes.h",
+      "path": "Source/Features/Systems/Bots/Orchestrator/BotsOrchestratorTypes.h",
       "lines": 35
     },
     {
@@ -1713,7 +1777,19 @@
       "lines": 35
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSelectors.h",
+      "lines": 35
+    },
+    {
       "path": "Content/Data/settings/ui/scale/audit/capture.json",
+      "lines": 34
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolActions.cpp",
+      "lines": 34
+    },
+    {
+      "path": "Source/Views/Player/Controller/ControllerView.cpp",
       "lines": 34
     },
     {
@@ -1773,6 +1849,10 @@
       "lines": 33
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolThunks.h",
+      "lines": 33
+    },
+    {
       "path": "Source/Features/Systems/Interaction/InteractionActions.h",
       "lines": 33
     },
@@ -1814,6 +1894,10 @@
     },
     {
       "path": "Source/Features/Systems/Bots/Stats/StatsSelectors.cpp",
+      "lines": 32
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/NPC/NPCThunks.h",
       "lines": 32
     },
     {
@@ -1893,8 +1977,8 @@
       "lines": 31
     },
     {
-      "path": "Source/Views/Player/Controller/ControllerView.cpp",
-      "lines": 31
+      "path": "Source/Features/Components/Data/Settings/Registry/ForbocAI/Protocol/RegistryForbocAIProtocolAdapters.h",
+      "lines": 30
     },
     {
       "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/PostProcess/PostProcessAdapters.h",
@@ -1989,6 +2073,10 @@
       "lines": 29
     },
     {
+      "path": "Source/Views/Player/Controller/Interaction/Ghost/GhostView.h",
+      "lines": 29
+    },
+    {
       "path": "Source/Views/Skeletal/Lod/Clamp/ClampView.h",
       "lines": 29
     },
@@ -2013,7 +2101,7 @@
       "lines": 28
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/Ecs/EcsAdapters.h",
+      "path": "Source/Features/Components/Data/Settings/Registry/Ecs/RegistryEcsAdapters.h",
       "lines": 28
     },
     {
@@ -2098,10 +2186,6 @@
     },
     {
       "path": "Source/Features/Systems/Bot/BotSlice.h",
-      "lines": 27
-    },
-    {
-      "path": "Source/Features/Systems/Bots/Orchestrator/NPC/NPCThunks.cpp",
       "lines": 27
     },
     {
@@ -2333,10 +2417,6 @@
       "lines": 22
     },
     {
-      "path": "Source/Features/Systems/Bots/Orchestrator/NPC/NPCThunks.h",
-      "lines": 22
-    },
-    {
       "path": "Source/Features/Systems/Bots/SystemsBotsSelectors.h",
       "lines": 22
     },
@@ -2413,6 +2493,18 @@
       "lines": 21
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/Ghost/GhostThunks.h",
+      "lines": 21
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolActions.h",
+      "lines": 21
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSlice.h",
+      "lines": 21
+    },
+    {
       "path": "Source/Features/Systems/Landmarks/SystemsLandmarksAdapters.cpp",
       "lines": 21
     },
@@ -2469,6 +2561,10 @@
       "lines": 18
     },
     {
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/SettingsForbocAIProtocolAdapters.h",
+      "lines": 18
+    },
+    {
       "path": "Source/Features/Entities/EntitiesSlice.h",
       "lines": 18
     },
@@ -2518,6 +2614,10 @@
     },
     {
       "path": "Source/Features/Components/Data/DataActions.h",
+      "lines": 17
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Ecs/SettingsEcsAdapters.h",
       "lines": 17
     },
     {
@@ -2601,6 +2701,10 @@
       "lines": 16
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLIAdapters.h",
+      "lines": 16
+    },
+    {
       "path": "Source/Features/Systems/Initialization/InitializationAdapters.h",
       "lines": 16
     },
@@ -2661,6 +2765,10 @@
       "lines": 12
     },
     {
+      "path": "Content/Data/settings.json",
+      "lines": 12
+    },
+    {
       "path": "Content/Data/settings/core/text.json",
       "lines": 12
     },
@@ -2674,6 +2782,10 @@
     },
     {
       "path": "Scripts/Capture/capture-scale-audit.sh",
+      "lines": 12
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/Catalog/RegistryCatalogAdapters.h",
       "lines": 12
     },
     {
@@ -2701,19 +2813,11 @@
       "lines": 11
     },
     {
-      "path": "Content/Data/settings.json",
-      "lines": 11
-    },
-    {
       "path": "Content/Data/settings/speech.json",
       "lines": 11
     },
     {
       "path": "Content/Data/settings/ui.json",
-      "lines": 11
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Catalog/RegistryCatalogAdapters.h",
       "lines": 11
     },
     {
@@ -2731,6 +2835,10 @@
     {
       "path": "Source/Features/Entities/Characters/Bots/CharactersBotsTypes.h",
       "lines": 11
+    },
+    {
+      "path": "Content/Data/settings/core/automation/runner/build.json",
+      "lines": 10
     },
     {
       "path": "Content/Data/settings/core/debug/messages.json",
@@ -2799,10 +2907,6 @@
     {
       "path": "Source/Features/Components/Data/Settings/UI/SettingsUITypes.h",
       "lines": 7
-    },
-    {
-      "path": "Content/Data/settings/core/automation/runner/build.json",
-      "lines": 6
     },
     {
       "path": "Content/Data/settings/interaction.json",

@@ -2,6 +2,7 @@
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/Data/Settings/Bot/SettingsBotAdapters.h"
+#include "Features/Components/Data/Settings/ForbocAI/Protocol/SettingsForbocAIProtocolAdapters.h"
 #include "Features/Components/Data/Settings/Level/SettingsLevelAdapters.h"
 #include "Features/Components/Data/Settings/Player/PlayerAdapters.h"
 #include "Features/Components/Data/Settings/Rendering/RenderingAdapters.h"
@@ -55,7 +56,7 @@ const TArray<FSourceGroup> &SettingsSourceGroups() {
   static const TArray<FSourceGroup> Groups = {
       {"Root",
        {"Player", "Interaction", "Level", "Rendering", "Bots", "Dialogue",
-        "Speech", "UI", "Core"}},
+        "Speech", "UI", "ForbocAI", "Core"}},
       {"Core",
        {"ObservationIds", "DebugMessages", "ViewNames", "Text", "ReduxLog",
         "Ecs", "Automation"}},
@@ -98,31 +99,6 @@ LoadSettingsSources(const TSharedPtr<FJsonObject> &Object) {
 }
 
 } // namespace
-
-/** User Story: As a components data settings consumer, I need to invoke ecs domain segments through a stable signature so the components data settings workflow remains explicit and composable. @fn TArray<FString> EcsDomainSegments(const FString &Path) */
-TArray<FString> EcsDomainSegments(const FString &Path) {
-  TArray<FString> Segments;
-  const FString Separator = FString::Chr(TCHAR('/'));
-  Path.ParseIntoArray(Segments, *Separator, true);
-  return Segments;
-}
-
-/** User Story: As a components data settings consumer, I need to invoke ecs domain path registration through a stable signature so the components data settings workflow remains explicit and composable. @fn ecs::FPathRegistration EcsDomainPathRegistration(const FDomainRegistrationSettings &Settings) */
-ecs::FPathRegistration
-EcsDomainPathRegistration(const FDomainRegistrationSettings &Settings) {
-  ecs::FPathRegistration Registration;
-  Registration.Segments = EcsDomainSegments(Settings.Path);
-  Registration.Kind = static_cast<ecs::EKind>(Settings.Kind);
-  return Registration;
-}
-
-/** User Story: As a components data settings consumer, I need to invoke ecs domain registry through a stable signature so the components data settings workflow remains explicit and composable. @fn ecs::FGraph EcsDomainRegistry(const FEcsSettings &Settings) */
-ecs::FGraph EcsDomainRegistry(const FEcsSettings &Settings) {
-  return ecs::createDomainRegistry(
-      func::map_array<FDomainRegistrationSettings,
-                      ecs::FPathRegistration>(
-          Settings.DomainRegistry, EcsDomainPathRegistration));
-}
 
 /** User Story: As a components data settings consumer, I need to invoke read settings through a stable signature so the components data settings workflow remains explicit and composable. @fn FSettings ReadSettings(const TSharedPtr<FJsonObject> &Object) */
 FSettings
@@ -254,6 +230,9 @@ ReadSettings(const TSharedPtr<FJsonObject> &Object) {
   Settings.Ecs = Json::ReadSettingsWith<FEcsSettings>(
       JSON_SETTINGS_ATOMS(DomainRegistry))(
       SettingsSource(Sources, "Ecs"));
+  Settings.ForbocAI =
+      ForbocAIProtocolAdapters::ReadProtocolSettings(
+          SettingsSource(Sources, "ForbocAI"));
   Settings.Automation =
       Json::ReadSettingsWith<Automation::FSettings>(
           JSON_SETTINGS_ATOMS(Store, Tests, ContentAssets, RtkCompliance, Bot,

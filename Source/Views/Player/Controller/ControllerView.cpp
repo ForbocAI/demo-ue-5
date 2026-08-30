@@ -12,6 +12,8 @@
 #include "EngineUtils.h"
 #include "Features/Systems/SystemsActions.h"
 #include "Features/Systems/SystemsSelectors.h"
+#include "Features/Systems/ForbocAI/Protocol/ProtocolActions.h"
+#include "Features/Systems/ForbocAI/Protocol/ProtocolSelectors.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -28,4 +30,5 @@
 
 #include "Views/Player/Controller/Initialization/ControllerInitializationView.h"
 #include "Views/Player/Controller/Interaction/InteractionView.h"
+#include "Views/Player/Controller/Interaction/Ghost/GhostView.h"
 #include "Views/Player/Controller/Capture/CaptureView.h"

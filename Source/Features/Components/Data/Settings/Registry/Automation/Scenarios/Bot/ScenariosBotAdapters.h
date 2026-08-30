@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Features/Components/Data/Settings/Registry/Color/ColorAdapters.h"
+#include "Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/Orchestrator/Protocol/Assertions/AssertionsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -109,13 +110,69 @@ template <> struct TJsonSettingsRegistry<Automation::Bot::FAssertions> {
 };
 
 JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorGroups,
-                       Registration, Cycle, RuntimeStore);
-JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorCaseLabels,
-                       RegisterBot, RespectObservationInterval, RegisterBots,
-                       DispatchMovement);
-JSON_SETTINGS_REGISTRY(Automation::Bot::FOrchestratorAssertions,
+                       Registration, Cycle, RuntimeStore, Protocol);
+JSON_SETTINGS_REGISTRY(Automation::Bot::FRegistrationCaseLabels,
+                       RegisterBot, RegisterBots);
+JSON_SETTINGS_REGISTRY(Automation::Bot::FCycleCaseLabels,
+                       RespectObservationInterval, DispatchMovement);
+JSON_SETTINGS_REGISTRY(Automation::Bot::FProtocolCaseLabels,
+                       RejectRouteCrossover, ProjectAction,
+                       ReduceProtocolLifecycle, ExecuteLiveFlows);
+JSON_SETTINGS_REGISTRY(Automation::Bot::FProtocolRunSettings,
+                       TimeoutSeconds, QualifiedDiagnosticMarker,
+                       FailurePrefix);
+JSON_SETTINGS_REGISTRY(Automation::Bot::FRootStateAssertions,
                        ThreeBotsInRootState, BotSelectable, HorseSelectable,
                        PositionSelectable, WorldPositionUpdated);
+template <>
+struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorCaseLabels> {
+  static const TArray<TField<Automation::Bot::FOrchestratorCaseLabels>>
+      &Fields() {
+    static const TArray<TField<Automation::Bot::FOrchestratorCaseLabels>>
+        RegisteredFields = {
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorCaseLabels,
+                ReadSettingsWith<Automation::Bot::FRegistrationCaseLabels>(
+                    JSON_SETTINGS_ATOMS(RegisterBot, RegisterBots)),
+                Registration),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorCaseLabels,
+                ReadSettingsWith<Automation::Bot::FCycleCaseLabels>(
+                    JSON_SETTINGS_ATOMS(RespectObservationInterval,
+                                        DispatchMovement)),
+                Cycle),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorCaseLabels,
+                ReadSettingsWith<Automation::Bot::FProtocolCaseLabels>(
+                    JSON_SETTINGS_ATOMS(RejectRouteCrossover, ProjectAction,
+                                        ReduceProtocolLifecycle,
+                                        ExecuteLiveFlows)),
+                Protocol)};
+    return RegisteredFields;
+  }
+};
+
+template <>
+struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorAssertions> {
+  static const TArray<TField<Automation::Bot::FOrchestratorAssertions>>
+      &Fields() {
+    static const TArray<TField<Automation::Bot::FOrchestratorAssertions>>
+        RegisteredFields = {
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorAssertions,
+                ReadSettingsWith<Automation::Bot::FRootStateAssertions>(
+                    JSON_SETTINGS_ATOMS(
+                        ThreeBotsInRootState, BotSelectable, HorseSelectable,
+                        PositionSelectable, WorldPositionUpdated)),
+                RootState),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorAssertions,
+                ReadSettingsWith<Automation::Bot::FProtocolAssertions>(
+                    JSON_SETTINGS_ATOMS(Core, Npc, Ghost, Log)),
+                Protocol)};
+    return RegisteredFields;
+  }
+};
 
 template <>
 struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorSettings> {
@@ -126,26 +183,30 @@ struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorSettings> {
         RegisteredFields = {
             JSON_SETTING_FIELDS(
                 Automation::Bot::FOrchestratorSettings, Spec, MultiBotSpec,
-                Persona, WorldContextIndex),
+                ProtocolSpec, Persona, WorldContextIndex),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Bot::FOrchestratorSettings,
                 ReadSettingsWith<Automation::Bot::FOrchestratorGroups>(
-                    JSON_SETTINGS_ATOMS(Registration, Cycle, RuntimeStore)),
+                    JSON_SETTINGS_ATOMS(Registration, Cycle, RuntimeStore,
+                                        Protocol)),
                 Groups),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Bot::FOrchestratorSettings,
                 ReadSettingsWith<Automation::Bot::FOrchestratorCaseLabels>(
-                    JSON_SETTINGS_ATOMS(RegisterBot,
-                                        RespectObservationInterval,
-                                        RegisterBots, DispatchMovement)),
+                    JSON_SETTINGS_ATOMS(Registration, Cycle, Protocol)),
                 Cases),
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Bot::FOrchestratorSettings,
                 ReadSettingsWith<Automation::Bot::FOrchestratorAssertions>(
-                    JSON_SETTINGS_ATOMS(
-                        ThreeBotsInRootState, BotSelectable, HorseSelectable,
-                        PositionSelectable, WorldPositionUpdated)),
-                Assertions)};
+                    JSON_SETTINGS_ATOMS(RootState, Protocol)),
+                Assertions),
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Bot::FOrchestratorSettings,
+                ReadSettingsWith<Automation::Bot::FProtocolRunSettings>(
+                    JSON_SETTINGS_ATOMS(TimeoutSeconds,
+                                        QualifiedDiagnosticMarker,
+                                        FailurePrefix)),
+                ProtocolRun)};
     return RegisteredFields;
   }
 };
@@ -181,9 +242,9 @@ struct TJsonSettingsRegistry<Automation::Bot::FSettings> {
             JSON_OBJECT_SETTING_FIELDS(
                 Automation::Bot::FSettings,
                 ReadSettingsWith<Automation::Bot::FOrchestratorSettings>(
-                    JSON_SETTINGS_ATOMS(Spec, MultiBotSpec, Persona,
-                                        WorldContextIndex, Groups, Cases,
-                                        Assertions)),
+                    JSON_SETTINGS_ATOMS(Spec, MultiBotSpec, ProtocolSpec,
+                                        Persona, WorldContextIndex, Groups,
+                                        Cases, Assertions, ProtocolRun)),
                 Orchestrator)};
     return RegisteredFields;
   }

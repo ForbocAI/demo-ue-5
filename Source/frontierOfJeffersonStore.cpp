@@ -5,6 +5,7 @@
 #include "Features/Components/ComponentsSlice.h"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
 #include "Features/Entities/EntitiesSlice.h"
+#include "Features/Systems/ForbocAI/Protocol/ProtocolSelectors.h"
 #include "Features/Systems/Initialization/InitializationAdapters.h"
 #include "Features/Systems/SystemsListeners.h"
 #include "Features/Systems/State/StateSlice.h"
@@ -85,6 +86,9 @@ rtk::logger::ReduxLoggerOptions<FRuntimeState> CreateReduxLoggerOptions() {
                           const std::function<const FRuntimeState &()> &,
                           const rtk::AnyAction &Action) {
     return ShouldLogRuntimeAction(Action, LogSettings);
+  };
+  Options.StateTransformer = [](const FRuntimeState &State) {
+    return ForbocAIProtocolSelectors::SelectProtocolLogSummary(State);
   };
   Options.bTimestamp = false;
   Options.bDuration = false;

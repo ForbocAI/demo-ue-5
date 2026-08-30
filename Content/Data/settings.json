@@ -7,5 +7,6 @@
   "dialogue": "Data/settings/dialogue.json",
   "speech": "Data/settings/speech.json",
   "ui": "Data/settings/ui.json",
+  "forboc_ai": "Data/settings/forboc-ai.json",
   "core": "Data/settings/core.json"
 }

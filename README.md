@@ -1,8 +1,8 @@
 # ForbocAI Unreal Engine Demo
 
 A playable Unreal Engine 5.8 reference project showing ForbocAI NPC dialogue,
-memory-aware interactions, validated actions, chat presentation, and speech
-presentation in a game world.
+memory-aware interactions, validated actions, Ghost level pre-playtesting,
+chat presentation, and speech presentation in a game world.
 
 ## Requirements
 
@@ -42,6 +42,8 @@ The project opens `/Game/Map/Maps/Runtime` by default.
 3. Press `E` when the interaction prompt appears.
 4. Submit text through the chat interface.
 5. Observe the ForbocAI response in chat and speech presentation.
+6. Press `G` to run Ghost pre-playtesting and view the returned level-quality
+   analysis.
 
 The demo keeps each NPC's identity and game context separate while routing all
 ForbocAI interaction through the installed SDK plugin.
@@ -54,6 +56,7 @@ ForbocAI interaction through the installed SDK plugin.
 | Player-to-NPC interaction | `Source/Features/Systems/Interaction` |
 | Dialogue state | `Source/Features/Systems/Dialogue` |
 | Multi-NPC orchestration | `Source/Features/Systems/Bots` |
+| NPC and Ghost SDK CLI orchestration | `Source/Features/Systems/ForbocAI/Protocol` |
 | Chat presentation | `Source/Views/Chat` |
 | Speech and lip-sync presentation | `Source/Views/Speech/Presenter` |
 | SDK plugin | `Plugins/ForbocAI_SDK` |
@@ -68,6 +71,7 @@ world rules, UI, animation, audio, and save data in the game project.
 | --- | --- |
 | The SDK plugin does not load | Initialize the submodule and rebuild the editor target |
 | An NPC does not answer | Confirm `FORBOCAI_API_KEY` is available to Unreal Editor and inspect the Output Log for ForbocAI errors |
+| Ghost analysis fails | Inspect the Output Log for the preserved Ghost API failure and correlation/session evidence |
 | Chat updates without speech | Check the speech presenter and the selected NPC mesh configuration |
 | Project files are stale | Regenerate project files, then rebuild the editor target |
 

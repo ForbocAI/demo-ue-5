@@ -80,6 +80,12 @@ Dispatch(const rtk::ThunkAction<FPointPayload, FRuntimeState> &Thunk);
 template func::AsyncResult<FRuntimeLevelViewPayload>
 Dispatch(const rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState> &Thunk);
 
+template func::AsyncResult<FForbocAINpcResult>
+Dispatch(const rtk::ThunkAction<FForbocAINpcResult, FRuntimeState> &Thunk);
+
+template func::AsyncResult<FForbocAIGhostResult>
+Dispatch(const rtk::ThunkAction<FForbocAIGhostResult, FRuntimeState> &Thunk);
+
 } // namespace RuntimeDispatch
 } // namespace Level
 } // namespace Game

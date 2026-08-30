@@ -183,6 +183,8 @@ fi
 
 if [ -n "$UNREAL_BUILD" ]; then
   echo "Ensuring ForbocAIDemoEditor is built..."
+  forbocai_remove_invalid_unreal_metadata \
+    "$PROJECT_ROOT" "${FORBOCAI_BUILD_GENERATED_METADATA[@]}"
   BUILD_POLICY_ARGS=("-MaxParallelActions=$FORBOCAI_BUILD_MAX_PARALLEL_ACTIONS")
   if [ "$FORBOCAI_BUILD_DISABLE_UBA" -eq 1 ]; then
     BUILD_POLICY_ARGS+=("-NoUBA")

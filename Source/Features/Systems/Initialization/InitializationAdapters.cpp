@@ -15,6 +15,7 @@
 #include "Features/Systems/Bots/SystemsBotsSlice.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleSlice.h"
 #include "Features/Systems/Dialogue/DialogueSlice.h"
+#include "Features/Systems/ForbocAI/Protocol/ProtocolSlice.h"
 #include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Landmarks/SystemsLandmarksSlice.h"
 #include "Features/Systems/Level/SystemsLevelSlice.h"
@@ -48,6 +49,8 @@ FRuntimeState CreateInitialState() {
   State.Level = LevelSystemSlice::CreateInitialState();
   State.Rendering = RenderingSlice::CreateInitialState();
   State.Lifecycle = RuntimeLifecycleSlice::CreateInitialState();
+  State.ForbocAIProtocol =
+      ForbocAIProtocolSlice::CreateInitialState(Settings.ForbocAI);
   State.Dialogue = DialogueSlice::CreateInitialState();
   State.Dialogue =
       DialogueReducers::ReduceSettings(State.Dialogue, Settings.Dialogue);

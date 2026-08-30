@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Components/Data/Settings/Automation/Bot/Assertions/AssertionsTypes.h"
+#include "Features/Components/Data/Settings/Automation/Bot/Assertions/BotAssertionsTypes.h"
+#include "Features/Components/Data/Settings/Automation/Bot/Orchestrator/BotOrchestratorTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -47,37 +48,6 @@ struct FCaseLabels {
   FCombatCaseLabels Combat;
   FAwarenessCaseLabels Awareness;
   FTickCaseLabels Tick;
-};
-
-struct FOrchestratorGroups {
-  FString Registration;
-  FString Cycle;
-  FString RuntimeStore;
-};
-
-struct FOrchestratorCaseLabels {
-  FString RegisterBot;
-  FString RespectObservationInterval;
-  FString RegisterBots;
-  FString DispatchMovement;
-};
-
-struct FOrchestratorAssertions {
-  FString ThreeBotsInRootState;
-  FString BotSelectable;
-  FString HorseSelectable;
-  FString PositionSelectable;
-  FString WorldPositionUpdated;
-};
-
-struct FOrchestratorSettings {
-  FString Spec;
-  FString MultiBotSpec;
-  FString Persona;
-  int32 WorldContextIndex;
-  FOrchestratorGroups Groups;
-  FOrchestratorCaseLabels Cases;
-  FOrchestratorAssertions Assertions;
 };
 
 struct FSettings {
@@ -176,67 +146,6 @@ inline bool operator==(const FCaseLabels &Left, const FCaseLabels &Right) {
 
 /** User Story: As a settings automation bot consumer, I need to compare values for inequality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator!=(const FCaseLabels &Left, const FCaseLabels &Right) */
 inline bool operator!=(const FCaseLabels &Left, const FCaseLabels &Right) {
-  return !(Left == Right);
-}
-
-/** User Story: As a settings automation bot consumer, I need to compare values for equality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator==(const FOrchestratorGroups &Left, const FOrchestratorGroups &Right) */
-inline bool operator==(const FOrchestratorGroups &Left,
-                       const FOrchestratorGroups &Right) {
-  return Left.Registration == Right.Registration &&
-         Left.Cycle == Right.Cycle &&
-         Left.RuntimeStore == Right.RuntimeStore;
-}
-
-/** User Story: As a settings automation bot consumer, I need to compare values for inequality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator!=(const FOrchestratorGroups &Left, const FOrchestratorGroups &Right) */
-inline bool operator!=(const FOrchestratorGroups &Left,
-                       const FOrchestratorGroups &Right) {
-  return !(Left == Right);
-}
-
-/** User Story: As a settings automation bot consumer, I need to compare values for equality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator==(const FOrchestratorCaseLabels &Left, const FOrchestratorCaseLabels &Right) */
-inline bool operator==(const FOrchestratorCaseLabels &Left,
-                       const FOrchestratorCaseLabels &Right) {
-  return Left.RegisterBot == Right.RegisterBot &&
-         Left.RespectObservationInterval == Right.RespectObservationInterval &&
-         Left.RegisterBots == Right.RegisterBots &&
-         Left.DispatchMovement == Right.DispatchMovement;
-}
-
-/** User Story: As a settings automation bot consumer, I need to compare values for inequality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator!=(const FOrchestratorCaseLabels &Left, const FOrchestratorCaseLabels &Right) */
-inline bool operator!=(const FOrchestratorCaseLabels &Left,
-                       const FOrchestratorCaseLabels &Right) {
-  return !(Left == Right);
-}
-
-/** User Story: As a settings automation bot consumer, I need to compare values for equality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator==(const FOrchestratorAssertions &Left, const FOrchestratorAssertions &Right) */
-inline bool operator==(const FOrchestratorAssertions &Left,
-                       const FOrchestratorAssertions &Right) {
-  return Left.ThreeBotsInRootState == Right.ThreeBotsInRootState &&
-         Left.BotSelectable == Right.BotSelectable &&
-         Left.HorseSelectable == Right.HorseSelectable &&
-         Left.PositionSelectable == Right.PositionSelectable &&
-         Left.WorldPositionUpdated == Right.WorldPositionUpdated;
-}
-
-/** User Story: As a settings automation bot consumer, I need to compare values for inequality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator!=(const FOrchestratorAssertions &Left, const FOrchestratorAssertions &Right) */
-inline bool operator!=(const FOrchestratorAssertions &Left,
-                       const FOrchestratorAssertions &Right) {
-  return !(Left == Right);
-}
-
-/** User Story: As a settings automation bot consumer, I need to compare values for equality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator==(const FOrchestratorSettings &Left, const FOrchestratorSettings &Right) */
-inline bool operator==(const FOrchestratorSettings &Left,
-                       const FOrchestratorSettings &Right) {
-  return Left.Spec == Right.Spec && Left.MultiBotSpec == Right.MultiBotSpec &&
-         Left.Persona == Right.Persona &&
-         Left.WorldContextIndex == Right.WorldContextIndex &&
-         Left.Groups == Right.Groups && Left.Cases == Right.Cases &&
-         Left.Assertions == Right.Assertions;
-}
-
-/** User Story: As a settings automation bot consumer, I need to compare values for inequality through a stable signature so the settings automation bot workflow remains explicit and composable. @fn inline bool operator!=(const FOrchestratorSettings &Left, const FOrchestratorSettings &Right) */
-inline bool operator!=(const FOrchestratorSettings &Left,
-                       const FOrchestratorSettings &Right) {
   return !(Left == Right);
 }
 

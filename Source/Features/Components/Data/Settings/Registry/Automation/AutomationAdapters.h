@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Features/Components/Data/Settings/Registry/Automation/Protocol/ProtocolAdapters.h"
+#include "Features/Components/Data/Settings/Registry/Automation/Protocol/AutomationProtocolAdapters.h"
 #include "Features/Components/Data/Settings/Registry/Automation/Scenarios/ScenariosAdapters.h"
 #include "Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h"
 

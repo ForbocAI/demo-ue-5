@@ -27,10 +27,9 @@
 #include "Misc/OutputDevice.h"
 #include "frontierOfJeffersonStore.h"
 
-using namespace ForbocAI::Game::Level;
-
 namespace {
 
+using namespace ForbocAI::Game::Level;
 using ForbocAI::Game::Data::FSettings;
 using FStoreSettings =
     ForbocAI::Game::Data::Automation::Store::FSettings;

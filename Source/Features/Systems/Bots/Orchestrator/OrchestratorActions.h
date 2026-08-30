@@ -3,7 +3,7 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/Orchestrator/OrchestratorTypes.h"
+#include "Features/Systems/Bots/Orchestrator/BotsOrchestratorTypes.h"
 
 namespace ForbocAI {
 namespace Game {

@@ -14,6 +14,7 @@
 #include "Features/Systems/Bots/SystemsBotsSlice.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleSlice.h"
 #include "Features/Systems/Dialogue/DialogueSlice.h"
+#include "Features/Systems/ForbocAI/Protocol/ProtocolSlice.h"
 #include "Features/Systems/Initialization/InitializationAdapters.h"
 #include "Features/Systems/Interaction/InteractionSlice.h"
 #include "Features/Systems/Landmarks/SystemsLandmarksSlice.h"
@@ -89,6 +90,8 @@ const rtk::CaseReducer<FRuntimeState> &RootReducer() {
                  RenderingSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Lifecycle,
                  RuntimeLifecycleSlice::GetSlice().Reducer)
+        .reducer(&FRuntimeState::ForbocAIProtocol,
+                 ForbocAIProtocolSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Dialogue,
                  DialogueSlice::GetSlice().Reducer)
         .reducer(&FRuntimeState::Interaction,

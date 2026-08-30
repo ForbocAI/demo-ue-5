@@ -3,7 +3,7 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/Orchestrator/OrchestratorTypes.h"
+#include "Features/Systems/Bots/Orchestrator/BotsOrchestratorTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -33,7 +33,7 @@ inline FBotOrchestratorState ReduceOrchestratorObserved(
 
 #include "Features/Systems/Bots/Orchestrator/OrchestratorActions.h"
 #include "Features/Systems/Bots/Orchestrator/OrchestratorSelectors.h"
-#include "Features/Systems/Bots/Orchestrator/OrchestratorTypes.h"
+#include "Features/Systems/Bots/Orchestrator/BotsOrchestratorTypes.h"
 
 namespace ForbocAI {
 namespace Game {

@@ -130,6 +130,21 @@ private:
    */
   void InteractWithNearestTownsperson();
 
+  /** User Story: As a level designer, I need a playable Ghost command that returns API-owned level-quality analysis. @fn void AnalyzeLevelWithGhost() */
+  void AnalyzeLevelWithGhost();
+
+  /** User Story: As NPC interaction presentation, I need fulfilled root-state output rendered against the observed townsperson. @fn void PresentNpcInteractionResult(ATownspersonView *Townsperson) */
+  void PresentNpcInteractionResult(ATownspersonView *Townsperson);
+
+  /** User Story: As NPC interaction presentation, I need rejected root-state evidence rendered without inventing a fallback response. @fn void PresentNpcInteractionFailure() */
+  void PresentNpcInteractionFailure();
+
+  /** User Story: As Ghost presentation, I need fulfilled API diagnostics rendered from root-state evidence. @fn void PresentGhostAnalysisResult() */
+  void PresentGhostAnalysisResult();
+
+  /** User Story: As Ghost presentation, I need rejected root-state evidence rendered without masking the failure. @fn void PresentGhostAnalysisFailure() */
+  void PresentGhostAnalysisFailure();
+
   /**
    * @fn void PresentConversationViewModel( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation)
    * @brief Applies reducer-owned conversation display data to the chat widget.

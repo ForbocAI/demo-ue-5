@@ -78,10 +78,10 @@ DEFINE_SPEC(FOrchestratorMultiBotSpec,
 /** User Story: As a tests consumer, I need to invoke define through a stable signature so the tests workflow remains explicit and composable. @fn void FOrchestratorMultiBotSpec::Define() */
 void FOrchestratorMultiBotSpec::Define() {
   const ForbocAI::Game::Data::Automation::Bot::FOrchestratorSettings
-      &Automation = OrchestratorMultiBotAutomationSettings();
+      Automation = OrchestratorMultiBotAutomationSettings();
 
-  Describe(Automation.Groups.RuntimeStore, [this, &Automation]() {
-    It(Automation.Cases.RegisterBots, [this, &Automation]() {
+  Describe(Automation.Groups.RuntimeStore, [this, Automation]() {
+    It(Automation.Cases.Registration.RegisterBots, [this, Automation]() {
       rtk::EnhancedStore<ForbocAI::Game::Level::FRuntimeState> EnhancedStoreValue =
           Store::ConfigureStore();
 
@@ -95,21 +95,22 @@ void FOrchestratorMultiBotSpec::Define() {
       const TArray<FBotEntity> Bots =
           RuntimeSelectors::SelectBots(EnhancedStoreValue.getState());
 
-      TestEqual(Automation.Assertions.ThreeBotsInRootState, Bots.Num(),
+      TestEqual(Automation.Assertions.RootState.ThreeBotsInRootState,
+                Bots.Num(),
                 SeedBots.Num());
-      TestTrue(Automation.Assertions.BotSelectable,
+      TestTrue(Automation.Assertions.RootState.BotSelectable,
                RuntimeSelectors::SelectBotById(EnhancedStoreValue.getState(),
                                                SeedBots[SeedBots.Num() -
                                                         SeedBots.Num()]
                                                    .Id)
                    .hasValue);
-      TestTrue(Automation.Assertions.HorseSelectable,
+      TestTrue(Automation.Assertions.RootState.HorseSelectable,
                RuntimeSelectors::SelectBotById(EnhancedStoreValue.getState(),
                                                SeedBots.Last().Id)
                    .hasValue);
     });
 
-    It(Automation.Cases.DispatchMovement, [this, &Automation]() {
+    It(Automation.Cases.Cycle.DispatchMovement, [this, Automation]() {
       rtk::EnhancedStore<ForbocAI::Game::Level::FRuntimeState> EnhancedStoreValue =
           Store::ConfigureStore();
       const ForbocAI::Game::Data::FSettings &Settings =
@@ -138,8 +139,9 @@ void FOrchestratorMultiBotSpec::Define() {
           RuntimeSelectors::SelectBotPositionById(EnhancedStoreValue.getState(),
                                                   MovingBot.Id);
 
-      TestTrue(Automation.Assertions.PositionSelectable, Position.hasValue);
-      TestEqual(Automation.Assertions.WorldPositionUpdated,
+      TestTrue(Automation.Assertions.RootState.PositionSelectable,
+               Position.hasValue);
+      TestEqual(Automation.Assertions.RootState.WorldPositionUpdated,
                 Position.hasValue ? Position.value.WorldLocation
                                   : FVector::ZeroVector,
                 Settings.Bot.Actions.MoveActionOffset);

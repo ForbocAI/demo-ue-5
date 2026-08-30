@@ -1,6 +1,10 @@
 {
   "build_runner": {
     "disable_uba": true,
+    "generated_metadata": [
+      "Binaries/Win64/UnrealEditor.modules",
+      "Binaries/Win64/ForbocAIDemoEditor.target"
+    ],
     "max_parallel_actions": 1
   }
 }

@@ -20,6 +20,9 @@ void APlayerRuntimeControllerView::SetupInputComponent() {
   InputComponent->BindKey(
       EKeys::E, IE_Pressed, this,
       &APlayerRuntimeControllerView::InteractWithNearestTownsperson);
+  InputComponent->BindKey(
+      EKeys::G, IE_Pressed, this,
+      &APlayerRuntimeControllerView::AnalyzeLevelWithGhost);
   InputComponent->BindKey(EKeys::F, IE_Pressed, this,
                           &APlayerRuntimeControllerView::ToggleRuntimeFlyMode);
   InputComponent->BindKey(
@@ -66,16 +69,41 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
       ? ([this, &Townspeople, &Selection]() {
           ATownspersonView *Townsperson =
               Townspeople[Selection.CandidateIndex];
-          FG::RuntimeActions::DispatchTownspersonInteractionSourceObserved(
-              ObserveTownspersonInteractionSource(*Townsperson));
-          const ForbocAI::Game::UI::FRuntimeConversationViewModel
-              Conversation = FG::RuntimeSelectors::SelectRuntimeConversation();
-          const FString Reply = Conversation.Text.NpcReply;
-          Townsperson->ShowDialogueReply(Reply);
-          PresentConversationViewModel(Conversation);
-          PresentMissingInteraction(Reply);
+          func::AsyncResult<FG::FForbocAINpcResult> Result =
+              FG::ForbocAIProtocolActions::DispatchNpcInteraction(
+                  ObserveTownspersonInteractionSource(*Townsperson));
+          PresentMissingInteraction(
+              FG::ForbocAIProtocolSelectors::SelectNpcPresentation().Message);
+          const TWeakObjectPtr<ATownspersonView> ObservedTownsperson(
+              Townsperson);
+          Result
+              .then([this, ObservedTownsperson](
+                        const FG::FForbocAINpcResult &) {
+                PresentNpcInteractionResult(ObservedTownsperson.Get());
+              })
+              .catch_([this](const std::string &) {
+                PresentNpcInteractionFailure();
+              })
+              .execute();
         }(), void())
       : (PresentMissingInteraction(Selection.MissingMessage), void());
+}
+
+/** User Story: As NPC interaction presentation, I need fulfilled root-state output rendered against the observed townsperson. @fn void APlayerRuntimeControllerView::PresentNpcInteractionResult(ATownspersonView *Townsperson) */
+void APlayerRuntimeControllerView::PresentNpcInteractionResult(
+    ATownspersonView *Townsperson) {
+  const ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation =
+      FG::RuntimeSelectors::SelectRuntimeConversation();
+  const FString Reply = Conversation.Text.NpcReply;
+  Townsperson ? Townsperson->ShowDialogueReply(Reply) : void();
+  PresentConversationViewModel(Conversation);
+  PresentMissingInteraction(Reply);
+}
+
+/** User Story: As NPC interaction presentation, I need rejected root-state evidence rendered without inventing a fallback response. @fn void APlayerRuntimeControllerView::PresentNpcInteractionFailure() */
+void APlayerRuntimeControllerView::PresentNpcInteractionFailure() {
+  PresentMissingInteraction(
+      FG::ForbocAIProtocolSelectors::SelectNpcPresentation().Message);
 }
 
 /** User Story: As a player controller interaction consumer, I need to invoke present conversation view model through a stable signature so the player controller interaction workflow remains explicit and composable. @fn void APlayerRuntimeControllerView::PresentConversationViewModel( const ForbocAI::Game::UI::FRuntimeConversationViewModel &Conversation) */

@@ -4,9 +4,9 @@
 #include "Features/Systems/Bots/Behavior/BehaviorActions.h"
 #include "Features/Systems/Bots/Behavior/BehaviorSlice.h"
 
-using namespace ForbocAI::Game::Level;
-
 namespace {
+
+using namespace ForbocAI::Game::Level;
 
 /** User Story: As a tests consumer, I need to invoke bot functional core all settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FSettings & BotFunctionalCoreAllSettings() */
 const ForbocAI::Game::Data::FSettings &
@@ -87,6 +87,8 @@ DEFINE_SPEC(FBotFunctionalCoreSpec, BotFunctionalCoreAutomationSettings().Spec, 
 /** User Story: As a tests consumer, I need to invoke define through a stable signature so the tests workflow remains explicit and composable. @fn void FBotFunctionalCoreSpec::Define() */
 void FBotFunctionalCoreSpec::Define()
 {
+    using namespace ForbocAI::Game::Level;
+
     Describe(BotFunctionalCoreGroups().StateCreation, [this]()
     {
         It(BotFunctionalCoreCases().State.CreateInitialState, [this]()
