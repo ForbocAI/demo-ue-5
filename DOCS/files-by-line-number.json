@@ -89,6 +89,10 @@
       "lines": 275
     },
     {
+      "path": "Source/Features/Components/Data/Json/Settings/Field/SettingsFieldAdapters.h",
+      "lines": 274
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
       "lines": 271
     },
@@ -111,10 +115,6 @@
     {
       "path": "Source/Tests/Speech.spec.cpp",
       "lines": 266
-    },
-    {
-      "path": "Source/Features/Components/Data/Json/Settings/Field/SettingsFieldAdapters.h",
-      "lines": 265
     },
     {
       "path": "Source/Features/Systems/Level/Presentation/LevelPresentationSlice.cpp",
@@ -289,12 +289,12 @@
       "lines": 197
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/ScenariosBotAdapters.h",
-      "lines": 195
+      "path": "Source/Features/Components/Data/Json/Settings/Registry/SettingsRegistryAdapters.h",
+      "lines": 196
     },
     {
-      "path": "Source/Features/Components/Data/Json/Settings/Registry/SettingsRegistryAdapters.h",
-      "lines": 193
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/ScenariosBotAdapters.h",
+      "lines": 195
     },
     {
       "path": "Source/Features/Systems/Rendering/Profile/ProfileThunks.h",
@@ -509,6 +509,10 @@
       "lines": 145
     },
     {
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingSelectors.cpp",
+      "lines": 145
+    },
+    {
       "path": "Source/Features/Systems/UI/Chat/Rendering/ChatRenderingSlice.h",
       "lines": 145
     },
@@ -609,12 +613,12 @@
       "lines": 130
     },
     {
-      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingSelectors.cpp",
-      "lines": 130
-    },
-    {
       "path": "Source/Features/Systems/Rendering/Profile/Sky/Color/ColorSlice.cpp",
       "lines": 129
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Sky/Dome/DomeTypes.h",
+      "lines": 128
     },
     {
       "path": "Source/Features/Systems/Rendering/Texture/Palette/Texture/TextureThunks.h",
@@ -622,6 +626,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Marketing/MarketingTypes.h",
+      "lines": 126
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Material/MaterialTypes.h",
       "lines": 126
     },
     {
@@ -645,10 +653,6 @@
       "lines": 124
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Sky/Dome/DomeTypes.h",
-      "lines": 122
-    },
-    {
       "path": "Source/Views/Player/Character/CharacterView.h",
       "lines": 122
     },
@@ -663,10 +667,6 @@
     {
       "path": "Source/Features/Systems/Initialization/InitializationAdapters.cpp",
       "lines": 120
-    },
-    {
-      "path": "Source/Features/Components/Rendering/Profile/Material/MaterialTypes.h",
-      "lines": 119
     },
     {
       "path": "Source/Features/Systems/Dialogue/SystemsDialogueTypes.h",
@@ -781,6 +781,10 @@
       "lines": 101
     },
     {
+      "path": "Source/Features/Components/Rendering/Profile/Sky/Moon/MoonTypes.h",
+      "lines": 100
+    },
+    {
       "path": "Source/Features/Systems/Bots/Pipeline/BotsPipelineAdapters.h",
       "lines": 100
     },
@@ -801,8 +805,12 @@
       "lines": 96
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Sky/Moon/MoonTypes.h",
-      "lines": 95
+      "path": "Source/Features/Components/Rendering/Profile/PostProcess/PostProcessTypes.h",
+      "lines": 96
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Sky/Stars/StarsTypes.h",
+      "lines": 96
     },
     {
       "path": "Source/Features/Components/Spatial/Level/Layout/SpatialLevelLayoutTypes.h",
@@ -815,6 +823,14 @@
     {
       "path": "Scripts/Run/run-runtime-smoke.sh",
       "lines": 94
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Sky/Atmosphere/AtmosphereTypes.h",
+      "lines": 94
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Lighting/LightingTypes.h",
+      "lines": 93
     },
     {
       "path": "Source/Features/Entities/Characters/Bots/CharactersBotsAdapters.cpp",
@@ -845,14 +861,6 @@
       "lines": 91
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/PostProcess/PostProcessTypes.h",
-      "lines": 91
-    },
-    {
-      "path": "Source/Features/Components/Rendering/Profile/Sky/Stars/StarsTypes.h",
-      "lines": 91
-    },
-    {
       "path": "Source/Features/Entities/Environments/Nature/Seed/Project/ProjectAdapters.h",
       "lines": 91
     },
@@ -863,10 +871,6 @@
     {
       "path": "Source/Tests/ConversationUI.spec.cpp",
       "lines": 90
-    },
-    {
-      "path": "Source/Features/Components/Rendering/Profile/Sky/Atmosphere/AtmosphereTypes.h",
-      "lines": 89
     },
     {
       "path": "Source/Features/Systems/Bots/Position/PositionSlice.h",
@@ -889,11 +893,11 @@
       "lines": 87
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Lighting/LightingTypes.h",
+      "path": "Source/Features/Systems/Level/Presentation/Spawn/PresentationSpawnTypes.h",
       "lines": 87
     },
     {
-      "path": "Source/Features/Systems/Level/Presentation/Spawn/PresentationSpawnTypes.h",
+      "path": "Source/Features/Systems/Rendering/Stats/Effects/EffectsAdapters.cpp",
       "lines": 87
     },
     {
@@ -961,10 +965,6 @@
       "lines": 81
     },
     {
-      "path": "Source/Features/Systems/Rendering/Stats/Effects/EffectsAdapters.cpp",
-      "lines": 81
-    },
-    {
       "path": "Source/Views/Level/Game/Mode/ModeView.cpp",
       "lines": 81
     },
@@ -995,6 +995,10 @@
     {
       "path": "Source/Features/Systems/Rendering/Diagnostics/DiagnosticsSelectors.h",
       "lines": 77
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Output/ProfileOutputTypes.h",
+      "lines": 76
     },
     {
       "path": "Source/Features/Entities/Characters/Player/CharactersPlayerAdapters.cpp",
@@ -1093,10 +1097,6 @@
       "lines": 72
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Output/ProfileOutputTypes.h",
-      "lines": 72
-    },
-    {
       "path": "Source/Features/Systems/Bots/Horses/HorsesSlice.cpp",
       "lines": 72
     },
@@ -1125,6 +1125,10 @@
       "lines": 70
     },
     {
+      "path": "Source/Features/Components/Rendering/Profile/Fog/FogTypes.h",
+      "lines": 69
+    },
+    {
       "path": "Content/Map/Heightmaps/french_gulch_ca_ortho_65.csv",
       "lines": 68
     },
@@ -1134,6 +1138,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Scale/Audit/AuditTypes.h",
+      "lines": 68
+    },
+    {
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingAdapters.cpp",
       "lines": 68
     },
     {
@@ -1149,11 +1157,11 @@
       "lines": 66
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/ConfigurationTypes.h",
-      "lines": 65
+      "path": "Source/Features/Components/Rendering/Profile/Pixel/PixelTypes.h",
+      "lines": 66
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Fog/FogTypes.h",
+      "path": "Source/Features/Components/Data/Settings/Bot/Configuration/ConfigurationTypes.h",
       "lines": 65
     },
     {
@@ -1162,10 +1170,6 @@
     },
     {
       "path": "Source/Features/Systems/Level/Layout/SystemsLevelLayoutAdapters.cpp",
-      "lines": 65
-    },
-    {
-      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingAdapters.cpp",
       "lines": 65
     },
     {
@@ -1206,10 +1210,6 @@
     },
     {
       "path": "Source/Features/Components/Data/Json/Read/Text/TextAdapters.h",
-      "lines": 62
-    },
-    {
-      "path": "Source/Features/Components/Rendering/Profile/Pixel/PixelTypes.h",
       "lines": 62
     },
     {
@@ -1517,6 +1517,10 @@
       "lines": 42
     },
     {
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingSelectors.h",
+      "lines": 42
+    },
+    {
       "path": "Content/Data/settings/rendering/texture/palette/horse/coat.json",
       "lines": 41
     },
@@ -1553,6 +1557,10 @@
       "lines": 40
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Rendering/Profile/SettingsRenderingProfileTypes.h",
+      "lines": 40
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Material/MaterialAdapters.h",
       "lines": 40
     },
@@ -1566,10 +1574,6 @@
     },
     {
       "path": "Content/Map/Heightmaps/french_gulch_ca_terrain_metadata.json",
-      "lines": 39
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Rendering/Profile/SettingsRenderingProfileTypes.h",
       "lines": 39
     },
     {
@@ -1658,10 +1662,6 @@
     },
     {
       "path": "Source/Features/Entities/Characters/Bots/CharactersBotsAdapters.h",
-      "lines": 36
-    },
-    {
-      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingSelectors.h",
       "lines": 36
     },
     {
@@ -1773,6 +1773,10 @@
       "lines": 33
     },
     {
+      "path": "Source/Features/Systems/Rendering/Profile/Color/ColorTypes.h",
+      "lines": 33
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/Overlay/Presentation/PresentationAdapters.h",
       "lines": 32
     },
@@ -1881,6 +1885,10 @@
       "lines": 31
     },
     {
+      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingAdapters.h",
+      "lines": 31
+    },
+    {
       "path": "Source/Views/Player/Controller/ControllerView.cpp",
       "lines": 31
     },
@@ -1921,10 +1929,6 @@
       "lines": 30
     },
     {
-      "path": "Source/Features/Systems/Rendering/Profile/Color/ColorTypes.h",
-      "lines": 30
-    },
-    {
       "path": "Source/Features/Systems/Rendering/SystemsRenderingActions.h",
       "lines": 30
     },
@@ -1954,6 +1958,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/Memory/MeasurementMemoryTypes.h",
+      "lines": 29
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Sky/SkyTypes.h",
       "lines": 29
     },
     {
@@ -2025,7 +2033,7 @@
       "lines": 28
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Sky/SkyTypes.h",
+      "path": "Source/Features/Components/Rendering/Profile/Render/Equality/EqualityTypes.h",
       "lines": 28
     },
     {
@@ -2046,10 +2054,6 @@
     },
     {
       "path": "Source/Features/Systems/Rendering/Profile/ProfileSlice.h",
-      "lines": 28
-    },
-    {
-      "path": "Source/Features/Systems/Rendering/Stats/Sampling/SamplingAdapters.h",
       "lines": 28
     },
     {
@@ -2082,6 +2086,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Root/Roles/RolesTypes.h",
+      "lines": 27
+    },
+    {
+      "path": "Source/Features/Components/Rendering/Profile/Scalability/ScalabilityTypes.h",
       "lines": 27
     },
     {
@@ -2122,14 +2130,6 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/ProfileAdapters.h",
-      "lines": 26
-    },
-    {
-      "path": "Source/Features/Components/Rendering/Profile/Render/Equality/EqualityTypes.h",
-      "lines": 26
-    },
-    {
-      "path": "Source/Features/Components/Rendering/Profile/Scalability/ScalabilityTypes.h",
       "lines": 26
     },
     {
@@ -2349,6 +2349,10 @@
       "lines": 22
     },
     {
+      "path": "Source/Features/Systems/Rendering/Profile/ProfileSlice.cpp",
+      "lines": 22
+    },
+    {
       "path": "Source/Features/Systems/Spawn/SpawnActions.cpp",
       "lines": 22
     },
@@ -2421,6 +2425,10 @@
       "lines": 20
     },
     {
+      "path": "Source/Features/Components/Rendering/Profile/Time/TimeTypes.h",
+      "lines": 20
+    },
+    {
       "path": "Source/Features/Systems/Landmarks/SystemsLandmarksSelectors.h",
       "lines": 20
     },
@@ -2437,10 +2445,6 @@
       "lines": 19
     },
     {
-      "path": "Source/Features/Components/Rendering/Profile/Time/TimeTypes.h",
-      "lines": 19
-    },
-    {
       "path": "Source/Features/Systems/Bots/AI/AIActions.h",
       "lines": 19
     },
@@ -2450,10 +2454,6 @@
     },
     {
       "path": "Source/Features/Systems/Bots/SystemsBotsActions.h",
-      "lines": 19
-    },
-    {
-      "path": "Source/Features/Systems/Rendering/Profile/ProfileSlice.cpp",
       "lines": 19
     },
     {
