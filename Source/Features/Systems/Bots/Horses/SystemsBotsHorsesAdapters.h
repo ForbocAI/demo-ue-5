@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
 
 namespace ForbocAI {
 namespace Game {

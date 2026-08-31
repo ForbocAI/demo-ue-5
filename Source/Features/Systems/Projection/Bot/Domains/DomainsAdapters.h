@@ -2,7 +2,7 @@
 
 #include "Core/fp.hpp"
 #include "Features/Components/ComponentsAdapters.h"
-#include "Features/Entities/EntitiesAdapters.h"
+#include "Features/Entities/Characters/Bots/CharactersBotsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -45,7 +45,7 @@ ecs::FWorld ProjectBotPayload(const Payload &PayloadValue,
       PayloadValue,
       ComponentsAdapters::TEntityCatalogProjection{
           [SelectIdValue](const Payload &SelectedPayload) {
-            return EntitiesAdapters::BotEntityKey(SelectIdValue(SelectedPayload));
+            return BotsAdapters::BotEntityKey(SelectIdValue(SelectedPayload));
           },
           func::constant<TArray<TArray<FString>>>(
               BuildBotProjectionDomains(Request.BotSystemDomain)),

@@ -1,6 +1,6 @@
 #include "Features/Systems/Bots/Horses/HorsesSelectors.h"
 
-#include "Features/Systems/Bots/Horses/HorsesAdapters.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

@@ -1,8 +1,8 @@
 #include "Features/Systems/Level/Presentation/LevelPresentationSlice.h"
 
 #include "Core/ecs.hpp"
-#include "Features/Systems/Bots/Horses/HorsesAdapters.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleAdapters.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesAdapters.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleAdapters.h"
 #include "Features/Systems/Landmarks/SystemsLandmarksAdapters.h"
 #include "Features/Systems/Level/SystemsLevelSlice.h"
 #include "Features/Systems/Nature/Entity/EntityAdapters.h"

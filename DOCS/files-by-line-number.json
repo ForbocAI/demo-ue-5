@@ -37,10 +37,6 @@
       "lines": 293
     },
     {
-      "path": "Source/Features/Entities/Characters/Bots/Townspeople/Seed/TownspeopleSeedAdapters.cpp",
-      "lines": 290
-    },
-    {
       "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorThunks.cpp",
       "lines": 290
     },
@@ -54,6 +50,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Json/Read/ReadAdapters.cpp",
+      "lines": 287
+    },
+    {
+      "path": "Source/Features/Entities/Characters/Bots/Townspeople/Seed/TownspeopleSeedAdapters.cpp",
       "lines": 287
     },
     {
@@ -101,11 +101,11 @@
       "lines": 274
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
-      "lines": 271
+      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.cpp",
+      "lines": 272
     },
     {
-      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.cpp",
+      "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
       "lines": 271
     },
     {
@@ -169,6 +169,10 @@
       "lines": 242
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h",
+      "lines": 242
+    },
+    {
       "path": "Source/Views/Player/Character/CharacterView.cpp",
       "lines": 241
     },
@@ -197,16 +201,16 @@
       "lines": 232
     },
     {
+      "path": "Source/Tests/Store/StoreSpecSupport.h",
+      "lines": 232
+    },
+    {
       "path": "Source/Tests/Pipeline.spec.cpp",
       "lines": 231
     },
     {
       "path": "Scripts/Run/Compilation/build-runner.sh",
       "lines": 230
-    },
-    {
-      "path": "Source/Tests/Store/StoreSpecSupport.h",
-      "lines": 229
     },
     {
       "path": "Source/Features/Systems/State/StateSlice.cpp",
@@ -257,10 +261,6 @@
       "lines": 213
     },
     {
-      "path": "Source/Features/Systems/Bots/Townspeople/TownspeopleTypes.h",
-      "lines": 213
-    },
-    {
       "path": "Source/Tests/Store/DataBackedMapRendering.spec.cpp",
       "lines": 211
     },
@@ -282,10 +282,6 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Automation/Bot/Orchestrator/BotOrchestratorTypes.h",
-      "lines": 207
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h",
       "lines": 207
     },
     {
@@ -337,16 +333,16 @@
       "lines": 193
     },
     {
-      "path": "Source/Features/Entities/Characters/Bots/Horses/Route/Seed/RouteSeedAdapters.cpp",
-      "lines": 191
-    },
-    {
       "path": "Source/Features/Systems/Interaction/InteractionSlice.h",
       "lines": 190
     },
     {
       "path": "Source/Views/Player/Controller/Capture/CaptureView.h",
       "lines": 189
+    },
+    {
+      "path": "Source/Features/Entities/Characters/Bots/Horses/Route/Seed/RouteSeedAdapters.cpp",
+      "lines": 188
     },
     {
       "path": "Source/Features/Systems/Seed/SeedThunks.h",
@@ -457,12 +453,20 @@
       "lines": 157
     },
     {
+      "path": "Source/Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h",
+      "lines": 157
+    },
+    {
       "path": "Source/Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.cpp",
       "lines": 155
     },
     {
       "path": "Source/Features/Systems/Level/Layout/Enum/EnumAdapters.cpp",
       "lines": 153
+    },
+    {
+      "path": "Content/Data/cpp-authored-values/values-000.json",
+      "lines": 152
     },
     {
       "path": "Content/Data/levels/french_gulch/terrain/blocks/part-001.json",
@@ -509,15 +513,11 @@
       "lines": 152
     },
     {
-      "path": "Content/Data/cpp-authored-values/values-000.json",
-      "lines": 151
+      "path": "Source/Features/Components/AuthoredValues/AuthoredValuesTypes.h",
+      "lines": 149
     },
     {
       "path": "Scripts/Docs/count_project_lines.py",
-      "lines": 148
-    },
-    {
-      "path": "Source/Features/Components/AuthoredValues/AuthoredValuesTypes.h",
       "lines": 148
     },
     {
@@ -537,10 +537,6 @@
       "lines": 146
     },
     {
-      "path": "Source/frontierOfJeffersonStore.cpp",
-      "lines": 146
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Registry/UI/Stats/UIStatsAdapters.h",
       "lines": 145
     },
@@ -554,6 +550,10 @@
     },
     {
       "path": "Source/Features/Systems/UI/Chat/Rendering/ChatRenderingSlice.h",
+      "lines": 145
+    },
+    {
+      "path": "Source/frontierOfJeffersonStore.cpp",
       "lines": 145
     },
     {
@@ -709,11 +709,23 @@
       "lines": 123
     },
     {
+      "path": "Content/Data/settings/core/automation/store.json",
+      "lines": 122
+    },
+    {
+      "path": "Source/Tests/Store/EntityAdapters.spec.cpp",
+      "lines": 122
+    },
+    {
       "path": "Source/Views/Player/Character/CharacterView.h",
       "lines": 122
     },
     {
       "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSlice.cpp",
+      "lines": 121
+    },
+    {
+      "path": "Source/Features/Systems/Projection/ProjectionAdapters.cpp",
       "lines": 121
     },
     {
@@ -723,6 +735,10 @@
     {
       "path": "Source/Features/Components/Data/Settings/Level/Csv/CsvTypes.h",
       "lines": 120
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Automation/Store/StoreTypes.h",
+      "lines": 119
     },
     {
       "path": "Source/Features/Systems/Dialogue/SystemsDialogueTypes.h",
@@ -758,10 +774,6 @@
     },
     {
       "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolThunks.cpp",
-      "lines": 115
-    },
-    {
-      "path": "Source/Features/Systems/Projection/ProjectionAdapters.cpp",
       "lines": 115
     },
     {
@@ -823,10 +835,6 @@
     {
       "path": "Source/Features/Systems/Rendering/Profile/Sky/SkySlice.h",
       "lines": 105
-    },
-    {
-      "path": "Content/Data/settings/core/automation/store.json",
-      "lines": 104
     },
     {
       "path": "Source/Features/Systems/Projection/ProjectionSlice.cpp",
@@ -913,10 +921,6 @@
       "lines": 93
     },
     {
-      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsAdapters.cpp",
-      "lines": 93
-    },
-    {
       "path": "Source/Features/Systems/Bots/Stats/StatsSlice.h",
       "lines": 93
     },
@@ -933,6 +937,10 @@
       "lines": 92
     },
     {
+      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsAdapters.cpp",
+      "lines": 92
+    },
+    {
       "path": "Source/Features/Systems/Route/RouteSelectors.cpp",
       "lines": 92
     },
@@ -941,7 +949,7 @@
       "lines": 91
     },
     {
-      "path": "Source/Features/Entities/Environments/Nature/Seed/Project/ProjectAdapters.h",
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h",
       "lines": 91
     },
     {
@@ -951,10 +959,6 @@
     {
       "path": "Source/Tests/ConversationUI.spec.cpp",
       "lines": 90
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Automation/Store/StoreTypes.h",
-      "lines": 89
     },
     {
       "path": "Content/Data/settings/forboc-ai.json",
@@ -973,11 +977,11 @@
       "lines": 87
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h",
+      "path": "Source/Features/Components/Data/Settings/Rendering/RenderingAdapters.h",
       "lines": 87
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Rendering/RenderingAdapters.h",
+      "path": "Source/Features/Entities/Environments/Nature/NatureAdapters.cpp",
       "lines": 87
     },
     {
@@ -1005,10 +1009,6 @@
       "lines": 85
     },
     {
-      "path": "Source/Features/Systems/Landmarks/LandmarksSlice.cpp",
-      "lines": 85
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Pipeline/ScenariosPipelineAdapters.h",
       "lines": 84
     },
@@ -1031,10 +1031,6 @@
     {
       "path": "Source/Views/Chat/ChatView.cpp",
       "lines": 82
-    },
-    {
-      "path": "Source/Features/Systems/Landmarks/SystemsLandmarksTypes.h",
-      "lines": 81
     },
     {
       "path": "Source/Views/Level/Game/Mode/ModeView.cpp",
@@ -1081,7 +1077,7 @@
       "lines": 76
     },
     {
-      "path": "Source/Features/Systems/Bots/SystemsBotsSlice.h",
+      "path": "Source/Features/Systems/Bots/BotsSlice.h",
       "lines": 76
     },
     {
@@ -1137,15 +1133,15 @@
       "lines": 74
     },
     {
-      "path": "Source/Features/Entities/EntitiesAdapters.h",
-      "lines": 74
-    },
-    {
       "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorAdapters.h",
       "lines": 74
     },
     {
       "path": "Source/Features/Systems/Bots/AI/AISlice.h",
+      "lines": 73
+    },
+    {
+      "path": "Source/Features/Systems/Landmarks/LandmarksSlice.cpp",
       "lines": 73
     },
     {
@@ -1193,10 +1189,6 @@
       "lines": 70
     },
     {
-      "path": "Source/Features/Systems/Bots/SystemsBotsTypes.h",
-      "lines": 70
-    },
-    {
       "path": "Source/Features/Components/Rendering/Profile/Fog/FogTypes.h",
       "lines": 69
     },
@@ -1238,6 +1230,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Bot/Configuration/ConfigurationTypes.h",
+      "lines": 65
+    },
+    {
+      "path": "Source/Features/Entities/Characters/Bots/Townspeople/CharactersBotsTownspeopleTypes.h",
       "lines": 65
     },
     {
@@ -1365,10 +1361,6 @@
       "lines": 57
     },
     {
-      "path": "Source/Features/Systems/Nature/SystemsNatureTypes.h",
-      "lines": 57
-    },
-    {
       "path": "Source/Features/Systems/Rendering/Stats/Sampling/StatsSamplingTypes.h",
       "lines": 57
     },
@@ -1386,6 +1378,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Root/RootTypes.h",
+      "lines": 56
+    },
+    {
+      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsTypes.h",
       "lines": 56
     },
     {
@@ -1410,10 +1406,6 @@
     },
     {
       "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLITypes.h",
-      "lines": 54
-    },
-    {
-      "path": "Source/Features/Systems/Landmarks/SystemsLandmarksSlice.h",
       "lines": 54
     },
     {
@@ -1449,11 +1441,15 @@
       "lines": 52
     },
     {
+      "path": "Source/Features/Systems/Landmarks/LandmarksSlice.h",
+      "lines": 52
+    },
+    {
       "path": "Source/Features/Systems/Level/Layout/Document/DocumentAdapters.h",
       "lines": 52
     },
     {
-      "path": "Source/Features/Systems/Nature/SystemsNatureSlice.h",
+      "path": "Source/Features/Systems/Nature/NatureSlice.h",
       "lines": 52
     },
     {
@@ -1521,10 +1517,6 @@
       "lines": 47
     },
     {
-      "path": "Source/Features/Systems/Bots/Horses/HorsesTypes.h",
-      "lines": 47
-    },
-    {
       "path": "Source/Features/Systems/Observed/ObservedTypes.h",
       "lines": 47
     },
@@ -1581,6 +1573,10 @@
       "lines": 43
     },
     {
+      "path": "Source/Features/Entities/Environments/Nature/EnvironmentsNatureTypes.h",
+      "lines": 43
+    },
+    {
       "path": "Source/Features/Systems/Rendering/SystemsRenderingSelectors.h",
       "lines": 43
     },
@@ -1598,6 +1594,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Stats/UIStatsTypes.h",
+      "lines": 42
+    },
+    {
+      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksTypes.h",
       "lines": 42
     },
     {
@@ -1666,6 +1666,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Stats/Measurement/Diagnostic/DiagnosticTypes.h",
+      "lines": 40
+    },
+    {
+      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsAdapters.h",
       "lines": 40
     },
     {
@@ -1741,6 +1745,10 @@
       "lines": 37
     },
     {
+      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.h",
+      "lines": 37
+    },
+    {
       "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolActions.cpp",
       "lines": 37
     },
@@ -1769,10 +1777,6 @@
       "lines": 36
     },
     {
-      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsAdapters.h",
-      "lines": 36
-    },
-    {
       "path": "Source/Features/Systems/Rendering/Texture/TextureThunks.cpp",
       "lines": 36
     },
@@ -1785,7 +1789,7 @@
       "lines": 35
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Player/PlayerAdapters.h",
+      "path": "Source/Features/Components/Data/Settings/Player/SettingsPlayerAdapters.h",
       "lines": 35
     },
     {
@@ -1874,6 +1878,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Stats/Threshold/Resource/ResourceTypes.h",
+      "lines": 33
+    },
+    {
+      "path": "Source/Features/Entities/Characters/Bots/Horses/CharactersBotsHorsesTypes.h",
       "lines": 33
     },
     {
@@ -2161,15 +2169,15 @@
       "lines": 28
     },
     {
-      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.h",
-      "lines": 28
-    },
-    {
       "path": "Source/Features/Systems/Bots/BotsSelectors.cpp",
       "lines": 28
     },
     {
       "path": "Source/Features/Systems/Bots/Pipeline/PipelineActions.h",
+      "lines": 28
+    },
+    {
+      "path": "Source/Features/Systems/Landmarks/SystemsLandmarksTypes.h",
       "lines": 28
     },
     {
@@ -2257,7 +2265,7 @@
       "lines": 26
     },
     {
-      "path": "Source/Features/Entities/Environments/Nature/Seed/SeedAdapters.h",
+      "path": "Source/Features/Entities/EntitiesAdapters.h",
       "lines": 26
     },
     {
@@ -2265,7 +2273,19 @@
       "lines": 26
     },
     {
+      "path": "Source/Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h",
+      "lines": 26
+    },
+    {
+      "path": "Source/Features/Systems/Bots/SystemsBotsTypes.h",
+      "lines": 26
+    },
+    {
       "path": "Source/Features/Systems/Landmarks/LandmarksSelectors.cpp",
+      "lines": 26
+    },
+    {
+      "path": "Source/Features/Systems/Nature/SystemsNatureTypes.h",
       "lines": 26
     },
     {
@@ -2313,7 +2333,7 @@
       "lines": 25
     },
     {
-      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsSlice.h",
+      "path": "Source/Features/Entities/Environments/Nature/Seed/SeedAdapters.h",
       "lines": 25
     },
     {
@@ -2346,6 +2366,10 @@
     },
     {
       "path": "Source/Features/Components/Spatial/SpatialSelectors.cpp",
+      "lines": 24
+    },
+    {
+      "path": "Source/Features/Entities/Environments/Nature/NatureAdapters.h",
       "lines": 24
     },
     {
@@ -2394,6 +2418,10 @@
     },
     {
       "path": "Source/Features/Components/Rendering/Profile/Render/RenderTypes.h",
+      "lines": 23
+    },
+    {
+      "path": "Source/Features/Entities/Characters/Player/CharactersPlayerAdapters.h",
       "lines": 23
     },
     {
@@ -2457,15 +2485,15 @@
       "lines": 22
     },
     {
+      "path": "Source/Features/Systems/Bots/BotsSelectors.h",
+      "lines": 22
+    },
+    {
       "path": "Source/Features/Systems/Bots/Horses/HorsesActions.cpp",
       "lines": 22
     },
     {
       "path": "Source/Features/Systems/Bots/Horses/HorsesSelectors.cpp",
-      "lines": 22
-    },
-    {
-      "path": "Source/Features/Systems/Bots/SystemsBotsSelectors.h",
       "lines": 22
     },
     {
@@ -2517,6 +2545,10 @@
       "lines": 21
     },
     {
+      "path": "Source/Features/Entities/Characters/Bots/Townspeople/CharactersBotsTownspeopleAdapters.h",
+      "lines": 21
+    },
+    {
       "path": "Source/Features/Systems/Bots/AI/BotsAIAdapters.cpp",
       "lines": 21
     },
@@ -2565,7 +2597,11 @@
       "lines": 20
     },
     {
-      "path": "Source/Features/Systems/Landmarks/SystemsLandmarksSelectors.h",
+      "path": "Source/Features/Entities/Characters/Bots/Horses/CharactersBotsHorsesAdapters.h",
+      "lines": 20
+    },
+    {
+      "path": "Source/Features/Systems/Landmarks/LandmarksSelectors.h",
       "lines": 20
     },
     {
@@ -2581,11 +2617,11 @@
       "lines": 19
     },
     {
-      "path": "Source/Features/Systems/Bots/Stats/StatsActions.h",
+      "path": "Source/Features/Systems/Bots/BotsActions.h",
       "lines": 19
     },
     {
-      "path": "Source/Features/Systems/Bots/SystemsBotsActions.h",
+      "path": "Source/Features/Systems/Bots/Stats/StatsActions.h",
       "lines": 19
     },
     {
@@ -2601,15 +2637,11 @@
       "lines": 18
     },
     {
-      "path": "Source/Features/Entities/EntitiesSlice.h",
-      "lines": 18
-    },
-    {
       "path": "Source/Features/Systems/Bots/Horses/HorsesSelectors.h",
       "lines": 18
     },
     {
-      "path": "Source/Features/Systems/Nature/SystemsNatureSelectors.h",
+      "path": "Source/Features/Systems/Nature/NatureSelectors.h",
       "lines": 18
     },
     {
@@ -2677,7 +2709,7 @@
       "lines": 17
     },
     {
-      "path": "Source/Features/Systems/Bots/Horses/HorsesAdapters.h",
+      "path": "Source/Features/Systems/Bots/Horses/SystemsBotsHorsesAdapters.h",
       "lines": 17
     },
     {
@@ -2693,11 +2725,11 @@
       "lines": 17
     },
     {
-      "path": "Source/Features/Systems/Bots/Townspeople/TownspeopleAdapters.h",
+      "path": "Source/Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleAdapters.h",
       "lines": 17
     },
     {
-      "path": "Source/Features/Systems/Landmarks/SystemsLandmarksActions.h",
+      "path": "Source/Features/Systems/Landmarks/LandmarksActions.h",
       "lines": 17
     },
     {
@@ -2709,7 +2741,7 @@
       "lines": 17
     },
     {
-      "path": "Source/Features/Systems/Nature/SystemsNatureActions.h",
+      "path": "Source/Features/Systems/Nature/NatureActions.h",
       "lines": 17
     },
     {
@@ -2737,6 +2769,10 @@
       "lines": 16
     },
     {
+      "path": "Source/Features/Entities/EntitiesAdapters.cpp",
+      "lines": 16
+    },
+    {
       "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLIAdapters.h",
       "lines": 16
     },
@@ -2761,6 +2797,10 @@
       "lines": 16
     },
     {
+      "path": "Content/Data/settings/core/automation/store/entity-adapters/nature-projection.json",
+      "lines": 15
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Registry/Color/ColorAdapters.h",
       "lines": 15
     },
@@ -2773,23 +2813,11 @@
       "lines": 14
     },
     {
-      "path": "Source/Features/Entities/Environments/EnvironmentsSlice.h",
-      "lines": 14
-    },
-    {
       "path": "Content/Data/Source/french_gulch/osm/overpass/roads/residential.json",
       "lines": 13
     },
     {
       "path": "Content/Data/settings/core/automation.json",
-      "lines": 13
-    },
-    {
-      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksSlice.h",
-      "lines": 13
-    },
-    {
-      "path": "Source/Features/Entities/Environments/Nature/EnvironmentsNatureSlice.h",
       "lines": 13
     },
     {
@@ -2837,10 +2865,6 @@
       "lines": 12
     },
     {
-      "path": "Source/Features/Entities/Characters/CharactersSlice.h",
-      "lines": 12
-    },
-    {
       "path": "Content/Data/Source/french_gulch/osm/overpass/nature/natural.json",
       "lines": 11
     },
@@ -2862,18 +2886,6 @@
     },
     {
       "path": "Source/Features/Components/Rendering/Profile/ComponentsRenderingProfileTypes.h",
-      "lines": 11
-    },
-    {
-      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsActions.h",
-      "lines": 11
-    },
-    {
-      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsSelectors.h",
-      "lines": 11
-    },
-    {
-      "path": "Source/Features/Entities/Characters/Bots/CharactersBotsTypes.h",
       "lines": 11
     },
     {
@@ -2949,30 +2961,6 @@
       "lines": 6
     },
     {
-      "path": "Source/Features/Entities/EntitiesActions.h",
-      "lines": 6
-    },
-    {
-      "path": "Source/Features/Entities/EntitiesSelectors.h",
-      "lines": 6
-    },
-    {
-      "path": "Source/Features/Entities/EntitiesTypes.h",
-      "lines": 6
-    },
-    {
-      "path": "Source/Features/Entities/Environments/EnvironmentsActions.h",
-      "lines": 6
-    },
-    {
-      "path": "Source/Features/Entities/Environments/EnvironmentsSelectors.h",
-      "lines": 6
-    },
-    {
-      "path": "Source/Features/Entities/Environments/EnvironmentsTypes.h",
-      "lines": 6
-    },
-    {
       "path": "Source/Views/Procedural/Mesh/Element/ElementView.cpp",
       "lines": 6
     },
@@ -3017,42 +3005,6 @@
       "lines": 5
     },
     {
-      "path": "Source/Features/Entities/Characters/CharactersActions.h",
-      "lines": 5
-    },
-    {
-      "path": "Source/Features/Entities/Characters/CharactersSelectors.h",
-      "lines": 5
-    },
-    {
-      "path": "Source/Features/Entities/Characters/CharactersTypes.h",
-      "lines": 5
-    },
-    {
-      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksActions.h",
-      "lines": 5
-    },
-    {
-      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksSelectors.h",
-      "lines": 5
-    },
-    {
-      "path": "Source/Features/Entities/Environments/Landmarks/EnvironmentsLandmarksTypes.h",
-      "lines": 5
-    },
-    {
-      "path": "Source/Features/Entities/Environments/Nature/EnvironmentsNatureActions.h",
-      "lines": 5
-    },
-    {
-      "path": "Source/Features/Entities/Environments/Nature/EnvironmentsNatureSelectors.h",
-      "lines": 5
-    },
-    {
-      "path": "Source/Features/Entities/Environments/Nature/EnvironmentsNatureTypes.h",
-      "lines": 5
-    },
-    {
       "path": "Source/Features/Systems/Level/SystemsLevelSlice.h",
       "lines": 5
     },
@@ -3093,10 +3045,6 @@
       "lines": 4
     },
     {
-      "path": "Source/Features/Entities/Environments/Nature/Seed/NatureSeedAdapters.cpp",
-      "lines": 4
-    },
-    {
       "path": "Source/Features/Systems/Speech/Phoneme/PhonemeSlice.h",
       "lines": 4
     },
@@ -3110,6 +3058,10 @@
     },
     {
       "path": "Content/Data/settings/core/automation/runner/map-smoke/runtime/failure-markers.json",
+      "lines": 3
+    },
+    {
+      "path": "Source/Features/Entities/Environments/Nature/Seed/NatureSeedAdapters.cpp",
       "lines": 3
     },
     {

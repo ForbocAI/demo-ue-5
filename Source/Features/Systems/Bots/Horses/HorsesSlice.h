@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -21,7 +21,7 @@ FHorseState ReduceHorsesSeeded(
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/Horses/HorsesActions.h"
 #include "Features/Systems/Bots/Horses/HorsesSelectors.h"
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -36,7 +36,7 @@ const rtk::Slice<FHorseState> &GetSlice();
 } // namespace Game
 } // namespace ForbocAI
 
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
 
 namespace ForbocAI {
 namespace Game {

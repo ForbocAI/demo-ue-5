@@ -19,8 +19,8 @@ ReduceLandmarksSeeded(const FLandmarkState &State,
 } // namespace ForbocAI
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Landmarks/SystemsLandmarksActions.h"
-#include "Features/Systems/Landmarks/SystemsLandmarksSelectors.h"
+#include "Features/Systems/Landmarks/LandmarksActions.h"
+#include "Features/Systems/Landmarks/LandmarksSelectors.h"
 #include "Features/Systems/Landmarks/SystemsLandmarksTypes.h"
 
 namespace ForbocAI {
@@ -45,8 +45,6 @@ namespace LandmarkFactories {
 
 /** User Story: As a features systems landmarks consumer, I need to invoke create initial state through a stable signature so the features systems landmarks workflow remains explicit and composable. @fn FLandmarkState CreateInitialState() */
 FLandmarkState CreateInitialState();
-/** User Story: As a features systems landmarks consumer, I need to invoke landmark through a stable signature so the features systems landmarks workflow remains explicit and composable. @fn FLandmark Landmark(const FLandmarkSource &Source) */
-FLandmark Landmark(const FLandmarkSource &Source);
 
 } // namespace LandmarkFactories
 } // namespace Level

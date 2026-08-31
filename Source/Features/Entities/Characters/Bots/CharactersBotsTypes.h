@@ -2,10 +2,55 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/AI/AITypes.h"
-#include "Features/Systems/Bots/SystemsBotsTypes.h"
-#include "Features/Systems/Bots/Goals/BotsGoalsTypes.h"
-#include "Features/Systems/Bots/Position/PositionTypes.h"
-#include "Features/Systems/Bots/Stats/BotsStatsTypes.h"
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+namespace ForbocAI {
+namespace Game {
+namespace Level {
+
+enum class EBotEntityKind : uint8 { Townsperson, Horse };
+enum class EBotAlignment : uint8 { Friendly, Neutral };
+
+struct FBotEntity {
+  FString Id;
+  FString DisplayName;
+  EBotEntityKind Kind;
+  EBotAlignment Alignment;
+  bool bActive;
+};
+
+struct FBotEntitySource {
+  FString Id;
+  FString DisplayName;
+  EBotEntityKind Kind;
+  EBotAlignment Alignment;
+  bool bActive;
+};
+
+/** User Story: As a bot entity consumer, I need value equality so entity adapter and normalized-store results remain deterministic. @fn inline bool operator==(const FBotEntity &Left, const FBotEntity &Right) */
+inline bool operator==(const FBotEntity &Left, const FBotEntity &Right) {
+  return Left.Id == Right.Id && Left.DisplayName == Right.DisplayName &&
+         Left.Kind == Right.Kind && Left.Alignment == Right.Alignment &&
+         Left.bActive == Right.bActive;
+}
+
+/** User Story: As a bot entity consumer, I need value inequality so entity changes remain explicit. @fn inline bool operator!=(const FBotEntity &Left, const FBotEntity &Right) */
+inline bool operator!=(const FBotEntity &Left, const FBotEntity &Right) {
+  return !(Left == Right);
+}
+
+/** User Story: As a bot entity source consumer, I need value equality so authored entity records remain deterministic. @fn inline bool operator==(const FBotEntitySource &Left, const FBotEntitySource &Right) */
+inline bool operator==(const FBotEntitySource &Left,
+                       const FBotEntitySource &Right) {
+  return Left.Id == Right.Id && Left.DisplayName == Right.DisplayName &&
+         Left.Kind == Right.Kind && Left.Alignment == Right.Alignment &&
+         Left.bActive == Right.bActive;
+}
+
+/** User Story: As a bot entity source consumer, I need value inequality so authored entity changes remain explicit. @fn inline bool operator!=(const FBotEntitySource &Left, const FBotEntitySource &Right) */
+inline bool operator!=(const FBotEntitySource &Left,
+                       const FBotEntitySource &Right) {
+  return !(Left == Right);
+}
+
+} // namespace Level
+} // namespace Game
+} // namespace ForbocAI

@@ -1,7 +1,7 @@
 #include "Features/Systems/Bots/Horses/HorsesSlice.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
-#include "Features/Systems/Bots/Horses/HorsesAdapters.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -52,7 +52,7 @@ const rtk::Slice<FHorseState> &GetSlice() {
 } // namespace ForbocAI
 
 
-#include "Features/Systems/Bots/Horses/HorsesAdapters.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

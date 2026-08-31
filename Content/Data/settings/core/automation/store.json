@@ -80,6 +80,19 @@
     "Projected ECS identity preserves its stable key",
     "External ECS identity mapping round-trips"
   ],
+  "entity_adapter_labels": [
+    "Public landmark actions and selectors share the authored entity set",
+    "Public nature actions and selectors share the authored entity set",
+    "Public townsperson actions and selectors share the authored entity set",
+    "Public horse actions and selectors share the authored entity set",
+    "Nature projection fixture loads through the production seed adapter",
+    "Public nature actions and selectors share the projection fixture",
+    "Landmark projection owns its declared entity domain",
+    "Nature projection owns its declared entity domain",
+    "Townsperson projection owns its declared entity domain",
+    "Horse projection owns its declared entity domain",
+    "Every focused entity adapter projection retains stable identity"
+  ],
   "runtime_stats_sampling_labels": [
     "Runtime stats retain cached observations before refresh intervals mature",
     "Runtime stats refresh poly count and diagnostics when authored intervals mature",
@@ -97,6 +110,11 @@
     "Patrol advance observations are not ECS projection inputs",
     "Patrol advance observation keeps current ECS projection"
   ],
+  "landmark_entity_domain": "Entities/Environments/Landmarks",
+  "nature_entity_domain": "Entities/Environments/Nature",
+  "townsperson_entity_domain": "Entities/Characters/Bots/Townspeople",
+  "horse_entity_domain": "Entities/Characters/Bots/Horses",
+  "nature_projection_fixture_json_path": "Data/settings/core/automation/store/entity-adapters/nature-projection.json",
   "redux_logger_category": "LogForbocRuntimeRedux",
   "redux_logger_action_title_prefix": "action",
   "terrain_entity": "level:terrain",

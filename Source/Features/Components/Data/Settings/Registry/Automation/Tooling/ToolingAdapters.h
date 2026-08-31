@@ -23,6 +23,11 @@ template <> struct TJsonSettingsRegistry<Automation::Store::FSettings> {
                     &Automation::Store::FSettings::Labels,
                     &Automation::Store::FLabels::IdentityLabels)),
             NestedSettingField(
+                JSON_SETTING_ATOM(EntityAdapterLabels),
+                NestedFieldMembers(
+                    &Automation::Store::FSettings::Labels,
+                    &Automation::Store::FLabels::EntityAdapterLabels)),
+            NestedSettingField(
                 JSON_SETTING_ATOM(RuntimeStatsSamplingLabels),
                 NestedFieldMembers(
                     &Automation::Store::FSettings::Labels,
@@ -56,7 +61,37 @@ template <> struct TJsonSettingsRegistry<Automation::Store::FSettings> {
                 JSON_SETTING_ATOM(TerrainProjectionDomain),
                 NestedFieldMembers(
                     &Automation::Store::FSettings::Terrain,
-                    &Automation::Store::FTerrain::TerrainProjectionDomain))};
+                    &Automation::Store::FTerrain::TerrainProjectionDomain)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(LandmarkEntityDomain),
+                NestedFieldMembers(
+                    &Automation::Store::FSettings::EntityAdapters,
+                    &Automation::Store::FEntityAdapterSettings::
+                        LandmarkEntityDomain)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(NatureEntityDomain),
+                NestedFieldMembers(
+                    &Automation::Store::FSettings::EntityAdapters,
+                    &Automation::Store::FEntityAdapterSettings::
+                        NatureEntityDomain)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(TownspersonEntityDomain),
+                NestedFieldMembers(
+                    &Automation::Store::FSettings::EntityAdapters,
+                    &Automation::Store::FEntityAdapterSettings::
+                        TownspersonEntityDomain)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(HorseEntityDomain),
+                NestedFieldMembers(
+                    &Automation::Store::FSettings::EntityAdapters,
+                    &Automation::Store::FEntityAdapterSettings::
+                        HorseEntityDomain)),
+            NestedSettingField(
+                JSON_SETTING_ATOM(NatureProjectionFixtureJsonPath),
+                NestedFieldMembers(
+                    &Automation::Store::FSettings::EntityAdapters,
+                    &Automation::Store::FEntityAdapterSettings::
+                        NatureProjectionFixtureJsonPath))};
     return RegisteredFields;
   }
 };

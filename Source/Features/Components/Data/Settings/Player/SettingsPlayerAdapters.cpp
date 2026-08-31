@@ -1,4 +1,4 @@
-#include "Features/Components/Data/Settings/Player/PlayerAdapters.h"
+#include "Features/Components/Data/Settings/Player/SettingsPlayerAdapters.h"
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
 

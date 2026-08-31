@@ -1,10 +1,10 @@
 #include "Features/Entities/Characters/Bots/CharactersBotsAdapters.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
+#include "Features/Entities/Characters/Bots/Townspeople/CharactersBotsTownspeopleAdapters.h"
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
 #include "Features/Components/ComponentsAdapters.h"
-#include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -252,12 +252,9 @@ struct TComponentSourceProjector<FTownspersonSeed> {
 
 } // namespace ComponentsAdapters
 
-namespace EntitiesAdapters {
+namespace TownspeopleAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
-
-/** User Story: As a bots townspeople seed consumer, I need to invoke bot entity key through a stable signature so the bots townspeople seed workflow remains explicit and composable. @fn extern ecs::EntityKey BotEntityKey(const FString &Id) */
-extern ecs::EntityKey BotEntityKey(const FString &Id);
 
 /** User Story: As a bots townspeople seed consumer, I need to invoke project townsperson through a stable signature so the bots townspeople seed workflow remains explicit and composable. @fn ecs::FWorld ProjectTownsperson(const FProjectTownspersonEntityPayload &Payload) */
 ecs::FWorld
@@ -266,7 +263,7 @@ ProjectTownsperson(const FProjectTownspersonEntityPayload &Payload) {
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectTownspersonEntityPayload &PayloadValue) {
-            return BotEntityKey(PayloadValue.Townsperson.Id);
+            return BotsAdapters::BotEntityKey(PayloadValue.EntityValue.Id);
           },
           func::constant<TArray<TArray<FString>>>(
               ComponentsAdapters::ComponentDomains(
@@ -274,7 +271,7 @@ ProjectTownsperson(const FProjectTownspersonEntityPayload &Payload) {
                    {"Systems", "Bots", "Townspeople"}})),
           [](const FProjectTownspersonEntityPayload &PayloadValue)
               -> const FTownspersonSeed & {
-            return PayloadValue.Townsperson;
+            return PayloadValue.EntityValue;
           },
           RegisteredComponentGroups<FTownspersonSeed>(
               {{"Components/Data", {"Id", "Name"}},
@@ -284,7 +281,7 @@ ProjectTownsperson(const FProjectTownspersonEntityPayload &Payload) {
                {"Components/Spatial", {"PatrolRoute"}}})});
 }
 
-} // namespace EntitiesAdapters
+} // namespace TownspeopleAdapters
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI

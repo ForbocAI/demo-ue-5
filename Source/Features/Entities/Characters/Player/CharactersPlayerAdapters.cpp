@@ -1,6 +1,6 @@
-#include "Features/Components/ComponentsAdapters.h"
+#include "Features/Entities/Characters/Player/CharactersPlayerAdapters.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
-#include "Features/Entities/EntitiesAdapters.h"
+#include "Features/Components/ComponentsAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -45,7 +45,7 @@ struct TComponentSourceProjector<FPlayerState> {
 
 } // namespace ComponentsAdapters
 
-namespace EntitiesAdapters {
+namespace PlayerAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
@@ -63,14 +63,14 @@ ecs::FWorld ProjectPlayer(const FProjectPlayerEntityPayload &Payload) {
                   {{"Entities", "Characters", "Player"}})),
           [](const FProjectPlayerEntityPayload &PayloadValue)
               -> const FPlayerState & {
-            return PayloadValue.Player;
+            return PayloadValue.EntityValue;
           },
           RegisteredComponentGroups<FPlayerState>(
               {{"Components/Lifecycle", {"Ready"}},
                {"Components/Data", {"HasActionId", "ActionId"}}})});
 }
 
-} // namespace EntitiesAdapters
+} // namespace PlayerAdapters
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI

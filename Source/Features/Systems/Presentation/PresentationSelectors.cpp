@@ -4,7 +4,7 @@
 #include "Features/Systems/Bots/Goals/GoalsSelectors.h"
 #include "Features/Systems/Bots/Position/PositionSelectors.h"
 #include "Features/Systems/Bots/Stats/BotsStatsSelectors.h"
-#include "Features/Systems/Bots/SystemsBotsSelectors.h"
+#include "Features/Systems/Bots/BotsSelectors.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleSlice.h"
 #include "Features/Systems/Rendering/SystemsRenderingSelectors.h"
 #include "Features/Systems/UI/UISelectors.h"

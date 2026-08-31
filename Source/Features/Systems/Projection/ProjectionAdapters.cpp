@@ -2,7 +2,12 @@
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Components/ComponentsAdapters.h"
-#include "Features/Entities/EntitiesAdapters.h"
+#include "Features/Entities/Characters/Bots/CharactersBotsAdapters.h"
+#include "Features/Entities/Characters/Bots/Horses/CharactersBotsHorsesAdapters.h"
+#include "Features/Entities/Characters/Bots/Townspeople/CharactersBotsTownspeopleAdapters.h"
+#include "Features/Entities/Characters/Player/CharactersPlayerAdapters.h"
+#include "Features/Entities/Environments/Landmarks/EnvironmentsLandmarksAdapters.h"
+#include "Features/Entities/Environments/Nature/NatureAdapters.h"
 #include "Features/Systems/Projection/Bot/ProjectionBotAdapters.h"
 #include "Features/Systems/Projection/Interaction/InteractionAdapters.h"
 #include "Features/Systems/Projection/Spawn/SpawnAdapters.h"
@@ -76,7 +81,6 @@ ecs::FWorld applyResourceProjection(const ecs::FWorld &World,
 
 /** User Story: As a features systems projection consumer, I need to invoke projection world through a stable signature so the features systems projection workflow remains explicit and composable. @fn ecs::FWorld ProjectionWorld(const FRuntimeState &State) */
 ecs::FWorld ProjectionWorld(const FRuntimeState &State) {
-  using namespace EntitiesAdapters;
   using namespace RuntimeSelectors;
   using namespace SystemsProjectionBotAdapters;
   using namespace SystemsProjectionInteractionAdapters;
@@ -89,9 +93,11 @@ ecs::FWorld ProjectionWorld(const FRuntimeState &State) {
                     SelectNatureFeatures, SelectTownspeople, SelectHorses,
                     SelectBots, SelectBotStats, SelectBotPositions,
                     SelectBotAI, SelectBotGoals),
-      func::catalog(ProjectPlayer, ProjectTerrain, ProjectSpawn,
-                    ProjectInteraction, ProjectLandmark, ProjectNatureFeature,
-                    ProjectTownsperson, ProjectHorse, ProjectBot,
+      func::catalog(PlayerAdapters::ProjectPlayer, ProjectTerrain, ProjectSpawn,
+                    ProjectInteraction, LandmarksAdapters::ProjectLandmark,
+                    NatureAdapters::ProjectNatureFeature,
+                    TownspeopleAdapters::ProjectTownsperson,
+                    HorsesAdapters::ProjectHorse, BotsAdapters::ProjectBot,
                     ProjectBotStats, ProjectBotPosition, ProjectBotAI,
                     ProjectBotGoal),
       ecs::createWorld(State.Ecs.World.Domains),

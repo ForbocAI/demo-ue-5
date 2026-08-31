@@ -1,4 +1,4 @@
-#include "Features/Systems/Bots/SystemsBotsSlice.h"
+#include "Features/Systems/Bots/BotsSlice.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Bots/SystemsBotsAdapters.h"

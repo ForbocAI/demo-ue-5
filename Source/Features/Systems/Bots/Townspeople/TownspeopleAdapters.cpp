@@ -1,4 +1,4 @@
-#include "Features/Systems/Bots/Townspeople/TownspeopleAdapters.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

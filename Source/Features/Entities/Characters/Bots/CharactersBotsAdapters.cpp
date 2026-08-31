@@ -4,7 +4,6 @@
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
 #include "Features/Components/ComponentsAdapters.h"
-#include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -59,13 +58,13 @@ struct TComponentSourceProjector<FBotEntity> {
 
 } // namespace ComponentsAdapters
 
-namespace EntitiesAdapters {
+namespace BotsAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
 /** User Story: As a entities characters bots consumer, I need to invoke bot entity key through a stable signature so the entities characters bots workflow remains explicit and composable. @fn ecs::EntityKey BotEntityKey(const FString &Id) */
 ecs::EntityKey BotEntityKey(const FString &Id) {
-  return FString::Printf(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV035757375730), *Id);
+  return EntitiesAdapters::PrefixedEntityKey({TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV24A1D1331AB5), Id});
 }
 
 /** User Story: As a entities characters bots consumer, I need to invoke project bot through a stable signature so the entities characters bots workflow remains explicit and composable. @fn ecs::FWorld ProjectBot(const FProjectBotEntityPayload &Payload) */
@@ -74,20 +73,20 @@ ecs::FWorld ProjectBot(const FProjectBotEntityPayload &Payload) {
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectBotEntityPayload &PayloadValue) {
-            return BotEntityKey(PayloadValue.Bot.Id);
+            return BotEntityKey(PayloadValue.EntityValue.Id);
           },
           func::constant<TArray<TArray<FString>>>(
               ComponentsAdapters::ComponentDomains(
                   {{"Entities", "Characters", "Bots"}, {"Systems", "Bots"}})),
           [](const FProjectBotEntityPayload &PayloadValue) -> const FBotEntity & {
-            return PayloadValue.Bot;
+            return PayloadValue.EntityValue;
           },
           RegisteredComponentGroups<FBotEntity>(
               {{"Components/Data", {"Id", "DisplayName", "Kind"}},
                {"Components/Bots", {"Alignment", "Active"}}})});
 }
 
-} // namespace EntitiesAdapters
+} // namespace BotsAdapters
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI

@@ -1,4 +1,4 @@
-#include "Features/Systems/Landmarks/SystemsLandmarksSlice.h"
+#include "Features/Systems/Landmarks/LandmarksSlice.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Landmarks/SystemsLandmarksAdapters.h"
@@ -25,7 +25,7 @@ ReduceLandmarksSeeded(const FLandmarkState &State,
 } // namespace Game
 } // namespace ForbocAI
 
-#include "Features/Systems/Landmarks/SystemsLandmarksActions.h"
+#include "Features/Systems/Landmarks/LandmarksActions.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -65,18 +65,6 @@ FLandmarkState CreateInitialState() {
   FLandmarkState State;
   State.Items = LandmarkAdapters::LandmarkAdapter().getInitialState();
   return State;
-}
-
-/** User Story: As a features systems landmarks consumer, I need to invoke landmark through a stable signature so the features systems landmarks workflow remains explicit and composable. @fn FLandmark Landmark(const FLandmarkSource &Source) */
-FLandmark Landmark(const FLandmarkSource &Source) {
-  FLandmark Result;
-  Result.Id = Source.Id;
-  Result.Label = Source.Label;
-  Result.Kind = Source.Kind;
-  Result.Location = Source.Location;
-  Result.Rotation = Source.Rotation;
-  Result.Scale = Source.Scale;
-  return Result;
 }
 
 } // namespace LandmarkFactories

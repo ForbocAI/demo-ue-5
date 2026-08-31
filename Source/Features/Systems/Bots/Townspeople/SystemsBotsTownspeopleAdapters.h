@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 
 namespace ForbocAI {
 namespace Game {

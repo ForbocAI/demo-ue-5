@@ -1,6 +1,6 @@
 #include "Features/Systems/SystemsAdapters.h"
 
-#include "Features/Entities/EntitiesAdapters.h"
+#include "Features/Entities/Characters/Player/CharactersPlayerAdapters.h"
 #include "Features/Systems/Projection/Bot/ProjectionBotAdapters.h"
 #include "Features/Systems/Projection/Interaction/InteractionAdapters.h"
 #include "Features/Systems/Projection/SystemsProjectionAdapters.h"
@@ -14,7 +14,7 @@ namespace SystemsAdapters {
 
 /** User Story: As a features systems consumer, I need to invoke project player through a stable signature so the features systems workflow remains explicit and composable. @fn ecs::FWorld ProjectPlayer(const FProjectPlayerPayload &Payload) */
 ecs::FWorld ProjectPlayer(const FProjectPlayerPayload &Payload) {
-  return EntitiesAdapters::ProjectPlayer({Payload.World, Payload.Player});
+  return PlayerAdapters::ProjectPlayer({Payload.World, Payload.Player});
 }
 
 /** User Story: As a features systems consumer, I need to invoke project terrain through a stable signature so the features systems workflow remains explicit and composable. @fn ecs::FWorld ProjectTerrain(const FProjectTerrainPayload &Payload) */

@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/ComponentsDataTypes.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -52,7 +52,7 @@ FTownspersonInteractionOverlapViewModel ReduceInteractionOverlap(
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/Townspeople/TownspeopleActions.h"
 #include "Features/Systems/Bots/Townspeople/TownspeopleSelectors.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -67,7 +67,7 @@ const rtk::Slice<FTownspersonState> &GetSlice();
 } // namespace Game
 } // namespace ForbocAI
 
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 
 namespace ForbocAI {
 namespace Game {

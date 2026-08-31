@@ -1,9 +1,9 @@
 #include "Features/Entities/Characters/Bots/CharactersBotsAdapters.h"
+#include "Features/Entities/Characters/Bots/Horses/CharactersBotsHorsesAdapters.h"
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
 #include "Features/Components/ComponentsAdapters.h"
-#include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -156,12 +156,9 @@ struct TComponentSourceProjector<FHorseRouteSeed> {
 
 } // namespace ComponentsAdapters
 
-namespace EntitiesAdapters {
+namespace HorsesAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
-
-/** User Story: As a horses route seed consumer, I need to invoke bot entity key through a stable signature so the horses route seed workflow remains explicit and composable. @fn extern ecs::EntityKey BotEntityKey(const FString &Id) */
-extern ecs::EntityKey BotEntityKey(const FString &Id);
 
 /** User Story: As a horses route seed consumer, I need to invoke project horse through a stable signature so the horses route seed workflow remains explicit and composable. @fn ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) */
 ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) {
@@ -169,7 +166,7 @@ ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) {
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectHorseEntityPayload &PayloadValue) {
-            return BotEntityKey(PayloadValue.Horse.Id);
+            return BotsAdapters::BotEntityKey(PayloadValue.EntityValue.Id);
           },
           func::constant<TArray<TArray<FString>>>(
               ComponentsAdapters::ComponentDomains(
@@ -177,7 +174,7 @@ ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) {
                    {"Systems", "Bots", "Horses"}})),
           [](const FProjectHorseEntityPayload &PayloadValue)
               -> const FHorseRouteSeed & {
-            return PayloadValue.Horse;
+            return PayloadValue.EntityValue;
           },
           RegisteredComponentGroups<FHorseRouteSeed>(
               {{"Components/Data", {"Id", "Name"}},
@@ -185,7 +182,7 @@ ecs::FWorld ProjectHorse(const FProjectHorseEntityPayload &Payload) {
                {"Components/Spatial", {"PatrolRoute"}}})});
 }
 
-} // namespace EntitiesAdapters
+} // namespace HorsesAdapters
 } // namespace Level
 } // namespace Game
 } // namespace ForbocAI

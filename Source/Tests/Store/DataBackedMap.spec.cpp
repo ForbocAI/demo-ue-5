@@ -228,7 +228,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
            Clara.value.Alignment == EBotAlignment::Friendly);
   const ecs::FEntityInspection ClaraInspection =
       RuntimeSelectors::SelectEntityInspection(
-          State, EntitiesAdapters::BotEntityKey(Clara.value.Id));
+          State, BotsAdapters::BotEntityKey(Clara.value.Id));
   TestTrue(Labels.Next(),
            !ClaraInspection.Components.IsEmpty());
   TestTrue(Labels.Next(),
@@ -248,7 +248,7 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
                                 Settings.Bot.HorseStats.MoveSpeed));
   const ecs::FEntityInspection SorrelInspection =
       RuntimeSelectors::SelectEntityInspection(
-          State, EntitiesAdapters::BotEntityKey(SorrelStats.value.Id));
+          State, BotsAdapters::BotEntityKey(SorrelStats.value.Id));
   TestTrue(Labels.Next(),
            !SorrelInspection.Components.IsEmpty());
   TestTrue(Labels.Next(),

@@ -3,8 +3,7 @@
 #include "Core/rtk.hpp"
 
 #include "Features/Components/Data/ComponentsDataTypes.h"
-#include "Features/Systems/Nature/Entity/EntityAdapters.h"
-#include "Features/Systems/Nature/SystemsNatureTypes.h"
+#include "Features/Entities/Environments/Nature/EnvironmentsNatureTypes.h"
 
 namespace ForbocAI {
 namespace Game {

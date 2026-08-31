@@ -1,4 +1,4 @@
-#include "Features/Systems/Nature/SystemsNatureSlice.h"
+#include "Features/Systems/Nature/NatureSlice.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Features/Systems/Nature/Entity/EntityAdapters.h"
@@ -24,7 +24,7 @@ FNatureState ReduceNatureSeeded(
 } // namespace Game
 } // namespace ForbocAI
 
-#include "Features/Systems/Nature/SystemsNatureActions.h"
+#include "Features/Systems/Nature/NatureActions.h"
 
 namespace ForbocAI {
 namespace Game {

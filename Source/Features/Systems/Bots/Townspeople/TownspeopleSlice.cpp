@@ -2,7 +2,7 @@
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 #include "Core/ecs.hpp"
-#include "Features/Systems/Bots/Townspeople/TownspeopleAdapters.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -138,7 +138,7 @@ const rtk::Slice<FTownspersonState> &GetSlice() {
 } // namespace ForbocAI
 
 
-#include "Features/Systems/Bots/Townspeople/TownspeopleAdapters.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

@@ -1,4 +1,4 @@
-#include "Features/Systems/Bots/Horses/HorsesAdapters.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {

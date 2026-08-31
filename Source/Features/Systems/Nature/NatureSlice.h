@@ -19,8 +19,8 @@ FNatureState ReduceNatureSeeded(
 } // namespace ForbocAI
 
 #include "Core/rtk.hpp"
-#include "Features/Systems/Nature/SystemsNatureActions.h"
-#include "Features/Systems/Nature/SystemsNatureSelectors.h"
+#include "Features/Systems/Nature/NatureActions.h"
+#include "Features/Systems/Nature/NatureSelectors.h"
 #include "Features/Systems/Nature/SystemsNatureTypes.h"
 
 namespace ForbocAI {

@@ -8,7 +8,7 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/Settings/DataSettingsAdapters.h"
-#include "Features/Systems/Bots/SystemsBotsActions.h"
+#include "Features/Systems/Bots/BotsActions.h"
 #include "Features/Systems/Bots/Position/PositionActions.h"
 #include "Features/Systems/SystemsSelectors.h"
 #include "frontierOfJeffersonStore.h"

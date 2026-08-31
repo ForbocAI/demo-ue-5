@@ -1,4 +1,4 @@
-#include "Features/Systems/Landmarks/SystemsLandmarksActions.h"
+#include "Features/Systems/Landmarks/LandmarksActions.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {

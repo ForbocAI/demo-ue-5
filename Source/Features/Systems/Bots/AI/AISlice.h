@@ -2,8 +2,8 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/AI/AITypes.h"
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -50,8 +50,8 @@ const rtk::Slice<FBotAIState> &GetSlice();
 } // namespace ForbocAI
 
 #include "Features/Systems/Bots/AI/AITypes.h"
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 
 namespace ForbocAI {
 namespace Game {

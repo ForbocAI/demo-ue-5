@@ -1,0 +1,15 @@
+[
+  {
+    "id": "entity-adapter-nature-projection",
+    "name": "Entity adapter nature projection",
+    "kind": "rock",
+    "east_lots": 0.25,
+    "north_lots": 0.25,
+    "scale": {
+      "mode": "pad",
+      "width_feet": 4.0,
+      "depth_feet": 4.0,
+      "height_feet": 4.0
+    }
+  }
+]

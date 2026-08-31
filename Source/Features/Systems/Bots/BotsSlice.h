@@ -2,8 +2,8 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/SystemsBotsTypes.h"
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -32,8 +32,8 @@ FBotState ReduceHorsesSeeded(
 
 #include "Core/rtk.hpp"
 #include "Features/Systems/Bots/AI/AISlice.h"
-#include "Features/Systems/Bots/SystemsBotsActions.h"
-#include "Features/Systems/Bots/SystemsBotsSelectors.h"
+#include "Features/Systems/Bots/BotsActions.h"
+#include "Features/Systems/Bots/BotsSelectors.h"
 #include "Features/Systems/Bots/SystemsBotsTypes.h"
 #include "Features/Systems/Bots/Goals/GoalsSlice.h"
 #include "Features/Systems/Bots/Position/PositionSlice.h"
@@ -53,8 +53,8 @@ const rtk::Slice<FBotState> &GetSlice();
 } // namespace ForbocAI
 
 #include "Features/Systems/Bots/SystemsBotsTypes.h"
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 
 namespace ForbocAI {
 namespace Game {

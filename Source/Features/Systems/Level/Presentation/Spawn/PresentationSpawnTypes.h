@@ -2,8 +2,8 @@
 
 #include "Core/rtk.hpp"
 
-#include "Features/Systems/Bots/Horses/HorsesTypes.h"
-#include "Features/Systems/Bots/Townspeople/TownspeopleTypes.h"
+#include "Features/Systems/Bots/Horses/SystemsBotsHorsesTypes.h"
+#include "Features/Systems/Bots/Townspeople/SystemsBotsTownspeopleTypes.h"
 #include "Features/Systems/Level/SystemsLevelTypes.h"
 
 namespace ForbocAI {

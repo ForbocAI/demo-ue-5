@@ -1,4 +1,4 @@
-#include "Features/Systems/Bots/SystemsBotsActions.h"
+#include "Features/Systems/Bots/BotsActions.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {

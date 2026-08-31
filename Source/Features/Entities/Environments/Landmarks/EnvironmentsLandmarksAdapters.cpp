@@ -3,9 +3,7 @@
 
 #include "Features/Components/Data/Json/Settings/JsonSettingsAdapters.h"
 #include "Features/Components/Spatial/Level/Layout/SpatialLevelLayoutAdapters.h"
-#include "Features/Systems/Landmarks/SystemsLandmarksSlice.h"
 #include "Features/Components/ComponentsAdapters.h"
-#include "Features/Entities/EntitiesAdapters.h"
 
 namespace ForbocAI {
 namespace Game {
@@ -149,11 +147,14 @@ FLandmark LandmarkFromFields(const FLandmarkBuildRequest &Request) {
             Request.Fields.Lot.NorthLots, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF}),
        Scale, LevelLayoutAdapters::BuildingFoundationHeight(Request.Geometry)});
 
-  return LandmarkFactories::Landmark(
-      {Request.Fields.Identity.Id, Request.Fields.Identity.Label,
-       LandmarkKindFromJson(Request.Fields.Identity.Kind),
-       LevelLayoutAdapters::ToWorld({*Request.TerrainData, Local}),
-       FRotator(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF, Request.Fields.Lot.YawDegrees, FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF), Scale});
+  return {Request.Fields.Identity.Id,
+          Request.Fields.Identity.Label,
+          LandmarkKindFromJson(Request.Fields.Identity.Kind),
+          LevelLayoutAdapters::ToWorld({*Request.TerrainData, Local}),
+          FRotator(FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF,
+                   Request.Fields.Lot.YawDegrees,
+                   FORBOCAI_DEMOUE5_AUTHORED_NUMBERV75F40683FBFF),
+          Scale};
 }
 
 } // namespace
@@ -237,13 +238,13 @@ struct TComponentSourceProjector<FLandmark> {
 
 } // namespace ComponentsAdapters
 
-namespace EntitiesAdapters {
+namespace LandmarksAdapters {
 
 using ComponentsAdapters::RegisteredComponentGroups;
 
 /** User Story: As a entities environments landmarks consumer, I need to invoke landmark entity key through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ecs::EntityKey LandmarkEntityKey(const FString &Id) */
 ecs::EntityKey LandmarkEntityKey(const FString &Id) {
-  return FString::Printf(TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVD6FA94D9E36C), *Id);
+  return EntitiesAdapters::PrefixedEntityKey({TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV2479378780B5), Id});
 }
 
 /** User Story: As a entities environments landmarks consumer, I need to invoke project landmark through a stable signature so the entities environments landmarks workflow remains explicit and composable. @fn ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) */
@@ -252,19 +253,19 @@ ecs::FWorld ProjectLandmark(const FProjectLandmarkEntityPayload &Payload) {
       Payload,
       ComponentsAdapters::TEntityCatalogProjection{
           [](const FProjectLandmarkEntityPayload &PayloadValue) {
-            return LandmarkEntityKey(PayloadValue.Landmark.Id);
+            return LandmarkEntityKey(PayloadValue.EntityValue.Id);
           },
           func::constant<TArray<TArray<FString>>>(LandmarkDomains()),
           [](const FProjectLandmarkEntityPayload &PayloadValue)
               -> const FLandmark & {
-            return PayloadValue.Landmark;
+            return PayloadValue.EntityValue;
           },
           RegisteredComponentGroups<FLandmark>(
               {{"Components/Data", {"Id", "Label", "Kind"}},
                {"Components/Spatial", {"Location", "Scale"}}})});
 }
 
-} // namespace EntitiesAdapters
+} // namespace LandmarksAdapters
 
 } // namespace Level
 } // namespace Game

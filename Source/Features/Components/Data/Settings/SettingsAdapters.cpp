@@ -4,7 +4,7 @@
 #include "Features/Components/Data/Settings/Bot/SettingsBotAdapters.h"
 #include "Features/Components/Data/Settings/ForbocAI/Protocol/SettingsForbocAIProtocolAdapters.h"
 #include "Features/Components/Data/Settings/Level/SettingsLevelAdapters.h"
-#include "Features/Components/Data/Settings/Player/PlayerAdapters.h"
+#include "Features/Components/Data/Settings/Player/SettingsPlayerAdapters.h"
 #include "Features/Components/Data/Settings/Rendering/RenderingAdapters.h"
 #include "Features/Components/Data/Settings/Registry/Catalog/RegistryCatalogAdapters.h"
 

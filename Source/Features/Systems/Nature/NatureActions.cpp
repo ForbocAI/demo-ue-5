@@ -1,4 +1,4 @@
-#include "Features/Systems/Nature/SystemsNatureActions.h"
+#include "Features/Systems/Nature/NatureActions.h"
 #include "Features/Components/AuthoredValues/AuthoredValuesTypes.h"
 
 namespace ForbocAI {
