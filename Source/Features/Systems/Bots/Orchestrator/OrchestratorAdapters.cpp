@@ -30,6 +30,7 @@ FLevelLocalPoint BotInitialLocalPoint(const FBotSettings &Settings) {
           static_cast<float>(Settings.Spawn.InitialPosition.Z)};
 }
 
+/** User Story: As a systems bots orchestrator consumer, I need to invoke log npc command failure through a stable signature so the systems bots orchestrator workflow remains explicit and composable. @fn void LogNpcCommandFailure(AActor *Actor, const FString &Error, const FBotSettings &Settings) */
 void LogNpcCommandFailure(AActor *Actor, const FString &Error,
                           const FBotSettings &Settings) {
   const FString ActorName =

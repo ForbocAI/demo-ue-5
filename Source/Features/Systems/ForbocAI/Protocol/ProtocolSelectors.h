@@ -9,17 +9,22 @@ namespace Game {
 namespace Level {
 namespace ForbocAIProtocolSelectors {
 
-/** User Story: As protocol presentation, I need reducer-owned flow evidence projected into one display model. @fn FForbocAIFlowPresentation SelectFlowPresentation(const FForbocAIFlowState &Flow, const ForbocAI::Game::Data::FForbocAIFlowPresentationSettings &Settings) */
+/**
+ * User Story: As protocol presentation, I need reducer-owned flow evidence projected into one display model.
+ * @fn FForbocAIFlowPresentation SelectFlowPresentation( const FForbocAIFlowState &Flow, const ForbocAI::Game::Data::FForbocAIFlowPresentationSettings &Settings)
+ */
 FForbocAIFlowPresentation SelectFlowPresentation(
     const FForbocAIFlowState &Flow,
     const ForbocAI::Game::Data::FForbocAIFlowPresentationSettings &Settings);
 
 /** User Story: As NPC presentation, I need the current root-owned CLI state projected for the view. @fn FForbocAIFlowPresentation SelectNpcPresentation(const FRuntimeState &State) */
 FForbocAIFlowPresentation SelectNpcPresentation(const FRuntimeState &State);
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select npc presentation through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowPresentation SelectNpcPresentation() */
 FForbocAIFlowPresentation SelectNpcPresentation();
 
 /** User Story: As Ghost presentation, I need the current root-owned CLI state projected for the view. @fn FForbocAIFlowPresentation SelectGhostPresentation(const FRuntimeState &State) */
 FForbocAIFlowPresentation SelectGhostPresentation(const FRuntimeState &State);
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select ghost presentation through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowPresentation SelectGhostPresentation() */
 FForbocAIFlowPresentation SelectGhostPresentation();
 
 /** User Story: As redux diagnostics, I need protocol evidence projected into a credential-free state summary. @fn FString SelectProtocolLogSummary(const FRuntimeState &State) */

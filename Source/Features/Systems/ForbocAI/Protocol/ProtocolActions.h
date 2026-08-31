@@ -8,7 +8,10 @@ namespace Game {
 namespace Level {
 namespace ForbocAIProtocolActions {
 
-/** User Story: As a playable NPC interaction, I need one root-store thunk dispatch for the CLI workflow. @fn func::AsyncResult<FForbocAINpcResult> DispatchNpcInteraction(const FRuntimeTownspersonInteractionSource &Source) */
+/**
+ * User Story: As a playable NPC interaction, I need one root-store thunk dispatch for the CLI workflow.
+ * @fn func::AsyncResult<FForbocAINpcResult> DispatchNpcInteraction( const FRuntimeTownspersonInteractionSource &Source)
+ */
 func::AsyncResult<FForbocAINpcResult> DispatchNpcInteraction(
     const FRuntimeTownspersonInteractionSource &Source);
 

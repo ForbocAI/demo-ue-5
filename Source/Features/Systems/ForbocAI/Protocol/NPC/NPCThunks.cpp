@@ -13,6 +13,7 @@ using FArgumentsExecutor =
 using FNpcCompletion = std::function<
     FForbocAINpcResult(const ProtocolCLI::FCommandExecution &)>;
 
+/** User Story: As a forboc ai protocol npc consumer, I need to invoke execute through a stable signature so the forboc ai protocol npc workflow remains explicit and composable. @fn FArgumentsExecutor Execute( const ForbocAI::Game::Data::FProtocolSettings &Settings, const ForbocAI::Game::Data::FForbocAICommandSettings &Command) */
 FArgumentsExecutor Execute(
     const ForbocAI::Game::Data::FProtocolSettings &Settings,
     const ForbocAI::Game::Data::FForbocAICommandSettings &Command) {
@@ -22,6 +23,7 @@ FArgumentsExecutor Execute(
   };
 }
 
+/** User Story: As a forboc ai protocol npc consumer, I need to invoke complete npc interaction through a stable signature so the forboc ai protocol npc workflow remains explicit and composable. @fn FNpcCompletion CompleteNpcInteraction( const FForbocAINpcRequest &Request, const ProtocolCLI::FCommandExecution &Created) */
 FNpcCompletion CompleteNpcInteraction(
     const FForbocAINpcRequest &Request,
     const ProtocolCLI::FCommandExecution &Created) {
@@ -37,6 +39,7 @@ FNpcCompletion CompleteNpcInteraction(
 
 } // namespace
 
+/** User Story: As a forboc ai protocol npc consumer, I need to invoke execute npc interaction through a stable signature so the forboc ai protocol npc workflow remains explicit and composable. @fn FNpcOutcome ExecuteNpcInteraction(const FForbocAINpcRequest &Request, const FRuntimeState &State) */
 FNpcOutcome ExecuteNpcInteraction(const FForbocAINpcRequest &Request,
                                   const FRuntimeState &State) {
   const ProtocolCLI::FCommandOutcome Created =
@@ -51,12 +54,14 @@ FNpcOutcome ExecuteNpcInteraction(const FForbocAINpcRequest &Request,
       });
 }
 
+/** User Story: As a forboc ai protocol npc consumer, I need to invoke create npc through a stable signature so the forboc ai protocol npc workflow remains explicit and composable. @fn ProtocolCLI::FCommandOutcome CreateNpc(const FString &Persona, const FRuntimeState &State) */
 ProtocolCLI::FCommandOutcome CreateNpc(const FString &Persona,
                                        const FRuntimeState &State) {
   const auto &Settings = State.ForbocAIProtocol.Settings;
   return Execute(Settings, Settings.Npc.Commands.Create)({Persona});
 }
 
+/** User Story: As a forboc ai protocol npc consumer, I need to invoke process npc through a stable signature so the forboc ai protocol npc workflow remains explicit and composable. @fn FNpcObservationProcessor ProcessNpc(const FString &NpcId, const FRuntimeState &State) */
 FNpcObservationProcessor ProcessNpc(const FString &NpcId,
                                     const FRuntimeState &State) {
   const ForbocAI::Game::Data::FProtocolSettings Settings =

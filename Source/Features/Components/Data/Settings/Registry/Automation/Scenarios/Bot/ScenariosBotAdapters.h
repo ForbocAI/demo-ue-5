@@ -126,6 +126,7 @@ JSON_SETTINGS_REGISTRY(Automation::Bot::FRootStateAssertions,
                        PositionSelectable, WorldPositionUpdated);
 template <>
 struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorCaseLabels> {
+  /** User Story: As a automation scenarios bot consumer, I need to invoke fields through a stable signature so the automation scenarios bot workflow remains explicit and composable. @fn static const TArray<TField<Automation::Bot::FOrchestratorCaseLabels>> &Fields() */
   static const TArray<TField<Automation::Bot::FOrchestratorCaseLabels>>
       &Fields() {
     static const TArray<TField<Automation::Bot::FOrchestratorCaseLabels>>
@@ -154,6 +155,7 @@ struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorCaseLabels> {
 
 template <>
 struct TJsonSettingsRegistry<Automation::Bot::FOrchestratorAssertions> {
+  /** User Story: As a automation scenarios bot consumer, I need to invoke fields through a stable signature so the automation scenarios bot workflow remains explicit and composable. @fn static const TArray<TField<Automation::Bot::FOrchestratorAssertions>> &Fields() */
   static const TArray<TField<Automation::Bot::FOrchestratorAssertions>>
       &Fields() {
     static const TArray<TField<Automation::Bot::FOrchestratorAssertions>>

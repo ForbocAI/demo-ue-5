@@ -45,16 +45,16 @@
       "lines": 288
     },
     {
+      "path": "Source/Views/Player/Controller/Interaction/InteractionView.h",
+      "lines": 288
+    },
+    {
       "path": "Source/Features/Components/ComponentsAdapters.cpp",
       "lines": 287
     },
     {
       "path": "Source/Features/Components/Data/Json/Read/ReadAdapters.cpp",
       "lines": 287
-    },
-    {
-      "path": "Source/Views/Player/Controller/Interaction/InteractionView.h",
-      "lines": 285
     },
     {
       "path": "Scripts/Run/run-runtime-budget.sh",
@@ -101,10 +101,6 @@
       "lines": 274
     },
     {
-      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/SettingsForbocAIProtocolTypes.h",
-      "lines": 272
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Automation/Protocol/Loop/LoopTypes.h",
       "lines": 271
     },
@@ -141,12 +137,16 @@
       "lines": 263
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/ScenariosBotAdapters.h",
+      "lines": 258
+    },
+    {
       "path": "Source/Features/Systems/Presentation/PresentationSelectors.cpp",
       "lines": 257
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/ScenariosBotAdapters.h",
-      "lines": 256
+      "path": "Source/Tests/ForbocAIProtocol.spec.cpp",
+      "lines": 255
     },
     {
       "path": "Source/Features/Components/Data/Json/Read/Field/ReadFieldAdapters.h",
@@ -155,10 +155,6 @@
     {
       "path": "Source/Features/Systems/State/StateSelectors.cpp",
       "lines": 252
-    },
-    {
-      "path": "Source/Tests/ForbocAIProtocol.spec.cpp",
-      "lines": 250
     },
     {
       "path": "Source/Features/Systems/Rendering/Profile/Sky/Pixel/PixelSlice.cpp",
@@ -175,6 +171,10 @@
     {
       "path": "Source/Views/Player/Character/CharacterView.cpp",
       "lines": 241
+    },
+    {
+      "path": "Source/Tests/BotFunctionalCore.spec.cpp",
+      "lines": 238
     },
     {
       "path": "Source/Features/Systems/Rendering/Profile/Sky/Component/ComponentThunks.h",
@@ -194,10 +194,6 @@
     },
     {
       "path": "Source/Features/Systems/Level/Geometry/GeometrySlice.h",
-      "lines": 232
-    },
-    {
-      "path": "Source/Tests/BotFunctionalCore.spec.cpp",
       "lines": 232
     },
     {
@@ -281,6 +277,10 @@
       "lines": 209
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Automation/Bot/Orchestrator/BotOrchestratorTypes.h",
+      "lines": 207
+    },
+    {
       "path": "Source/Views/Player/Controller/ControllerView.h",
       "lines": 207
     },
@@ -305,6 +305,10 @@
       "lines": 199
     },
     {
+      "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorAdapters.cpp",
+      "lines": 198
+    },
+    {
       "path": "Source/Features/Components/Projection/ProjectionSelectors.h",
       "lines": 197
     },
@@ -313,7 +317,7 @@
       "lines": 197
     },
     {
-      "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorAdapters.cpp",
+      "path": "Source/Features/Systems/ForbocAI/Protocol/SystemsForbocAIProtocolTypes.h",
       "lines": 197
     },
     {
@@ -333,10 +337,6 @@
       "lines": 191
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Bot/Orchestrator/BotOrchestratorTypes.h",
-      "lines": 190
-    },
-    {
       "path": "Source/Features/Systems/Interaction/InteractionSlice.h",
       "lines": 190
     },
@@ -347,6 +347,10 @@
     {
       "path": "Source/Features/Systems/Seed/SeedThunks.h",
       "lines": 187
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Automation/Bot/Orchestrator/Protocol/Assertions/ProtocolAssertionsTypes.h",
+      "lines": 185
     },
     {
       "path": "Scripts/Tools/inventory_outlaw_assets.py",
@@ -385,10 +389,6 @@
       "lines": 179
     },
     {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/SystemsForbocAIProtocolTypes.h",
-      "lines": 177
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Automation/Conversation/UI/ConversationUITypes.h",
       "lines": 175
     },
@@ -417,10 +417,6 @@
       "lines": 169
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Bot/Orchestrator/Protocol/Assertions/ProtocolAssertionsTypes.h",
-      "lines": 169
-    },
-    {
       "path": "Source/Features/Systems/Rendering/RenderingSlice.cpp",
       "lines": 167
     },
@@ -439,6 +435,10 @@
     {
       "path": "Source/Features/Systems/SystemsThunks.cpp",
       "lines": 161
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/Ghost/GhostThunks.cpp",
+      "lines": 160
     },
     {
       "path": "Source/Features/Components/Data/Settings/Registry/UI/Root/RootAdapters.h",
@@ -497,16 +497,16 @@
       "lines": 152
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSelectors.cpp",
+      "lines": 152
+    },
+    {
       "path": "Source/Features/Systems/Interaction/SystemsInteractionTypes.h",
       "lines": 152
     },
     {
       "path": "Source/Tests/OrchestratorMultiBot.spec.cpp",
       "lines": 152
-    },
-    {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/Ghost/GhostThunks.cpp",
-      "lines": 149
     },
     {
       "path": "Scripts/Docs/count_project_lines.py",
@@ -566,10 +566,6 @@
     },
     {
       "path": "Source/Features/Components/Projection/ComponentsProjectionAdapters.h",
-      "lines": 141
-    },
-    {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSelectors.cpp",
       "lines": 141
     },
     {
@@ -633,6 +629,10 @@
       "lines": 133
     },
     {
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/ProtocolAdapters.cpp",
+      "lines": 133
+    },
+    {
       "path": "Source/Views/Marketing/Menu/MenuView.cpp",
       "lines": 133
     },
@@ -651,6 +651,10 @@
     {
       "path": "Source/Features/Systems/Rendering/Stats/RenderingStatsSelectors.h",
       "lines": 131
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/Ghost/GhostTypes.h",
+      "lines": 130
     },
     {
       "path": "Source/Features/Components/Data/Settings/Rendering/Distance/Lod/SettingsRenderingDistanceLodTypes.h",
@@ -705,12 +709,12 @@
       "lines": 122
     },
     {
-      "path": "Source/Features/Systems/Terrain/SystemsTerrainTypes.h",
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSlice.cpp",
       "lines": 121
     },
     {
-      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/ProtocolAdapters.cpp",
-      "lines": 120
+      "path": "Source/Features/Systems/Terrain/SystemsTerrainTypes.h",
+      "lines": 121
     },
     {
       "path": "Source/Features/Components/Data/Settings/Level/Csv/CsvTypes.h",
@@ -749,6 +753,10 @@
       "lines": 115
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolThunks.cpp",
+      "lines": 115
+    },
+    {
       "path": "Source/Features/Systems/Projection/ProjectionAdapters.cpp",
       "lines": 115
     },
@@ -761,11 +769,11 @@
       "lines": 111
     },
     {
-      "path": "Source/Features/Systems/Bots/Behavior/BehaviorActions.h",
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/Orchestrator/Protocol/Assertions/AssertionsAdapters.h",
       "lines": 110
     },
     {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSlice.cpp",
+      "path": "Source/Features/Systems/Bots/Behavior/BehaviorActions.h",
       "lines": 110
     },
     {
@@ -791,14 +799,6 @@
     {
       "path": "Source/Features/Components/Data/Settings/Automation/Rtk/Compliance/ComplianceTypes.h",
       "lines": 108
-    },
-    {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolThunks.cpp",
-      "lines": 108
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Bot/Orchestrator/Protocol/Assertions/AssertionsAdapters.h",
-      "lines": 107
     },
     {
       "path": "Source/Features/Systems/Bots/Behavior/BotsBehaviorTypes.h",
@@ -889,6 +889,10 @@
       "lines": 94
     },
     {
+      "path": "Source/Features/Systems/SystemsActions.cpp",
+      "lines": 94
+    },
+    {
       "path": "Source/Features/Components/Rendering/Profile/Lighting/LightingTypes.h",
       "lines": 93
     },
@@ -914,10 +918,6 @@
     },
     {
       "path": "Source/Features/Systems/Route/RouteSelectors.cpp",
-      "lines": 92
-    },
-    {
-      "path": "Source/Features/Systems/SystemsActions.cpp",
       "lines": 92
     },
     {
@@ -1037,6 +1037,10 @@
       "lines": 78
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/NPC/NPCThunks.cpp",
+      "lines": 78
+    },
+    {
       "path": "Source/Features/Systems/Projection/Bot/AI/BotAIAdapters.cpp",
       "lines": 78
     },
@@ -1133,10 +1137,6 @@
       "lines": 73
     },
     {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/NPC/NPCThunks.cpp",
-      "lines": 73
-    },
-    {
       "path": "Source/Features/Systems/Projection/Spawn/SpawnAdapters.cpp",
       "lines": 73
     },
@@ -1167,6 +1167,10 @@
     {
       "path": "Source/Features/Systems/Observed/ObservedSlice.h",
       "lines": 72
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/Presentation/ProtocolPresentationTypes.h",
+      "lines": 71
     },
     {
       "path": "Source/Features/Systems/Bots/Orchestrator/OrchestratorThunks.h",
@@ -1210,6 +1214,10 @@
     },
     {
       "path": "Scripts/Tools/generate_skeletal_lods.py",
+      "lines": 66
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/NPC/NPCTypes.h",
       "lines": 66
     },
     {
@@ -1329,6 +1337,10 @@
       "lines": 58
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLIAdapters.cpp",
+      "lines": 58
+    },
+    {
       "path": "Source/Features/Systems/Projection/Bot/Domains/DomainsAdapters.h",
       "lines": 58
     },
@@ -1385,7 +1397,7 @@
       "lines": 54
     },
     {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLIAdapters.cpp",
+      "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLITypes.h",
       "lines": 54
     },
     {
@@ -1457,7 +1469,7 @@
       "lines": 51
     },
     {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/CLI/CLITypes.h",
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/Command/ProtocolCommandTypes.h",
       "lines": 50
     },
     {
@@ -1641,6 +1653,10 @@
       "lines": 40
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSelectors.h",
+      "lines": 40
+    },
+    {
       "path": "Content/Map/Heightmaps/french_gulch_ca_terrain_metadata.json",
       "lines": 39
     },
@@ -1658,6 +1674,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Stats/Labels/Timing/LabelsTimingTypes.h",
+      "lines": 39
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolThunks.h",
       "lines": 39
     },
     {
@@ -1702,6 +1722,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/UI/Stats/Presentation/Viewport/PresentationViewportTypes.h",
+      "lines": 37
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolActions.cpp",
       "lines": 37
     },
     {
@@ -1777,15 +1801,11 @@
       "lines": 35
     },
     {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSelectors.h",
-      "lines": 35
-    },
-    {
       "path": "Content/Data/settings/ui/scale/audit/capture.json",
       "lines": 34
     },
     {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolActions.cpp",
+      "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/SettingsForbocAIProtocolTypes.h",
       "lines": 34
     },
     {
@@ -1825,7 +1845,7 @@
       "lines": 33
     },
     {
-      "path": "Source/Features/Components/Data/Settings/UI/Marketing/Command/CommandTypes.h",
+      "path": "Source/Features/Components/Data/Settings/UI/Marketing/Command/MarketingCommandTypes.h",
       "lines": 33
     },
     {
@@ -1846,10 +1866,6 @@
     },
     {
       "path": "Source/Features/Systems/Bots/Townspeople/TownspeopleSelectors.h",
-      "lines": 33
-    },
-    {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolThunks.h",
       "lines": 33
     },
     {
@@ -2313,6 +2329,14 @@
       "lines": 24
     },
     {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolActions.h",
+      "lines": 24
+    },
+    {
+      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSlice.h",
+      "lines": 24
+    },
+    {
       "path": "Source/Features/Systems/Rendering/Stats/Effects/EffectsAdapters.h",
       "lines": 24
     },
@@ -2494,14 +2518,6 @@
     },
     {
       "path": "Source/Features/Systems/ForbocAI/Protocol/Ghost/GhostThunks.h",
-      "lines": 21
-    },
-    {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolActions.h",
-      "lines": 21
-    },
-    {
-      "path": "Source/Features/Systems/ForbocAI/Protocol/ProtocolSlice.h",
       "lines": 21
     },
     {

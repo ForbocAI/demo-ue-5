@@ -8,7 +8,10 @@ namespace Game {
 namespace Level {
 namespace ForbocAIProtocolSlice {
 
-/** User Story: As the demo protocol boundary, I need one root-owned initial state composed from authored settings. @fn FProtocolState CreateInitialState(const ForbocAI::Game::Data::FProtocolSettings &Settings) */
+/**
+ * User Story: As the demo protocol boundary, I need one root-owned initial state composed from authored settings.
+ * @fn FProtocolState CreateInitialState( const ForbocAI::Game::Data::FProtocolSettings &Settings)
+ */
 FProtocolState CreateInitialState(
     const ForbocAI::Game::Data::FProtocolSettings &Settings);
 

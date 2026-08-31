@@ -63,6 +63,7 @@ struct FProtocolAssertions {
   FLogAssertions Log;
 };
 
+/** User Story: As a orchestrator protocol assertions state owner, I need values compared structurally so unchanged authored state does not trigger redundant transitions. @fn inline bool operator==(const FProtocolCoreAssertions &Left, const FProtocolCoreAssertions &Right) */
 inline bool operator==(const FProtocolCoreAssertions &Left,
                        const FProtocolCoreAssertions &Right) {
   return Left.RouteCrossoverRejected == Right.RouteCrossoverRejected &&
@@ -72,11 +73,13 @@ inline bool operator==(const FProtocolCoreAssertions &Left,
          Left.TownspersonAvailable == Right.TownspersonAvailable;
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need inequality derived from structural equality so change detection keeps one comparison contract. @fn inline bool operator!=(const FProtocolCoreAssertions &Left, const FProtocolCoreAssertions &Right) */
 inline bool operator!=(const FProtocolCoreAssertions &Left,
                        const FProtocolCoreAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need values compared structurally so unchanged authored state does not trigger redundant transitions. @fn inline bool operator==(const FTraceAssertions &Left, const FTraceAssertions &Right) */
 inline bool operator==(const FTraceAssertions &Left,
                        const FTraceAssertions &Right) {
   return Left.CorrelationPresent == Right.CorrelationPresent &&
@@ -84,11 +87,13 @@ inline bool operator==(const FTraceAssertions &Left,
          Left.CommandMatched == Right.CommandMatched;
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need inequality derived from structural equality so change detection keeps one comparison contract. @fn inline bool operator!=(const FTraceAssertions &Left, const FTraceAssertions &Right) */
 inline bool operator!=(const FTraceAssertions &Left,
                        const FTraceAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need values compared structurally so unchanged authored state does not trigger redundant transitions. @fn inline bool operator==(const FResultAssertions &Left, const FResultAssertions &Right) */
 inline bool operator==(const FResultAssertions &Left,
                        const FResultAssertions &Right) {
   return Left.ActorPresent == Right.ActorPresent &&
@@ -96,11 +101,13 @@ inline bool operator==(const FResultAssertions &Left,
          Left.ErrorAbsent == Right.ErrorAbsent;
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need inequality derived from structural equality so change detection keeps one comparison contract. @fn inline bool operator!=(const FResultAssertions &Left, const FResultAssertions &Right) */
 inline bool operator!=(const FResultAssertions &Left,
                        const FResultAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need values compared structurally so unchanged authored state does not trigger redundant transitions. @fn inline bool operator==(const FGhostResultAssertions &Left, const FGhostResultAssertions &Right) */
 inline bool operator==(const FGhostResultAssertions &Left,
                        const FGhostResultAssertions &Right) {
   return Left.ActorPresent == Right.ActorPresent &&
@@ -110,33 +117,39 @@ inline bool operator==(const FGhostResultAssertions &Left,
          Left.ErrorAbsent == Right.ErrorAbsent;
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need inequality derived from structural equality so change detection keeps one comparison contract. @fn inline bool operator!=(const FGhostResultAssertions &Left, const FGhostResultAssertions &Right) */
 inline bool operator!=(const FGhostResultAssertions &Left,
                        const FGhostResultAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need values compared structurally so unchanged authored state does not trigger redundant transitions. @fn inline bool operator==(const FNpcAssertions &Left, const FNpcAssertions &Right) */
 inline bool operator==(const FNpcAssertions &Left,
                        const FNpcAssertions &Right) {
   return Left.Succeeded == Right.Succeeded && Left.Trace == Right.Trace &&
          Left.Result == Right.Result;
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need inequality derived from structural equality so change detection keeps one comparison contract. @fn inline bool operator!=(const FNpcAssertions &Left, const FNpcAssertions &Right) */
 inline bool operator!=(const FNpcAssertions &Left,
                        const FNpcAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need values compared structurally so unchanged authored state does not trigger redundant transitions. @fn inline bool operator==(const FGhostAssertions &Left, const FGhostAssertions &Right) */
 inline bool operator==(const FGhostAssertions &Left,
                        const FGhostAssertions &Right) {
   return Left.Succeeded == Right.Succeeded && Left.Trace == Right.Trace &&
          Left.Result == Right.Result;
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need inequality derived from structural equality so change detection keeps one comparison contract. @fn inline bool operator!=(const FGhostAssertions &Left, const FGhostAssertions &Right) */
 inline bool operator!=(const FGhostAssertions &Left,
                        const FGhostAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need values compared structurally so unchanged authored state does not trigger redundant transitions. @fn inline bool operator==(const FLogAssertions &Left, const FLogAssertions &Right) */
 inline bool operator==(const FLogAssertions &Left,
                        const FLogAssertions &Right) {
   return Left.SummaryNpcCorrelation == Right.SummaryNpcCorrelation &&
@@ -146,17 +159,20 @@ inline bool operator==(const FLogAssertions &Left,
          Left.GhostOutputRedacted == Right.GhostOutputRedacted;
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need inequality derived from structural equality so change detection keeps one comparison contract. @fn inline bool operator!=(const FLogAssertions &Left, const FLogAssertions &Right) */
 inline bool operator!=(const FLogAssertions &Left,
                        const FLogAssertions &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need values compared structurally so unchanged authored state does not trigger redundant transitions. @fn inline bool operator==(const FProtocolAssertions &Left, const FProtocolAssertions &Right) */
 inline bool operator==(const FProtocolAssertions &Left,
                        const FProtocolAssertions &Right) {
   return Left.Core == Right.Core && Left.Npc == Right.Npc &&
          Left.Ghost == Right.Ghost && Left.Log == Right.Log;
 }
 
+/** User Story: As a orchestrator protocol assertions state owner, I need inequality derived from structural equality so change detection keeps one comparison contract. @fn inline bool operator!=(const FProtocolAssertions &Left, const FProtocolAssertions &Right) */
 inline bool operator!=(const FProtocolAssertions &Left,
                        const FProtocolAssertions &Right) {
   return !(Left == Right);

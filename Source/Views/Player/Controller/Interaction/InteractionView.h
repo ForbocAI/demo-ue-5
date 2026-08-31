@@ -89,7 +89,10 @@ void APlayerRuntimeControllerView::InteractWithNearestTownsperson() {
       : (PresentMissingInteraction(Selection.MissingMessage), void());
 }
 
-/** User Story: As NPC interaction presentation, I need fulfilled root-state output rendered against the observed townsperson. @fn void APlayerRuntimeControllerView::PresentNpcInteractionResult(ATownspersonView *Townsperson) */
+/**
+ * User Story: As NPC interaction presentation, I need fulfilled root-state output rendered against the observed townsperson.
+ * @fn void APlayerRuntimeControllerView::PresentNpcInteractionResult( ATownspersonView *Townsperson)
+ */
 void APlayerRuntimeControllerView::PresentNpcInteractionResult(
     ATownspersonView *Townsperson) {
   const ForbocAI::Game::UI::FRuntimeConversationViewModel Conversation =

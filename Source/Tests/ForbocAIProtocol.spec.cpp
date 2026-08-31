@@ -15,20 +15,24 @@ using FAutomationSettings =
 using FProtocolSettings =
     ForbocAI::Game::Data::FProtocolSettings;
 
+/** User Story: As a tests consumer, I need to invoke settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FSettings &Settings() */
 const ForbocAI::Game::Data::FSettings &Settings() {
   static const ForbocAI::Game::Data::FSettings Value =
       ForbocAI::Game::Data::SettingsAdapters::LoadSettings();
   return Value;
 }
 
+/** User Story: As a tests consumer, I need to invoke automation settings through a stable signature so the tests workflow remains explicit and composable. @fn const FAutomationSettings &AutomationSettings() */
 const FAutomationSettings &AutomationSettings() {
   return Settings().Automation.Bot.Orchestrator;
 }
 
+/** User Story: As a tests consumer, I need to invoke protocol settings through a stable signature so the tests workflow remains explicit and composable. @fn const FProtocolSettings &ProtocolSettings() */
 const FProtocolSettings &ProtocolSettings() {
   return Settings().ForbocAI;
 }
 
+/** User Story: As a tests consumer, I need to invoke interaction source through a stable signature so the tests workflow remains explicit and composable. @fn ForbocAI::Game::Level::FRuntimeTownspersonInteractionSource InteractionSource(const ForbocAI::Game::Level::FTownspersonSeed &Townsperson) */
 ForbocAI::Game::Level::FRuntimeTownspersonInteractionSource
 InteractionSource(const ForbocAI::Game::Level::FTownspersonSeed &Townsperson) {
   return {Townsperson.Name, Townsperson.Role, Townsperson.Persona,
@@ -42,6 +46,7 @@ DEFINE_SPEC(FForbocAIProtocolSpec, AutomationSettings().ProtocolSpec,
             EAutomationTestFlags::ProductFilter |
                 EAutomationTestFlags_ApplicationContextMask)
 
+/** User Story: As a tests consumer, I need to invoke define through a stable signature so the tests workflow remains explicit and composable. @fn void FForbocAIProtocolSpec::Define() */
 void FForbocAIProtocolSpec::Define() {
   const FAutomationSettings Automation = AutomationSettings();
   const FProtocolSettings Protocol = ProtocolSettings();

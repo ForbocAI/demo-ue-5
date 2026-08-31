@@ -9,12 +9,18 @@ namespace Game {
 namespace Level {
 namespace ForbocAIProtocolThunks {
 
-/** User Story: As NPC protocol state, I need the CLI interaction lifecycle exposed for reducer composition. @fn const rtk::AsyncThunkConfig<FForbocAINpcResult, FForbocAINpcRequest, FRuntimeState> &NpcInteractionAsyncThunk() */
+/**
+ * User Story: As NPC protocol state, I need the CLI interaction lifecycle exposed for reducer composition.
+ * @fn const rtk::AsyncThunkConfig<FForbocAINpcResult, FForbocAINpcRequest, FRuntimeState> & NpcInteractionAsyncThunk()
+ */
 const rtk::AsyncThunkConfig<FForbocAINpcResult, FForbocAINpcRequest,
                             FRuntimeState> &
 NpcInteractionAsyncThunk();
 
-/** User Story: As Ghost protocol state, I need the CLI level-analysis lifecycle exposed for reducer composition. @fn const rtk::AsyncThunkConfig<FForbocAIGhostResult, FForbocAIGhostRequest, FRuntimeState> &GhostAnalysisAsyncThunk() */
+/**
+ * User Story: As Ghost protocol state, I need the CLI level-analysis lifecycle exposed for reducer composition.
+ * @fn const rtk::AsyncThunkConfig<FForbocAIGhostResult, FForbocAIGhostRequest, FRuntimeState> & GhostAnalysisAsyncThunk()
+ */
 const rtk::AsyncThunkConfig<FForbocAIGhostResult, FForbocAIGhostRequest,
                             FRuntimeState> &
 GhostAnalysisAsyncThunk();

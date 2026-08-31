@@ -9,11 +9,13 @@ namespace Level {
 namespace ProtocolCLI {
 namespace {
 
+/** User Story: As a forboc ai protocol cli consumer, I need to invoke command tokens through a stable signature so the forboc ai protocol cli workflow remains explicit and composable. @fn TArray<FString> CommandTokens(const FCommandRequest &Request) */
 TArray<FString> CommandTokens(const FCommandRequest &Request) {
   return func::append_values<FString>(Request.Command.Tokens,
                                       Request.Arguments);
 }
 
+/** User Story: As a forboc ai protocol cli consumer, I need to invoke route mismatch through a stable signature so the forboc ai protocol cli workflow remains explicit and composable. @fn FString RouteMismatch(const FCommandRequest &Request, const FString &ResolvedKey) */
 FString RouteMismatch(const FCommandRequest &Request,
                       const FString &ResolvedKey) {
   return frmt::RuntimeString(
@@ -22,6 +24,7 @@ FString RouteMismatch(const FCommandRequest &Request,
           {frmt::Arg(Request.Command.Family), frmt::Arg(ResolvedKey)}));
 }
 
+/** User Story: As a forboc ai protocol cli consumer, I need to invoke dispatch resolved through a stable signature so the forboc ai protocol cli workflow remains explicit and composable. @fn FCommandOutcome DispatchResolved( const FCommandRequest &Request, const ForbocAI::CLI::FCommandParseResult &Parsed) */
 FCommandOutcome DispatchResolved(
     const FCommandRequest &Request,
     const ForbocAI::CLI::FCommandParseResult &Parsed) {
@@ -36,6 +39,7 @@ FCommandOutcome DispatchResolved(
 
 } // namespace
 
+/** User Story: As a forboc ai protocol cli consumer, I need to invoke execute command through a stable signature so the forboc ai protocol cli workflow remains explicit and composable. @fn FCommandOutcome ExecuteCommand(const FCommandRequest &Request) */
 FCommandOutcome ExecuteCommand(const FCommandRequest &Request) {
   const ForbocAI::CLI::FCommandParseResult Parsed =
       CLIOps::ResolveCommandTokens(CommandTokens(Request));

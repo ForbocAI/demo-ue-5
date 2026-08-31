@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/Settings/UI/Capture/Timing/CaptureTimingTypes.h"
-#include "Features/Components/Data/Settings/UI/Marketing/Command/CommandTypes.h"
+#include "Features/Components/Data/Settings/UI/Marketing/Command/MarketingCommandTypes.h"
 #include "Features/Components/Data/Settings/UI/Marketing/Menu/Colors/MenuColorsTypes.h"
 #include "Features/Components/Data/Settings/UI/Marketing/Menu/Content/ContentTypes.h"
 #include "Features/Components/Data/Settings/UI/Marketing/Menu/Placement/PlacementTypes.h"

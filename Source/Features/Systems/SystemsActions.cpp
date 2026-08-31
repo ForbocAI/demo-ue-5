@@ -80,9 +80,11 @@ Dispatch(const rtk::ThunkAction<FPointPayload, FRuntimeState> &Thunk);
 template func::AsyncResult<FRuntimeLevelViewPayload>
 Dispatch(const rtk::ThunkAction<FRuntimeLevelViewPayload, FRuntimeState> &Thunk);
 
+/** User Story: As a features systems consumer, I need to invoke dispatch through a stable signature so the features systems workflow remains explicit and composable. @fn template func::AsyncResult<FForbocAINpcResult> Dispatch(const rtk::ThunkAction<FForbocAINpcResult, FRuntimeState> &Thunk) */
 template func::AsyncResult<FForbocAINpcResult>
 Dispatch(const rtk::ThunkAction<FForbocAINpcResult, FRuntimeState> &Thunk);
 
+/** User Story: As a features systems consumer, I need to invoke dispatch through a stable signature so the features systems workflow remains explicit and composable. @fn template func::AsyncResult<FForbocAIGhostResult> Dispatch(const rtk::ThunkAction<FForbocAIGhostResult, FRuntimeState> &Thunk) */
 template func::AsyncResult<FForbocAIGhostResult>
 Dispatch(const rtk::ThunkAction<FForbocAIGhostResult, FRuntimeState> &Thunk);
 

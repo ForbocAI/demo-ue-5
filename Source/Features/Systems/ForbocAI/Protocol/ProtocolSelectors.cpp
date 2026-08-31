@@ -9,12 +9,14 @@ namespace Level {
 namespace ForbocAIProtocolSelectors {
 namespace {
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke failure message through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FString FailureMessage( const FForbocAIFlowState &Flow, const ForbocAI::Game::Data::FForbocAIFlowPresentationSettings &Settings) */
 FString FailureMessage(
     const FForbocAIFlowState &Flow,
     const ForbocAI::Game::Data::FForbocAIFlowPresentationSettings &Settings) {
   return Settings.FailurePrefix + Flow.Evidence.Result.Error;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke flow status label through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FString FlowStatusLabel( EForbocAIFlowStatus Status, const ForbocAI::Game::Data::FLogSettings &Settings) */
 FString FlowStatusLabel(
     EForbocAIFlowStatus Status,
     const ForbocAI::Game::Data::FLogSettings &Settings) {
@@ -33,12 +35,14 @@ FString FlowStatusLabel(
   return Label.hasValue ? Label.value : Settings.Statuses.Idle;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke evidence value through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FString EvidenceValue( const FString &Value, const ForbocAI::Game::Data::FLogSettings &Settings) */
 FString EvidenceValue(
     const FString &Value,
     const ForbocAI::Game::Data::FLogSettings &Settings) {
   return Value.IsEmpty() ? Settings.Absent : Value;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke evidence presence through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FString EvidencePresence( const FString &Value, const ForbocAI::Game::Data::FLogSettings &Settings) */
 FString EvidencePresence(
     const FString &Value,
     const ForbocAI::Game::Data::FLogSettings &Settings) {
@@ -47,6 +51,7 @@ FString EvidencePresence(
 
 } // namespace
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select flow presentation through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowPresentation SelectFlowPresentation( const FForbocAIFlowState &Flow, const ForbocAI::Game::Data::FForbocAIFlowPresentationSettings &Settings) */
 FForbocAIFlowPresentation SelectFlowPresentation(
     const FForbocAIFlowState &Flow,
     const ForbocAI::Game::Data::FForbocAIFlowPresentationSettings &Settings) {
@@ -74,26 +79,31 @@ FForbocAIFlowPresentation SelectFlowPresentation(
   return Selected.hasValue ? Selected.value : FForbocAIFlowPresentation{};
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select npc presentation through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowPresentation SelectNpcPresentation(const FRuntimeState &State) */
 FForbocAIFlowPresentation SelectNpcPresentation(const FRuntimeState &State) {
   return SelectFlowPresentation(
       State.ForbocAIProtocol.Npc,
       State.ForbocAIProtocol.Settings.Npc.Presentation);
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select npc presentation through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowPresentation SelectNpcPresentation() */
 FForbocAIFlowPresentation SelectNpcPresentation() {
   return SelectNpcPresentation(RuntimeSelectors::SelectState());
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select ghost presentation through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowPresentation SelectGhostPresentation(const FRuntimeState &State) */
 FForbocAIFlowPresentation SelectGhostPresentation(const FRuntimeState &State) {
   return SelectFlowPresentation(
       State.ForbocAIProtocol.Ghost,
       State.ForbocAIProtocol.Settings.Ghost.Presentation);
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select ghost presentation through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowPresentation SelectGhostPresentation() */
 FForbocAIFlowPresentation SelectGhostPresentation() {
   return SelectGhostPresentation(RuntimeSelectors::SelectState());
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select protocol log summary through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FString SelectProtocolLogSummary(const FRuntimeState &State) */
 FString SelectProtocolLogSummary(const FRuntimeState &State) {
   const FProtocolState &Protocol = State.ForbocAIProtocol;
   const auto &Logging = Protocol.Settings.Logging;
@@ -121,6 +131,7 @@ FString SelectProtocolLogSummary(const FRuntimeState &State) {
       }));
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke select npc action through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn func::Maybe<FString> SelectNpcAction(const FString &Output, const FString &ActionLinePrefix) */
 func::Maybe<FString> SelectNpcAction(const FString &Output,
                                      const FString &ActionLinePrefix) {
   TArray<FString> Lines;

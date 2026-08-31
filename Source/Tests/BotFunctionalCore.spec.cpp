@@ -67,14 +67,20 @@ float FunctionalCoreExpectedHealthAfterDamage(const float Damage) {
   return FMath::Max(Settings.Health.MinimumHealth, Settings.Health.InitialHealth - Damage);
 }
 
-/** User Story: As a tests consumer, I need to invoke create state through a stable signature so the tests workflow remains explicit and composable. @fn FBotCoreRuntimeState CreateState(const FString &BotName) */
+/**
+ * User Story: As a tests consumer, I need to invoke create state through a stable signature so the tests workflow remains explicit and composable.
+ * @fn ForbocAI::Game::Level::FBotCoreRuntimeState CreateState(const FString &BotName)
+ */
 ForbocAI::Game::Level::FBotCoreRuntimeState
 CreateState(const FString &BotName) {
   return ForbocAI::Game::Level::CreateBotCoreRuntimeInitialState(
       {BotName, BotFunctionalCoreSettings()});
 }
 
-/** User Story: As a tests consumer, I need to invoke reduce state through a stable signature so the tests workflow remains explicit and composable. @fn FBotCoreRuntimeState ReduceState(const FBotCoreRuntimeState &State, const rtk::AnyAction &Action) */
+/**
+ * User Story: As a tests consumer, I need to invoke reduce state through a stable signature so the tests workflow remains explicit and composable.
+ * @fn ForbocAI::Game::Level::FBotCoreRuntimeState ReduceState( const ForbocAI::Game::Level::FBotCoreRuntimeState &State, const rtk::AnyAction &Action)
+ */
 ForbocAI::Game::Level::FBotCoreRuntimeState ReduceState(
     const ForbocAI::Game::Level::FBotCoreRuntimeState &State,
     const rtk::AnyAction &Action) {

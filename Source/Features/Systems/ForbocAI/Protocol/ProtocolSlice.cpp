@@ -9,17 +9,20 @@ namespace Level {
 namespace ForbocAIProtocolSlice {
 namespace {
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke pending flow through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowState PendingFlow(const FString &CorrelationId) */
 FForbocAIFlowState PendingFlow(const FString &CorrelationId) {
   return {EForbocAIFlowStatus::Pending,
           {{CorrelationId, FString(), FString()},
            {FString(), FString(), FString(), FString()}}};
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke succeeded flow through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowState SucceededFlow( const FCommandEvidence &Evidence) */
 FForbocAIFlowState SucceededFlow(
     const FCommandEvidence &Evidence) {
   return {EForbocAIFlowStatus::Succeeded, Evidence};
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke failed flow through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowState FailedFlow(FForbocAIFlowState Flow, const FString &Error) */
 FForbocAIFlowState FailedFlow(FForbocAIFlowState Flow,
                               const FString &Error) {
   Flow.Status = EForbocAIFlowStatus::Failed;
@@ -27,6 +30,7 @@ FForbocAIFlowState FailedFlow(FForbocAIFlowState Flow,
   return Flow;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke reduce npc pending through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FProtocolState ReduceNpcPending( const FProtocolState &State, const rtk::PayloadAction<FForbocAINpcRequest> &Action) */
 FProtocolState ReduceNpcPending(
     const FProtocolState &State,
     const rtk::PayloadAction<FForbocAINpcRequest> &Action) {
@@ -35,6 +39,7 @@ FProtocolState ReduceNpcPending(
   return Next;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke reduce npc fulfilled through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FProtocolState ReduceNpcFulfilled( const FProtocolState &State, const rtk::PayloadAction<FForbocAINpcResult> &Action) */
 FProtocolState ReduceNpcFulfilled(
     const FProtocolState &State,
     const rtk::PayloadAction<FForbocAINpcResult> &Action) {
@@ -43,6 +48,7 @@ FProtocolState ReduceNpcFulfilled(
   return Next;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke reduce npc rejected through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FProtocolState ReduceNpcRejected( const FProtocolState &State, const rtk::PayloadAction<FString> &Action) */
 FProtocolState ReduceNpcRejected(
     const FProtocolState &State,
     const rtk::PayloadAction<FString> &Action) {
@@ -51,6 +57,7 @@ FProtocolState ReduceNpcRejected(
   return Next;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke reduce ghost pending through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FProtocolState ReduceGhostPending( const FProtocolState &State, const rtk::PayloadAction<FForbocAIGhostRequest> &Action) */
 FProtocolState ReduceGhostPending(
     const FProtocolState &State,
     const rtk::PayloadAction<FForbocAIGhostRequest> &Action) {
@@ -59,6 +66,7 @@ FProtocolState ReduceGhostPending(
   return Next;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke reduce ghost fulfilled through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FProtocolState ReduceGhostFulfilled( const FProtocolState &State, const rtk::PayloadAction<FForbocAIGhostResult> &Action) */
 FProtocolState ReduceGhostFulfilled(
     const FProtocolState &State,
     const rtk::PayloadAction<FForbocAIGhostResult> &Action) {
@@ -67,6 +75,7 @@ FProtocolState ReduceGhostFulfilled(
   return Next;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke reduce ghost rejected through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FProtocolState ReduceGhostRejected( const FProtocolState &State, const rtk::PayloadAction<FString> &Action) */
 FProtocolState ReduceGhostRejected(
     const FProtocolState &State,
     const rtk::PayloadAction<FString> &Action) {
@@ -77,11 +86,13 @@ FProtocolState ReduceGhostRejected(
 
 } // namespace
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke create initial state through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn FProtocolState CreateInitialState( const ForbocAI::Game::Data::FProtocolSettings &Settings) */
 FProtocolState CreateInitialState(
     const ForbocAI::Game::Data::FProtocolSettings &Settings) {
   return {Settings, FForbocAIFlowState{}, FForbocAIFlowState{}};
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke get slice through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn const rtk::Slice<FProtocolState> &GetSlice() */
 const rtk::Slice<FProtocolState> &GetSlice() {
   static const func::Lazy<rtk::Slice<FProtocolState>> Slice =
       func::lazy([]() -> rtk::Slice<FProtocolState> {

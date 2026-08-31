@@ -25,6 +25,7 @@ JSON_SETTINGS_REGISTRY(Automation::Bot::FLogAssertions,
                        GhostOutputRedacted);
 
 template <> struct TJsonSettingsRegistry<Automation::Bot::FNpcAssertions> {
+  /** User Story: As a orchestrator protocol assertions consumer, I need to invoke fields through a stable signature so the orchestrator protocol assertions workflow remains explicit and composable. @fn static const TArray<TField<Automation::Bot::FNpcAssertions>> &Fields() */
   static const TArray<TField<Automation::Bot::FNpcAssertions>> &Fields() {
     static const TArray<TField<Automation::Bot::FNpcAssertions>>
         RegisteredFields = {
@@ -46,6 +47,7 @@ template <> struct TJsonSettingsRegistry<Automation::Bot::FNpcAssertions> {
 };
 
 template <> struct TJsonSettingsRegistry<Automation::Bot::FGhostAssertions> {
+  /** User Story: As a orchestrator protocol assertions consumer, I need to invoke fields through a stable signature so the orchestrator protocol assertions workflow remains explicit and composable. @fn static const TArray<TField<Automation::Bot::FGhostAssertions>> &Fields() */
   static const TArray<TField<Automation::Bot::FGhostAssertions>> &Fields() {
     static const TArray<TField<Automation::Bot::FGhostAssertions>>
         RegisteredFields = {
@@ -68,6 +70,7 @@ template <> struct TJsonSettingsRegistry<Automation::Bot::FGhostAssertions> {
 };
 
 template <> struct TJsonSettingsRegistry<Automation::Bot::FProtocolAssertions> {
+  /** User Story: As a orchestrator protocol assertions consumer, I need to invoke fields through a stable signature so the orchestrator protocol assertions workflow remains explicit and composable. @fn static const TArray<TField<Automation::Bot::FProtocolAssertions>> &Fields() */
   static const TArray<TField<Automation::Bot::FProtocolAssertions>> &Fields() {
     static const TArray<TField<Automation::Bot::FProtocolAssertions>>
         RegisteredFields = {

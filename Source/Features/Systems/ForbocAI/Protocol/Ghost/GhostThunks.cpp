@@ -26,6 +26,7 @@ struct FFlowContext {
   FSettings Settings;
 };
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke execute through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn FArgumentsExecutor Execute( const FSettings &Settings, const ForbocAI::Game::Data::FForbocAICommandSettings &Command) */
 FArgumentsExecutor Execute(
     const FSettings &Settings,
     const ForbocAI::Game::Data::FForbocAICommandSettings &Command) {
@@ -35,6 +36,7 @@ FArgumentsExecutor Execute(
   };
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke ghost observation through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn FString GhostObservation(const FRuntimeState &State, const FSettings &Settings) */
 FString GhostObservation(const FRuntimeState &State,
                          const FSettings &Settings) {
   return frmt::RuntimeString(
@@ -46,6 +48,7 @@ FString GhostObservation(const FRuntimeState &State,
            frmt::Arg(RuntimeSelectors::SelectNatureFeatures(State).Num())}));
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke start ghost through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn func::Either<FString, FFlowContext> StartGhost(const FForbocAIGhostRequest &Request, const FRuntimeState &State) */
 func::Either<FString, FFlowContext>
 StartGhost(const FForbocAIGhostRequest &Request,
            const FRuntimeState &State) {
@@ -62,6 +65,7 @@ StartGhost(const FForbocAIGhostRequest &Request,
       });
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke create ghost actor through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn func::Either<FString, FFlowContext> CreateGhostActor(const FFlowContext &Context) */
 func::Either<FString, FFlowContext>
 CreateGhostActor(const FFlowContext &Context) {
   return func::either_map(
@@ -75,6 +79,7 @@ CreateGhostActor(const FFlowContext &Context) {
       });
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke decide ghost through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn func::Either<FString, FFlowContext> DecideGhost(const FFlowContext &Context) */
 func::Either<FString, FFlowContext>
 DecideGhost(const FFlowContext &Context) {
   const ForbocAI::Game::Data::FForbocAIGhostDecisionRequestSettings &Request =
@@ -93,6 +98,7 @@ DecideGhost(const FFlowContext &Context) {
       });
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke read ghost results through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn func::Either<FString, FFlowContext> ReadGhostResults(const FFlowContext &Context) */
 func::Either<FString, FFlowContext>
 ReadGhostResults(const FFlowContext &Context) {
   return func::either_map(
@@ -101,11 +107,13 @@ ReadGhostResults(const FFlowContext &Context) {
       [&Context](const FExecution &) { return Context; });
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke stop ghost through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn FExecutionOutcome StopGhost(const FFlowContext &Context) */
 FExecutionOutcome StopGhost(const FFlowContext &Context) {
   return Execute(Context.Settings, Context.Settings.Ghost.Commands.Stop)(
       {Context.SessionId});
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke finalize ghost through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn func::Either<FString, FFlowContext> FinalizeGhost(const FFlowContext &Context) */
 func::Either<FString, FFlowContext>
 FinalizeGhost(const FFlowContext &Context) {
   return func::either_map(
@@ -113,6 +121,7 @@ FinalizeGhost(const FFlowContext &Context) {
       [&Context](const FExecution &) { return Context; });
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke complete ghost through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn FGhostOutcome CompleteGhost(const FFlowContext &Context) */
 FGhostOutcome CompleteGhost(const FFlowContext &Context) {
   return func::right<FString, FForbocAIGhostResult>(
       {{{Context.CorrelationId,
@@ -121,6 +130,7 @@ FGhostOutcome CompleteGhost(const FFlowContext &Context) {
         {Context.ActorId, Context.SessionId, Context.Output, FString()}}});
 }
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke run ghost session through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn FGhostOutcome RunGhostSession(const FFlowContext &Started) */
 FGhostOutcome RunGhostSession(const FFlowContext &Started) {
   const func::Either<FString, FFlowContext> Completed = func::ebind(
       func::ebind(
@@ -138,6 +148,7 @@ FGhostOutcome RunGhostSession(const FFlowContext &Started) {
 
 } // namespace
 
+/** User Story: As a forboc ai protocol ghost consumer, I need to invoke execute ghost analysis through a stable signature so the forboc ai protocol ghost workflow remains explicit and composable. @fn FGhostOutcome ExecuteGhostAnalysis(const FForbocAIGhostRequest &Request, const FRuntimeState &State) */
 FGhostOutcome ExecuteGhostAnalysis(const FForbocAIGhostRequest &Request,
                                    const FRuntimeState &State) {
   return func::ebind(StartGhost(Request, State), RunGhostSession);

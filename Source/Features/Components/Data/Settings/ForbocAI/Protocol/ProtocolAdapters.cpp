@@ -10,18 +10,21 @@ namespace ForbocAIProtocolAdapters {
 namespace Json = JsonAdapters;
 namespace {
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read command through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAICommandSettings ReadCommand(const TSharedPtr<FJsonObject> &Object) */
 FForbocAICommandSettings
 ReadCommand(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsWith<FForbocAICommandSettings>(
       JSON_SETTINGS_ATOMS(Family, KeyPrefix, Tokens))(Object);
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read flow presentation through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAIFlowPresentationSettings ReadFlowPresentation(const TSharedPtr<FJsonObject> &Object) */
 FForbocAIFlowPresentationSettings
 ReadFlowPresentation(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsWith<FForbocAIFlowPresentationSettings>(
       JSON_SETTINGS_ATOMS(Pending, Succeeded, FailurePrefix))(Object);
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read protocol logging through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FLogSettings ReadProtocolLogging(const TSharedPtr<FJsonObject> &Object) */
 FLogSettings
 ReadProtocolLogging(const TSharedPtr<FJsonObject> &Object) {
   return {
@@ -33,12 +36,14 @@ ReadProtocolLogging(const TSharedPtr<FJsonObject> &Object) {
           Json::ReadObjectField(Object, "Statuses"))};
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read npc commands through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAINpcCommandSettings ReadNpcCommands(const TSharedPtr<FJsonObject> &Object) */
 FForbocAINpcCommandSettings
 ReadNpcCommands(const TSharedPtr<FJsonObject> &Object) {
   return {ReadCommand(Json::ReadObjectField(Object, "Create")),
           ReadCommand(Json::ReadObjectField(Object, "Process"))};
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read npc presentation through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAINpcPresentationSettings ReadNpcPresentation(const TSharedPtr<FJsonObject> &Object) */
 FForbocAINpcPresentationSettings
 ReadNpcPresentation(const TSharedPtr<FJsonObject> &Object) {
   const FForbocAIFlowPresentationSettings Common =
@@ -51,12 +56,14 @@ ReadNpcPresentation(const TSharedPtr<FJsonObject> &Object) {
   return Settings;
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read npc through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAINpcSettings ReadNpc(const TSharedPtr<FJsonObject> &Object) */
 FForbocAINpcSettings
 ReadNpc(const TSharedPtr<FJsonObject> &Object) {
   return {ReadNpcCommands(Json::ReadObjectField(Object, "Commands")),
           ReadNpcPresentation(Json::ReadObjectField(Object, "Presentation"))};
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read ghost commands through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAIGhostCommandSettings ReadGhostCommands(const TSharedPtr<FJsonObject> &Object) */
 FForbocAIGhostCommandSettings
 ReadGhostCommands(const TSharedPtr<FJsonObject> &Object) {
   return {ReadCommand(Json::ReadObjectField(Object, "Run")),
@@ -66,18 +73,21 @@ ReadGhostCommands(const TSharedPtr<FJsonObject> &Object) {
           ReadCommand(Json::ReadObjectField(Object, "Stop"))};
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read ghost run request through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAIGhostRunRequestSettings ReadGhostRunRequest(const TSharedPtr<FJsonObject> &Object) */
 FForbocAIGhostRunRequestSettings
 ReadGhostRunRequest(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsWith<FForbocAIGhostRunRequestSettings>(
       JSON_SETTINGS_ATOMS(Suite, DurationSeconds, DurationOption))(Object);
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read ghost actor request through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAIGhostActorRequestSettings ReadGhostActorRequest(const TSharedPtr<FJsonObject> &Object) */
 FForbocAIGhostActorRequestSettings
 ReadGhostActorRequest(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsWith<FForbocAIGhostActorRequestSettings>(
       JSON_SETTINGS_ATOMS(Persona))(Object);
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read ghost decision request through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAIGhostDecisionRequestSettings ReadGhostDecisionRequest(const TSharedPtr<FJsonObject> &Object) */
 FForbocAIGhostDecisionRequestSettings
 ReadGhostDecisionRequest(const TSharedPtr<FJsonObject> &Object) {
   return Json::ReadSettingsWith<FForbocAIGhostDecisionRequestSettings>(
@@ -85,6 +95,7 @@ ReadGhostDecisionRequest(const TSharedPtr<FJsonObject> &Object) {
                           LegalActionsSeparator, LegalActions))(Object);
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read ghost request through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAIGhostRequestSettings ReadGhostRequest(const TSharedPtr<FJsonObject> &Object) */
 FForbocAIGhostRequestSettings
 ReadGhostRequest(const TSharedPtr<FJsonObject> &Object) {
   return {ReadGhostRunRequest(Json::ReadObjectField(Object, "Run")),
@@ -93,6 +104,7 @@ ReadGhostRequest(const TSharedPtr<FJsonObject> &Object) {
               Json::ReadObjectField(Object, "Decision"))};
 }
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read ghost through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FForbocAIGhostSettings ReadGhost(const TSharedPtr<FJsonObject> &Object) */
 FForbocAIGhostSettings
 ReadGhost(const TSharedPtr<FJsonObject> &Object) {
   return {ReadGhostCommands(Json::ReadObjectField(Object, "Commands")),
@@ -102,6 +114,7 @@ ReadGhost(const TSharedPtr<FJsonObject> &Object) {
 
 } // namespace
 
+/** User Story: As a settings forboc ai protocol consumer, I need to invoke read protocol settings through a stable signature so the settings forboc ai protocol workflow remains explicit and composable. @fn FProtocolSettings ReadProtocolSettings(const TSharedPtr<FJsonObject> &Object) */
 FProtocolSettings
 ReadProtocolSettings(const TSharedPtr<FJsonObject> &Object) {
   return {

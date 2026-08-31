@@ -11,6 +11,7 @@ namespace Level {
 namespace ForbocAIProtocolThunks {
 namespace {
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke to async result through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn template <typename Result> func::AsyncResult<Result> ToAsyncResult(const func::Either<FString, Result> &Outcome) */
 template <typename Result>
 func::AsyncResult<Result>
 ToAsyncResult(const func::Either<FString, Result> &Outcome) {
@@ -31,16 +32,19 @@ ToAsyncResult(const func::Either<FString, Result> &Outcome) {
       });
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke npc flow available through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn bool NpcFlowAvailable(const FRuntimeState &State) */
 bool NpcFlowAvailable(const FRuntimeState &State) {
   return State.ForbocAIProtocol.Npc.Status != EForbocAIFlowStatus::Pending;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke ghost flow available through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn bool GhostFlowAvailable(const FRuntimeState &State) */
 bool GhostFlowAvailable(const FRuntimeState &State) {
   return State.ForbocAIProtocol.Ghost.Status != EForbocAIFlowStatus::Pending;
 }
 
 } // namespace
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke npc interaction async thunk through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn const rtk::AsyncThunkConfig<FForbocAINpcResult, FForbocAINpcRequest, FRuntimeState> & NpcInteractionAsyncThunk() */
 const rtk::AsyncThunkConfig<FForbocAINpcResult, FForbocAINpcRequest,
                             FRuntimeState> &
 NpcInteractionAsyncThunk() {
@@ -70,6 +74,7 @@ NpcInteractionAsyncThunk() {
   return Config;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke ghost analysis async thunk through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn const rtk::AsyncThunkConfig<FForbocAIGhostResult, FForbocAIGhostRequest, FRuntimeState> & GhostAnalysisAsyncThunk() */
 const rtk::AsyncThunkConfig<FForbocAIGhostResult, FForbocAIGhostRequest,
                             FRuntimeState> &
 GhostAnalysisAsyncThunk() {
@@ -92,11 +97,13 @@ GhostAnalysisAsyncThunk() {
   return Config;
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke request npc interaction through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn rtk::ThunkAction<FForbocAINpcResult, FRuntimeState> RequestNpcInteraction(const FForbocAINpcRequest &Request) */
 rtk::ThunkAction<FForbocAINpcResult, FRuntimeState>
 RequestNpcInteraction(const FForbocAINpcRequest &Request) {
   return NpcInteractionAsyncThunk()(Request);
 }
 
+/** User Story: As a systems forboc ai protocol consumer, I need to invoke request ghost analysis through a stable signature so the systems forboc ai protocol workflow remains explicit and composable. @fn rtk::ThunkAction<FForbocAIGhostResult, FRuntimeState> RequestGhostAnalysis(const FForbocAIGhostRequest &Request) */
 rtk::ThunkAction<FForbocAIGhostResult, FRuntimeState>
 RequestGhostAnalysis(const FForbocAIGhostRequest &Request) {
   return GhostAnalysisAsyncThunk()(Request);
