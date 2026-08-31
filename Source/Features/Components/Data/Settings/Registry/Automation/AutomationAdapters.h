@@ -33,9 +33,11 @@ template <> struct TJsonSettingsRegistry<Automation::FSettings> {
                 Automation::FSettings,
                 ReadSettingsWith<Automation::Content::Assets::FSettings>(
                     JSON_SETTINGS_ATOMS(
-                        Packages, Classes, SpeechComponentClasses,
-                        ConfigValues, Assets, SkeletalMeshLods,
-                        MissingPackages, SkeletalMeshLoadsLabelFormat,
+                        RuntimeMap, MapActorClasses, MapComponentClasses,
+                        Modules, Classes, ClassBindings,
+                        SpeechComponentClasses, ConfigValues, Assets,
+                        SkeletalMeshLods, MissingPackages,
+                        SkeletalMeshLoadsLabelFormat,
                         SkeletalMeshLodDataLabelFormat,
                         NativeLodAuditCountFormat,
                         NativeLodAuditEntryFormat)),

@@ -6,8 +6,6 @@
 
 namespace {
 
-using namespace ForbocAI::Game::Level;
-
 /** User Story: As a tests consumer, I need to invoke bot functional core all settings through a stable signature so the tests workflow remains explicit and composable. @fn const ForbocAI::Game::Data::FSettings & BotFunctionalCoreAllSettings() */
 const ForbocAI::Game::Data::FSettings &
 BotFunctionalCoreAllSettings() {
@@ -70,15 +68,17 @@ float FunctionalCoreExpectedHealthAfterDamage(const float Damage) {
 }
 
 /** User Story: As a tests consumer, I need to invoke create state through a stable signature so the tests workflow remains explicit and composable. @fn FBotCoreRuntimeState CreateState(const FString &BotName) */
-FBotCoreRuntimeState CreateState(const FString &BotName) {
-  return CreateBotCoreRuntimeInitialState(
+ForbocAI::Game::Level::FBotCoreRuntimeState
+CreateState(const FString &BotName) {
+  return ForbocAI::Game::Level::CreateBotCoreRuntimeInitialState(
       {BotName, BotFunctionalCoreSettings()});
 }
 
 /** User Story: As a tests consumer, I need to invoke reduce state through a stable signature so the tests workflow remains explicit and composable. @fn FBotCoreRuntimeState ReduceState(const FBotCoreRuntimeState &State, const rtk::AnyAction &Action) */
-FBotCoreRuntimeState ReduceState(const FBotCoreRuntimeState &State,
-                                 const rtk::AnyAction &Action) {
-  return BotCoreReducers::BotReducer()(State, Action);
+ForbocAI::Game::Level::FBotCoreRuntimeState ReduceState(
+    const ForbocAI::Game::Level::FBotCoreRuntimeState &State,
+    const rtk::AnyAction &Action) {
+  return ForbocAI::Game::Level::BotCoreReducers::BotReducer()(State, Action);
 }
 } // namespace
 

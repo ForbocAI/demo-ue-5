@@ -1,8 +1,29 @@
 {
-  "packages": [
+  "runtime_map": {
+    "label": "Default French Gulch runtime map loads",
+    "package_path": "/Game/Map/Maps/Runtime",
+    "object_path": "/Game/Map/Maps/Runtime.Runtime"
+  },
+  "map_actor_classes": [
     {
-      "label": "Default French Gulch runtime map is tracked",
-      "path": "/Game/Map/Maps/Runtime"
+      "label": "Runtime level actor is placed in the default map",
+      "path": "/Script/ForbocAIDemo.RuntimeLevelView"
+    },
+    {
+      "label": "Runtime speech presenter is placed in the default map",
+      "path": "/Script/ForbocAIDemo.RuntimeSpeechPresenterView"
+    }
+  ],
+  "map_component_classes": [
+    {
+      "label": "Default map exposes the speech component",
+      "path": "/Script/ForbocAIDemo.SpeechComponent"
+    }
+  ],
+  "modules": [
+    {
+      "label": "ForbocAI SDK module is loaded",
+      "path": "ForbocAI_SDK"
     }
   ],
   "classes": [
@@ -29,6 +50,26 @@
     {
       "label": "Runtime chat widget native class loads",
       "path": "/Script/ForbocAIDemo.RuntimeChatWidget"
+    }
+  ],
+  "class_bindings": [
+    {
+      "label": "Player controller binds the runtime chat widget",
+      "owner_class_path": "/Script/ForbocAIDemo.PlayerRuntimeControllerView",
+      "property_name": "RuntimeConversationWidgetClass",
+      "expected_class_path": "/Script/ForbocAIDemo.RuntimeChatWidget"
+    },
+    {
+      "label": "Player controller binds the runtime stats widget",
+      "owner_class_path": "/Script/ForbocAIDemo.PlayerRuntimeControllerView",
+      "property_name": "RuntimeStatsWidgetClass",
+      "expected_class_path": "/Script/ForbocAIDemo.RuntimeStatsWidget"
+    },
+    {
+      "label": "Player controller binds the marketing menu widget",
+      "owner_class_path": "/Script/ForbocAIDemo.PlayerRuntimeControllerView",
+      "property_name": "MarketingMenuWidgetClass",
+      "expected_class_path": "/Script/ForbocAIDemo.RuntimeMarketingMenuWidget"
     }
   ],
   "speech_component_classes": [

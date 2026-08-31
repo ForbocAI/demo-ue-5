@@ -1,10 +1,14 @@
 {
   "build_runner": {
+    "configuration": "Development",
     "disable_uba": true,
+    "engine_directory_name": "UE_5.8",
     "generated_metadata": [
       "Binaries/Win64/UnrealEditor.modules",
       "Binaries/Win64/ForbocAIDemoEditor.target"
     ],
-    "max_parallel_actions": 1
+    "max_parallel_actions": 1,
+    "platform": "Win64",
+    "target": "ForbocAIDemoEditor"
   }
 }

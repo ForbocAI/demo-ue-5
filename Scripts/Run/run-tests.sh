@@ -19,7 +19,10 @@ SDK_CHECK_ROOT="$SDK_SOURCE_ROOT/scripts"
 SDK_FP_CHECK_ROOT="$SDK_SOURCE_ROOT/scripts/fp"
 # shellcheck source=../../../sdk-ue-5/scripts/lib/test-environment.sh
 source "$SDK_CHECK_ROOT/lib/test-environment.sh"
-forbocai_load_test_environment required
+TEST_ENVIRONMENT_REQUIREMENT="${FORBOC_TEST_ENVIRONMENT_REQUIREMENT:-required}"
+AUTOMATION_FILTER="${FORBOC_AUTOMATION_FILTER:-ForbocAI}"
+RUN_RUNTIME_BUDGET="${FORBOC_RUN_RUNTIME_BUDGET:-1}"
+forbocai_load_test_environment "$TEST_ENVIRONMENT_REQUIREMENT"
 # shellcheck source=../../../sdk-ue-5/scripts/lib/wsl-environment.sh
 source "$SDK_CHECK_ROOT/lib/wsl-environment.sh"
 FP_CHECK_ENV=(
@@ -64,7 +67,7 @@ fi
 
 # Detect OS and UE path (same logic as build_plugin.sh)
 if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" == "win32"* ]]; then
-    UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/UE_5.8}"
+    UE_ROOT="${UE_ROOT:-C:/Program Files/Epic Games/$FORBOCAI_ENGINE_DIRECTORY_NAME}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     UNREAL_EDITOR_ARG="$UNREAL_EDITOR"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Build.bat"
@@ -74,7 +77,7 @@ if [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ "$OSTYPE" ==
       RUNTIME_BUDGET_POWERSHELL_ARG="$(cygpath -w "$RUNTIME_BUDGET_POWERSHELL_SCRIPT")"
     fi
 elif grep -qi microsoft /proc/version 2>/dev/null; then
-    UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/UE_5.8}"
+    UE_ROOT="${UE_ROOT:-/mnt/c/Program Files/Epic Games/$FORBOCAI_ENGINE_DIRECTORY_NAME}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Win64/UnrealEditor-Cmd.exe"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Build.bat"
     PROJECT_FILE_ARG="$(wslpath -w "$PROJECT_FILE")"
@@ -86,14 +89,14 @@ elif grep -qi microsoft /proc/version 2>/dev/null; then
     BUILD_VIA_CMD=1
     forbocai_export_wsl_environment
 else
-    UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/UE_5.8}"
+    UE_ROOT="${UE_ROOT:-/Users/Shared/Epic Games/$FORBOCAI_ENGINE_DIRECTORY_NAME}"
     UNREAL_EDITOR="$UE_ROOT/Engine/Binaries/Mac/UnrealEditor-Cmd"
     UNREAL_EDITOR_ARG="$UNREAL_EDITOR"
     UNREAL_BUILD="$UE_ROOT/Engine/Build/BatchFiles/Mac/Build.sh"
     UNREAL_BUILD_ARG="$UNREAL_BUILD"
 fi
 
-LOG_FILE="$PROJECT_ROOT/Saved/Automation/AutomationLog.txt"
+LOG_FILE="${FORBOC_AUTOMATION_LOG_FILE:-$PROJECT_ROOT/Saved/Automation/AutomationLog.txt}"
 mkdir -p "$PROJECT_ROOT/Saved/Automation"
 
 CHECK_FAILURES=0
@@ -144,7 +147,7 @@ echo "Log:     $LOG_FILE"
 if [ -n "$UNREAL_BUILD" ]; then
   echo "Build:   $UNREAL_BUILD"
 fi
-echo "Running ForbocAI.* tests..."
+echo "Running $AUTOMATION_FILTER tests..."
 
 run_check "Locking SDK submodule read-only..." bash "$PROJECT_ROOT/Scripts/SDK/lock_sdk_submodule.sh" --lock
 run_check "Checking SDK submodule immutability..." bash "$PROJECT_ROOT/Scripts/Checks/check_sdk_submodule_guard.sh"
@@ -190,9 +193,9 @@ if [ -n "$UNREAL_BUILD" ]; then
     BUILD_POLICY_ARGS+=("-NoUBA")
   fi
   if [ "$BUILD_VIA_CMD" -eq 1 ]; then
-    powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { Set-Content -LiteralPath '$BUILD_HOST_PID_FILE_ARG' -Value \$PID; try { \$BuildArguments = @('ForbocAIDemoEditor', 'Win64', 'Development', '-Project=$PROJECT_FILE_ARG', '-WaitMutex', '-NoHotReloadFromIDE', '-NoUBTMakefiles', '-MaxParallelActions=$FORBOCAI_BUILD_MAX_PARALLEL_ACTIONS'); if ('$FORBOCAI_BUILD_DISABLE_UBA' -eq '1') { \$BuildArguments += '-NoUBA' }; & '$UNREAL_BUILD_ARG' @BuildArguments; \$BuildExit = \$LASTEXITCODE } finally { Remove-Item -LiteralPath '$BUILD_HOST_PID_FILE_ARG' -Force -ErrorAction SilentlyContinue }; exit \$BuildExit }" < /dev/null
+    powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { Set-Content -LiteralPath '$BUILD_HOST_PID_FILE_ARG' -Value \$PID; try { \$BuildArguments = @('$FORBOCAI_BUILD_TARGET', '$FORBOCAI_BUILD_PLATFORM', '$FORBOCAI_BUILD_CONFIGURATION', '-Project=$PROJECT_FILE_ARG', '-WaitMutex', '-NoHotReloadFromIDE', '-NoUBTMakefiles', '-MaxParallelActions=$FORBOCAI_BUILD_MAX_PARALLEL_ACTIONS'); if ('$FORBOCAI_BUILD_DISABLE_UBA' -eq '1') { \$BuildArguments += '-NoUBA' }; & '$UNREAL_BUILD_ARG' @BuildArguments; \$BuildExit = \$LASTEXITCODE } finally { Remove-Item -LiteralPath '$BUILD_HOST_PID_FILE_ARG' -Force -ErrorAction SilentlyContinue }; exit \$BuildExit }" < /dev/null
   else
-    "$UNREAL_BUILD" ForbocAIDemoEditor Win64 Development "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE -NoUBTMakefiles "${BUILD_POLICY_ARGS[@]}"
+    "$UNREAL_BUILD" "$FORBOCAI_BUILD_TARGET" "$FORBOCAI_BUILD_PLATFORM" "$FORBOCAI_BUILD_CONFIGURATION" "-Project=$PROJECT_FILE_ARG" -WaitMutex -NoHotReloadFromIDE -NoUBTMakefiles "${BUILD_POLICY_ARGS[@]}"
   fi
   BUILD_EXIT=$?
   if [ "$BUILD_EXIT" -ne 0 ]; then
@@ -204,12 +207,12 @@ fi
 # Run UE Automation tests through the native host shell under WSL so the
 # verified test environment reaches Unreal without an interoperability hop.
 if [ "$BUILD_VIA_CMD" -eq 1 ]; then
-  powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { if ([string]::IsNullOrEmpty(\$env:FORBOCAI_API_KEY)) { exit 64 }; if (!(Test-Path -LiteralPath '$UNREAL_EDITOR_ARG')) { Write-Error 'UnrealEditor-Cmd executable was not found'; exit 66 }; & '$UNREAL_EDITOR_ARG' '$PROJECT_FILE_ARG' '-ExecCmds=Automation RunTests ForbocAI; Quit' '-log' '-NoUI' '-stdout' '-FullStdOutLogOutput' '-unattended' '-nop4' '-nosplash' '-nullrhi' '-nosound' '-NoLiveCoding'; if (\$null -eq \$LASTEXITCODE) { exit 67 }; exit \$LASTEXITCODE }" < /dev/null \
+  powershell.exe -NoProfile -NonInteractive -InputFormat None -Command "& { if ('$TEST_ENVIRONMENT_REQUIREMENT' -eq 'required' -and [string]::IsNullOrEmpty(\$env:FORBOCAI_API_KEY)) { exit 64 }; if (!(Test-Path -LiteralPath '$UNREAL_EDITOR_ARG')) { Write-Error 'UnrealEditor-Cmd executable was not found'; exit 66 }; & '$UNREAL_EDITOR_ARG' '$PROJECT_FILE_ARG' '-ExecCmds=Automation RunTests $AUTOMATION_FILTER; Quit' '-log' '-NoUI' '-stdout' '-FullStdOutLogOutput' '-unattended' '-nop4' '-nosplash' '-nullrhi' '-nosound' '-NoLiveCoding'; if (\$null -eq \$LASTEXITCODE) { exit 67 }; exit \$LASTEXITCODE }" < /dev/null \
     | tee "$LOG_FILE"
   UE_EXIT=${PIPESTATUS[0]}
 else
   "$UNREAL_EDITOR" "$PROJECT_FILE_ARG" \
-    -ExecCmds="Automation RunTests ForbocAI; Quit" \
+    -ExecCmds="Automation RunTests $AUTOMATION_FILTER; Quit" \
     -log -NoUI -stdout -FullStdOutLogOutput \
     -unattended -nop4 -nosplash -nullrhi -nosound -NoLiveCoding \
     | tee "$LOG_FILE"
@@ -252,16 +255,18 @@ else
     echo "✗ Editor crashed or returned non-zero exit code: $UE_EXIT"
     exit 1
   fi
-  echo "Running 30-second Runtime map performance budget test in real UnrealEditor game mode..."
-  if [ "$RUNTIME_BUDGET_VIA_POWERSHELL" -eq 1 ]; then
-    powershell.exe -NoProfile -NonInteractive -InputFormat None -ExecutionPolicy Bypass -File "$RUNTIME_BUDGET_POWERSHELL_ARG" < /dev/null
-  else
-    bash "$RUNTIME_BUDGET_SCRIPT"
-  fi
-  RUNTIME_BUDGET_EXIT=$?
-  if [ "$RUNTIME_BUDGET_EXIT" -ne 0 ]; then
-    echo "✗ Runtime map performance budget failed with exit code: $RUNTIME_BUDGET_EXIT"
-    exit 1
+  if [ "$RUN_RUNTIME_BUDGET" -eq 1 ]; then
+    echo "Running 30-second Runtime map performance budget test in real UnrealEditor game mode..."
+    if [ "$RUNTIME_BUDGET_VIA_POWERSHELL" -eq 1 ]; then
+      powershell.exe -NoProfile -NonInteractive -InputFormat None -ExecutionPolicy Bypass -File "$RUNTIME_BUDGET_POWERSHELL_ARG" < /dev/null
+    else
+      bash "$RUNTIME_BUDGET_SCRIPT"
+    fi
+    RUNTIME_BUDGET_EXIT=$?
+    if [ "$RUNTIME_BUDGET_EXIT" -ne 0 ]; then
+      echo "✗ Runtime map performance budget failed with exit code: $RUNTIME_BUDGET_EXIT"
+      exit 1
+    fi
   fi
   if [ "$CHECK_FAILURES" -ne 0 ]; then
     echo "✗ Automation and runtime budget passed, but $CHECK_FAILURES strict preflight check(s) failed:"

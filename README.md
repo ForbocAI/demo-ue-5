@@ -48,6 +48,25 @@ The project opens `/Game/Map/Maps/Runtime` by default.
 The demo keeps each NPC's identity and game context separate while routing all
 ForbocAI interaction through the installed SDK plugin.
 
+## Verify The Integration
+
+Run the focused map smoke before integrating the demo pattern into another
+project:
+
+```bash
+bash Scripts/Run/run-map-smoke.sh
+```
+
+On Windows, the equivalent command is:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\Run\run-map-smoke.ps1"
+```
+
+The smoke builds the editor target, verifies that the default map contains the
+required ForbocAI runtime and speech wiring, then opens the map in unattended
+game mode. It does not require an API interaction.
+
 ## ForbocAI Integration Points
 
 | ForbocAI behavior | Demo surface |

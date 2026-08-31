@@ -14,6 +14,19 @@ struct FPackage {
   FString Path;
 };
 
+struct FMap {
+  FString Label;
+  FString PackagePath;
+  FString ObjectPath;
+};
+
+struct FClassBinding {
+  FString Label;
+  FString OwnerClassPath;
+  FString PropertyName;
+  FString ExpectedClassPath;
+};
+
 struct FConfig {
   FString Label;
   FString Section;
@@ -22,8 +35,12 @@ struct FConfig {
 };
 
 struct FSettings {
-  TArray<FPackage> Packages;
+  FMap RuntimeMap;
+  TArray<FPackage> MapActorClasses;
+  TArray<FPackage> MapComponentClasses;
+  TArray<FPackage> Modules;
   TArray<FPackage> Classes;
+  TArray<FClassBinding> ClassBindings;
   TArray<FPackage> SpeechComponentClasses;
   TArray<FConfig> ConfigValues;
   TArray<FPackage> Assets;
@@ -45,6 +62,31 @@ inline bool operator!=(const FPackage &Left, const FPackage &Right) {
   return !(Left == Right);
 }
 
+/** User Story: As an automation content consumer, I need runtime map expectations to compare as immutable authored values. @fn inline bool operator==(const FMap &Left, const FMap &Right) */
+inline bool operator==(const FMap &Left, const FMap &Right) {
+  return Left.Label == Right.Label &&
+         Left.PackagePath == Right.PackagePath &&
+         Left.ObjectPath == Right.ObjectPath;
+}
+
+/** User Story: As an automation content consumer, I need runtime map differences to remain explicit. @fn inline bool operator!=(const FMap &Left, const FMap &Right) */
+inline bool operator!=(const FMap &Left, const FMap &Right) {
+  return !(Left == Right);
+}
+
+/** User Story: As an automation content consumer, I need class bindings to compare as immutable authored values. @fn inline bool operator==(const FClassBinding &Left, const FClassBinding &Right) */
+inline bool operator==(const FClassBinding &Left, const FClassBinding &Right) {
+  return Left.Label == Right.Label &&
+         Left.OwnerClassPath == Right.OwnerClassPath &&
+         Left.PropertyName == Right.PropertyName &&
+         Left.ExpectedClassPath == Right.ExpectedClassPath;
+}
+
+/** User Story: As an automation content consumer, I need class binding differences to remain explicit. @fn inline bool operator!=(const FClassBinding &Left, const FClassBinding &Right) */
+inline bool operator!=(const FClassBinding &Left, const FClassBinding &Right) {
+  return !(Left == Right);
+}
+
 /** User Story: As a automation content assets consumer, I need to compare values for equality through a stable signature so the automation content assets workflow remains explicit and composable. @fn inline bool operator==(const FConfig &Left, const FConfig &Right) */
 inline bool operator==(const FConfig &Left, const FConfig &Right) {
   return Left.Label == Right.Label && Left.Section == Right.Section &&
@@ -58,8 +100,12 @@ inline bool operator!=(const FConfig &Left, const FConfig &Right) {
 
 /** User Story: As a automation content assets consumer, I need to compare values for equality through a stable signature so the automation content assets workflow remains explicit and composable. @fn inline bool operator==(const FSettings &Left, const FSettings &Right) */
 inline bool operator==(const FSettings &Left, const FSettings &Right) {
-  return Left.Packages == Right.Packages &&
+  return Left.RuntimeMap == Right.RuntimeMap &&
+         Left.MapActorClasses == Right.MapActorClasses &&
+         Left.MapComponentClasses == Right.MapComponentClasses &&
+         Left.Modules == Right.Modules &&
          Left.Classes == Right.Classes &&
+         Left.ClassBindings == Right.ClassBindings &&
          Left.SpeechComponentClasses == Right.SpeechComponentClasses &&
          Left.ConfigValues == Right.ConfigValues &&
          Left.Assets == Right.Assets &&

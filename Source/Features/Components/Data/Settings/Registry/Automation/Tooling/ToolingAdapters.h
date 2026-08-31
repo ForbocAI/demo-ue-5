@@ -77,6 +77,12 @@ struct TJsonSettingsRegistry<Automation::Tests::FSettings> {
 
 JSON_SETTINGS_REGISTRY(Automation::Content::Assets::FPackage, Label, Path);
 
+JSON_SETTINGS_REGISTRY(Automation::Content::Assets::FMap, Label, PackagePath,
+                       ObjectPath);
+
+JSON_SETTINGS_REGISTRY(Automation::Content::Assets::FClassBinding, Label,
+                       OwnerClassPath, PropertyName, ExpectedClassPath);
+
 JSON_SETTINGS_REGISTRY(Automation::Content::Assets::FConfig, Label, Section,
                        Key, Expected);
 
@@ -90,6 +96,11 @@ struct TJsonSettingsRegistry<Automation::Content::Assets::FSettings> {
     static const TArray<
         TField<Automation::Content::Assets::FSettings>>
         RegisteredFields = {
+            JSON_OBJECT_SETTING_FIELDS(
+                Automation::Content::Assets::FSettings,
+                ReadSettingsWith<Automation::Content::Assets::FMap>(
+                    JSON_SETTINGS_ATOMS(Label, PackagePath, ObjectPath)),
+                RuntimeMap),
             JSON_SETTING_FIELDS(Automation::Content::Assets::FSettings,
                                 SkeletalMeshLoadsLabelFormat,
                                 SkeletalMeshLodDataLabelFormat,
@@ -99,8 +110,15 @@ struct TJsonSettingsRegistry<Automation::Content::Assets::FSettings> {
                 Automation::Content::Assets::FSettings,
                 ReadSettingsWith<Automation::Content::Assets::FPackage>(
                     JSON_SETTINGS_ATOMS(Label, Path)),
-                Packages, Classes, SpeechComponentClasses, Assets,
-                SkeletalMeshLods, MissingPackages),
+                MapActorClasses, MapComponentClasses, Modules, Classes,
+                SpeechComponentClasses, Assets, SkeletalMeshLods,
+                MissingPackages),
+            JSON_OBJECT_ARRAY_SETTING_FIELDS(
+                Automation::Content::Assets::FSettings,
+                ReadSettingsWith<Automation::Content::Assets::FClassBinding>(
+                    JSON_SETTINGS_ATOMS(Label, OwnerClassPath, PropertyName,
+                                        ExpectedClassPath)),
+                ClassBindings),
             JSON_OBJECT_ARRAY_SETTING_FIELDS(
                 Automation::Content::Assets::FSettings,
                 ReadSettingsWith<Automation::Content::Assets::FConfig>(

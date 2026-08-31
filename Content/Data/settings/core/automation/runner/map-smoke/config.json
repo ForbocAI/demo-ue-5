@@ -1,0 +1,9 @@
+{
+  "automation_log_path": "Saved/Automation/MapSmokeAutomationLog.txt",
+  "automation_success_marker": "Test Completed. Result={Success} Name={ProjectOwnedRuntimeSurface}",
+  "automation_test": "ForbocAI.Content.ProjectOwnedRuntimeSurface",
+  "run_runtime_budget": false,
+  "runtime_log_path": "Saved/Automation/MapSmokeLog.txt",
+  "test_environment_requirement": "optional",
+  "timeout_seconds": 120
+}

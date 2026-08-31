@@ -69,6 +69,10 @@
       "lines": 283
     },
     {
+      "path": "Scripts/Run/run-tests.sh",
+      "lines": 279
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Level/SettingsLevelAdapters.cpp",
       "lines": 277
     },
@@ -93,10 +97,6 @@
       "lines": 275
     },
     {
-      "path": "Scripts/Run/run-tests.sh",
-      "lines": 274
-    },
-    {
       "path": "Source/Features/Components/Data/Json/Settings/Field/SettingsFieldAdapters.h",
       "lines": 274
     },
@@ -114,6 +114,10 @@
     },
     {
       "path": "Source/Features/Systems/Bots/Position/PositionSlice.cpp",
+      "lines": 269
+    },
+    {
+      "path": "Source/Tests/ContentAssets.spec.cpp",
       "lines": 269
     },
     {
@@ -201,6 +205,10 @@
       "lines": 231
     },
     {
+      "path": "Scripts/Run/Compilation/build-runner.sh",
+      "lines": 230
+    },
+    {
       "path": "Source/Tests/Store/StoreSpecSupport.h",
       "lines": 229
     },
@@ -241,6 +249,10 @@
       "lines": 214
     },
     {
+      "path": "Content/Data/settings/core/automation/content/assets.json",
+      "lines": 213
+    },
+    {
       "path": "Source/Features/Components/Level/Data/Csv/Parsing/ParsingAdapters.h",
       "lines": 213
     },
@@ -278,6 +290,10 @@
     },
     {
       "path": "Content/Data/settings/speech/viseme/mappings.json",
+      "lines": 202
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h",
       "lines": 202
     },
     {
@@ -337,10 +353,6 @@
       "lines": 184
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h",
-      "lines": 184
-    },
-    {
       "path": "Source/Features/Components/Data/Settings/Registry/Speech/SpeechAdapters.h",
       "lines": 184
     },
@@ -387,14 +399,6 @@
     {
       "path": "Source/Features/Systems/Rendering/Presentation/RenderingPresentationTypes.h",
       "lines": 175
-    },
-    {
-      "path": "Source/Tests/ContentAssets.spec.cpp",
-      "lines": 175
-    },
-    {
-      "path": "Content/Data/settings/core/automation/content/assets.json",
-      "lines": 172
     },
     {
       "path": "Source/Features/Components/Data/Settings/Player/SettingsPlayerTypes.h",
@@ -613,6 +617,10 @@
       "lines": 135
     },
     {
+      "path": "Scripts/Run/run-map-smoke.sh",
+      "lines": 134
+    },
+    {
       "path": "Source/Features/Components/Rendering/Distance/Lod/ComponentsRenderingDistanceLodTypes.h",
       "lines": 134
     },
@@ -630,6 +638,10 @@
     },
     {
       "path": "Content/Data/levels/french_gulch/townspeople.json",
+      "lines": 132
+    },
+    {
+      "path": "Source/Features/Components/Data/Settings/Automation/Content/Assets/AssetsTypes.h",
       "lines": 132
     },
     {
@@ -721,10 +733,6 @@
       "lines": 118
     },
     {
-      "path": "Scripts/Run/Compilation/build-runner.sh",
-      "lines": 117
-    },
-    {
       "path": "Source/Features/Systems/Rendering/SystemsRenderingTypes.h",
       "lines": 116
     },
@@ -795,6 +803,10 @@
     {
       "path": "Source/Features/Systems/Bots/Behavior/BotsBehaviorTypes.h",
       "lines": 106
+    },
+    {
+      "path": "README.md",
+      "lines": 105
     },
     {
       "path": "Source/Features/Components/Data/Settings/Rendering/Readers/ReadersAdapters.h",
@@ -870,10 +882,6 @@
     },
     {
       "path": "Content/Data/settings/level.json",
-      "lines": 94
-    },
-    {
-      "path": "Scripts/Run/run-runtime-smoke.sh",
       "lines": 94
     },
     {
@@ -961,11 +969,7 @@
       "lines": 87
     },
     {
-      "path": "README.md",
-      "lines": 86
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Automation/Content/Assets/AssetsTypes.h",
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h",
       "lines": 86
     },
     {
@@ -987,10 +991,6 @@
     {
       "path": "Source/Features/Systems/Landmarks/LandmarksSlice.cpp",
       "lines": 85
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h",
-      "lines": 84
     },
     {
       "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/Pipeline/ScenariosPipelineAdapters.h",
@@ -2729,6 +2729,10 @@
       "lines": 15
     },
     {
+      "path": "Content/Data/settings/core/automation/runner/build.json",
+      "lines": 14
+    },
+    {
       "path": "Source/Features/Components/Rendering/ComponentsRenderingSlice.h",
       "lines": 14
     },
@@ -2837,10 +2841,6 @@
       "lines": 11
     },
     {
-      "path": "Content/Data/settings/core/automation/runner/build.json",
-      "lines": 10
-    },
-    {
       "path": "Content/Data/settings/core/debug/messages.json",
       "lines": 10
     },
@@ -2854,6 +2854,10 @@
     },
     {
       "path": "Content/Data/settings/core.json",
+      "lines": 9
+    },
+    {
+      "path": "Content/Data/settings/core/automation/runner/map-smoke/config.json",
       "lines": 9
     },
     {
@@ -2945,6 +2949,10 @@
       "lines": 6
     },
     {
+      "path": "Content/Data/settings/core/automation/runner/map-smoke/automation/failure-markers.json",
+      "lines": 5
+    },
+    {
       "path": "Content/Data/settings/core/ecs.json",
       "lines": 5
     },
@@ -3021,6 +3029,10 @@
       "lines": 4
     },
     {
+      "path": "Content/Data/settings/core/automation/runner/map-smoke/runtime/required-markers.json",
+      "lines": 4
+    },
+    {
       "path": "Source/Features/Components/ComponentsAdapters.h",
       "lines": 4
     },
@@ -3063,6 +3075,10 @@
     {
       "path": "Source/Views/Townsperson/TownspersonView.cpp",
       "lines": 4
+    },
+    {
+      "path": "Content/Data/settings/core/automation/runner/map-smoke/runtime/failure-markers.json",
+      "lines": 3
     },
     {
       "path": "Content/Data/Source/french_gulch/osm/overpass/buildings/microsoft/part-001.json",
