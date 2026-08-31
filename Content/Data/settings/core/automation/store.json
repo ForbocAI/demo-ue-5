@@ -74,6 +74,12 @@
     "Stats overlay shows peak physical memory",
     "Retro texture catalog covers terrain, level, NPC, and horse surfaces"
   ],
+  "identity_labels": [
+    "Every projected ECS entity has an identity domain",
+    "Projected ECS identity is selectable",
+    "Projected ECS identity preserves its stable key",
+    "External ECS identity mapping round-trips"
+  ],
   "runtime_stats_sampling_labels": [
     "Runtime stats retain cached observations before refresh intervals mature",
     "Runtime stats refresh poly count and diagnostics when authored intervals mature",

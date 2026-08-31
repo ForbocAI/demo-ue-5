@@ -2,7 +2,7 @@
 
 #include "Core/rtk.hpp"
 #include "Features/Components/Data/Settings/Automation/AutomationTypes.h"
-#include "Features/Components/Data/Settings/Bot/Identity/IdentityTypes.h"
+#include "Features/Components/Data/Settings/Bot/Identity/BotIdentityTypes.h"
 #include "Features/Components/Data/Settings/Bot/Horse/HorseTypes.h"
 #include "Features/Components/Data/Settings/Bot/Configuration/ConfigurationTypes.h"
 #include "Features/Components/Data/Settings/Bot/Townsperson/TownspersonTypes.h"

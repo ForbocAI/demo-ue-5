@@ -2,7 +2,7 @@
 
 #include "Features/Components/Data/State/DataStateTypes.h"
 #include "Features/Components/Data/Json/DataJsonTypes.h"
-#include "Features/Components/Data/Settings/Bot/Identity/IdentityTypes.h"
+#include "Features/Components/Data/Settings/Bot/Identity/BotIdentityTypes.h"
 #include "Features/Components/Data/Settings/Bot/Horse/HorseTypes.h"
 #include "Features/Components/Data/Settings/Bot/Configuration/ConfigurationTypes.h"
 #include "Features/Components/Data/Settings/Bot/Townsperson/TownspersonTypes.h"

@@ -21,6 +21,10 @@
       "lines": 298
     },
     {
+      "path": "Source/Features/Components/ComponentsAdapters.cpp",
+      "lines": 296
+    },
+    {
       "path": "Source/Features/Systems/Bots/Goals/GoalsSlice.cpp",
       "lines": 296
     },
@@ -49,10 +53,6 @@
       "lines": 288
     },
     {
-      "path": "Source/Features/Components/ComponentsAdapters.cpp",
-      "lines": 287
-    },
-    {
       "path": "Source/Features/Components/Data/Json/Read/ReadAdapters.cpp",
       "lines": 287
     },
@@ -73,16 +73,16 @@
       "lines": 279
     },
     {
+      "path": "Source/Tests/Store/DataBackedMap.spec.cpp",
+      "lines": 278
+    },
+    {
       "path": "Source/Features/Components/Data/Settings/Level/SettingsLevelAdapters.cpp",
       "lines": 277
     },
     {
       "path": "Source/Features/Components/Data/Settings/SettingsAdapters.cpp",
       "lines": 277
-    },
-    {
-      "path": "Source/Tests/Store/DataBackedMap.spec.cpp",
-      "lines": 276
     },
     {
       "path": "Source/Views/Stats/StatsView.cpp",
@@ -285,6 +285,10 @@
       "lines": 207
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h",
+      "lines": 207
+    },
+    {
       "path": "Source/Views/Player/Controller/ControllerView.h",
       "lines": 207
     },
@@ -294,10 +298,6 @@
     },
     {
       "path": "Content/Data/settings/speech/viseme/mappings.json",
-      "lines": 202
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/Tooling/ToolingAdapters.h",
       "lines": 202
     },
     {
@@ -509,7 +509,15 @@
       "lines": 152
     },
     {
+      "path": "Content/Data/cpp-authored-values/values-000.json",
+      "lines": 151
+    },
+    {
       "path": "Scripts/Docs/count_project_lines.py",
+      "lines": 148
+    },
+    {
+      "path": "Source/Features/Components/AuthoredValues/AuthoredValuesTypes.h",
       "lines": 148
     },
     {
@@ -549,12 +557,12 @@
       "lines": 145
     },
     {
-      "path": "Content/Data/cpp-authored-values/values-000.json",
+      "path": "Scripts/Tools/create_french_gulch_map.py",
       "lines": 143
     },
     {
-      "path": "Scripts/Tools/create_french_gulch_map.py",
-      "lines": 143
+      "path": "Source/Features/Components/Identity/IdentityAdapters.cpp",
+      "lines": 142
     },
     {
       "path": "Source/Features/Systems/Level/Spawn/LevelSpawnSlice.h",
@@ -567,10 +575,6 @@
     {
       "path": "Source/Features/Components/Projection/ComponentsProjectionAdapters.h",
       "lines": 141
-    },
-    {
-      "path": "Source/Features/Components/AuthoredValues/AuthoredValuesTypes.h",
-      "lines": 140
     },
     {
       "path": "Source/Features/Components/Data/Settings/Automation/Pipeline/AutomationPipelineTypes.h",
@@ -821,6 +825,10 @@
       "lines": 105
     },
     {
+      "path": "Content/Data/settings/core/automation/store.json",
+      "lines": 104
+    },
+    {
       "path": "Source/Features/Systems/Projection/ProjectionSlice.cpp",
       "lines": 104
     },
@@ -831,6 +839,10 @@
     {
       "path": "Source/Features/Systems/Rendering/Profile/World/WorldThunks.cpp",
       "lines": 103
+    },
+    {
+      "path": "Source/Features/Components/Identity/IdentitySelectors.cpp",
+      "lines": 102
     },
     {
       "path": "Source/Features/Systems/Bots/Goals/GoalsSlice.h",
@@ -855,10 +867,6 @@
     {
       "path": "Source/Features/Systems/Bots/Pipeline/BotsPipelineAdapters.h",
       "lines": 100
-    },
-    {
-      "path": "Content/Data/settings/core/automation/store.json",
-      "lines": 98
     },
     {
       "path": "Source/Features/Systems/Interaction/Conversation/ConversationTypes.h",
@@ -945,6 +953,10 @@
       "lines": 90
     },
     {
+      "path": "Source/Features/Components/Data/Settings/Automation/Store/StoreTypes.h",
+      "lines": 89
+    },
+    {
       "path": "Content/Data/settings/forboc-ai.json",
       "lines": 88
     },
@@ -957,11 +969,11 @@
       "lines": 88
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Automation/Store/StoreTypes.h",
+      "path": "Source/Features/Components/Data/Settings/Player/SettingsPlayerAdapters.cpp",
       "lines": 87
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Player/SettingsPlayerAdapters.cpp",
+      "path": "Source/Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h",
       "lines": 87
     },
     {
@@ -975,10 +987,6 @@
     {
       "path": "Source/Features/Systems/Rendering/Stats/Effects/EffectsAdapters.cpp",
       "lines": 87
-    },
-    {
-      "path": "Source/Features/Components/Data/Settings/Registry/Automation/AutomationAdapters.h",
-      "lines": 86
     },
     {
       "path": "Source/Features/Components/Level/ComponentsLevelTypes.h",
@@ -1245,6 +1253,10 @@
       "lines": 65
     },
     {
+      "path": "Source/Tests/Store/Identity.spec.cpp",
+      "lines": 65
+    },
+    {
       "path": "Content/Data/settings/ui/base.json",
       "lines": 64
     },
@@ -1470,6 +1482,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/ForbocAI/Protocol/Command/ProtocolCommandTypes.h",
+      "lines": 50
+    },
+    {
+      "path": "Source/Features/Components/Identity/IdentityAdapters.h",
       "lines": 50
     },
     {
@@ -1765,7 +1781,7 @@
       "lines": 35
     },
     {
-      "path": "Source/Features/Components/Data/Settings/Bot/Identity/IdentityTypes.h",
+      "path": "Source/Features/Components/Data/Settings/Bot/Identity/BotIdentityTypes.h",
       "lines": 35
     },
     {
@@ -2237,6 +2253,10 @@
       "lines": 26
     },
     {
+      "path": "Source/Features/Components/Identity/IdentitySelectors.h",
+      "lines": 26
+    },
+    {
       "path": "Source/Features/Entities/Environments/Nature/Seed/SeedAdapters.h",
       "lines": 26
     },
@@ -2366,6 +2386,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Speech/Voice/VoiceTypes.h",
+      "lines": 23
+    },
+    {
+      "path": "Source/Features/Components/Identity/ComponentsIdentityTypes.h",
       "lines": 23
     },
     {
@@ -2547,10 +2571,6 @@
     {
       "path": "Source/Views/Procedural/Mesh/Element/ElementView.h",
       "lines": 20
-    },
-    {
-      "path": "Source/Features/Components/ComponentsSlice.h",
-      "lines": 19
     },
     {
       "path": "Source/Features/Components/Data/Settings/Rendering/Registry/Profile/Sky/SkyAdapters.h",
@@ -2861,10 +2881,6 @@
       "lines": 10
     },
     {
-      "path": "Source/Features/Components/ComponentsTypes.h",
-      "lines": 10
-    },
-    {
       "path": "Content/Data/levels/french_gulch/terrain/blocks.json",
       "lines": 9
     },
@@ -2881,11 +2897,7 @@
       "lines": 9
     },
     {
-      "path": "Source/Features/Components/ComponentsActions.h",
-      "lines": 9
-    },
-    {
-      "path": "Source/Features/Components/ComponentsSelectors.h",
+      "path": "Source/Features/Components/ComponentsSlice.h",
       "lines": 9
     },
     {
@@ -2978,6 +2990,10 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Registry/Automation/Scenarios/ScenariosAdapters.h",
+      "lines": 5
+    },
+    {
+      "path": "Source/Features/Components/Identity/IdentitySlice.h",
       "lines": 5
     },
     {

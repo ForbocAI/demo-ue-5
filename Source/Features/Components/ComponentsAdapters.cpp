@@ -1,5 +1,7 @@
 #include "Features/Components/ComponentsAdapters.h"
 
+#include "Features/Components/Identity/IdentitySlice.h"
+
 namespace ForbocAI {
 namespace Game {
 namespace Level {
@@ -247,9 +249,16 @@ ecs::FWorld ProjectSteps(const FProjectStepsPayload &Payload) {
  * component projection idiom to live in one ECS-facing adapter boundary.
  */
 ecs::FWorld ProjectEntity(const FProjectEntityPayload &Payload) {
-  return ProjectSteps(
-      {Payload.World, DomainSteps(Payload.Entity, Payload.Domains),
-       ComponentSteps(Payload.Entity, Payload.Components)});
+  const TArray<TArray<FString>> Domains =
+      func::append_value<TArray<FString>>(
+          Payload.Domains, IdentityAdapters::EntityIdentityDomain());
+  const TArray<FComponentProjectionBinding> Components =
+      func::concat_arrays<FComponentProjectionBinding>(
+          {{IdentityAdapters::EntityIdentityComponentBinding(
+               IdentityAdapters::CreateStableIdentity(Payload.Entity))},
+           Payload.Components});
+  return ProjectSteps({Payload.World, DomainSteps(Payload.Entity, Domains),
+                       ComponentSteps(Payload.Entity, Components)});
 }
 
 /** User Story: As a features components consumer, I need to invoke local point value through a stable signature so the features components workflow remains explicit and composable. @fn ecs::FComponentValue LocalPointValue(const FLevelLocalPoint &Point) */

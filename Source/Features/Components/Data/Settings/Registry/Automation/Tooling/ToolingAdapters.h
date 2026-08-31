@@ -18,6 +18,11 @@ template <> struct TJsonSettingsRegistry<Automation::Store::FSettings> {
                     &Automation::Store::FSettings::Labels,
                     &Automation::Store::FLabels::DataBackedMapLabels)),
             NestedSettingField(
+                JSON_SETTING_ATOM(IdentityLabels),
+                NestedFieldMembers(
+                    &Automation::Store::FSettings::Labels,
+                    &Automation::Store::FLabels::IdentityLabels)),
+            NestedSettingField(
                 JSON_SETTING_ATOM(RuntimeStatsSamplingLabels),
                 NestedFieldMembers(
                     &Automation::Store::FSettings::Labels,

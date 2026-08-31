@@ -10,6 +10,7 @@ namespace Store {
 
 struct FLabels {
   TArray<FString> DataBackedMapLabels;
+  TArray<FString> IdentityLabels;
   TArray<FString> RuntimeStatsSamplingLabels;
   TArray<FString> ReduxLoggerMiddlewareLabels;
   TArray<FString> ProjectionGateLabels;
@@ -34,6 +35,7 @@ struct FSettings {
 /** User Story: As a settings automation store consumer, I need to compare values for equality through a stable signature so the settings automation store workflow remains explicit and composable. @fn inline bool operator==(const FLabels &Left, const FLabels &Right) */
 inline bool operator==(const FLabels &Left, const FLabels &Right) {
   return Left.DataBackedMapLabels == Right.DataBackedMapLabels &&
+         Left.IdentityLabels == Right.IdentityLabels &&
          Left.RuntimeStatsSamplingLabels ==
              Right.RuntimeStatsSamplingLabels &&
          Left.ReduxLoggerMiddlewareLabels ==

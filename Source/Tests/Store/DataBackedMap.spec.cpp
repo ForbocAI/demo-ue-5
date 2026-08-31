@@ -118,6 +118,8 @@ bool FStoreDataBackedMap::RunTest(const FString &Parameters) {
   const ecs::FWorld &EcsWorld = RuntimeSelectors::SelectWorld(State);
   TestTrue(Labels.Next(),
            EcsWorld.Generation > int64{});
+  const ecs::EntityKey TerrainEntity =
+      StoreAutomation.Terrain.TerrainEntity;
   TestAuthoredDomainRegistry(this, Labels.Next(), EcsWorld.Domains, Settings);
   TestTrue(Labels.Next(),
            RuntimeSelectors::SelectEntityInDomain(
