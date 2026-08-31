@@ -11,6 +11,14 @@ namespace Level {
 namespace RuntimeListeners {
 namespace {
 
+using FRuntimeListener = rtk::ListenerMiddleware<FRuntimeState>;
+using FRuntimeListenerEffect = FRuntimeListener::EffectCallback;
+
+struct FListenerSubscription {
+  FString ActionType;
+  FRuntimeListenerEffect Effect;
+};
+
 // Reactive effect: a runtime bootstrap workflow failed. createAsyncThunk now
 // dispatches the rejected lifecycle action instead of swallowing the error, so
 // this listener is where the failure becomes observable.
@@ -32,25 +40,56 @@ void ObserveRuntimeWorkflowFulfilled(
          TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGVFE02DD25E6F8), *Action.Type);
 }
 
-} // namespace
-
-/** User Story: As a features systems consumer, I need to invoke create runtime listener middleware through a stable signature so the features systems workflow remains explicit and composable. @fn rtk::Middleware<FRuntimeState> CreateRuntimeListenerMiddleware() */
-rtk::Middleware<FRuntimeState> CreateRuntimeListenerMiddleware() {
+/**
+ * @fn TArray<FListenerSubscription> RuntimeSubscriptions()
+ * @brief Declares runtime action subscriptions and their effect boundaries.
+ * @return Listener subscriptions in deterministic registration order.
+ *
+ * User Story: As a runtime maintainer, I need reactive effects declared in one
+ * catalog so adding a workflow does not deepen a hand-wired listener chain.
+ */
+TArray<FListenerSubscription> RuntimeSubscriptions() {
   const FString PlayerSpawnPrefix =
       RuntimeThunks::RequestPlayerSpawnTypePrefix();
   const FString LevelViewPrefix =
       RuntimeThunks::RequestLevelViewPayloadTypePrefix();
-  return rtk::buildListenerMiddleware<FRuntimeState>(rtk::addListener<
-      FRuntimeState>(
-      rtk::addListener<FRuntimeState>(
-          rtk::addListener<FRuntimeState>(
-              rtk::createListenerMiddleware<FRuntimeState>(),
-              PlayerSpawnPrefix + TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV626EB0E3DA73),
-              &ObserveRuntimeWorkflowRejected),
-          LevelViewPrefix + TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV626EB0E3DA73),
-          &ObserveRuntimeWorkflowRejected),
-      LevelViewPrefix + TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV0DFF16731112),
-      &ObserveRuntimeWorkflowFulfilled));
+  return {
+      {PlayerSpawnPrefix +
+           TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV626EB0E3DA73),
+       &ObserveRuntimeWorkflowRejected},
+      {LevelViewPrefix +
+           TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV626EB0E3DA73),
+       &ObserveRuntimeWorkflowRejected},
+      {LevelViewPrefix +
+           TEXT(FORBOCAI_DEMOUE5_AUTHORED_STRINGV0DFF16731112),
+       &ObserveRuntimeWorkflowFulfilled}};
+}
+
+/**
+ * @fn FRuntimeListener AppendSubscription(const FRuntimeListener &Listener, const FListenerSubscription &Subscription)
+ * @brief Adds one declared subscription to an immutable listener accumulator.
+ * @param Listener Current listener middleware value.
+ * @param Subscription Action/effect declaration to append.
+ * @return Listener middleware containing the appended subscription.
+ *
+ * User Story: As a runtime maintainer, I need one composer for every listener
+ * declaration so reactive behavior remains flat and reviewable.
+ */
+FRuntimeListener
+AppendSubscription(const FRuntimeListener &Listener,
+                   const FListenerSubscription &Subscription) {
+  return rtk::addListener<FRuntimeState>(
+      Listener, Subscription.ActionType, Subscription.Effect);
+}
+
+} // namespace
+
+/** User Story: As a features systems consumer, I need to invoke create runtime listener middleware through a stable signature so the features systems workflow remains explicit and composable. @fn rtk::Middleware<FRuntimeState> CreateRuntimeListenerMiddleware() */
+rtk::Middleware<FRuntimeState> CreateRuntimeListenerMiddleware() {
+  return rtk::buildListenerMiddleware<FRuntimeState>(
+      func::fold_array<FListenerSubscription, FRuntimeListener>(
+          RuntimeSubscriptions(), rtk::createListenerMiddleware<FRuntimeState>(),
+          &AppendSubscription));
 }
 
 } // namespace RuntimeListeners

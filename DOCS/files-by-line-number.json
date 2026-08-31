@@ -209,6 +209,10 @@
       "lines": 229
     },
     {
+      "path": "Source/Features/Systems/State/StateSlice.cpp",
+      "lines": 226
+    },
+    {
       "path": "Source/Views/Player/Controller/Initialization/ControllerInitializationView.h",
       "lines": 225
     },
@@ -442,10 +446,6 @@
     },
     {
       "path": "Source/Features/Components/Data/Settings/Registry/UI/Root/RootAdapters.h",
-      "lines": 159
-    },
-    {
-      "path": "Source/Features/Systems/State/StateSlice.cpp",
       "lines": 159
     },
     {
@@ -821,6 +821,10 @@
       "lines": 105
     },
     {
+      "path": "Source/Features/Systems/Projection/ProjectionSlice.cpp",
+      "lines": 104
+    },
+    {
       "path": "Content/Data/settings/ui/marketing/capture.json",
       "lines": 103
     },
@@ -858,6 +862,10 @@
     },
     {
       "path": "Source/Features/Systems/Interaction/Conversation/ConversationTypes.h",
+      "lines": 98
+    },
+    {
+      "path": "Source/Features/Systems/SystemsListeners.cpp",
       "lines": 98
     },
     {
@@ -1066,10 +1074,6 @@
     },
     {
       "path": "Source/Features/Systems/Bots/SystemsBotsSlice.h",
-      "lines": 76
-    },
-    {
-      "path": "Source/Features/Systems/Projection/ProjectionSlice.cpp",
       "lines": 76
     },
     {
@@ -1322,10 +1326,6 @@
     },
     {
       "path": "Source/Features/Systems/Rendering/RenderingSelectors.cpp",
-      "lines": 59
-    },
-    {
-      "path": "Source/Features/Systems/SystemsListeners.cpp",
       "lines": 59
     },
     {

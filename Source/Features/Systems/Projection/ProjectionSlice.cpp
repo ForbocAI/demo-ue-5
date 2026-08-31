@@ -23,11 +23,58 @@ namespace RuntimeReducers {
 
 namespace {
 
-/** User Story: As a features systems projection consumer, I need to invoke runtime action matches through a stable signature so the features systems projection workflow remains explicit and composable. @fn template <typename Payload> bool RuntimeActionMatches(const rtk::AnyAction &Action, const rtk::ActionCreator<Payload> &Creator) */
+using FRuntimeProjectionPredicate = TFunction<bool(const rtk::AnyAction &)>;
+
+/**
+ * @fn template <typename Payload> FRuntimeProjectionPredicate ProjectionTrigger(const rtk::ActionCreator<Payload> &Creator)
+ * @brief Adapts one typed action creator into a projection predicate.
+ * @param Creator Action creator whose type triggers ECS projection.
+ * @return Predicate suitable for the projection trigger catalog.
+ *
+ * User Story: As a projection maintainer, I need one adapter from typed actions
+ * to projection predicates so trigger declarations stay uniform and composable.
+ */
 template <typename Payload>
-bool RuntimeActionMatches(const rtk::AnyAction &Action,
-                          const rtk::ActionCreator<Payload> &Creator) {
-  return Creator.match(Action);
+FRuntimeProjectionPredicate
+ProjectionTrigger(const rtk::ActionCreator<Payload> &Creator) {
+  return [Creator](const rtk::AnyAction &Action) {
+    return Creator.match(Action);
+  };
+}
+
+/**
+ * @fn const TArray<FRuntimeProjectionPredicate> &ProjectionTriggers()
+ * @brief Declares every action that invalidates the projected ECS world.
+ * @return Stable projection predicates evaluated in declaration order.
+ *
+ * User Story: As a projection maintainer, I need trigger membership declared as
+ * data so extending a domain does not deepen a boolean control-flow chain.
+ */
+const TArray<FRuntimeProjectionPredicate> &ProjectionTriggers() {
+  static const TArray<FRuntimeProjectionPredicate> Triggers = {
+      ProjectionTrigger(RuntimeActions::RuntimeHydrated()),
+      ProjectionTrigger(PlayerActions::PlayerObserved()),
+      ProjectionTrigger(TerrainActions::TerrainLoaded()),
+      ProjectionTrigger(SpawnActions::PlayerSpawnAnchored()),
+      ProjectionTrigger(
+          InteractionActions::TownspersonCandidatesObserved()),
+      ProjectionTrigger(LandmarkActions::LandmarksSeeded()),
+      ProjectionTrigger(NatureActions::NatureSeeded()),
+      ProjectionTrigger(TownspersonActions::TownspeopleSeeded()),
+      ProjectionTrigger(HorseActions::HorsesSeeded()),
+      ProjectionTrigger(BotActions::BotsSeeded()),
+      ProjectionTrigger(BotActions::BotUpserted()),
+      ProjectionTrigger(BotStatsActions::BotStatsSeeded()),
+      ProjectionTrigger(BotStatsActions::BotStatsUpdated()),
+      ProjectionTrigger(BotPositionActions::BotPositionsSeeded()),
+      ProjectionTrigger(BotPositionActions::BotPositionUpserted()),
+      ProjectionTrigger(BotPositionActions::BotPositionMoved()),
+      ProjectionTrigger(BotAIActions::BotAISeeded()),
+      ProjectionTrigger(BotAIActions::BotAIUpdated()),
+      ProjectionTrigger(BotGoalActions::BotGoalsSeeded()),
+      ProjectionTrigger(BotGoalActions::BotGoalAssigned()),
+      ProjectionTrigger(BotGoalActions::BotGoalCompleted())};
+  return Triggers;
 }
 
 } // namespace
@@ -45,29 +92,10 @@ FRuntimeState ReduceRuntimeProjected(const FRuntimeState &State) {
 
 /** User Story: As a features systems projection consumer, I need to invoke should project runtime action through a stable signature so the features systems projection workflow remains explicit and composable. @fn bool ShouldProjectRuntimeAction(const rtk::AnyAction &Action) */
 bool ShouldProjectRuntimeAction(const rtk::AnyAction &Action) {
-  return RuntimeActionMatches(Action, RuntimeActions::RuntimeHydrated()) ||
-         RuntimeActionMatches(Action, PlayerActions::PlayerObserved()) ||
-         RuntimeActionMatches(Action, TerrainActions::TerrainLoaded()) ||
-         RuntimeActionMatches(Action, SpawnActions::PlayerSpawnAnchored()) ||
-         RuntimeActionMatches(
-             Action, InteractionActions::TownspersonCandidatesObserved()) ||
-         RuntimeActionMatches(Action, LandmarkActions::LandmarksSeeded()) ||
-         RuntimeActionMatches(Action, NatureActions::NatureSeeded()) ||
-         RuntimeActionMatches(Action, TownspersonActions::TownspeopleSeeded()) ||
-         RuntimeActionMatches(Action, HorseActions::HorsesSeeded()) ||
-         RuntimeActionMatches(Action, BotActions::BotsSeeded()) ||
-         RuntimeActionMatches(Action, BotActions::BotUpserted()) ||
-         RuntimeActionMatches(Action, BotStatsActions::BotStatsSeeded()) ||
-         RuntimeActionMatches(Action, BotStatsActions::BotStatsUpdated()) ||
-         RuntimeActionMatches(Action, BotPositionActions::BotPositionsSeeded()) ||
-         RuntimeActionMatches(Action,
-                              BotPositionActions::BotPositionUpserted()) ||
-         RuntimeActionMatches(Action, BotPositionActions::BotPositionMoved()) ||
-         RuntimeActionMatches(Action, BotAIActions::BotAISeeded()) ||
-         RuntimeActionMatches(Action, BotAIActions::BotAIUpdated()) ||
-         RuntimeActionMatches(Action, BotGoalActions::BotGoalsSeeded()) ||
-         RuntimeActionMatches(Action, BotGoalActions::BotGoalAssigned()) ||
-         RuntimeActionMatches(Action, BotGoalActions::BotGoalCompleted());
+  return func::any_array<FRuntimeProjectionPredicate>(
+      ProjectionTriggers(), [&Action](const FRuntimeProjectionPredicate &Match) {
+        return Match(Action);
+      });
 }
 
 } // namespace RuntimeReducers
