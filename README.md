@@ -67,6 +67,10 @@ The smoke builds the editor target, verifies that the default map contains the
 required ForbocAI runtime and speech wiring, then opens the map in unattended
 game mode. It does not require an API interaction.
 
+Verify live NPC dialogue and Ghost analysis separately. Map-smoke success does
+not establish that an API turn or level-quality assessment succeeded. Preserve
+the reported failure when a turn cannot complete; do not substitute NPC speech.
+
 ## ForbocAI Integration Points
 
 | ForbocAI behavior | Demo surface |
